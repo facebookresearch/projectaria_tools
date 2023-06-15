@@ -5,12 +5,12 @@ title: Getting Started
 
 # Getting Started With the Synthetic Environments Dataset
 
-This section will go over everything you need to know to get up and running using Aria Synthetic Environment(ASE) visualisers and data loaders. ASE tooling contains:
+This section will cover everything you need to know to get up and running using Aria Synthetic Environments (ASE) visualizers and data loaders. ASE tooling contains:
 
 * The install instructions specific to ASE
-* A quick tutorial which runs through a couple of Jupyter notebook for loading and visualising sample data.
+* A quick tutorial which runs through a couple of Jupyter notebook for loading and visualizing sample data.
 
-[**Jupyter notebook error**](/docs/data_utilities/installation/troubleshooting#jupyter-notebook-error) : If you have problems using Jupyter examples, please [upgrade python3](https://www.python.org/downloads/) to the latest version.
+[**Jupyter notebook error**](/docs/data_utilities/installation/troubleshooting#jupyter-notebook-error): If you have problems using Jupyter examples, please [upgrade python3](https://www.python.org/downloads/) to the latest version.
 
 ## Quickstart Tutorial - Python
 
@@ -52,7 +52,7 @@ The ASE python tooling for projection of 3D points to RGB images is included in 
 * `jupyter`
 
 
-### Step 4 : Download Sample Data
+### Step 4 : Download sample data
 
 1.  Navigate to the [ASE page](https://www.projectaria.com/datasets/ase/) on the Project Aria Website and follow the instructions to download the download-urls file. This same download-urls file can be used for any dataset download until the link expires
 2.  Setup ASE local folder and move download-urls file:
@@ -71,7 +71,7 @@ cd $HOME/Documents/projectaria_sandbox/projectaria_tools
 python3 projects/AriaSyntheticEnvironment/aria_synthetic_environments_downloader.py --set train --scene-ids 0-10 --cdn-file $HOME/Documents/projectaria_sandbox/projectaria_tools_ase_data/aria_synthetic_environments_dataset_download_urls.json --output-dir $HOME/Documents/projectaria_sandbox/projectaria_tools_ase_data --unzip True
 ```
 
-### Step 5 : Run the visualisation notebooks
+### Step 5 : Run the visualization notebooks
 ```
 jupyter notebook projects/AriaSyntheticEnvironment/tutorial/ase_tutorial_notebook.ipynb
 ```
