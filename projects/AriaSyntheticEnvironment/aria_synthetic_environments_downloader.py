@@ -16,10 +16,13 @@ import argparse
 import hashlib
 import json
 import os
+import ssl
 import urllib.request
 from zipfile import ZipFile
 
 from tqdm import tqdm
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 SCENES_PER_CHUNK = 10
 
