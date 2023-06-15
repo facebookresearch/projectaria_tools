@@ -2,6 +2,8 @@
 sidebar_position: 10
 title: Plotting sensor data (Python)
 ---
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
 In this example, we show how to:
 * save images in png
 * plot the raw sensor data of a vrs file and store the plots in pdf files.
@@ -35,16 +37,16 @@ The above snippets gets the following images saved in the local folder:
 <table>
         <tr>
             <td>SLAM images</td>
-            <td><img src="/img//data_utilities/advanced_guide/camera-slam-left.png" alt="camera-slam-left" width="320"></img>
-            <img src="/img//data_utilities/advanced_guide/camera-slam-right.png" alt="camera-slam-right" width="320"></img></td>
+            <td><img src={useBaseUrl("/img//data_utilities/advanced_guide/camera-slam-left.png")} alt="camera-slam-left" width="320"></img>
+            <img src={useBaseUrl("/img//data_utilities/advanced_guide/camera-slam-right.png")} alt="camera-slam-right" width="320"></img></td>
         </tr>
         <tr>
             <td>Eyetracking image</td>
-            <td><img src="/img//data_utilities/advanced_guide/camera-eyetracking.png" alt="camera-et"></img></td>
+            <td><img src={useBaseUrl("/img//data_utilities/advanced_guide/camera-eyetracking.png")} alt="camera-et"></img></td>
         </tr>
         <tr>
             <td>RGB image</td>
-            <td><img src="/img//data_utilities/advanced_guide/camera-rgb.png" alt="camera-rgb"  width="320"></img></td>
+            <td><img src={useBaseUrl("/img//data_utilities/advanced_guide/camera-rgb.png")} alt="camera-rgb"  width="320"></img></td>
         </tr>
 </table>
 
