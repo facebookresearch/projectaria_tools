@@ -1,0 +1,50 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Start from a Fedora container
+FROM docker.io/dokken/fedora-38
+
+# Ensure a SUDO command is available in the container
+RUN if type sudo 2>/dev/null; then \
+     echo "The sudo command already exists... Skipping."; \
+    else \
+     echo "#!/bin/sh\n\${@}" > /usr/sbin/sudo; \
+     chmod +x /usr/sbin/sudo; \
+    fi
+
+# Install build essentials
+RUN sudo dnf install -y git cmake gcc gcc-c++ make
+
+# Install python pip essentials
+RUN sudo dnf install -y python3-devel; pip3 install --upgrade pip; pip3 install pybind11[global] numpy
+
+# Install VRS dependencies and compile/install VRS
+RUN sudo dnf install -y gtest-devel gmock-devel glog-devel \
+                 fmt-devel lz4-devel libzstd-devel xxhash-devel \
+                 boost-devel libpng-devel libjpeg-turbo-devel turbojpeg-devel;
+
+# Build Cereal (header only library)
+RUN cd /tmp; git clone https://github.com/USCiLab/cereal.git -b v1.3.2; cd cereal; cmake -DSKIP_PORTABILITY_TEST=1 -DJUST_INSTALL_CEREAL=ON .;  sudo make -j install
+
+# Code
+ADD ./ /opt/projectaria_tools
+
+# Configure
+RUN mkdir /opt/projectaria_tools_Build; cd /opt/projectaria_tools_Build; cmake /opt/projectaria_tools;
+
+# Build & test
+RUN cd /opt/projectaria_tools_Build; make -j2 ; ctest -j;
+
+# Build python bindings
+RUN cd /opt/projectaria_tools; pip3 install --global-option=build_ext --config-settings=compile-args="-j2" .;

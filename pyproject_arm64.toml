@@ -1,0 +1,14 @@
+#
+# To generate the whl files for mac arm64 on your local mac run
+# python3 -m cibuildwheel --output-dir dist --platform macos --config-file {package}/pyproject_arm64.toml --archs arm64 .
+#
+# For this to work each version of python needs to be installed from https://www.python.org/downloads/macos/
+# cibuildwheel will look for each version of python in /Library/Frameworks/Python.framework/Versions/
+#
+[tool.cibuildwheel]
+build="cp36-*64 cp37-*64 cp38-*64 cp39-*64 cp310-*64 cp311-*64"
+
+[tool.cibuildwheel.macos]
+archs = ["arm64"]
+before-build="arch -arm64 brew install boost cereal cmake fmt glog jpeg-turbo libpng lz4 xxhash zstd"
+environment = {"ARCHFLAGS" ="-arch arm64", "CMAKE_ARGS"="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15  -DCMAKE_PREFIX_PATH=/Users/${USER}/homebrew -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"}

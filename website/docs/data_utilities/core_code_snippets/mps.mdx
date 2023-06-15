@@ -1,0 +1,239 @@
+---
+sidebar_position: 40
+title: MPS
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Aria [Machine perception Services (MPS)](/docs/ARK/mps) provide a convenient way for Aria users to request derived data on any VRS file. Please take a look at [Request MPS](/docs/ARK/mps/request_mps) page to learn more about how to request MPS on your VRS files. In this section, we will learn how to consume the MPS output.
+
+## Load MPS output
+The loaders for MPS output ([projectaria_tools/main/core/mps](https://github.com/facebookresearch/projectaria_tools/blob/main/core/mps)) provide a convenient way to quickly load the MPS output in a few lines of code into data structures that can then be used downstream.
+
+Please refer to the [MPS data schema wiki page](/docs/data_formats/mps/mps_summary) to learn more about the specifics of what each MPS output consists of. Here, we will focus only on the loading APIs in python and C++.
+
+### Open loop/Closed loop trajectory
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+import projectaria_tools.core.mps as mps
+
+open_loop_path = "/path/to/mps/output/trajectory/open_loop_trajectory.csv"
+open_loop_traj = mps.read_open_loop_trajectory(open_loop_path)
+
+closed_loop_path = "/path/to/mps/output/trajectory/closed_loop_trajectory.csv"
+closed_loop_traj = mps.read_closed_loop_trajectory(closed_loop_path)
+
+# example: get transformation from this device to world coordinate frame
+for closed_loop_pose in closed_loop_traj:
+    transform_world_device = closed_loop_pose.transform_world_device
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <TrajectoryReaders.h>
+using namespace projectaria::tools::mps;
+
+std::string openLoopTrajPath = "/path/to/mps/output/trajectory/open_loop_trajectory.csv";
+OpenLoopTrajectory openLoopTraj = readOpenLoopTrajectory(openLoopTrajPath);
+
+std::string closedLoopTrajPath = "/path/to/mps/output/trajectory/closed_loop_trajectory.csv";
+ClosedLoopTrajectory closedLoopTraj = readClosedLoopTrajectory(openLoopTrajPath);
+
+// example: get transformation from this device to world coordinate frame
+for (const ClosedLoopTrajectoryPose& closedLoopPose : closedLoopTraj) {
+    const Sophus::SE3d& T_world_device = closedLoopPose.T_world_device;
+}
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+### Point cloud
+
+:::info Always filter global point clouds in 3D
+Post-filtering the point cloud using inverse distance and distance certainty is required to get point cloud **accurate in 3D space**. There are points cannot be accurately estimated in 3D space due to low parallax, but those points are well tracked in 2D images, and produce valid 2D observations. We choose to output **all** the points, include those have poor 3D estimations, in case researchers need. Check [semi-dense point cloud page](/docs/data_formats/mps/mps_pointcloud) for more information.
+:::
+
+:::info Loading observations could be slow
+When the Aria recording is long, loading point observations could be memory and time consuming (> 1 minute). A typical 20 minutes long Aria recording will have roughly total 10+ millions of 3D points with total 100+ millions of 2D observations.
+:::
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+import projectaria_tools.core.mps as mps
+
+global_points_path = "/path/to/mps/output/trajectory/global_points.csv.gz"
+points = mps.read_global_point_cloud(global_points_path, mps.StreamCompressionMode.GZIP)
+
+# filter the point cloud by inverse depth and depth
+filtered_points = []
+for point in points:
+    if (point.inverse_distance_std < 0.001 and point.distance_std < 0.15):
+        filtered_points.append(point)
+
+# example: get position of this point in the world coordinate frame
+for point in filtered_points:
+    position_world = point.position_world
+
+observations_path = "/path/to/mps/output/trajectory/semidense_observations.csv.gz"
+observations = mps.read_point_observations(observations_path, mps.StreamCompressionMode.GZIP)
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <GlobalPointCloudReader.h>
+#include <PointObservationReader.h>
+using namespace projectaria::tools::mps;
+
+std::string globalPointsPath = "/path/to/mps/output/trajectory/open_loop_trajectory.csv";
+GlobalPointCloud points = readGlobalPointCloud(globalPointsPath, StreamCompressionMode::GZIP);
+
+// filter the point cloud by inverse depth and depth
+GlobalPointCloud filteredPoints;
+for (const GlobalPointPosition& point : points) {
+    if (point.inverseDistanceStd < 0.001 && point.distanceStd < 0.15) {
+        filteredPoints.push_back(point);
+    }
+}
+
+// example: get position of this point in the world coordinate frame
+for (const GlobalPointPosition& point : filteredPoints) {
+    const Eigen::Vector3d& position_world = point.position_world;
+}
+
+std::string observationsPath = "/path/to/mps/output/trajectory/semidense_observations.csv.gz";
+PointObservations observations = readPointObservations(observationsPath, StreamCompressionMode::GZIP);
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+### Online calibration
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+import projectaria_tools.core.mps as mps
+
+online_calib_path = "/path/to/mps/output/trajectory/online_calibration.jsonl"
+online_calibs = mps.read_online_calibration(online_calib_path)
+
+for calib in online_calibs:
+    # example: get left IMU's online calibration
+    for imuCalib in calib.imu_calibs:
+        if imuCalib.get_label() == "imu-left":
+            leftImuCalib = imuCalib
+    # example: get left SLAM camera's online calibration
+    for camCalib in calib.camera_calibs:
+        if camCalib.get_label() == "camera-slam-left":
+            leftCamCalib = camCalib
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <onlineCalibrationReader.h>
+using namespace projectaria::tools::calibration;
+using namespace projectaria::tools::mps;
+
+std::string onlineCalibPath = "/path/to/mps/output/trajectory/online_calibration.jsonl";
+OnlineCalibrations onlineCalibs = readOnlineCalibration(onlineCalibPath);
+
+for (const OnlineCalibration& calib : onlineCalibs) {
+    // example: get left IMU's online calibration
+    for (const ImuCalibration& imuCalib : calib.imuCalibs) {
+        if (imuCalib.getLabel() == "imu-left") {
+            const ImuCalibration& leftImuCalib = imuCalib;
+        }
+    }
+    // example: get left SLAM camera's online calibration
+    for (const CameraCalibration& camCalib : calib.cameraCalibs) {
+        if (camCalib.getLabel() == "camera-slam-left") {
+            const CameraCalibration& leftCamCalib = camCalib;
+        }
+    }
+}
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+### Eye gaze
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+import projectaria_tools.core.mps as mps
+
+gaze_path = "/path/to/mps/output/eye_gaze/eyegaze.csv"
+gaze_cpf = mps.read_eye_gaze(eye_gaze_path)
+
+# project the 3D gaze point assume depth is 1.0 meter
+depth_m = 1.0
+gaze_Point_cpf = mps.get_eyegaze_point_at_depth(gaze_cpf[0].yaw, gaze_cpf[0].pitch, depth_m)
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <EyeGazeReader.h>
+using namespace projectaria::tools::mps;
+
+std::string gazePath = "/path/to/mps/output/eye_gaze/eyegaze.csv";
+EyeGazes gazeCpf = readEyeGaze(gazePath);
+
+// project the 3D gaze point assume depth is 1.0 meter
+float depthM = 1.0f;
+Eigen::Vector3d gazePointCpf = getEyeGazePointAtDepth(gazeCpf[0].yaw, gazeCpf[0].pitch, depthM);
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+### **Static camera calibration**
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+import projectaria_tools.core.mps as mps
+
+static_cameras_path = "/path/to/mps/output/trajectory/static_cam_calibs.csv"
+static_cameras = mps.read_static_camera_calibrations(static_cameras_path)
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <StaticCameraCalibrationReader.h>
+using namespace projectaria::tools::mps;
+
+std::string staticCamerasPath = "/path/to/mps/output/trajectory/static_cam_calibs.csv";
+StaticCameraCalibrations staticCameras = readStaticCameraCalibrations(staticCamerasPath);
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```

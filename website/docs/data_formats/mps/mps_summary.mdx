@@ -1,0 +1,62 @@
+---
+sidebar_position: 40
+title: Basics
+---
+This page provides an overview of how Project Aria Machine Perception Services (MPS) output files are formatted.
+
+* Go to [MPS Overview](/docs/ARK/mps) for an introduction to MPS
+* Go to [Request MPS](/docs/ARK/mps/request_mps) for how to request MPS
+
+## Common terminologies
+
+### graph_uid
+
+`graph_uid` is a unique identifier for the world coordinate frame. For all the 3D geometric instances like pose and points in the world frames (having _world in the suffix), when they have the same graph_uid, they are in the same coordinate frame.
+
+For simulation (such as [Aria Synthetic Environments](open_datasets/aria_synthetic_environments_dataset/ase_getting_started.mdx)) and [Aria Digital Twin(ADT)](/docs/open_datasets/aria_digital_twin_dataset) datasets we use the same random value for one space, e.g. the same graph_uid for one ADT/simulation space.
+
+### tracking_timestamp_us
+`tracking_timestamp_us`'s values are shaped by whether it is real world or synthetic data.
+
+For real world data, `tracking_timestamp_us` provides the Device timestamps from your Aria glasses. Go to [Timestamps in Aria VRS](/docs/data_formats/aria_vrs/timestamps_in_aria_vrs) for a definition of the device timestamps.
+
+In simulation datasets, this will be the timestamp in the simulator.
+
+In `tracking_timestamp_us`
+* This clock has arbitrary starting points, which are not synchronized between recording sessions or devices.
+* This clock is strictly monotonic, has stable clock speed, and is accurate in duration
+   * If you want to compute the time duration between two timestamps (especially when touching dynamics, e.g. integrating acceleration to velocity over time), you should use this timestamp.
+
+### utc_timestamp_ns
+
+`utc_timestamp_ns` is the timestamp from Aria real-time clock (RTC). This time is synchronized to the cell phone time via the Aria Mobile Companion app to get UTC time at the beginning of the recording which is a rough estimate of the external standard clock.
+
+* This clock is not available in the simulation datasets.
+* This clock provides rough synchronization between sessions and devices.
+* This clock is not guaranteed to be monotonic, or have stable clock speed, due to synchronization with NTP. So do not compute duration between two UTC timestamps.
+
+## Operator summary
+
+The operator summary includes individual operator’s status (except for eye tracking that does not have a summary today), whether the operation is successful. There is three possible status flag:
+
+* **SUCCESS**: the operator is successfully finished without known issues.
+* **WARN**: the operator is finished, but internally it detects problem(s) which may affect results quality. The operator still outputs the results, but we don’t have enough confidence in the quality of the results, so consume the results with caution.
+* **ERROR**: the operator is not finished, or finished with major error, or the quality of the results are too bad to be consumed. Results may or may not be generated, and should not be consumed even if there are results.
+
+Other than the status flag, extra information (or warning/error reasons if known) messages are included as part of the summary.
+Here’s an example summary JSON output:
+
+```json
+{
+    "SLAM": {
+        "status": "SUCCESS",
+        "info": [
+            "Recording total time: 1104.00s; Trajectory total length: 155.42m",
+            "Total Vision Translational Correction (mm): p50: 0.048; p99: 0.451",
+            "Rotational Correction (deg): p50: 0.001; p99: 0.007"
+        ],
+        "warnings": [],
+        "errors": []
+    },
+...
+```

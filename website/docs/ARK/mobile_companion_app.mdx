@@ -1,0 +1,153 @@
+---
+sidebar_position: 50
+title: Mobile Companion App
+---
+# Mobile Companion App
+
+## Overview
+
+Aria Mobile Companion App, provide the ability to interact & record with your Aria glasses via Bluetooth. This section covers
+
+* Install, Pair and Update
+* Recording
+* Mobile Companion App Screens
+
+## Mobile Companion App features include:
+
+* Fully wireless
+* Check device status (temperature, GPS, privacy switch etc..)
+* Handle and select between multiple paired Aria devices
+* Update Aria devices to the latest OS build
+* Select a recording profile and start recording directly from the mobile app
+* Set default recording profile
+
+# Install, Pair and Update
+
+This page covers how to get started with the Mobile Companion App, these instructions are only useful if you have access to Aria glasses.
+
+
+## Install
+
+### Download the App
+
+1. On your Android phone, go to [portal.projectaria.com](https://portal.projectaria.com/)
+2. Select the menu bar on the top right of the screen to sign into your account
+3. Scroll down to Aria for Android
+    * You'll only be able to see the Android app link if you are browsing from an Android device
+4. Select **Aria for Android** and the app will start downloading
+
+If your phone only accepts 32-bit apps, please reach out to [AriaOps@meta.com](mailto:AriaOps@meta.com) for the 32-bit .apk.
+
+### Install the App
+
+Launch the app once it has finished downloading.
+
+#### Installation trouble shooting
+
+If you see an error message such as “for security, your phone is not allowed to install unknown apps from this source” you’ll need to enable your web browser to install unknown apps.
+
+![Install error message](/img/ARK/unknown_app_error.png)
+
+1. Go to Settings → Apps & notifications → Advanced → Special app access → Install unknown apps.
+2. Select the app (usually your internet browser) that you want to grant permission to install from unknown sources.
+3. Select Allow from this source
+
+## Sign in and pairing
+
+1. Plug your Project Aria glasses into their charger
+    * This will automatically turn your glasses
+1. Make sure the Privacy Switch is not engaged
+    *  The Privacy Switch should be pushed forwards, towards the lenses
+2. Open the Companion app for the first time and sign in using the log in we gave you in your welcome email <br />
+![Aria Mobile App Sign In Screen](/img/ARK/aria_mobile_login_small.jpg)
+3. When launching the Companion App for the first time, you'll need to grant it certain permissions to work correctly, such as location services.
+4. Follow the prompts to agree to Project Aria Research Community Guidelines and read the Health and Safety information
+5. Select **Get Started** to begin setting up your glasses.
+6. The app will begin to look for nearby Project Aria glasses. When a device is discovered, it will be listed at the top of the screen alongside its serial number.
+7. After selecting your device, the Companion App will begin pairing with it.
+8. Once pairing completes, the app will ask to name the device.
+9. Join a Wi-Fi network, your device must be plugged into a charger to complete the setup process.
+10. Once connected to Wi-Fi, the device will look for updates and update your glasses' OS
+11. Once you have completed setup, you’ll see the Companion App Dashboard Page
+
+## Set Default Recording Profile
+
+After updating the Aria device's OS, you should be able to see the Aria Dashboard and a prompt to set your default recording profile. This is the recording profile that will be used if you initiate recording via the Desktop app or the Capture button.
+
+When you create a new recording session via the Mobile app, you'll be able to select the recording profile each time.
+
+## OS Update
+
+To make sure you get the latest device features and bug fixes, you should frequently check for the latest OS updates in Aria device settings. Access Device Settings by selecting the gear next to your Aria device on the main Dashboard of the Mobile app.
+
+Your Aria device's OS will also automatically update when it is plugged into power and connected to Wi-Fi.
+
+# Pairing additional glasses
+
+Each pair of Aria glasses can only be paired with a single account. Multiple glasses can be paired with the one account, however.
+
+1. Plug your Project Aria glasses into their charger
+    * This will automatically turn your glasses
+2. Make sure the Privacy Switch is not engaged
+    *  The Privacy Switch should be pushed forwards, towards the lenses
+3. Select the **Add Glasses** on the Aria dashboard. The app will then start looking for nearby Aria devices.
+4. Follow steps 7-12 in Sign in and Pairing
+5. Set the default recording profile for your glasses
+
+# Terminology
+
+### Pairing/Unpairing
+
+* Pair(ed): connecting a device to the Companion App for the first time.
+* Unpair(ed): the process of unpairing a device from your Companion App. This will delete all data stored locally on the device.
+
+### Connecting/Disconnecting
+
+* Connect(ed): is when the Companion App has active control over the device.
+* Disconnect(ed): is when the Companion App no longer has active control over the device.
+
+
+
+# Recording
+
+### To start recording
+
+1. Select New Recording Session on the Aria Dashboard.
+2. You have the option to configure your recording session before it begins:
+    * **Name (optional):** This field will define how your recording is named inside the Mobile App, but it does not define the name you'll see via the Desktop App. Name is a value that is provided in the vrs.json file associated with your recording. If this field is left blank, your recording will be listed as "Unnamed Recording" in the Recordings tab of the Mobile App.
+    * **Notes (optional):** Notes are appended to your recordings ID. You can input a short or long text string in this field. Notes is a value that is provided in the vrs.json file associated with your recording.
+    * **Sensors Used:** Select Sensors Used to see details of the recording profile you've selected. From the Sensors Used menu, select Profile to choose different recording profiles to record with.
+
+Once you've completed or discarded a recording, you'll return to the New Recording screen, pre-populated with your previous details.
+
+
+## Mobile Companion App Screens
+
+### Recordings menu
+
+In the Recordings menu, you'll be able to see recordings that are currently on your Aria device. Please note, the names given to these recordings are metadata listed in the vrs.json file and are not the name given to the VRS file your recordings are in.
+
+When you select a recording, you will be able to edit your recording's name and notes (which will be stored in the vrs.json file) and see a range of details including:
+
+* Recording duration
+* Recording profile used
+* Up to 10 thumbnail images from your recording
+
+### Settings menu
+
+The Settings menu shows the settings for the Aria app, not your Aria device. You'll be able to see the App version, but not the Aria device version.
+
+In the Advanced Settings menu there is the option to Clear Local Data, which can be helpful if you encounter issues that restarting your Mobile App does not resolve. Aria recordings are stored on the glasses, not on the phone, so it will not delete any of your recordings.
+
+## Aria device settings
+
+On the main Aria Dashboard in the Mobile app, select the settings (gear) icon next to your Aria device to view your Aria device's settings. The Aria device settings page's contents include:
+
+* Bluetooth, Wi-Fi, Battery, GPS and Temperature status
+* OS version and ability to check for OS updates
+* Remaining storage space
+* MAC Address
+* Serial number
+* Device ID
+* Check Device Mode (it should say Partner)
+* Change the default recording profile

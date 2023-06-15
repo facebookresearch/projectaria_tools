@@ -1,0 +1,34 @@
+---
+sidebar_position: 70
+title: Eye Gaze
+---
+
+# MPS output - Eye gaze
+
+## Eye Gaze Data Format
+
+MPS uses Aria's eye tracking camera images to estimate the direction in which the user is looking.  This eye gaze estimation is in [Central Pupil Frame](/docs/data_formats/coordinate_convention/3d_coordinate_frame_convention#the-nominal-central-pupil-frame-cpf). The output is generated in csv format and consists of the following fields
+
+|**Column**	|Type	|Description	|
+|---	|---	|---	|
+|`tracking_timestamp_us`	|int	|This is the timestamp, in microseconds, of the eye tracking camera frame in device time domain. The MPS location output also contains pose estimations in the same time domain and these timestamps can be directly used to infer the device pose from the MPS location output.	|
+|`yaw_rads_cpf`	|float	|This is the eye gaze yaw angle in radians in CPF frame. The yaw angle is the angle between the projection of the eye gaze vector (originating at CPF) on XZ plane and the Z axis in the CPF frame.	|
+|`pitch_rads_cpf`	|float	|This is the eye gaze pitch angle in radians in CPF frame. The pitch angle is the angle between the projection of the eye gaze vector (originating at CPF) on YZ plane and the Z axis in the CPF frame.	|
+|`depth_m`	|float	|This is the absolute depth in meters of the 3D gaze point in CPF frame. This value is currently not available as part of MPS output.	|
+|`yaw_low_rads_cpf`	|float	|This value represents the lower bound of the confidence interval for the **yaw** estimation.	|
+|`pitch_low_rads_cpf`	|float	|This value represents the lower bound of the confidence interval for the **pitch** estimation.	|
+|`yaw_high_rads_cpf`	|float	|This value represents the upper bound of the confidence interval for the **yaw** estimation.	|
+|`pitch_high_rads_cpf`	|float	|This value represents the upper bound of the confidence interval for the **pitch** estimation.	|
+
+The confidence intervals represent the models uncertainty estimation. A smaller interval represents higher confidence and a wider interval represents lower confidence. The confidence interval angles are in radians and in CPF frame.
+Some common factors that impact uncertainty include:
+
+* Blinking
+* Hair occluding the eye tracking cameras
+* Re-adjusting glasses or taking them off to clean them
+
+For utility function to load the eye gaze in Python and C++, please check the [code examples](/docs/data_utilities/core_code_snippets/mps#eye-gaze)
+
+## Yaw/Pitch to 3D vector conversion
+
+A common use case is to convert the gaze angles into 3D vectors. To convert a gaze measurement (yaw/pitch) into a 3D gaze vector originating at the origin of CPF use the operation [here](https://github.com/facebookresearch/projectaria_tools/blob/main/core/mps/EyeGazeReader.h#L40).

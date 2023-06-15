@@ -1,0 +1,88 @@
+---
+sidebar_position: 20
+title: Image Utilities (Python and C++)
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Image debayer
+
+Some recording profiles outputs raw RGB images (Profile 7 in [Recording Profile](/docs/tech_spec/recording_profiles)). We provide functionalities to debayer them and perform white-balancing to get RGB images.
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+from projectaria_tools.core import data_provider, image
+
+stream_id = provider.get_stream_id_from_label("camera-rgb")
+image_data = provider.get_image_data_by_index(stream_id, 0)
+image_data_array = image_data[0].to_numpy_array()
+debayered_array = image.debayer(image_data_array)
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <dataprovider/VrsDataProvider.h>
+#include <image/utility/Debayer.h>
+
+auto streamId = provider.getStreamIdFromLabel("camera-rgb");
+auto imageData = provider.getImageDataByIndex(streamId, 0);
+auto debayeredImage = debayer(imageData.first.imageVariant());
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+![Image](/img//data_utilities/advanced_guide/debayer.png)
+
+See [projectaria_tools/core/image/utility/Debayer.cpp](https://github.com/facebookresearch/projectaria_tools/blob/main/core/image/utility/Debayer.cpp) for implementation
+
+
+## Image undistortion
+
+In this example, we remove distortions in raw sensor data so that straight 3D lines appear straight in the undistorted images. There is existing C++ implementation and python wrapper of this helper function in the data utilities.
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+from projectaria_tools.core import data_provider, calibration
+
+camera_label = "camera-slam-left"
+stream_id = provider.get_stream_id_from_label(camera_label)
+
+calib = provider.get_device_calibration().get_camera_calib(camera_name)
+pinhole = calibration.get_linear_camera_calibration(512, 512, 150)
+
+raw_image = provider.get_image_data_by_index(stream_id, 0)[0].to_numpy_array()
+undistorted_image = calibration.distort_by_calibration(raw_image, pinhole, calib)
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <dataprovider/VrsDataProvider.h>
+#include <calibration/utility/Distort.h>
+
+std::string cameraLabel = "camera-rgb";
+vrs::StreamId streamId = provider->getStreamIdFromLabel(cameraLabel);
+
+CameraCalibration calib = provider->getCameraCalibration(streamId);
+CameraCalibration pinhole = getLinearCameraCalibration(512, 512, 150);
+
+ImageData rawImage = provider->getImageDataFromIndex(streamId, 0);
+auto undistortedImage = distortByCalibration(rawImage.imageVariant(), pinhole, calib);
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+![Image](/img/data_utilities/advanced_guide/undistortion.png)
+
+See [projectaria_tools/core/calibration/utility/Distort.cpp](https://github.com/facebookresearch/projectaria_tools/blob/main/core/calibration/utility/Distort.cpp) for implementation.

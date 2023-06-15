@@ -1,0 +1,97 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @format
+ */
+
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #3F7F7F;
+  --ifm-color-primary-dark: #2C0D00;
+  --ifm-color-primary-darker: #2C0D00;
+  --ifm-color-primary-darkest: #2C0D00;
+  --ifm-color-primary-light: #F7F5F2;
+  --ifm-color-primary-lighter: #F7F5F2;
+  --ifm-color-primary-lightest: #F7F5F2;
+  --ifm-code-font-size: 95%;
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #18EED4;
+  --ifm-color-primary-dark: #F7F5F2;
+  --ifm-color-primary-darker: #F7F5F2;
+  --ifm-color-primary-darkest: #F7F5F2;
+  --ifm-color-primary-light: #0C292F;
+  --ifm-color-primary-lighter: #0C292F;
+  --ifm-color-primary-lightest: #0C292F;
+}
+
+.katex { font-size: 0.9em; }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.9em;
+}
+
+table th,
+table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+table th:first-child,
+table td:first-child {
+  font-weight: normal;
+}
+
+.headcol {
+  position: sticky;
+  left: 0;
+  background-color: #f8f8f8;
+  z-index: 1;
+  padding: 8px;
+  border-right: 2px solid #ddd;
+  border: 2px solid #ddd;
+  text-align: right;
+  font-weight: bold;
+}
+
+tr .headcol:first-child {
+  background-color: #f8f8f8; /* Replace with your desired color */
+  border-right: 2px solid #ddd;
+  border-bottom: 2px solid #ddd;
+  font-weight: bold;
+}
+[data-theme='dark'] tr .headcol:first-child {
+  background-color: #181818;
+}
+tr:nth-child(even) .headcol:first-child {
+  background-color: #f2f2f2; /* Replace with your desired color */
+  border-right: 2px solid #ddd;
+  border-bottom: 2px solid #ddd;
+  font-weight: bold;
+}
+[data-theme='dark'] tr:nth-child(even) .headcol:first-child {
+  background-color: #2d2d2d;
+}

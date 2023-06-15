@@ -1,0 +1,15 @@
+---
+sidebar_position: 80
+title: Device timestamping
+---
+
+The figure below illustrates the various hardware components in the Aria device and how they are connected electrically. The device consists of a microcontroller unit (MCU) that interfaces with most of the sensors for configuring and controlling them. The MCU is responsible for timestamping the data from these sensors, which enables capturing the multi-modal data with common timestamps across the motion sensors, microphones and camera sensors. The device also has an Application Processor (AP) that runs Android High Level OS.
+![image](/img/tech_insights/HW_timestamping.png)
+
+The device timestamp is ideally assigned, by the embedded micro-controller (MCU), to the measurement as close as possible to the time the measurement is captured. However, the meaning of the event effectively timestamped and the way the timestamp is obtained differs significantly depending on the sensor:
+* SLAM and ET cameras have an electronic global shutter sensors. They are triggered at regular rate. Their image timestamps marks the center of the exposure window and are derived from the value of a MCU counter. The timestamping error is expected to be upper-bounded by 19us.
+* The RGB camera has a electronic rolling shutter. It is triggered at regular rate, often a divider of the SLAM camera rate. The timestamp marks the center of the exposure of the middle row and is obtained similarly to the SLAM camera timestamp.
+* The two IMUs, the barometer and the magnetometer sensors operate respectively at 800Hz, 1000Hz, 50Hz and 10Hz in free-running mode. We timestamp their data-ready signal on the MCU. Because of on-chip signal processing operations, those timestamps correspond to a time point after the instant for which the measurement is valid. The next section details how to finely align the data with the images.
+* The Gps data are timestamped on the AP at their ***time of arrival*** from the receiver  of and converted to a device timestamp. Conversion of timestamp is based on a bidirectional communication between Soc and MCU and is expected to introduce less than 100us of error.
+* For the audio stream, each samples is individually timestamped with an accuracy expected to be better than one audio sample. This synchronization relies on the MCU periodically injecting an encoded version of the current device timestamp into an unused microphone channel; the AP decodes it on reception.
+* The GPS and WPS scan data is received and timestamped on the AP using a time estimate of the MCU time. Conversion of timestamp is based on the protocol between Soc and MCU and is expected to introduce less than 100 us of error.

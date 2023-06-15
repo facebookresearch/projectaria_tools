@@ -1,0 +1,21 @@
+---
+sidebar_position: 30
+title: Timestamp Definitions
+---
+
+# Timestamps in Aria VRS
+
+## Device timestamps
+
+Each piece of data captured by Aria glasses is associated with a device timestamp (also called capture timestamp in the VRS file format). All sensors on the same pair of Aria glasses share the same device time domain issued from a single clock. We strongly recommend always working with the device timestamp when dealing with single-device Aria data.
+
+## Timecode timestamp
+
+In the case of multi-device data capture, we use time sync servers to record pairs of timestamps between the server’s local timestamp and the Aria device’s device timestamp. This generates a mapping between the server’s local time and Aria’s device time. The server’s local time serves as a unified time domain shared by the multiple devices. These are called Timecode timestamps.
+
+Timecode time refers to the same “capture” event as the device time, but differs by the clock assigning the timestamps. Thus we can convert between timecode time and device time using the timestamp samples corrected by the time sync servers.
+
+
+## Record and Host(Arrival) timestamps
+
+When working with Aria data you might encounter timestamps with other time domains. For instance, we call `record timestamps` the timestamps stored in the index of VRS files. For Project Aria glasses, these are equal to the device timestamp converted to a double-precision floating point representation. Additionally, some of the data record might have a host or arrival timestamp, their meaning is unspecified and should not be needed for any purpose.

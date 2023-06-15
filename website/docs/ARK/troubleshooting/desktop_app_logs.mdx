@@ -1,0 +1,44 @@
+---
+sidebar_position: 30
+title: Desktop App Logs
+---
+# How to Capture Logs for the Aria Desktop App
+
+
+## Overview
+
+This page provides information about how to gather logs from the Aria Desktop app. Logs are not necessary prior to filing a bug report or seeking technical support, but they can be helpful. People are most likely to use this page if they have been asked for log files by Aria User Support ([AriaOps@meta.com](mailto:AriaOps@meta.com)).
+
+You turn on logging when you run the app, you cannot gather logs retrospectively. You will need to use these commands every time you want to run the Desktop app with logging enabled.
+
+## **Enabling logs**
+
+On MacOS or Windows, enable logging by closing the Desktop app and then relaunching it via the command line with logging turned on. Logs will be added to aria_output.log, which will be created in your user home directory.
+
+If you don't fully quit the app, there is a risk your system may open an existing instance with logging turned off, instead of opening a new instance with logging enabled
+
+### MacOS
+
+1. Quit the Desktop app, if it is running
+2. Open your terminal and run:
+
+`open /Applications/Aria.app --args --log-output`
+
+3. The Aria Desktop app should then open with logging enabled
+4. To view your logs, go to your user home folder in Finder (Shift + Command + H) where you will find  aria_output.log
+5. Logs will continue to be added to this file until you quit the app
+6. If you generate logs at a later time, they will be appended to the end of these logs
+
+### Windows
+
+1. Quit the Desktop app completely
+   * Close the app by right-clicking the Aria logo (it looks like glasses) in the right end side of the taskbar, and selecting "Quit" or
+   * Open Task Manager and end the "AriaHub.exe" running task.
+2. Use the run command (Windows + R) or Windows terminal to run:
+
+`"C:\Program Files\Aria\v3\AriaHub.exe" --log-output`
+
+3. The Aria Desktop app should then open with logging enabled.
+4. To view your logs, open File Explorer and go to `C:\Users\<myusername>`. There you will find aria_output.log
+5. Logs will continue to be added to this file until you quit the app
+6. If you generate logs at a later time, they will be appended to the end of these logs

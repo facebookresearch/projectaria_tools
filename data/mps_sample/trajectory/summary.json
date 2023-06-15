@@ -1,0 +1,59 @@
+{
+  "VRS Health Check": {
+    "status": "SUCCESS",
+    "info": [],
+    "warnings": [],
+    "errors": []
+  },
+  "SLAM": {
+    "status": "SUCCESS",
+    "info": [
+      "Recording total time: 0:00:12.313821; Trajectory total length: 7.67m",
+      "Total Vision Translational Correction (mm): p50: 1.062; p99: 6.639",
+      "Rotational Correction (deg): p50: 0.011; p99: 0.097"
+    ],
+    "warnings": [],
+    "errors": []
+  },
+  "Aligner": {
+    "status": "SUCCESS",
+    "info": [
+      "added_subarea_edges: 0",
+      "num_disconnected_components: 1"
+    ],
+    "warnings": [],
+    "errors": []
+  },
+  "Optimization": {
+    "status": "SUCCESS",
+    "info": [
+      "Largest nullity over windows of 100 rigs: 0",
+      "Max variation speed of bias of accel: 0, of gyro: 0 (5+ unconstrained dofs)",
+      "Max variation speed of bias of accel: 0, of gyro: 0 (15+ unconstrained dofs)",
+      "Max variation speed of bias of accel: 0, of gyro: 0 (50+ unconstrained dofs)"
+    ],
+    "warnings": [],
+    "errors": []
+  },
+  "Recompute Trajectory": {
+    "status": "SUCCESS",
+    "info": [
+      "Total Translational Correction (mm): p50: 1.331; p90: 4.157, p99: 7.054",
+      "Total Rotational Correction (deg): p50: 0.019; p90: 0.048, p99: 0.125"
+    ],
+    "warnings": [],
+    "errors": []
+  },
+  "SemiDense Tracker": {
+    "status": "SUCCESS",
+    "info": [],
+    "warnings": [],
+    "errors": []
+  },
+  "Compute Global Pointcloud": {
+    "status": "SUCCESS",
+    "info": [],
+    "warnings": [],
+    "errors": []
+  }
+}

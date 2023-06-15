@@ -1,0 +1,47 @@
+---
+sidebar_position: 40
+title: Advanced Tutorials
+---
+
+## Multi-person Synchronization
+
+This tutorial will walk you through the steps to get synchronized ground truth data in a multi-person sequence.
+
+### How does time synchronization work in ADT
+In a single-person ADT sequence, all ground truth data is stored in the [device capture time](/docs/data_formats/aria_vrs/timestamps_in_aria_vrs#time-code-timestamp) of the Aria used by the person.
+For a multi-person ADT sequence, we store ground truth files in two separate folders, each representing a person's Aria recording. Each subsequence is self-contained such that all ground truth data is also
+stored in the device capture time domain of the associated Aria device. To synchronize the two Aria devices, we store a mapping between [timecode](/docs/data_formats/aria_vrs/timestamps_in_aria_vrs#time-code-timestamp)
+timestamps and device capture timestamps in each Aria data.
+
+
+### Step 0 : Install project_aria_tools package and create venv if not already done
+
+Follow Step 0 to Step 3 in [Getting Started](/docs/open_datasets/aria_digital_twin_dataset/getting_started).
+
+### Step 1 : Prepare download
+
+Follow Step 1 to Step 3 in [Download the sample Aria Digital Twin (ADT) sequence](/docs/open_datasets/aria_digital_twin_dataset/dataset_download#download-the-sample-aria-digital-twin-adt-sequence)
+
+### Step 2 : Download sample multi-person sequence
+
+From your python virtual environment, run:
+
+```bash
+adt_benchmark_dataset_downloader -c $HOME/Documents/projectaria_tools_adt_data/aria_digital_twin_dataset_download_urls.json \
+-o $HOME/Documents/projectaria_tools_adt_data/ -l Apartment_release_multiskeleton_party_seq114 \
+-d 0
+```
+
+### Step 3 : Run the tutorial notebook
+
+From your python virtual environment, run:
+
+```
+cd $HOME/Documents/projectaria_sandbox
+
+jupyter notebook projectaria_tools/projects/AriaDigitalTwinDatasetTools/examples/adt_multiperson_tutorial.ipynb
+```
+
+## Troubleshooting
+
+Check the [troubleshooting](/docs/data_utilities/installation/troubleshooting) if you are having issues in this guide.

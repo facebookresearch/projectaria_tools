@@ -1,0 +1,32 @@
+---
+sidebar_position: 40
+title: CMake for your projects
+---
+
+To use projectaria_tools for your own projects with CMake, we recommend adding it as a submodule in your project using:
+
+```bash
+cd /path_to_your_project
+
+git submodule add https://github.com/facebookresearch/projectaria_tools.git
+```
+
+Then, in your project root CMakeLists.txt, add the subdirectory using:
+
+```cmake
+add_subdirectory(projectaria_tools)
+```
+You can then link your project targets (libraries or executables) to projectaria_tools modules.
+For example, to link with the sensor_calibration library, use:
+
+```cmake
+target_link_libraries(my_target
+  PUBLIC
+    sensor_calibration
+)
+```
+
+#### Example code
+Please refer to the [sample project](https://github.com/facebookresearch/projectaria_tools/tree/main/sample_project) for a full example.
+
+NOTE: install targets are coming soon so that you can install projectaria_tools and access it using find_package() in your CMakeLists.txt

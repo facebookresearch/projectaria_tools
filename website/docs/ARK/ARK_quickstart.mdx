@@ -1,0 +1,188 @@
+---
+sidebar_position: 20
+title: Aria Glasses Quickstart
+---
+
+# Quickstart
+
+# Overview
+
+This page provides a quick overview of what to do once you have received your Aria glasses.
+
+
+## Get set up
+
+Once you've been approved and can receive your Aria glasses you will get two emails:
+
+* Welcome to Aria
+    * Contains your account details, use these for signing into the Mobile and Desktop Companion apps
+* Join [Person] in Project Aria Academic Partner Announcements, Feedback & Support
+    * Follow the prompts to join Aria's research community space where researchers and engineers at Meta and all our Academic partners can connect, ask questions, share ideas and provide support.
+    * See [How to join the Academic Partner Workplace group](workplacegroup.mdx) for further instructions.
+
+## Get connected
+
+Before your glasses arrive we encourage you to join the [Academic Partners Workplace group](workplacegroup.mdx). It's a great place to get the latest announcements, provide feedback, ask questions. Unboxing videos are very welcome!
+
+## Get to know your glasses
+
+* [About the Aria Research Kit](/docs/ARK/about_ARK.mdx)
+   * Includes hardware requirements for using ARK apps
+* [Technical Specifications](/docs/tech_spec/tech_spec.mdx)
+    * Go to the Tech Spec part of the wiki to find out about Aria capabilities, recording profiles etc
+* [Glasses Manual](/docs/ARK/glasses_manual/glasses_user_manual.mdx)
+    * Provides information about Project Aria glasses buttons, powering on and off, the privacy switch, how to do a factory reset, LED states, etc
+
+
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import ThemedImage from '@theme/ThemedImage';
+
+<ThemedImage
+  alt="Docusaurus themed image"
+  sources={{
+    light: useBaseUrl('/img/ARK/glasses_manual/glasses_buttons.png'),
+    dark: useBaseUrl('/img/ARK/glasses_manual/glasses_buttons_dark.png'),
+  }}
+/>
+
+## Update your glasses
+
+You'll need to update your Aria glasses using the Mobile companion app before you can use them.
+
+### Install the Mobile companion app
+
+1. On your Android phone, go to [portal.projectaria.com](http://portal.projectaria.com/)
+2. Select the menu bar on the top right of the screen to sign into your account
+3. Scroll down to Aria for Android
+    * You'll only be able to see the Android app link if you are browsing from an Android device
+1. Select Aria for Android and the app will start downloading
+
+If your phone only accepts 32-bit apps, please reach out to [AriaOps@meta.com](mailto:AriaOps@meta.com) for the 32-bit .apk.
+
+### Pair your glasses
+
+1. Plug your glasses into power using the provided cable.
+2. Sign into the app using your provided user name and password
+3. Follow the prompts to pair your glasses
+    * Your glasses are automatically updated when you first pair them
+    * Go to the [Mobile app page](/docs/ARK/mobile_companion_app.mdx) for further information
+
+Further updates will be queued automatically when you use your glasses via the Mobile Companion App. If you need to manually check for updates, select the gear icon (settings) next to your glasses and then select Check for OS Updates.
+
+## Set your Default Recording Profile
+
+You can set the default recording profile via Mobile or Desktop Companion App. This is the recording profile used when you initiate recording via the capture button or Desktop app. When you initiate recording via the Mobile Companion app you can select the recording profile per instance and examine the sensors used with each recording profile.
+
+In the Mobile Companion App, you can change the Default Recording Profile at any time via Device Settings (select the settings/gear icon next to your glasses on the dashboard).
+
+## Install the Desktop app (Optional)
+
+The Desktop app is required for requesting Machine Perception Services and streaming data, but you don't need the Desktop app to make recordings or download data. You can also visualize data in the Desktop app. Go to the [Desktop app page](desktop_companion_app.mdx) for more detailed instructions.
+
+1. Go to [portal.projectaria.com](http://portal.projectaria.com/)
+2. Select the menu bar on the top right of the screen to sign into your account
+3. Scroll down to Aria for Desktop
+    * It will display for MacOS, Windows or Linux, depending on what sort of operating system you're running
+4. Select Aria for Mac/Windows to download and install
+5. Use the username and password provided in your welcome email to sign into the app.
+
+## Record Data
+
+It's best to initiate recording using the Mobile Companion app or by pressing the Capture button.
+
+Make sure you don't use the Privacy Switch to finish a recording, as this will delete your data.
+
+:::info
+The longer your glasses record for, the longer it takes a recording to stop. This is because the larger the VRS file, the more time it takes for a recording to finish indexing. The recording has not fully stopped until the Recording LEDs have turned off.
+:::
+
+### Press the Capture button
+
+The Capture button is located on the top right of your glasses. The capture button will use the recording profile set by the Desktop App.
+
+Once you've pressed the capture button, please allow a few seconds before the recording starts. You'll know recording has started when the Recording LEDs turn on.
+
+Press the same button to stop and save the recording.
+
+:::tip
+Engaging the privacy switch will stop the recording and discard your recording. Discarded recordings cannot be retrieved.
+:::
+
+### Mobile Companion app
+
+* Select New Recording Session in the Aria Dashboard to start recording.
+    * Go to the [Mobile Companion App page](/docs/ARK/mobile_companion_app.mdx) for more information
+
+You can alter the Name and Notes of a recording by going to the Recordings menu, selecting a recording and then selecting **Edit**.
+Please note, this does not change the name of the VRS file, it changes the Name and Notes properties in the associated vrs.json file.
+
+
+## Download data
+
+Aria recordings are stored as a VRS file and an accompanying JSON file that includes the recording's metadata. Metadata includes:
+
+* The name and description of the recording as shown in the Mobile Companion App
+* The recording profile used
+* What version of the Mobile Companion App was used to create the recording
+
+Aria recordings are directly accessible from the glasses' SDCARD. There are three ways you can download data to your local machine using:
+
+* MTP
+* ADB commands
+* Aria Desktop Companion App
+
+We recommend using MTP or ADB commands for a faster download experience.
+
+
+### Use MTP via File Explorer
+
+#### Windows
+
+When you plug in your Aria glasses to your computer, you can navigate to it as if it were any other USB external storage device.
+
+1. Plug your Aria glasses into your computer, using the supplied cable
+    * Please allow a few minutes for your glasses to be detected
+2. Your glasses will appear in your directory as an external drive called “Aria”
+3. Select Aria and then go to Internal Storage > recording
+4. In this folder you will see the .vrs file and .json file that stores the .vrs files' metadata
+    * You'll also see a thumbnails folder, which contains the thumbnails that are used to provide previews of your content in the Mobile app
+5. Copy the data to local storage
+
+#### MacOS
+
+MTP is not provided natively on MacOS, but there are lightweight tools that you can use, such as [Android File Transfer](https://www.android.com/filetransfer/).
+
+1. Download and install Android File Transfer https://www.android.com/filetransfer/
+2. Connect your Aria glasses to your computer
+3. Drag & drop files
+
+
+### Use ADB
+
+[Android Debug Bridge](https://developer.android.com/studio/command-line/adb) (adb) is a command line tool that can be used with Aria glasses.
+
+To download all your data:
+```
+adb pull /sdcard/recording /home/unixname/MyVRSFolder
+```
+
+To download a single VRS file
+```
+adb pull /sdcard/recording/myVrsFile.vrs /home/unixname/MyVRSFolder/
+```
+
+To download a single metadata file
+```
+adb pull /sdcard/recording/myVrsFile.json /home/unixname/MyVRSFolder/
+```
+
+### Use the Desktop App
+
+Go to the Recordings section in the Desktop app to download your data. See the [Desktop App page](/docs/ARK/desktop_companion_app.mdx) for further information.
+
+
+## Streaming
+
+Using the Desktop app, Aria Sensor data can be live streamed via Wi-Fi. We recommend only using Profiles 12 and 18, which are optimized for streaming.
+
+Go to the [Desktop app page](/docs/ARK/desktop_companion_app.mdx#streaming) for detailed instructions.

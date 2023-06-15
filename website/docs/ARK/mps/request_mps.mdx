@@ -1,0 +1,29 @@
+---
+sidebar_position: 70
+title: Request MPS
+---
+
+Please follow these steps to request MPS processing on your VRS files:
+1. Go to the **Recordings** section of the [Desktop App](/docs/ARK/desktop_companion_app.mdx) then click on **VRS Tools**.
+2. Select **Request MPS** in the Recordings toolbar.
+3. You will then need to select the VRS file from the native file explorer.
+4. You will then have the option to generate Trajectory (with online calibration, and optional point cloud), Eye Tracking or both.
+5. Once the MPS services are selected, click on **Upload**.
+6. Your file's progress and the downloadable MPS outputs will then be visible under Remote Uploads.
+7. It may take several minutes for your file to show in the Uploads tab, especially if it is large.
+
+Once your data has been successfully processed, you can download the derived data zip file, from the **Recordings** toolbar. Please refer to the [MPS Loader APIs](/docs/data_utilities/core_code_snippets/mps#load-mps-output) on how to load the output in Python/C++ and [visualization guide](/docs/data_utilities/visualization_guide#mps-static-scene-visualizer) on how to run the rich visualization tools to visualize all the MPS outputs.
+
+## Status Types
+
+How long it takes for a file to progress from one state to the next will depend on how big the file is and how many other requests are being processed at that time.
+
+* **Unrequested** : This type of derived data was not requested
+* **Waiting** : MPS request has been received and is in the queue for processing
+* **Processing** : This data is currently being processed
+* **Complete** : Data Processing is Complete, you can now download your files
+* **Error**:
+    * VRS file did not have the data required for processing, please use a [Supported Recording Profile](/docs/tech_spec/#recording-profiles).
+    * An error occurred while processing data with a supported recording profile.
+        * There are many variables that can impact MPS output. For Trajectory data you can download the summary.json file to get more information. See [MPS Trajectory Documentation](/docs/data_formats/mps/mps_summary) for more information.
+        * If you've checked your recording profile and that is not the issue and you are unable to debug the issue using summary.json, please email[AriaOps@meta.com](mailto:AriaOps@meta.com)with a bug report. Make sure you include the Transaction ID in your report and summary.json if you have one. Screenshots and screen recordings are always welcome.

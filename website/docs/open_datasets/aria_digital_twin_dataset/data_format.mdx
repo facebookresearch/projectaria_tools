@@ -1,0 +1,194 @@
+---
+sidebar_position: 50
+title: Data Format
+---
+
+# Data Format
+
+## Sequence and Subsequence
+
+A sequence in ADT represents a data recording in a scene. It can be either a multi-person activity,
+which may include multiple Aria devices recording at the same time, or a single-person activity, which includes only one Aria device.
+Inside a sequence, we use subsequences to represent the recording of each Aria device and its associated ground truth data.
+So far, an ADT sequence contains at most 2 subsequences. Each sequence has the following folder structure:
+
+```
+|SequenceName|
+-----|Subsequence1Name|
+-----|Subsequence2Name| [Optional] # Omitted if a sequence is a single person activity
+-----|gt-metadata.json
+```
+The gt-metadata.json file contains the high-level sequence information such as the included Aria's serial number, the scene name, etc, which can be
+loaded and queried by AriaDigitalTwinDataPathProvider.
+
+## Ground Truth Data
+You can use the AriaDigitalTwinDataPathProvider to load a sequence and select a subsequence.
+AriaDigitalTwinDataPathProvider will manage all the ground truth files (see below) in a subsequence folder.
+
+```
+|SubsequenceName|
+----video.vrs  # Aria recording data
+----instances.json  # metadata of all instances in a sequence. An instance can be an object or a skeleton
+----aria_trajectory.csv  # 6DoF Aria trajectory
+----2d_bounding_box.csv  # 2D bounding box data for instances in three Aria sensors: RGB camera, left SLAM camera, right SLAM camera
+----3d_bounding_box.csv  # 3D AABB of each object
+----scene_objects.csv    # 6 DoF poses of objects
+----eyegaze.csv          # Eye gaze
+----synthetic_video.vrs  # Synthetic rendering of video.vrs
+----depth_images.vrs     # Depth images of video.vrs
+----segmentations.vrs    # Instance segmentations of video.vrs
+----SkeletonMetaData.json [optional]  # Metadata of skeleton data. Omitted if a sequence does not have skeleton ground truth
+----Skeleton_*.json [optional]   # Body skeleton data. * is the skeleton name. Omitted if a sequence does not have skeleton ground truth
+----2d_bounding_box_with_skeleton.csv [optional]  # 2D bounding box data with body mesh occlusions. Omitted if a sequence does not have skeleton ground truth
+----depth_images_with_skeleton.vrs [optional]  # Depth images with body mesh occlusions. Omitted if a sequence does not have skeleton ground truth
+----segmentations_with_skeleton.vrs [optional]  # Segmentations with body mesh occlusions. Omitted if a sequence does not have skeleton ground truth
+```
+
+## Skeleton Data and Availability
+Note that not all ADT sequences have skeleton tracking.
+For those sequences with skeleton tracking enabled, we use the marker measurements from the bodysuit to generate a 3D mesh estimate of the wearer which is then used in our ground truth
+generation pipeline to calculate 2D bounding boxes, segmentation images and depth images.
+In these cases, ADT provide two sets of ground truth data: one with skeleton occlusion, one without.
+
+* segmentations.vrs vs. segmentations_with_skeleton.vrs
+* depth_images.vrs vs. depth_images_with_skeleton.vrs
+* 2d_bounding_box_with_skeleton.csv
+
+You can use AriaDigitalTwinDataPathsProvider to easily switch between these two sets.
+
+## Format of Ground Truth Data
+Our data loader loads all this data into a single class with useful tools for accessing data.
+For more information on the data classes returned by the loader, see this [section](/docs/open_datasets/aria_digital_twin_dataset/data_loader).
+Below you will find more information on the above csv and json files.
+
+### 2d_bounding_box.csv (or 2d_bounding_box_with_skeleton).csv
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|stream_id	|string	|camera stream id associated with the bounding box image	|
+|object_uid	|uint64_t	|id of the instance (object or skeleton)	|
+|timestamp[ns]	|int64_t	|timestamp of the image in nanoseconds	|
+|x_min[pixel]	|int	|minimum dimension in the x axis	|
+|x_max[pixel]	|int	|maximum dimension in the x axis	|
+|y_min[pixel]	|int	|minimum dimension in the y axis	|
+|y_max[pixel]	|int	|maximum dimension in the y axis	|
+|visibility_ratio[%]	|double	|percentage of the object that is visible (0: not visible, 1: fully visible)	|
+
+### 3d_bounding_box.csv
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|object_uid	|uint64_t	|id of the instance (object or skeleton)	|
+|timestamp[ns]	|int64_t	|timestamp of the image in nanoseconds. -1 means the instance is static	|
+|p_local_obj_xmin[m]	|double	|minimum dimension in the x axis (in meters) of the bounding box	|
+|p_local_obj_xmax[m]	|double	|maximum dimension in the x axis (in meters) of the bounding box	|
+|p_local_obj_ymin[m]	|double	|minimum dimension in the y axis (in meters) of the bounding box	|
+|p_local_obj_ymax[m]	|double	|maximum dimension in the y axis (in meters) of the bounding box	|
+|p_local_obj_zmin[m]	|double	|minimum dimension in the z axis (in meters) of the bounding box	|
+|p_local_obj_zmax[m]	|double	|maximum dimension in the z axis (in meters) of the bounding box	|
+
+### aria_trajectory.csv
+
+We are using the same trajectory format as [the closed loop trajectory in MPS](/docs/data_formats/mps/mps_trajectory#closed-loop-trajectory).
+
+### eyegaze.csv
+
+We are using the same [eye gaze format as MPS](/docs/data_formats/mps/mps_eye_gaze#eye-gaze-data-format).
+
+### scene_objects.csv
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|object_uid	|uint64_t	|id of the instance (object or skeleton)	|
+|timestamp[ns]	|int64_t	|timestamp of the image in nanoseconds. -1 means the instance is static	|
+|t_wo_x[m]	|double	|x translation from object frame to world (scene) frame (in meters)	|
+|t_wo_y[m]	|double	|y translation from object frame to world (scene) frame (in meters)	|
+|t_wo_z[m]	|double	|z translation from object frame to world (scene) frame (in meters)	|
+|q_wo_w	|double	|w component of quaternion from object frame to world (scene) frame	|
+|q_wo_x	|double	|x component of quaternion from object frame to world (scene) frame	|
+|q_wo_y	|double	|y component of quaternion from object frame to world (scene) frame	|
+|q_wo_z	|double	|z component of quaternion from object frame to world (scene) frame	|
+
+### instances.json
+
+```
+{
+    "IID1": {
+    "instance_id": IID1,
+    "instance_name": "XXXX",
+    "prototype_name": "XXXX",
+    "category": "XXXX",
+    "category_uid": XXXX,
+    "motion_type": "static/dynamic",
+    "instance_type": "object/human",
+    "rigidity": "rigid/deformable",
+    "rotational_symmetry": {
+      "is_annotated": true/false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        x,
+        y,
+        z
+      ],
+      "front_vector": [
+        x,
+        y,
+        z
+      ]
+    }
+  },
+  ...
+}
+```
+
+### Skeleton_T.json or Skeleton_C.json
+
+```
+{
+  "dt_optitrack_minus_device_ns": {
+    "1WM103600M1292": XXXXX
+  },
+  "frames": [
+    {
+      "markers": [
+        [
+          mx1
+          my1
+          mz1
+        ],
+        ...
+       ],
+       "joints": [
+         [
+          jx1
+          jy1
+          jz1
+         ],
+        ...
+       ],
+       "timestamp_ns": tsns1
+    },
+    ...
+  ]
+}
+```
+
+### SkeletonMetaData.json
+
+This file shows the skeleton info including name, Id, and associated Aria device for each human in the sequence.
+Since it's possible to have a human wearing a bodysuit that does not have an Aria, it's possible to have a skeleton with no associated Aria.
+Conversely, it's also possible to have an Aria wearer with no bodysuit, which means there may be an empty skeleton Id and name associated with an Aria.
+
+```
+{
+    "SkeletonMetadata": [
+        {
+            "AssociatedDeviceSerial": "AriaSerial1/NONE",
+            "SkeletonId": ID1,
+            "SkeletonName": "SkeletonName1/NONE"
+        },
+        ...
+    ]
+}
+```

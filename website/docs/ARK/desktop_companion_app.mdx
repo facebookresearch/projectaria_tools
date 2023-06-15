@@ -1,0 +1,234 @@
+---
+sidebar_position: 60
+title: Desktop Companion App
+---
+# Aria Desktop Companion App
+
+## Overview
+
+The Aria Desktop Companion App, provides the ability to record, transfer, process, validate and visualize Aria's data through a desktop interface. These instructions are only useful if you have Project Aria glasses.
+
+### Features
+
+* Handle and select between multiple plugged in Aria glasses
+* Set the default recording profile for recordings initiated by the capture button or Desktop app
+* Select a recording profile and visualize a live stream of Aria's sensors according to that recording profile
+* Display, extract, validate VRS recordings' internal data layout
+* Access Eye Gaze and Trajectory Machine Perception Services (MPS) to process Aria VRS data
+* Visualize the generated ground-truth to validate it
+* Direct access to documentation and guides
+
+## Before you start - Device OS Update
+
+:::caution
+Before using the Desktop app, you must use the Aria Mobile Companion App to update your Aria glasses' OS.
+:::
+
+## To install
+
+### Aria For MacOS Installer (Intel & Apple Silicon)
+
+1. Go to [portal.projectaria.com](http://portal.projectaria.com/)
+2. Select the menu bar on the top right of the screen to sign into your account
+3. Scroll down to Aria for Desktop
+    * It will display for MacOS, Windows or Linux, depending on what sort of operating system you're running
+4. Download Aria's DMG installer from [portal.projectaria.com](https://portal.projectaria.com/)
+5. Open the downloaded file
+6. Drag and drop Aria.app to your Applications folder
+7. You should now be able to open up the app by double clicking on [Aria](http://aria.app/)
+
+### Aria For Windows Installer
+1. Go to [portal.projectaria.com](http://portal.projectaria.com/)
+2. Select the menu bar on the top right of the screen to sign into your account
+3. Scroll down to Aria for Desktop
+    * It will display for MacOS, Windows or Linux, depending on what sort of operating system you're running
+4. Select Aria for Mac/Windows to download and install
+5. Use the username and password provided in your welcome email to sign into the app.
+6. Open the installer ad follow the instructions for the Aria Setup Wizard
+    1. Sign the End-User License Agreement
+    2. Select a Destination folder
+7. Once the Aria Setup Wizard is complete you should see Aria as a shortcut on your desktop and under the Start Menu
+
+### Aria For Linux Installer
+
+:::caution Aria for Linux has only been tested on Ubuntu 22.04 LTS version.
+It is important to note the app was only tested for that specific version under Gnome 42.5 and X11 (X Server) as well as Wayland. Any other debian-based distribution (Ubuntu 22.04 fork such as Kubuntu, Mint etc..) or other environment may or may not work.
+:::
+
+1. Go to [portal.projectaria.com](http://portal.projectaria.com/)
+2. Select the menu bar on the top right of the screen to sign into your account
+3. Scroll down to Aria for Desktop
+    * It will display for MacOS, Windows or Linux, depending on what sort of operating system you're running
+1. Download Aria's Linux debian package
+2. Right-click on the Deb file and select “Open With Other Application“.
+3. Select “Software Install” and then “Select” at the top-right.
+4. The Software Center will open up on the screen with information on the app you are installing.
+5. Select Install
+
+The app will then be visible through "Activities"
+
+## Login
+
+1. Read the Project Aria Research Community Guidelines and select **Accept**
+2. Log in using the credentials that were sent to you (the same used to log into [portal.projectaria.com](http://portal.projectaria.com/)).
+
+## Dashboard
+
+After accepting the guidelines and logging in, you should see the Aria Dashboard. The dashboard displays the device info for your Aria glasses and allow you to interact with your glasses, if they are plugged in, as well as links to further information about Aria.
+
+### Pairing
+
+The Desktop App will detect devices that are plugged in via USB. Once plugged in, your device will display as Aria and as Active with its serial number visible in the list of devices next to My Device.
+
+If you cannot see your device, make sure you have updated the firmware using the Aria Mobile Companion app
+
+## Recording
+
+While you can initiate recording via the Desktop app, we recommend using the Mobile Companion app or Capture button.
+
+## Download your data
+
+Once you've completed recordings with your Aria Glasses you can access and download these recordings using the Desktop Companion app (go to the ARK Quickstart guide to see other ways to download your data).
+
+Every recording will generate a VRS file and a .vrs.json file containing the recording's metadata.
+
+To download a recording:
+
+1. Go to the Recordings page
+2. Select a VRS file (and the accompanying .json file if you want the metadata)
+3. Right click and select pull
+4. In the file explorer window, select where you want to save the recording.
+5. Once the folder location selected, a dialog window will pop up indicating the current VRS file transfer.
+
+## Visualize your data
+
+Once files have been copied to your local directory, the VRS file can be visualized using the Desktop App.
+
+1. In the Recordings page, select Play VRS.
+2. When the file explorer window appears, select the VRS file you want to play.
+3. Once you've selected a file to open, the VRS player window will pop up and start playing your recording.
+
+### Playback Controls
+
+#### Play/pause/stop playback
+
+The Previous and Next Frame buttons will play at most one frame backward or forward for each visible stream. The Speed controls let you chose to play slower or faster. If there is too much data for your system to process, frames will be dropped.
+
+#### Overlay Selection
+
+The overlay selector lets you chose what information to display over the frames. The options are:
+
+* Hide - there is no overlay
+* Tags - show streams tags
+* Configuration, State or Data - show the metadata found in the last record.
+
+### Tooltips
+
+To know the duration of the image data, use the tooltip found over the time display.
+
+Note that the start and end times show the time range in which image or audio data was found.
+
+Streams that don't contain image or audio data are ignored, and only data records from image and audio streams are considered. So if a recording contains a single image stream that has a configuration record at timestamp 0 rather than just before the first data record (as is too often the practice), while the first data record is at timestamp 15, the playback start time will be 15.
+
+### Menu Bar Commands
+
+The Menu Bar offers functionality available only there, don't forget to look there!
+
+The Layout menu's top section let you save and manage presets. Save your favorite stream display configurations, including stream orientation, stream order, which streams are visible or hidden, using the Save Preset command. To arrange streams, see the Context Menu section below.
+
+The commands in the lower section let you control in how many row of how many views the streams will be arranged. Layout Frames 4x2 means using 2 rows with up to 4 streams each. The layout configurations offered depend on the number of image streams visible.
+
+Once at least one preset has been saved, you can recall or delete presets, which automatically get a keyboard shortcut for quick access.
+
+### Keyboard Playback Controls
+
+Playback can be directly controlled from the keyboard:
+
+* Use the space bar to play/pause replay.
+* The backspace and the home keys will reset playback to the start of the file, much like the Stop button.
+* The left and right arrow keys will read at most one frame per stream, in either direction.
+* The up and down arrow keys will jump at most 10 frames, in either direction.
+* The page-up and page-down keys will jump at most 100 frames, in either direction.
+
+When using the arrow keys, all frames are guaranteed to be read. Use this feature if you want to be sure to view every frame of your file.
+
+## Streaming
+
+Aria Sensor data can be live streamed via Wi-Fi. While you can use any recording profile when streaming, we recommend only using Profiles 12 and 18, which are optimized for streaming.
+Streaming over will not work on any Meta corporate network.
+
+To stream data, your Aria glasses need to be on the same network as your computer.
+
+:: tip You will need to use a "non-corporate" network. Corporate/Institution networks are often protected by many layers of security and firewalls which will impede you from streaming. If you are at home, please make sure you're not connected to a VPN.
+
+### Wi-Fi connection via Mobile Companion App
+
+You will have connected your Aria device to Wi-Fi when you paired your device with the Mobile Companion App and updated it. Your computer and Aria device need to be on the same Wi-Fi network
+If you need to change the Wi-Fi network your Aria is connected to:
+
+1. Open Mobile Companion App
+2. In the Paired Glasses section of the Dashboard, select Select Wi-Fi
+3. Select your preferred network and follow the prompts to connect
+
+    * You can also forget an existing network from the Wi-Fi menu
+    * Make sure it is a non-corporate network that is the same as your computer
+
+Once connected, the Wi-Fi network name will appear in the Desktop App under My Device underneath the WiFi icon which will become blue.
+
+### Wi-Fi connection via Desktop App
+
+1. To connect the device to any available Wi-Fi network, select Wi-Fi on the Dashboard device toolbar under My Device.
+    1. Make sure it is a non-corporate network that is the same as your computer
+2. A list of available networks will be shown.
+3. Select your desired network and enter its password. Click on Connect to confirm your selected profile
+
+
+
+### Start Streaming
+
+To start streaming, select Streaming on the Dashboard device toolbar under My Device.
+The streaming session will then start
+
+### Streaming Visualisation
+
+The Aria stream window will pop up showing Aria's sensors live data. The nature of the visualized data will be determined by the chosen recording profile (See Select a Recording Profile above). we recommend only using Profiles 12 and 18, which are optimized for streaming.
+
+### Stop Streaming
+
+To stop streaming, select Stop on the same device toolbar
+
+:::info Closing the Aria Stream window will not stop the stream.
+You will need to effectively click on the Stop button for the stream to stop.
+:::
+
+## Machine Perception Services (MPS)
+
+The Desktop App exposes a cloud-based web service or MPS allowing you to generate a ground-truth trajectory out of an Aria VRS recording. Go to Access MPS Data for more information.
+
+
+# Appendix A - Recording using the Desktop app
+
+While we recommend recording using the Capture button or Mobile Companion app, here are the instructions for recording with the Desktop Companion app
+
+### Select a Recording Profile
+
+Before you can record using the Desktop app, you'll need to set a recording profile. You can do this via the Desktop or Mobile Companion App. To set the recording profile via Desktop app, select Profile in the device toolbar.
+
+Whenever a profile is selected, its description will be shown underneath. Select OK to confirm your selected profile.
+
+The profile you select will also be the profile used when you initiate recording using the capture button on your Aria device.
+
+### Start Recording
+
+### To start recording:
+
+1. Plug your Aria device into your computer with the provided cable.
+2. In the Dashboard device toolbar under My Device, select Record.
+3. Once the recording has started you can unplug your Aria device
+
+### Stop Recording
+
+### To stop recording:
+
+1. Plug your Aria device into your computer
+2. Select **Stop**

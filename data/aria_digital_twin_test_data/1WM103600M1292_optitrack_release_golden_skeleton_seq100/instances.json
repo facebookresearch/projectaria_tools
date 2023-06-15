@@ -1,0 +1,8961 @@
+{
+  "5691266090916432": {
+    "instance_id": 5691266090916432,
+    "instance_name": "Hook_4",
+    "prototype_name": "Hook",
+    "category": "hook",
+    "category_uid": 643,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5699505410169755": {
+    "instance_id": 5699505410169755,
+    "instance_name": "BookFiction7_00",
+    "prototype_name": "BookFiction7",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5679386472181999": {
+    "instance_id": 5679386472181999,
+    "instance_name": "BlackVaseMedium_1",
+    "prototype_name": "BlackVaseMedium",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5709481502479472": {
+    "instance_id": 5709481502479472,
+    "instance_name": "BookCooking1_01",
+    "prototype_name": "BookCooking1",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4233561046743320": {
+    "instance_id": 4233561046743320,
+    "instance_name": "FacebookPortal",
+    "prototype_name": "Facebook_Portal",
+    "category": "smart home video",
+    "category_uid": 168,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5716872031759193": {
+    "instance_id": 5716872031759193,
+    "instance_name": "CandlePattern02_1",
+    "prototype_name": "CandlePattern02",
+    "category": "candle",
+    "category_uid": 226,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5727766350632718": {
+    "instance_id": 5727766350632718,
+    "instance_name": "CandlePattern02_2",
+    "prototype_name": "CandlePattern02",
+    "category": "candle",
+    "category_uid": 226,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5742878709105369": {
+    "instance_id": 5742878709105369,
+    "instance_name": "WhiteVaseSmall_1",
+    "prototype_name": "WhiteVaseSmall",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6020413147983593": {
+    "instance_id": 6020413147983593,
+    "instance_name": "BookLearning1_01",
+    "prototype_name": "BookLearning1",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4404207983027294": {
+    "instance_id": 4404207983027294,
+    "instance_name": "ChoppingBoard",
+    "prototype_name": "ChoppingBoard",
+    "category": "cutting board",
+    "category_uid": 401,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5755491004538423": {
+    "instance_id": 5755491004538423,
+    "instance_name": "BookBoxSmall_1",
+    "prototype_name": "BookBoxSmall",
+    "category": "decorative accessory",
+    "category_uid": 612,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5755832224464475": {
+    "instance_id": 5755832224464475,
+    "instance_name": "BookFiction1_01",
+    "prototype_name": "BookFiction1",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5757495937648040": {
+    "instance_id": 5757495937648040,
+    "instance_name": "CatWaterBowlGrey_1",
+    "prototype_name": "CatWaterBowlGrey",
+    "category": "pet bowl",
+    "category_uid": 268,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5760238240723886": {
+    "instance_id": 5760238240723886,
+    "instance_name": "FloatingShelf_2",
+    "prototype_name": "FloatingShelf",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5398046533633671": {
+    "instance_id": 5398046533633671,
+    "instance_name": "SketchBook_2",
+    "prototype_name": "SketchBook",
+    "category": "notebook",
+    "category_uid": 314,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5703457339749158": {
+    "instance_id": 5703457339749158,
+    "instance_name": "FabricSoftener_1",
+    "prototype_name": "FabricSoftener",
+    "category": "freestanding accessory",
+    "category_uid": 199,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5772000932876723": {
+    "instance_id": 5772000932876723,
+    "instance_name": "LaundryBasket_1",
+    "prototype_name": "LaundryBasket",
+    "category": "clothes basket",
+    "category_uid": 430,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5466552840060336": {
+    "instance_id": 5466552840060336,
+    "instance_name": "BlackVaseBig_2",
+    "prototype_name": "BlackVaseBig",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5489341337827859": {
+    "instance_id": 5489341337827859,
+    "instance_name": "Plant2_3",
+    "prototype_name": "Plant2",
+    "category": "house plant",
+    "category_uid": 242,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5514510008674563": {
+    "instance_id": 5514510008674563,
+    "instance_name": "CurtainVarAHangingCurtain02_2",
+    "prototype_name": "CurtainVarAHangingCurtain02",
+    "category": "curtain",
+    "category_uid": 212,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8831369073541652": {
+    "instance_id": 8831369073541652,
+    "instance_name": "CloudNightLight_1",
+    "prototype_name": "CloudNightLight",
+    "category": "light",
+    "category_uid": 7,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8443006142439288": {
+    "instance_id": 8443006142439288,
+    "instance_name": "CurtainVarAHangingCurtain01_2",
+    "prototype_name": "CurtainVarAHangingCurtain01",
+    "category": "curtain",
+    "category_uid": 212,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5756908124331676": {
+    "instance_id": 5756908124331676,
+    "instance_name": "SmartSpeaker_3",
+    "prototype_name": "SmartSpeaker",
+    "category": "smart home speaker",
+    "category_uid": 167,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4466392793450825": {
+    "instance_id": 4466392793450825,
+    "instance_name": "Apartment_CabinetDoorH",
+    "prototype_name": "Apartment_CabinetDoorH",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5754109741312782": {
+    "instance_id": 5754109741312782,
+    "instance_name": "Pillow_1",
+    "prototype_name": "Pillow",
+    "category": "pillow",
+    "category_uid": 379,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5526267597450533": {
+    "instance_id": 5526267597450533,
+    "instance_name": "CoffeeMaker",
+    "prototype_name": "CoffeeMaker",
+    "category": "coffee maker",
+    "category_uid": 145,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5772730392792218": {
+    "instance_id": 5772730392792218,
+    "instance_name": "Napkin1_00",
+    "prototype_name": "Napkin1",
+    "category": "napkin",
+    "category_uid": 377,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8346230575449460": {
+    "instance_id": 8346230575449460,
+    "instance_name": "WallDecorBlackWhite02_1",
+    "prototype_name": "WallDecorBlackWhite02",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8347850805287634": {
+    "instance_id": 8347850805287634,
+    "instance_name": "Magazine04_2",
+    "prototype_name": "Magazine04",
+    "category": "magazine",
+    "category_uid": 316,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6005198676179569": {
+    "instance_id": 6005198676179569,
+    "instance_name": "FloatingShelf_6",
+    "prototype_name": "FloatingShelf",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5641418635926446": {
+    "instance_id": 5641418635926446,
+    "instance_name": "SmartWifiRouter_2",
+    "prototype_name": "SmartWifiRouter",
+    "category": "router",
+    "category_uid": 487,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8606896909327980": {
+    "instance_id": 8606896909327980,
+    "instance_name": "SpeakerSmall_1",
+    "prototype_name": "SpeakerSmall",
+    "category": "speaker",
+    "category_uid": 166,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6126833340680404": {
+    "instance_id": 6126833340680404,
+    "instance_name": "VinylHolder_3",
+    "prototype_name": "VinylHolder",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5738928666187566": {
+    "instance_id": 5738928666187566,
+    "instance_name": "DeerNightLight_2",
+    "prototype_name": "DeerNightLight",
+    "category": "light",
+    "category_uid": 7,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8425643680842107": {
+    "instance_id": 8425643680842107,
+    "instance_name": "BlackVaseSmall_1",
+    "prototype_name": "BlackVaseSmall",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5492969170819673": {
+    "instance_id": 5492969170819673,
+    "instance_name": "SmartWifiRouter_3",
+    "prototype_name": "SmartWifiRouter",
+    "category": "router",
+    "category_uid": 487,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6234692479938693": {
+    "instance_id": 6234692479938693,
+    "instance_name": "Apartment_CabinetDrawerF",
+    "prototype_name": "Apartment_CabinetDrawerF",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4671332369591132": {
+    "instance_id": 4671332369591132,
+    "instance_name": "KitchIsland",
+    "prototype_name": "KitchIsland",
+    "category": "table",
+    "category_uid": 33,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6403392549732697": {
+    "instance_id": 6403392549732697,
+    "instance_name": "BambooPlate",
+    "prototype_name": "BambooPlate",
+    "category": "plate",
+    "category_uid": 388,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 0
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5753159274747299": {
+    "instance_id": 5753159274747299,
+    "instance_name": "CarKey_1",
+    "prototype_name": "CarKey",
+    "category": "keys",
+    "category_uid": 312,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5669745943123789": {
+    "instance_id": 5669745943123789,
+    "instance_name": "Hook_2",
+    "prototype_name": "Hook",
+    "category": "hook",
+    "category_uid": 643,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5670734489688805": {
+    "instance_id": 5670734489688805,
+    "instance_name": "PuppyNightLight_2",
+    "prototype_name": "PuppyNightLight",
+    "category": "light",
+    "category_uid": 7,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5604705416273297": {
+    "instance_id": 5604705416273297,
+    "instance_name": "FloatingShelf_1",
+    "prototype_name": "FloatingShelf",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6668393229868225": {
+    "instance_id": 6668393229868225,
+    "instance_name": "GlassCabinet",
+    "prototype_name": "GlassdoorCabinet",
+    "category": "cabinets and shelves",
+    "category_uid": 555,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5772620079455816": {
+    "instance_id": 5772620079455816,
+    "instance_name": "VinylHolder_1",
+    "prototype_name": "VinylHolder",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6404767909538453": {
+    "instance_id": 6404767909538453,
+    "instance_name": "BlackVaseSmall_2",
+    "prototype_name": "BlackVaseSmall",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8471018366305712": {
+    "instance_id": 8471018366305712,
+    "instance_name": "MugCat_2",
+    "prototype_name": "MugCat",
+    "category": "cup",
+    "category_uid": 389,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5715711138521350": {
+    "instance_id": 5715711138521350,
+    "instance_name": "SprayStainRemover_1",
+    "prototype_name": "SprayStainRemover",
+    "category": "spray bottle",
+    "category_uid": 535,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6382163488492156": {
+    "instance_id": 6382163488492156,
+    "instance_name": "WhitePictureLedge",
+    "prototype_name": "WhitePictureLedge",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5673569022758285": {
+    "instance_id": 5673569022758285,
+    "instance_name": "Plant3_1",
+    "prototype_name": "Plant3",
+    "category": "house plant",
+    "category_uid": 242,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6092836274062801": {
+    "instance_id": 6092836274062801,
+    "instance_name": "WallDecorVanGogh01_1",
+    "prototype_name": "WallDecorVanGogh01",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8287843541287453": {
+    "instance_id": 8287843541287453,
+    "instance_name": "CoffeePodMugCarousel_1",
+    "prototype_name": "CoffeePodMugCarousel",
+    "category": "kitchen utensil",
+    "category_uid": 381,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5399338083522220": {
+    "instance_id": 5399338083522220,
+    "instance_name": "DvdPlayer_1",
+    "prototype_name": "DvdPlayer",
+    "category": "consumer electronic device",
+    "category_uid": 125,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8497363033638829": {
+    "instance_id": 8497363033638829,
+    "instance_name": "FloatingShelf_4",
+    "prototype_name": "FloatingShelf",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5569976236411619": {
+    "instance_id": 5569976236411619,
+    "instance_name": "WhiteVaseBig_2",
+    "prototype_name": "WhiteVaseBig",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5583699781749687": {
+    "instance_id": 5583699781749687,
+    "instance_name": "WireShelvingUnitBlack_1",
+    "prototype_name": "WireShelvingUnitBlack",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4146932978767941": {
+    "instance_id": 4146932978767941,
+    "instance_name": "BirdHouseToy",
+    "prototype_name": "BirdHouseToy",
+    "category": "play set",
+    "category_uid": 279,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6354707051266870": {
+    "instance_id": 6354707051266870,
+    "instance_name": "GreentDecorationMedium",
+    "prototype_name": "GreentDecorationMedium",
+    "category": "decorative accessory",
+    "category_uid": 612,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8486286861413890": {
+    "instance_id": 8486286861413890,
+    "instance_name": "BlackVaseMedium_2",
+    "prototype_name": "BlackVaseMedium",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6193075757373356": {
+    "instance_id": 6193075757373356,
+    "instance_name": "CatNightLight_2",
+    "prototype_name": "CatNightLight",
+    "category": "light",
+    "category_uid": 7,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8761620140545558": {
+    "instance_id": 8761620140545558,
+    "instance_name": "VinylMusic1",
+    "prototype_name": "VinylMusic1",
+    "category": "musical instrument",
+    "category_uid": 9,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6470313052984551": {
+    "instance_id": 6470313052984551,
+    "instance_name": "VinylHolder_4",
+    "prototype_name": "VinylHolder",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4166903530098196": {
+    "instance_id": 4166903530098196,
+    "instance_name": "Apartment_BathroomDoor",
+    "prototype_name": "Apartment_BathroomDoor",
+    "category": "door",
+    "category_uid": 17,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6022204124496904": {
+    "instance_id": 6022204124496904,
+    "instance_name": "DvdRemote_1",
+    "prototype_name": "DvdRemote",
+    "category": "electronic device control",
+    "category_uid": 182,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5689896711124403": {
+    "instance_id": 5689896711124403,
+    "instance_name": "Bleach_2",
+    "prototype_name": "Bleach",
+    "category": "freestanding accessory",
+    "category_uid": 199,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6054038761272920": {
+    "instance_id": 6054038761272920,
+    "instance_name": "BookComic1_01",
+    "prototype_name": "BookComic1",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5872114962828218": {
+    "instance_id": 5872114962828218,
+    "instance_name": "FloatingShelf03Pattern01_1",
+    "prototype_name": "FloatingShelf03Pattern01",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6507672895916663": {
+    "instance_id": 6507672895916663,
+    "instance_name": "BlackVaseBig_1",
+    "prototype_name": "BlackVaseBig",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4666210076742595": {
+    "instance_id": 4666210076742595,
+    "instance_name": "ExtendableTable",
+    "prototype_name": "ExtendableTable",
+    "category": "dining table",
+    "category_uid": 66,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4377414492307750": {
+    "instance_id": 4377414492307750,
+    "instance_name": "CoatRackShoeBench",
+    "prototype_name": "CoatRackShoeBench",
+    "category": "shoe rack",
+    "category_uid": 62,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5669259956462831": {
+    "instance_id": 5669259956462831,
+    "instance_name": "Plant2_2",
+    "prototype_name": "Plant2",
+    "category": "house plant",
+    "category_uid": 242,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6268784849863150": {
+    "instance_id": 6268784849863150,
+    "instance_name": "Apartment_CabinetDrawerG",
+    "prototype_name": "Apartment_CabinetDrawerG",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5980943851929505": {
+    "instance_id": 5980943851929505,
+    "instance_name": "WhiteVaseMedium_1",
+    "prototype_name": "WhiteVaseMedium",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6072134732876421": {
+    "instance_id": 6072134732876421,
+    "instance_name": "VinylMusic3",
+    "prototype_name": "VinylMusic3",
+    "category": "musical instrument",
+    "category_uid": 9,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5557185237664641": {
+    "instance_id": 5557185237664641,
+    "instance_name": "CandlePattern01_2",
+    "prototype_name": "CandlePattern01",
+    "category": "candle",
+    "category_uid": 226,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4774735209203673": {
+    "instance_id": 4774735209203673,
+    "instance_name": "DecorativeBoxHexLarge",
+    "prototype_name": "DecorativeBoxHexLarge",
+    "category": "decorative accessory",
+    "category_uid": 612,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4820696891314354": {
+    "instance_id": 4820696891314354,
+    "instance_name": "Bookcase",
+    "prototype_name": "BlackBookcase",
+    "category": "bookcase",
+    "category_uid": 53,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4584316114941098": {
+    "instance_id": 4584316114941098,
+    "instance_name": "Apartment_StorageDoor",
+    "prototype_name": "Apartment_StorageDoor",
+    "category": "door",
+    "category_uid": 17,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5514585441996286": {
+    "instance_id": 5514585441996286,
+    "instance_name": "RecordPlayer_1",
+    "prototype_name": "RecordPlayer",
+    "category": "musical instrument",
+    "category_uid": 9,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6096361043707794": {
+    "instance_id": 6096361043707794,
+    "instance_name": "CurtainVarAHangingCurtain01_1",
+    "prototype_name": "CurtainVarAHangingCurtain01",
+    "category": "curtain",
+    "category_uid": 212,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6242229142514412": {
+    "instance_id": 6242229142514412,
+    "instance_name": "Apartment_CabinetDrawerA",
+    "prototype_name": "Apartment_CabinetDrawerA",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5767319426644654": {
+    "instance_id": 5767319426644654,
+    "instance_name": "Plant4_2",
+    "prototype_name": "Plant4",
+    "category": "house plant",
+    "category_uid": 242,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4508463855879675": {
+    "instance_id": 4508463855879675,
+    "instance_name": "WoodenBowl",
+    "prototype_name": "WoodenBowl",
+    "category": "bowl",
+    "category_uid": 390,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 0
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4343705029080030": {
+    "instance_id": 4343705029080030,
+    "instance_name": "Fridge",
+    "prototype_name": "ApartmentRefrigerator",
+    "category": "refrigerator",
+    "category_uid": 126,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8227313314009581": {
+    "instance_id": 8227313314009581,
+    "instance_name": "StepLadder_1",
+    "prototype_name": "StepLadder",
+    "category": "step ladder",
+    "category_uid": 26,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5647460625370727": {
+    "instance_id": 5647460625370727,
+    "instance_name": "Bleach_1",
+    "prototype_name": "Bleach",
+    "category": "freestanding accessory",
+    "category_uid": 199,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6070244426339135": {
+    "instance_id": 6070244426339135,
+    "instance_name": "Napkin1_02",
+    "prototype_name": "Napkin1",
+    "category": "napkin",
+    "category_uid": 377,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5925929390764282": {
+    "instance_id": 5925929390764282,
+    "instance_name": "VaseBig_1",
+    "prototype_name": "VaseBig",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5847073135350489": {
+    "instance_id": 5847073135350489,
+    "instance_name": "Plant3_2",
+    "prototype_name": "Plant3",
+    "category": "house plant",
+    "category_uid": 242,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5663710787070062": {
+    "instance_id": 5663710787070062,
+    "instance_name": "ChargingStation_2",
+    "prototype_name": "ChargingStation",
+    "category": "consumer electronic device",
+    "category_uid": 125,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6280753471997358": {
+    "instance_id": 6280753471997358,
+    "instance_name": "SpiceJarCurryPowder",
+    "prototype_name": "SpiceJarCurryPowder",
+    "category": "kitchen utensil",
+    "category_uid": 381,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5403961483047574": {
+    "instance_id": 5403961483047574,
+    "instance_name": "FloatingShelf_7",
+    "prototype_name": "FloatingShelf",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5969806336372598": {
+    "instance_id": 5969806336372598,
+    "instance_name": "Hook_3",
+    "prototype_name": "Hook",
+    "category": "hook",
+    "category_uid": 643,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5610309035729154": {
+    "instance_id": 5610309035729154,
+    "instance_name": "SmartSpeaker_1",
+    "prototype_name": "SmartSpeaker",
+    "category": "smart home speaker",
+    "category_uid": 167,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4946858702072383": {
+    "instance_id": 4946858702072383,
+    "instance_name": "NightStand",
+    "prototype_name": "NightStand",
+    "category": "side table",
+    "category_uid": 67,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5985731011472505": {
+    "instance_id": 5985731011472505,
+    "instance_name": "VinylMusic5",
+    "prototype_name": "VinylMusic5",
+    "category": "musical instrument",
+    "category_uid": 9,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8650753058269974": {
+    "instance_id": 8650753058269974,
+    "instance_name": "SmartWifiRouter_1",
+    "prototype_name": "SmartWifiRouter",
+    "category": "router",
+    "category_uid": 487,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4205305819596354": {
+    "instance_id": 4205305819596354,
+    "instance_name": "Thermostat",
+    "prototype_name": "ThermostatApartmentOrg",
+    "category": "thermostat",
+    "category_uid": 109,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4377907428960199": {
+    "instance_id": 4377907428960199,
+    "instance_name": "ApartmentEnv",
+    "prototype_name": "ApartmentEnv",
+    "category": "shelter",
+    "category_uid": 614,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5825125640843395": {
+    "instance_id": 5825125640843395,
+    "instance_name": "DishSoap_1",
+    "prototype_name": "DishSoap",
+    "category": "liquid soap dispenser",
+    "category_uid": 250,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5787592761287005": {
+    "instance_id": 5787592761287005,
+    "instance_name": "Plant2_5",
+    "prototype_name": "Plant2",
+    "category": "house plant",
+    "category_uid": 242,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5945885645429853": {
+    "instance_id": 5945885645429853,
+    "instance_name": "BookJournal_00",
+    "prototype_name": "BookJournal",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4506017399482622": {
+    "instance_id": 4506017399482622,
+    "instance_name": "HeatTrivet",
+    "prototype_name": "HeatTrivet",
+    "category": "coaster",
+    "category_uid": 235,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 0
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6016151745085307": {
+    "instance_id": 6016151745085307,
+    "instance_name": "AirPurifier_2",
+    "prototype_name": "AirPurifier",
+    "category": "air purifier",
+    "category_uid": 158,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4398016356961278": {
+    "instance_id": 4398016356961278,
+    "instance_name": "Apartment_ClosetDoorB",
+    "prototype_name": "Apartment_ClosetDoorB",
+    "category": "door",
+    "category_uid": 17,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4440138142777523": {
+    "instance_id": 4440138142777523,
+    "instance_name": "TvRemote_1",
+    "prototype_name": "TvRemote",
+    "category": "remote control",
+    "category_uid": 183,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5731851743546867": {
+    "instance_id": 5731851743546867,
+    "instance_name": "Bleach_4",
+    "prototype_name": "Bleach",
+    "category": "freestanding accessory",
+    "category_uid": 199,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5713237865461294": {
+    "instance_id": 5713237865461294,
+    "instance_name": "WhiteVaseBig_1",
+    "prototype_name": "WhiteVaseBig",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4374102529375149": {
+    "instance_id": 4374102529375149,
+    "instance_name": "YellowDiningChair",
+    "prototype_name": "YellowDiningChair",
+    "category": "dining chair",
+    "category_uid": 40,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4433484210031167": {
+    "instance_id": 4433484210031167,
+    "instance_name": "BlackCeramicMug",
+    "prototype_name": "BlackCeramicMug",
+    "category": "cup",
+    "category_uid": 389,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5732504816808650": {
+    "instance_id": 5732504816808650,
+    "instance_name": "SketchBook_1",
+    "prototype_name": "SketchBook",
+    "category": "notebook",
+    "category_uid": 314,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4308799692551258": {
+    "instance_id": 4308799692551258,
+    "instance_name": "MuffinPan",
+    "prototype_name": "MuffinPan",
+    "category": "baking pan",
+    "category_uid": 403,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 180
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6024439677567017": {
+    "instance_id": 6024439677567017,
+    "instance_name": "Plant2_4",
+    "prototype_name": "Plant2",
+    "category": "house plant",
+    "category_uid": 242,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5178593885580359": {
+    "instance_id": 5178593885580359,
+    "instance_name": "BookBoxBig_2",
+    "prototype_name": "BookBoxBig",
+    "category": "decorative accessory",
+    "category_uid": 612,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4843871925733249": {
+    "instance_id": 4843871925733249,
+    "instance_name": "WhiteLiddedTrashBin",
+    "prototype_name": "WhiteLiddedTrashBin",
+    "category": "trash can",
+    "category_uid": 233,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 180
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5686939924730374": {
+    "instance_id": 5686939924730374,
+    "instance_name": "Pillow_2",
+    "prototype_name": "Pillow",
+    "category": "pillow",
+    "category_uid": 379,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5281841481920793": {
+    "instance_id": 5281841481920793,
+    "instance_name": "CornerDisplayShelves_1",
+    "prototype_name": "CornerDisplayShelves",
+    "category": "cabinets and shelves",
+    "category_uid": 555,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6068495203163729": {
+    "instance_id": 6068495203163729,
+    "instance_name": "AirPurifier_1",
+    "prototype_name": "AirPurifier",
+    "category": "air purifier",
+    "category_uid": 158,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6370045906347438": {
+    "instance_id": 6370045906347438,
+    "instance_name": "BookFiction9_00",
+    "prototype_name": "BookFiction9",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5872313316153378": {
+    "instance_id": 5872313316153378,
+    "instance_name": "WallDecorRedWhite01_1",
+    "prototype_name": "WallDecorRedWhite01",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4378225385588301": {
+    "instance_id": 4378225385588301,
+    "instance_name": "WhiteCabinet_3",
+    "prototype_name": "WhiteCabinet",
+    "category": "cabinet",
+    "category_uid": 52,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5446502842113855": {
+    "instance_id": 5446502842113855,
+    "instance_name": "GiffFigure_1",
+    "prototype_name": "GiffFigure",
+    "category": "figurine",
+    "category_uid": 223,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5821917067859857": {
+    "instance_id": 5821917067859857,
+    "instance_name": "MugCat_4",
+    "prototype_name": "MugCat",
+    "category": "cup",
+    "category_uid": 389,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5685791258164662": {
+    "instance_id": 5685791258164662,
+    "instance_name": "CurtainVarAHangingCurtain02_1",
+    "prototype_name": "CurtainVarAHangingCurtain02",
+    "category": "curtain",
+    "category_uid": 212,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5328954527141022": {
+    "instance_id": 5328954527141022,
+    "instance_name": "BlackBarStool_B",
+    "prototype_name": "BlackBarStool",
+    "category": "bar stool",
+    "category_uid": 45,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 90
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5683824674974110": {
+    "instance_id": 5683824674974110,
+    "instance_name": "KittyBowl_1",
+    "prototype_name": "KittyBowl",
+    "category": "pet bowl",
+    "category_uid": 268,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5347077565402659": {
+    "instance_id": 5347077565402659,
+    "instance_name": "VaseBig_2",
+    "prototype_name": "VaseBig",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5691118257618095": {
+    "instance_id": 5691118257618095,
+    "instance_name": "WallDecorVanGogh02_1",
+    "prototype_name": "WallDecorVanGogh02",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4491633224258447": {
+    "instance_id": 4491633224258447,
+    "instance_name": "WhiteCabinet_2",
+    "prototype_name": "WhiteCabinet",
+    "category": "cabinet",
+    "category_uid": 52,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8563435687029752": {
+    "instance_id": 8563435687029752,
+    "instance_name": "Thermostat_2",
+    "prototype_name": "ThermostatApartment",
+    "category": "thermostat",
+    "category_uid": 109,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5141836462586802": {
+    "instance_id": 5141836462586802,
+    "instance_name": "Mouse_1",
+    "prototype_name": "Mouse",
+    "category": "computer mouse",
+    "category_uid": 180,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5652114744864847": {
+    "instance_id": 5652114744864847,
+    "instance_name": "DisplayShelves_1",
+    "prototype_name": "DisplayShelves",
+    "category": "cabinets and shelves",
+    "category_uid": 555,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5545480862172378": {
+    "instance_id": 5545480862172378,
+    "instance_name": "VinylHolder_5",
+    "prototype_name": "VinylHolder",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5232345310204385": {
+    "instance_id": 5232345310204385,
+    "instance_name": "Magazine02_1",
+    "prototype_name": "Magazine02",
+    "category": "magazine",
+    "category_uid": 316,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5679999522106854": {
+    "instance_id": 5679999522106854,
+    "instance_name": "TrashCan_1",
+    "prototype_name": "TrashCan",
+    "category": "trash can",
+    "category_uid": 233,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6066897026654264": {
+    "instance_id": 6066897026654264,
+    "instance_name": "BaseballCap_1",
+    "prototype_name": "BaseballCap",
+    "category": "hat",
+    "category_uid": 335,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4298126910285355": {
+    "instance_id": 4298126910285355,
+    "instance_name": "GreenDecorationShort",
+    "prototype_name": "GreenDecorationShort",
+    "category": "decorative accessory",
+    "category_uid": 612,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5521811367872509": {
+    "instance_id": 5521811367872509,
+    "instance_name": "Magazine04_1",
+    "prototype_name": "Magazine04",
+    "category": "magazine",
+    "category_uid": 316,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5488997431207625": {
+    "instance_id": 5488997431207625,
+    "instance_name": "VinylHolder_6",
+    "prototype_name": "VinylHolder",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5591380634282168": {
+    "instance_id": 5591380634282168,
+    "instance_name": "KitchenScissorsRed_1",
+    "prototype_name": "KitchenScissorsRed",
+    "category": "scissors",
+    "category_uid": 439,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4406187162805376": {
+    "instance_id": 4406187162805376,
+    "instance_name": "YellowFrame",
+    "prototype_name": "YellowFrame",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5969076119793130": {
+    "instance_id": 5969076119793130,
+    "instance_name": "BuletteFigure_2",
+    "prototype_name": "BuletteFigure",
+    "category": "figurine",
+    "category_uid": 223,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4461910773902408": {
+    "instance_id": 4461910773902408,
+    "instance_name": "DecorativeBoxHexSmall",
+    "prototype_name": "DecorativeBoxHexSmall",
+    "category": "box",
+    "category_uid": 324,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6008551499197306": {
+    "instance_id": 6008551499197306,
+    "instance_name": "ChargingStation_1",
+    "prototype_name": "ChargingStation",
+    "category": "consumer electronic device",
+    "category_uid": 125,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5742340115826826": {
+    "instance_id": 5742340115826826,
+    "instance_name": "CandlePattern04_2",
+    "prototype_name": "CandlePattern04",
+    "category": "candle",
+    "category_uid": 226,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5406765269435442": {
+    "instance_id": 5406765269435442,
+    "instance_name": "TissueBox_3",
+    "prototype_name": "TissueBox",
+    "category": "tissue box",
+    "category_uid": 238,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5638527099547306": {
+    "instance_id": 5638527099547306,
+    "instance_name": "Magazine02_2",
+    "prototype_name": "Magazine02",
+    "category": "magazine",
+    "category_uid": 316,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5637939432952742": {
+    "instance_id": 5637939432952742,
+    "instance_name": "WallDecorRedWhite03_1",
+    "prototype_name": "WallDecorRedWhite03",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4188893447889258": {
+    "instance_id": 4188893447889258,
+    "instance_name": "ApartmentDynamicDoubleDoorA",
+    "prototype_name": "ApartmentDynamicDoubleDoorA",
+    "category": "door",
+    "category_uid": 17,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5603566279698899": {
+    "instance_id": 5603566279698899,
+    "instance_name": "DisplayWolf",
+    "prototype_name": "DisplayWolf",
+    "category": "figurine",
+    "category_uid": 223,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5595427647241286": {
+    "instance_id": 5595427647241286,
+    "instance_name": "BookFiction10_01",
+    "prototype_name": "BookFiction10",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5602495583168027": {
+    "instance_id": 5602495583168027,
+    "instance_name": "Blender_1",
+    "prototype_name": "Blender",
+    "category": "blender",
+    "category_uid": 141,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5675122579242071": {
+    "instance_id": 5675122579242071,
+    "instance_name": "Humidifier_1",
+    "prototype_name": "Humidifier",
+    "category": "dehumidifier",
+    "category_uid": 155,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4386254424828288": {
+    "instance_id": 4386254424828288,
+    "instance_name": "WallClockT",
+    "prototype_name": "WallClockT",
+    "category": "wall clock",
+    "category_uid": 216,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5577751545657322": {
+    "instance_id": 5577751545657322,
+    "instance_name": "BaseballCap_2",
+    "prototype_name": "BaseballCap",
+    "category": "hat",
+    "category_uid": 335,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5484778318311369": {
+    "instance_id": 5484778318311369,
+    "instance_name": "CarKey_2",
+    "prototype_name": "CarKey",
+    "category": "keys",
+    "category_uid": 312,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4106656782769564": {
+    "instance_id": 4106656782769564,
+    "instance_name": "Apartment_ClosetDoorD",
+    "prototype_name": "Apartment_ClosetDoorD",
+    "category": "door",
+    "category_uid": 17,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4934880203206237": {
+    "instance_id": 4934880203206237,
+    "instance_name": "BlackRoundTable",
+    "prototype_name": "BlackRoundTable",
+    "category": "coffee table",
+    "category_uid": 68,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 90
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5469611999830904": {
+    "instance_id": 5469611999830904,
+    "instance_name": "KittyBowl_2",
+    "prototype_name": "KittyBowl",
+    "category": "pet bowl",
+    "category_uid": 268,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4798296836848263": {
+    "instance_id": 4798296836848263,
+    "instance_name": "WhiteContainerBox",
+    "prototype_name": "WhiteContainerBox",
+    "category": "container",
+    "category_uid": 15,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5427209840721403": {
+    "instance_id": 5427209840721403,
+    "instance_name": "BookComic1_00",
+    "prototype_name": "BookComic1",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5409897245802278": {
+    "instance_id": 5409897245802278,
+    "instance_name": "BookFiction8_01",
+    "prototype_name": "BookFiction8",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5493652350754756": {
+    "instance_id": 5493652350754756,
+    "instance_name": "BuletteFigure_1",
+    "prototype_name": "BuletteFigure",
+    "category": "figurine",
+    "category_uid": 223,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5378932482217188": {
+    "instance_id": 5378932482217188,
+    "instance_name": "Magazine01_2",
+    "prototype_name": "Magazine01",
+    "category": "magazine",
+    "category_uid": 316,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6137687389636892": {
+    "instance_id": 6137687389636892,
+    "instance_name": "WhitTableLamp",
+    "prototype_name": "WhitTableLamp",
+    "category": "desk lamp",
+    "category_uid": 187,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5601251456638250": {
+    "instance_id": 5601251456638250,
+    "instance_name": "KitchenRack_1",
+    "prototype_name": "KitchenRack",
+    "category": "rack",
+    "category_uid": 517,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4651470314873166": {
+    "instance_id": 4651470314873166,
+    "instance_name": "WallClockB",
+    "prototype_name": "WallClockB",
+    "category": "wall clock",
+    "category_uid": 216,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5565715666855260": {
+    "instance_id": 5565715666855260,
+    "instance_name": "FloatingShelf_3",
+    "prototype_name": "FloatingShelf",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6047704581952849": {
+    "instance_id": 6047704581952849,
+    "instance_name": "GameControllerBlack",
+    "prototype_name": "GameControllerBlack",
+    "category": "video game controller",
+    "category_uid": 184,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5647568005323433": {
+    "instance_id": 5647568005323433,
+    "instance_name": "WallDecorBlackWhite01_1",
+    "prototype_name": "WallDecorBlackWhite01",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4515724411815794": {
+    "instance_id": 4515724411815794,
+    "instance_name": "Apartment_CabinetDoorB",
+    "prototype_name": "Apartment_CabinetDoorB",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6215248681836206": {
+    "instance_id": 6215248681836206,
+    "instance_name": "WallDecorRedWhite02_1",
+    "prototype_name": "WallDecorRedWhite02",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "3758151980953788": {
+    "instance_id": 3758151980953788,
+    "instance_name": "WoodenFork",
+    "prototype_name": "WoodenFork",
+    "category": "fork",
+    "category_uid": 386,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4243547695770937": {
+    "instance_id": 4243547695770937,
+    "instance_name": "CoffeeCanisterLarge",
+    "prototype_name": "CoffeeCanisterLarge",
+    "category": "container",
+    "category_uid": 15,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5289557174481772": {
+    "instance_id": 5289557174481772,
+    "instance_name": "GameControllerWhite",
+    "prototype_name": "GameControllerWhite",
+    "category": "video game controller",
+    "category_uid": 184,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4612056405499740": {
+    "instance_id": 4612056405499740,
+    "instance_name": "BlackFrameLarge",
+    "prototype_name": "BlackFrameLarge",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4555968634527713": {
+    "instance_id": 4555968634527713,
+    "instance_name": "ClotheSpray_2",
+    "prototype_name": "ClotheSpray",
+    "category": "cleaning utensil",
+    "category_uid": 383,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5997435073634169": {
+    "instance_id": 5997435073634169,
+    "instance_name": "FloatingShelf_8",
+    "prototype_name": "FloatingShelf",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5396397950471155": {
+    "instance_id": 5396397950471155,
+    "instance_name": "BlasterGameBase",
+    "prototype_name": "BlasterGameBase",
+    "category": "figurine",
+    "category_uid": 223,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5550946281619865": {
+    "instance_id": 5550946281619865,
+    "instance_name": "SugarCanister_1",
+    "prototype_name": "SugarCanister",
+    "category": "kitchen utensil",
+    "category_uid": 381,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5467491706681968": {
+    "instance_id": 5467491706681968,
+    "instance_name": "VinylMusic2",
+    "prototype_name": "VinylMusic2",
+    "category": "musical instrument",
+    "category_uid": 9,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5493476027437810": {
+    "instance_id": 5493476027437810,
+    "instance_name": "KittyBowl_3",
+    "prototype_name": "KittyBowl",
+    "category": "pet bowl",
+    "category_uid": 268,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5146601015446389": {
+    "instance_id": 5146601015446389,
+    "instance_name": "BaseballCap_3",
+    "prototype_name": "BaseballCap",
+    "category": "hat",
+    "category_uid": 335,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4524065367659138": {
+    "instance_id": 4524065367659138,
+    "instance_name": "DecorativeBoxHexMedium",
+    "prototype_name": "DecorativeBoxHexMedium",
+    "category": "box",
+    "category_uid": 324,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6076122599078464": {
+    "instance_id": 6076122599078464,
+    "instance_name": "SpeakerMedium_1",
+    "prototype_name": "SpeakerMedium",
+    "category": "speaker",
+    "category_uid": 166,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5498827140213140": {
+    "instance_id": 5498827140213140,
+    "instance_name": "VinylMusic6",
+    "prototype_name": "VinylMusic6",
+    "category": "musical instrument",
+    "category_uid": 9,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4045779635527385": {
+    "instance_id": 4045779635527385,
+    "instance_name": "WoodenWineRack",
+    "prototype_name": "WoodenWineRack",
+    "category": "wine rack",
+    "category_uid": 64,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5457690507662421": {
+    "instance_id": 5457690507662421,
+    "instance_name": "Keyboard_1",
+    "prototype_name": "Keyboard",
+    "category": "computer keyboard",
+    "category_uid": 179,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5620985191327109": {
+    "instance_id": 5620985191327109,
+    "instance_name": "Plant4_1",
+    "prototype_name": "Plant4",
+    "category": "house plant",
+    "category_uid": 242,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5472069729572261": {
+    "instance_id": 5472069729572261,
+    "instance_name": "CatNightLight_1",
+    "prototype_name": "CatNightLight",
+    "category": "light",
+    "category_uid": 7,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5327125427304709": {
+    "instance_id": 5327125427304709,
+    "instance_name": "WhiteHook_2",
+    "prototype_name": "WhiteHook",
+    "category": "hook",
+    "category_uid": 643,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5297001823759466": {
+    "instance_id": 5297001823759466,
+    "instance_name": "VinylHolder_2",
+    "prototype_name": "VinylHolder",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5798701683519912": {
+    "instance_id": 5798701683519912,
+    "instance_name": "WallDecorRedWhite04_1",
+    "prototype_name": "WallDecorRedWhite04",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5573229446099662": {
+    "instance_id": 5573229446099662,
+    "instance_name": "CandlePattern01_1",
+    "prototype_name": "CandlePattern01",
+    "category": "candle",
+    "category_uid": 226,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5374777059301144": {
+    "instance_id": 5374777059301144,
+    "instance_name": "VinylMusic4",
+    "prototype_name": "VinylMusic4",
+    "category": "musical instrument",
+    "category_uid": 9,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5531418350303820": {
+    "instance_id": 5531418350303820,
+    "instance_name": "CandlePattern03_2",
+    "prototype_name": "CandlePattern03",
+    "category": "candle",
+    "category_uid": 226,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5228787827226793": {
+    "instance_id": 5228787827226793,
+    "instance_name": "Magazine03_2",
+    "prototype_name": "Magazine03",
+    "category": "magazine",
+    "category_uid": 316,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8483432791697262": {
+    "instance_id": 8483432791697262,
+    "instance_name": "ClotheSpray_1",
+    "prototype_name": "ClotheSpray",
+    "category": "cleaning utensil",
+    "category_uid": 383,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5525262227586334": {
+    "instance_id": 5525262227586334,
+    "instance_name": "FabricSoftener_2",
+    "prototype_name": "FabricSoftener",
+    "category": "freestanding accessory",
+    "category_uid": 199,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5360131407443703": {
+    "instance_id": 5360131407443703,
+    "instance_name": "CandlePattern03_1",
+    "prototype_name": "CandlePattern03",
+    "category": "candle",
+    "category_uid": 226,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5569683346470377": {
+    "instance_id": 5569683346470377,
+    "instance_name": "Thermostat_3",
+    "prototype_name": "ThermostatApartment",
+    "category": "thermostat",
+    "category_uid": 109,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5572793562797681": {
+    "instance_id": 5572793562797681,
+    "instance_name": "Plant4_3",
+    "prototype_name": "Plant4",
+    "category": "house plant",
+    "category_uid": 242,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6219594724780839": {
+    "instance_id": 6219594724780839,
+    "instance_name": "RedClock",
+    "prototype_name": "RedClock",
+    "category": "desk clock",
+    "category_uid": 239,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5678099758936567": {
+    "instance_id": 5678099758936567,
+    "instance_name": "DisplayDragon",
+    "prototype_name": "DisplayDragon",
+    "category": "figurine",
+    "category_uid": 223,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5094032467280655": {
+    "instance_id": 5094032467280655,
+    "instance_name": "WhiteClip_2",
+    "prototype_name": "WhiteClip",
+    "category": "accessory",
+    "category_uid": 8,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5923809207649353": {
+    "instance_id": 5923809207649353,
+    "instance_name": "BookBoxBig_1",
+    "prototype_name": "BookBoxBig",
+    "category": "decorative accessory",
+    "category_uid": 612,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5569723796459283": {
+    "instance_id": 5569723796459283,
+    "instance_name": "WhaleNightLight_2",
+    "prototype_name": "WhaleNightLight",
+    "category": "light",
+    "category_uid": 7,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5216629411774363": {
+    "instance_id": 5216629411774363,
+    "instance_name": "Hook_5",
+    "prototype_name": "Hook",
+    "category": "hook",
+    "category_uid": 643,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "3857532877683415": {
+    "instance_id": 3857532877683415,
+    "instance_name": "Apartment_CabinetDoorF",
+    "prototype_name": "Apartment_CabinetDoorF",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5781724685246660": {
+    "instance_id": 5781724685246660,
+    "instance_name": "TissueBox_1",
+    "prototype_name": "TissueBox",
+    "category": "tissue box",
+    "category_uid": 238,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6202939426417734": {
+    "instance_id": 6202939426417734,
+    "instance_name": "Magazine03_1",
+    "prototype_name": "Magazine03",
+    "category": "magazine",
+    "category_uid": 316,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5350152748444786": {
+    "instance_id": 5350152748444786,
+    "instance_name": "BookFiction1_00",
+    "prototype_name": "BookFiction1",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4540646932688846": {
+    "instance_id": 4540646932688846,
+    "instance_name": "FrameLarge",
+    "prototype_name": "FrameLarge",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4836240313077877": {
+    "instance_id": 4836240313077877,
+    "instance_name": "FireAlarm",
+    "prototype_name": "FireAlarm",
+    "category": "safety sign",
+    "category_uid": 597,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8385250428215783": {
+    "instance_id": 8385250428215783,
+    "instance_name": "MugCat_3",
+    "prototype_name": "MugCat",
+    "category": "cup",
+    "category_uid": 389,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5676135799106205": {
+    "instance_id": 5676135799106205,
+    "instance_name": "WallDecorVanGogh03_1",
+    "prototype_name": "WallDecorVanGogh03",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5513500632020700": {
+    "instance_id": 5513500632020700,
+    "instance_name": "SmartSpeaker_2",
+    "prototype_name": "SmartSpeaker",
+    "category": "smart home speaker",
+    "category_uid": 167,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4885175544866890": {
+    "instance_id": 4885175544866890,
+    "instance_name": "SpiceJarPepper",
+    "prototype_name": "SpiceJarPepper",
+    "category": "food object",
+    "category_uid": 12,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5278275092251821": {
+    "instance_id": 5278275092251821,
+    "instance_name": "BlackCoffeeTable",
+    "prototype_name": "BlackCoffeeTable",
+    "category": "coffee table",
+    "category_uid": 68,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4295130363941833": {
+    "instance_id": 4295130363941833,
+    "instance_name": "WhiteNightstand",
+    "prototype_name": "WhiteNightstand",
+    "category": "side table",
+    "category_uid": 67,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4790877574280528": {
+    "instance_id": 4790877574280528,
+    "instance_name": "BigScreenTV",
+    "prototype_name": "SamsumgTV",
+    "category": "television",
+    "category_uid": 161,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5562923403803843": {
+    "instance_id": 5562923403803843,
+    "instance_name": "LaundaryDetergent_1",
+    "prototype_name": "LaundaryDetergent",
+    "category": "freestanding accessory",
+    "category_uid": 199,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4382154278474428": {
+    "instance_id": 4382154278474428,
+    "instance_name": "BlackBedFrame",
+    "prototype_name": "BlackBedFrame",
+    "category": "bed frame",
+    "category_uid": 638,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4533558816769385": {
+    "instance_id": 4533558816769385,
+    "instance_name": "BookLearning1_00",
+    "prototype_name": "BookLearning1",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8381635401876722": {
+    "instance_id": 8381635401876722,
+    "instance_name": "MugCat_1",
+    "prototype_name": "MugCat",
+    "category": "cup",
+    "category_uid": 389,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5604554282962132": {
+    "instance_id": 5604554282962132,
+    "instance_name": "FloatingShelf_5",
+    "prototype_name": "FloatingShelf",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5586149104805525": {
+    "instance_id": 5586149104805525,
+    "instance_name": "Magazine01_1",
+    "prototype_name": "Magazine01",
+    "category": "magazine",
+    "category_uid": 316,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5574496059270086": {
+    "instance_id": 5574496059270086,
+    "instance_name": "BookFiction7_01",
+    "prototype_name": "BookFiction7",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5591718857543823": {
+    "instance_id": 5591718857543823,
+    "instance_name": "CatWaterBowlWhite_1",
+    "prototype_name": "CatWaterBowlWhite",
+    "category": "pet bowl",
+    "category_uid": 268,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5267569353293638": {
+    "instance_id": 5267569353293638,
+    "instance_name": "BlackCeramicDishSmall",
+    "prototype_name": "BlackCeramicDishSmall",
+    "category": "plate",
+    "category_uid": 388,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 0
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6243788802362822": {
+    "instance_id": 6243788802362822,
+    "instance_name": "WhiteUtensilTray",
+    "prototype_name": "WhiteUtensilTray",
+    "category": "tray",
+    "category_uid": 246,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 180
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4541398132583473": {
+    "instance_id": 4541398132583473,
+    "instance_name": "TVUnit",
+    "prototype_name": "TVUnit",
+    "category": "tv stand",
+    "category_uid": 509,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5066554293445225": {
+    "instance_id": 5066554293445225,
+    "instance_name": "Plant2_1",
+    "prototype_name": "Plant2",
+    "category": "house plant",
+    "category_uid": 242,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5644037805710268": {
+    "instance_id": 5644037805710268,
+    "instance_name": "HandSoap_1",
+    "prototype_name": "HandSoap",
+    "category": "liquid soap dispenser",
+    "category_uid": 250,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5168178896532459": {
+    "instance_id": 5168178896532459,
+    "instance_name": "Apartment_ClosetDoorA",
+    "prototype_name": "Apartment_ClosetDoorA",
+    "category": "door",
+    "category_uid": 17,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4429298500441326": {
+    "instance_id": 4429298500441326,
+    "instance_name": "BlackBuckPicture",
+    "prototype_name": "BlackBuckPicture",
+    "category": "picture",
+    "category_uid": 203,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4508518932562320": {
+    "instance_id": 4508518932562320,
+    "instance_name": "CandleDishMedium",
+    "prototype_name": "CandleDishMedium",
+    "category": "tray",
+    "category_uid": 246,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 180
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5574847715955788": {
+    "instance_id": 5574847715955788,
+    "instance_name": "BookFiction10_00",
+    "prototype_name": "BookFiction10",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5577185742401930": {
+    "instance_id": 5577185742401930,
+    "instance_name": "Plant1_1",
+    "prototype_name": "Plant1",
+    "category": "house plant",
+    "category_uid": 242,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5625458010874033": {
+    "instance_id": 5625458010874033,
+    "instance_name": "Wallet_1",
+    "prototype_name": "Wallet",
+    "category": "wallet",
+    "category_uid": 296,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5897874900269650": {
+    "instance_id": 5897874900269650,
+    "instance_name": "CandlePattern04_1",
+    "prototype_name": "CandlePattern04",
+    "category": "candle",
+    "category_uid": 226,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5866912876680444": {
+    "instance_id": 5866912876680444,
+    "instance_name": "VaseSmall_2",
+    "prototype_name": "VaseSmall",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5611948232234135": {
+    "instance_id": 5611948232234135,
+    "instance_name": "DisplayUnit_1",
+    "prototype_name": "DisplayUnit",
+    "category": "figurine",
+    "category_uid": 223,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4676710645724677": {
+    "instance_id": 4676710645724677,
+    "instance_name": "BlackFrameSmall_2",
+    "prototype_name": "BlackFrameSmall",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4213328128795167": {
+    "instance_id": 4213328128795167,
+    "instance_name": "LargePot",
+    "prototype_name": "LargePot",
+    "category": "pot",
+    "category_uid": 392,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5858348737536946": {
+    "instance_id": 5858348737536946,
+    "instance_name": "VaseSmall_1",
+    "prototype_name": "VaseSmall",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4223971317729801": {
+    "instance_id": 4223971317729801,
+    "instance_name": "PictureLedge",
+    "prototype_name": "PictureLedge",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5830537620344340": {
+    "instance_id": 5830537620344340,
+    "instance_name": "WhiteVaseMedium_2",
+    "prototype_name": "WhiteVaseMedium",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5800173716710691": {
+    "instance_id": 5800173716710691,
+    "instance_name": "DisplayShelves01_1",
+    "prototype_name": "DisplayShelves01",
+    "category": "cabinets and shelves",
+    "category_uid": 555,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "7379153972126671": {
+    "instance_id": 7379153972126671,
+    "instance_name": "WhiteVase",
+    "prototype_name": "WhiteVase",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4374010316039213": {
+    "instance_id": 4374010316039213,
+    "instance_name": "RedWingChair",
+    "prototype_name": "RedWingChair",
+    "category": "chair",
+    "category_uid": 35,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4819105864795764": {
+    "instance_id": 4819105864795764,
+    "instance_name": "WhiteDressingTable",
+    "prototype_name": "WhiteDressingTable",
+    "category": "dressing table",
+    "category_uid": 498,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4730903923633330": {
+    "instance_id": 4730903923633330,
+    "instance_name": "WallClothesHanger",
+    "prototype_name": "WallClothesHanger",
+    "category": "wall-mounted coat rack",
+    "category_uid": 493,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4717015544976522": {
+    "instance_id": 4717015544976522,
+    "instance_name": "BlackArmChair",
+    "prototype_name": "BlackArmChair",
+    "category": "armchair",
+    "category_uid": 38,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4714099361987871": {
+    "instance_id": 4714099361987871,
+    "instance_name": "SpiceJarBBQ",
+    "prototype_name": "SpiceJarBBQ",
+    "category": "kitchen utensil",
+    "category_uid": 381,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6522114837829109": {
+    "instance_id": 6522114837829109,
+    "instance_name": "YellowArmChair",
+    "prototype_name": "YellowArmChair",
+    "category": "armchair",
+    "category_uid": 38,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5524525184332179": {
+    "instance_id": 5524525184332179,
+    "instance_name": "DeerNightLight_1",
+    "prototype_name": "DeerNightLight",
+    "category": "light",
+    "category_uid": 7,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4683494318379368": {
+    "instance_id": 4683494318379368,
+    "instance_name": "FryingPan",
+    "prototype_name": "FryingPan",
+    "category": "frying pan",
+    "category_uid": 393,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4567573496619449": {
+    "instance_id": 4567573496619449,
+    "instance_name": "Apartment_CabinetDoorA",
+    "prototype_name": "Apartment_CabinetDoorA",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4674832462574052": {
+    "instance_id": 4674832462574052,
+    "instance_name": "WhitePegboard",
+    "prototype_name": "WhitePegboard",
+    "category": "built in",
+    "category_uid": 5,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6017041811668068": {
+    "instance_id": 6017041811668068,
+    "instance_name": "FoodProcessor_1",
+    "prototype_name": "FoodProcessor",
+    "category": "food processor",
+    "category_uid": 149,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4645911042119346": {
+    "instance_id": 4645911042119346,
+    "instance_name": "WhiteCabinet_1",
+    "prototype_name": "WhiteCabinet",
+    "category": "cabinet",
+    "category_uid": 52,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5808845159183441": {
+    "instance_id": 5808845159183441,
+    "instance_name": "Plant5_2",
+    "prototype_name": "Plant5",
+    "category": "house plant",
+    "category_uid": 242,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4887781471251754": {
+    "instance_id": 4887781471251754,
+    "instance_name": "WhiteChair",
+    "prototype_name": "WhiteChair",
+    "category": "dining chair",
+    "category_uid": 40,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4306506352790529": {
+    "instance_id": 4306506352790529,
+    "instance_name": "ConsoleTable",
+    "prototype_name": "ConsoleTable",
+    "category": "console table",
+    "category_uid": 566,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4532410260172462": {
+    "instance_id": 4532410260172462,
+    "instance_name": "Apartment_CabinetDrawerB",
+    "prototype_name": "Apartment_CabinetDrawerB",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6378363738872787": {
+    "instance_id": 6378363738872787,
+    "instance_name": "Flask",
+    "prototype_name": "VacuumFlask",
+    "category": "bottle",
+    "category_uid": 418,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4433352353384815": {
+    "instance_id": 4433352353384815,
+    "instance_name": "BookDeepLearning",
+    "prototype_name": "BookDeepLearning",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6230984856972407": {
+    "instance_id": 6230984856972407,
+    "instance_name": "HybridMattress",
+    "prototype_name": "HybridMattress",
+    "category": "mattress",
+    "category_uid": 86,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4709930779068635": {
+    "instance_id": 4709930779068635,
+    "instance_name": "Apartment_BedroomDoor",
+    "prototype_name": "Apartment_BedroomDoor",
+    "category": "door",
+    "category_uid": 17,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6268826513148871": {
+    "instance_id": 6268826513148871,
+    "instance_name": "HugeBookishDragon_1",
+    "prototype_name": "HugeBookishDragon",
+    "category": "figurine",
+    "category_uid": 223,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4587554268035732": {
+    "instance_id": 4587554268035732,
+    "instance_name": "Mug_2",
+    "prototype_name": "WhiteMug",
+    "category": "cup",
+    "category_uid": 389,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4592004530886030": {
+    "instance_id": 4592004530886030,
+    "instance_name": "CandleDishSmall",
+    "prototype_name": "CandleDishSmall",
+    "category": "tray",
+    "category_uid": 246,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 90
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "7234592706582126": {
+    "instance_id": 7234592706582126,
+    "instance_name": "KitchenKnife",
+    "prototype_name": "FakeButcherKnife",
+    "category": "kitchen utensil",
+    "category_uid": 381,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6347326028671004": {
+    "instance_id": 6347326028671004,
+    "instance_name": "BlackTablet",
+    "prototype_name": "BlackTablet",
+    "category": "laptop computer",
+    "category_uid": 178,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5781799481879742": {
+    "instance_id": 5781799481879742,
+    "instance_name": "BookFiction8_00",
+    "prototype_name": "BookFiction8",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4494726720620587": {
+    "instance_id": 4494726720620587,
+    "instance_name": "GreySofa",
+    "prototype_name": "GreySofa",
+    "category": "couch",
+    "category_uid": 36,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6295672500506081": {
+    "instance_id": 6295672500506081,
+    "instance_name": "CoffeeCanisterSmall",
+    "prototype_name": "CoffeeCanisterSmall",
+    "category": "container",
+    "category_uid": 15,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 90
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4339422379458847": {
+    "instance_id": 4339422379458847,
+    "instance_name": "BlackWallShelf",
+    "prototype_name": "BlackWallShelf",
+    "category": "cabinets and shelves",
+    "category_uid": 555,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4546585872123429": {
+    "instance_id": 4546585872123429,
+    "instance_name": "WhiteHook_1",
+    "prototype_name": "WhiteHook",
+    "category": "hook",
+    "category_uid": 643,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8272498329486846": {
+    "instance_id": 8272498329486846,
+    "instance_name": "Lamp_1",
+    "prototype_name": "Lamp",
+    "category": "desk lamp",
+    "category_uid": 187,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6260912350647035": {
+    "instance_id": 6260912350647035,
+    "instance_name": "StepStool",
+    "prototype_name": "StepStool",
+    "category": "step stool",
+    "category_uid": 46,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 180
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4695377347159520": {
+    "instance_id": 4695377347159520,
+    "instance_name": "WoodenSpoon",
+    "prototype_name": "WoodenSpoon",
+    "category": "spoon",
+    "category_uid": 387,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5990786124307549": {
+    "instance_id": 5990786124307549,
+    "instance_name": "Napkin1_01",
+    "prototype_name": "Napkin1",
+    "category": "napkin",
+    "category_uid": 377,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4508384915897847": {
+    "instance_id": 4508384915897847,
+    "instance_name": "WhiteFlatwareTray",
+    "prototype_name": "WhiteFlatwareTray",
+    "category": "tray",
+    "category_uid": 246,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "7158052634270103": {
+    "instance_id": 7158052634270103,
+    "instance_name": "Orange_A",
+    "prototype_name": "Orange",
+    "category": "food object",
+    "category_uid": 12,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8491109414264268": {
+    "instance_id": 8491109414264268,
+    "instance_name": "BookJournal_01",
+    "prototype_name": "BookJournal",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4440053852752882": {
+    "instance_id": 4440053852752882,
+    "instance_name": "Apartment_DoubleDoorB",
+    "prototype_name": "Apartment_DoubleDoorB",
+    "category": "door",
+    "category_uid": 17,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4655493517848014": {
+    "instance_id": 4655493517848014,
+    "instance_name": "WoodenBoxSmall",
+    "prototype_name": "WoodenBoxSmall",
+    "category": "container",
+    "category_uid": 15,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 180
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5964696816886978": {
+    "instance_id": 5964696816886978,
+    "instance_name": "Figurine",
+    "prototype_name": "Figurine",
+    "category": "figurine",
+    "category_uid": 223,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4744652172236017": {
+    "instance_id": 4744652172236017,
+    "instance_name": "DinoToy",
+    "prototype_name": "DinoToy",
+    "category": "toy",
+    "category_uid": 277,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4716294961801019": {
+    "instance_id": 4716294961801019,
+    "instance_name": "GreenApple_A",
+    "prototype_name": "GreenApple",
+    "category": "food object",
+    "category_uid": 12,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4664067010284593": {
+    "instance_id": 4664067010284593,
+    "instance_name": "Apartment_CabinetDoorC",
+    "prototype_name": "Apartment_CabinetDoorC",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8286049044801164": {
+    "instance_id": 8286049044801164,
+    "instance_name": "AirPurifier_3",
+    "prototype_name": "AirPurifier",
+    "category": "air purifier",
+    "category_uid": 158,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6403698139654324": {
+    "instance_id": 6403698139654324,
+    "instance_name": "GamingMousepad",
+    "prototype_name": "GamingMousePad",
+    "category": "mouse pad",
+    "category_uid": 236,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5362582507203710": {
+    "instance_id": 5362582507203710,
+    "instance_name": "Kettle_1",
+    "prototype_name": "KettleApartment",
+    "category": "tea kettle",
+    "category_uid": 400,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5317247995051934": {
+    "instance_id": 5317247995051934,
+    "instance_name": "FloatingShelf03Pattern02_1",
+    "prototype_name": "FloatingShelf03Pattern02",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5943486702336394": {
+    "instance_id": 5943486702336394,
+    "instance_name": "BlackDragonfigure_1",
+    "prototype_name": "BlackDragonFigure",
+    "category": "figurine",
+    "category_uid": 223,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5040265379320963": {
+    "instance_id": 5040265379320963,
+    "instance_name": "PlateHolder",
+    "prototype_name": "PlateHolder",
+    "category": "dishrack",
+    "category_uid": 502,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8473544005996466": {
+    "instance_id": 8473544005996466,
+    "instance_name": "BlackKitchenChair_B",
+    "prototype_name": "BlackKitchenChair",
+    "category": "dining chair",
+    "category_uid": 40,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5182637931800950": {
+    "instance_id": 5182637931800950,
+    "instance_name": "Banana_A",
+    "prototype_name": "OrganicBanana",
+    "category": "food object",
+    "category_uid": 12,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5710079369047915": {
+    "instance_id": 5710079369047915,
+    "instance_name": "FloatingShelf04_1",
+    "prototype_name": "FloatingShelf04",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5618431901579684": {
+    "instance_id": 5618431901579684,
+    "instance_name": "Plant5_1",
+    "prototype_name": "Plant5",
+    "category": "house plant",
+    "category_uid": 242,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4989808014384955": {
+    "instance_id": 4989808014384955,
+    "instance_name": "BlackCeramicBowl",
+    "prototype_name": "BlackCeramicBowl",
+    "category": "bowl",
+    "category_uid": 390,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 0
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5786005384799975": {
+    "instance_id": 5786005384799975,
+    "instance_name": "VaseMedium_1",
+    "prototype_name": "VaseMedium",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6234636523276534": {
+    "instance_id": 6234636523276534,
+    "instance_name": "Apartment_CabinetDoorD",
+    "prototype_name": "Apartment_CabinetDoorD",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4708256915893744": {
+    "instance_id": 4708256915893744,
+    "instance_name": "UtilityCart",
+    "prototype_name": "UtilityCart",
+    "category": "cabinets and shelves",
+    "category_uid": 555,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 180
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4530061343737849": {
+    "instance_id": 4530061343737849,
+    "instance_name": "BlackSquarePictureFrame",
+    "prototype_name": "BlackSquarePictureFrame",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8373100986064407": {
+    "instance_id": 8373100986064407,
+    "instance_name": "BookCooking1_00",
+    "prototype_name": "BookCooking1",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6898756613475100": {
+    "instance_id": 6898756613475100,
+    "instance_name": "DecorativeBoxCubeLarge",
+    "prototype_name": "DecorativeBoxCubeLarge",
+    "category": "decorative accessory",
+    "category_uid": 612,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5771676589564538": {
+    "instance_id": 5771676589564538,
+    "instance_name": "BlasterGame",
+    "prototype_name": "BlasterGame",
+    "category": "figurine",
+    "category_uid": 223,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4631458566912318": {
+    "instance_id": 4631458566912318,
+    "instance_name": "DecorativeBoxRecSmall",
+    "prototype_name": "DecorativeBoxRecSmall",
+    "category": "box",
+    "category_uid": 324,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4349905901758424": {
+    "instance_id": 4349905901758424,
+    "instance_name": "RedArmChair",
+    "prototype_name": "RedArmchair",
+    "category": "armchair",
+    "category_uid": 38,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4642921469106631": {
+    "instance_id": 4642921469106631,
+    "instance_name": "BlackPictureFrame",
+    "prototype_name": "BlackPictureFrame",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4403316256411466": {
+    "instance_id": 4403316256411466,
+    "instance_name": "BlackKitchenChair",
+    "prototype_name": "BlackKitchenChair",
+    "category": "dining chair",
+    "category_uid": 40,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4504244076323193": {
+    "instance_id": 4504244076323193,
+    "instance_name": "Apartment_CabinetDrawerE",
+    "prototype_name": "Apartment_CabinetDrawerE",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4469271893111727": {
+    "instance_id": 4469271893111727,
+    "instance_name": "BlackCeramicDishLarge",
+    "prototype_name": "BlackCeramicDishLarge",
+    "category": "plate",
+    "category_uid": 388,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 0
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6327785550569843": {
+    "instance_id": 6327785550569843,
+    "instance_name": "WhiteVaseSmall_2",
+    "prototype_name": "WhiteVaseSmall",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "3508644139260796": {
+    "instance_id": 3508644139260796,
+    "instance_name": "Apartment_ClosetDoorC",
+    "prototype_name": "Apartment_ClosetDoorC",
+    "category": "door",
+    "category_uid": 17,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8261247020613199": {
+    "instance_id": 8261247020613199,
+    "instance_name": "FabricSoftener_3",
+    "prototype_name": "FabricSoftener",
+    "category": "freestanding accessory",
+    "category_uid": 199,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4397638240273558": {
+    "instance_id": 4397638240273558,
+    "instance_name": "FrameMedium",
+    "prototype_name": "FrameMedium",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6296541307041270": {
+    "instance_id": 6296541307041270,
+    "instance_name": "VaseMedium_2",
+    "prototype_name": "VaseMedium",
+    "category": "vase",
+    "category_uid": 228,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4560452377344604": {
+    "instance_id": 4560452377344604,
+    "instance_name": "PortableCooktop",
+    "prototype_name": "PortableCooktop",
+    "category": "cooktop",
+    "category_uid": 133,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6357785464251199": {
+    "instance_id": 6357785464251199,
+    "instance_name": "SupplyBinAccessory_01",
+    "prototype_name": "SupplyBinAccessory",
+    "category": "decorative accessory",
+    "category_uid": 612,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5650040788399064": {
+    "instance_id": 5650040788399064,
+    "instance_name": "Toaster_1",
+    "prototype_name": "Toaster",
+    "category": "toaster",
+    "category_uid": 144,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4524674690944733": {
+    "instance_id": 4524674690944733,
+    "instance_name": "Apartment_CabinetDoorG",
+    "prototype_name": "Apartment_CabinetDoorG",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4860206504015397": {
+    "instance_id": 4860206504015397,
+    "instance_name": "CakeMocha_A",
+    "prototype_name": "MochaFakeCake",
+    "category": "food object",
+    "category_uid": 12,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": []
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4803872176313795": {
+    "instance_id": 4803872176313795,
+    "instance_name": "SecurityCamera",
+    "prototype_name": "SecurityCamera",
+    "category": "surveillance camera",
+    "category_uid": 567,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8377120209024676": {
+    "instance_id": 8377120209024676,
+    "instance_name": "SpeakerBig_1",
+    "prototype_name": "SpeakerBig",
+    "category": "speaker",
+    "category_uid": 166,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4418602414882545": {
+    "instance_id": 4418602414882545,
+    "instance_name": "Apartment_CabinetDrawerD",
+    "prototype_name": "Apartment_CabinetDrawerD",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6010655968965060": {
+    "instance_id": 6010655968965060,
+    "instance_name": "BookBoxSmall_2",
+    "prototype_name": "BookBoxSmall",
+    "category": "decorative accessory",
+    "category_uid": 612,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4625648340828963": {
+    "instance_id": 4625648340828963,
+    "instance_name": "SpiceRack",
+    "prototype_name": "SpiceRack",
+    "category": "spice rack",
+    "category_uid": 406,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5574943342620708": {
+    "instance_id": 5574943342620708,
+    "instance_name": "KitchenScissorsBlack_1",
+    "prototype_name": "KitchenScissorsBlack",
+    "category": "scissors",
+    "category_uid": 439,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4157211154385393": {
+    "instance_id": 4157211154385393,
+    "instance_name": "FrameSmall",
+    "prototype_name": "FrameSmall",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4385316328188260": {
+    "instance_id": 4385316328188260,
+    "instance_name": "SpiceJarSalt",
+    "prototype_name": "SpiceJarSalt",
+    "category": "food object",
+    "category_uid": 12,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4438093506271585": {
+    "instance_id": 4438093506271585,
+    "instance_name": "Apartment_CabinetDoorE",
+    "prototype_name": "Apartment_CabinetDoorE",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "8622078591143113": {
+    "instance_id": 8622078591143113,
+    "instance_name": "Thermostat_1",
+    "prototype_name": "ThermostatApartment",
+    "category": "thermostat",
+    "category_uid": 109,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5966605416730825": {
+    "instance_id": 5966605416730825,
+    "instance_name": "PuppyNightLight_1",
+    "prototype_name": "PuppyNightLight",
+    "category": "light",
+    "category_uid": 7,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6272523582781762": {
+    "instance_id": 6272523582781762,
+    "instance_name": "SupplyBinAccessory_00",
+    "prototype_name": "SupplyBinAccessory",
+    "category": "decorative accessory",
+    "category_uid": 612,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6355547087849242": {
+    "instance_id": 6355547087849242,
+    "instance_name": "WhiteContainer",
+    "prototype_name": "WhiteContainer",
+    "category": "container",
+    "category_uid": 15,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5789297594483363": {
+    "instance_id": 5789297594483363,
+    "instance_name": "WhaleNightLight_1",
+    "prototype_name": "WhaleNightLight",
+    "category": "light",
+    "category_uid": 7,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4451039044931807": {
+    "instance_id": 4451039044931807,
+    "instance_name": "WoodenBoxLarge",
+    "prototype_name": "WoodenBoxLarge",
+    "category": "box",
+    "category_uid": 324,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4486484954775626": {
+    "instance_id": 4486484954775626,
+    "instance_name": "WhiteClip_1",
+    "prototype_name": "WhiteClip",
+    "category": "accessory",
+    "category_uid": 8,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5872046346173108": {
+    "instance_id": 5872046346173108,
+    "instance_name": "BookFiction9_01",
+    "prototype_name": "BookFiction9",
+    "category": "book",
+    "category_uid": 315,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6317024575036344": {
+    "instance_id": 6317024575036344,
+    "instance_name": "WhiteTrashBin",
+    "prototype_name": "WhiteTrashBin",
+    "category": "trash can",
+    "category_uid": 233,
+    "motion_type": "dynamic",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": true,
+      "axes": [
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "angle_degree": 180
+        }
+      ]
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6064121086934171": {
+    "instance_id": 6064121086934171,
+    "instance_name": "Humidifier_2",
+    "prototype_name": "Humidifier",
+    "category": "dehumidifier",
+    "category_uid": 155,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "5697206707035008": {
+    "instance_id": 5697206707035008,
+    "instance_name": "WireShelvingUnitBlackSmall_1",
+    "prototype_name": "WireShelvingUnitBlackSmall",
+    "category": "shelf",
+    "category_uid": 60,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4403249623136829": {
+    "instance_id": 4403249623136829,
+    "instance_name": "Apartment_CabinetDrawerC",
+    "prototype_name": "Apartment_CabinetDrawerC",
+    "category": "part of a cabinet/wardrobe",
+    "category_uid": 602,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "4525539014227357": {
+    "instance_id": 4525539014227357,
+    "instance_name": "BlackFrameSmall_1",
+    "prototype_name": "BlackFrameSmall",
+    "category": "wall artwork",
+    "category_uid": 205,
+    "motion_type": "static",
+    "instance_type": "object",
+    "rigidity": "rigid",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "6810803442292599": {
+    "instance_id": 6810803442292599,
+    "instance_name": "Skeleton_T",
+    "prototype_name": "Skeleton",
+    "category": "person",
+    "category_uid": 476,
+    "motion_type": "dynamic",
+    "instance_type": "human",
+    "rigidity": "deformable",
+    "rotational_symmetry": {
+      "is_annotated": false
+    },
+    "canonical_pose": {
+      "up_vector": [
+        0,
+        1,
+        0
+      ],
+      "front_vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  }
+}

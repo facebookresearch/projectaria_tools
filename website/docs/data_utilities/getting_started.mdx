@@ -1,0 +1,65 @@
+---
+sidebar_position: 20
+title: Getting Started
+---
+
+In this guide, we introduce how to install the projectaria_tools python package and provide tutorials to walk through the APIs to easily access and visualize Aria data.
+You will run through two jupyter notebook tutorials:
+
+* **Dataprovider quickstart tutorial**: a walk-through of accessing sensor data from [VRS file](/docs/data_formats/aria_vrs/aria_vrs_format),
+obtaining sensor calibrations and accessing project/unproject functionalities, undistorting an image, etc.
+* **Machine Perception Services (MPS) quickstart tutorial**: a guide to visualize MPS data
+([gaze](/docs/data_formats/mps/mps_eye_gaze), [trajectory](/docs/data_formats/mps/mps_trajectory), and [point cloud](/docs/data_formats/mps/mps_pointcloud)), etc.
+
+[**Jupyter notebook error**](/docs/data_utilities/installation/troubleshooting#jupyter-notebook-error) : If you have problems using Jupyter examples, please [upgrade python3](https://www.python.org/downloads/) to the latest version.
+
+---
+## Step 0 : Check system requirements and download codebase
+
+[Ensure your system is supported and then download projectaria_tools codebase from the github](/docs/data_utilities/installation/download_codebase)
+
+## Step 1 : Install Python
+
+Ensure python3 is installed on the system (check with `python3 --version)`
+
+## Step 2 : Create a virtual environment
+
+```bash
+rm -rf $HOME/projectaria_tools_python_env
+
+python3 -m venv $HOME/projectaria_tools_python_env
+
+source $HOME/projectaria_tools_python_env/bin/activate
+```
+
+## Step 3 : Install projectaria_tools from pypi
+
+```bash
+pip3 install --upgrade pip
+
+pip3 install projectaria-tools'[all]'
+```
+
+## Step 4: Run Dataprovider quickstart tutorial
+
+```bash
+cd $HOME/Documents/projectaria_sandbox
+
+jupyter notebook projectaria_tools/core/examples/dataprovider_quickstart_tutorial.ipynb
+```
+
+## Step 5: Run Machine Perception Services (MPS) quickstart tutorial
+In the MPS tutorial, the notebook walks through how to visualize gaze, trajectory, and point cloud from MPS data.
+```bash
+cd $HOME/Documents/projectaria_sandbox
+
+jupyter notebook projectaria_tools/core/examples/mps_quickstart_tutorial.ipynb
+```
+## Troubleshooting
+
+Check the [troubleshooting](/docs/data_utilities/installation/troubleshooting) if you are having issues in this guide.
+
+## Other Useful Links
+* [Troubleshooting](/docs/data_utilities/installation/troubleshooting)
+* [Installation guide](/docs/data_utilities/installation/download_codebase)
+* [Visualizers](/docs/data_utilities/visualization_guide.mdx)

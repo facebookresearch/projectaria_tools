@@ -1,0 +1,55 @@
+---
+sidebar_position: 20
+title: Python Package Installation
+---
+
+#### Step 1 : Install Python
+
+* Ensure the python3 is installed on the system (check with python3 --version). Some packages in this guide, e.g., Jupyter ([notebook error](/docs/data_utilities/installation/troubleshooting#jupyter-notebook-error)), may require you to upgrade to the latest python3 version
+
+#### Step 2 : Create a virtual environment
+
+```bash
+rm -rf $HOME/projectaria_tools_python_env
+
+python3 -m venv $HOME/projectaria_tools_python_env
+
+source $HOME/projectaria_tools_python_env/bin/activate
+```
+
+####  Step 3 : Install required python packages
+
+```bash
+pip3 install --upgrade pip
+
+pip3 install projectaria-tools'[all]'
+```
+#### Step 4 : Verify installation
+
+Verify the python package installation by running through two example tutorials with jupyter notebook.
+
+```bash
+cd $HOME/Documents/projectaria_sandbox
+
+# Basic VRS data access tutorial
+jupyter notebook projectaria_tools/core/examples/dataprovider_quickstart_tutorial.ipynb
+
+# Machine Perception Service (MPS) tutorial
+jupyter notebook projectaria_tools/core/examples/mps_quickstart_tutorial.ipynb
+```
+
+NOTE: If running into python module import error, please refer to [Python module import error](/docs/data_utilities/installation/troubleshooting#python-module-import-error) section.
+
+
+# Building python bindings from source (advanced user)
+
+First install the required C++ dependencies (see [Install dependencies](/docs/data_utilities/installation/installation_cpp)) and go to the projectaria_tools code folder.
+Then follow those instructions.
+
+```bash
+cd $HOME/Documents/projectaria_sandbox/projectaria_tools
+
+pip3 install --upgrade pip
+
+pip3 install --global-option=build_ext --config-settings=compile-args="-j2" .;
+```

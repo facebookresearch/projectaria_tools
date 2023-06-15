@@ -1,0 +1,70 @@
+---
+sidebar_position: 40
+title: Data Tools and Visualisation
+---
+# Synthetic Environments Data Tools and Visualisation
+
+We provide different functions and code snippets in Python to load Aria Synthetic Environments(ASE) data from a sequence and associate/interpret them with each other. The contents of each scene/sequence are detailed in **[Data Format](ase_data_format).**
+
+They provide a set of helper functions to use the data efficiently and also visualise them. All of these snippets are placed under  **projectaria_tools/tree/main/projects/AriaSyntheticEnvironment/tutorial/code_snippets/**
+
+
+## Data Helper Tools
+
+These helper functions are broadly categorized into the following types:
+
+
+* Data interpreter: `interpreter.py`
+    * Provides an interpreter for the ASE Scene language file to convert them into CAD model in the form of bounding boxes
+* Data readers: `readers.py`
+    * Provide readers for
+        * `GT trajectory`,
+        * `ASE Scene language file `and
+        * `Semi Dense Map points`
+* Data Plotters: `plotters.py`
+    * Provide simple plotting functions for
+        * `CAD model generated from ASE scene language using Bounding boxes`
+        * `GT Trajectory`
+        * `Semi Dense Map points`
+
+
+
+## Visualiser
+
+We also provide Jupyter notebooks to visualise the data for each sequence and correlate them. To get started download ASE data following steps from [Dataset Download](ase_download_dataset)
+
+## Notebook 1: Data visualiser and correlation
+
+```
+cd /path_to/projectaria_tools
+
+jupyter notebook projects/AriaSyntheticEnvironment/tutorial/ase_tutorial_notebook.ipynb
+```
+
+### Part 1: 3D visualisation of the scene
+This section will introduce the dataset’s 3D components as well as code snippets to help users get familiar with them.
+
+You will be taken through examples of how to load the 3D dataset annotations namely: GT Trajectory, ASE Scene language, and Semi Dense points; and examples of how they can be plotted.
+
+At the end of the section you should see 3D plots containing:
+
+* The semi-dense point cloud,
+* The layout annotations, visualized as 3D box wireframes,
+* The trajectory plotted as a dotted line in 3D.
+
+
+ Example scene visualisation:
+![Image: 3D visualization within a house](/img/open_datasets/aria_synthetic_environments_dataset/scene_visualisation.png)
+
+### Part 2: Loading and Plotting Images and Image Annotations
+
+Since the file structure and format are straightforward, the code consists of very simple PIL and matplotlib code to show the 3 images (RGB, depth and instance maps) side-by-side:
+![Image: sample_rgb_depth_instance_images.png](/img/open_datasets/aria_synthetic_environments_dataset/sample_rgb_depth_instance_images.png)
+
+### Part 3: Projecting Points into Images
+
+Running the final part of the notebook will load the camera calibration, as well as the pointcloud, trajectory and select a random frame. Then given the device pose from the trajectory, we project the points into the frame.
+
+Points that project outside of the valid radius, should not be plotted
+
+![Image: sample_rgb_depth_instance_images.png](/img/open_datasets/aria_synthetic_environments_dataset/projecting_points.png)

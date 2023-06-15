@@ -1,0 +1,87 @@
+---
+sidebar_position: 20
+title: 3D Coordinate Frame Conventions
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 3D Coordinate Frame Conventions for Aria Glasses
+
+This page provides an overview of how 6-DoF poses are represented, 3D Coordinate frame and system conventions, the non-visual sensor coordinate system and information about the Central Pupil Frame (CPF).
+
+## SE(3) Lie groups
+The 6-DoF poses are represented by SE(3) Lie group. The quaternion part of SE(3) uses Hamilton convention following the [Eigen library](https://eigen.tuxfamily.org/), in which the exact formula to convert a quaternion to a rotation matrix of the SE(3) can be found [here](https://gitlab.com/libeigen/eigen/-/blob/master/Eigen/src/Geometry/Quaternion.h#L589).
+We use the SE3d class in the [Sophus Library](https://github.com/strasdat/Sophus) to represent SE(3) Lie groups, and provide a minimal pybind for the class.
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+`transform_a_b` represents a SE(3) rigid transformation from `b` coordinate frame to `a` coordinate frame. `p_a` represents an R^3 point (or vector) in the coordinate system of a.
+Easy mnemonics of the chaining principle (a, b, c are coordinate frames):
+```python
+transform_a_c = transform_a_b * transform_b_c;
+p_a = transform_a_b.matrix() @ numpy.append(p_b, 1)
+```
+
+If you want to get quaternion from the SE3d, please notice the order is consistent to numpy
+```python
+quaternion_a_b = transform_a_b.quaternion() # order is w, x, y, z
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+`T_a_b` represents a SE(3) rigid transformation from `b` coordinate frame to `a` coordinate frame. `p_a` represents an R^3 point (or vector) in the coordinate system of a.
+Easy mnemonics of the chaining principle (a, b, c are coordinate frames):
+```cpp
+Sophus::SE3d T_A_C = T_A_B * T_B_C;
+Eigen::Vector3d p_A = T_A_B * p_B;
+```
+If you want to get quaternion from the SE3d, please notice the order in Sophus interface
+```cpp
+quaternion_a_b = T_a_b.so3().unit_quaternion() # order is x, y, z, w
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+# 3D Coordinate frame conventions
+
+Every sensor on Aria glasses has their own local coordinate system. We represent the 6DoF pose of each sensor as the relative pose (rotation and translation) with regard to the  “Device frame". The device frame is by-default the local frame of the left SLAM camera.
+
+
+
+![Image](/img/data_formats/aria_local_frames.png)
+
+## Camera coordinate system convention
+
+A camera's local frame has its origin at the camera's optical center. Coarsely, when the camera is placed up-right, the camera coordinate frame's axes points to left, up and forward.
+
+More rigorously, we define a camera's local frame based on the optical axis and the entrance pupil of its lens. Both are uniquely defined for each camera according to the camera's lens prescription. The origin of a camera's local frame is at center of the camera's entrance pupil.
+The frame's Z axis is aligned with the optical axis. The camera's X axis are aligned with the projection of the image plane's X axis on the entrance pupil plane. The cross-product of the X and Z axis defines the system's Y axis.
+
+![An image from the static](/img/data_formats/camera3d-coordinate-frame.png)
+
+
+## Non-visual sensor coordinate system
+
+We choose the IMU coordinate system to have their origin at the position of the accelerometer, oriented along the direction of the accelerometer sensitive axis, eventually orthogonalized. Other non-visual sensors such as magnetometer and barometer coordinate frame are defined similarly.
+
+
+<div style={{textAlign: 'center'}}>
+
+![Image](/img/data_formats/ImuFrame.png)
+
+</div>
+
+## The nominal central pupil frame (CPF)
+
+The CPF frame is placed at the midpoint between the eye boxes of the left and right eye (a.k.a. 3rd eye). CPF's X-axis points left, Y-axis points up and the Z-axis points forward, from the person's perspective. Aria's ET gaze is defined as a vector in the CPF space originating at $(0, 0, 0)$ of the CPF frame.
+
+<div style={{textAlign: 'center'}}>
+
+![Image](/img/data_formats/CPF.png)
+
+</div>

@@ -1,0 +1,25 @@
+---
+sidebar_position: 50
+title: Sensor Measurement Model
+---
+
+For IMUs, we employ an affine model where the value from the readout of accelerometer $s_a$ or gyroscope $s_g$, is compensated to obtain a "real" acceleration $a$ and angular velocity $\omega$ by
+$$
+a = M_a s_a + b_a \qquad
+\omega = M_g s_g + b_g
+$$
+$M_a$ and $M_g$ are assumed to be upper triangular so that there is no global rotation from the imu body frame to the accelerometer frame.
+
+Inversely, we can simulate the sensor read-out from acceleration or angular velocity by
+$$
+a = M_a^{-1} (s_a - b_a) \qquad
+\omega = M_g^{-1} (s_g - b_g)
+$$
+
+When the read-out signal exceeds a threshold, the signal saturates. Saturation limits are sensor dependent and referenced in the following table for accelerometer and gyrometers.
+
+||accel-left | accel-right| gyro-left | gyro-right|
+|--|--|--|--|--|
+|saturation|4g|8g|5000|1000|
+
+Similar to the IMU rectification model, the sensor readout of magnetometer, barometer, and audio data are modeled as linear to the real $r$ (magnetic field, air pressure and sound intensity). Audio specifically is bias only.

@@ -1,0 +1,120 @@
+---
+sidebar_position: 20
+title: Image
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+In this section, we introduce the Python/C++ API to access images ([projectaria_tools/main/core/image](https://github.com/facebookresearch/projectaria_tools/blob/main/core/image)).
+
+## Raw sensor data
+Raw image data are stored in the `ImageData` class. It is a pair of (1) the image frame, potentially compressed, stored in `vrs::PixelFrame` class and (2) image data records, which contains image acquisition information such as timestamps, exposure and gain.
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+from projectaria_tools.core import data_provider, image
+from projectaria_tools.core.stream_id import StreamId
+
+vrsfile = "example.vrs"
+provider = data_provider.create_vrs_data_provider(vrsfile)
+
+stream_id = provider.get_stream_id_from_label("camera-slam-left")
+image_data =  provider.get_image_data_by_index(stream_id, 0)
+pixel_frame = image_data[0].pixel_frame
+```
+
+In Python, we provide an easy interface to convert from ImageData to numpy arrays
+```python
+image_array = image_data[0].to_numpy_array()
+```
+We recommend Python users to manipulate images using the numpy arrays.
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+auto streamId = provider.getStreamIdFromLabel("camera-slam-left");
+auto imageData =  provider.getImageDataByIndex(streamId, i);
+auto pixelFrame = imageData->pixelFrame();
+```
+Since `PixelFrame` may contain compressed data, the class does not provide interface for accessing pixel values.
+`ImageData` provides interface to get an `ImageVariant` interface of the data described below:
+```cpp
+auto maybeImageVariant = imageData.imageVariant();
+XR_CHECK(maybeImageVariant, "Image is invalid");
+auto& imageVariant = *maybeImageVariant();
+```
+
+We recommend C++ users to manipulate images using the `Image` and `ManagedImage` and their variant classes below.
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+## Image and ImageVariants (C++)
+The `Image` class provides an easy interfaces for easily access image information and pixels. The class is templated, with the different specializations differ by number of channels and scalar data type.
+```cpp
+ImageU8 image = std::get<ImageU8>(imageVariant); // get grayscale image
+
+int width = image.width(); // image width
+int height = image.height(); // image height
+int channel = image.channel(); // number of channels
+
+int stride = image.stride(); // number of bytes per row
+uint8_t* data = image.data(); // weak pointer to data
+
+uint8_t pixel_value = image(0, 0); // access to pixel value if coordinate is of integral type
+uint8_t pixel_value = image(0,5, 0.5); // bilinear interpolate pixel value if coordinate is of float type
+```
+
+You can iterate through an image easily by
+``` c++
+for (const uint8_t& pixel : image) {
+  // process pixel
+}
+```
+
+Note that the `Image` class is non-owning. It is a wrapper of a chunk of data, which might be managed by `PixelFrame` or `ManagedImage` or even a raw data pointer.
+
+The `ImageVariant` class represents uncompressed image frames in matrix form. Under the hood, it is a `std::variant` of `Image` classes of different specializations.
+We provide similar APIs to accessing data from image variants
+```cpp
+int width = getWidth(imageVariant); // image width
+int height = getHeight(imageVariant); // image width
+int channel = getChannel(imageVariant); // number of channels
+uint8_t* data = getWeakPtr(imageVariant); // weak pointer to data
+
+uint8_t pixel_value = at(imageVariant, 0, 0); // access to pixel value if coordinate is of integral type
+// bilinear interpolation not available yet, but you can do the following
+uint8_t pixel_value = std::visit([](auto& image) {return PixelValueVariant(image(0.5, 0.5, 0))}, imageVariant);
+```
+
+The image variant types used in Aria raw sensor data are listed below
+
+||number of channels|scalar data type |Image type| ManagedImage type|
+|--|--|--|--|--|
+|Eyetracking| 1| `uint8_t` |`ImageU8`| `ManagedImageU8`|
+|SLAM| 1| `uint8_t`|`ImageU8`|`ManagedImageU8`|
+|RGB| 3| `uint8_t`|`Image3U8`|`ManagedImage3U8`|
+|depth| 1| `uint16_t`|`ImageU16`|`ManagedImageU16`|
+|segmentation| 1|`uint64_t`|`ImageU64`|`ManagedImageU64`|
+
+## ManagedImage and ManagedImageVariant (C++)
+The templated `ManagedImage` class manages the data of an image. Most importantly, you can initialize a `ManagedImage` by
+```cpp
+ManagedImageU8 managedImage(width, height); // grayscale image
+```
+You can even change the size of an existing `ManagedImage` by
+```cpp
+managedImage.reinitialize(newWidth, newHeight); // grayscale image
+```
+
+The class is a derived class of the corresponding class, and therefore inherits all the `Image` interface. All functions taking `Image` as input can also take `ManagedImages`.
+
+The `ManagedImageVariant` class is the `std::variant` of all supported `ManagedImage` specializations. Notably, `ManagedImageVariant` is not a derived class of `ImageVariant`. However, assume you have a function `fn` that takes `ImageVariant`, you can pass a `ManagedImageVariant` object by
+```cpp
+ImageVariant imageVariant = toImageVariant(managedImageVariant);
+fn(imageVariant);
+```

@@ -1,0 +1,115 @@
+---
+sidebar_position: 50
+title: Troubleshooting
+---
+
+## Jupyter notebook error
+
+Jupyter notebook works with version python3.9 or above.
+If you have problems using Jupyter examples, please [upgrade python3](https://www.python.org/downloads/) to the latest version.
+
+## Python module import error
+When running jupyter notebook, it could use a different python3 that's not in the virtual environment.
+Either remove the jupyter notebook from outside of the virtual environment, or directly start jupyter notebook from the virtual environment bin folder.
+If the virtual environment is created with `python3 -m venv $HOME/projectaria_tools_python_env`, then you can directly call jupyter from the virtual env as
+```bash
+$HOME/projectaria_tools_python_env/bin/jupyter notebook notebook_example.ipynb
+```
+
+Another reason could be an old version of projectaria_tools. Please make sure the installed projectaria version is the latest.
+
+## Visualizer issues
+
+#### Visualizers not building due to missing Pangolin functions
+
+We depend on very recent changes to Pangolin's master branch. If ADT depends on Pangolin functions that are not available on your installed version of Pangolin, please reinstall the most recent master.
+
+#### Missing libraries
+
+```bash
+# Missing libpango_geometry.so, libpango_windowing.so, etc
+sudo ldconfig
+
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/
+
+export LD_LIBRARY_PATH
+```
+
+#### Window freezes
+
+This is a know issue happening on some platform with X11. This is likely due to a graphics driver bug in X11.
+See [_discussions on Pangolin issues_](https://github.com/stevenlovegrove/Pangolin/issues/782). The fix is to swap from X11 to EGL.
+
+1.  Test if it's display driver issue triggered by Pangolin Plotter
+
+```bash
+cd /tmp/Pangolin_Build
+
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TOOLS=OFF -DBUILD_PANGOLIN_PYTHON=OFF \
+-DBUILD_EXAMPLES=ON ../Pangolin/
+
+make -j2
+```
+
+Running the following example should work
+
+```bash
+./examples/BasicOpenGl/tutorial_3_gl_intro_classic_triangle_vbo_shader
+```
+
+If the following example shows a black window and the machine freezes, this may be the graphics driver issue. Move on to the next few steps to try fix it.
+
+```bash
+./examples/SimplePlot/SimplePlot
+```
+
+2.   Checkout fix on github and rebase onto master
+
+```bash
+cd /tmp/Pangolin
+
+git fetch origin pull/389/head:x11_to_egl
+
+git checkout x11_to_egl
+
+git rebase master
+
+# rebuild pangolin
+cd /tmp/Pangolin_Build
+
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TOOLS=OFF -DBUILD_PANGOLIN_PYTHON=OFF \
+-DBUILD_EXAMPLES=ON ../Pangolin/
+
+make -j2
+
+sudo make install
+```
+
+You can confirm this is the right fix by rebuilding and retesting SimplePlot with step 1.
+
+3. Patch cmake for Visualizers
+
+Update [AriaViewer](/docs/data_utilities/visualization_guide#step-2--run-ariaviewer) CMakeLists in
+`$HOME/Documents/projectaria_sandbox/projectaria_tools/tools/CMakeLists.txt`
+
+Update [AriaDigitalTwinViewer](/docs/open_datasets/aria_digital_twin_dataset/visualizers#ariadigitaltwinviewer) CMakeLists in
+`$HOME/Documents/projectaria_sandbox/projectaria_tools/projects/AriaDigitalTwinDatasetTools/visualization/CMakeLists.txt`
+
+add the following line
+
+```cmake
+find_package(OpenGL QUIET COMPONENTS EGL)
+```
+
+4. Rebuild AriaViewer and validate it works
+
+```bash
+cd $HOME/Documents/projectaria_sandbox/build
+
+cmake ../projectaria_tools -DPROJECTARIA_TOOLS_BUILD_TOOLS=ON
+
+make -j2
+
+./tools/visualization/aria_viewer \
+--vrs ../projectaria_tools/data/mps_sample/sample.vrs
+```

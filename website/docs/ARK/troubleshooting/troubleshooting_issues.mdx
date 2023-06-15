@@ -1,0 +1,187 @@
+---
+sidebar_position: 20
+title: Troubleshooting & Known Issues
+---
+# Troubleshooting & Known Issues
+
+## Overview
+This page provides troubleshooting information for issues you may encounter while using the ARK.
+
+It covers:
+  - **_[Device and Recording Issues](#device-and-recording-issues)_**
+  - **_[Desktop App Issues](#desktop-app-issues)_**
+  - **_[Machine Perception Services Issues and Error Messages](#machine-perception-services-mps)_**
+
+Go to the [Glasses Manual](/docs/ARK/glasses_manual/glasses_user_manual.mdx) for information about LED States, button configuration, how to factory reset and power cycle your device.
+
+If you need further support, have feedback or feature requests, please email [_AriaOps@meta.com_](mailto:AriaOps@meta.com) or post to [Project Aria Academic Partner Announcements, Feedback & Support](https://fb.workplace.com/groups/1137227200340269).
+
+
+## Device and Recording Issues
+
+### I haven't received my Project Aria device
+
+Once your Aria device request has been approved, please contact [_AriaOps@meta.com_](mailto:AriaOps@meta.com) if you project hasn't received the requested devices in:
+
+* 7 days when shipping to continental USA
+* 14 days when shipping internationally
+
+
+### I can't pair/detect my device with the Mobile Companion App!
+
+Make sure your Aria device is plugged into power and that the privacy switch is not turned on (the switch should be pushed forwards (towards the lenses of your device) to be able to pair.
+
+
+### I can't start recording
+
+Check that the privacy switch is not engaged. The switch should be pushed forward (towards the lenses of your device) for recording to be possible.
+
+aria-privacy-switch.png
+
+
+### Where's my recording?
+
+Please note, do not use the privacy switch to stop recording. The privacy switch prevents recording and deletes any current recording. Use the capture button on the top of your glasses' frame or the Mobile Companion app to stop recording.
+
+### Stop recording does not work/ has a long delay
+The longer a device records for, the longer it takes for a recording to stop. This is because the larger the .vrs file, the longer it takes for a recording to finish indexing. This can be particularly apparent in the Desktop App as you can press the Stop button and it looks like nothing has happened. Please note that the recording has not fully stopped until the Recording LEDs have turned off.
+
+
+## Desktop App Issues
+
+### Aria device flickers on and off in the desktop app
+
+You most likely need to update your Aria device. Pair your device with the mobile companion app to update your device's OS. Your device should update automatically on pairing. If the issue continues to occur:
+
+
+1. In the Aria Mobile Companion App, select the gear (settings) icon next to your Paired Glasses
+2. Scroll down to Device Mode
+3. If you have the correct device, the device mode should say “Partner”
+    * If your device mode says anything else, please contact Aria User Support to get a replacement device
+4. If the device mode correctly shows “Partner”, scroll up to Glasses OS and select **Check for Updates**
+
+
+### Copying files locally takes a long time!
+
+We recommend copying data from your Aria device using ADB or MTP (Windows automatic files transfer) rather than the Desktop App, for a faster experience.
+
+On a Windows machine, your Aria device will be automatically detected as a USB drive when plugged in and the Windows File Explorer will automatically open a new window showing Aria and its internal device storage.
+
+Check out the Quickstart Guide for ADB commands and MTP instructions.
+
+
+### Desktop app/computer can't detect my Aria device
+
+It may be that your Aria device's battery is drained, make sure it is correctly charging (there should be a blue LED on the right arm) and wait ten minutes.
+
+On Linux, this also may be due to USB driver issues.
+
+- Install adb `sudo apt-get android-tools`
+
+You should be able see Aria using `adb devices` which should show
+
+```cpp
+List of devices attached
+1820dc10 device
+```
+
+If you see a permission denied
+
+```cpp
+List of devices attached
+1820dc10    no permissions
+```
+
+you likely need to change your udev (the following instructions were taken from [here](https://wiki.archlinux.org/index.php/Android_Debug_Bridge) and [here](http://www.janosgyerik.com/adding-udev-rules-for-usb-debugging-android-devices/):
+
+- List devices to find the [VENDOR_ID] and [PRODUCT_ID]
+
+```cpp
+lsusb
+```
+
+should show
+
+```cpp
+Bus 002 Device 002: ID 2833:0086 Facebook, Inc. Aria
+```
+
+In the example above, [VENDOR_ID] = 2833 and [PRODUCT_ID]=0086
+
+There will be a new file ```/etc/udev/rules.d/51-android.rules```
+
+```cpp
+$ cat /etc/udev/rules.d/51-android.rules
+SUBSYSTEM=="usb", ATTR{idVendor}=="2833", MODE="0660", GROUP="adbusers", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idVendor}=="2833", ATTR{idProduct}=="0086", MODE="0660", GROUP="adbusers", SYMLINK+="android_adb"
+SUBSYSTEM=="usb", ATTR{idVendor}=="2833", ATTR{idProduct}=="0086", MODE="0660", GROUP="adbusers", SYMLINK+="android_fastboot"
+```
+
+Make sure you create a group called ```adbusers``` and ```$USER``` is a part of the group. This should give the right permissions.
+
+You can also run the following script to do the above and reboot your workstation before adb starts working properly.
+
+```cpp
+IDs=$(lsusb | grep Facebook)
+if [[ "$?" -ne 0 ]]; then
+  echo "Make sure you have your VROS device connected to your workstation"
+  exit
+fi
+IDs=$(echo $IDs | cut -d " " -f 6)
+VID=$(echo $IDs | cut -d ":" -f 1)
+PID=$(echo $IDs | cut -d ":" -f 2)
+conf_f=/etc/udev/rules.d/51-android.rules
+sudo touch ${conf_f}
+echo "SUBSYSTEM==\"usb\", ATTR{idVendor}==\"$VID\", MODE=\"0660\", GROUP=\"adbusers\", TAG+=\"uaccess\""  >> $conf_f
+echo "SUBSYSTEM==\"usb\", ATTR{idVendor}==\"$VID\", ATTR{idProduct}==\"$PID\", MODE=\"0660\", GROUP=\"adbusers\", SYMLINK+=\"android_adb\"" >> $conf_f
+echo "SUBSYSTEM=="usb", ATTR{idVendor}==\"$VID\", ATTR{idProduct}==\"$PID\", MODE=\"0660\", GROUP=\"adbusers\", SYMLINK+=\"android_fastboot\""   >> $conf_f
+sudo groupadd adbusers
+sudo usermod -aG adbusers $USER
+```
+
+
+
+## Machine Perception Services (MPS)
+
+### How do I find out what recording profile was used?
+
+There are several ways to check what recording profile was used.
+
+#### Method 1: Check the vrs.json file
+
+Every VRS recording comes with a .vrs.json file that contains metadata about that recording. Open the file with any text editor and check the `recording_profile`  value.
+
+#### Method 2: Get metadata from the VRS file
+
+1. Go to the recordings tab in the Desktop App
+2. Right click on the VRS file you are interested in
+3. Select More > Display > JSON Metadata
+4. Search the opened .vrs-description.txt file for “profile”
+
+## Machine Perception Services (MPS) Error Messages
+### Unsupported Format
+You may encounter this error message when trying to unzip a downloaded MPS output file, especially large trajectory files. “Unsupported Format” occurs when the zip file has not fully downloaded. Please wait and try again later.
+
+### Unsupported MPS Profile
+_This recording profile does not support trajectory generation._ <br/>
+_This recording profile does not support eye gaze generation._
+
+Trajectory and Eye Gaze derived data can only be generated if they have the necessary sensor data. Go to the Recordings Profiles page for information about supported profiles.
+
+### Recording duration not supported
+
+_This recording duration is not supported by trajectory generation._
+
+If you experience this error message, it is because the recording is either too long or too short. Recordings need to be longer than 5 seconds and shorter than one hour.
+
+### Health checks failed (trajectory)
+
+The health checks for this recording failed.
+
+When trajectory data is derived, it goes through a series of health checks that are recorded in the summary.json file that's included with in every trajectory output. If your trajectory data fails, you can download a zip file that contains the summary.json file with further information.
+
+Go to Recordings > Uploads to download the summary.json file.
+
+For information about how to interpret the summary.json file please go to Trajectory Documentation.
+
+If you need to reach out to Support, please include the Transaction ID (found in the Uploads tab) as well as the summary.json file.

@@ -1,0 +1,77 @@
+---
+sidebar_position: 10
+title: Getting Started
+---
+
+# Getting Started With the Synthetic Environments Dataset
+
+This section will go over everything you need to know to get up and running using Aria Synthetic Environment(ASE) visualisers and data loaders. ASE tooling contains:
+
+* The install instructions specific to ASE
+* A quick tutorial which runs through a couple of Jupyter notebook for loading and visualising sample data.
+
+[**Jupyter notebook error**](/docs/data_utilities/installation/troubleshooting#jupyter-notebook-error) : If you have problems using Jupyter examples, please [upgrade python3](https://www.python.org/downloads/) to the latest version.
+
+## Quickstart Tutorial - Python
+
+### Step 0 : Check system requirements and download codebase
+
+[Ensure your system is supported and then download projectaria_tools codebase from the github](/docs/data_utilities/installation/download_codebase)
+
+### Step 1 : Install Python
+
+Ensure python3 is installed on the system (check with `python3 --version)`
+
+### Step 2 : Create a virtual environment
+
+```bash
+rm -rf $HOME/projectaria_tools_python_env
+
+python3 -m venv $HOME/projectaria_tools_python_env
+
+source $HOME/projectaria_tools_python_env/bin/activate
+```
+
+### Step 3 : Install projectaria_tools from pypi
+
+```bash
+pip3 install --upgrade pip
+
+pip3 install projectaria-tools'[all]'
+```
+
+The ASE python tooling for projection of 3D points to RGB images is included in the projectaria_tools package, so no further steps are needed. The following packages used in this tutorial are standard python packages that are also included in project_aria_tools build.
+
+* `plotly`
+* `numpy`
+* `scipy`
+* `pandas`
+* `matplotlib`
+* `requests`
+* `tqdm`
+* `jupyter`
+
+
+### Step 4 : Download Sample Data
+
+1.  Navigate to the [ASE page](https://www.projectaria.com/datasets/ase/) on the Project Aria Website and follow the instructions to download the download-urls file. This same download-urls file can be used for any dataset download until the link expires
+2.  Setup ASE local folder and move download-urls file:
+
+```bash
+mkdir -p $HOME/Documents/projectaria_sandbox/projectaria_tools_ase_data
+
+mv $HOME/Downloads/aria_synthetic_environments_dataset_download_urls.json $HOME/Documents/projectaria_sandbox/projectaria_tools_ase_data/
+```
+
+3. Download sample dataset using the download tool:
+
+```bash
+cd $HOME/Documents/projectaria_sandbox/projectaria_tools
+
+python3 projects/AriaSyntheticEnvironment/aria_synthetic_environments_downloader.py --set train --scene-ids 0-10 --cdn-file $HOME/Documents/projectaria_sandbox/projectaria_tools_ase_data/aria_synthetic_environments_dataset_download_urls.json --output-dir $HOME/Documents/projectaria_sandbox/projectaria_tools_ase_data --unzip True
+```
+
+### Step 5 : Run the visualisation notebooks
+```
+jupyter notebook projects/AriaSyntheticEnvironment/tutorial/ase_tutorial_notebook.ipynb
+```

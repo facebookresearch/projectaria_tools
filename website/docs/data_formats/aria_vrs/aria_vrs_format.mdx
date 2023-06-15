@@ -1,0 +1,165 @@
+---
+sidebar_position: 20
+title: Format
+---
+
+# Aria VRS format
+
+Aria data is stored in [VRS](https://facebookresearch.github.io/vrs/), which is optimized to record and playback streams of multi-modal sensor data, such as images, audio, and other discrete sensors (IMU, temperature, etc.). Data is stored in per-device streams of time-stamped records.
+
+The most intuitive way to access Aria data is via our loaders and visualizers. Go to [Data Utilities](/data_utilities/data_utilities.mdx) for Python and C++ interfaces to easily access VRS data. You may also want to use [vrstools](https://facebookresearch.github.io/vrs/) to extract or inspect VRS data.
+
+Here are some instruction for some common use cases.
+
+## Aria data streams
+
+In VRS, data is organized by streams. Each stream stores the data measured by a specific sensor[^1]. The streams are identified by their stream ID.  Each stream ID is composed of two parts, a recordable type ID to categorize the type of the sensor and a stream ID for identify the specific sensor instance. E.g. the first SLAM (aka Mono Scene) camera is identified as 1201-1 where 1201 is the numerical ID for SLAM camera data type, and 1 identifies the cameras as the first instance.
+
+[^1] Two exceptions are Aria Eye Tracking(ET) cameras and microphones. The two ET cameras share a single data stream. All seven microphones also share a single data stream.
+
+Alternatively, the streams are identified by a shorter form of label. Labels are used to identify sensors in calibration.
+
+The following table lists the streamID and type ID as well as their label. Note GPS, WPS and Bluetooth are not calibrated but they do have a label. If you are using loaders in projectaria tools, you do not have to memorize this mapping. Projectaria tools has an API that converts between Stream ID and labels.
+
+<table>
+<thead>
+<tr><th>        <b>Sensor</b>         </th><th>Stream ID  </th><th>Recordable type ID            </th><th>label           </th></tr>
+</thead>
+<tbody>
+<tr><td>ET camera        </td><td>211-1      </td><td>EyeCameraRecordableClass      </td><td>camera-et       </td></tr>
+<tr><td>RGB camera       </td><td>214-1      </td><td>RgbCameraRecordableClass      </td><td>camera-rgb      </td></tr>
+<tr><td>Microphone       </td><td>231-1      </td><td>StereoAudioRecordableClass    </td><td>mic             </td></tr>
+<tr><td>Barometer        </td><td>247-1      </td><td>BarometerRecordableClass      </td><td>baro            </td></tr>
+<tr><td>GPS              </td><td>281-1      </td><td>GpsRecordableClass            </td><td>gps             </td></tr>
+<tr><td>Bluetooth        </td><td>283-1      </td><td>BluetoothBeaconRecordableClass</td><td>bluetooth       </td></tr>
+<tr><td>SLAM/Mono Scene camera left </td><td>1201-1     </td><td>SlamCameraData                </td><td>camera-slam-left</td></tr>
+<tr><td>SLAM/Mono Scene camera right</td><td>1201-2     </td><td>SlamCameraData                </td><td>camera-slam-right</td></tr>
+<tr><td>IMU (1kHz)       </td><td>1202-1     </td><td>SlamImuData                   </td><td>imu-right       </td></tr>
+<tr><td>IMU (800Hz)      </td><td>1202-2     </td><td>SlamImuData                   </td><td>imu-left        </td></tr>
+<tr><td>Magnetometer     </td><td>1203-1     </td><td>SlamMagnetometerData          </td><td>mag             </td></tr>
+</tbody>
+</table>
+
+Each stream also contains a configuration blob that stores sensor-specific information such as image resolution, nominal frame rate, etc.
+
+All data in VRS is timestamped. Go to [Timestamps in Aria VRS](/docs/data_formats/aria_vrs/timestamps_in_aria_vrs) for more details.
+
+## Aria sensor data and configuration
+Sensor data includes:
+* Sensor readout
+* Timestamps
+* Acquisition parameters (exposure and gain settings)
+* Conditions (e.g. temperature) during data collection
+
+Most sensor data of a single stream and at a specific timestamp is stored as a single piece, except for image and audio.
+
+### How data is stored for image recordings
+* Each camera stores a single image frame at a time, with the exception of the ET camera.
+   * ET cameras pair share a single image frame by concatenating horizontally.
+* The image frame contains two parts, the image itself and the image record.
+    * The image record stores timestamps, frame id, and acquisition parameters such as exposure and gain. This avoids having to read image data to get the information in the record.
+
+### How data is stored for audio recordings
+
+* The audio data is grouped into data chunks of 4096 audio samples from all 7 microphones.
+* Each chunk contains two parts, the data part for the audio signal, and the report part for the timestamps of each audio signal.
+
+### Sensor configuration blob
+
+The sensor configuration blob stores static information of a stream. Common sensor configuration stores information such as sensor model, sensor serial (if available) as well as frame rate.
+Stream-specific information, such as image resolution, are also stored in configurations.
+
+See [source code](https://github.com/facebookresearch/projectaria_tools/blob/main/core/data_provider/players) for the detailed implementation of sensor data and configurations. See [here](/docs/data_utilities/advanced_code_snippets/plotting_sensor_data) for example sensor data and how to accessing our sensor data using our Python data utilities.
+
+
+
+## Useful VRS tools
+
+The most intuitive way to access Aria data is via our [loaders and visualizers](data_utilities/getting_started.mdx). We provide Python and C++ interface to easily access VRS data.
+
+You may also want to use vrs tools to extract or inspect VRS data. Below we provide instruction for some most common use cases.
+
+### Check the VRS file’s validity and integrity
+
+The `check` command decodes every record in the VRS file and prints how many records were decoded successfully. It proves that the VRS file is correct at the VRS level. You can also compute a checksum to ensure you have valid VRS files. For more information see [VRS File Validation](https://facebookresearch.github.io/vrs/docs/VrsCliTool#file-validation).
+
+```
+$ vrs check <file.vrs>
+$ vrs checksum <file.vrs>
+```
+
+If the file is not valid, it is normally because there is missing data that could lead to invalid behavior with the tooling. All files in the [Aria Pilot Dataset](https://about.facebook.com/realitylabs/projectaria/datasets) are valid, so if you encounter that issue with this dataset, re-downloading the file should resolve this issue.
+
+### Extract image or audio content to folders
+
+Use the following commands to extract JPEG or WAV files. Use the `--to <folder_path>` to specify a destination folder where the data will be extracted, or it will be added to the current working directory.
+
+```
+$ vrs extract-images <file.vrs> --to <image_folder>
+$ vrs extract-audio <file.vrs> --to <audio_folder>
+```
+
+To extract RAW image files, use:
+
+```
+vrs extract-images <file.vrs> --raw-images --to <image_folder>
+```
+
+### Extract all content to folders and JSONs
+
+This command lets you extract all images, audio, and metadata into files:
+
+```
+vrs extract-all <file.vrs> --to <folder>
+```
+
+The metadata is extracted into a single `.jsons` file that contains a succession of json messages, one per line. Each line corresponds to a single record, in timestamp order, so it is possible to parse it even if the number of records is huge. Saving all the data in a single file prevents saturating your disk with possibly millions of small files.
+Once extracted, your file will look like this:
+
+
+```
+    ├── file.vrs
+    ├── all_data
+      * `NNNN-MM` folders: image folders, one folder per stream containing images.
+      ├── 1201-1 # SLAM Left images
+          ├── *.jpg
+      ├── 1201-2 # SLAM Right images
+          ├── *.jpg
+      ├── 211-1  # Eye Tracking images
+          ├── *.jpg
+      ├── 214-1  # RGB (Color) Camera images
+          ├── *.jpg
+      ├── metadata.jsons
+      └── ReadMe.md
+```
+
+For more information, see [VRS Data Extraction](https://facebookresearch.github.io/vrs/docs/VrsCliTool#data-extraction).
+
+### Inspect how many data recordings there are by type
+
+```
+vrs <file.vrs> | grep "] records."
+```
+
+Will get you a return like this:
+
+```
+623 Eye Camera Class #1 - device/aria [211-1] records.
+1244 RGB Camera Class #1 - device/aria [214-1] records.
+729 Stereo Audio Class #1 - device/aria [231-1] records.
+3101 Barometer Data Class #1 - device/aria [247-1] records.
+65 Time Domain Mapping Class #1 - device/aria [285-1] records.
+623 Camera Data (SLAM) #1 - device/aria [1201-1] records.
+623 Camera Data (SLAM) #2 - device/aria [1201-2] records.
+61965 IMU Data (SLAM) #1 - device/aria [1202-1] records.
+50002 IMU Data (SLAM) #2 - device/aria [1202-2] records.
+619 Magnetometer Data (SLAM) #1 - device/aria [1203-1] records.
+```
+
+Each line reports how many data records are stored in each data stream as well as the stream ID, e.g.
+
+```
+623 Camera Data (SLAM) #2 - device/aria [1201-2] records.
+```
+
+indicates the second slam camera recorded 623 frames. The stream name is `Camera Data (SLAM) #2` and identified by numerical ID [1201-2].

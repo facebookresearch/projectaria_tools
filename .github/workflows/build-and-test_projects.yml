@@ -1,0 +1,93 @@
+name: Build projects
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build ${{ matrix.project }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest,  macOS-latest]
+        project: [
+          PROJECTARIA_TOOLS_BUILD_PROJECTS_ADT,
+          PROJECTARIA_TOOLS_BUILD_TOOLS]
+    steps:
+      - name : Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+              # Update & upgrade package lists
+              sudo apt-get update -y
+              sudo apt-get upgrade
+              # Deal with Github CI limitation
+              # https://github.com/actions/runner-images/issues/6399#issuecomment-1285011525
+              sudo apt install -y libunwind-dev
+
+              # Generic dependencies
+              sudo apt-get install cmake
+
+              # Install VRS dependencies
+              sudo apt-get install -o Acquire::Retries=5 \
+                libfmt-dev libcereal-dev \
+                libturbojpeg-dev libpng-dev \
+                liblz4-dev libzstd-dev libxxhash-dev \
+                libboost-chrono-dev \
+                libboost-date-time-dev \
+                libboost-filesystem-dev \
+                libboost-iostreams-dev \
+                libboost-system-dev \
+                libboost-thread-dev
+
+              # Build Cereal (header only library)
+              cd /tmp; git clone https://github.com/USCiLab/cereal.git -b v1.3.2 \
+                && cd cereal \
+                && cmake -DSKIP_PORTABILITY_TEST=1 -DJUST_INSTALL_CEREAL=ON .; sudo make -j$thread install; rm -rf /tmp/cereal;
+
+              # Clean APT cache
+              sudo apt-get clean
+
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+              # Install system deps with Homebrew
+              brew install cmake
+              # VRS dependencies
+              brew install boost fmt sophus cereal glog lz4 zstd xxhash libpng jpeg-turbo
+          else
+              echo "$RUNNER_OS not supported"
+              exit 1
+          fi
+
+      - name: Install & build Pangolin
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get install \
+              libeigen3-dev \
+              libglew-dev libgl1-mesa-dev \
+              libwayland-dev libxkbcommon-dev wayland-protocols
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            brew install eigen glew
+          fi
+
+          # Build and install Pangolin (optional)
+          cd /tmp; git clone https://github.com/stevenlovegrove/Pangolin.git \
+            && mkdir Pangolin_Build && cd Pangolin_Build \
+            && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TOOLS=OFF -DBUILD_PANGOLIN_PYTHON=OFF -DBUILD_EXAMPLES=OFF ../Pangolin/ \
+            && sudo make -j$thread install;
+
+      - name: Configure & build project
+        shell: bash
+        run: |
+          mkdir build
+          cmake -DCMAKE_BUILD_TYPE=RELEASE -S ./ -B build -D${{ matrix.project }}=ON -DPROJECTARIA_TOOLS_BUILD_PROJECTS=ON
+          cd build
+          make -j8

@@ -1,0 +1,2 @@
+*.vrs filter=lfs diff=lfs merge=lfs -text
+*.csv.gz filter=lfs diff=lfs merge=lfs -text
