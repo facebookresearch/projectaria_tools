@@ -3,11 +3,17 @@ sidebar_position: 20
 title: Python Package Installation
 ---
 
-#### Step 1 : Install Python
+# Python Package Installation
+This page provides information about how to install the Python utilities using a virtual environment or from source. We recommend that only advanced users install from source.
 
-* Ensure the python3 is installed on the system (check with python3 --version). Some packages in this guide, e.g., Jupyter ([notebook error](/docs/data_utilities/installation/troubleshooting#jupyter-notebook-error)), may require you to upgrade to the latest python3 version
+## Install via virtual environment
+### Step 1 : Install Python
 
-#### Step 2 : Create a virtual environment
+To use the Jupyter notebooks featured in our documentation you'll need Python 3.9 or above. To ensure all utilities work effectively, we recommend keeping Python 3 up to date.
+* [Python 3 download page](https://www.python.org/downloads/)
+* To check what what version of Python 3 you have use `python3 --version`
+
+### Step 2 : Create a virtual environment
 
 ```bash
 rm -rf $HOME/projectaria_tools_python_env
@@ -17,16 +23,16 @@ python3 -m venv $HOME/projectaria_tools_python_env
 source $HOME/projectaria_tools_python_env/bin/activate
 ```
 
-####  Step 3 : Install required python packages
+###  Step 3 : Install the required Python packages
 
 ```bash
 pip3 install --upgrade pip
 
 pip3 install projectaria-tools'[all]'
 ```
-#### Step 4 : Verify installation
+### Step 4 : Verify installation
 
-Verify the python package installation by running through two example tutorials with jupyter notebook.
+Verify the Python package installed correctly by running through the two example tutorials in Jupyter notebook.
 
 ```bash
 cd $HOME/Documents/projectaria_sandbox
@@ -38,14 +44,16 @@ jupyter notebook projectaria_tools/core/examples/dataprovider_quickstart_tutoria
 jupyter notebook projectaria_tools/core/examples/mps_quickstart_tutorial.ipynb
 ```
 
-NOTE: If running into python module import error, please refer to [Python module import error](/docs/data_utilities/installation/troubleshooting#python-module-import-error) section.
+:::tip Python Module Error?
+Check the [Python module import error](/docs/data_utilities/installation/troubleshooting#python-module-import-error) section of [Data Utilities Troubleshooting Guide](/docs/data_utilities/installation/troubleshooting) if you encounter this issue
+:::
 
+# Building Python bindings from source (advanced user)
+You'll need to install C++ dependencies to build Python bindings from source.
 
-# Building python bindings from source (advanced user)
-
-First install the required C++ dependencies (see [Install dependencies](/docs/data_utilities/installation/installation_cpp)) and go to the projectaria_tools code folder.
-Then follow those instructions.
-
+1. Go to the [C++ Installation page](/docs/data_utilities/installation/installation_cpp) and follow the instructions to [install dependencies](/docs/data_utilities/installation/installation_cpp)
+2. Go to the projectaria_tools code folder
+3. Enter the following commands
 ```bash
 cd $HOME/Documents/projectaria_sandbox/projectaria_tools
 

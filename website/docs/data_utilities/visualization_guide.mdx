@@ -4,43 +4,57 @@ title: Visualizers
 ---
 
 # Visualizers
-In this section, we introduce all the core visualization tools available in Project Aria Tools. Example datasets are also provided to test those tools.
 
-* [Aria viewer](#ariaviewer): visualize Aria data
-* [MPS Static scene visualizer](#mps-static-scene-visualizer): visualize Aria data with trajectories,
+This page introduces the core visualization tools available in Project Aria Tools. We've provided example datasets to test these tools.
+
+
+* [Aria Viewer](#ariaviewer): visualize raw Aria data
+* [MPS 3D Scene Viewer](#mps-static-scene-visualizer):  renders a static scene using Aria data with trajectories,
 global point cloud, and static camera poses
-* [MPS eye gaze viewer](#mps-eye-gaze-visualizer): visualize Aria data with eye gaze data
+* [MPS Eye Gaze Viewer](#mps-eye-gaze-visualizer): visualize Aria data with eye gaze data
 ---
 
-## Step 0 : Check system requirements and download codebase
+### Step 0 : Check system requirements and download codebase
 
-[Ensure your system is supported and then download projectaria_tools codebase from the github](/docs/data_utilities/installation/download_codebase.mdx)
+Go to the [Download Codebase](/docs/data_utilities/installation/download_codebase) page to:
+   * Check your system is supported
+   * Download projectaria_tools codebase from the github
 
-## Step 1 : Build and install visualizers
+### Step 1 : Build and install visualizers
 
-Follow the [entire C++ installation](/docs/data_utilities/installation/installation_cpp) to build projectaria_tools C++ libraries with visualization.
+The visualizers need the C++ version of Project Aria Tools to run.
 
-## Step 2 : Run AriaViewer
-[AriaViewer](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/visualization/main.cpp) is used to visualize Aria device recorded VRS files, which shows all sensor data including camera images,
-imu, audio, etc. (No sound will be available.)
+* In the [C++ Installation Guide](/docs/data_utilities/installation/installation_cpp), follow the instructions to [build from source with visualization](docs/data_utilities/installation/installation_cpp#build-from-source-with-visualization)
+
+### Step 2 : Run Aria Viewer
+[Aria Viewer](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/visualization/main.cpp) enable you to to visualize Aria device recorded VRS files. It shows all sensor data including:
+* Camera images
+* IMU
+* Audio (visualization of waveform, sound is not available)
 
 ```bash
 cd $HOME/Documents/projectaria_sandbox/build
 
 ./tools/visualization/aria_viewer --vrs ../projectaria_tools/data/mps_sample/sample.vrs
 ```
-![Image](/img/data_utilities/aria-viewer.png)
+![Aria Viewer Screenshot](/img/data_utilities/aria-viewer.png)
 
 
-## Step 3 : Run MPS Static Scene Visualizer
+### Step 3 : Run MPS 3D Scene Viewer
 
-The [MPS 3D scene Viewer](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/mps_visualization/main_3d_scene_viewer.cpp) is a renders the location MPS output. It consists of
+The [MPS 3D Scene Viewer](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/mps_visualization/main_3d_scene_viewer.cpp) renders a static scene using location MPS output.
 
-1. Open/Closed loop trajectories
-2. Global Point cloud
-3. Static camera poses
+Through this tool you can create visualizations using:
+* Closed loop trajectories
+* Global point cloud
+* Static camera poses
+* Open loop trajectories
+   * Because open loop is in odometry frame of reference, it shouldn’t be visualized with closed loop trajectories, global points or static camera poses
 
-Since open loop trajectory is in odometry frame of reference, it shouldn’t be used together with closed loop trajectories, global points or static camera poses
+This tutorial generates a visualization containing:
+* Closed loop trajectories
+* Global point cloud
+
 ```bash
 cd $HOME/Documents/projectaria_sandbox/build
 
@@ -50,18 +64,22 @@ cd $HOME/Documents/projectaria_sandbox/build
     --global-point-cloud \
     ../projectaria_tools/data/mps_sample/trajectory/global_points.csv.gz
 ```
-![Image](/img/data_utilities/mps-3d-staticscene-viewer.png)
+![Screenshot of 3D Scene Viewer UI](/img/data_utilities/mps-3d-staticscene-viewer.png)
 
-Note that this sample dataset has no static cameras, therefore those buttons will not change anything in this example.
+:::info
+Because the sample dataset doesn't have static cameras you won't be able to interact with the static camera settings
+:::
 
 ## Step 4: MPS Eye Gaze visualizer
 
-The [MPS Eye Gaze visualizer](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/mps_visualization/main_eyegaze.cpp) renders the computed eye gaze and vrs data side by side. It consists of
+The [MPS Eye Gaze visualizer](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/mps_visualization/main_eyegaze.cpp) renders the computed eye gaze and vrs data side by side. The visualizer contains:
 
-1. Eye camera stream
-2. RGB, SLAM left and SLAM right camera streams with a red dot showing the projection of the eye gaze onto the image. **The projection is computed using a fixed depth of 1m.**
-3. 2D graph plot of the gaze yaw and pitch angles in radians.
-4. 2D radar plot of the eye gaze yaw and pitch angles.
+* Eye Tracking camera stream
+* RGB, Mono Scene (SLAM) left and right camera streams
+   * A red dot shows the projection of the eye gaze onto the image
+   * The projection is computed using a fixed depth of 1m
+* 2D graph plot of the gaze yaw and pitch angles in radians
+* 2D radar plot of the eye gaze yaw and pitch angles
 
 ```bash
 cd $HOME/Documents/projectaria_sandbox/build
@@ -71,8 +89,8 @@ cd $HOME/Documents/projectaria_sandbox/build
     --eyegaze  ../projectaria_tools/data/mps_sample/eye_gaze/eyegaze.csv
 ```
 
-![Image](/img/data_utilities/mps-eyegaze-viewer.png)
+![Screenshot of MPS Eye Gaze Viewer](/img/data_utilities/mps-eyegaze-viewer.png)
 
 ## Troubleshooting
 
-Check the [troubleshooting](/docs/data_utilities/installation/troubleshooting) if you are having issues in this guide.
+Check the [Troubleshooting Guide](/docs/data_utilities/installation/troubleshooting) if you encounter issues using this tutorial.

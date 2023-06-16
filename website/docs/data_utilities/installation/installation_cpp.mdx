@@ -5,9 +5,15 @@ title: C++ Installation
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+# C++ Installation
+This page provides instructions on how to:
+* Build projectaria_tools for C++, without visualization
+* Build projectaria_tools for C++, with visualization
+   * To install dependencies, follow the instructions for build without visualization first
+
 ## Build from source without visualization
 
-#### Step 1 : Install dependencies
+### Step 1 : Install dependencies
 
 ```mdx-code-block
 <Tabs groupId="operating-systems">
@@ -64,7 +70,7 @@ rm -rf /tmp/cereal
 ```
 ```mdx-code-block
 </TabItem>
-<TabItem value="macos" label="MacOs">
+<TabItem value="macos" label="MacOS">
 ```
 If you don't have brew on your mac, here is the [_setup link_](https://brew.sh/).
 
@@ -81,7 +87,7 @@ glog lz4 zstd xxhash libpng jpeg-turbo glew
 </Tabs>
 ```
 
-#### Step 2 : Compile C++ source code
+### Step 2 : Compile C++ source code
 
 ```bash
 cd $HOME/Documents/projectaria_sandbox
@@ -98,9 +104,10 @@ make -j2
 
 ## Build from source with visualization
 
-#### Step 1 : Follow the above steps to install dependencies [build from source](#build-from-source-without-visualization)
+### Step 1 : Install dependencies
+Follow the above steps to install dependencies [build from source](#build-from-source-without-visualization)
 
-#### Step 2 :  Compile Pangolin
+### Step 2 :  Compile Pangolin
 
 The viewers are built using [Pangolin](https://github.com/stevenlovegrove/Pangolin).
 
@@ -120,7 +127,7 @@ make -j2
 sudo make install
 ```
 
-#### Step 3 : Build projectaria_tools with visualization
+### Step 3 : Build projectaria_tools with visualization
 
 ```bash
 cd $HOME/Documents/projectaria_sandbox
@@ -133,7 +140,7 @@ cmake ../projectaria_tools -DPROJECTARIA_TOOLS_BUILD_TOOLS=ON
 make -j2
 ```
 
-#### Step 4 : Verify installation by running the viewer
+### Step 4 : Verify installation by running the viewer
 
 ```bash
 cd $HOME/Documents/projectaria_sandbox/build
@@ -145,4 +152,4 @@ cd $HOME/Documents/projectaria_sandbox/build
 
 ## Troubleshooting
 
-If running into issues when compiling or running the viewer, please refer to the [**visualizer issues**](/docs/data_utilities/installation/troubleshooting#visualizer-issues).
+Check the [Troubleshooting Guide](docs/data_utilities/installation/troubleshooting) if you encounter any issues.
