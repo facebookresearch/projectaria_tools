@@ -143,10 +143,25 @@ ImuCalibration parseImuCalibrationFromJson(const fb_rapidjson::Value& json) {
 
 MagnetometerCalibration parseMagnetometerCalibrationFromJson(const fb_rapidjson::Value& json) {
   const auto label = json["Label"].GetString();
-  const auto [magMat, magBias] = parseRectModelFromJson(json);
-  // the minus on magMat is an intentional patch to correct a sign error in factory calib
-  // the *1e6 patch assume the raw and rectified signal are both in Tesla
-  return MagnetometerCalibration(label, -magMat * 1e6, magBias);
+  const auto [magMatFromJson, biasInMicroTesla] = parseRectModelFromJson(json);
+
+  // In factory calib json:
+  //    `rectified_in_T = magMatFromJson * (raw_in_uT - bias_in_uT). `.
+  // We want to align to the following to match IMU convention:
+  //    `rectified_in_T = magMat.inv() * (raw_in_T - bias_in_T)`.
+  // Therefore we need to do some patches as follows:
+
+  // 1. Note that `raw_in_uT` has been transformed to `raw_in_T` in
+  // ${PROJECT}/core/data_provider/RecordReaderInterface.cpp
+
+  // 2. `matMat` is transformed as:
+  auto magMat = (-magMatFromJson.inverse() * 1e-6); /* where the extra `-` sign is an intentional
+  patch to correct a sign error in factory calib process. */
+
+  // 3. `bias` is transformed as:
+  auto biasInTesla = biasInMicroTesla * 1e-6;
+
+  return MagnetometerCalibration(label, magMat, biasInTesla);
 }
 
 BarometerCalibration parseBarometerCalibrationFromJson(const fb_rapidjson::Value& json) {
