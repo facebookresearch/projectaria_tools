@@ -13,6 +13,11 @@
 # limitations under the License.
 
 # This makes the modules discoverable when doing dir(projectaria_tools.core)
+
+"""
+A pybind11 binding for projectaria_tools core module
+"""
+
 from . import (  # noqa
     calibration,
     data_provider,

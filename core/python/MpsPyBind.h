@@ -35,7 +35,7 @@ using namespace pybind11::literals;
 namespace projectaria::tools::mps {
 
 void exportMps(py::module& m) {
-  m.doc() = "A pybind11 binding for Aria Research Kit (ARK) mps library.";
+  // For submodule documentation, see: projectaria_tools/projectaria_tools/core/mps.py
 
   // gaze
   py::class_<EyeGaze>(m, "EyeGaze", "An object representing single Eye gaze output.")

@@ -12,4 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+A pybind11 binding for Aria Synthetic Environment calibration module
+"""
+
 from _ase_pybinds import *  # noqa

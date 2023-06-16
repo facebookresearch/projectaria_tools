@@ -84,7 +84,7 @@ inline void declareRecordableTypeId(py::module& m) {
 } // namespace
 
 inline void exportStreamId(py::module& m) {
-  m.doc() = "A pybind11 binding for Aria Data Tools streamIds";
+  // For submodule documentation, see: projectaria_tools/projectaria_tools/core/stream_id.py
 
   declareRecordableTypeId(m);
   declareStreamId(m);

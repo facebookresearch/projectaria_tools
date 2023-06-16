@@ -28,7 +28,7 @@ namespace py = pybind11;
 namespace projectaria::dataset::ase {
 
 inline void exportAriaSyntheticEnvironmentCalibProvider(py::module& m) {
-  m.doc() = "A pybind11 binding for Aria Synthetic Environment Calibration";
+  // For module documentation, see: projectaria_tools/projectaria_tools/projects/ase/__init__.py
 
   m.def("get_ase_rgb_calibration", &getAseRgbCalibration, py::arg("image_size") = 704);
 }

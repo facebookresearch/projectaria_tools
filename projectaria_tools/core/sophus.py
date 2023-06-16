@@ -12,4 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+A minimal pybind11 binding for the projectaria_tools Sophus submodule
+"""
+
 from _core_pybinds.sophus import *  # noqa

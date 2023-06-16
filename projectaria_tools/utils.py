@@ -12,9 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+A utilities module for projectaria_tools
+"""
+
 import numpy as _np
 from projectaria_tools.core.sensor_data import PixelFrame as _PixelFrame
-
 
 # Convert from Aria image format to numpy array
 #

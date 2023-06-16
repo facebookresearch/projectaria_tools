@@ -12,4 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+A pybind11 binding for projectaria_tools stream ids submodule
+"""
+
 from _core_pybinds.stream_id import *  # noqa

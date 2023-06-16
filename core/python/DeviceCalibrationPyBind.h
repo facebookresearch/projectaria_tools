@@ -488,7 +488,7 @@ inline void declareDistortByCalibrationAll(py::module& m) {
 } // namespace
 
 inline void exportDeviceCalibration(py::module& m) {
-  m.doc() = "A pybind11 binding for Aria Data Tools calibration module.";
+  // For submodule documentation, see: projectaria_tools/projectaria_tools/core/calibration.py
 
   declareSensorCalibration(m);
   declareDeviceCalibration(m);

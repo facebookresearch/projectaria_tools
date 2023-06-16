@@ -12,4 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+A pybind11 binding for Aria Digital Twin dataset tools module
+"""
+
 from _adt_pybinds import *  # noqa

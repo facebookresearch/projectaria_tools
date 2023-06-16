@@ -26,6 +26,8 @@ namespace py = pybind11;
 using namespace projectaria::tools;
 
 PYBIND11_MODULE(_core_pybinds, m) {
+  // For module documentation, see: projectaria_tools/projectaria_tools/core/__init__.py
+
   py::module sophus = m.def_submodule("sophus");
   sophus::exportSophus(sophus);
 

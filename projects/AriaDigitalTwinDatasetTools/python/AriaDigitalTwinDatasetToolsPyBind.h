@@ -33,7 +33,7 @@ using namespace projectaria::dataset::adt;
 namespace projectaria::dataset::adt {
 
 void exportAriaDigitalTwin(py::module& m) {
-  m.doc() = "A pybind11 binding for Aria Digital Twin tools";
+  // For module documentation, see: projectaria_tools/projectaria_tools/projects/adt/__init__.py
 
   // Ground truth data type
   py::class_<Aria3dPose>(

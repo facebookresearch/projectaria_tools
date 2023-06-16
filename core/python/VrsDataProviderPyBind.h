@@ -429,7 +429,8 @@ inline void declareVrsDataProvider(py::module& m) {
 } // namespace
 
 inline void exportVrsDataProvider(py::module& m) {
-  m.doc() = "A pybind11 binding for Aria Data Tools vrs data provider";
+  // For submodule documentation, see: projectaria_tools/projectaria_tools/core/data_provider.py
+
   m.def(
       "create_vrs_data_provider",
       &createVrsDataProvider,

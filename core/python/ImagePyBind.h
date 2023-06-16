@@ -74,6 +74,8 @@ void declare_debayer(py::module& module) {
 }
 
 inline void exportImage(py::module& m) {
+  // For submodule documentation, see: projectaria_tools/projectaria_tools/core/image.py
+
   // imageData
   declare_image<projectaria::tools::image::ManagedImage3U8>(m, "ManagedImage3U8");
   declare_image<projectaria::tools::image::ManagedImageU8>(m, "ManagedImageU8");

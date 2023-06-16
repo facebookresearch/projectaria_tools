@@ -28,7 +28,7 @@ namespace sophus {
 namespace py = pybind11;
 
 inline void exportSophus(py::module& m) {
-  m.doc() = "A minimal pybind11 binding for Sophus module.";
+  // For submodule documentation, see: projectaria_tools/projectaria_tools/core/sophus.py
 
   py::class_<Sophus::SE3d>(m, "SE3d")
       .def(py::init<>())

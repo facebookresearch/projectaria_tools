@@ -470,7 +470,7 @@ inline void declareSensorData(py::module& m) {
 } // namespace
 
 void exportSensorData(py::module& m) {
-  m.doc() = "A pybind11 binding for Aria Data Tools sensor data types";
+  // For submodule documentation, see: projectaria_tools/projectaria_tools/core/sensor_data.py
 
   declareTimeEnums(m);
   declareSensorDataType(m);
