@@ -5,6 +5,88 @@ title: ARK Release Notes
 
 # Aria Research Kit Release Notes
 
+
+## July Release - new documentation site, Aria Desktop App v37 and Mobile App v120
+7/11/23
+
+Dear Academic Partners,
+
+With this July release we’re pleased to announce a new documentation site on GitHub, Desktop Companion App v37, and Aria Mobile Companion App v120.
+
+V37 of the Desktop Companion App updates the app to the new Project Aria branding, the ability to run the Desktop app from the command line and users will now be able to request Semi-Dense Point Cloud MPS.
+
+[_Project Aria Tools_](https://facebookresearch.github.io/projectaria_tools/docs/intro) is our new documentation site on GitHub. Information that used to be at [projectaria.com](http://projectaria.com/) is now in the [_Aria Research Kit section_](https://facebookresearch.github.io/projectaria_tools/docs/ARK/about_ARK)of the site and no login is required to access the documentation.
+
+Download the updated companion apps from the [_Aria Web Portal_](https://portal.projectaria.com/). If you sign in on your desktop computer, you’ll get the Desktop Companion app. If you sign in on your Android mobile device, you’ll download the Mobile Companion app.
+
+### NEW AND UPDATED FEATURES
+
+### Documentation now on GitHub
+
+The documentation previously hosted at projectaria.com will now be hosted in Project Aria Tools.
+
+Project Aria Tools is the new comprehensive website for all your documentation needs. It contains over 60 pages, covering technical specifications, data formats, data utilities you can use with your data, information and tooling for open data we’ve released and technical insights for deeper dives.
+
+The [_Aria Research Kit_](https://facebookresearch.github.io/projectaria_tools/docs/ARK/about_ARK) section contains information specific to Academic partners who have access to Aria glasses and MPS. We’ve added a few extra pages and updated the documentation for this release, updates include adding:
+
+* [_Get the Right Size Glasses_](https://facebookresearch.github.io/projectaria_tools/docs/ARK/frame_sizing) - sizing information if you’re ordering glasses (our small is surprisingly large!)
+* [_How to Join the Academic Partners Workplace Group_](https://facebookresearch.github.io/projectaria_tools/docs/ARK/workplacegroup)
+* [_Aria Glasses User Manual_](https://facebookresearch.github.io/projectaria_tools/docs/ARK/glasses_manual/glasses_user_manual) - a combination of old and new information. Proper Handling and Cleaning information is now at the top.
+
+
+There is a lot of new documentation to explore, including:
+
+* [_Aria Data Utilities_](https://facebookresearch.github.io/projectaria_tools/docs/data_utilities/getting_started) - including new Jupyter notebook tutorials
+* [_More detailed information about recording profiles_](https://facebookresearch.github.io/projectaria_tools/docs/tech_spec/recording_profiles) (scroll the table sideways to see all the columns)
+* More [_data format information_](https://facebookresearch.github.io/projectaria_tools/docs/data_formats) (including [_coordinate conventions_](https://facebookresearch.github.io/projectaria_tools/docs/data_formats/coordinate_convention/2d_image_coordinate_system_convention))
+* New Open Datasets with tooling, [_Aria Digital Twin Dataset_](https://facebookresearch.github.io/projectaria_tools/docs/open_datasets/aria_digital_twin_dataset) and [_Aria Synthetic Environments Dataset_](https://facebookresearch.github.io/projectaria_tools/docs/open_datasets/aria_digital_twin_dataset).
+
+### Desktop App v37 - Semi-dense point cloud
+
+From V37 of the Desktop app onwards, users will be able to request semi-dense point clouds as an addition to trajectory MPS services. The same sensor profile requirements for generating trajectory data apply to semi-dense point cloud.
+
+[_Semi-dense point clouds_](https://facebookresearch.github.io/projectaria_tools/docs/data_formats/mps/mps_pointcloud) are used by researchers who need static scene 3D reconstructions, reliable 2D images tracks or a representative visualization of the environment.
+
+
+* [_About Aria Machine Perception Services (MPS)_](https://facebookresearch.github.io/projectaria_tools/docs/ARK/mps)
+* [_How to Request MPS_](https://facebookresearch.github.io/projectaria_tools/docs/ARK/mps/request_mps)
+* [_MPS Output - Semi-Dense Point Cloud_](https://facebookresearch.github.io/projectaria_tools/docs/data_formats/mps/mps_pointcloud)
+
+### Improved UI & UX
+* The Desktop app has been updated to match Aria’s new brand
+* The recordings view has been revamped, users will now see a thumbnail for each recording and the upload ID can be copied
+* The Desktop app can now be run directly from the command line without needing a GUI. It currently includes two utilities as subcommands:
+   * Further documentation about how to run the Desktop app from the command line will be added to the ARK wiki soon
+   * health: use this to run validity checks on an Aria recording (VRS file)
+       * It can be run from the command line as follows: AriaHub health vrsFilePath.vrs
+       * These checks are also run on the VRS file automatically, before the file gets uploaded for MPS processing. The results of those checks can be found under your home directory under  ./aria/logs
+   * vrs: a Swiss army knife utility to manipulate VRS files in different ways
+       * It can be run from the command line as follows: AriaHub vrs vrsFilePath.vrs
+       * Go to VRS official documentation for a full list of commands
+
+
+### Mobile App v120 - Quality Screens Feature update
+
+Some additional features have been added to the quality screen feature that was introduced with v115. You’ll now be able to see timecodes and the overall score percentage for the sensors.
+
+
+### BUG FIXES
+
+Various bug fixes improving the overall usage of the Apps.
+
+
+### PROJECT ARIA LATEST DEVICE OS
+
+The latest Project Aria device OS build **4962591.230.70** was released on June 30, 2023.
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+Contact Aria User Support by posting in [**Project Aria Academic Partner Announcements, Feedback & Support**](https://facebookresearch.github.io/projectaria_tools/docs/ARK/workplacegroup) or email [_AriaOps@meta.com_](mailto:AriaOps@meta.com).
+
+
+<br/>
+<br/>
+
 ## Aria Mobile App v115 is now available
 Dear Academic Partners,
 The Aria Mobile App v115 for Android is now available for download from the [Aria Web Portal](https://portal.projectaria.com) (accessed via your Android internet browser).

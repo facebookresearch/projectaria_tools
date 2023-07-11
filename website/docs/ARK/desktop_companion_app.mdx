@@ -76,6 +76,8 @@ The app will then be visible through "Activities"
 
 After accepting the guidelines and logging in, you should see the Aria Dashboard. The dashboard displays the device info for your Aria glasses and allow you to interact with your glasses, if they are plugged in, as well as links to further information about Aria.
 
+![Dashboard of Aria Desktop App](/img/ARK/desktop_app_dashboard.png)
+
 ### Pairing
 
 The Desktop App will detect devices that are plugged in via USB. Once plugged in, your device will display as Aria and as Active with its serial number visible in the list of devices next to My Device.
@@ -88,25 +90,28 @@ While you can initiate recording via the Desktop app, we recommend using the Mob
 
 ## Download your data
 
-Once you've completed recordings with your Aria Glasses you can access and download these recordings using the Desktop Companion app (go to the ARK Quickstart guide to see other ways to download your data).
+Once you've completed recordings with your Aria Glasses you can access and download these recordings using the Desktop Companion app (go to the [Aria Glasses Quickstart guide](https://facebookresearch.github.io/projectaria_tools/docs/ARK/ARK_quickstart) to see other ways to download your data).
 
+![Aria Desktop App Recordings Page](/img/ARK/desktop_app_recordings.png)
 Every recording will generate a VRS file and a .vrs.json file containing the recording's metadata.
 
 To download a recording:
 
 1. Go to the Recordings page
-2. Select a VRS file (and the accompanying .json file if you want the metadata)
-3. Right click and select pull
-4. In the file explorer window, select where you want to save the recording.
-5. Once the folder location selected, a dialog window will pop up indicating the current VRS file transfer.
+2. You'll see thumbnails of all the recordings on your Aria glasses
+3. Select **Pull** to download the data from your glasses
+4. In the file explorer window, select where you want to save the recording
+5. Once you've selected a folder location, a dialog window will pop up indicating the current VRS file transfer
 
 ## Visualize your data
 
 Once files have been copied to your local directory, the VRS file can be visualized using the Desktop App.
 
-1. In the Recordings page, select Play VRS.
-2. When the file explorer window appears, select the VRS file you want to play.
-3. Once you've selected a file to open, the VRS player window will pop up and start playing your recording.
+1. In the Recordings page, select **Tools**
+2. Select **Play VRS**
+2. When the file explorer window appears, select the VRS file you want to play
+3. Once you've selected a file to open, the VRS player window will pop up and start playing your recording
+   * Once the visualizer is open, use **Open** (Path or URI) or **Select** (Explorer window) to visualize other recordings
 
 ### Playback Controls
 
@@ -119,7 +124,7 @@ The Previous and Next Frame buttons will play at most one frame backward or forw
 The overlay selector lets you chose what information to display over the frames. The options are:
 
 * Hide - there is no overlay
-* Tags - show streams tags
+* Tags - show stream tags
 * Configuration, State or Data - show the metadata found in the last record.
 
 ### Tooltips
@@ -140,6 +145,8 @@ The commands in the lower section let you control in how many row of how many vi
 
 Once at least one preset has been saved, you can recall or delete presets, which automatically get a keyboard shortcut for quick access.
 
+![Visualizer layout options](/img/ARK/desktopapp_menubar_layout.png)
+
 ### Keyboard Playback Controls
 
 Playback can be directly controlled from the keyboard:
@@ -159,7 +166,9 @@ Streaming over will not work on any Meta corporate network.
 
 To stream data, your Aria glasses need to be on the same network as your computer.
 
-:: tip You will need to use a "non-corporate" network. Corporate/Institution networks are often protected by many layers of security and firewalls which will impede you from streaming. If you are at home, please make sure you're not connected to a VPN.
+:::tip You will need to use a "non-corporate" network
+Corporate/Institution networks are often protected by many layers of security and firewalls which will impede you from streaming. If you are at home, please make sure you're not connected to a VPN.
+:::
 
 ### Wi-Fi connection via Mobile Companion App
 
@@ -189,7 +198,7 @@ Once connected, the Wi-Fi network name will appear in the Desktop App under My D
 To start streaming, select Streaming on the Dashboard device toolbar under My Device.
 The streaming session will then start
 
-### Streaming Visualisation
+### Streaming Visualization
 
 The Aria stream window will pop up showing Aria's sensors live data. The nature of the visualized data will be determined by the chosen recording profile (See Select a Recording Profile above). we recommend only using Profiles 12 and 18, which are optimized for streaming.
 
@@ -220,15 +229,11 @@ The profile you select will also be the profile used when you initiate recording
 
 ### Start Recording
 
-### To start recording:
-
 1. Plug your Aria device into your computer with the provided cable.
-2. In the Dashboard device toolbar under My Device, select Record.
+2. In the Dashboard device toolbar under My Device, select **Record**.
 3. Once the recording has started you can unplug your Aria device
 
 ### Stop Recording
-
-### To stop recording:
 
 1. Plug your Aria device into your computer
 2. Select **Stop**
