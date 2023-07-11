@@ -1,4 +1,4 @@
-# Contributing to "Aria Research Kit (ARK)"
+# Contributing to "Project Aria Tools"
 
 We want to make contributing to this project as easy and transparent as
 possible.
