@@ -804,12 +804,21 @@ void AriaDigitalTwinDataProvider::loadAria3dPoses() {
     aria3dPose.T_Scene_Device.translation() = {
         std::stod(tokens.at(3)), std::stod(tokens.at(4)), std::stod(tokens.at(5))};
 
-    // w, x, y, z
-    aria3dPose.T_Scene_Device.setQuaternion(Eigen::Quaternion<double>(
-        std::stod(tokens.at(6)),
-        std::stod(tokens.at(7)),
-        std::stod(tokens.at(8)),
-        std::stod(tokens.at(9))));
+    Eigen::Quaternion<double> q;
+    if (datasetVersion_ == "1.0") {
+      // dataset version 1.0 had w, x, y, z
+      q.w() = std::stod(tokens.at(6));
+      q.x() = std::stod(tokens.at(7));
+      q.y() = std::stod(tokens.at(8));
+      q.z() = std::stod(tokens.at(9));
+    } else {
+      // reads as x, y, z, w but Eigen requires w, x, y, z
+      q.w() = std::stod(tokens.at(9));
+      q.x() = std::stod(tokens.at(6));
+      q.y() = std::stod(tokens.at(7));
+      q.z() = std::stod(tokens.at(8));
+    }
+    aria3dPose.T_Scene_Device.setQuaternion(q);
 
     aria3dPose.deviceLinearVelocity = {
         std::stod(tokens.at(10)), std::stod(tokens.at(11)), std::stod(tokens.at(12))};
