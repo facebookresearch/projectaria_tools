@@ -33,7 +33,8 @@ namespace fs = std::filesystem;
 namespace projectaria::dataset::adt {
 
 // sequence metadata file name
-const std::string kMetadataFile = "gt-metadata.json";
+const std::string kMetadataFile = "metadata.json";
+const std::string kMetadataFileDeprecated = "gt-metadata.json";
 
 // sequence metadata keys
 const std::string kSubtoursKey = "subtours";
@@ -215,10 +216,14 @@ std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
 
   // get meta data file
   const std::string metaDataFilePath = fs::path(sequencePath) / fs::path(kMetadataFile);
-  if (!fs::exists(metaDataFilePath)) {
-    XR_LOGW("no meta data found at {}", metaDataFilePath);
-  } else {
+  const std::string metaDataFilePathDeprecated =
+      fs::path(sequencePath) / fs::path(kMetadataFileDeprecated);
+  if (fs::exists(metaDataFilePath)) {
     paths.metaDataFilePath = metaDataFilePath;
+  } else if (fs::exists(metaDataFilePathDeprecated)) {
+    paths.metaDataFilePath = metaDataFilePathDeprecated;
+  } else {
+    XR_LOGW("no meta data found at {} or {}", metaDataFilePath, metaDataFilePathDeprecated);
   }
 
   const std::string instancesFilePath = fs::path(mainPath) / fs::path(kInstanceFile);
@@ -239,11 +244,23 @@ void AriaDigitalTwinDataPathsProvider::loadSequenceMetaData() {
   }
 
   fs::path fileMetadata = fs::path(sequencePath_) / fs::path(kMetadataFile);
-  std::ifstream fileStream(fileMetadata);
+  fs::path fileMetadataDeprecated = fs::path(sequencePath_) / fs::path(kMetadataFileDeprecated);
+
+  std::ifstream fileStream;
+  if (fs::exists(fileMetadata)) {
+    fileStream.open(fileMetadata);
+  } else if (fs::exists(fileMetadataDeprecated)) {
+    fileStream.open(fileMetadataDeprecated);
+  } else {
+    XR_LOGW("no meta data found at {} or {}", fileMetadata, fileMetadataDeprecated);
+  }
 
   if (!fileStream.is_open()) {
-    XR_LOGE("Could not open gt metadata, not a valid sequence path: {} \n", fileMetadata.string());
-    throw std::runtime_error{"Could not open gt metadata, not a valid sequence path"};
+    XR_LOGE(
+        "Could not find {} or {}, is this a valid sequence path?",
+        kMetadataFile,
+        kMetadataFileDeprecated);
+    throw std::runtime_error{"Could not open gt metadata"};
   }
 
   std::stringstream buffer;

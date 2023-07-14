@@ -319,6 +319,8 @@ class AriaDigitalTwinDataProvider {
   const AriaDigitalTwinSkeletonProvider& getSkeletonProvider(InstanceId instanceId) const;
 
  private:
+  void loadDatasetVersion();
+  void validateDatasetVersion();
   void loadAria3dPoses();
   void loadObject3dBoundingBoxes();
   void loadInstance2dBoundingBoxes();
@@ -365,6 +367,9 @@ class AriaDigitalTwinDataProvider {
   // <objId, 3d bbox in object's local coordinate>
   std::unordered_map<InstanceId, Vector6d> objectIdToAabb_;
   std::unordered_map<InstanceId, InstanceInfo> instancesInfo_;
+
+  std::string datasetName_;
+  std::string datasetVersion_;
 };
 
 /**

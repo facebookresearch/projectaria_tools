@@ -45,7 +45,6 @@ namespace projectaria::dataset::adt {
 constexpr int64_t kInvalidDeviceTimeStampNs = -1;
 
 const std::string kInstanceIdKey = "instance_id";
-// fix the typo after the release pipeline fixes it
 const std::string kInstanceNameKey = "instance_name";
 const std::string kPrototypeNameKey = "prototype_name";
 const std::string kCategoryKey = "category";
@@ -72,9 +71,15 @@ const std::string kSkeletonNameKey = "SkeletonName";
 const std::string kSkeletonIdKey = "SkeletonId";
 const std::string kSkeletonDeviceSerialKey = "AssociatedDeviceSerial";
 const std::string kInvalidSkeletonName = "NONE";
+const std::string kDatasetNameKey = "dataset_name";
+const std::string kDatasetVersionKey = "dataset_version";
+const std::string kDatasetNameDefault = "ADT_2023";
+const std::string kDatasetVersionDefault = "1.0";
 
 constexpr auto kInstanceFileErrorTemplate =
     "invalid instance file. key: '{}' not available in instances json file for instance id {}";
+
+const std::unordered_map<std::string, std::string> kLatestDatasetVersions{{"ADT_2023", "1.1"}};
 
 namespace {
 std::ifstream openFile(const fs::path& filePath, bool skipHeader = true) {
@@ -231,6 +236,8 @@ AriaDigitalTwinDataProvider::AriaDigitalTwinDataProvider(const AriaDigitalTwinDa
   }
 
   // Load GT data
+  loadDatasetVersion();
+  validateDatasetVersion();
   loadInstancesInfo();
   loadObjectAABBbboxes();
   loadAria3dPoses();
@@ -851,7 +858,7 @@ void AriaDigitalTwinDataProvider::loadInstance2dBoundingBoxes() {
 
 void AriaDigitalTwinDataProvider::loadEyeGaze() {
   if (dataPaths_.eyeGazesFilePath.empty()) {
-    XR_LOGI("skip loading eyeGazesFilePaths because the data path is empty");
+    XR_LOGI("skip loading eyeGazesFilePath because the data path is empty");
     return;
   }
 
@@ -864,6 +871,85 @@ void AriaDigitalTwinDataProvider::loadEyeGaze() {
   for (const auto& e : eyeGazeVec) {
     eyeGazes_.emplace_hint(
         eyeGazes_.cend(), e.trackingTimestamp.count() * 1000, e); /* convert from ms to ns */
+  }
+}
+
+void AriaDigitalTwinDataProvider::loadDatasetVersion() {
+  std::ifstream fileStream(dataPaths_.metaDataFilePath);
+  if (!fileStream.is_open()) {
+    XR_LOGE("Could not open ground truth metadata file: {} \n", dataPaths_.metaDataFilePath);
+    throw std::runtime_error{
+        "Could not open ground truth metadata file: " + dataPaths_.metaDataFilePath};
+  }
+
+  std::stringstream buffer;
+  buffer << fileStream.rdbuf();
+  fb_rapidjson::Document jdoc;
+  jdoc.Parse(buffer.str().c_str());
+  const auto& jdocConst = jdoc;
+
+  if (jdocConst.HasMember(kDatasetNameKey.c_str()) &&
+      jdocConst.HasMember(kDatasetVersionKey.c_str())) {
+    datasetName_ = jdocConst[kDatasetNameKey.c_str()].GetString();
+    datasetVersion_ = jdocConst[kDatasetVersionKey.c_str()].GetString();
+  } else if (
+      !jdocConst.HasMember(kDatasetNameKey.c_str()) &&
+      !jdocConst.HasMember(kDatasetVersionKey.c_str())) {
+    // set to default
+    datasetName_ = kDatasetNameDefault;
+    datasetVersion_ = kDatasetVersionDefault;
+  } else {
+    XR_LOGE(
+        "invalid metadata file, both {} and {} fields are required",
+        kDatasetNameKey,
+        kDatasetVersionKey);
+    throw std::invalid_argument{"invalid metadata file"};
+  }
+}
+
+void AriaDigitalTwinDataProvider::validateDatasetVersion() {
+  if (kLatestDatasetVersions.find(datasetName_) == kLatestDatasetVersions.end()) {
+    XR_LOGE("Invalid dataset name: {}", datasetName_);
+    throw std::runtime_error{"invalid dataset name"};
+  }
+
+  std::string latestVersionStr = kLatestDatasetVersions.at(datasetName_);
+  if (datasetVersion_ == latestVersionStr) {
+    return;
+  }
+
+  // check format
+  auto pos = datasetVersion_.find('.');
+  if (pos == std::string::npos) {
+    const std::string errMsg = fmt::format(
+        "invalid metadata file. version: '{}' is of invalid type, required: XX.XX",
+        datasetVersion_);
+    XR_LOGE("{}", errMsg);
+    throw std::runtime_error{errMsg};
+  }
+
+  // get dataset version release
+  double datasetVersion = std::stod(datasetVersion_);
+
+  // get latest data version
+  double latestVersion = std::stod(latestVersionStr);
+
+  // check versions
+  if (datasetVersion < latestVersion) {
+    XR_LOGW(
+        "dataset version read ({}) is not up to date with latest ({}), we recommend you redownload your ADT dataset."
+        " For a full version update history, please see the ADT wiki",
+        datasetVersion_,
+        latestVersionStr);
+    return;
+  }
+  if (datasetVersion > latestVersion) {
+    XR_LOGE(
+        "data loader version ({}) is behind dataset version read ({}), please update projectaria_tools from github.",
+        datasetVersion_,
+        latestVersionStr);
+    throw std::runtime_error{
+        "data loader version is behind dataset version, projectaria_tools needs to be updated"};
   }
 }
 
