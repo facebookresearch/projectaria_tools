@@ -31,10 +31,9 @@ CameraCalibration getAseRgbCalibration(const size_t imageSize) {
   projectaria::tools::calibration::CameraProjection::ModelType type =
       projectaria::tools::calibration::CameraProjection::ModelType::Fisheye624;
   Eigen::VectorXd projectionParams(projectaria::tools::calibration::Fisheye624::kNumParams);
-  projectionParams << 297.6375381033778, 357.6599197217746, 353.8077502872519, 0.3650890375644368,
+  projectionParams << 297.6375381033778, 357.6599197217746, 349.1922497127481, 0.3650890375644368,
       -0.1738082418112771, -0.7534945484033189, 2.434788882752295, -2.57786220300886,
-      0.8788483538598834, 0.0008005198595407136, -0.000294237814554143, -0.001578372284155307,
-      0.0002591422423629343, 0.0008779259202466745, -0.000260804239626086;
+      0.8788483538598834, 0.0008005198595407136, -0.000294237814554143, 0., 0., 0., 0.;
 
   Sophus::SE3d T_Camera_Device;
   T_Camera_Device.setQuaternion( // w, x, y ,z
