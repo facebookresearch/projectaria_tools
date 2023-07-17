@@ -237,3 +237,29 @@ The profile you select will also be the profile used when you initiate recording
 
 1. Plug your Aria device into your computer
 2. Select **Stop**
+
+## Use Desktop App as CLI
+
+The Desktop App can be run directly from the command line without needing a GUI. It can be found under `C:\Program Files\Aria\v3\AriaHub.exe` on Windows and `/Applications/Aria.app/Contents/MacOS/AriaHub` on Mac.
+You may print the app's help using the `AriaHub --help` command.  
+
+### health
+
+- Usage : 
+
+```
+AriaHub health vrsFilePath.vrs
+```  
+
+Use this to run validity checks on an Aria recording (VRS file). These checks are also run on the VRS file automatically, before the file gets uploaded for MPS processing.
+The results of those checks can be found under your home directory under  `./aria/logs`
+
+### vrs
+
+- Usage : 
+
+```
+AriaHub vrs vrsFilePath.vrs
+```
+
+Use it as a Swiss army knife utility to manipulate VRS files in different ways. Go to the [VRS official documentation](https://facebookresearch.github.io/vrs/docs/VrsCliTool/) for a full list of commands
