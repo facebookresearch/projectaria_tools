@@ -252,7 +252,8 @@ void AriaDigitalTwinDataPathsProvider::loadSequenceMetaData() {
   } else if (fs::exists(fileMetadataDeprecated)) {
     fileStream.open(fileMetadataDeprecated);
   } else {
-    XR_LOGW("no meta data found at {} or {}", fileMetadata, fileMetadataDeprecated);
+    XR_LOGW(
+        "no meta data found at {} or {}", fileMetadata.string(), fileMetadataDeprecated.string());
   }
 
   if (!fileStream.is_open()) {
