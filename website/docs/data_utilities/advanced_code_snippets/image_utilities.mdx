@@ -76,7 +76,7 @@ vrs::StreamId streamId = provider->getStreamIdFromLabel(cameraLabel);
 CameraCalibration calib = provider->getCameraCalibration(streamId);
 CameraCalibration pinhole = getLinearCameraCalibration(512, 512, 150);
 
-ImageData rawImage = provider->getImageDataFromIndex(streamId, 0);
+ImageData rawImage = provider->getImageDataByIndex(streamId, 0);
 auto undistortedImage = distortByCalibration(rawImage.imageVariant(), pinhole, calib);
 ```
 ```mdx-code-block

@@ -98,7 +98,7 @@ We provide similar APIs to access data from image variants.
 int width = getWidth(imageVariant); // image width
 int height = getHeight(imageVariant); // image width
 int channel = getChannel(imageVariant); // number of channels
-uint8_t* data = getWeakPtr(imageVariant); // weak pointer to data
+uint8_t* data = getDataPtr(imageVariant); // pointer to data
 uint8_t pixel_value = at(imageVariant, 0, 0); // access to pixel value if coordinate is of integral type
 // bilinear interpolation not available yet, but you can do the following
 uint8_t pixel_value = std::visit([](auto& image) {return PixelValueVariant(image(0.5, 0.5, 0))}, imageVariant);
