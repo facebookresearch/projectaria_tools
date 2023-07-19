@@ -154,7 +154,7 @@ MagnetometerCalibration parseMagnetometerCalibrationFromJson(const fb_rapidjson:
   // 1. Note that `raw_in_uT` has been transformed to `raw_in_T` in
   // ${PROJECT}/core/data_provider/RecordReaderInterface.cpp
 
-  // 2. `matMat` is transformed as:
+  // 2. `magMat` is transformed as:
   auto magMat = (-magMatFromJson.inverse() * 1e-6); /* where the extra `-` sign is an intentional
   patch to correct a sign error in factory calib process. */
 
