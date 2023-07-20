@@ -67,7 +67,8 @@ The frame's Z axis is aligned with the optical axis. The camera's X axis are ali
 
 ## Non-visual sensor coordinate system
 
-We choose the IMU coordinate system to have their origin at the position of the accelerometer, oriented along the direction of the accelerometer sensitive axis, eventually orthogonalized. Other non-visual sensors such as magnetometer and barometer coordinate frame are defined similarly.
+We choose the IMU coordinate systems to have their origins at the position of the accelerometer, oriented along the direction of the accelerometer sensitive axis, eventually orthogonalized to compensate for sensor orthogonalities error.
+We do similarly for magnetometer.
 
 
 <div style={{textAlign: 'center'}}>
@@ -78,7 +79,7 @@ We choose the IMU coordinate system to have their origin at the position of the 
 
 ## The nominal central pupil frame (CPF)
 
-The CPF frame is placed at the midpoint between the eye boxes of the left and right eye (a.k.a. 3rd eye). CPF's X-axis points left, Y-axis points up and the Z-axis points forward, from the person's perspective. Aria's ET gaze is defined as a vector in the CPF space originating at $(0, 0, 0)$ of the CPF frame.
+The CPF frame is placed at the midpoint between the eye boxes of the left and right eye. CPF's X-axis points left, Y-axis points up and the Z-axis points forward, from the person's perspective. Aria's ET gaze is defined as a vector in the CPF space originating at $(0, 0, 0)$ of the CPF frame.
 
 <div style={{textAlign: 'center'}}>
 
