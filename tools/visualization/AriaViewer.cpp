@@ -247,6 +247,9 @@ void AriaViewer::updateGuiAndControl() {
         it->Clear();
       }
     }
+    for (const auto& it : streamIdToPlotters_) {
+      it.second->ResetView();
+    }
   }
 
   if (*isPlaying_) { // playing mode
