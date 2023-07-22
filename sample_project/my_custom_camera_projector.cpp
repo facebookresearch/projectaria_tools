@@ -28,19 +28,19 @@ int main() {
   double h = 1536;
 
   MyCustomCameraModel cameraModel(k1, k2);
-  Eigen::Vector4d intrinsincs(w / 2, h / 2, w / 2, h / 2);
+  Eigen::Vector4d intrinsics(w / 2, h / 2, w / 2, h / 2);
 
   cout << "Sample project executable compiled correctly and ran!" << endl;
   cout << "created custom camera model with radial distortion with: " << endl;
   cout << "distortion coefficients [k1, k2]: "
        << cameraModel.getDistortionCoefficients().transpose() << endl;
-  cout << "instrinsics [fx, fy, cx, cy]: " << intrinsincs.transpose() << endl;
+  cout << "intrinsics [fx, fy, cx, cy]: " << intrinsics.transpose() << endl;
 
   Eigen::Vector3d pointInCam(0.3, 0.3, 3);
   cout << "projecting point in camera frame with coordinates [x, y, z] : " << pointInCam.transpose()
        << endl;
 
-  Eigen::Vector2d pixels = cameraModel.projectWithRadialDistortion(pointInCam, intrinsincs);
+  Eigen::Vector2d pixels = cameraModel.projectWithRadialDistortion(pointInCam, intrinsics);
   cout << "point projected to pixel coordinates [u, v]: " << pixels.transpose() << endl;
 
   return 0;

@@ -55,7 +55,7 @@ def print_sample_calibration(provider):
     print(f"Device calibration origin label {device_calib.get_origin_label()}")
     print(f"{camera_name} has extrinsics of \n {transform_device_rgb.matrix()}")
 
-    # instrinscis
+    # intrinsics
     rgb_calib = device_calib.get_camera_calib(camera_name)
 
     # project a pixel in device frame to rgb camera
