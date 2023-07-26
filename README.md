@@ -14,7 +14,7 @@ Project Aria Tools is a suite of C++/Python utilities for researchers to expand 
 
 ## How to Contribute
 
-We welcome contributions! See [CONTRIBUTING](https://github.com/facebookresearch/projectaria_tools/blob/main/CONTRIBUTING.md) for details on how to get started, and our [code of conduct](https://github.com/facebookresearch/projectaria_tools/blob/main/CODE_OF_CONDUCT.md).
+We welcome contributions! See [CONTRIBUTING](https://github.com/facebookresearch/projectaria_tools/blob/main/.github/CONTRIBUTING.md) for details on how to get started, and our [code of conduct](https://github.com/facebookresearch/projectaria_tools/blob/main/.github/CODE_OF_CONDUCT.md).
 
 ## License
 
