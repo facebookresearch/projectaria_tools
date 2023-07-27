@@ -3,29 +3,45 @@ sidebar_position: 70
 title: Aria Machine Perception Services (MPS)
 ---
 
-To accelerate research with Project Aria, we provide several Spatial AI machine perception capabilities that forms the foundation for the future Contextualized AI applications and analysis of the egocentric data. These capabilities are powered by a set of proprietary machine perception algorithms designed for Project Aria device and provide superior accuracy and robustness on the recorded data compared to the off-the-shelf open source algorithms.
+To accelerate research with Project Aria, we provide several Spatial AI machine perception capabilities that form the foundation for the future Contextualized AI applications and analysis of the egocentric data. These capabilities are powered by a set of proprietary machine perception algorithms designed for Project Aria glasses and provide superior accuracy and robustness on recorded data compared to off-the-shelf open source algorithms.
 
-All MPS functionalities are offered as post-processing of VRS files via a cloud service. Through the [Desktop App](/docs/ARK/desktop_companion_app), you can [request](/docs/ARK/mps/request_mps) the following derived data from any VRS file that contains necessary sensor's data.
+All MPS functionalities are offered as post-processing of VRS files via a cloud service. Through the [Desktop App](/docs/ARK/desktop_companion_app), you can [request](/docs/ARK/mps/request_mps) derived data from any VRS file that contains necessary sensor's data.
 
-* **6DoF Trajectory** : MPS provides two types of high frequency (1kHz) trajectories: the [open loop trajectory](/docs/data_formats/mps/mps_trajectory#open-loop-trajectory) that is a local odometry estimation from visual-inertial odometry (VIO); and the [closed loop trajectory](/docs/data_formats/mps/mps_trajectory#closed-loop-trajectory) that is created via batch optimization, using multi-sensors' input (SLAM, IMU, barometer, WiFi and GPS), fully optimized and providing poses in a consistent frame of reference.
+## Current MPS offerings
+The following MPS can be requested via the Aria Desktop app for Aria recordings that have been made with a compatible Recording Profile. The [Recording Profile Guide](docs/ARK/glasses_manual/profile_guide) provides a quick list of compatible sensor profiles or go to [Recording Profiles](docs/tech_spec/recording_profiles) in Technical Specifications for more granular information about each profile.
 
-* **Online sensor calibration** : The [time-varying intrinsic and extrinsic calibrations](/docs/data_formats/mps/mps_trajectory#online-calibration) of cameras and IMUs are estimated at the frequency of SLAM cameras by our multi-sensor state estimation pipeline.
 
-* **Semi-dense point cloud** : The [semi-dense point clouds](/docs/data_formats/mps/mps_pointcloud) are provided in MPS for researchers who need static scene 3D reconstructions, reliable 2D images tracks or a representative visualization of the environment.
+### 6DoF trajectory
+MPS provides two types of high frequency (1kHz) trajectories
+* [Open loop trajectory](/docs/data_formats/mps/mps_trajectory#open-loop-trajectory) that is a local odometry estimation from visual-inertial odometry (VIO)
+* [Closed loop trajectory](/docs/data_formats/mps/mps_trajectory#closed-loop-trajectory) that is created via batch optimization, using multi-sensors' input (SLAM, IMU, barometer, Wi-Fi and GPS), fully optimized and providing poses in a consistent frame of reference.
 
-* **Eye gaze** : As the most important indicator of human’s attention, [eye gaze direction](/docs/data_formats/mps/mps_eye_gaze) estimation with uncertainty is provided by MPS. Eye gaze estimation uses the data from the eye tracking (ET) cameras.
+Request trajectory (location data) in the Desktop app to get these outputs, the [recording profile](/docs/tech_spec/recording_profiles) must have SLAM cameras + IMU enabled.
 
-:::info Recording profile requirement
-To get the MPS trajectory / online calibration / semi-dense point cloud, the minimal requirement of the [recording profile](/docs/tech_spec/recording_profiles) is SLAM cameras + IMU enabled.
-:::
 
-:::info Recording profile requirement
-To get the MPS eye gaze results, the minimal requirement of the [recording profile](/docs/tech_spec/recording_profiles) is ET cameras enabled.
-:::
+### Online sensor calibration
+The [time-varying intrinsic and extrinsic calibrations](/docs/data_formats/mps/mps_trajectory#online-calibration) of cameras and IMUs are estimated at the frequency of SLAM cameras by our multi-sensor state estimation pipeline.
+
+Request trajectory (location data) in the Desktop app to get these outputs, the [recording profile](/docs/tech_spec/recording_profiles) must have SLAM cameras + IMU enabled.
+
+
+### Semi-dense point cloud
+
+[Semi-dense point cloud](/docs/data_formats/mps/mps_pointcloud) data supports researchers who need static scene 3D reconstructions, reliable 2D images tracks or a representative visualization of the environment.
+
+In the Desktop app, this can be requested as an addition to trajectory (location) derived data and has the same recording profile requirements.
+
+
+### Eye gaze data
+Eye gaze is the most important indicator of human’s attention, [eye gaze direction](/docs/data_formats/mps/mps_eye_gaze) estimation with uncertainty is provided by MPS. Eye gaze estimation uses the data from the Eye Tracking (ET) cameras.
+
+
+Request Eye Gaze data in the Desktop app to get these outputs, the [recording profile](/docs/tech_spec/recording_profiles) must have ET cameras enabled.
+
 
 ## About MPS Data Loader APIs
 Please refer to our [MPS data loader APIs](/docs/data_utilities/core_code_snippets/mps#load-mps-output) (C++ and Python support) to load the MPS outputs into your application. Additionally, the [visualization guide](/docs/data_utilities/visualization_guide#mps-static-scene-visualizer) shows how to run our rich visualization tools to visualize all the MPS outputs.
 
-## Question & Feedback
+## Questions & Feedback
 
-If you have feedback you'd like to provide about overall trends and experiences or improvement ideas we'd love to hear from you. Please email [AriaOps@meta.com](mailto:AriaOps@meta.com) or post to the Project Aria Academic Partner Feedback and Support.
+If you have feedback you'd like to provide about overall trends and experiences or improvement ideas we'd love to hear from you. Please email [AriaOps@meta.com](mailto:AriaOps@meta.com) or post to the Project Aria Academic Partner Feedback and Support group.
