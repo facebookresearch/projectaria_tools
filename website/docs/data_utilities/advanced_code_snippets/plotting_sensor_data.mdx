@@ -5,8 +5,9 @@ title: Plotting sensor data (Python)
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 In this example, we show how to:
-* save images in png
-* plot the raw sensor data of a vrs file and store the plots in pdf files.
+* Save images as PNGs
+* Plot raw sensor data from a VRS file and store the plots in PDF files
+   * Data is plotted with `matplotlib`
 
 We start by opening a VRS file.
 ```python
@@ -17,8 +18,8 @@ vrsfile = "example.vrs"
 provider = dataprovider.create_vrs_data_provider(vrsfile)
 ```
 
-### Save Images in png
-Since we support converting image data to numpy arrays, images can be easily converted to PIL images and saved as png files.
+### Save Images as PNGs
+Because we support converting image data to numpy arrays, images can be converted to PIL images and saved as PNG files.
 ```python
 from PIL import Image
 stream_mappings = {
@@ -33,7 +34,7 @@ for [stream_name, stream_id] in stream_mappings.items():
     Image.fromarray(image[0].to_numpy_array()).save(f'{stream_name}.png')
 ```
 
-The above snippets gets the following images saved in the local folder:
+The above snippets will save the following images to the local folder:
 <table>
         <tr>
             <td>SLAM images</td>
@@ -41,18 +42,18 @@ The above snippets gets the following images saved in the local folder:
             <img src={useBaseUrl("/img//data_utilities/advanced_guide/camera-slam-right.png")} alt="camera-slam-right" width="320"></img></td>
         </tr>
         <tr>
-            <td>Eyetracking image</td>
+            <td>Eye Tracking images</td>
             <td><img src={useBaseUrl("/img//data_utilities/advanced_guide/camera-eyetracking.png")} alt="camera-et"></img></td>
         </tr>
         <tr>
-            <td>RGB image</td>
+            <td>RGB images</td>
             <td><img src={useBaseUrl("/img//data_utilities/advanced_guide/camera-rgb.png")} alt="camera-rgb"  width="320"></img></td>
         </tr>
 </table>
 
 
 ### Plotting IMU
-First, we organize data into 6 lists, each stores one axis of a specific IMU
+1. Organize the data into 6 lists. Each list stores one axis of a specific IMU.
 
 ```python
 stream_id = provider.get_stream_id_from_label("imu-left")
@@ -73,7 +74,7 @@ for index in range(0, provider.get_num_data(stream_id)):
   gyro_z.append(imu_data.gyro_radsec[2])
   timestamps.append(imu_data.capture_timestamp_ns * 1e-9)
 ```
-Then we plot the data with `matplotlib`
+2.  Plot the data with `matplotlib`
 ```python
 plt.figure()
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
@@ -99,13 +100,14 @@ axes[1].set_ylabel('gyroscope readout (rad/sec)')
 The plotted image looks like this:
 ![Image](/img//data_utilities/advanced_guide/imu.png)
 
-Finally we save the plot to pdf files.
+3. Save the plot to PDF
 ```python
 plt.savefig("imu.pdf", format="pdf", bbox_inches="tight")
 ```
 
 ### Magnetometer
-Plotting magnitometer is similar. First, we organize data into 3 lists, each stores one axis of magnetometer data
+Plotting magnitometer is similar to plotting IMU.
+1. Organize the data into 3 lists. Each list stores one axis of magnetometer data.
 ```python
 stream_id = provider.get_stream_id_from_label("mag0")
 mag_x = []
@@ -119,7 +121,7 @@ for index in range(0, provider.get_num_data(stream_id)):
   mag_z.append(mag_data.mag_tesla[2] * 1e6)
   timestamps.append(mag_data.capture_timestamp_ns * 1e-9)
 ```
-Then we plot the data with `matplotlib`
+2.  Plot the data with `matplotlib`
 ```python
 plt.figure()
 fig, axes = plt.subplots(1, 1, figsize=(12, 5))
@@ -139,6 +141,8 @@ plt.savefig("mag.pdf", format="pdf", bbox_inches="tight")
 
 ### Audio
 Audio data is interesting since each data is in fact a 7x4096 chunk
+
+1. Load the audio data
 ```python
 stream_id = provider.get_stream_id_from_label("mic")
 timestamps = []
@@ -151,7 +155,7 @@ for index in range(0, 2):
   for c in range(0, 7):
     audio[c] += audio_signal_block[c::7]
 ```
-Then we plot the data with `matplotlib`
+2. Plot the data with `matplotlib`
 ```python
 plt.figure()
 fig, axes = plt.subplots(1, 1, figsize=(12, 5))
@@ -168,6 +172,8 @@ plt.savefig("audio.pdf", format="pdf", bbox_inches="tight")
 ![Image](/img//data_utilities/advanced_guide/audio.png)
 
 ### Barometer
+
+1. Load and plot the data using the following commands
 
 ```python
 plt.figure()
@@ -201,7 +207,10 @@ plt.savefig("baro.pdf", format="pdf", bbox_inches="tight")
 
 ### GPS
 
-1. 2D plots
+GPS data can be visualized with 2D or 3D plots.
+
+#### 2D plots
+
 ```python
 plt.figure()
 fig, axes = plt.subplots(1, 3, figsize=(12, 3))
@@ -245,7 +254,8 @@ plt.savefig("gps.pdf", format="pdf", bbox_inches="tight")
 ```
 ![Image](/img//data_utilities/advanced_guide/gps2d.png)
 
-2. 3D plot
+####  3D plots
+
 ```python
 plt.figure()
 fig = plt.figure()
@@ -258,7 +268,7 @@ plt.savefig("gps3d.pdf", format="pdf", bbox_inches="tight")
 ![Image](/img//data_utilities/advanced_guide/gps3d.png)
 
 ### Wi-Fi beacon
-Wi-Fi beacon are first grouped by their mac bssid
+ 1. Group the Wi-Fi beacon data by mac bssid
 ```
 stream_id = provider.get_stream_id_from_label("wps")
 rssi = {}
@@ -272,7 +282,8 @@ for index in range(0, provider.get_num_data(stream_id)):
   rssi[wps_data.bssid_mac].append(wps_data.rssi)
   timestamps[wps_data.bssid_mac].append(wps_data.board_timestamp_ns * 1e-9)
 ```
-Here we plot the mac address which has > 15 samples
+2. Plot the mac address
+   * This example has > 15 samples
 ```python
 plt.figure()
 fig, ax = plt.subplots(1, 1, figsize=(6, 5))
@@ -292,7 +303,7 @@ plt.savefig("wifi.pdf", format="pdf", bbox_inches="tight")
 ![Image](/img//data_utilities/advanced_guide/wifi.png)
 
 ### Bluetooth beacon
-First, similar to Wi-Fi, we group data by `unique_id`.
+1. Group data by `unique_id` (similar to Wi-Fi grouping)
 ```python
 stream_id = provider.get_stream_id_from_label("bluetooth")
 rssi = {}
@@ -306,7 +317,7 @@ for index in range(0, provider.get_num_data(stream_id)):
   rssi[bluetooth_data.unique_id].append(bluetooth_data.rssi)
   timestamps[bluetooth_data.unique_id].append(bluetooth_data.board_timestamp_ns * 1e-9)
 ```
-Then we plot the data per unique_id
+2. Plot the data per `unique_id`
 ```python
 plt.figure()
 fig, ax = plt.subplots(1, 1, figsize=(6, 5))
