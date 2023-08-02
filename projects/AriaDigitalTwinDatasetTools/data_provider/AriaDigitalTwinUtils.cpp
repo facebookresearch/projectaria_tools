@@ -64,63 +64,56 @@ std::set<int64_t>::const_iterator queryTimestampsSet(
 }
 
 std::vector<Eigen::Vector2d> bbox2dToImageCoordinates(const Eigen::Vector4f& boxRange) {
-  std::vector<Eigen::Vector2d> bboxCoords;
-  bboxCoords.push_back(Eigen::Vector2d(boxRange[0], boxRange[2]));
-  bboxCoords.push_back(Eigen::Vector2d(boxRange[1], boxRange[2]));
-  bboxCoords.push_back(Eigen::Vector2d(boxRange[1], boxRange[3]));
-  bboxCoords.push_back(Eigen::Vector2d(boxRange[0], boxRange[3]));
-  return bboxCoords;
+  return {
+      {boxRange[0], boxRange[2]},
+      {boxRange[1], boxRange[2]},
+      {boxRange[1], boxRange[3]},
+      {boxRange[0], boxRange[3]}};
 }
 
 std::vector<Eigen::Vector3d> bbox3dToCoordinates(const Vector6d& bbox) {
-  std::vector<Eigen::Vector3d> bboxCoords;
-  // bottom
-  bboxCoords.push_back(Eigen::Vector3d(bbox[0], bbox[2], bbox[4]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[0], bbox[3], bbox[4]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[1], bbox[3], bbox[4]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[1], bbox[2], bbox[4]));
-  // top
-  bboxCoords.push_back(Eigen::Vector3d(bbox[0], bbox[2], bbox[5]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[0], bbox[3], bbox[5]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[1], bbox[3], bbox[5]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[1], bbox[2], bbox[5]));
-
-  return bboxCoords;
+  return {// bottom
+          {bbox[0], bbox[2], bbox[4]},
+          {bbox[0], bbox[3], bbox[4]},
+          {bbox[1], bbox[3], bbox[4]},
+          {bbox[1], bbox[2], bbox[4]},
+          // top
+          {bbox[0], bbox[2], bbox[5]},
+          {bbox[0], bbox[3], bbox[5]},
+          {bbox[1], bbox[3], bbox[5]},
+          {bbox[1], bbox[2], bbox[5]}};
+  ;
 }
 
 std::vector<Eigen::Vector2d> bbox2dToImageLineCoordinates(const Eigen::Vector4f& boxRange) {
-  std::vector<Eigen::Vector2d> bboxCoords;
-  bboxCoords.push_back(Eigen::Vector2d(boxRange[0], boxRange[2]));
-  bboxCoords.push_back(Eigen::Vector2d(boxRange[1], boxRange[2]));
-  bboxCoords.push_back(Eigen::Vector2d(boxRange[1], boxRange[3]));
-  bboxCoords.push_back(Eigen::Vector2d(boxRange[0], boxRange[3]));
-  bboxCoords.push_back(Eigen::Vector2d(boxRange[0], boxRange[2]));
-  return bboxCoords;
+  return {
+      {boxRange[0], boxRange[2]},
+      {boxRange[1], boxRange[2]},
+      {boxRange[1], boxRange[3]},
+      {boxRange[0], boxRange[3]},
+      {boxRange[0], boxRange[2]}};
 }
 
 std::vector<Eigen::Vector3d> bbox3dToLineCoordinates(const Vector6d& bbox) {
-  std::vector<Eigen::Vector3d> bboxCoords;
-  // bottom
-  bboxCoords.push_back(Eigen::Vector3d(bbox[0], bbox[2], bbox[4]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[0], bbox[3], bbox[4]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[1], bbox[3], bbox[4]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[1], bbox[2], bbox[4]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[0], bbox[2], bbox[4]));
-  // top
-  bboxCoords.push_back(Eigen::Vector3d(bbox[0], bbox[2], bbox[5]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[0], bbox[3], bbox[5]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[1], bbox[3], bbox[5]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[1], bbox[2], bbox[5]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[0], bbox[2], bbox[5]));
-  // side
-  bboxCoords.push_back(Eigen::Vector3d(bbox[0], bbox[3], bbox[5]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[0], bbox[3], bbox[4]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[1], bbox[3], bbox[4]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[1], bbox[3], bbox[5]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[1], bbox[2], bbox[5]));
-  bboxCoords.push_back(Eigen::Vector3d(bbox[1], bbox[2], bbox[4]));
-
-  return bboxCoords;
+  return {// bottom
+          {bbox[0], bbox[2], bbox[4]},
+          {bbox[0], bbox[3], bbox[4]},
+          {bbox[1], bbox[3], bbox[4]},
+          {bbox[1], bbox[2], bbox[4]},
+          {bbox[0], bbox[2], bbox[4]},
+          // top
+          {bbox[0], bbox[2], bbox[5]},
+          {bbox[0], bbox[3], bbox[5]},
+          {bbox[1], bbox[3], bbox[5]},
+          {bbox[1], bbox[2], bbox[5]},
+          {bbox[0], bbox[2], bbox[5]},
+          // side
+          {bbox[0], bbox[3], bbox[5]},
+          {bbox[0], bbox[3], bbox[4]},
+          {bbox[1], bbox[3], bbox[4]},
+          {bbox[1], bbox[3], bbox[5]},
+          {bbox[1], bbox[2], bbox[5]},
+          {bbox[1], bbox[2], bbox[4]}};
 }
 
 void logErrorAndThrow(const std::string& message) {
