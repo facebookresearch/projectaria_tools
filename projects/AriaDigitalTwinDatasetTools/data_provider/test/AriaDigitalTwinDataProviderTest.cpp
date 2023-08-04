@@ -233,7 +233,7 @@ TEST(AdtDataProvider, AriaQueryAPI) {
 TEST(AdtDataProvider, DataProviderPtrAndFlagApi) {
   // Construct a ADT data provider from the test data path
   const auto dataPathsProvider = AriaDigitalTwinDataPathsProvider(adtTestDataPath);
-  const auto maybeDataPaths = dataPathsProvider.getDataPathsByDeviceNum(0);
+  const auto maybeDataPaths = dataPathsProvider.getDataPathsByDeviceNum(0, true);
   EXPECT_TRUE(maybeDataPaths.has_value());
 
   std::shared_ptr<AriaDigitalTwinDataProvider> provider =
@@ -241,6 +241,7 @@ TEST(AdtDataProvider, DataProviderPtrAndFlagApi) {
   EXPECT_NE(provider->rawDataProviderPtr(), nullptr);
   EXPECT_NE(provider->segmentationDataProviderPtr(), nullptr);
   EXPECT_NE(provider->depthDataProviderPtr(), nullptr);
+  EXPECT_NE(provider->syntheticDataProviderPtr(), nullptr);
 
   // Check flags
   EXPECT_TRUE(provider->hasAriaData());
@@ -251,10 +252,7 @@ TEST(AdtDataProvider, DataProviderPtrAndFlagApi) {
   EXPECT_TRUE(provider->hasInstance2dBoundingBoxes());
   EXPECT_TRUE(provider->hasInstancesInfo());
   EXPECT_TRUE(provider->hasSkeleton());
-
-  // TODO: re-enable these when synthetic data is available
-  EXPECT_EQ(provider->syntheticDataProviderPtr(), nullptr);
-  EXPECT_FALSE(provider->hasSyntheticImages());
+  EXPECT_TRUE(provider->hasSyntheticImages());
 }
 
 TEST(AdtDataProvider, InstanceQueryAPI) {
