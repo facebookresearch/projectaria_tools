@@ -212,6 +212,9 @@ void VrsDataProviderFactory::checkCalibrationConfigConsistency() {
   if (!maybeDeviceCalib_) { // no op if calibration doesn't exist
     return;
   }
+  if (maybeDeviceCalib_->getDeviceSubtype() == "SimulatedDevice") { // skip SimulatedDevice type
+    return;
+  }
 
   std::map<std::string, Eigen::Vector2i> labelToCameraResolution;
   for (const auto& label : maybeDeviceCalib_->getCameraLabels()) {

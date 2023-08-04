@@ -154,6 +154,9 @@ DeviceCadExtrinsics::DeviceCadExtrinsics(
     labelToT_Cpf_Sensor_ = constructCadForDvtSmall();
   } else if (deviceSubType == "DVT-L") {
     labelToT_Cpf_Sensor_ = constructCadForDvtLarge();
+  } else if (deviceSubType == "SimulatedDevice") {
+    XR_LOGW("No CAD available for simulated device");
+    return;
   } else {
     XR_FATAL_ERROR("Does not recognize device subtype: {}", deviceSubType);
   }

@@ -28,10 +28,34 @@
 
 namespace projectaria::tools::calibration {
 
+void patchSyntheticHomeCalib(fb_rapidjson::Value& json) {
+  XR_CHECK(json.FindMember("DeviceClassInfo") != json.MemberEnd());
+  // fix device class info
+  if (json["DeviceClassInfo"]["BuildVersion"].GetString() == std::string("SimulatedDevice")) {
+    json["DeviceClassInfo"]["DeviceClass"].SetString("Aria");
+  } else {
+    return; // recording data, no need to patch
+  }
+  // fix origin specification
+  if (json.FindMember("OriginSpecification") != json.MemberEnd()) {
+    json["OriginSpecification"]["Type"].SetString("Custom");
+    json["OriginSpecification"]["ChildLabel"].SetString("imu-left");
+  }
+
+  // fix imu label
+  if (json.FindMember("ImuCalibrations") != json.MemberEnd()) {
+    auto jsonArray = json["ImuCalibrations"].GetArray();
+    XR_CHECK(jsonArray.Size() == 1);
+    for (auto& imuJson : jsonArray) {
+      imuJson["Label"].SetString("imu-left");
+    }
+  }
+}
 // calibration accessor for Aria device
 std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& calibJsonStr) {
   fb_rapidjson::Document json;
   json.Parse(calibJsonStr.c_str());
+  patchSyntheticHomeCalib(json);
 
   std::map<std::string, CameraCalibration> cameraCalibs;
   std::map<std::string, ImuCalibration> imuCalibs;
