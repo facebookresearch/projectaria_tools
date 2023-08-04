@@ -5,12 +5,14 @@ title: Data Format
 
 # ASE Data Format
 
-This page gives an overview of the data format and organization and helps researchers to quickly understand the data. With the help of snippets and tools listed in [Data Tools and Visualization](ase_data_tools), they can quickly onboard this data in their ML pipelines.
+This page provides an overview of Aria Synthetic Environments (ASE) data formats and organization.
 
-There is a separate subdirectory for every scene, which is named by a unique ID (0 - 100K). Within each scene directory, there are separate files and directories for different types of data as follows:
-
+Using the code snippets and tools listed in [Data Tools and Visualization](ase_data_tools), researchers should be able to quickly onboard this data into ML pipelines.
 
 ## Overall Data Organization
+
+* Each scene has its own subdirectory with a unique ID (0-100K)
+* Each scene directory contains separate files and directories for each type of data
 
 ```
 <sceneID>
@@ -35,34 +37,51 @@ There is a separate subdirectory for every scene, which is named by a unique ID 
 └── semidense_observations.csv.gz
 ```
 
-* `rgb` - **2D RGB fisheye images** (Aria RGB sensor only) (format: RGB) (10 FPS).
-* `depth` - **2D depth maps** (16 bit) (Aria RGB sensor only) (format: PNG) (10 FPS).
-* `instances` - **2D segmentation maps** (16 bit) (Aria RGB sensor only) (format: PNG) (10 FPS).
-* `ase_scene_language.txt` - **3D floor plan definition** in ASE Language format.
-* `trajectory.txt` - **Ground-truth trajectory**.
-* `semidense_points.csv.gz` - **Semi-dense Map points** from MPS ran on the SLAM cameras from Aria sensor.
-* `semidense_observations.csv.gz` - **Semi-dense Map observations** from MPS ran on the SLAM cameras from Aria sensor.
+* `rgb` - **2D RGB fisheye images**
+    * Aria RGB sensor at 10FPS
+    * RGB JPEG format
+* `depth` - **2D depth maps** (16 bit)
+    * Aria RGB Sensor at 10 FPS
+    * PNG format
+* `instances` - **2D segmentation maps** (16 bit)
+    * Aria RGB sensor at 10FPS
+    * PNG format
+* `ase_scene_language.txt` - **3D floor plan definition**
+   * ASE Language format
+* `trajectory.txt` - **Ground-truth trajectory**
+* `semidense_points.csv.gz` - **Semi-dense Map points**
+   * From MPS run on Aria SLAM cameras sensor data
+* `semidense_observations.csv.gz` - **Semi-dense Map observations**
+   * From MPS run on Aria SLAM cameras sensor data
 
 
 
 ## Aria RGB Sensor - Image, Depth and Instance Segmentation
 
-For each frame from the RGB sensor we provide the vignetted sensor image, simulated 16 bit metric depth (mm) in PNG image format and the segmentation image (16 bit PNG). The images in each folder are in sync i.e. there will be same number of images in each folder. We also provide example data visualizers to load these images and/or associate them.
+For each frame from the RGB sensor we provide:
+* A vignetted sensor image
+* Simulated 16 bit metric depth (mm) in PNG image format
+* A segmentation image (16 bit PNG)
+
+The images in each folder are in sync. This means there will be same number of images in each folder. We also provide example data visualizers to load these images and/or associate them.
 ![Image: sample_rgb_depth_instance_images.png](/img/open_datasets/aria_synthetic_environments_dataset/sample_rgb_depth_instance_images.png)
 
 ## ASE Scene Language Format
 
-The ASE Scene Language format is set of hand-designed procedural commands in pure text form. To handle commonly encountered static indoor layout elements, we use three commands: **make_wall**, **make_door**, and **make_window**.
+The ASE Scene Language format is set of hand-designed procedural commands in pure text form. To handle commonly encountered static indoor layout elements, we use three commands:
+* `make_wall` - the full set of parameters specifies a gravity-aligned oriented box
+* `make_door` - specify box-based cutouts from walls
+* `make_window` - specify box-based cutouts from wall
 
-Each command includes its own set of parameters, as described below. Given the command’s full set of parameters, a geometry is completely specified. For example, for **make_wall**, the full set of parameters specifies a gravity-aligned oriented box, while make_door and make_window specify box-based cutouts from walls.
+Each command includes its own set of parameters, as described below. Given the command’s full set of parameters, a geometry is completely specified.
 
 A single scene is described via a sequence of multiple commands. The sequence length is arbitrary and follows no specific ordering. The interpretation of the command and its arguments is carried out by a customized interpreter responsible for parsing the sequence and generating a 3D mesh of the scene.
 
 ![Image: language_format.png](/img/open_datasets/aria_synthetic_environments_dataset/language_format.png)
 
-## Trajectory and Semi-dense Map Points
+## Trajectory and Semi-Dense Map Points
 
-Ground-truth trajectory data provides poses for each frame generated from simulation at 10 FPS.
-We are following the same trajectory format as [the closed loop trajectory in MPS](/docs/data_formats/mps/mps_trajectory#closed-loop-trajectory).
+Ground-truth trajectory data provides poses for each frame generated from a simulation at 10 FPS.
+We are follow the same trajectory format as [the closed loop trajectory](/docs/data_formats/mps/mps_trajectory#closed-loop-trajectory) used by [Machine Perception Services (MPS)](/docs/ARK/mps).
 
-For the Semi-dense Map point clouds and their observations, we are following the same [point cloud points and observations format as MPS](/docs/data_formats/mps/mps_pointcloud). The Semi-dense Map point cloud is generated from the same algorithm in MPS, with ground-truth trajectory and simulated SLAM camera images.
+For semi-dense map point clouds and their observations, we follow the same [point cloud points and observations format as MPS](/docs/data_formats/mps/mps_pointcloud). The semi-dense map point cloud is generated using same algorithm as MPS, with the addition of ground-truth trajectory and simulated SLAM camera images.
