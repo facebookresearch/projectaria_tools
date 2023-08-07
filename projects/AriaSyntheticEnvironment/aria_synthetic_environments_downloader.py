@@ -64,13 +64,13 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument(
     "--set",
-    help="The type of scenes to download. Options are train (test set will be added soon).",
-    choices=["train"],
+    help="The type of scenes to download. Options are train or test.",
+    choices=["train", "test"],
     required=True,
 )
 parser.add_argument(
     "--scene-ids",
-    help="Scene ids to download. ",
+    help="Scene ids to download.",
     required=True,
     type=ASEIdsParser,
 )
