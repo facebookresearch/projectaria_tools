@@ -90,10 +90,17 @@ While you can initiate recording via the Desktop app, we recommend using the Mob
 
 ## Download your data
 
-Once you've completed recordings with your Aria Glasses you can access and download these recordings using the Desktop Companion app (go to the [Aria Glasses Quickstart guide](https://facebookresearch.github.io/projectaria_tools/docs/ARK/ARK_quickstart) to see other ways to download your data).
+Once you've completed recordings with your Aria Glasses you can access and download these recordings using the Desktop Companion app, if you wish.
+
+:::tip
+While you can download recordings using the Desktop app, we recommend using ADB or MTP. Go to the [Quickstart Guide](/docs/ARK/ARK_quickstart#download-data) for more information.
+:::
+
 
 ![Aria Desktop App Recordings Page](/img/ARK/desktop_app_recordings.png)
 Every recording will generate a VRS file and a .vrs.json file containing the recording's metadata.
+
+
 
 To download a recording:
 
@@ -241,22 +248,22 @@ The profile you select will also be the profile used when you initiate recording
 ## Use Desktop App as CLI
 
 The Desktop App can be run directly from the command line without needing a GUI. It can be found under `C:\Program Files\Aria\v3\AriaHub.exe` on Windows and `/Applications/Aria.app/Contents/MacOS/AriaHub` on Mac.
-You may print the app's help using the `AriaHub --help` command.  
+You may print the app's help using the `AriaHub --help` command.
 
 ### health
 
-- Usage : 
+- Usage :
 
 ```
 AriaHub health vrsFilePath.vrs
-```  
+```
 
 Use this to run validity checks on an Aria recording (VRS file). These checks are also run on the VRS file automatically, before the file gets uploaded for MPS processing.
 The results of those checks can be found under your home directory under  `./aria/logs`
 
 ### vrs
 
-- Usage : 
+- Usage :
 
 ```
 AriaHub vrs vrsFilePath.vrs
