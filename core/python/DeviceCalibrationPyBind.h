@@ -17,6 +17,7 @@
 #pragma once
 
 #include <calibration/DeviceCalibration.h>
+#include <calibration/loader/DeviceCalibrationJson.h>
 #include <calibration/utility/Distort.h>
 
 #include <sophus/se3.hpp>
@@ -448,6 +449,19 @@ inline void declareDeviceCalibration(py::module& m) {
           "get_origin_label",
           &DeviceCalibration::getOriginLabel,
           "obtain the definition of Origin (or Device in T_Device_Sensor)");
+
+  m.def(
+      "device_calibration_from_json",
+      [&](const std::string& filepath) {
+        std::ifstream fin{filepath};
+        if (!fin.good()) {
+          throw std::invalid_argument(fmt::format("Could not open {}", filepath));
+        }
+        std::string jsonStr(
+            (std::istreambuf_iterator<char>(fin)), std::istreambuf_iterator<char>());
+        return deviceCalibrationFromJson(jsonStr);
+      },
+      "Load calibration from json.");
 }
 
 template <typename T>
