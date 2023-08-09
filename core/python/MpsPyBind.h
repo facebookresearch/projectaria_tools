@@ -273,7 +273,7 @@ void exportMps(py::module& m) {
   )docdelimiter");
 
   // point observations
-  py::class_<PointObservation>(m, "PointObservation", "2D observeations of the point")
+  py::class_<PointObservation>(m, "PointObservation", "2D observations of the point")
       .def_readwrite(
           "point_uid",
           &PointObservation::pointUid,

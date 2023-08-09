@@ -195,7 +195,7 @@ inline void declareImageDataRecord(py::module& m) {
       .def_readwrite(
           "arrival_timestamp_ns",
           &ImageDataRecord::arrivalTimestampNs,
-          "arrival time in devie domain")
+          "arrival time in device domain")
       .def_readwrite(
           "temperature", &ImageDataRecord::temperature, "temperature on the sensor, may be NAN");
 }

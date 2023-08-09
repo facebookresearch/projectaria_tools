@@ -39,8 +39,7 @@ inline void declareStreamId(py::module& m) {
       .def("get_name", &vrs::StreamId::getName, "Returns the name of the StreamId")
       .def("get_type_name", &vrs::StreamId::getTypeName, "Returns the type name of the StreamId")
       .def("is_valid", &vrs::StreamId::isValid, "Returns if a stream is valid")
-      .def(
-          "get_type_id", &vrs::StreamId::getTypeId, "Returns the RecordeableTypeId of the StreamId")
+      .def("get_type_id", &vrs::StreamId::getTypeId, "Returns the RecordableTypeId of the StreamId")
       .def(
           "get_instance_id",
           &vrs::StreamId::getInstanceId,

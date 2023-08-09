@@ -226,7 +226,7 @@ inline void declareVrsDataProvider(py::module& m) {
             return py::make_iterator(iterPair.first, iterPair.second);
           },
           py::keep_alive<0, 1>(),
-          "Delivers data from all sensors in the entire vrs file sorted by TimeDomain.DEIVCE_TIME.")
+          "Delivers data from all sensors in the entire vrs file sorted by TimeDomain.DEVICE_TIME.")
       .def(
           "deliver_queued_sensor_data",
           [](VrsDataProvider& self, const DeliverQueuedOptions& options) {
