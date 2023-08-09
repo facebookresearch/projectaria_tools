@@ -162,6 +162,7 @@ class DeviceCalibration {
       const std::map<std::string, Eigen::Vector2i>& labelToImageResolution);
   void setCameraCalibration(const std::string& label, CameraCalibration& cameraCalib) {
     cameraCalibs_.at(label) = cameraCalib;
+    allCalibs_.at(label) = SensorCalibration(cameraCalib);
   }
 
  private:

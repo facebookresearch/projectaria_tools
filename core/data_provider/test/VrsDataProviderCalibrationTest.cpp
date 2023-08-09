@@ -84,6 +84,8 @@ TEST(VrsDataProvider, rescaledCalibration) {
   static const vrs::StreamId kRgbCameraStreamId{vrs::RecordableTypeId::RgbCameraRecordableClass, 1};
   const auto rgbStreamIdLabel = provider->getLabelFromStreamId(kRgbCameraStreamId).value();
   const auto rgbCameraCalib = maybeCalib.value().getCameraCalib(rgbStreamIdLabel).value();
+  auto rgbSensorCalib = provider->getSensorCalibration(kRgbCameraStreamId)->cameraCalibration();
+
   // Stream image resolution and camera resolution should match
   EXPECT_EQ(
       rgbCameraCalib.getImageSize().x(),
@@ -92,10 +94,38 @@ TEST(VrsDataProvider, rescaledCalibration) {
       rgbCameraCalib.getImageSize().y(),
       provider->getConfiguration(kRgbCameraStreamId).imageConfiguration().imageHeight);
 
-  // Note sensor calibration can be different (since not updated to VRS data content)
-  // i.e
-  // auto rgbSensorCalib = provider->getSensorCalibration(kRgbCameraStreamId)->cameraCalibration();
-  // rgbSensorCalib.getImageSize() could be different than stream image resolution
+  // sensor calib should match device calib
+  EXPECT_EQ(rgbCameraCalib.getImageSize().x(), rgbSensorCalib.getImageSize().x());
+  EXPECT_EQ(rgbCameraCalib.getImageSize().y(), rgbSensorCalib.getImageSize().y());
+
+  // Check eye tracking camera scale
+  static const vrs::StreamId kEyeCameraStreamId{vrs::RecordableTypeId::EyeCameraRecordableClass, 1};
+  const auto eyeCameraLabel = provider->getLabelFromStreamId(kEyeCameraStreamId).value();
+  // eyeCameraLabel = "camera-et", which should not contain calibrations
+  // only "camera-et-left" and "camera-et-right" can obtain calibrations
+  EXPECT_FALSE(maybeCalib.value().getCameraCalib(eyeCameraLabel).has_value());
+  auto eyeCameraCalib = maybeCalib.value().getAriaEtCameraCalib().value();
+  auto etSensorCalib = provider->getSensorCalibration(kEyeCameraStreamId)->ariaEtCalibration();
+
+  // Stream image resolution and camera resolution should match
+  EXPECT_EQ(
+      eyeCameraCalib[0].getImageSize().x(),
+      provider->getConfiguration(kEyeCameraStreamId).imageConfiguration().imageWidth / 2);
+  EXPECT_EQ(
+      eyeCameraCalib[0].getImageSize().y(),
+      provider->getConfiguration(kEyeCameraStreamId).imageConfiguration().imageHeight);
+  EXPECT_EQ(
+      eyeCameraCalib[1].getImageSize().x(),
+      provider->getConfiguration(kEyeCameraStreamId).imageConfiguration().imageWidth / 2);
+  EXPECT_EQ(
+      eyeCameraCalib[1].getImageSize().y(),
+      provider->getConfiguration(kEyeCameraStreamId).imageConfiguration().imageHeight);
+
+  // sensor calib should match device calib
+  EXPECT_EQ(etSensorCalib[0].getImageSize().x(), eyeCameraCalib[0].getImageSize().x());
+  EXPECT_EQ(etSensorCalib[0].getImageSize().y(), eyeCameraCalib[0].getImageSize().y());
+  EXPECT_EQ(etSensorCalib[1].getImageSize().x(), eyeCameraCalib[1].getImageSize().x());
+  EXPECT_EQ(etSensorCalib[1].getImageSize().y(), eyeCameraCalib[1].getImageSize().y());
 }
 
 TEST(VrsDataProvider, streamIdToLabelMapping) {
