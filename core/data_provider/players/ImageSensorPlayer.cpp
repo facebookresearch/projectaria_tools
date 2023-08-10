@@ -83,6 +83,7 @@ bool ImageSensorPlayer::onDataLayoutRead(
     configRecord_.description = config.description.get();
   } else if (r.recordType == vrs::Record::Type::DATA) {
     auto& data = getExpectedLayout<datalayout::ImageSensorDataRecordMetadata>(dl, blockIndex);
+    dataRecord_.cameraId = configRecord_.cameraId;
     dataRecord_.groupId = data.groupId.get();
     dataRecord_.groupMask = data.groupMask.get();
     dataRecord_.frameNumber = data.frameNumber.get();

@@ -80,6 +80,7 @@ struct ImageConfigRecord {
  * @brief Image data type: meta data
  */
 struct ImageDataRecord {
+  uint32_t cameraId; ///< @brief ID of the camera, 0 to N
   uint64_t groupId;
   uint64_t groupMask;
   uint64_t frameNumber; ///< @brief index of the frame

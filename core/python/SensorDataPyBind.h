@@ -182,6 +182,7 @@ inline void declareImageDataRecord(py::module& m) {
       .def_readwrite("description", &ImageConfigRecord::description);
   py::class_<ImageDataRecord>(m, "ImageDataRecord")
       .def(py::init<>())
+      .def_readwrite("camera_id", &ImageDataRecord::cameraId, "ID of the camera, 0 to N")
       .def_readwrite("group_id", &ImageDataRecord::groupId)
       .def_readwrite("group_mask", &ImageDataRecord::groupMask)
       .def_readwrite("frame_number", &ImageDataRecord::frameNumber, "index of the frame")
