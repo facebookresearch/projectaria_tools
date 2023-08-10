@@ -33,8 +33,7 @@ RUN sudo apt-get install -y cmake git build-essential;
 RUN sudo apt-get install -y libpython3-dev python3-pip;
 
 # Install VRS dependencies and compile/install VRS
-# Note that we install cereal (header only) library to get last version
-# On some system libcereal-dev can be enough
+
 RUN sudo apt-get install -y \
     libboost-chrono-dev \
     libboost-date-time-dev \
@@ -46,10 +45,7 @@ RUN sudo apt-get install -y \
     libgmock-dev libgtest-dev \
     liblz4-dev \
     libpng-dev libturbojpeg-dev \
-    libxxhash-dev libzstd-dev; \
-    cd /tmp; git clone https://github.com/USCiLab/cereal.git -b v1.3.2 \
-    && cd cereal \
-    && cmake -DSKIP_PORTABILITY_TEST=1 -DJUST_INSTALL_CEREAL=ON .; sudo make -j2 install; rm -rf /tmp/cereal;
+    libxxhash-dev libzstd-dev;
 
 # Install pangolin
 RUN sudo apt-get install -y libeigen3-dev libglew-dev libgl1-mesa-dev -y; \
@@ -63,10 +59,15 @@ ADD ./ /opt/projectaria_tools
 
 # Configure
 RUN mkdir /opt/projectaria_tools_Build; cd /opt/projectaria_tools_Build; \
-    cmake /opt/projectaria_tools;
+    cmake -DBUILD_UNIT_TEST=ON \
+      -DPROJECTARIA_TOOLS_BUILD_TOOLS=ON \
+      -DPROJECTARIA_TOOLS_BUILD_PROJECTS=ON \
+      -DPROJECTARIA_TOOLS_BUILD_PROJECTS_ADT=ON \
+      -DPROJECTARIA_TOOLS_BUILD_PROJECTS_ASE=ON \
+      /opt/projectaria_tools;
 
 # Build & test
 RUN cd /opt/projectaria_tools_Build; make -j2 ; ctest -j;
 
 # Build python bindings
-RUN cd /opt/projectaria_tools; pip3 install --global-option=build_ext --config-settings=compile-args="-j2" .;
+RUN cd /opt/projectaria_tools; pip install --upgrade pip --user; pip3 install --global-option=build_ext .;

@@ -37,7 +37,6 @@ add_library(mps
     StaticCameraCalibration.h
     StaticCameraCalibrationReader.h StaticCameraCalibrationReader.cpp
 )
-target_compile_definitions(mps PRIVATE CEREAL_RAPIDJSON_HAS_STDSTRING)
 target_link_libraries(mps
     PUBLIC
         compressed_istream

@@ -27,10 +27,6 @@ cd /tmp; git clone https://github.com/fmtlib/fmt.git -b 8.1.1 \
     && cd fmt \
     && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE -DFMT_TEST=OFF .; make -j$thread install; rm -rf /tmp/fmt;
 
-cd /tmp && git clone https://github.com/USCiLab/cereal.git -b v1.3.2 \
-    && cd cereal \
-    && cmake -DSKIP_PORTABILITY_TEST=1 -DJUST_INSTALL_CEREAL=ON .;make -j4 install; rm -rf /tmp/cereal;
-
 cd /tmp && git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git -b 2.1.4 \
     && cd libjpeg-turbo \
     && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_JPEG8=1 -DCMAKE_INSTALL_DEFAULT_PREFIX=/usr .;make -j$thread install; rm -rf /tmp/libjpeg-turbo;
@@ -46,5 +42,5 @@ skip="*-manylinux_i686 *musllinux*"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64"]
-before-build="brew install boost cereal cmake fmt glog jpeg-turbo libpng lz4 xxhash zstd"
+before-build="brew install boost cmake fmt glog jpeg-turbo libpng lz4 xxhash zstd"
 environment = {"CMAKE_ARGS"="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"}

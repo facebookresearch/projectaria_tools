@@ -36,7 +36,7 @@ jobs:
               # Install VRS dependencies
               sudo apt-get install -o Acquire::Retries=5 \
                 libgtest-dev libgmock-dev \
-                libfmt-dev libcereal-dev \
+                libfmt-dev \
                 libturbojpeg-dev libpng-dev \
                 liblz4-dev libzstd-dev libxxhash-dev \
                 libboost-chrono-dev \
@@ -46,11 +46,6 @@ jobs:
                 libboost-system-dev \
                 libboost-thread-dev
 
-              # Build Cereal (header only library)
-              cd /tmp; git clone https://github.com/USCiLab/cereal.git -b v1.3.2 \
-                && cd cereal \
-                && cmake -DSKIP_PORTABILITY_TEST=1 -DJUST_INSTALL_CEREAL=ON .; sudo make -j$thread install; rm -rf /tmp/cereal;
-
               # Clean APT cache
               sudo apt-get clean
 
@@ -58,7 +53,7 @@ jobs:
               # Install system deps with Homebrew
               brew install cmake
               # VRS dependencies
-              brew install boost fmt sophus cereal googletest glog lz4 zstd xxhash libpng jpeg-turbo
+              brew install boost fmt sophus googletest glog lz4 zstd xxhash libpng jpeg-turbo
           else
               echo "$RUNNER_OS not supported"
               exit 1

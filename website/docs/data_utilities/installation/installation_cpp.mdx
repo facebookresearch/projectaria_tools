@@ -27,19 +27,6 @@ sudo apt install build-essential git cmake
 sudo apt install libgtest-dev libgmock-dev libgoogle-glog-dev libfmt-dev \
 liblz4-dev libzstd-dev libxxhash-dev libboost-all-dev libpng-dev \
 libjpeg-turbo8-dev libturbojpeg0-dev libglew-dev libgl1-mesa-dev libeigen3-dev
-
-# Installing cereal library (header only) to get the last version
-cd /tmp
-
-git clone https://github.com/USCiLab/cereal.git -b v1.3.2
-
-cd cereal
-
-cmake -DSKIP_PORTABILITY_TEST=1 -DJUST_INSTALL_CEREAL=ON .
-
-sudo make -j2 install
-
-rm -rf /tmp/cereal
 ```
 ```mdx-code-block
 </TabItem>
@@ -53,20 +40,6 @@ sudo dnf install -y git cmake gcc gcc-c++ make
 sudo dnf install -y gtest-devel gmock-devel glog-devel fmt-devel lz4-devel \
 libzstd-devel xxhash-devel boost-devel libpng-devel libjpeg-turbo-devel \
 turbojpeg-devel glew-devel eigen3
-
-# Installing cereal library (header only) to get the last version
-cd /tmp
-
-git clone https://github.com/USCiLab/cereal.git -b v1.3.2
-
-cd cereal
-
-cmake -DSKIP_PORTABILITY_TEST=1 -DJUST_INSTALL_CEREAL=ON .
-
-sudo make -j2 install
-
-rm -rf /tmp/cereal
-
 ```
 ```mdx-code-block
 </TabItem>
@@ -78,7 +51,7 @@ If you don't have brew on your mac, here is the [_setup link_](https://brew.sh/)
 # Install build essentials with Homebrew
 xcode-select --install
 
-brew install git cmake eigen python3 boost fmt sophus cereal googletest \
+brew install git cmake eigen python3 boost fmt sophus googletest \
 glog lz4 zstd xxhash libpng jpeg-turbo glew
 
 ```

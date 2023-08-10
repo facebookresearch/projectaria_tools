@@ -18,8 +18,8 @@ target_link_libraries(aria_calib_rescale_and_crop PUBLIC device_calibration vrs_
 
 add_library(sensor_calibration_json SensorCalibrationJson.cpp SensorCalibrationJson.h)
 target_include_directories(sensor_calibration_json PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../..)
-target_link_libraries(sensor_calibration_json PUBLIC device_calibration cereal::cereal vrslib vrs_logging)
+target_link_libraries(sensor_calibration_json PUBLIC device_calibration vrslib vrs_logging)
 
 add_library(device_calibration_json DeviceCalibrationJson.cpp DeviceCalibrationJson.h)
 target_include_directories(device_calibration_json PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../..)
-target_link_libraries(device_calibration_json PUBLIC sensor_calibration_json device_calibration cereal::cereal vrs_logging)
+target_link_libraries(device_calibration_json PUBLIC sensor_calibration_json device_calibration vrs_logging)

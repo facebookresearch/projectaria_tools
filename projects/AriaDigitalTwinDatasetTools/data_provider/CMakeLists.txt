@@ -35,7 +35,6 @@ target_link_libraries(
     AriaDigitalTwinDataProviderLib
         PUBLIC
             sensor_data_type
-            cereal::cereal
             Sophus::Sophus
             Eigen3::Eigen
             eye_gaze
