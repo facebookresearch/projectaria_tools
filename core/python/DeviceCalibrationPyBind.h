@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <fstream>
+
 #include <calibration/DeviceCalibration.h>
 #include <calibration/loader/DeviceCalibrationJson.h>
 #include <calibration/utility/Distort.h>
