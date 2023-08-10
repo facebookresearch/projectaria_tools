@@ -17,7 +17,7 @@
 #include <calibration/loader/SensorCalibrationJson.h>
 
 #include <calibration/SensorCalibration.h>
-#include <cereal/external/rapidjson/document.h>
+#include <rapidjson/document.h>
 
 #include <logging/Checks.h>
 #define DEFAULT_LOG_CHANNEL "SensorCalibrationJson"
@@ -35,7 +35,7 @@ const double kSlamMaxSolidAngleRad = 1.4;
 const double kRgbMaxSolidAngleRad = 1;
 const double kEtMaxSolidAngleRad = 0.75;
 
-Eigen::VectorXd parseVectorXdFromJson(const fb_rapidjson::Value& json) {
+Eigen::VectorXd parseVectorXdFromJson(const rapidjson::Value& json) {
   Eigen::VectorXd vec(json.Size());
   for (size_t i = 0; i < json.Size(); ++i) {
     vec(i) = json[i].GetDouble();
@@ -43,13 +43,13 @@ Eigen::VectorXd parseVectorXdFromJson(const fb_rapidjson::Value& json) {
   return vec;
 }
 
-Eigen::Vector3d parseVector3dFromJson(const fb_rapidjson::Value& json) {
+Eigen::Vector3d parseVector3dFromJson(const rapidjson::Value& json) {
   XR_CHECK(json.Size() == 3, "Expects a 3d vector from json, actual size: {}", json.Size());
 
   return {json[0].GetDouble(), json[1].GetDouble(), json[2].GetDouble()};
 }
 
-Eigen::Matrix3d parseMatrix3dFromJson(const fb_rapidjson::Value& json) {
+Eigen::Matrix3d parseMatrix3dFromJson(const rapidjson::Value& json) {
   XR_CHECK(json.Size() == 3, "Expects 3 rows from matrix, actual number of rows: {}", json.Size());
 
   Eigen::Matrix3d mat;
@@ -59,7 +59,7 @@ Eigen::Matrix3d parseMatrix3dFromJson(const fb_rapidjson::Value& json) {
   return mat;
 }
 
-Sophus::SE3d parseSe3dFromJson(const fb_rapidjson::Value& json) {
+Sophus::SE3d parseSe3dFromJson(const rapidjson::Value& json) {
   Eigen::Vector3d translation = parseVector3dFromJson(json["Translation"]);
 
   XR_CHECK(
@@ -74,7 +74,7 @@ Sophus::SE3d parseSe3dFromJson(const fb_rapidjson::Value& json) {
 }
 } // namespace
 
-CameraCalibration parseCameraCalibrationFromJson(const fb_rapidjson::Value& json) {
+CameraCalibration parseCameraCalibrationFromJson(const rapidjson::Value& json) {
   // Parse projection params
   const std::string projectionModelName = json["Projection"]["Name"].GetString();
   CameraProjection::ModelType modelName;
@@ -124,15 +124,14 @@ CameraCalibration parseCameraCalibrationFromJson(const fb_rapidjson::Value& json
 }
 
 namespace {
-std::pair<Eigen::Matrix3d, Eigen::Vector3d> parseRectModelFromJson(
-    const fb_rapidjson::Value& json) {
+std::pair<Eigen::Matrix3d, Eigen::Vector3d> parseRectModelFromJson(const rapidjson::Value& json) {
   return {
       parseMatrix3dFromJson(json["Model"]["RectificationMatrix"]),
       parseVector3dFromJson(json["Bias"]["Offset"])};
 }
 } // namespace
 
-ImuCalibration parseImuCalibrationFromJson(const fb_rapidjson::Value& json) {
+ImuCalibration parseImuCalibrationFromJson(const rapidjson::Value& json) {
   const auto label = json["Label"].GetString();
   const auto [accelMat, accelBias] = parseRectModelFromJson(json["Accelerometer"]);
   const auto [gyroMat, gyroBias] = parseRectModelFromJson(json["Gyroscope"]);
@@ -141,7 +140,7 @@ ImuCalibration parseImuCalibrationFromJson(const fb_rapidjson::Value& json) {
   return ImuCalibration(label, accelMat, accelBias, gyroMat, gyroBias, T_Device_Imu);
 }
 
-MagnetometerCalibration parseMagnetometerCalibrationFromJson(const fb_rapidjson::Value& json) {
+MagnetometerCalibration parseMagnetometerCalibrationFromJson(const rapidjson::Value& json) {
   const auto label = json["Label"].GetString();
   const auto [magMatFromJson, biasInMicroTesla] = parseRectModelFromJson(json);
 
@@ -164,7 +163,7 @@ MagnetometerCalibration parseMagnetometerCalibrationFromJson(const fb_rapidjson:
   return MagnetometerCalibration(label, magMat, biasInTesla);
 }
 
-BarometerCalibration parseBarometerCalibrationFromJson(const fb_rapidjson::Value& json) {
+BarometerCalibration parseBarometerCalibrationFromJson(const rapidjson::Value& json) {
   const auto label = json["Label"].GetString();
   double slope = json["PressureModel"]["Slope"].GetDouble();
   double offsetPa = json["PressureModel"]["OffsetPa"].GetDouble();
@@ -172,7 +171,7 @@ BarometerCalibration parseBarometerCalibrationFromJson(const fb_rapidjson::Value
   return BarometerCalibration(label, slope, offsetPa);
 }
 
-MicrophoneCalibration parseMicrophoneCalibrationFromJson(const fb_rapidjson::Value& json) {
+MicrophoneCalibration parseMicrophoneCalibrationFromJson(const rapidjson::Value& json) {
   const auto label = json["Label"].GetString();
   double dSensitivity1KDbv = json["DSensitivity1KDbv"].GetDouble();
   return MicrophoneCalibration(label, dSensitivity1KDbv);

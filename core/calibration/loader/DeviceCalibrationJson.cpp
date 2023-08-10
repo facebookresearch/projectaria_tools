@@ -15,20 +15,17 @@
  */
 
 #include <calibration/loader/DeviceCalibrationJson.h>
-
-#include <string>
-
-#include <cereal/external/rapidjson/document.h>
-
 #include <calibration/loader/SensorCalibrationJson.h>
 
 #include <logging/Checks.h>
 #define DEFAULT_LOG_CHANNEL "DeviceCalibrationFactory"
 #include <logging/Log.h>
 
+#include <string>
+
 namespace projectaria::tools::calibration {
 
-void patchSyntheticHomeCalib(fb_rapidjson::Value& json) {
+void patchSyntheticHomeCalib(rapidjson::Value& json) {
   XR_CHECK(json.FindMember("DeviceClassInfo") != json.MemberEnd());
   // fix device class info
   if (json["DeviceClassInfo"]["BuildVersion"].GetString() == std::string("SimulatedDevice")) {
@@ -53,7 +50,7 @@ void patchSyntheticHomeCalib(fb_rapidjson::Value& json) {
 }
 // calibration accessor for Aria device
 std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& calibJsonStr) {
-  fb_rapidjson::Document json;
+  rapidjson::Document json;
   json.Parse(calibJsonStr.c_str());
   patchSyntheticHomeCalib(json);
 

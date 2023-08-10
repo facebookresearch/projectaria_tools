@@ -25,9 +25,10 @@
 #include <stdexcept>
 #include <valarray>
 
-#include <cereal/external/rapidjson/document.h>
-#include <cereal/external/rapidjson/rapidjson.h>
+#define RAPIDJSON_NAMESPACE rapidjson
 #include <mps/EyeGazeReader.h>
+#include <rapidjson/document.h>
+#include <rapidjson/rapidjson.h>
 
 #include <sophus/interpolate.hpp>
 
@@ -141,7 +142,7 @@ InstanceType getInstanceTypeFromInstancesJsonValue(const std::string& instanceTy
 }
 
 RotationalSymmetry getRotationalSymmetryFromInstancesJsonObject(
-    fb_rapidjson::GenericObject<true, fb_rapidjson::GenericValue<fb_rapidjson::UTF8<>>>&
+    rapidjson::GenericObject<true, rapidjson::GenericValue<rapidjson::UTF8<>>>&
         rotationalSymmetryObject,
     const std::string& instanceInfoKey) {
   RotationalSymmetry rotationalSymmetry;
@@ -196,8 +197,7 @@ RotationalSymmetry getRotationalSymmetryFromInstancesJsonObject(
 }
 
 CanonicalPose getCanonicalPoseFromInstancesJsonObject(
-    fb_rapidjson::GenericObject<true, fb_rapidjson::GenericValue<fb_rapidjson::UTF8<>>>&
-        canonicalPoseObject,
+    rapidjson::GenericObject<true, rapidjson::GenericValue<rapidjson::UTF8<>>>& canonicalPoseObject,
     const std::string& instanceInfoKey) {
   CanonicalPose canonicalPose;
   if (canonicalPoseObject.HasMember(kCanonicalPoseUpKey.c_str()) &&
@@ -591,7 +591,7 @@ void AriaDigitalTwinDataProvider::loadInstancesInfo() {
 
   std::stringstream buffer;
   buffer << fileStream.rdbuf();
-  fb_rapidjson::Document jdoc;
+  rapidjson::Document jdoc;
   jdoc.Parse(buffer.str().c_str());
   const auto& jdocConst = jdoc;
 
@@ -893,7 +893,7 @@ void AriaDigitalTwinDataProvider::loadDatasetVersion() {
 
   std::stringstream buffer;
   buffer << fileStream.rdbuf();
-  fb_rapidjson::Document jdoc;
+  rapidjson::Document jdoc;
   jdoc.Parse(buffer.str().c_str());
   const auto& jdocConst = jdoc;
 
@@ -1023,7 +1023,7 @@ void AriaDigitalTwinDataProvider::loadSkeletonInfo() {
 
   std::stringstream buffer;
   buffer << fileStream.rdbuf();
-  fb_rapidjson::Document jdoc;
+  rapidjson::Document jdoc;
   jdoc.Parse(buffer.str().c_str());
   const auto& jdocConst = jdoc;
 

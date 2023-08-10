@@ -22,8 +22,9 @@
 #include <sstream>
 #include <string>
 
-#include <cereal/external/rapidjson/document.h>
-#include <cereal/external/rapidjson/rapidjson.h>
+#define RAPIDJSON_NAMESPACE rapidjson
+#include <rapidjson/document.h>
+#include <rapidjson/rapidjson.h>
 
 #define DEFAULT_LOG_CHANNEL "AriaDigitalTwinDataPathsProvider"
 #include <logging/Log.h>
@@ -173,7 +174,7 @@ std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
 
     std::stringstream buffer;
     buffer << fileStream.rdbuf();
-    fb_rapidjson::Document jdoc;
+    rapidjson::Document jdoc;
     jdoc.Parse(buffer.str().c_str());
     const auto& jdocConst = jdoc;
 
@@ -266,7 +267,7 @@ void AriaDigitalTwinDataPathsProvider::loadSequenceMetaData() {
 
   std::stringstream buffer;
   buffer << fileStream.rdbuf();
-  fb_rapidjson::Document jdoc;
+  rapidjson::Document jdoc;
   jdoc.Parse(buffer.str().c_str());
   const auto& jdocConst = jdoc;
 

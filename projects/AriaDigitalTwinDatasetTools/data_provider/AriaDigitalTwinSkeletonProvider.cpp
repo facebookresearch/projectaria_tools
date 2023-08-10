@@ -18,8 +18,9 @@
 
 #include <fstream>
 
-#include <cereal/external/rapidjson/document.h>
-#include <cereal/external/rapidjson/rapidjson.h>
+#define RAPIDJSON_NAMESPACE rapidjson
+#include <rapidjson/document.h>
+#include <rapidjson/rapidjson.h>
 
 #include "AriaDigitalTwinUtils.h"
 
@@ -53,14 +54,14 @@ void AriaDigitalTwinSkeletonProvider::readSkeletonJson(const std::filesystem::pa
   std::stringstream buffer;
   buffer << fileStream.rdbuf();
 
-  fb_rapidjson::Document jdoc;
+  rapidjson::Document jdoc;
   jdoc.Parse(buffer.str().c_str());
 
   if (!jdoc.HasMember(kFramesKey.c_str())) {
     XR_LOGE("key: '{}' not available in skeleton json file: {}", kFramesKey, path.string());
     throw std::runtime_error{"invalid json format"};
   }
-  for (const fb_rapidjson::Value& frameJson : jdoc[kFramesKey.c_str()].GetArray()) {
+  for (const rapidjson::Value& frameJson : jdoc[kFramesKey.c_str()].GetArray()) {
     if (!frameJson.HasMember(kMarkersKey.c_str())) {
       XR_LOGE("key: '{}' not available in skeleton json file: {}", kMarkersKey, path.string());
       throw std::runtime_error{"invalid json format"};

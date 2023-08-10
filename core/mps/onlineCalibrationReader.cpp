@@ -19,8 +19,7 @@
 #include <iostream>
 #include <string>
 
-#include <cereal/external/rapidjson/document.h>
-
+#define RAPIDJSON_HAS_STDSTRING 1
 #include <calibration/loader/SensorCalibrationJson.h>
 #include "OnlineCalibration.h"
 
@@ -28,7 +27,7 @@ namespace projectaria::tools::mps {
 
 namespace {
 // loading new online calib format after Jun 2023
-OnlineCalibration readSingleOnlineCalibFromJson(const fb_rapidjson::Document& doc) {
+OnlineCalibration readSingleOnlineCalibFromJson(const rapidjson::Document& doc) {
   OnlineCalibration calib;
   calib.trackingTimestamp = std::chrono::microseconds(doc["tracking_timestamp_us"].GetInt64());
   calib.utcTimestamp = std::chrono::nanoseconds(doc["utc_timestamp_ns"].GetInt64());
@@ -58,20 +57,20 @@ std::string fixJsonString(const std::string& inputJsonStr) {
 }
 
 // loading old online calib format before Jun 2023
-OnlineCalibration readSingleOnlineCalibFromJsonString(const fb_rapidjson::Document& doc) {
+OnlineCalibration readSingleOnlineCalibFromJsonString(const rapidjson::Document& doc) {
   OnlineCalibration calib;
   calib.trackingTimestamp =
       std::chrono::microseconds(std::stoul(doc["tracking_timestamp_us"].GetString()));
   calib.utcTimestamp = std::chrono::nanoseconds(std::stoul(doc["utc_timestamp_ns"].GetString()));
   // cam
-  fb_rapidjson::Document camDoc;
+  rapidjson::Document camDoc;
   camDoc.Parse(fixJsonString(doc["CameraCalibrations"].GetString()));
   for (int i = 0; i < camDoc.GetArray().Size(); i++) {
     const auto& camJson = camDoc.GetArray()[i];
     calib.cameraCalibs.push_back(calibration::parseCameraCalibrationFromJson(camJson));
   }
   // imu
-  fb_rapidjson::Document imuDoc;
+  rapidjson::Document imuDoc;
   imuDoc.Parse(fixJsonString(doc["ImuCalibrations"].GetString()));
   for (int i = 0; i < imuDoc.GetArray().Size(); i++) {
     const auto& imuJson = imuDoc.GetArray()[i];
@@ -88,15 +87,15 @@ OnlineCalibrations readOnlineCalibration(const std::string& filepath) {
     OnlineCalibrations onlineCalibs;
 
     while (std::getline(infile, jsonCalibrationString)) {
-      fb_rapidjson::Document doc;
+      rapidjson::Document doc;
       doc.Parse(jsonCalibrationString.c_str());
 
       // whether the calibration content is saved in string
       // this is for backward compatibility of MPS online calib results release before Jun 2023.
       //
       // Before June 2023: calibration content is in quote
-      // After June 2023:  we update the JSON format for simplity, calibration content is no longer
-      //                   in quote
+      // After June 2023:  we update the JSON format for simplicity, calibration content is no
+      // longer in quote
       const bool contentInStr = doc["tracking_timestamp_us"].IsString();
 
       if (contentInStr) {

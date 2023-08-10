@@ -18,8 +18,6 @@
 #include <fstream>
 #include <iostream>
 
-#include <cereal/external/rapidjson/document.h>
-
 #ifndef CSV_IO_NO_THREAD
 #define CSV_IO_NO_THREAD
 #endif

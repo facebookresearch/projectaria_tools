@@ -17,14 +17,16 @@
 #pragma once
 
 #include <calibration/SensorCalibration.h>
-#include <cereal/external/rapidjson/document.h>
+#define RAPIDJSON_NAMESPACE rapidjson
+#define RAPIDJSON_HAS_STDSTRING 1
+#include <rapidjson/document.h>
 
 namespace projectaria::tools::calibration {
 
-CameraCalibration parseCameraCalibrationFromJson(const fb_rapidjson::Value& json);
-ImuCalibration parseImuCalibrationFromJson(const fb_rapidjson::Value& json);
-MagnetometerCalibration parseMagnetometerCalibrationFromJson(const fb_rapidjson::Value& json);
-BarometerCalibration parseBarometerCalibrationFromJson(const fb_rapidjson::Value& json);
-MicrophoneCalibration parseMicrophoneCalibrationFromJson(const fb_rapidjson::Value& json);
+CameraCalibration parseCameraCalibrationFromJson(const rapidjson::Value& json);
+ImuCalibration parseImuCalibrationFromJson(const rapidjson::Value& json);
+MagnetometerCalibration parseMagnetometerCalibrationFromJson(const rapidjson::Value& json);
+BarometerCalibration parseBarometerCalibrationFromJson(const rapidjson::Value& json);
+MicrophoneCalibration parseMicrophoneCalibrationFromJson(const rapidjson::Value& json);
 
 } // namespace projectaria::tools::calibration
