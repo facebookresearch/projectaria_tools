@@ -16,10 +16,10 @@ So far, an ADT sequence contains at most 2 subsequences. Each sequence has the f
 |SequenceName|
 -----|Subsequence1Name|
 -----|Subsequence2Name| [Optional] # Omitted if a sequence is a single person activity
------|gt-metadata.json
+-----|metadata.json
 ```
-The gt-metadata.json file contains the high-level sequence information such as the included Aria's serial number, the scene name, etc, which can be
-loaded and queried by AriaDigitalTwinDataPathProvider.
+The metadata.json file contains the high-level sequence information such as the included Aria's serial number, the scene name, etc, which can be
+loaded and queried by AriaDigitalTwinDataPathProvider. Note that prior to dataset v1.1, this was named gt-metadata. Please see [release_note](https://github.com/facebookresearch/projectaria_tools/releases/tag/1.1.0)
 
 ## Ground Truth Data
 You can use the AriaDigitalTwinDataPathProvider to load a sequence and select a subsequence.
@@ -37,12 +37,14 @@ AriaDigitalTwinDataPathProvider will manage all the ground truth files (see belo
 ----synthetic_video.vrs  # Synthetic rendering of video.vrs
 ----depth_images.vrs     # Depth images of video.vrs
 ----segmentations.vrs    # Instance segmentations of video.vrs
-----SkeletonMetaData.json [optional]  # Metadata of skeleton data. Omitted if a sequence does not have skeleton ground truth
+----skeleton_aria_association.json [optional]  # File showing association between Aria devices and skeletons, if they exist. Omitted if a sequence does not have skeleton ground truth.
 ----Skeleton_*.json [optional]   # Body skeleton data. * is the skeleton name. Omitted if a sequence does not have skeleton ground truth
 ----2d_bounding_box_with_skeleton.csv [optional]  # 2D bounding box data with body mesh occlusions. Omitted if a sequence does not have skeleton ground truth
 ----depth_images_with_skeleton.vrs [optional]  # Depth images with body mesh occlusions. Omitted if a sequence does not have skeleton ground truth
 ----segmentations_with_skeleton.vrs [optional]  # Segmentations with body mesh occlusions. Omitted if a sequence does not have skeleton ground truth
 ```
+
+Note that prior to dataset v1.1, skeleton_aria_association.json was named SkeletonMetaData.json. Please see [release note](https://github.com/facebookresearch/projectaria_tools/releases/tag/1.1.0)
 
 ## Skeleton Data and Availability
 Note that not all ADT sequences have skeleton tracking.
