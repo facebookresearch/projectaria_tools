@@ -7,24 +7,29 @@ title: Getting Started
 
 In this guide, we introduce how to install the `projectaria_tools` Python package and provide tutorials to go through the APIs to access and visualize Aria data.
 
-You will run through two Jupyter notebook tutorials:
+You can run this tutorial via Google Colab or install `projectaria_tools` locally and use Jupyter notebooks.
 
-* **Dataprovider quickstart tutorial**: a walk-through of accessing sensor data from [VRS file](/docs/data_formats/aria_vrs/aria_vrs_format). Content covered includes:
+We've provided two tutorials:
+
+* **Dataprovider quickstart tutorial**: using the Aria Data Provider to access sensor data from a [VRS file](/docs/data_formats/aria_vrs/aria_vrs_format). Content covered includes:
    * Retrieve image data
    * Summarize a VRS file using thumbnails
    * Obtaining sensor calibrations
    * Access project/unproject functionalities
    * Undistorting an image
-* **Machine Perception Services (MPS) quickstart tutorial**: a guide to visualize MPS (derived) data. Content covered includes visualizing:
+* **Machine Perception Services (MPS) quickstart tutorial**: a guide to visualizing MPS (derived) data. Content covered includes visualizing:
    * [Eye gaze](/docs/data_formats/mps/mps_eye_gaze)
    * [Trajectory](/docs/data_formats/mps/mps_trajectory)
    * [Point cloud](/docs/data_formats/mps/mps_pointcloud)
 
-:::tip Jupyter notebook error
-If you get a [**Jupyter notebook error**](/docs/data_utilities/installation/troubleshooting#jupyter-notebook-error) please [upgrade Python 3](https://www.python.org/downloads/) to the latest version and recreate your virtual environment.
-:::
 
----
+## Running the Jupyter Notebooks on Google Colab
+Use the following links to run the Python notebooks in an installation free playground:
+* [Dataprovider quickstart tutorial](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/core/examples/dataprovider_quickstart_tutorial.ipynb)
+* [Machine Perception Services Tutorial](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/core/examples/mps_quickstart_tutorial.ipynb)
+
+## Running the Jupyter Notebooks locally
+
 ### Step 0 : Check system requirements and download codebase
 
 Go to the [Download Codebase](/docs/data_utilities/installation/download_codebase) page to:
@@ -56,11 +61,17 @@ pip3 install projectaria-tools'[all]'
 
 ### Step 4: Run Dataprovider quickstart tutorial
 
+
+
 ```bash
 cd $HOME/Documents/projectaria_sandbox
 
 jupyter notebook projectaria_tools/core/examples/dataprovider_quickstart_tutorial.ipynb
 ```
+
+:::tip Jupyter notebook error
+If you get a [**Jupyter notebook error**](/docs/data_utilities/installation/troubleshooting#jupyter-notebook-error) please [upgrade Python 3](https://www.python.org/downloads/) to the latest version and recreate your virtual environment.
+:::
 
 ### Step 5: Run Machine Perception Services (MPS) quickstart tutorial
 In the MPS tutorial, the notebook walks through how to visualize gaze, trajectory, and point cloud from MPS data.
