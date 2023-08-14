@@ -40,7 +40,6 @@ struct BarometerData {
   int64_t captureTimestampNs; ///< @brief the timestamp when the data is captured
   double temperature; ///< @brief temperature of the sensor in degrees Celsius
   double pressure; ///< @brief raw sensor readout of pressure in Pascal
-  double altitude; ///< @brief raw sensor readout of altitude
 };
 
 class BarometerPlayer : public vrs::RecordFormatStreamPlayer {

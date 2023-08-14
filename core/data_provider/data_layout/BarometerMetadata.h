@@ -50,9 +50,6 @@ struct BarometerDataMetadata : public vrs::AutoDataLayout {
   // Pressure in Pascal.
   vrs::DataPieceValue<double> pressure{"pressure"};
 
-  // Relative altitude in meters.
-  vrs::DataPieceValue<double> altitude{"altitude"};
-
   vrs::AutoDataLayoutEnd end;
 };
 

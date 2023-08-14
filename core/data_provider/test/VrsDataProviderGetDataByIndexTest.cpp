@@ -95,7 +95,6 @@ void compare(const BluetoothBeaconData& bluetoothData1, const BluetoothBeaconDat
 }
 
 void compare(const BarometerData& barometerData1, const BarometerData& barometerData2) {
-  EXPECT_EQ(barometerData1.altitude, barometerData2.altitude);
   EXPECT_EQ(barometerData1.captureTimestampNs, barometerData2.captureTimestampNs);
   EXPECT_EQ(barometerData1.pressure, barometerData2.pressure);
   EXPECT_EQ(barometerData1.temperature, barometerData2.temperature);

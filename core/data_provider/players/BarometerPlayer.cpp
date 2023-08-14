@@ -34,7 +34,6 @@ bool BarometerPlayer::onDataLayoutRead(
     dataRecord_.captureTimestampNs = data.captureTimestampNs.get();
     dataRecord_.temperature = data.temperature.get();
     dataRecord_.pressure = data.pressure.get();
-    dataRecord_.altitude = data.altitude.get();
     nextTimestampSec_ = std::nextafter(r.timestamp, std::numeric_limits<double>::max());
     callback_(r, data, verbose_);
   }

@@ -384,8 +384,7 @@ inline void declareBarometerDataRecord(py::module& m) {
           &BarometerData::temperature,
           "temperature of the sensor in degrees Celsius")
       .def_readwrite(
-          "pressure", &BarometerData::pressure, "raw sensor readout of pressure in Pascal")
-      .def_readwrite("altitude", &BarometerData::altitude, "raw sensor readout of altitude");
+          "pressure", &BarometerData::pressure, "raw sensor readout of pressure in Pascal");
 }
 
 inline void declareSensorConfiguration(py::module& m) {
