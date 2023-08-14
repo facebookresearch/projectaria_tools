@@ -83,7 +83,7 @@ std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
   const auto mainPath = fs::path(sequencePath) / fs::path(subtourName);
 
   // get Aria vrs file path
-  const std::string ariaVrsFilePath = fs::path(mainPath) / fs::path(kVrsFileName);
+  const std::string ariaVrsFilePath = (fs::path(mainPath) / kVrsFileName).string();
   if (!fs::exists(ariaVrsFilePath)) {
     XR_LOGW("aria vrs file not found at {}", ariaVrsFilePath);
   } else {
@@ -91,7 +91,7 @@ std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
   }
 
   // get 6DoF Aria trajectory
-  const std::string ariaTrajectoryFilePath = fs::path(mainPath) / fs::path(kAriaTrajFile);
+  const std::string ariaTrajectoryFilePath = (fs::path(mainPath) / kAriaTrajFile).string();
   if (!fs::exists(ariaTrajectoryFilePath)) {
     XR_LOGW("aria trajectory file not found at {}", ariaTrajectoryFilePath);
   } else {
@@ -99,7 +99,7 @@ std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
   }
 
   // get 6DoF object trajectory
-  const std::string objectTrajectoriesFilePath = fs::path(mainPath) / fs::path(kObjTrajFile);
+  const std::string objectTrajectoriesFilePath = (fs::path(mainPath) / kObjTrajFile).string();
   if (!fs::exists(objectTrajectoriesFilePath)) {
     XR_LOGW("object trajectories file not found at {}", objectTrajectoriesFilePath);
   } else {
@@ -107,7 +107,7 @@ std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
   }
 
   // get object 3D bbox
-  const std::string objectBoundingBox3dFilePath = fs::path(mainPath) / fs::path(k3dBoxFile);
+  const std::string objectBoundingBox3dFilePath = (fs::path(mainPath) / k3dBoxFile).string();
   if (!fs::exists(objectBoundingBox3dFilePath)) {
     XR_LOGW("object 3d bounding box file not found at {}", objectBoundingBox3dFilePath);
   } else {
@@ -117,7 +117,8 @@ std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
   // get 2d bbox file path
   const fs::path boundingBoxes2dFileName =
       skeletonFlag ? fs::path(k2dBoxFileWithSkel) : fs::path(k2dBoxFileNoSkel);
-  const std::string boundingBoxes2dFilePath = fs::path(mainPath) / boundingBoxes2dFileName;
+  const std::string boundingBoxes2dFilePath =
+      (fs::path(mainPath) / boundingBoxes2dFileName).string();
   if (!fs::exists(boundingBoxes2dFilePath)) {
     XR_LOGW("2d bounding box data found at {}", boundingBoxes2dFilePath);
   } else {
@@ -127,7 +128,7 @@ std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
   // segmentation file
   const fs::path segmentationsFileName = skeletonFlag ? fs::path(kSegmentationImageFileWithSkel)
                                                       : fs::path(kSegmentationImageFileNoSkel);
-  const std::string segmentationsFilePath = fs::path(mainPath) / segmentationsFileName;
+  const std::string segmentationsFilePath = (fs::path(mainPath) / segmentationsFileName).string();
   if (!fs::exists(segmentationsFilePath)) {
     XR_LOGW("no segmentation image data found at {}", segmentationsFilePath);
   } else {
@@ -137,7 +138,7 @@ std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
   // get depth images file
   const fs::path depthImagesFileName =
       skeletonFlag ? fs::path(kDepthImageFileWithSkel) : fs::path(kDepthImageFileNoSkel);
-  const std::string depthImagesFilePath = fs::path(mainPath) / depthImagesFileName;
+  const std::string depthImagesFilePath = (fs::path(mainPath) / depthImagesFileName).string();
   if (!fs::exists(depthImagesFilePath)) {
     XR_LOGW("no depth image data found at {}", depthImagesFilePath);
   } else {
@@ -145,7 +146,7 @@ std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
   }
 
   // get synthetic video file
-  const std::string syntheticVrsFilePath = fs::path(mainPath) / fs::path(kSyntheticVrsFile);
+  const std::string syntheticVrsFilePath = (fs::path(mainPath) / kSyntheticVrsFile).string();
   if (!fs::exists(syntheticVrsFilePath)) {
     XR_LOGW("no synthetic video data found at {}", syntheticVrsFilePath);
   } else {
@@ -153,7 +154,7 @@ std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
   }
 
   // get eye gaze files
-  const std::string eyeGazesFilePath = fs::path(mainPath) / fs::path(kEyeGazeFile);
+  const std::string eyeGazesFilePath = (fs::path(mainPath) / kEyeGazeFile).string();
   if (!fs::exists(eyeGazesFilePath)) {
     XR_LOGW("no eye gaze data found at {}", eyeGazesFilePath);
   } else {
@@ -216,9 +217,9 @@ std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
   }
 
   // get meta data file
-  const std::string metaDataFilePath = fs::path(sequencePath) / fs::path(kMetadataFile);
+  const std::string metaDataFilePath = (fs::path(sequencePath) / kMetadataFile).string();
   const std::string metaDataFilePathDeprecated =
-      fs::path(sequencePath) / fs::path(kMetadataFileDeprecated);
+      (fs::path(sequencePath) / kMetadataFileDeprecated).string();
   if (fs::exists(metaDataFilePath)) {
     paths.metaDataFilePath = metaDataFilePath;
   } else if (fs::exists(metaDataFilePathDeprecated)) {
@@ -227,7 +228,7 @@ std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
     XR_LOGW("no meta data found at {} or {}", metaDataFilePath, metaDataFilePathDeprecated);
   }
 
-  const std::string instancesFilePath = fs::path(mainPath) / fs::path(kInstanceFile);
+  const std::string instancesFilePath = (fs::path(mainPath) / kInstanceFile).string();
   if (!fs::exists(instancesFilePath)) {
     XR_LOGW("no instance files found at {}", instancesFilePath);
   } else {

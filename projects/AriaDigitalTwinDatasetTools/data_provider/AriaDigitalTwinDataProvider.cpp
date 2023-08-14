@@ -968,9 +968,9 @@ void AriaDigitalTwinDataProvider::loadSegmentations() {
     XR_LOGI("skip loading fileSegmentation because the data path is empty");
     return;
   }
-  auto maybeSegmentationProvider = createVrsDataProvider(fileSeg);
+  auto maybeSegmentationProvider = createVrsDataProvider(fileSeg.string());
   if (!maybeSegmentationProvider) {
-    XR_LOGE("Segmentations cannot be loaded from {}", std::string(fileSeg));
+    XR_LOGE("Segmentations cannot be loaded from {}", fileSeg.string());
     return;
   }
   segmentationProvider_ = std::make_shared<projectaria::tools::data_provider::VrsDataProvider>(
@@ -983,9 +983,9 @@ void AriaDigitalTwinDataProvider::loadDepthImages() {
     XR_LOGI("skip loading fileDepth because the data path is empty");
     return;
   }
-  auto maybeDepthImageProvider = createVrsDataProvider(fileDep);
+  auto maybeDepthImageProvider = createVrsDataProvider(fileDep.string());
   if (!maybeDepthImageProvider) {
-    XR_LOGE("depth images cannot be loaded from {}", std::string(fileDep));
+    XR_LOGE("depth images cannot be loaded from {}", fileDep.string());
     return;
   }
   depthImageProvider_ = std::make_shared<projectaria::tools::data_provider::VrsDataProvider>(
@@ -998,9 +998,9 @@ void AriaDigitalTwinDataProvider::loadSyntheticVrs() {
     XR_LOGI("skip loading fileSynthetic because the data path is empty");
     return;
   }
-  auto syntheticVrsProvider = createVrsDataProvider(fileSynthetic);
+  auto syntheticVrsProvider = createVrsDataProvider(fileSynthetic.string());
   if (!syntheticVrsProvider) {
-    XR_LOGW("Cannot load synthetic vrs at {}", std::string(fileSynthetic));
+    XR_LOGW("Cannot load synthetic vrs at {}", fileSynthetic.string());
     return;
   }
   syntheticVrsProvider_ =

@@ -22,6 +22,7 @@
 #include <calibration/loader/DeviceCalibrationJson.h>
 #include <calibration/utility/Distort.h>
 
+#include <fmt/format.h>
 #include <sophus/se3.hpp>
 
 #include "ImageDataHelper.h"
