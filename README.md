@@ -2,6 +2,11 @@
 
 Project Aria Tools is a suite of C++/Python utilities for researchers to expand the horizons of Augmented Reality, Machine Perception and Artificial Intelligence with [Project Aria](https://projectaria.com/). It is designed to ease interaction with Aria data and its open datasets.
 
+## Interactive python notebook playground (Google Colab)
+
+- [Aria VRS Data Provider](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/core/examples/dataprovider_quickstart_tutorial.ipynb)
+- [Aria Machine Perception Services](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/core/examples/dataprovider_quickstart_tutorial.ipynb)
+
 ## Documentation
 
 - [Documentation](https://facebookresearch.github.io/projectaria_tools/docs/intro)
