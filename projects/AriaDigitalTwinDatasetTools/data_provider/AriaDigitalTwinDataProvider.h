@@ -318,9 +318,9 @@ class AriaDigitalTwinDataProvider {
 
   const AriaDigitalTwinSkeletonProvider& getSkeletonProvider(InstanceId instanceId) const;
 
- private:
+ protected:
   void loadDatasetVersion();
-  void validateDatasetVersion();
+  void validateDatasetVersion() const;
   void loadAria3dPoses();
   void loadObject3dBoundingBoxes();
   void loadInstance2dBoundingBoxes();

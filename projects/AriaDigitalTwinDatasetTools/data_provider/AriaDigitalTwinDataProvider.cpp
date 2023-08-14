@@ -916,7 +916,7 @@ void AriaDigitalTwinDataProvider::loadDatasetVersion() {
   }
 }
 
-void AriaDigitalTwinDataProvider::validateDatasetVersion() {
+void AriaDigitalTwinDataProvider::validateDatasetVersion() const {
   if (kLatestDatasetVersions.find(datasetName_) == kLatestDatasetVersions.end()) {
     XR_LOGE("Invalid dataset name: {}", datasetName_);
     throw std::runtime_error{"invalid dataset name"};
