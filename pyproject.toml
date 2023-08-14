@@ -5,7 +5,7 @@
 #    python3 -m cibuildwheel --output-dir dist --platform macos --arch x86_64 .
 #
 [tool.cibuildwheel]
-build="cp36-*64 cp37-*64 cp38-*64 cp39-*64 cp310-*64 cp311-*64"
+build="cp38-*64"
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]
@@ -41,6 +41,6 @@ cd /tmp && git clone --recursive https://github.com/boostorg/boost.git -b boost-
 skip="*-manylinux_i686 *musllinux*"
 
 [tool.cibuildwheel.macos]
-archs = ["x86_64"]
+archs = ["x86_64", "arm64"]
 before-build="brew install boost cmake fmt glog jpeg-turbo libpng lz4 xxhash zstd"
 environment = {"CMAKE_ARGS"="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"}
