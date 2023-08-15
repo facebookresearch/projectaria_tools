@@ -19,6 +19,7 @@
 
 #include <map>
 #include <set>
+#include "vrs/StreamId.h"
 
 #include <calibration/loader/AriaCalibRescaleAndCrop.h>
 #include <calibration/loader/DeviceCalibrationJson.h>
@@ -107,9 +108,9 @@ class VrsDataProviderFactory {
 
 VrsDataProviderFactory::VrsDataProviderFactory(std::shared_ptr<vrs::MultiRecordFileReader> reader)
     : reader_(reader) {
+  loadStreamIdLabelMapper();
   addPlayers();
   loadCalibration();
-  loadStreamIdLabelMapper();
   checkCalibrationConfigConsistency();
 }
 
@@ -117,66 +118,69 @@ void VrsDataProviderFactory::addPlayers() {
   for (const auto& streamId : reader_->getStreams()) {
     const SensorDataType sensorDataType = getSensorDataType(streamId.getTypeId());
 
+    // Define a lambda that sets the StreamPlayer to the reader and log its streamId
+    auto setStreamAndLog = [=](const vrs::StreamId, vrs::RecordFormatStreamPlayer* player) -> void {
+      reader_->setStreamPlayer(streamId, player);
+      XR_LOGI(
+          "streamId {}/{} activated",
+          streamId.getNumericName(),
+          streamIdLabelMapper_->getLabelFromStreamId(streamId)
+              ? streamIdLabelMapper_->getLabelFromStreamId(streamId).value()
+              : "NA");
+    };
+
     switch (sensorDataType) {
       case SensorDataType::Image: {
         std::shared_ptr<ImageSensorPlayer> imagePlayer =
             std::make_shared<ImageSensorPlayer>(streamId);
         imagePlayers_[streamId] = std::move(imagePlayer);
-        reader_->setStreamPlayer(streamId, imagePlayers_[streamId].get());
-        XR_LOGI("streamId {} activated", streamId.getNumericName());
+        setStreamAndLog(streamId, imagePlayers_[streamId].get());
         break;
       }
       case SensorDataType::Imu: {
         std::shared_ptr<MotionSensorPlayer> motionPlayer =
             std::make_shared<MotionSensorPlayer>(streamId);
         motionPlayers_[streamId] = std::move(motionPlayer);
-        reader_->setStreamPlayer(streamId, motionPlayers_[streamId].get());
-        XR_LOGI("streamId {} activated", streamId.getNumericName());
+        setStreamAndLog(streamId, motionPlayers_[streamId].get());
         break;
       }
       case SensorDataType::Gps: {
         std::shared_ptr<GpsPlayer> gpsPlayer = std::make_shared<GpsPlayer>(streamId);
         gpsPlayers_[streamId] = std::move(gpsPlayer);
-        reader_->setStreamPlayer(streamId, gpsPlayers_[streamId].get());
-        XR_LOGI("streamId {} activated", streamId.getNumericName());
+        setStreamAndLog(streamId, gpsPlayers_[streamId].get());
         break;
       }
       case SensorDataType::Wps: {
         std::shared_ptr<WifiBeaconPlayer> wpsPlayer = std::make_shared<WifiBeaconPlayer>(streamId);
         wpsPlayers_[streamId] = std::move(wpsPlayer);
-        reader_->setStreamPlayer(streamId, wpsPlayers_[streamId].get());
-        XR_LOGI("streamId {} activated", streamId.getNumericName());
+        setStreamAndLog(streamId, wpsPlayers_[streamId].get());
         break;
       }
       case SensorDataType::Audio: {
         std::shared_ptr<AudioPlayer> audioPlayer = std::make_shared<AudioPlayer>(streamId);
         audioPlayers_[streamId] = std::move(audioPlayer);
-        reader_->setStreamPlayer(streamId, audioPlayers_[streamId].get());
-        XR_LOGI("streamId {} activated", streamId.getNumericName());
+        setStreamAndLog(streamId, audioPlayers_[streamId].get());
         break;
       }
       case SensorDataType::Barometer: {
         std::shared_ptr<BarometerPlayer> barometerPlayer =
             std::make_shared<BarometerPlayer>(streamId);
         barometerPlayers_[streamId] = std::move(barometerPlayer);
-        reader_->setStreamPlayer(streamId, barometerPlayers_[streamId].get());
-        XR_LOGI("streamId {} activated", streamId.getNumericName());
+        setStreamAndLog(streamId, barometerPlayers_[streamId].get());
         break;
       }
       case SensorDataType::Bluetooth: {
         std::shared_ptr<BluetoothBeaconPlayer> bluetoothPlayer =
             std::make_shared<BluetoothBeaconPlayer>(streamId);
         bluetoothPlayers_[streamId] = std::move(bluetoothPlayer);
-        reader_->setStreamPlayer(streamId, bluetoothPlayers_[streamId].get());
-        XR_LOGI("streamId {} activated", streamId.getNumericName());
+        setStreamAndLog(streamId, bluetoothPlayers_[streamId].get());
         break;
       }
       case SensorDataType::Magnetometer: {
         std::shared_ptr<MotionSensorPlayer> magnetometerPlayer =
             std::make_shared<MotionSensorPlayer>(streamId);
         magnetometerPlayers_[streamId] = std::move(magnetometerPlayer);
-        reader_->setStreamPlayer(streamId, magnetometerPlayers_[streamId].get());
-        XR_LOGI("streamId {} activated", streamId.getNumericName());
+        setStreamAndLog(streamId, magnetometerPlayers_[streamId].get());
         break;
       }
       case SensorDataType::NotValid: {
