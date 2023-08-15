@@ -77,7 +77,7 @@ class VrsDataProvider {
   /**
    * @brief Check, if a stream with provided ID is active.
    * @param streamId The ID of a sensor's stream.
-   * @return True, if streamId is activated and it's data can be accessed.
+   * @return True, if streamId is activated and its data can be accessed.
    */
   bool checkStreamIsActive(const vrs::StreamId& streamId) const;
 

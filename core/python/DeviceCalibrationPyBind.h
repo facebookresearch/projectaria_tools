@@ -70,39 +70,39 @@ inline void declareCameraCalibration(py::module& m) {
       .def(
           "get_principal_point",
           &CameraProjection::getPrincipalPoint,
-          "returns principal point location as {cx, cy}")
+          "returns principal point location as {cx, cy}.")
       .def(
           "get_focal_lengths",
           &CameraProjection::getFocalLengths,
-          "returns focal lengths as {fx, fy}");
+          "returns focal lengths as {fx, fy}.");
 
   py::enum_<CameraProjection::ModelType>(
       m,
       "CameraModelType",
       "Enum that represents the type of camera projection model. See Linear.h, Spherical.h,"
-      " KannalaBrandtK3.h and FisheyeRadTanThinPrism.h for details")
+      " KannalaBrandtK3.h and FisheyeRadTanThinPrism.h for details.")
       .value(
           "KANNALA_BRANDT_K3",
           CameraProjection::ModelType::KannalaBrandtK3,
-          "Spherical + polynomial radial distortion up to 9-th order")
+          "Spherical + polynomial radial distortion up to 9-th order.")
       .value(
           "FISHEYE624",
           CameraProjection::ModelType::Fisheye624,
-          "Spherical + polynomial radial distortion up to 11-th order + tangential distortion")
+          "Spherical + polynomial radial distortion up to 11-th order + tangential distortion.")
       .value(
           "SPHERICAL",
           CameraProjection::ModelType::Spherical,
-          "Spherical projection, linear in angular space")
+          "Spherical projection, linear in angular space.")
       .value(
           "LINEAR",
           CameraProjection::ModelType::Linear,
-          "Linear pinhole projection, unit plane points and camera pixels are linearly related")
+          "Linear pinhole projection, unit plane points and camera pixels are linearly related.")
       .export_values();
 
   py::class_<CameraCalibration>(
       m,
       "CameraCalibration",
-      "A class that provides APIs for camera calibration, including extrinsics, intrinsics, and projection")
+      "A class that provides APIs for camera calibration, including extrinsics, intrinsics, and projection.")
       .def(py::init<>())
       .def(
           py::init<
@@ -187,7 +187,7 @@ inline void declareImuCalibration(py::module& m) {
       m,
       "ImuCalibration",
       "A class representing an IMU calibration model, including both accelerometer and gyroscope."
-      " We assume the accelerometer and gyroscope for each IMU are co-located and thus they share the same extrinsic. ")
+      " We assume the accelerometer and gyroscope for each IMU are co-located and thus they share the same extrinsic.")
       .def(py::init<
            const std::string&,
            const Eigen::Matrix3d&,
@@ -201,25 +201,25 @@ inline void declareImuCalibration(py::module& m) {
           &ImuCalibration::rawToRectifiedAccel,
           py::arg("raw"),
           "convert from imu sensor readout to actual acceleration: "
-          "rectified = rectificationMatrix.inv() * (raw - bias)")
+          "rectified = rectificationMatrix.inv() * (raw - bias).")
       .def(
           "rectified_to_raw_accel",
           &ImuCalibration::rectifiedToRawAccel,
           py::arg("rectified"),
           "simulate imu accel sensor readout from actual acceleration:"
-          " raw = rectificationMatrix * rectified + bias")
+          " raw = rectificationMatrix * rectified + bias.")
       .def(
           "raw_to_rectified_gyro",
           &ImuCalibration::rawToRectifiedGyro,
           py::arg("raw"),
           "convert from imu sensor readout to actual angular velocity: "
-          "rectified = rectificationMatrix.inv() * (raw - bias)")
+          "rectified = rectificationMatrix.inv() * (raw - bias).")
       .def(
           "rectified_to_raw_gyro",
           &ImuCalibration::rectifiedToRawGyro,
           py::arg("rectified"),
           "simulate imu gyro sensor readout from actual angular velocity: "
-          " raw = rectificationMatrix * rectified + bias")
+          " raw = rectificationMatrix * rectified + bias.")
       .def("get_transform_device_imu", &ImuCalibration::getT_Device_Imu);
 }
 
@@ -228,7 +228,7 @@ inline void declareMagnetometerCalibration(py::module& m) {
       m,
       "MagnetometerCalibration",
       "A class representing a magnetometer calibration model, including only the intrinsics of"
-      " the magnetometer. ")
+      " the magnetometer.")
       .def(py::init<const std::string&, const Eigen::Matrix3d&, const Eigen::Vector3d&>())
       .def("get_label", &MagnetometerCalibration::getLabel)
       .def(
@@ -236,13 +236,13 @@ inline void declareMagnetometerCalibration(py::module& m) {
           &MagnetometerCalibration::rawToRectified,
           py::arg("raw"),
           "convert from mag sensor readout to actual magnetic field, "
-          "rectified = rectificationMatrix.inv() * (raw - bias)")
+          "rectified = rectificationMatrix.inv() * (raw - bias).")
       .def(
           "rectified_to_raw",
           &MagnetometerCalibration::rectifiedToRaw,
           py::arg("rectified"),
           "simulate mag sensor readout from actual magnetic field"
-          " raw = rectificationMatrix * rectified + bias");
+          " raw = rectificationMatrix * rectified + bias.");
 }
 
 inline void declareBarometerCalibration(py::module& m) {
@@ -291,31 +291,31 @@ inline void declareSensorCalibration(py::module& m) {
       .def(
           "camera_calibration",
           &SensorCalibration::cameraCalibration,
-          "Try to get the SensorCalibration as a CameraCalibration. Will throw if sensor type doe not match.")
+          "Try to get the SensorCalibration as a CameraCalibration. Will throw if sensor type does not match.")
       .def(
           "imu_calibration",
           &SensorCalibration::imuCalibration,
-          "Try to get the SensorCalibration as a ImuCalibration. Will throw if sensor type doe not match.")
+          "Try to get the SensorCalibration as a ImuCalibration. Will throw if sensor type does not match.")
       .def(
           "magnetometer_calibration",
           &SensorCalibration::magnetometerCalibration,
-          "Try to get the SensorCalibration as a MagnetometerCalibration. Will throw if sensor type doe not match.")
+          "Try to get the SensorCalibration as a MagnetometerCalibration. Will throw if sensor type does not match.")
       .def(
           "barometer_calibration",
           &SensorCalibration::barometerCalibration,
-          "Try to get the SensorCalibration as a BarometerCalibration. Will throw if sensor type doe not match.")
+          "Try to get the SensorCalibration as a BarometerCalibration. Will throw if sensor type does not match.")
       .def(
           "microphone_calibration",
           &SensorCalibration::microphoneCalibration,
-          "Try to get the SensorCalibration as a MicrophoneCalibration. Will throw if sensor type doe not match.")
+          "Try to get the SensorCalibration as a MicrophoneCalibration. Will throw if sensor type does not match.")
       .def(
           "aria_et_calibration",
           &SensorCalibration::ariaEtCalibration,
-          "Try to get the SensorCalibration as a AriaEtCalibration. Will throw if sensor type doe not match.")
+          "Try to get the SensorCalibration as a AriaEtCalibration. Will throw if sensor type does not match.")
       .def(
           "aria_mic_calibration",
           &SensorCalibration::ariaMicCalibration,
-          "Try to get the SensorCalibration as a AriaMicCalibration. Will throw if sensor type doe not match.")
+          "Try to get the SensorCalibration as a AriaMicCalibration. Will throw if sensor type does not match.")
       .def(
           "sensor_calibration_type",
           &SensorCalibration::sensorCalibrationType,
@@ -359,24 +359,24 @@ inline void declareDeviceCalibration(py::module& m) {
       .def(
           "get_all_labels",
           &DeviceCalibration::getAllLabels,
-          "returns all labels for all the sensors")
+          "returns all labels for all the sensors.")
       .def(
           "get_camera_labels",
           &DeviceCalibration::getCameraLabels,
-          "returns all labels for cameras")
-      .def("get_imu_labels", &DeviceCalibration::getImuLabels, "returns all labels for imus")
+          "returns all labels for cameras.")
+      .def("get_imu_labels", &DeviceCalibration::getImuLabels, "returns all labels for imus.")
       .def(
           "get_magnetometer_labels",
           &DeviceCalibration::getMagnetometerLabels,
-          "returns all labels for magnetometers")
+          "returns all labels for magnetometers.")
       .def(
           "get_barometer_labels",
           &DeviceCalibration::getBarometerLabels,
-          "returns all labels for barometers")
+          "returns all labels for barometers.")
       .def(
           "get_microphone_labels",
           &DeviceCalibration::getMicrophoneLabels,
-          "returns all labels for microphones")
+          "returns all labels for microphones.")
       .def(
           "get_sensor_calib",
           &DeviceCalibration::getSensorCalib,
@@ -417,12 +417,12 @@ inline void declareDeviceCalibration(py::module& m) {
           "get_aria_et_camera_calib",
           &DeviceCalibration::getAriaEtCameraCalib,
           "returns an array-of-2 of CameraCalibration representing left and right ET camera calibrations for an Aria device."
-          " Will return None if device is not Aria, or it does not contain the valid ET camera")
+          " Will return None if device is not Aria, or it does not contain the valid ET camera.")
       .def(
           "get_aria_microphone_calib",
           &DeviceCalibration::getAriaMicrophoneCalib,
           "returns an array-of-7 of mic calibration for an Aria device. "
-          "Will return None if device is not Aria, or it does not contain the valid mic calibrations. ")
+          "Will return None if device is not Aria, or it does not contain the valid mic calibrations.")
       .def(
           "get_device_subtype",
           &DeviceCalibration::getDeviceSubtype,
@@ -433,7 +433,7 @@ inline void declareDeviceCalibration(py::module& m) {
           &DeviceCalibration::getT_Device_Cpf,
           "returns relative pose between device frame (anchored to a particular sensor defined by"
           " `origin_label`) and CPF (central pupil frame), where CPF is a virtual coordinate frame defined"
-          " in CAD model")
+          " in CAD model.")
       .def(
           "get_transform_device_sensor",
           &DeviceCalibration::getT_Device_Sensor,
@@ -451,7 +451,7 @@ inline void declareDeviceCalibration(py::module& m) {
       .def(
           "get_origin_label",
           &DeviceCalibration::getOriginLabel,
-          "obtain the definition of Origin (or Device in T_Device_Sensor)");
+          "obtain the definition of Origin (or Device in T_Device_Sensor).");
 
   m.def(
       "device_calibration_from_json",
@@ -494,7 +494,7 @@ void declareDistortByCalibration(py::module& m) {
           }
         }
       },
-      "Distorts an input image to swap its underlying image distortion model");
+      "Distorts an input image to swap its underlying image distortion model.");
 }
 
 inline void declareDistortByCalibrationAll(py::module& m) {
