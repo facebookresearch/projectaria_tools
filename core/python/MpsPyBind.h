@@ -22,10 +22,16 @@
 #include <pybind11/stl.h>
 #include <sophus/se3.hpp>
 
+#include "EyeGazeFormat.h"
 #include "EyeGazeReader.h"
+#include "GlobalPointCloudFormat.h"
 #include "GlobalPointCloudReader.h"
+#include "OnlineCalibrationFormat.h"
+#include "PointObservationFormat.h"
 #include "PointObservationReader.h"
+#include "StaticCameraCalibrationFormat.h"
 #include "StaticCameraCalibrationReader.h"
+#include "TrajectoryFormat.h"
 #include "TrajectoryReaders.h"
 #include "onlineCalibrationReader.h"
 
@@ -66,7 +72,8 @@ void exportMps(py::module& m) {
       .def_readwrite(
           "pitch_high",
           &EyeGaze::pitch_high,
-          "[pitch_low, pitch_high] represents the confidence interval of the eye gaze pitch. The `pitch` is in the [pitch_low, pitch_high] interval but not necessarily in the middle.");
+          "[pitch_low, pitch_high] represents the confidence interval of the eye gaze pitch. The `pitch` is in the [pitch_low, pitch_high] interval but not necessarily in the middle.")
+      .def("__repr__", [](EyeGaze const& self) { return fmt::to_string(self); });
 
   m.def(
       "read_eyegaze",
@@ -139,7 +146,8 @@ void exportMps(py::module& m) {
       .def_readwrite(
           "graph_uid",
           &ClosedLoopTrajectoryPose::graphUid,
-          "Unique identifier of the world coordinate frame. When the graphUid is the same, poses, velocities and point clouds are defined in the same coordinate frame.");
+          "Unique identifier of the world coordinate frame. When the graphUid is the same, poses, velocities and point clouds are defined in the same coordinate frame.")
+      .def("__repr__", [](ClosedLoopTrajectoryPose const& self) { return fmt::to_string(self); });
 
   py::class_<OpenLoopTrajectoryPose>(
       m,
@@ -184,8 +192,8 @@ void exportMps(py::module& m) {
       .def_readwrite(
           "session_uid",
           &OpenLoopTrajectoryPose::sessionUid,
-          "Unique identifier of the odometry coordinate frame. When the session_uid is the same, poses and velocities are defined in the same coordinate frame.");
-
+          "Unique identifier of the odometry coordinate frame. When the session_uid is the same, poses and velocities are defined in the same coordinate frame.")
+      .def("__repr__", [](OpenLoopTrajectoryPose const& self) { return fmt::to_string(self); });
   m.def(
       "read_open_loop_trajectory",
       &readOpenLoopTrajectory,
@@ -220,7 +228,8 @@ void exportMps(py::module& m) {
       .def_readwrite(
           "camera_calibs", &OnlineCalibration::cameraCalibs, "Online estimated camera calibrations")
       .def_readwrite(
-          "imu_calibs", &OnlineCalibration::imuCalibs, "Online estimated IMU calibrations");
+          "imu_calibs", &OnlineCalibration::imuCalibs, "Online estimated IMU calibrations")
+      .def("__repr__", [](OnlineCalibration const& self) { return fmt::to_string(self); });
 
   m.def(
       "read_online_calibration",
@@ -257,7 +266,8 @@ void exportMps(py::module& m) {
       .def_readwrite(
           "distance_std",
           &GlobalPointPosition::distanceStd,
-          "Standard deviation of distance estimate");
+          "Standard deviation of distance estimate")
+      .def("__repr__", [](const GlobalPointPosition& self) { return fmt::to_string(self); });
 
   m.def(
       "read_global_point_cloud",
@@ -289,7 +299,8 @@ void exportMps(py::module& m) {
       .def_readwrite(
           "uv",
           &PointObservation::uv,
-          "The observed measurement (pixels) of the point in the observing frame’s camera");
+          "The observed measurement (pixels) of the point in the observing frame’s camera")
+      .def("__repr__", [](const PointObservation& self) { return fmt::to_string(self); });
 
   m.def(
       "read_point_observations",
@@ -334,7 +345,8 @@ void exportMps(py::module& m) {
       .def_readwrite(
           "end_frame_idx",
           &StaticCameraCalibration::endFrameIdx,
-          "The end frame number from the video when the camera is stationary and camera pose result is applicable. Not available, when the pose is applicable to the whole video");
+          "The end frame number from the video when the camera is stationary and camera pose result is applicable. Not available, when the pose is applicable to the whole video")
+      .def("__repr__", [](const StaticCameraCalibration& self) { return fmt::to_string(self); });
 
   m.def(
       "read_static_camera_calibrations",

@@ -17,7 +17,7 @@ find_package(Boost REQUIRED COMPONENTS iostreams)
 add_library(compressed_istream CompressedIStream.cpp CompressedIStream.h)
 target_link_libraries(compressed_istream PUBLIC Boost::iostreams)
 
-add_library(eye_gaze EyeGaze.h EyeGazeReader.cpp EyeGazeReader.h)
+add_library(eye_gaze EyeGaze.h EyeGazeReader.cpp EyeGazeFormat.h EyeGazeReader.h)
 target_link_libraries(eye_gaze PUBLIC device_calibration_json)
 add_dependencies(eye_gaze fast-cpp-csv-parser)
 target_include_directories(eye_gaze
@@ -27,14 +27,19 @@ target_include_directories(eye_gaze
 
 add_library(mps
     OnlineCalibration.h
+    OnlineCalibrationFormat.h
     onlineCalibrationReader.h onlineCalibrationReader.cpp
     GlobalPointCloud.h
+    GlobalPointCloudFormat.h
     GlobalPointCloudReader.h GlobalPointCloudReader.cpp
     PointObservation.h
+    PointObservationFormat.h
     PointObservationReader.h PointObservationReader.cpp
     Trajectory.h
+    TrajectoryFormat.h
     TrajectoryReaders.h TrajectoryReaders.cpp
     StaticCameraCalibration.h
+    StaticCameraCalibrationFormat.h
     StaticCameraCalibrationReader.h StaticCameraCalibrationReader.cpp
 )
 target_link_libraries(mps
@@ -42,6 +47,7 @@ target_link_libraries(mps
         compressed_istream
         device_calibration_json
         eye_gaze
+        format
         Sophus::Sophus)
 add_dependencies(mps fast-cpp-csv-parser)
 target_include_directories(mps

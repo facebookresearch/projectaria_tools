@@ -12,12 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_subdirectory(format)
-add_subdirectory(image)
-add_subdirectory(data_provider)
-add_subdirectory(calibration)
-add_subdirectory(mps)
-
-if(BUILD_PYTHON_BINDINGS)
-    add_subdirectory(python)
-endif(BUILD_PYTHON_BINDINGS)
+add_library(format INTERFACE)
+target_include_directories(format INTERFACE .)

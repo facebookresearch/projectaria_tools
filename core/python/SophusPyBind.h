@@ -54,6 +54,7 @@ inline void exportSophus(py::module& m) {
       .def(
           "inverse",
           [](const Sophus::SE3d& self) { return self.inverse(); },
-          "Returns the inverse of the SE3d transform");
+          "Returns the inverse of the SE3d transform")
+      .def("__repr__", [](const Sophus::SE3d& self) { return fmt::to_string(self); });
 }
 } // namespace sophus

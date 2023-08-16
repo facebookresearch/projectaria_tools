@@ -18,7 +18,9 @@
 
 #include <fstream>
 
+#include <calibration/CameraCalibrationFormat.h>
 #include <calibration/DeviceCalibration.h>
+#include <calibration/ImuMagnetometerCalibrationFormat.h>
 #include <calibration/loader/DeviceCalibrationJson.h>
 #include <calibration/utility/Distort.h>
 
@@ -161,7 +163,8 @@ inline void declareCameraCalibration(py::module& m) {
           &CameraCalibration::unproject,
           py::arg("camera_pixel"),
           "Function to unproject a 2d pixel location to a 3d ray, in camera frame, with a number of"
-          " validity checks to ensure the unprojection is valid.");
+          " validity checks to ensure the unprojection is valid.")
+      .def("__repr__", [](const CameraCalibration& self) { return fmt::to_string(self); });
 
   m.def(
       "get_linear_camera_calibration",
@@ -220,7 +223,8 @@ inline void declareImuCalibration(py::module& m) {
           py::arg("rectified"),
           "simulate imu gyro sensor readout from actual angular velocity: "
           " raw = rectificationMatrix * rectified + bias.")
-      .def("get_transform_device_imu", &ImuCalibration::getT_Device_Imu);
+      .def("get_transform_device_imu", &ImuCalibration::getT_Device_Imu)
+      .def("__repr__", [](const ImuCalibration& self) { return fmt::to_string(self); });
 }
 
 inline void declareMagnetometerCalibration(py::module& m) {

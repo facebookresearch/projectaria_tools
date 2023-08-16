@@ -20,13 +20,13 @@ add_subdirectory(utility)
 
 add_library(sensor_calibration
     SensorCalibration.cpp SensorCalibration.h
-    CameraCalibration.cpp CameraCalibration.h
-    ImuMagnetometerCalibration.cpp ImuMagnetometerCalibration.h
+    CameraCalibration.cpp CameraCalibration.h CameraCalibrationFormat.h
+    ImuMagnetometerCalibration.cpp ImuMagnetometerCalibration.h ImuMagnetometerCalibrationFormat.h
     BarometerCalibration.cpp BarometerCalibration.h
     MicrophoneCalibration.cpp MicrophoneCalibration.h
 )
 target_include_directories(sensor_calibration PUBLIC "../")
-target_link_libraries(sensor_calibration PUBLIC error_handler camera_projection vrs_logging calibration_distort)
+target_link_libraries(sensor_calibration PUBLIC format error_handler camera_projection vrs_logging calibration_distort)
 
 add_library(device_cad_extrinsics DeviceCadExtrinsics.cpp DeviceCadExtrinsics.h)
 target_include_directories(device_cad_extrinsics PUBLIC "../")
