@@ -19,6 +19,7 @@
 #include <fmt/format.h>
 #include <format/Format.h>
 #include "CameraCalibration.h"
+#include "camera_projections/CameraProjectionFormat.h"
 
 /*
  * fmt::format() specialization for CameraCalibration
