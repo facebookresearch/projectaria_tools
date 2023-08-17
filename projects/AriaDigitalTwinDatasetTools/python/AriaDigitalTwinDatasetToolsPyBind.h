@@ -497,14 +497,14 @@ void exportAriaDigitalTwin(py::module& m) {
       .def(
           "get_device_time_from_timecode_ns",
           &AriaDigitalTwinDataProvider::getDeviceTimeFromTimecodeNs,
-          "ADT uses Timecode to synchronize mutliple Aria devices. Use this function to convert a"
+          "ADT uses Timecode to synchronize multiple Aria devices. Use this function to convert a"
           " timestamp from `TimeDomain::TimeCode` to `TimeDomain::DeviceTime`. See"
           " `adt_multiperson_tutorial.ipynb` for usage example.",
           py::arg("timecode_ns"))
       .def(
           "get_timecode_from_device_time_ns",
           &AriaDigitalTwinDataProvider::getTimecodeFromDeviceTimeNs,
-          "ADT uses Timecode to synchronize mutliple Aria devices. Use this function to convert a",
+          "ADT uses Timecode to synchronize multiple Aria devices. Use this function to convert a",
           " timestamp from `TimeDomain::DeviceTime` to `TimeDomain::TimeCode`. See",
           " `adt_multiperson_tutorial.ipynb` for usage example.",
           py::arg("device_time_ns"))
@@ -538,7 +538,7 @@ void exportAriaDigitalTwin(py::module& m) {
       .def(
           "get_segmentation_image_by_timestamp_ns",
           &AriaDigitalTwinDataProvider::getSegmentationImageByTimestampNs,
-          "Query a camera's segmetation image by timestamp",
+          "Query a camera's segmentation image by timestamp",
           py::arg("device_timestamp_ns"),
           py::arg("stream_id"),
           py::arg("time_query_options") = TimeQueryOptions::Closest)
