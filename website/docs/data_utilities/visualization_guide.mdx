@@ -8,11 +8,13 @@ title: Visualizers
 This page introduces the core visualization tools available in Project Aria Tools. We've provided example datasets to test these tools.
 
 
-* [Aria Viewer](#ariaviewer): visualize raw Aria data
+* [Aria Viewer](#aria-viewer): visualize raw Aria data
 * [MPS 3D Scene Viewer](#mps-static-scene-visualizer):  renders a static scene using Aria data with trajectories,
 global point cloud, and static camera poses
 * [MPS Eye Gaze Viewer](#mps-eye-gaze-visualizer): visualize Aria data with eye gaze data
 ---
+
+## Requirements
 
 ### Step 0 : Check system requirements and download codebase
 
@@ -26,7 +28,10 @@ The visualizers need the C++ version of Project Aria Tools to run.
 
 * In the [C++ Installation Guide](/docs/data_utilities/installation/installation_cpp), follow the instructions to [build from source with visualization](docs/data_utilities/installation/installation_cpp#build-from-source-with-visualization)
 
-### Step 2 : Run Aria Viewer
+<div id="aria-viewer"></div>
+
+## Run Aria Viewer
+
 [Aria Viewer](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/visualization/main.cpp) enable you to to visualize Aria device recorded VRS files. It shows all sensor data including:
 * Camera images
 * IMU
@@ -39,8 +44,9 @@ cd $HOME/Documents/projectaria_sandbox/build
 ```
 ![Aria Viewer Screenshot](/img/data_utilities/aria-viewer.png)
 
+<div id="mps-static-scene-visualizer"></div>
 
-### Step 3 : Run MPS 3D Scene Viewer
+## Run MPS 3D Scene Viewer
 
 The [MPS 3D Scene Viewer](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/mps_visualization/main_3d_scene_viewer.cpp) renders a static scene using location MPS output.
 
@@ -70,7 +76,10 @@ cd $HOME/Documents/projectaria_sandbox/build
 Because the sample dataset doesn't have static cameras you won't be able to interact with the static camera settings
 :::
 
-## Step 4: MPS Eye Gaze visualizer
+
+<div id="mps-eye-gaze-visualizer"></div>
+
+## MPS Eye Gaze visualizer
 
 The [MPS Eye Gaze visualizer](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/mps_visualization/main_eyegaze.cpp) renders the computed eye gaze and vrs data side by side. The visualizer contains:
 
