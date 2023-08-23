@@ -222,17 +222,18 @@ CanonicalPose getCanonicalPoseFromInstancesJsonObject(
 } // namespace
 
 AriaDigitalTwinDataProvider::AriaDigitalTwinDataProvider(const AriaDigitalTwinDataPaths& dataPaths)
-    : dataPaths_(dataPaths), dataProvider_(createVrsDataProvider(dataPaths_.ariaVrsFilePath)) {
+    : dataPaths_(dataPaths) {
   // Load raw VRS data
-  if (!dataProvider_) {
-    XR_LOGE("Failed to create data provider to load video.vrs");
-    throw std::runtime_error{"Failed to create data provider to load video.vrs"};
-  }
-  if (!dataProvider_->supportsTimeDomain(
-          vrs::StreamId::fromNumericName("1201-1") /*left_slam*/, TimeDomain::DeviceTime)) {
-    XR_LOGW("At least left slam camera should contain device (capture) time domain");
-    throw std::runtime_error{
-        "At least left slam camera should contain device (capture) time domain"};
+  if (!dataPaths_.ariaVrsFilePath.empty()) {
+    dataProvider_ = createVrsDataProvider(dataPaths_.ariaVrsFilePath);
+    if (!dataProvider_->supportsTimeDomain(
+            vrs::StreamId::fromNumericName("1201-1") /*left_slam*/, TimeDomain::DeviceTime)) {
+      XR_LOGW("At least left slam camera should contain device (capture) time domain");
+      throw std::runtime_error{
+          "At least left slam camera should contain device (capture) time domain"};
+    }
+  } else {
+    XR_LOGI("skip loading VRS data because the data path is empty");
   }
 
   // Load GT data
@@ -252,11 +253,19 @@ AriaDigitalTwinDataProvider::AriaDigitalTwinDataProvider(const AriaDigitalTwinDa
 }
 
 std::set<vrs::StreamId> AriaDigitalTwinDataProvider::getAriaAllStreams() const {
+  if (!hasAriaData()) {
+    XR_LOGW("Aria data is not loaded, cannot retrieve streams\n");
+    return {};
+  }
   return dataProvider_->getAllStreams();
 }
 
 std::vector<int64_t> AriaDigitalTwinDataProvider::getAriaDeviceCaptureTimestampsNs(
     const vrs::StreamId& streamId) const {
+  if (!hasAriaData()) {
+    XR_LOGW("Aria data is not loaded, cannot get device capture timestamps\n");
+    return {};
+  }
   return dataProvider_->getTimestampsNs(streamId, TimeDomain::DeviceTime);
 }
 
