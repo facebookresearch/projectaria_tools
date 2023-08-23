@@ -311,8 +311,8 @@ void exportAriaDigitalTwin(py::module& m) {
       "│   │   ├── 2d_bounding_box.csv\n"
       "│   │   ├── 2d_bounding_box_with_skeleton.csv\n"
       "│   │   ├── 3d_bounding_box.csv\n"
-      "│   │   ├── Skeleton_C_joints.json\n"
-      "│   │   ├── Skeleton_C_markers.json\n"
+      "│   │   ├── Skeleton_C.json\n"
+      "│   │   ├── skeleton_aria_association.json\n"
       "│   │   ├── aria_trajectory.csv\n"
       "│   │   ├── depth_images.vrs\n"
       "│   │   ├── depth_images_with_skeleton.vrs\n"
@@ -325,7 +325,7 @@ void exportAriaDigitalTwin(py::module& m) {
       "│   ├── subsequence2_Name\n"
       "│   │   ├── 2d_bounding_box.csv\n"
       "│   │   ├── ...\n"
-      "│   └── gt-metadata.json\n"
+      "│   └── metadata.json\n"
       "This class allows you use dataset root path and sequence name to query all Aria devices in a "
       "sequence and to query all data associated with an Aria device.")
       .def(py::init<const std::string&>())

@@ -69,8 +69,8 @@ struct AriaDigitalTwinDataPaths {
  * │   │   ├── 2d_bounding_box.csv <br>
  * │   │   ├── 2d_bounding_box_with_skeleton.csv <br>
  * │   │   ├── 3d_bounding_box.csv <br>
- * │   │   ├── Skeleton_C_joints.json <br>
- * │   │   ├── Skeleton_C_markers.json <br>
+ * │   │   ├── Skeleton_C.json <br>
+ * │   │   ├── skeleton_aria_association.json <br>
  * │   │   ├── aria_trajectory.csv <br>
  * │   │   ├── depth_images.vrs <br>
  * │   │   ├── depth_images_with_skeleton.vrs <br>
@@ -83,7 +83,7 @@ struct AriaDigitalTwinDataPaths {
  * │   ├── subsequence2_Name <br>
  * │   │   ├── 2d_bounding_box.csv <br>
  * │   │   ├── ... <br>
- * │   └── gt-metadata.json <br>
+ * │   └── metadata.json <br>
  * This class allows you use dataset root path and sequence name to
  * query all Aria devices in a sequence and to query all data associated with an Aria device.
  */
