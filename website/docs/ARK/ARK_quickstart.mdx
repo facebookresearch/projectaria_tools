@@ -71,9 +71,13 @@ Further updates will be queued automatically when you use your glasses via the M
 
 ## Set your Default Recording Profile
 
-You can set the default recording profile via Mobile or Desktop Companion App. This is the recording profile used when you initiate recording via the capture button or Desktop app. When you initiate recording via the Mobile Companion app you can select the recording profile per instance and examine the sensors used with each recording profile.
+You can set the default recording profile via Mobile or Desktop Companion App. This is the recording profile used when you initiate recording via the capture button or Desktop app.
+
+ When you select New Recording in the Mobile Companion app you'll intially see the default recording profile. Select the recording profile to view sensor settings or to select a different recording profile.
 
 In the Mobile Companion App, you can change the Default Recording Profile at any time via Device Settings (select the settings/gear icon next to your glasses on the dashboard).
+
+![Device Settings](/img/ARK/mobile_app_device_settings.png)
 
 ## Install the Desktop app (Optional)
 
@@ -98,11 +102,12 @@ The longer your glasses record for, the longer it takes a recording to stop. Thi
 
 ### Press the Capture button
 
-The Capture button is located on the top right of your glasses. The capture button will use the recording profile set by the Desktop App.
+The capture button is located on the top right of your glasses. The capture button will use the default recording profile.
 
 Once you've pressed the capture button, please allow a few seconds before the recording starts. You'll know recording has started when the Recording LEDs turn on.
 
 Press the same button to stop and save the recording.
+
 
 :::tip
 Engaging the privacy switch will stop the recording and discard your recording. Discarded recordings cannot be retrieved.
@@ -114,7 +119,6 @@ Engaging the privacy switch will stop the recording and discard your recording. 
     * Go to the [Mobile Companion App page](/docs/ARK/mobile_companion_app.mdx) for more information
 
 You can alter the Name and Notes of a recording by going to the Recordings menu, selecting a recording and then selecting **Edit**.
-Please note, this does not change the name of the VRS file, it changes the Name and Notes properties in the associated vrs.json file.
 
 
 ## Download data
@@ -162,17 +166,17 @@ MTP is not provided natively on MacOS, but there are lightweight tools that you 
 [Android Debug Bridge](https://developer.android.com/studio/command-line/adb) (adb) is a command line tool that can be used with Aria glasses.
 
 To download all your data:
-```
+```cpp
 adb pull /sdcard/recording /home/unixname/MyVRSFolder
 ```
 
 To download a single VRS file
-```
+```cpp
 adb pull /sdcard/recording/myVrsFile.vrs /home/unixname/MyVRSFolder/
 ```
 
 To download a single metadata file
-```
+```cpp
 adb pull /sdcard/recording/myVrsFile.json /home/unixname/MyVRSFolder/
 ```
 

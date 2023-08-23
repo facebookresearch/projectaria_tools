@@ -71,13 +71,17 @@ If you see an error message such as “for security, your phone is not allowed t
 
 ## Set Default Recording Profile
 
-After updating the Aria device's OS, you should be able to see the Aria Dashboard and a prompt to set your default recording profile. This is the recording profile that will be used if you initiate recording via the Desktop app or the Capture button.
+You can set the default recording profile via Mobile or Desktop Companion App. This is the recording profile used when you initiate recording via the capture button or Desktop app.
 
-When you create a new recording session via the Mobile app, you'll be able to select the recording profile each time.
+When you select New Recording in the Mobile Companion app you'll initially see the default recording profile. Select the recording profile to view sensor settings or to select a different recording profile.
+
+In the Mobile Companion App, you can change the Default Recording Profile at any time via Device Settings (select the settings/gear icon next to your glasses on the dashboard).
+
+![Device Settings](/img/ARK/mobile_app_device_settings.png)
 
 ## OS Update
 
-To make sure you get the latest device features and bug fixes, you should frequently check for the latest OS updates in Aria device settings. Access Device Settings by selecting the gear next to your Aria device on the main Dashboard of the Mobile app.
+To make sure you get the latest device features and bug fixes, you should frequently check for the latest OS updates in Aria device settings.
 
 Your Aria device's OS will also automatically update when it is plugged into power and connected to Wi-Fi.
 
@@ -107,15 +111,18 @@ Each pair of Aria glasses can only be paired with a single account. Multiple gla
 
 
 
-# Recording
+## Recording
 
 ### To start recording
 
 1. Select New Recording Session on the Aria Dashboard.
 2. You have the option to configure your recording session before it begins:
-    * **Name (optional):** This field will define how your recording is named inside the Mobile App, but it does not define the name you'll see via the Desktop App. Name is a value that is provided in the vrs.json file associated with your recording. If this field is left blank, your recording will be listed as "Unnamed Recording" in the Recordings tab of the Mobile App.
+    * **Name (optional):** This will define the name of your VRS file. If you do not provide a name a random alphanumeric name will be given
     * **Notes (optional):** Notes are appended to your recordings ID. You can input a short or long text string in this field. Notes is a value that is provided in the vrs.json file associated with your recording.
-    * **Sensors Used:** Select Sensors Used to see details of the recording profile you've selected. From the Sensors Used menu, select Profile to choose different recording profiles to record with.
+    * **Sensors Used:** Select Sensors Used to see details of the recording profile. From the Sensors Used menu, select Profile to choose different recording profiles to record with.
+3. Select **Begin new recording**
+    * While you're recording the Sensor Status field will let you know if there are any data quality issues
+4. End your recording by selecting **Complete Recording** in the app or use the capture button on the top right side of the glasses
 
 Once you've completed or discarded a recording, you'll return to the New Recording screen, pre-populated with your previous details.
 
@@ -124,13 +131,22 @@ Once you've completed or discarded a recording, you'll return to the New Recordi
 
 ### Recordings menu
 
-In the Recordings menu, you'll be able to see recordings that are currently on your Aria device. Please note, the names given to these recordings are metadata listed in the vrs.json file and are not the name given to the VRS file your recordings are in.
+In the Recordings menu, you'll be able to see recordings that are currently on your Aria device.
 
-When you select a recording, you will be able to edit your recording's name and notes (which will be stored in the vrs.json file) and see a range of details including:
+Select a recording in the Recording menu to edit your recording's name and notes (notes will be stored in the vrs.json file) and see a range of details including:
 
 * Recording duration
 * Recording profile used
 * Up to 10 thumbnail images from your recording
+
+If you have not given your recording a name (such as when you initiate recording via the capture button) the VRS file will have a random alphanumeric name when it is downloaded.
+
+To name or edit the name of a VRS recording on your glasses:
+
+1. Go to the recordings tab of the Mobile app
+2. Select a recording
+3. Select **Edit** on the top right corner
+
 
 ### Settings menu
 
@@ -140,7 +156,11 @@ In the Advanced Settings menu there is the option to Clear Local Data, which can
 
 ## Aria device settings
 
-On the main Aria Dashboard in the Mobile app, select the settings (gear) icon next to your Aria device to view your Aria device's settings. The Aria device settings page's contents include:
+On the main Aria Dashboard in the Mobile app, select the settings (gear) icon next to your Aria device to view your Aria device's settings.
+
+![Device Settings](/img/ARK/mobile_app_device_settings.png)
+
+The Aria device settings page's contents include:
 
 * Bluetooth, Wi-Fi, Battery, GPS and Temperature status
 * OS version and ability to check for OS updates
