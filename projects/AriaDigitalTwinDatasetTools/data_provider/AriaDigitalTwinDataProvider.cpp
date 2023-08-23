@@ -76,6 +76,7 @@ const std::string kDatasetNameKey = "dataset_name";
 const std::string kDatasetVersionKey = "dataset_version";
 const std::string kDatasetNameDefault = "ADT_2023";
 const std::string kDatasetVersionDefault = "1.0";
+const std::string kDatasetVersionUnknown = "Unknown";
 
 constexpr auto kInstanceFileErrorTemplate =
     "invalid instance file. key: '{}' not available in instances json file for instance id {}";
@@ -893,6 +894,14 @@ void AriaDigitalTwinDataProvider::loadEyeGaze() {
 }
 
 void AriaDigitalTwinDataProvider::loadDatasetVersion() {
+  if (dataPaths_.metaDataFilePath.empty()) {
+    XR_LOGW(
+        "No metadata file provided to data provider, setting the dataset version to {}.",
+        kDatasetVersionUnknown);
+    datasetVersion_ = kDatasetVersionUnknown;
+    return;
+  }
+
   std::ifstream fileStream(dataPaths_.metaDataFilePath);
   if (!fileStream.is_open()) {
     XR_LOGE("Could not open ground truth metadata file: {} \n", dataPaths_.metaDataFilePath);
@@ -926,6 +935,12 @@ void AriaDigitalTwinDataProvider::loadDatasetVersion() {
 }
 
 void AriaDigitalTwinDataProvider::validateDatasetVersion() const {
+  if (datasetVersion_ == kDatasetVersionUnknown) {
+    XR_LOGW(
+        "Unknown dataset version, we recommend loading with the metadata file to validate the dataset version is compatible with this version of the data provider.");
+    return;
+  }
+
   if (kLatestDatasetVersions.find(datasetName_) == kLatestDatasetVersions.end()) {
     XR_LOGE("Invalid dataset name: {}", datasetName_);
     throw std::runtime_error{"invalid dataset name"};
