@@ -49,59 +49,62 @@ constexpr std::array<const char*, 20> kOpenLoopTrajectoryColumns = {
     "quality_score"};
 
 OpenLoopTrajectory readOpenLoopTrajectory(const std::string& path) {
-  io::CSVReader<kOpenLoopTrajectoryColumns.size()> csv(path);
-  // Read in the CSV header
-  // allow extra column for future-proof forward compatibility
-  const auto readHeader = [&](auto&&... args) {
-    csv.read_header(io::ignore_extra_column, args...);
-  };
-  std::apply(readHeader, kOpenLoopTrajectoryColumns);
-
   OpenLoopTrajectory trajectory;
+  try {
+    io::CSVReader<kOpenLoopTrajectoryColumns.size()> csv(path);
+    // Read in the CSV header
+    // allow extra column for future-proof forward compatibility
+    const auto readHeader = [&](auto&&... args) {
+      csv.read_header(io::ignore_extra_column, args...);
+    };
+    std::apply(readHeader, kOpenLoopTrajectoryColumns);
 
-  std::string session_uid;
-  std::int64_t tracking_timestamp_us;
-  std::int64_t utc_timestamp_ns;
-  Eigen::Vector3d t_device;
-  Eigen::Quaterniond q_device;
-  Eigen::Vector3d gravity_odometry;
-  Eigen::Vector3d linearVelocity;
-  Eigen::Vector3d angularVelocity;
-  float quality_score;
+    std::string session_uid;
+    std::int64_t tracking_timestamp_us;
+    std::int64_t utc_timestamp_ns;
+    Eigen::Vector3d t_device;
+    Eigen::Quaterniond q_device;
+    Eigen::Vector3d gravity_odometry;
+    Eigen::Vector3d linearVelocity;
+    Eigen::Vector3d angularVelocity;
+    float quality_score;
 
-  while (csv.read_row(
-      tracking_timestamp_us,
-      utc_timestamp_ns,
-      session_uid,
-      t_device.x(),
-      t_device.y(),
-      t_device.z(),
-      q_device.x(),
-      q_device.y(),
-      q_device.z(),
-      q_device.w(),
-      linearVelocity.x(),
-      linearVelocity.y(),
-      linearVelocity.z(),
-      angularVelocity.x(),
-      angularVelocity.y(),
-      angularVelocity.z(),
-      gravity_odometry.x(),
-      gravity_odometry.y(),
-      gravity_odometry.z(),
-      quality_score)) {
-    trajectory.emplace_back();
-    auto& pose = trajectory.back();
-    pose.sessionUid = session_uid;
-    pose.T_odometry_device = Sophus::SE3d(q_device, t_device);
-    pose.deviceLinearVelocity_odometry = linearVelocity;
-    pose.angularVelocity_device = angularVelocity;
-    pose.gravity_odometry = gravity_odometry;
-    pose.trackingTimestamp = std::chrono::microseconds(tracking_timestamp_us);
-    pose.utcTimestamp = std::chrono::nanoseconds(utc_timestamp_ns);
-    pose.qualityScore = quality_score;
+    while (csv.read_row(
+        tracking_timestamp_us,
+        utc_timestamp_ns,
+        session_uid,
+        t_device.x(),
+        t_device.y(),
+        t_device.z(),
+        q_device.x(),
+        q_device.y(),
+        q_device.z(),
+        q_device.w(),
+        linearVelocity.x(),
+        linearVelocity.y(),
+        linearVelocity.z(),
+        angularVelocity.x(),
+        angularVelocity.y(),
+        angularVelocity.z(),
+        gravity_odometry.x(),
+        gravity_odometry.y(),
+        gravity_odometry.z(),
+        quality_score)) {
+      trajectory.emplace_back();
+      auto& pose = trajectory.back();
+      pose.sessionUid = session_uid;
+      pose.T_odometry_device = Sophus::SE3d(q_device, t_device);
+      pose.deviceLinearVelocity_odometry = linearVelocity;
+      pose.angularVelocity_device = angularVelocity;
+      pose.gravity_odometry = gravity_odometry;
+      pose.trackingTimestamp = std::chrono::microseconds(tracking_timestamp_us);
+      pose.utcTimestamp = std::chrono::nanoseconds(utc_timestamp_ns);
+      pose.qualityScore = quality_score;
+    }
+    std::cout << "Loaded #open loop trajectory poses records: " << trajectory.size() << std::endl;
+  } catch (std::exception& e) {
+    std::cerr << "Failed to parse closed loop trajectory file: " << e.what() << std::endl;
   }
-  std::cout << "Loaded #open loop trajectory poses records: " << trajectory.size() << std::endl;
   return trajectory;
 }
 
@@ -128,59 +131,62 @@ constexpr std::array<const char*, 20> kCloseLoopTrajectoryColumns = {
     "quality_score"};
 
 ClosedLoopTrajectory readClosedLoopTrajectory(const std::string& path) {
-  io::CSVReader<kCloseLoopTrajectoryColumns.size()> csv(path);
-  // Read in the CSV header
-  // allow extra column for future-proof forward compatibility
-  const auto readHeader = [&](auto&&... args) {
-    csv.read_header(io::ignore_extra_column, args...);
-  };
-  std::apply(readHeader, kCloseLoopTrajectoryColumns);
-
   ClosedLoopTrajectory trajectory;
+  try {
+    io::CSVReader<kCloseLoopTrajectoryColumns.size()> csv(path);
+    // Read in the CSV header
+    // allow extra column for future-proof forward compatibility
+    const auto readHeader = [&](auto&&... args) {
+      csv.read_header(io::ignore_extra_column, args...);
+    };
+    std::apply(readHeader, kCloseLoopTrajectoryColumns);
 
-  std::string graph_uid;
-  std::int64_t tracking_timestamp_us;
-  std::int64_t utc_timestamp_ns;
-  Eigen::Vector3d t_device;
-  Eigen::Quaterniond q_device;
-  Eigen::Vector3d gravity;
-  Eigen::Vector3d linearVelocity;
-  Eigen::Vector3d angularVelocity;
-  float quality_score;
+    std::string graph_uid;
+    std::int64_t tracking_timestamp_us;
+    std::int64_t utc_timestamp_ns;
+    Eigen::Vector3d t_device;
+    Eigen::Quaterniond q_device;
+    Eigen::Vector3d gravity;
+    Eigen::Vector3d linearVelocity;
+    Eigen::Vector3d angularVelocity;
+    float quality_score;
 
-  while (csv.read_row(
-      graph_uid,
-      tracking_timestamp_us,
-      utc_timestamp_ns,
-      t_device.x(),
-      t_device.y(),
-      t_device.z(),
-      q_device.x(),
-      q_device.y(),
-      q_device.z(),
-      q_device.w(),
-      linearVelocity.x(),
-      linearVelocity.y(),
-      linearVelocity.z(),
-      angularVelocity.x(),
-      angularVelocity.y(),
-      angularVelocity.z(),
-      gravity.x(),
-      gravity.y(),
-      gravity.z(),
-      quality_score)) {
-    trajectory.emplace_back();
-    auto& pose = trajectory.back();
-    pose.graphUid = graph_uid;
-    pose.T_world_device = Sophus::SE3d(q_device, t_device);
-    pose.deviceLinearVelocity_device = linearVelocity;
-    pose.angularVelocity_device = angularVelocity;
-    pose.gravity_world = gravity;
-    pose.trackingTimestamp = std::chrono::microseconds(tracking_timestamp_us);
-    pose.utcTimestamp = std::chrono::nanoseconds(utc_timestamp_ns);
-    pose.qualityScore = quality_score;
+    while (csv.read_row(
+        graph_uid,
+        tracking_timestamp_us,
+        utc_timestamp_ns,
+        t_device.x(),
+        t_device.y(),
+        t_device.z(),
+        q_device.x(),
+        q_device.y(),
+        q_device.z(),
+        q_device.w(),
+        linearVelocity.x(),
+        linearVelocity.y(),
+        linearVelocity.z(),
+        angularVelocity.x(),
+        angularVelocity.y(),
+        angularVelocity.z(),
+        gravity.x(),
+        gravity.y(),
+        gravity.z(),
+        quality_score)) {
+      trajectory.emplace_back();
+      auto& pose = trajectory.back();
+      pose.graphUid = graph_uid;
+      pose.T_world_device = Sophus::SE3d(q_device, t_device);
+      pose.deviceLinearVelocity_device = linearVelocity;
+      pose.angularVelocity_device = angularVelocity;
+      pose.gravity_world = gravity;
+      pose.trackingTimestamp = std::chrono::microseconds(tracking_timestamp_us);
+      pose.utcTimestamp = std::chrono::nanoseconds(utc_timestamp_ns);
+      pose.qualityScore = quality_score;
+    }
+    std::cout << "Loaded #closed loop trajectory poses records: " << trajectory.size() << std::endl;
+  } catch (std::exception& e) {
+    std::cerr << "Failed to parse closed loop trajectory file: " << e.what() << std::endl;
   }
-  std::cout << "Loaded #closed loop trajectory poses records: " << trajectory.size() << std::endl;
   return trajectory;
 }
 

@@ -17,18 +17,21 @@
 #include "CompressedIStream.h"
 
 #include <boost/iostreams/filter/gzip.hpp>
-#include <cassert>
+#include <stdexcept>
 
 namespace projectaria::tools::mps {
 CompressedIStream::CompressedIStream(const std::string& path, StreamCompressionMode compression)
     : std::istream(&inbuf_),
       backingIfstream_(path.c_str(), std::ios_base::in | std::ios_base::binary),
       inbuf_() {
-  if (compression == StreamCompressionMode::GZIP) {
-    inbuf_.push(boost::iostreams::gzip_decompressor());
+  if (backingIfstream_) {
+    if (compression == StreamCompressionMode::GZIP) {
+      inbuf_.push(boost::iostreams::gzip_decompressor());
+    }
+    inbuf_.push(backingIfstream_);
+  } else {
+    throw std::runtime_error("Invalid input file");
   }
-
-  assert(backingIfstream_.good());
-  inbuf_.push(backingIfstream_);
 }
+
 } // namespace projectaria::tools::mps

@@ -38,31 +38,34 @@ constexpr std::array<const char*, 8> kEyeGazeColumns = {
 };
 
 EyeGazes readEyeGaze(const std::string& path) {
-  io::CSVReader<kEyeGazeColumns.size()> csv(path);
-  // Read in the CSV header
-  const auto readHeader = [&](auto&&... args) {
-    csv.read_header(io::ignore_extra_column, args...);
-  };
-  std::apply(readHeader, kEyeGazeColumns);
-
-  EyeGaze eyeGaze;
   EyeGazes eyeGazes;
+  try {
+    io::CSVReader<kEyeGazeColumns.size()> csv(path);
+    // Read in the CSV header
+    const auto readHeader = [&](auto&&... args) {
+      csv.read_header(io::ignore_extra_column, args...);
+    };
+    std::apply(readHeader, kEyeGazeColumns);
 
-  std::int64_t tracking_timestamp_us;
+    EyeGaze eyeGaze;
+    std::int64_t tracking_timestamp_us;
 
-  while (csv.read_row(
-      tracking_timestamp_us,
-      eyeGaze.yaw,
-      eyeGaze.pitch,
-      eyeGaze.depth,
-      eyeGaze.yaw_low,
-      eyeGaze.pitch_low,
-      eyeGaze.yaw_high,
-      eyeGaze.pitch_high)) {
-    eyeGaze.trackingTimestamp = std::chrono::microseconds(tracking_timestamp_us);
-    eyeGazes.push_back(eyeGaze);
+    while (csv.read_row(
+        tracking_timestamp_us,
+        eyeGaze.yaw,
+        eyeGaze.pitch,
+        eyeGaze.depth,
+        eyeGaze.yaw_low,
+        eyeGaze.pitch_low,
+        eyeGaze.yaw_high,
+        eyeGaze.pitch_high)) {
+      eyeGaze.trackingTimestamp = std::chrono::microseconds(tracking_timestamp_us);
+      eyeGazes.push_back(eyeGaze);
+    }
+    std::cout << "Loaded #eyegaze records: " << eyeGazes.size() << std::endl;
+  } catch (std::exception& e) {
+    std::cerr << "Failed to parse eye gaze file: " << e.what() << std::endl;
   }
-  std::cout << "Loaded #eyegaze records: " << eyeGazes.size() << std::endl;
-  return eyeGazes;
+  return eyeGazes; // Can be empty if input file was invalid
 }
 } // namespace projectaria::tools::mps

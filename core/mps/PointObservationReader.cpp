@@ -40,32 +40,36 @@ constexpr std::array<const char*, 5> kPointObservationColumns = {
 PointObservations readPointObservations(
     const std::string& path,
     const StreamCompressionMode compression) {
-  CompressedIStream istream(path, compression);
-  io::CSVReader<kPointObservationColumns.size()> csv(path.c_str(), istream);
-
-  // Read in the CSV header
-  // allow extra column for future-proof forward compatibility
-  const auto readHeader = [&](auto&&... args) {
-    csv.read_header(io::ignore_extra_column, args...);
-  };
-  std::apply(readHeader, kPointObservationColumns);
-
-  uint64_t point_uid;
-  std::int64_t frame_tracking_timestamp_us;
-  std::string camera_serial;
-  Eigen::Vector2f uv;
-
   PointObservations observations;
-  while (csv.read_row(point_uid, frame_tracking_timestamp_us, camera_serial, uv.x(), uv.y())) {
-    auto& observation = observations.emplace_back();
+  try {
+    CompressedIStream istream(path, compression);
+    io::CSVReader<kPointObservationColumns.size()> csv(path.c_str(), istream);
 
-    observation.pointUid = point_uid;
-    observation.frameCaptureTimestamp = std::chrono::microseconds(frame_tracking_timestamp_us);
-    observation.cameraSerial = camera_serial;
-    observation.uv = uv;
+    // Read in the CSV header
+    // allow extra column for future-proof forward compatibility
+    const auto readHeader = [&](auto&&... args) {
+      csv.read_header(io::ignore_extra_column, args...);
+    };
+    std::apply(readHeader, kPointObservationColumns);
+
+    uint64_t point_uid;
+    std::int64_t frame_tracking_timestamp_us;
+    std::string camera_serial;
+    Eigen::Vector2f uv;
+
+    while (csv.read_row(point_uid, frame_tracking_timestamp_us, camera_serial, uv.x(), uv.y())) {
+      auto& observation = observations.emplace_back();
+
+      observation.pointUid = point_uid;
+      observation.frameCaptureTimestamp = std::chrono::microseconds(frame_tracking_timestamp_us);
+      observation.cameraSerial = camera_serial;
+      observation.uv = uv;
+    }
+
+    std::cout << "Loaded #observation records: " << observations.size() << std::endl;
+  } catch (std::exception& e) {
+    std::cerr << "Failed to parse semi dense observations file: " << e.what() << std::endl;
   }
-
-  std::cout << "Loaded #observation records: " << observations.size() << std::endl;
   return observations;
 }
 } // namespace projectaria::tools::mps

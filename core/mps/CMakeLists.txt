@@ -56,3 +56,7 @@ target_include_directories(mps
     PRIVATE
         "${CMAKE_BINARY_DIR}/_deps"
 )
+
+if(BUILD_UNIT_TEST)
+    add_subdirectory(test)
+endif()

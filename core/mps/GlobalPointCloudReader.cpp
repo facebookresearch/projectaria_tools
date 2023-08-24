@@ -33,32 +33,34 @@ constexpr std::array<const char*, 7> kGlobalPointCloudColumns =
 GlobalPointCloud readGlobalPointCloud(
     const std::string& path,
     const StreamCompressionMode compression) {
-  CompressedIStream istream(path, compression);
-  io::CSVReader<kGlobalPointCloudColumns.size()> csv(path.c_str(), istream);
-
-  // Read in the CSV header
-  // allow extra column for future-proof forward compatibility
-  const auto readHeader = [&](auto&&... args) {
-    csv.read_header(io::ignore_extra_column, args...);
-  };
-  std::apply(readHeader, kGlobalPointCloudColumns);
-
   GlobalPointCloud cloud;
-  GlobalPointPosition point;
+  try {
+    CompressedIStream istream(path, compression);
+    io::CSVReader<kGlobalPointCloudColumns.size()> csv(path.c_str(), istream);
 
-  while (csv.read_row(
-      point.uid,
-      point.graphUid,
-      point.position_world.x(),
-      point.position_world.y(),
-      point.position_world.z(),
-      point.inverseDistanceStd,
-      point.distanceStd)) {
-    cloud.push_back(point);
+    // Read in the CSV header
+    // allow extra column for future-proof forward compatibility
+    const auto readHeader = [&](auto&&... args) {
+      csv.read_header(io::ignore_extra_column, args...);
+    };
+    std::apply(readHeader, kGlobalPointCloudColumns);
+
+    GlobalPointPosition point;
+
+    while (csv.read_row(
+        point.uid,
+        point.graphUid,
+        point.position_world.x(),
+        point.position_world.y(),
+        point.position_world.z(),
+        point.inverseDistanceStd,
+        point.distanceStd)) {
+      cloud.push_back(point);
+    }
+    std::cout << "Loaded #3dPoints: " << cloud.size() << std::endl;
+  } catch (std::exception& e) {
+    std::cerr << "Failed to parse global point cloud file: " << e.what() << std::endl;
   }
-
-  std::cout << "Loaded #3dPoints: " << cloud.size() << std::endl;
-
   return cloud;
 }
 
