@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # Start from an ubuntu container
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 # Ensure a SUDO command is available in the container
 RUN if type sudo 2>/dev/null; then \
