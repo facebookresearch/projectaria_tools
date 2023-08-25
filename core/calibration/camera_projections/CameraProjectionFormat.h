@@ -48,6 +48,6 @@ struct fmt::formatter<projectaria::tools::calibration::CameraProjection::ModelTy
           return "Unknown";
       }
     };
-    return formatter<string_view>::format(to_string(modelType), ctx);
+    return format_to(ctx.out(), to_string(modelType));
   }
 };
