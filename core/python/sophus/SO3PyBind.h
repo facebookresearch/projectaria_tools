@@ -296,13 +296,92 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
       });
 
   type.def(
-      "__getitem__", [](const SO3Group<Scalar>& rotations, const size_t index) -> SO3Group<Scalar> {
-        if (index < 0 || index >= rotations.size()) {
-          throw std::out_of_range("Index out of range");
+      "__getitem__",
+      [](const SO3Group<Scalar>& so3Vec,
+         pybind11::object index_or_slice_or_list) -> SO3Group<Scalar> {
+        if (pybind11::isinstance<pybind11::slice>(index_or_slice_or_list)) {
+          pybind11::slice slice = index_or_slice_or_list.cast<pybind11::slice>();
+          size_t start, stop, step, slicelength;
+          if (slice.compute(so3Vec.size(), &start, &stop, &step, &slicelength)) {
+            SO3Group<Scalar> result;
+            for (size_t i = 0; i < slicelength; ++i) {
+              result.push_back(so3Vec[start + i * step]);
+            }
+            return result;
+          }
+        } else if (pybind11::isinstance<pybind11::list>(index_or_slice_or_list)) {
+          pybind11::list index_list = index_or_slice_or_list.cast<pybind11::list>();
+          SO3Group<Scalar> result;
+          for (const auto index : index_list) {
+            const auto intIndex = pybind11::cast<int>(index);
+            if (intIndex < 0 || intIndex >= so3Vec.size()) {
+              throw std::out_of_range("Index out of range");
+            }
+            result.push_back(so3Vec[intIndex]);
+          }
+          return result;
+        } else if (pybind11::isinstance<pybind11::int_>(index_or_slice_or_list)) {
+          int index = index_or_slice_or_list.cast<int>();
+          if (index < 0 || index >= so3Vec.size()) {
+            throw std::out_of_range("Index out of range");
+          }
+          return so3Vec[index];
         }
-        return rotations[index];
+        throw pybind11::type_error("Invalid index or list or slice");
       });
-
+  // slice version
+  type.def(
+      "__setitem__",
+      [](SO3Group<Scalar>& so3Vec,
+         pybind11::object index_or_slice_or_list,
+         const SO3Group<Scalar>& value) {
+        if (pybind11::isinstance<pybind11::slice>(index_or_slice_or_list)) {
+          pybind11::slice slice(index_or_slice_or_list);
+          size_t start, stop, step, slicelength;
+          if (slice.compute(so3Vec.size(), &start, &stop, &step, &slicelength)) {
+            if (value.size() == slicelength) {
+              for (size_t i = 0; i < slicelength; ++i) {
+                so3Vec[start + i * step] = value[i];
+              }
+            } else if (value.size() == 1) {
+              for (size_t i = 0; i < slicelength; ++i) {
+                so3Vec[start + i * step] = value[0];
+              }
+            } else {
+              throw std::out_of_range(
+                  "The value to assigned should be of size 1 or equal to the size of the slide to be assigned.");
+            }
+          } else {
+            throw std::out_of_range("The slide is invalid.");
+          }
+        } else if (pybind11::isinstance<pybind11::list>(index_or_slice_or_list)) {
+          pybind11::list list(index_or_slice_or_list);
+          if (value.size() == list.size()) {
+            for (size_t i = 0; i < list.size(); ++i) {
+              so3Vec[i] = value[i];
+            }
+          } else if (value.size() == 1) {
+            for (size_t i = 0; i < list.size(); ++i) {
+              so3Vec[i] = value[0];
+            }
+          } else {
+            throw std::out_of_range(
+                "The value to assigned should be of size 1 or equal to the size of the list to be assigned.");
+          }
+        } else if (pybind11::isinstance<pybind11::int_>(index_or_slice_or_list)) {
+          int index = index_or_slice_or_list.cast<int>();
+          if (index < 0 || index >= so3Vec.size()) {
+            throw std::out_of_range("Index out of range");
+          }
+          if (value.size() != 1) {
+            throw std::out_of_range(
+                "The value to assigned should be of size 1 or equal to the size of the slide to be assigned.");
+          }
+          so3Vec[index] = value[0];
+        } else {
+          throw pybind11::type_error("Invalid index or list or slice");
+        }
+      });
   return type;
 }
 
