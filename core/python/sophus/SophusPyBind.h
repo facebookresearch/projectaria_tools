@@ -16,8 +16,7 @@
 
 #pragma once
 
-#include <sophus/se3.hpp>
-
+#include "SE3PyBind.h"
 #include "SO3PyBind.h"
 
 #include <sstream>
@@ -42,33 +41,10 @@ ensureFailed(char const* function, char const* file, int line, char const* descr
 
 inline void exportSophus(pybind11::module& module) {
   exportSO3Group<double>(module, "SO3");
+  exportSE3Transformation<double>(module, "SE3");
 
-  pybind11::class_<Sophus::SE3d>(module, "SE3d")
-      .def(pybind11::init<>())
-      .def(
-          "rotation_matrix",
-          [](const Sophus::SE3d& self) { return self.rotationMatrix(); },
-          "Returns 3x3 rotation matrix")
-      .def(
-          "quaternion",
-          [](const Sophus::SE3d& self) {
-            auto& q = self.so3().unit_quaternion();
-            return std::vector<double>{q.w(), q.x(), q.y(), q.z()};
-          },
-          "Return quaternion as [w x y z]")
-      .def(
-          "translation",
-          [](const Sophus::SE3d& self) { return self.translation(); },
-          "returns 3x1 translation vector")
-      .def(
-          "matrix",
-          [](const Sophus::SE3d& self) { return self.matrix(); },
-          "Returns 3x4 transform matrix.")
-      .def(
-          "inverse",
-          [](const Sophus::SE3d& self) { return self.inverse(); },
-          "Returns the inverse of the SE3d transform")
-      .def("__repr__", [](const Sophus::SE3d& self) { return fmt::to_string(self); });
+  exportSE3Average<double>(module);
+  exportSE3Interpolate<double>(module);
 }
 
 } // namespace sophus
