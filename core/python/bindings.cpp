@@ -18,9 +18,10 @@
 #include "ImagePyBind.h"
 #include "MpsPyBind.h"
 #include "SensorDataPyBind.h"
-#include "SophusPyBind.h"
 #include "StreamIdPyBind.h"
 #include "VrsDataProviderPyBind.h"
+
+#include "sophus/SophusPyBind.h"
 
 namespace py = pybind11;
 using namespace projectaria::tools;

@@ -18,20 +18,33 @@
 
 #include <sophus/se3.hpp>
 
-#include <pybind11/eigen.h>
-#include <pybind11/numpy.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include "SO3PyBind.h"
+
+#include <sstream>
+// By default, Sophus calls std::abort when a pre-condition fails. Register a handler that raises
+// an exception so we don't crash the Python process.
+#ifdef SOPHUS_DISABLE_ENSURES
+#undef SOPHUS_DISABLE_ENSURES
+#endif
+#ifndef SOPHUS_ENABLE_ENSURE_HANDLER
+#define SOPHUS_ENABLE_ENSURE_HANDLER
+#endif
 
 namespace sophus {
+inline void
+ensureFailed(char const* function, char const* file, int line, char const* description) {
+  std::stringstream message;
+  message << "'SOPHUS_ENSURE' failed in function '" << function << "', on line '" << line
+          << "' of file '" << file << "'. Full description:" << std::endl
+          << description;
+  throw std::domain_error(message.str());
+}
 
-namespace py = pybind11;
+inline void exportSophus(pybind11::module& module) {
+  exportSO3Group<double>(module, "SO3");
 
-inline void exportSophus(py::module& m) {
-  // For submodule documentation, see: projectaria_tools/projectaria_tools/core/sophus.py
-
-  py::class_<Sophus::SE3d>(m, "SE3d")
-      .def(py::init<>())
+  pybind11::class_<Sophus::SE3d>(module, "SE3d")
+      .def(pybind11::init<>())
       .def(
           "rotation_matrix",
           [](const Sophus::SE3d& self) { return self.rotationMatrix(); },
@@ -57,4 +70,5 @@ inline void exportSophus(py::module& m) {
           "Returns the inverse of the SE3d transform")
       .def("__repr__", [](const Sophus::SE3d& self) { return fmt::to_string(self); });
 }
+
 } // namespace sophus

@@ -15,12 +15,15 @@
 import os
 import unittest
 
+import numpy as np
+
 from projectaria_tools.core import calibration, data_provider
 from projectaria_tools.core.sensor_data import (
     SensorDataType,
     TimeDomain,
     TimeQueryOptions,
 )
+from projectaria_tools.core.sophus import SO3
 
 vrs_filepath = os.path.join(
     os.getenv("TEST_FOLDER"), "aria_unit_test_sequence_calib.vrs"
@@ -32,6 +35,54 @@ timecode_vrs_filepath = os.path.join(
 
 
 class CalibrationTests(unittest.TestCase):
+    def test_sophus(self) -> None:
+        # test initialization
+        rotvec = [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 1]]
+        identity = SO3()
+        self.assertIsNone(
+            np.testing.assert_array_equal(
+                SO3.exp(rotvec[0]).to_matrix(), identity.to_matrix()
+            )
+        )
+        # test vecterized rotation vec
+        rotvec_to_sophus = SO3.exp(rotvec)
+        self.assertIsNone(
+            np.testing.assert_array_equal(SO3.log(rotvec_to_sophus), rotvec)
+        )
+
+        # test quaternion
+        wxyz_vec = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
+        quat_to_sophus = SO3.from_quat(wxyz_vec[:, 0], wxyz_vec[:, 1:4])
+        self.assertIsNone(
+            np.testing.assert_array_equal(
+                quat_to_sophus[0].to_matrix(), identity.to_matrix()
+            )
+        )
+        self.assertIsNone(
+            np.testing.assert_array_equal(SO3.to_quat(quat_to_sophus), wxyz_vec)
+        )
+
+        # test matrix
+        matrices = np.array(SO3.to_matrix(rotvec_to_sophus))
+        output = np.array(SO3.to_matrix(SO3.from_matrix(matrices)))
+        self.assertIsNone(
+            np.testing.assert_array_equal(
+                SO3.to_matrix(rotvec_to_sophus[0]),
+                SO3.from_matrix(matrices)[0].to_matrix(),
+            )
+        )
+        self.assertIsNone(np.testing.assert_allclose(matrices, output, 1e-7))
+
+        # test operator
+        rot1 = rotvec_to_sophus @ rotvec_to_sophus[1]
+        rot2 = rotvec_to_sophus[1] @ rotvec_to_sophus
+        points_rand = np.random.rand(3, 10)
+        points_out = rotvec_to_sophus[0] @ points_rand
+        self.assertIsNone(
+            np.testing.assert_allclose(rot1[0].to_matrix(), rot2[0].to_matrix(), 1e-7)
+        )
+        self.assertIsNone(np.testing.assert_array_equal(points_rand, points_out))
+
     def test_calibration_label(self) -> None:
         provider = data_provider.create_vrs_data_provider(vrs_filepath)
 
