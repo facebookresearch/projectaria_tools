@@ -105,16 +105,20 @@ PybindSE3Type<Scalar> exportSE3Transformation(
   type.def_static("from_matrix", [](const Eigen::Matrix<Scalar, 4, 4>& matrix) -> SE3Group<Scalar> {
     return SE3Group<Scalar>{Sophus::SE3<Scalar>::fitToSE3(matrix)};
   });
-  type.def_static(
-      "from_matrix",
-      [](const std::vector<Eigen::Matrix<Scalar, 4, 4>>& matrices) -> SE3Group<Scalar> {
-        SE3Group<Scalar> output;
-        output.reserve(matrices.size());
-        for (size_t i = 0; i < matrices.size(); ++i) {
-          output.push_back(Sophus::SE3<Scalar>::fitToSE3(matrices[i]));
-        }
-        return output;
-      });
+  type.def_static("from_matrix", [](const pybind11::array_t<Scalar>& matrices) -> SE3Group<Scalar> {
+    if (matrices.ndim() != 3 || matrices.shape(1) != 4 || matrices.shape(2) != 4) {
+      throw std::runtime_error(
+          fmt::format("The size of the input matrix should be Nx4x4 dimensions."));
+    }
+
+    SE3Group<Scalar> output;
+    output.reserve(matrices.shape(0));
+    for (size_t i = 0; i < matrices.shape(0); ++i) {
+      Eigen::Map<const Eigen::Matrix<Scalar, 4, 4, Eigen::RowMajor>> mat(matrices.data(i, 0, 0));
+      output.push_back(Sophus::SE3<Scalar>::fitToSE3(mat));
+    }
+    return output;
+  });
 
   type.def_static(
       "from_matrix3x4", [](const Eigen::Matrix<Scalar, 3, 4>& matrix) -> SE3Group<Scalar> {
@@ -123,14 +127,20 @@ PybindSE3Type<Scalar> exportSE3Transformation(
             matrix.template block<3, 1>(0, 3))};
       });
   type.def_static(
-      "from_matrix3x4",
-      [](const std::vector<Eigen::Matrix<Scalar, 4, 4>>& matrices) -> SE3Group<Scalar> {
+      "from_matrix3x4", [](const pybind11::array_t<Scalar>& matrices) -> SE3Group<Scalar> {
+        if (matrices.ndim() != 3 || matrices.shape(1) != 3 || matrices.shape(2) != 4) {
+          throw std::runtime_error(
+              fmt::format("The size of the input matrix should be Nx3x4 dimensions."));
+        }
+
         SE3Group<Scalar> output;
-        output.reserve(matrices.size());
-        for (size_t i = 0; i < matrices.size(); ++i) {
+        output.reserve(matrices.shape(0));
+        for (size_t i = 0; i < matrices.shape(0); ++i) {
+          Eigen::Map<const Eigen::Matrix<Scalar, 3, 4, Eigen::RowMajor>> mat(
+              matrices.data(i, 0, 0));
           output.push_back(Sophus::SE3<Scalar>(
-              Sophus::SO3<Scalar>::fitToSO3(matrices[i].template block<3, 3>(0, 0)),
-              matrices[i].template block<3, 1>(0, 3)));
+              Sophus::SO3<Scalar>::fitToSO3(mat.template block<3, 3>(0, 0)),
+              mat.template block<3, 1>(0, 3)));
         }
         return output;
       });
@@ -212,27 +222,33 @@ PybindSE3Type<Scalar> exportSE3Transformation(
 
   type.def(
       "to_matrix3x4",
-      [](const SE3Group<Scalar>& transformations) -> std::vector<Eigen::Matrix<Scalar, 3, 4>> {
-        std::vector<Eigen::Matrix<Scalar, 3, 4>> output;
-        output.reserve(transformations.size());
+      [](const SE3Group<Scalar>& transformations) -> pybind11::array_t<Scalar> {
+        pybind11::array_t<Scalar> result(
+            std::vector<long>{long(transformations.size()), 3, 4},
+            std::vector<long>{12 * sizeof(Scalar), 4 * sizeof(Scalar), sizeof(Scalar)});
 
         for (size_t i = 0; i < transformations.size(); i++) {
-          output.push_back(transformations[i].matrix3x4());
+          Eigen::Map<Eigen::Matrix<Scalar, 3, 4, Eigen::RowMajor>> map(
+              result.mutable_data(i, 0, 0));
+          map = transformations[i].matrix3x4();
         }
-        return output;
+        return result.squeeze();
       },
       "Convert an array of SE3 into an array of transformation matrices of size 3x4");
 
   type.def(
       "to_matrix",
-      [](const SE3Group<Scalar>& transformations) -> std::vector<Eigen::Matrix<Scalar, 4, 4>> {
-        std::vector<Eigen::Matrix<Scalar, 4, 4>> output;
-        output.reserve(transformations.size());
+      [](const SE3Group<Scalar>& transformations) -> pybind11::array_t<Scalar> {
+        pybind11::array_t<Scalar> result(
+            std::vector<long>{long(transformations.size()), 4, 4},
+            std::vector<long>{16 * sizeof(Scalar), 4 * sizeof(Scalar), sizeof(Scalar)});
 
         for (size_t i = 0; i < transformations.size(); i++) {
-          output.push_back(transformations[i].matrix());
+          Eigen::Map<Eigen::Matrix<Scalar, 4, 4, Eigen::RowMajor>> map(
+              result.mutable_data(i, 0, 0));
+          map = transformations[i].matrix();
         }
-        return output;
+        return result.squeeze();
       },
       "Convert an array of SE3 into an array of transformation matrices of size 4x4");
 

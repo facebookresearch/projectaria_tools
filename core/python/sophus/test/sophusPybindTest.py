@@ -92,24 +92,24 @@ class SophusPybindTest(unittest.TestCase):
             ## matrix
             self.assertIsNone(
                 np.testing.assert_array_almost_equal(
-                    so3vec[i].to_matrix()[0], se3vec[i].to_matrix3x4()[0][:, 0:3]
+                    so3vec[i].to_matrix(), se3vec[i].to_matrix3x4()[:, 0:3]
                 )
             )
             self.assertIsNone(
                 np.testing.assert_array_almost_equal(
-                    so3vec[i].to_matrix()[0], se3vec[i].to_matrix()[0][0:3, 0:3]
+                    so3vec[i].to_matrix(), se3vec[i].to_matrix()[0:3, 0:3]
                 )
             )
             self.assertIsNone(
                 np.testing.assert_array_almost_equal(
-                    SO3.from_matrix(so3vec[i].to_matrix()).to_matrix()[0],
-                    so3vec[i].to_matrix()[0],
+                    SO3.from_matrix(so3vec[i].to_matrix()).to_matrix(),
+                    so3vec[i].to_matrix(),
                 )
             )
             self.assertIsNone(
                 np.testing.assert_array_almost_equal(
-                    SE3.from_matrix(se3vec[i].to_matrix()).to_matrix()[0],
-                    se3vec[i].to_matrix()[0],
+                    SE3.from_matrix(se3vec[i].to_matrix()).to_matrix(),
+                    se3vec[i].to_matrix(),
                 )
             )
 
@@ -123,7 +123,7 @@ class SophusPybindTest(unittest.TestCase):
             ## translation
             self.assertIsNone(
                 np.testing.assert_array_almost_equal(
-                    se3vec[i].translation()[0], se3vec[i].to_matrix()[0][0:3, 3]
+                    se3vec[i].translation()[0], se3vec[i].to_matrix()[0:3, 3]
                 )
             )
 

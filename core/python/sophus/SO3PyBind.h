@@ -148,16 +148,20 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
   type.def_static("from_matrix", [](const Eigen::Matrix<Scalar, 3, 3>& matrix) -> SO3Group<Scalar> {
     return Sophus::SO3<Scalar>::fitToSO3(matrix);
   });
-  type.def_static(
-      "from_matrix",
-      [](const std::vector<Eigen::Matrix<Scalar, 3, 3>>& matrices) -> SO3Group<Scalar> {
-        SO3Group<Scalar> output;
-        output.reserve(matrices.size());
-        for (size_t i = 0; i < matrices.size(); ++i) {
-          output.push_back(Sophus::SO3<Scalar>::fitToSO3(matrices[i]));
-        }
-        return output;
-      });
+  type.def_static("from_matrix", [](const pybind11::array_t<Scalar>& matrices) -> SO3Group<Scalar> {
+    if (matrices.ndim() != 3 || matrices.shape(1) != 3 || matrices.shape(2) != 3) {
+      throw std::runtime_error(
+          fmt::format("The size of the input matrix should be Nx3x3 dimensions."));
+    }
+
+    SO3Group<Scalar> output;
+    output.reserve(matrices.shape(0));
+    for (size_t i = 0; i < matrices.shape(0); ++i) {
+      Eigen::Map<const Eigen::Matrix<Scalar, 3, 3, Eigen::RowMajor>> mat(matrices.data(i, 0, 0));
+      output.push_back(Sophus::SO3<Scalar>::fitToSO3(mat));
+    }
+    return output;
+  });
 
   type.def(
       "to_quat",
@@ -177,14 +181,17 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
 
   type.def(
       "to_matrix",
-      [](const SO3Group<Scalar>& rotations) -> std::vector<Eigen::Matrix<Scalar, 3, 3>> {
-        std::vector<Eigen::Matrix<Scalar, 3, 3>> output;
-        output.reserve(rotations.size());
+      [](const SO3Group<Scalar>& rotations) -> pybind11::array_t<Scalar> {
+        pybind11::array_t<Scalar> result(
+            std::vector<long>{long(rotations.size()), 3, 3},
+            std::vector<long>{9 * sizeof(Scalar), 3 * sizeof(Scalar), sizeof(Scalar)});
 
         for (size_t i = 0; i < rotations.size(); i++) {
-          output.push_back(rotations[i].matrix());
+          Eigen::Map<Eigen::Matrix<Scalar, 3, 3, Eigen::RowMajor>> map(
+              result.mutable_data(i, 0, 0));
+          map = rotations[i].matrix();
         }
-        return output;
+        return result.squeeze();
       },
       "Convert an array of SO3 into an array of rotation matrices");
 
