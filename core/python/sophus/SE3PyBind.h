@@ -188,12 +188,12 @@ PybindSE3Type<Scalar> exportSE3Transformation(
       [](const std::vector<Scalar>& x_vec,
          const Eigen::Matrix<Scalar, -1, 3>& xyz_vec,
          const Eigen::Matrix<Scalar, -1, 3>& translations) -> SE3Group<Scalar> {
-        if (x_vec.size() != xyz_vec.rows() || x_vec.size() != translations.size()) {
+        if (x_vec.size() != xyz_vec.rows() || x_vec.size() != translations.rows()) {
           throw std::domain_error(fmt::format(
               "Size of the input variables are not the same: x_vec = {}, xyz_vec = {}, translation = {}",
               x_vec.size(),
               xyz_vec.rows(),
-              translations.size()));
+              translations.rows()));
         }
         SE3Group<Scalar> output;
         output.reserve(x_vec.size());
