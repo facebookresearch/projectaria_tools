@@ -7,41 +7,17 @@ title: Recording Profile Guide
 
 ## Overview
 
-This page provides the recording profiles needed for Machine Perception Services(MPS) and an overview of Aria sensor recording profiles that are commonly used when collecting Aria data.
+This page provides an overview of Project Aria sensor recording profiles that are commonly used when collecting data with a Project Aria device, as well as the recording profiles that work with Machine Perception Services (MPS).
 
 Go to the [Recording Profiles](tech_spec/recording_profiles.mdx) in Technical Specifications for more detailed information about each profile.
 
 Recording profiles enable researchers choosing which sensors to record with as well as what settings to use. Settings options include what camera resolution to use and whether the output is RAW (no encoding) or JPEG (compressed).
-If you would like more details about any recording profile:
+
+If you would like more details about any recording profile and have a Project Aria device:
 
 1. Open the Mobile Companion App and select **New Recording**
 2. Select **Profile** and scroll down to see the sensor configuration
 
-
-## Recording Profiles That Support MPS
-
-The table below shows which recording profiles have the necessary data to generate Trajectory or Eye Gaze data using MPS. More commonly used profiles are marked with bold text..
-
-
-|Aria Recording Profile	|Description	|Traj	|ET	|
-|---	|---	|---	|---	|
-|***Profile0***	|Default (all sensors)	|Yes	|Yes	|
-|***Profile2***	|RGB and SLAM high frame rate	|Yes	|No	|
-|***Profile4***	|RGB high frame rate JPEG with audio	|No	|No	|
-|***Profile5***	|Eye tracking calibration (high res)	|No	|Yes	|
-|***Profile7***	|RGB high frame rate RAW with audio	|No	|No	|
-|Profile8	|Noise and Hearing mode	|Yes	|Yes	|
-|***Profile9***	|Contextualized AI	|Yes	|No	|
-|***Profile10***	|All sensors enabled with low fps	|Yes	|Yes	|
-|Profile12	|Streaming mode with JPEG	|No	|Yes	|
-|Profile14	|SLAM and ET high frame rate with RGB low frame rate	|Yes	|Yes	|
-|***Profile15***	|AR Replay	|Yes	|Yes	|
-|Profile16	|Eye tracking high frame rate	|No	|Yes	|
-|Profile17	|Streaming mode with H.265	|No	|Yes	|
-|Profile18	|Streaming mode with JPEG and Spatial Audio	|No	|Yes	|
-|Profile19	|Dual capture	|Yes	|No	|
-|Profile20	|Long Duration	|No	|No	|
-|Profile21	|Noise and hearing mode with high RGB fps (RGB 15fps 2MP, SLAM 15fps VGA, ET 30fps QVGA; Audio on; GPS, Wi-Fi and BLE off)	|No	|Yes	|
 
 ## General Guidance
 
@@ -74,3 +50,27 @@ Try profile 5 for high resolution ET recordings at 20fps.
 In situations where you want to use RAW videos and skip the Image Sensor Processor (ISP) as much as possible, profile 7 is helpful.
 
 Please note, because profile 7 delivers RAW image files, not JPEGs the data is 8x more costly to store. This profile also uses more energy while recording and may heat up faster than others.
+
+
+
+## Recording Profiles That Support MPS
+
+The table below shows which recording profiles have the necessary data to generate Trajectory or Eye Gaze data using MPS. More commonly used profiles are marked with bold text.
+
+
+|Aria Recording Profile	|Description	|Traj	|ET	|
+|---	|---	|---	|---	|
+|***Profile0***	|Default (all sensors)	|Yes	|Yes	|
+|***Profile2***	|RGB and SLAM high frame rate	|Yes	|No	|
+|***Profile5***	|Eye tracking calibration (high res)	|No	|Yes	|
+|Profile8	|Noise and Hearing mode	|Yes	|Yes	|
+|***Profile9***	|Contextualized AI	|Yes	|No	|
+|***Profile10***	|All sensors enabled with low fps	|Yes	|Yes	|
+|Profile12	|Streaming mode with JPEG	|No	|Yes	|
+|Profile14	|SLAM and ET high frame rate with RGB low frame rate	|Yes	|Yes	|
+|***Profile15***	|AR Replay	|Yes	|Yes	|
+|Profile16	|Eye tracking high frame rate	|No	|Yes	|
+|Profile17	|Streaming mode with H.265	|No	|Yes	|
+|Profile18	|Streaming mode with JPEG and Spatial Audio	|No	|Yes	|
+|Profile19	|Dual capture	|Yes	|No	|
+|Profile21	|Noise and hearing mode with high RGB fps (RGB 15fps 2MP, SLAM 15fps VGA, ET 30fps QVGA; Audio on; GPS, Wi-Fi and BLE off)	|No	|Yes	|

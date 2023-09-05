@@ -5,12 +5,19 @@ title: MPS
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Aria [Machine perception Services (MPS)](/docs/ARK/mps) provide a convenient way for Aria users to request derived data on any VRS file. Please take a look at [Request MPS](/docs/ARK/mps/request_mps) page to learn more about how to request MPS on your VRS files. In this section, we will learn how to consume the MPS output.
+# MPS Code Snippets
+
+[Project Aria Machine Perception Services (MPS)](/docs/ARK/mps) enables Aria users with access to the [Aria Research Kit](https://www.projectaria.com/research-kit/) to request derived data on Aria VRS files.
+
+Some [Open Datasets](docs/open_datasets) also contain [MPS outputs](docs/data_formats/mps/mps_summary).
+* [Aria Synthetic Environments (ASE) Dataset](/docs/open_datasets/aria_synthetic_environments_dataset/ase_getting_started) includes semi-dense point cloud and observations, but they provide their own [loading interface](/docs/open_datasets/aria_synthetic_environments_dataset/ase_data_tools)
+
+This page covers how to consume standard MPS outputs.
 
 ## Load MPS output
 The loaders for MPS output ([projectaria_tools/main/core/mps](https://github.com/facebookresearch/projectaria_tools/blob/main/core/mps)) provide a convenient way to quickly load the MPS output in a few lines of code into data structures that can then be used downstream.
 
-Please refer to the [MPS data schema wiki page](/docs/data_formats/mps/mps_summary) to learn more about the specifics of what each MPS output consists of. Here, we will focus only on the loading APIs in python and C++.
+Please refer to the [MPS data schema wiki page](/docs/data_formats/mps/mps_summary) to learn more about the specifics of what each MPS output consists of. Here, we will focus only on the loading APIs in Python and C++.
 
 ### Open loop/Closed loop trajectory
 
@@ -58,7 +65,7 @@ for (const ClosedLoopTrajectoryPose& closedLoopPose : closedLoopTraj) {
 ### Point cloud
 
 :::info Always filter global point clouds in 3D
-Post-filtering the point cloud using inverse distance and distance certainty is required to get point cloud **accurate in 3D space**. There are points cannot be accurately estimated in 3D space due to low parallax, but those points are well tracked in 2D images, and produce valid 2D observations. We choose to output **all** the points, include those have poor 3D estimations, in case researchers need. Check [semi-dense point cloud page](/docs/data_formats/mps/mps_pointcloud) for more information.
+Post-filtering the point cloud using inverse distance and distance certainty is required to get point cloud **accurate in 3D space**. There are points cannot be accurately estimated in 3D space due to low parallax, but those points are well tracked in 2D images, and produce valid 2D observations. We choose to output **all** the points, include those have poor 3D estimations, in case researchers need them. Go to the [Semi-Dense Point Cloud page](/docs/data_formats/mps/mps_pointcloud) for more information.
 :::
 
 :::info Loading observations could be slow

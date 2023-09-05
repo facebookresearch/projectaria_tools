@@ -2,7 +2,7 @@
 sidebar_position: 10
 title: 2D Image Coordinate System Conventions
 ---
-# Aria Glasses 2D Image Coordinate System Conventions
+# Project Aria Glasses 2D Image Coordinate System Conventions
 
 For any provided camera intrinsic calibration value we use the convention that the color value of a pixel with integer coordinates $(u,v)$ is the average color of the square spanning from $(u-0.5,v-0.5)$ to $(u+0.5,v+0.5)$ in continuous coordinates.
 
@@ -12,7 +12,7 @@ This is visualized in the Figure 1, and has the following important consequences
 * **Interpolation**: In bilinear interpolation, a point (u,v) can be interpolated of all four neighboring integer-valued pixel coordinates are in-bound. That requires  $0 \leq u \leq W-1$ and $0 \leq v \leq H-1$.
 * **Image down-sampling:** When downsampling images by a factor of $s$, every $s \times s$ pixel are squeezed into a single pixel. For example, the intensity at pixel $s \times s$ in the scaled image accounts for all the photons collected in the area $[-0.5,s-0.5]\times[-0.5,s-0.5]$ (i.e. column $0$ to $s - 1$, and row $0$ to $s-1$ in the discrete coordinate) in the original image. In order to keep this assumption valid, the re-scaled point $p_\text{scaled}$ not only needs to scale from the corresponding point in the original image $p_\text{original}$ but also accounts for the $(0.5,0.5)$ translation accordingly by $p_\text{scaled} =s (p_\text{original}+0.5)-0.5$
 
-![Visualization of 2D Image Coordinate System Conventions](/img/data_formats/image2dcoord.png)
+![Visualization of 2D Image Coordinate System Conventions for Project Aria data](/img/data_formats/image2dcoord.png)
 <br />
 
 **Figure 1:** *2D Image Coordinate System Conventions*

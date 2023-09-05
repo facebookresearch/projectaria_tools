@@ -3,13 +3,13 @@ sidebar_position: 20
 title: Format
 ---
 
-# Aria VRS format
+# Project Aria VRS Format
 
-Aria data is stored in [VRS](https://facebookresearch.github.io/vrs/), which is optimized to record and playback streams of multi-modal sensor data, such as images, audio, and other discrete sensors (IMU, temperature, etc.). Data is stored in per-device streams of time-stamped records.
+Project Aria data is stored in [VRS](https://facebookresearch.github.io/vrs/), which is optimized to record and playback streams of multi-modal sensor data, such as images, audio, and other discrete sensors (IMU, temperature, etc.). Data is stored in per-device streams of time-stamped records.
 
 The most intuitive way to access Aria data is via our loaders and visualizers. Go to [Data Utilities](/data_utilities/data_utilities.mdx) for Python and C++ interfaces to easily access VRS data. You may also want to use [vrstools](https://facebookresearch.github.io/vrs/) to extract or inspect VRS data.
 
-Here are some instruction for some common use cases.
+This page provides information about how Aria data streams are identified in VRS, Aria sensor data configuration, followed by useful VRS tools for common use cases.
 
 ## Aria data streams
 
@@ -21,6 +21,7 @@ Alternatively, the streams are identified by a shorter form of label. Labels are
 
 The following table lists the streamID and type ID as well as their label. Note GPS, Wi-Fi and Bluetooth are not calibrated but they do have a label. If you are using loaders in projectaria tools, you do not have to memorize this mapping. Projectaria tools has an API that converts between Stream ID and labels.
 
+**Table 1:** *IDs Used for Sensors*
 <table>
 <thead>
 <tr><th>        <b>Sensor</b>         </th><th>Stream ID  </th><th>Recordable type ID            </th><th>label           </th></tr>

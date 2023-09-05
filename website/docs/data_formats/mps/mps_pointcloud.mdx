@@ -5,16 +5,16 @@ title: Semi-Dense Point Cloud
 
 # MPS Output - Semi-Dense Point Cloud
 
-The Aria Research Kit's Semi Dense Point Cloud MPS can be requested as an addition to Trajectory MPS.
+Semi-Dense Point Cloud is a a Project Aria [Machine Perception Service (MPS)](/docs/ARK/mps) that can be requested as an addition to [Trajectory MPS](/docs/data_formats/mps/mps_trajectory).
 
 ## What are semi-dense points?
 
-Semi-dense points are the 3D points associated with tracks from our semi-dense tracking pipeline. Semi-dense tracks are continually created in pixel locations of input frames that lie in regions of high image gradient, and are then successively tracked in the following frames. Associated with each track is a 3D point, parameterized as an inverse distance along a ray originating from the track's first initial observation, as well as its uncertainty in inverse distance and distance. These points are transformed from their original camera coordinate spaces to the same coordinate frame associated with the closed loop trajectory of the sequence.
+Semi-dense points are the 3D points associated with tracks from our semi-dense tracking pipeline. Semi-dense tracks are continually created in pixel locations of input frames that lie in regions of high image gradient, and are then successively tracked in the following frames. Each track is associated with a 3D point, parameterized as an inverse distance along a ray originating from the track's first initial observation, as well as its uncertainty in inverse distance and distance. These points are transformed from their original camera coordinate spaces to the same coordinate frame associated with the closed loop trajectory of the sequence.
 
 ### User needs to define how to enforce quality
 To support user flexibility the tool outputs the associated points of all tracks regardless of quality. This means the data will contain a number of points whose positions have high uncertainty and are geometrically less accurate.
 
-Users will either need to threshold the pointcloud by setting a maximum allowed inverse distance / distance certainty or correctly weight points by their certainty when using them in downstream tasks.
+Users will either need to threshold the point cloud by setting a maximum allowed inverse distance / distance certainty or correctly weight points by their certainty when using them in downstream tasks.
 
 Nominal threshold values are a maximum `inv_dist_std` of 0.005 and a maximum `dist_std` of 0.01.
 

@@ -5,9 +5,13 @@ title: 3D Coordinate Frame Conventions
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# 3D Coordinate Frame Conventions for Aria Glasses
+# 3D Coordinate Frame Conventions for Project Aria Glasses
 
-This page provides an overview of how 6-DoF poses are represented, 3D Coordinate frame and system conventions, the non-visual sensor coordinate system and information about the Central Pupil Frame (CPF).
+This page provides an overview of 3D Coordinate Frame Conventions used for Project Aria glasses, covering:
+* Representation of 6-DoF poses
+* 3D Coordinate frame and system conventions
+* Non-visual sensor coordinate systems
+* Central Pupil Frame (CPF)
 
 ## SE(3) Lie groups
 The 6-DoF poses are represented by SE(3) Lie group. The quaternion part of SE(3) uses Hamilton convention following the [Eigen library](https://eigen.tuxfamily.org/), in which the exact formula to convert a quaternion to a rotation matrix of the SE(3) can be found [here](https://gitlab.com/libeigen/eigen/-/blob/master/Eigen/src/Geometry/Quaternion.h#L821-859).
@@ -53,7 +57,7 @@ Every sensor on Aria glasses has their own local coordinate system. We represent
 
 
 
-![Image](/img/data_formats/aria_local_frames.png)
+![Project Aria device with the x, y and z axises for each sensor](/img/data_formats/aria_local_frames.png)
 
 ## Camera coordinate system convention
 
@@ -62,27 +66,27 @@ A camera's local frame has its origin at the camera's optical center. Coarsely, 
 More rigorously, we define a camera's local frame based on the optical axis and the entrance pupil of its lens. Both are uniquely defined for each camera according to the camera's lens prescription. The origin of a camera's local frame is at center of the camera's entrance pupil.
 The frame's Z axis is aligned with the optical axis. The camera's X axis are aligned with the projection of the image plane's X axis on the entrance pupil plane. The cross-product of the X and Z axis defines the system's Y axis.
 
-![An image from the static](/img/data_formats/camera3d-coordinate-frame.png)
+![Diagram of Project Aria coordinates, showing the Optical center and the Lens FOV](/img/data_formats/camera3d-coordinate-frame.png)
 
 
 ## Non-visual sensor coordinate system
 
 We choose the IMU coordinate systems to have their origins at the position of the accelerometer, oriented along the direction of the accelerometer sensitive axis, eventually orthogonalized to compensate for sensor orthogonalities error.
-We do similarly for magnetometer.
+We use a similar arrangement for the magnetometer.
 
 
 <div style={{textAlign: 'center'}}>
 
-![Image](/img/data_formats/ImuFrame.png)
+![Diagram of Project Aria glasses IMU coordinates](/img/data_formats/ImuFrame.png)
 
 </div>
 
-## The nominal central pupil frame (CPF)
+## The nominal Central Pupil Frame (CPF)
 
 The CPF frame is placed at the midpoint between the eye boxes of the left and right eye. CPF's X-axis points left, Y-axis points up and the Z-axis points forward, from the person's perspective. Aria's ET gaze is defined as a vector in the CPF space originating at $(0, 0, 0)$ of the CPF frame.
 
 <div style={{textAlign: 'center'}}>
 
-![Image](/img/data_formats/CPF.png)
+![3D model of a head showing the CPF used in Project Aria data](/img/data_formats/CPF.png)
 
 </div>
