@@ -2,6 +2,8 @@
 sidebar_position: 20
 title: Aria Glasses Quickstart
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # Quickstart
 
@@ -51,11 +53,7 @@ You'll need to update your Aria glasses using the Mobile companion app before yo
 
 ### Install the Mobile companion app
 
-1. On your Android phone, go to [portal.projectaria.com](http://portal.projectaria.com/)
-2. Select the menu bar on the top right of the screen to sign into your account
-3. Scroll down to Aria for Android
-    * You'll only be able to see the Android app link if you are browsing from an Android device
-1. Select Aria for Android and the app will start downloading
+1.  Using your Android smartphone, download Aria's Android APK from [here](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/android/Aria_v125_arm64.apk)
 
 If your phone only accepts 32-bit apps, please reach out to [AriaOps@meta.com](mailto:AriaOps@meta.com) for the 32-bit .apk.
 
@@ -83,12 +81,27 @@ In the Mobile Companion App, you can change the Default Recording Profile at any
 
 The Desktop app is required for requesting Machine Perception Services and streaming data, but you don't need the Desktop app to make recordings or download data. You can also visualize data in the Desktop app. Go to the [Desktop app page](desktop_companion_app.mdx) for more detailed instructions.
 
-1. Go to [portal.projectaria.com](http://portal.projectaria.com/)
-2. Select the menu bar on the top right of the screen to sign into your account
-3. Scroll down to Aria for Desktop
-    * It will display for MacOS, Windows or Linux, depending on what sort of operating system you're running
-4. Select Aria for Mac/Windows to download and install
-5. Use the username and password provided in your welcome email to sign into the app.
+1. Download the desktop app from the following supported platforms
+
+<Tabs
+  defaultValue="mac"
+  values={[
+    {label: 'Mac', value: 'mac'},
+    {label: 'Windows', value: 'windows'},
+    {label: 'Ubuntu', value: 'ubuntu'},
+  ]}>
+  <TabItem value="mac">
+  <a href="https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/mac/Aria_v37.dmg">Aria For Mac (Intel & Apple Silicon)</a>
+  </TabItem>
+  <TabItem value="windows">
+    <a href="https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/windows/Aria_v37.msi">Aria For Windows (x64)</a>
+ </TabItem>
+  <TabItem value="ubuntu">
+  <a href="https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/linux/Aria_v36.deb">Aria For Linux (x64)</a>
+  </TabItem>
+</Tabs>
+
+2. Use the username and password provided in your welcome email to sign into the app.
 
 ## Record Data
 
@@ -129,18 +142,17 @@ Aria recordings are stored as a VRS file and an accompanying JSON file that incl
 * The recording profile used
 * What version of the Mobile Companion App was used to create the recording
 
-Aria recordings are directly accessible from the glasses' SDCARD. There are three ways you can download data to your local machine using:
+Aria recordings are directly accessible from the glasses' storage. There are three ways you can download data to your local machine using:
 
 * MTP
-* ADB commands
 * Aria Desktop Companion App
+* ADB commands
 
-We recommend using MTP or ADB commands for a faster download experience.
-
+We recommend using MTP for a faster download experience.
 
 ### Use MTP via File Explorer
 
-#### Windows
+#### Windows & Linux
 
 When you plug in your Aria glasses to your computer, you can navigate to it as if it were any other USB external storage device.
 
@@ -154,12 +166,16 @@ When you plug in your Aria glasses to your computer, you can navigate to it as i
 
 #### MacOS
 
-MTP is not provided natively on MacOS, but there are lightweight tools that you can use, such as [Android File Transfer](https://www.android.com/filetransfer/).
+MTP is not provided natively on MacOS, but there are lightweight tools that you can use, such as OpenMTP.
 
-1. Download and install Android File Transfer https://www.android.com/filetransfer/
+1. Download and install [OpenMTP](https://openmtp.ganeshrvel.com/)
 2. Connect your Aria glasses to your computer
-3. Drag & drop files
+3. Open OpenMTP
+4. Drag & drop Aria recordings from Aria's internal storage
 
+### Use the Desktop App
+
+Go to the Recordings section in the Desktop app to download your data. See the [Desktop App page](/docs/ARK/desktop_companion_app.mdx) for further information.
 
 ### Use ADB
 
@@ -179,11 +195,6 @@ To download a single metadata file
 ```cpp
 adb pull /sdcard/recording/myVrsFile.json /home/unixname/MyVRSFolder/
 ```
-
-### Use the Desktop App
-
-Go to the Recordings section in the Desktop app to download your data. See the [Desktop App page](/docs/ARK/desktop_companion_app.mdx) for further information.
-
 
 ## Streaming
 
