@@ -72,8 +72,8 @@ const std::unordered_map<vrs::StreamId, std::string, StreamIdHash> kStreamIdToNa
     {vrs::StreamId::fromNumericName("1201-1"), "left_slam"},
     {vrs::StreamId::fromNumericName("1201-2"), "right_slam"}};
 
-namespace {
-std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
+std::optional<AriaDigitalTwinDataPaths>
+AriaDigitalTwinDataPathsProvider::getDataPathsUsingSubtourName(
     const std::string& sequencePath,
     const std::string& subtourName,
     bool skeletonFlag) {
@@ -236,7 +236,6 @@ std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
   }
   return paths;
 }
-} // namespace
 
 void AriaDigitalTwinDataPathsProvider::loadSequenceMetaData() {
   if (!fs::exists(sequencePath_)) {

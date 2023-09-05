@@ -143,6 +143,12 @@ class AriaDigitalTwinDataPathsProvider {
     return numSkeletons_;
   }
 
+ protected:
+  static std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
+      const std::string& sequencePath,
+      const std::string& subtourName,
+      bool skeletonFlag);
+
  private:
   // returns map from serial -> subsequence name
   void loadDeviceSerialToSubtourName();
