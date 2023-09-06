@@ -209,11 +209,12 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
   type.def(
       "inverse",
       [](const SO3Group<Scalar>& rotations) -> SO3Group<Scalar> {
-        SO3Group<Scalar> result;
+        SO3Group<Scalar> results;
+        results.reserve(rotations.size());
         for (size_t i = 0; i < rotations.size(); ++i) {
-          result = rotations[i].inverse();
+          results.push_back(rotations[i].inverse());
         }
-        return result;
+        return results;
       },
       "Compute the inverse of the rotations.");
 

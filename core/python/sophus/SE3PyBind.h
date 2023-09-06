@@ -284,11 +284,12 @@ PybindSE3Type<Scalar> exportSE3Transformation(
   type.def(
       "inverse",
       [](const SE3Group<Scalar>& transformations) -> SE3Group<Scalar> {
-        SE3Group<Scalar> result;
+        SE3Group<Scalar> results;
+        results.reserve(transformations.size());
         for (size_t i = 0; i < transformations.size(); ++i) {
-          result = transformations[i].inverse();
+          results.push_back(transformations[i].inverse());
         }
-        return result;
+        return results;
       },
       "Compute the inverse of the transformations.");
 
