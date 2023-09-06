@@ -53,17 +53,14 @@ def print_sample_calibration(provider):
     # extrinsics
     transform_device_rgb = device_calib.get_transform_device_sensor(camera_name)
     print(f"Device calibration origin label {device_calib.get_origin_label()}")
-    print(f"{camera_name} has extrinsics of \n {transform_device_rgb.matrix()}")
+    print(f"{camera_name} has extrinsics of \n {transform_device_rgb.to_matrix()}")
 
     # intrinsics
     rgb_calib = device_calib.get_camera_calib(camera_name)
 
     # project a pixel in device frame to rgb camera
     point_device = np.array([0, 0, 10])
-    point_camera = (
-        np.dot(transform_device_rgb.rotation_matrix(), point_device)
-        + transform_device_rgb.translation()
-    )
+    point_camera = transform_device_rgb @ point_device
 
     maybe_pixel = rgb_calib.project(point_camera)
     if maybe_pixel is not None:
@@ -75,12 +72,12 @@ def print_sample_calibration(provider):
     et_calib = device_calib.get_aria_et_camera_calib()
     print(et_calib[0].get_label())
     print(et_calib[1].get_label())
-    print(et_calib[0].get_transform_device_camera().rotation_matrix())
+    print(et_calib[0].get_transform_device_camera())
 
     # obtain calibration data for IMU
     imu_calib = device_calib.get_imu_calib("imu-left")
     print(imu_calib.get_label())
-    print(imu_calib.get_transform_device_imu().rotation_matrix())
+    print(imu_calib.get_transform_device_imu())
 
 
 def print_distort_image(provider):
