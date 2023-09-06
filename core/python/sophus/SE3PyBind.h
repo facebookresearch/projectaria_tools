@@ -179,21 +179,18 @@ PybindSE3Type<Scalar> exportSE3Transformation(
       },
       "Create a set of SE3 from translational_parts (Nx3) and rotation vectors (Nx3) of magnitude in rad. NOTE: translational_part is not translation vector in SE3");
 
-  type.def_static(
+  type.def(
       "from_quat_and_translation",
       [](const Scalar& w,
          const Eigen::Matrix<Scalar, 3, 1>& xyz,
          const Eigen::Matrix<Scalar, 3, 1>& translation) -> SE3Group<Scalar> {
-        Eigen::Matrix<Scalar, 4, 1> mat(w, xyz[0], xyz[1], xyz[2]);
-        if (std::fabs(mat.norm() - 1.0) > Sophus::Constants<Scalar>::epsilon()) {
-          throw std::runtime_error("The norm of the quaternion is not 1");
-        }
-        Eigen::Quaternion quat(mat[0], mat[1], mat[2], mat[3]);
+        Eigen::Quaternion quat(w, xyz[0], xyz[1], xyz[2]);
+        quat.normalize();
         return {Sophus::SE3<Scalar>(quat, translation)};
       },
       "Create SE3 from a quaternion as w, [x, y, z], and translation vector");
 
-  type.def_static(
+  type.def(
       "from_quat_and_translation",
       [](const std::vector<Scalar>& x_vec,
          const Eigen::Matrix<Scalar, -1, 3>& xyz_vec,
@@ -208,12 +205,8 @@ PybindSE3Type<Scalar> exportSE3Transformation(
         SE3Group<Scalar> output;
         output.reserve(x_vec.size());
         for (size_t i = 0; i < x_vec.size(); ++i) {
-          Eigen::Matrix<Scalar, 4, 1> mat(x_vec[i], xyz_vec(i, 0), xyz_vec(i, 1), xyz_vec(i, 2));
-          if (std::fabs(mat.norm() - 1.0) > Sophus::Constants<Scalar>::epsilon()) {
-            throw std::runtime_error(
-                fmt::format("The norm of the quaternion is not 1 for quaternion {}", mat));
-          }
-          Eigen::Quaternion quat(mat[0], mat[1], mat[2], mat[3]);
+          Eigen::Quaternion quat(x_vec[i], xyz_vec(i, 0), xyz_vec(i, 1), xyz_vec(i, 2));
+          quat.normalize();
           output.push_back(Sophus::SE3<Scalar>(quat, translations.row(i)));
         }
         return output;

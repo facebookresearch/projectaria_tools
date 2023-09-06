@@ -111,11 +111,8 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
   type.def_static(
       "from_quat",
       [](const Scalar& w, const Eigen::Matrix<Scalar, 3, 1>& xyz) -> SO3Group<Scalar> {
-        Eigen::Matrix<Scalar, 4, 1> mat(w, xyz[0], xyz[1], xyz[2]);
-        if (std::fabs(mat.norm() - 1.0) > Sophus::Constants<Scalar>::epsilon()) {
-          throw std::runtime_error("The norm of the quaternion is not 1");
-        }
-        Eigen::Quaternion quat(mat[0], mat[1], mat[2], mat[3]);
+        Eigen::Quaternion quat(w, xyz[0], xyz[1], xyz[2]);
+        quat.normalize();
         return {Sophus::SO3<Scalar>(quat)};
       },
       "Create a rotation from a quaternion as w, [x, y, z]");
@@ -133,12 +130,8 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
         SO3Group<Scalar> output;
         output.reserve(x_vec.size());
         for (size_t i = 0; i < x_vec.size(); ++i) {
-          Eigen::Matrix<Scalar, 4, 1> mat(x_vec[i], xyz_vec(i, 0), xyz_vec(i, 1), xyz_vec(i, 2));
-          if (std::fabs(mat.norm() - 1.0) > Sophus::Constants<Scalar>::epsilon()) {
-            throw std::runtime_error(
-                fmt::format("The norm of the quaternion is not 1 for quaternion {}", mat));
-          }
-          Eigen::Quaternion quat(mat[0], mat[1], mat[2], mat[3]);
+          Eigen::Quaternion quat(x_vec[i], xyz_vec(i, 0), xyz_vec(i, 1), xyz_vec(i, 2));
+          quat.normalize();
           output.push_back(Sophus::SO3<Scalar>(quat));
         }
         return output;
