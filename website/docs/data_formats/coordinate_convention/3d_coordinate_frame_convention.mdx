@@ -14,9 +14,14 @@ This page provides an overview of 3D Coordinate Frame Conventions used for Proje
 * Central Pupil Frame (CPF)
 
 ## SE(3) Lie groups
-The 6-DoF poses are represented by SE(3) Lie group. The quaternion part of SE(3) uses Hamilton convention following the [Eigen library](https://eigen.tuxfamily.org/), in which the exact formula to convert a quaternion to a rotation matrix of the SE(3) can be found [here](https://gitlab.com/libeigen/eigen/-/blob/master/Eigen/src/Geometry/Quaternion.h#L821-859).
+The 6-DoF poses are represented by SE(3) Lie group. The quaternion part of SE(3) uses Hamilton convention following the [Eigen library](https://eigen.tuxfamily.org/), in which the exact formula to convert a quaternion to a rotation matrix of the SE(3) can be found [in the Eigen code repository](https://gitlab.com/libeigen/eigen/-/blob/master/Eigen/src/Geometry/Quaternion.h#L821-859).
+
 We use the SE3d class in the [Sophus Library](https://github.com/strasdat/Sophus) to represent SE(3) Lie groups, and provide a minimal pybind for the class.
 
+### A note on sensor naming and motivation
+T\_sensor1\_sensor2 represents a relative SE(3) transformation from sensor2 frame to sensor1 frame. An easy mnemonic is the chaining principle is: T\_<span style={{color: 'blue'}}>sensor1</span>_<span style={{color: 'green'}}>sensor2</span> * T_<span style={{color: 'green'}}>sensor2</span>_<span style={{color: 'orange'}}>sensor3</span> * p_<span style={{color: 'orange'}}>sensor3</span> = p_<span style={{color: 'blue'}}>sensor1</span> (where p_sensor is a 3D point measured from sensor)
+
+### Code
 ```mdx-code-block
 <Tabs groupId="programming-language">
 <TabItem value="python" label="Python">
@@ -53,7 +58,7 @@ quaternion_a_b = T_a_b.so3().unit_quaternion() # order is x, y, z, w
 
 # 3D Coordinate frame conventions
 
-Every sensor on Aria glasses has their own local coordinate system. We represent the 6DoF pose of each sensor as the relative pose (rotation and translation) with regard to the  “Device frame". The device frame is by-default the local frame of the left SLAM camera.
+Every sensor on Aria glasses has their own local coordinate system. We represent the 6DoF pose of each sensor as the relative pose (rotation and translation) with regard to the  “Device frame". The device frame is by-default the local frame of the left Mono Scene (SLAM) camera.
 
 
 
