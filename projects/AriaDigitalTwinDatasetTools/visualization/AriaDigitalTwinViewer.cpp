@@ -545,7 +545,7 @@ std::vector<std::vector<Eigen::Vector2d>> AriaDigitalTwinViewer::get3dBboxProjec
       bboxCoordsProjected.push_back(maybeProjected.value());
     }
 
-    // only plot bboxes that are fully visible (i.e., 8 successul projections)
+    // only plot bboxes that are fully visible (i.e., 8 successful projections)
     if (bboxCoordsProjected.size() != 8) {
       continue;
     }
