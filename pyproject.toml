@@ -37,6 +37,7 @@ cd /tmp && git clone --recursive https://github.com/boostorg/boost.git -b boost-
     && ./b2 --with-system --with-filesystem --with-thread --with-chrono --with-date_time --with-serialization --with-iostreams install \
     && rm -rf /tmp/boost;
 '''
+environment = {"CMAKE_ARGS"="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"}
 
 skip="*-manylinux_i686 *musllinux*"
 
