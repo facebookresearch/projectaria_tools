@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-#include <MPS3DSceneViewer.h>
+#pragma once
 
-int main(int argc, const char* argv[]) {
-  return projectaria::tools::mps3dSceneViewerCli(argc, argv);
-}
+namespace projectaria::tools {
+
+int mps3dSceneViewerCli(int argc, const char** argv);
+
+} // namespace projectaria::tools

@@ -22,13 +22,21 @@ target_link_libraries(mps_eyegaze_viewer
         Threads::Threads)
 
 message("--- Compiling mps_3d_scene_viewer.")
-add_executable(mps_3d_scene_viewer
-    main_3d_scene_viewer.cpp
-    MPSData3DGui.cpp MPSData3DGui.h
+add_library(mps_3d_scene_viewer_lib STATIC
+    MPSData3DGui.h MPSData3DGui.cpp
+    MPS3DSceneViewer.h MPS3DSceneViewer.cpp
 )
-target_link_libraries(mps_3d_scene_viewer
+target_include_directories(mps_3d_scene_viewer_lib PUBLIC "./")
+target_link_libraries(mps_3d_scene_viewer_lib
     PRIVATE
         mps
         CLI11::CLI11
         ${Pangolin_LIBRARIES}
+)
+add_executable(mps_3d_scene_viewer
+    main_3d_scene_viewer.cpp
+)
+target_link_libraries(mps_3d_scene_viewer
+    PRIVATE
+        mps_3d_scene_viewer_lib
 )
