@@ -141,6 +141,8 @@ int mps3dSceneViewerCli(int argc, const char** argv) {
     pangolin::FinishFrame();
   }
 
+  gui3d.finish();
+
   return EXIT_SUCCESS;
 }
 

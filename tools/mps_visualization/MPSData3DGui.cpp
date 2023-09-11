@@ -22,6 +22,7 @@ constexpr int UI_WIDTH = 400;
 constexpr int kMapPanelWidth = 1920;
 constexpr int kWindowWidth = kMapPanelWidth + UI_WIDTH;
 constexpr int kWindowHeight = 1080;
+constexpr std::string_view kWindowTitle = "MPS 3D Visualizer";
 constexpr float k3dViewFocal = 420.f / 4.f;
 
 const std::vector<Eigen::Vector3f> kColors{
@@ -128,7 +129,7 @@ MPSData3DGui::MPSData3DGui(
     const std::vector<std::vector<Eigen::Vector3f>>& fullTrajs_world,
     const StaticCameraCalibrations& camCalibs)
     : clouds_world_(clouds_world), fullTrajsWorld_(fullTrajs_world), camCalibs_(camCalibs) {
-  pangolin::CreateWindowAndBind("MPS 3D Visualizer", kWindowWidth, kWindowHeight);
+  pangolin::CreateWindowAndBind(kWindowTitle.data(), kWindowWidth, kWindowHeight);
   visualization3dState_ = pangolin::OpenGlRenderState(pangolin::ProjectionMatrixRDF_TopLeft(
       kMapPanelWidth,
       kWindowHeight,
@@ -182,6 +183,10 @@ MPSData3DGui::MPSData3DGui(
     pangolin_helpers::centerViewOnMap(
         visualization3dState_, filteredClouds_[0], k3dViewFocal, kMapPanelWidth);
   }
+}
+
+void MPSData3DGui::finish() {
+  pangolin::DestroyWindow(kWindowTitle.data());
 }
 
 void MPSData3DGui::draw() {
