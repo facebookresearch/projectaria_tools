@@ -1,0 +1,101 @@
+---
+sidebar_position: 10
+title: VRS to MP4 export (Python)
+---
+
+# Tutorial: how to export a VRS file to MP4
+
+In this example, we show how to:
+* Query RGB images from a VRS file
+* Export those RGB images to a video
+   * Video export is managed with `moviepy`
+
+## Install dependencies
+
+```bash
+pip install projectaria_tools moviepy
+```
+
+## Usage
+
+```bash
+python vrs_to_mp4.py --input_vrs "projectaria_tools/data/mps_sample/sample.vrs" --output_video "test.mp4"
+```
+
+## Script (to copy paste to vrs_to_mp4.py file)
+
+```python
+import argparse
+import numpy as np
+
+from moviepy.video.io.VideoFileClip import VideoClip
+from projectaria_tools.core import data_provider
+from projectaria_tools.core.stream_id import StreamId
+from projectaria_tools.core.sensor_data import TimeDomain
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--input_vrs",
+        type=str,
+        required=True,
+        help="path to the VRS file to be converted to a video",
+    )
+    parser.add_argument(
+        "--output_video",
+        type=str,
+        required=True,
+        help="path to the VIDEO file you want to create",
+    )
+    parser.add_argument(
+        "--downsample",
+        type=int,
+        required=False,
+        default=2,
+        help="Downsampling factor on VRS images (Must be >=1)",
+    )
+    return parser.parse_args()
+
+args = parse_args()
+
+# Setup the VRS file data provider
+provider = data_provider.create_vrs_data_provider(args.input_vrs)
+if not provider:
+    print(f"input_vrs file: '{args.input_vrs}' cannot be read")
+    exit(1)
+
+# Configure a deliver queue to provide only RGB image data stream
+deliver_option = provider.get_default_deliver_queued_options()
+deliver_option.deactivate_stream_all()
+rgb_stream_id = StreamId("214-1")
+deliver_option.activate_stream(rgb_stream_id)
+
+# Create a function that will return the next frame to moviePy VideoClip
+# using the 'make_frame' functor
+seq = provider.deliver_queued_sensor_data(deliver_option)
+iter_data = iter(seq)
+def make_frame(t):
+    try:
+        obj = next(iter_data)
+    except StopIteration:
+        return None
+    img = obj.image_data_and_record()[0].to_numpy_array()
+    downsampling_factor = args.downsample
+    if downsampling_factor > 1:
+        img = img[::downsampling_factor, ::downsampling_factor]
+    # Rotate image only if desired
+    img = np.rot90(img, -1)
+    return img
+
+# Create a VideoClip using the 'make_frame' functor
+t_first = provider.get_first_time_ns(rgb_stream_id, TimeDomain.DEVICE_TIME)
+t_last = provider.get_last_time_ns(rgb_stream_id, TimeDomain.DEVICE_TIME)
+duration_in_seconds=(t_last - t_first)/1e9
+video_writer_clip = VideoClip(make_frame, duration=duration_in_seconds)
+
+# Configure the VideoWriter and run the process
+output_video_fps = int(provider.get_nominalRateHz(rgb_stream_id))
+video_writer_clip.write_videofile(args.output_video, fps=output_video_fps)
+video_writer_clip.close()
+
+```
