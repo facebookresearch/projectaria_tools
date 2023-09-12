@@ -29,13 +29,13 @@ T\_sensor1\_sensor2 represents a relative SE(3) transformation from sensor2 fram
 `transform_a_b` represents a SE(3) rigid transformation from `b` coordinate frame to `a` coordinate frame. `p_a` represents an R^3 point (or vector) in the coordinate system of a.
 Easy mnemonics of the chaining principle (a, b, c are coordinate frames):
 ```python
-transform_a_c = transform_a_b * transform_b_c;
-p_a = transform_a_b.matrix() @ numpy.append(p_b, 1)
+transform_a_c = transform_a_b @ transform_b_c;
+p_a = transform_a_b @ p_b
 ```
 
 If you want to get quaternion from the SE3d, please notice the order is consistent to numpy
 ```python
-quaternion_a_b = transform_a_b.quaternion() # order is w, x, y, z
+quaternion_a_b = transform_a_b.to_quat() # order is w, x, y, z
 ```
 ```mdx-code-block
 </TabItem>
