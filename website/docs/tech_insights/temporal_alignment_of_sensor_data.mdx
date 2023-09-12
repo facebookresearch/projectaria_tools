@@ -2,10 +2,15 @@
 sidebar_position: 90
 title: Temporal Alignment of Sensor Data
 ---
+# Temporal Alignment of Aria Sensor Data
+
+This page provides an overview of how Project Aria data is temporally aligned and provides information about how to finely align IMU, barometer and magnetometer data. Go to [Timestamps in Aria VRS](/docs/data_formats/aria_vrs/timestamps_in_aria_vrs) for how Aria data is formatted. Go to [Project Aria Device Timestamping](/docs/tech_insights/device_timestamping) for how the hardware is configured.
+
+## Temporal Alignment
 
 Although each sensor data pieces are timestamped in the same time domain, there might be an offset between the instant represented by their timestamps and the actual instant for which the enclosed measurement is valid. For proper sensor fusion where precise temporal alignment of the data is required, we must take this offset into account. We need an estimate of this offset for each sensor.
 
-## Per sensor time offset : $\text{dt}_{\text{Device}}^{\text{Sensor}}$
+### Per sensor time offset : $\text{dt}_{\text{Device}}^{\text{Sensor}}$
 Since the Slam camera timestamps are direct measurements of a well defined instant (the center of exposure of our image sensor), we **choose** the Slam camera timestamps as the reference timestamp and define $\text{dt}_{\text{Device}}^{\text{Slam}} = 0$. The same goes for the RGB camera : $\text{dt}_{\text{Device}}^{\text{RGB}} = 0$. Note that the next subsection describes in more details the temporal aspect of the image formation model.
 
 For IMUs, the time offset is estimated in the factory by our camera-imu calibration process and is so that the following relation **approximately** holds (after IMU intrinsics compensation):
@@ -22,7 +27,7 @@ Where notation are similar as above with $\hat{B}$ representing the magnetic fie
 
 For barometer, audio signal and GPS data, such an offset is undetermined.
 
-## Images formation temporal model: rolling shutter and PLS artifact
+### Images formation temporal model: rolling shutter and PLS artifact
 In practice, the images obtained from our environment facing camera are not well described as captured at a unique timestamp for the most demanding applications. First, the regular exposure duration window can range from 19us up to 14ms, second the RGB sensor has a rolling shutter, where each row is being captured at different time per design, finally the slam cameras, even if specified as global shutter sensors are impacted by a row-dependent parasitic light sensitivity:  a proportion of the photons forming the image are captured outside of the regular exposure window. This proportion depends on the row.
 
 For the RGB sensor, we characterize the rolling shutter behavior through the read-out time $\Delta \text{dt}_{\text{readout}}$, we define is as the time between the readout of the first row and the readout of the last row. This time depends on the sensor binning configuration, that can differ on a recording basis. The readout time is specified to be $16.26ms$ for the full resolution ($2880\times2880$) and $5ms$ for the binned/cropped configuration ($1408\times1408$). We can account for rolling shutter by assigning a center of exposure timestamp to each pixel with the following formulae:
@@ -32,7 +37,7 @@ $$
 Where $t_{\text{Device}}(\boldsymbol{p})$ is the timestamp of the observation at pixel $\boldsymbol{p}$, $t_{\text{Device}}^{\text{Image}}$ is the device timestamp of the image assigned by the MCU, $\boldsymbol{p}\xrightarrow{}\text{row}(\boldsymbol{p})$ is the projection of the pixel coordinate on the image dimension aligned with sensor rows, $H$ is the size of the image along this dimension, $\Delta \text{dt}_{\text{readout}}$ is the readout time value mentioned above.
 
 
-For the even more demanding applications, one might need to compensate timestamp of pixels observation for Slam cameras too. On Aria camera sensors, readout of the image is done row by row. Each row can still accumulate charges after the regular exposure time and until it is fully read out, an effect sometime called Parasitic light sensitivity (PLS). The readout time of the last row $\Delta \text{dt}_{\text{pls}}$, i.e. the time a pixel on the last row still accumulates electrons before being discharged is specified by the manufacturer as being 9.12ms. The ratio $S_{\text{pls}}$ of the sensitivity during readout over the sensitivity during regular exposure was estimated to be ~0.01, instead of the ideal 0 value. From this, it results that when dealing with pixel observation time, it might be necessary to take effect into account by assigning to each pixel their effective center of exposure, we suggest the the following formulae:
+For even more demanding applications, one might need to compensate timestamp of pixels observation for Slam cameras too. On Aria camera sensors, readout of the image is done row by row. Each row can still accumulate charges after the regular exposure time and until it is fully read out, an effect sometime called Parasitic light sensitivity (PLS). The readout time of the last row $\Delta \text{dt}_{\text{pls}}$, i.e. the time a pixel on the last row still accumulates electrons before being discharged is specified by the manufacturer as being 9.12ms. The ratio $S_{\text{pls}}$ of the sensitivity during readout over the sensitivity during regular exposure was estimated to be ~0.01, instead of the ideal 0 value. From this, it results that when dealing with pixel observation time, it might be necessary to take effect into account by assigning to each pixel their effective center of exposure, we suggest the the following formulae:
 
 $$
 t_{\text{Device}}(\boldsymbol{p}) = t_{\text{Device}}^{\text{Image}} + \frac{1}{2} \cdot r\left(\boldsymbol{p}\right) \cdot S_{\text{pls}} \cdot \frac{1 + r_e\left({\boldsymbol{p}}\right)}{1 + r_e\left({\boldsymbol{p}}\right) \cdot S_{\text{pls}}}

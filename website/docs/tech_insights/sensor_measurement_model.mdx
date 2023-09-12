@@ -3,6 +3,12 @@ sidebar_position: 50
 title: Sensor Measurement Model
 ---
 
+# Sensor Measurement Models in Project Aria Devices
+
+This page provides an overview of how Project Aria device sensor measurements are modeled for IMU, magnetometer, barometer and audio.
+
+## IMUs
+
 For IMUs, we employ an affine model where the value from the readout of accelerometer $s_a$ or gyroscope $s_g$, is compensated to obtain a "real" acceleration $a$ and angular velocity $\omega$ by
 $$
 a = M_a^{-1}(s_a - b_a) \qquad
@@ -22,4 +28,8 @@ When the read-out signal exceeds a threshold, the signal saturates. Saturation l
 |--|--|--|--|--|
 |saturation|4g|8g|5000|1000|
 
-Similar to the IMU rectification model, the sensor readout of magnetometer, barometer, and audio data are modeled as linear to the real $r$ (magnetic field, air pressure and sound intensity). Audio specifically is bias only.
+## Magnetometer, barometer and audio
+
+Similar to the IMU rectification model, the sensor readouts for magnetometer, barometer, and audio data are modeled as linear to the real $r$ (magnetic field, air pressure and sound intensity).
+
+Audio specifically is bias only.
