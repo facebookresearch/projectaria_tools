@@ -66,14 +66,14 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=RELEASE -S . -B build \
             -DBUILD_UNIT_TEST=ON
 
-      - name: Build and Test
+      - name: C++ - Build and Test
         shell: bash
         run: |
           cd build
           make -j8
           ctest -j
 
-      - name: Build Python bindings
+      - name: Python - Build and Test Python bindings
         shell: bash
         run: |
           # Installing Python and dependencies
@@ -88,4 +88,9 @@ jobs:
           fi
 
           # Build and install Python bindings
-          pip3 install --global-option=build_ext --global-option="-j8" .
+          CMAKE_BUILD_PARALLEL_LEVEL=8 pip3 install .
+
+          # Run Python unit tests
+          export TEST_FOLDER="./data/"
+          python3 -m unittest core/python/test/pybindTest.py
+          python3 -m unittest core/python/sophus/test/sophusPybindTest.py
