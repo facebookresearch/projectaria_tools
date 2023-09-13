@@ -15,8 +15,6 @@
 import os
 import unittest
 
-import numpy as np
-
 from projectaria_tools.core import calibration, data_provider
 from projectaria_tools.core.sensor_data import (
     SensorDataType,
