@@ -18,6 +18,7 @@
 
 #include "SO3PyBind.h"
 
+#include <fmt/format.h>
 #include <sophus/average.hpp>
 #include <sophus/common.hpp>
 #include <sophus/interpolate.hpp>

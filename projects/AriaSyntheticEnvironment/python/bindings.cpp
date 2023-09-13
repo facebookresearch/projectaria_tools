@@ -16,6 +16,8 @@
 
 #include "CalibrationProviderPyBind.h"
 
+#include <python/sophus/SophusPyBind.h>
+
 namespace py = pybind11;
 
 PYBIND11_MODULE(_ase_pybinds, m) {

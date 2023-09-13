@@ -16,6 +16,8 @@
 
 #include "AriaDigitalTwinDatasetToolsPyBind.h"
 
+#include <python/sophus/SophusPyBind.h>
+
 namespace py = pybind11;
 
 PYBIND11_MODULE(_adt_pybinds, m) {
