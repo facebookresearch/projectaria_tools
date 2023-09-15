@@ -323,8 +323,7 @@ inline void declareAudioDataRecord(py::module& m) {
           "capture_timestamps_ns",
           &AudioDataRecord::captureTimestampsNs,
           "timestamps in device time domain")
-      .def_readwrite(
-          "audio_muted", &AudioDataRecord::audioMuted, "timestamps in device time domain");
+      .def_readwrite("audio_muted", &AudioDataRecord::audioMuted, "set 1 for muted, 0 otherwise");
 }
 
 inline void declareBluetoothDataRecord(py::module& m) {
