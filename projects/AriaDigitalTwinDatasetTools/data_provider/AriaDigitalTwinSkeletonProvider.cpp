@@ -22,15 +22,11 @@
 #include <rapidjson/document.h>
 #include <rapidjson/rapidjson.h>
 
+#include "AriaDigitalTwinDataFileKeys.h"
 #include "AriaDigitalTwinUtils.h"
 
 #define DEFAULT_LOG_CHANNEL "AriaDigitalTwinSkeletonProvider"
 #include <logging/Log.h>
-
-const std::string kFramesKey{"frames"};
-const std::string kMarkersKey{"markers"};
-const std::string kJointsKey{"joints"};
-const std::string kTimestampKey{"timestamp_ns"};
 
 namespace projectaria::dataset::adt {
 
@@ -57,21 +53,23 @@ void AriaDigitalTwinSkeletonProvider::readSkeletonJson(const std::filesystem::pa
   rapidjson::Document jdoc;
   jdoc.Parse(buffer.str().c_str());
 
-  if (!jdoc.HasMember(kFramesKey.c_str())) {
-    XR_LOGE("key: '{}' not available in skeleton json file: {}", kFramesKey, path.string());
+  if (!jdoc.HasMember(kSkeletonFramesKey.c_str())) {
+    XR_LOGE("key: '{}' not available in skeleton json file: {}", kSkeletonFramesKey, path.string());
     throw std::runtime_error{"invalid json format"};
   }
-  for (const rapidjson::Value& frameJson : jdoc[kFramesKey.c_str()].GetArray()) {
-    if (!frameJson.HasMember(kMarkersKey.c_str())) {
-      XR_LOGE("key: '{}' not available in skeleton json file: {}", kMarkersKey, path.string());
+  for (const rapidjson::Value& frameJson : jdoc[kSkeletonFramesKey.c_str()].GetArray()) {
+    if (!frameJson.HasMember(kSkeletonMarkersKey.c_str())) {
+      XR_LOGE(
+          "key: '{}' not available in skeleton json file: {}", kSkeletonMarkersKey, path.string());
       throw std::runtime_error{"invalid json format"};
     }
-    if (!frameJson.HasMember(kJointsKey.c_str())) {
-      XR_LOGE("key: '{}' not available in skeleton json file: {}", kJointsKey, path.string());
+    if (!frameJson.HasMember(kSkeletonJointsKey.c_str())) {
+      XR_LOGE(
+          "key: '{}' not available in skeleton json file: {}", kSkeletonJointsKey, path.string());
       throw std::runtime_error{"invalid json format"};
     }
     SkeletonFrame frame;
-    for (const auto& point : frameJson[kMarkersKey.c_str()].GetArray()) {
+    for (const auto& point : frameJson[kSkeletonMarkersKey.c_str()].GetArray()) {
       if (point.Size() != 3) {
         XR_LOGE("point has an invalid size");
         throw std::runtime_error{"invalid json format"};
@@ -79,7 +77,7 @@ void AriaDigitalTwinSkeletonProvider::readSkeletonJson(const std::filesystem::pa
       Eigen::Vector3d p{point[0].GetDouble(), point[1].GetDouble(), point[2].GetDouble()};
       frame.markers.push_back(p);
     }
-    for (const auto& point : frameJson[kJointsKey.c_str()].GetArray()) {
+    for (const auto& point : frameJson[kSkeletonJointsKey.c_str()].GetArray()) {
       if (point.Size() != 3) {
         XR_LOGE("point has an invalid size");
         throw std::runtime_error{"invalid json format"};
@@ -88,11 +86,14 @@ void AriaDigitalTwinSkeletonProvider::readSkeletonJson(const std::filesystem::pa
       frame.joints.push_back(p);
     }
 
-    if (!frameJson.HasMember(kTimestampKey.c_str())) {
-      XR_LOGE("key: '{}' not available in skeleton json file: {}", kTimestampKey, path.string());
+    if (!frameJson.HasMember(kSkeletonTimestampKey.c_str())) {
+      XR_LOGE(
+          "key: '{}' not available in skeleton json file: {}",
+          kSkeletonTimestampKey,
+          path.string());
       throw std::runtime_error{"invalid json format"};
     }
-    int64_t timestampNs = frameJson[kTimestampKey.c_str()].GetInt64();
+    int64_t timestampNs = frameJson[kSkeletonTimestampKey.c_str()].GetInt64();
     frames_.emplace(timestampNs, frame);
   }
 }

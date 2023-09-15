@@ -35,6 +35,8 @@
 #define DEFAULT_LOG_CHANNEL "AriaDigitalTwinDataProvider"
 #include <logging/Log.h>
 
+#include "AriaDigitalTwinDataFileKeys.h"
+#include "AriaDigitalTwinDataFileNames.h"
 #include "AriaDigitalTwinUtils.h"
 
 using namespace projectaria::tools::data_provider;
@@ -45,43 +47,8 @@ namespace projectaria::dataset::adt {
 
 constexpr int64_t kInvalidDeviceTimeStampNs = -1;
 
-const std::string kInstanceIdKey = "instance_id";
-const std::string kInstanceNameKey = "instance_name";
-const std::string kPrototypeNameKey = "prototype_name";
-const std::string kCategoryKey = "category";
-const std::string kCategoryUidKey = "category_uid";
-const std::string kMotionTypeKey = "motion_type";
-const std::string kInstanceTypeKey = "instance_type";
-const std::string kRigidityKey = "rigidity";
-const std::string kRotationalSymmetryKey = "rotational_symmetry";
-const std::string kRotationalSymmetryIsAnnotatedKey = "is_annotated";
-const std::string kRotationalSymmetryAxesKey = "axes";
-const std::string kRotationalSymmetryAxisKey = "axis";
-const std::string kRotationalSymmetryAngleDegreeKey = "angle_degree";
-const std::string kCanonicalPoseKey = "canonical_pose";
-const std::string kCanonicalPoseUpKey = "up_vector";
-const std::string kCanonicalPoseFrontKey = "front_vector";
-const std::string kInstanceTypeObjectValue = "object";
-const std::string kInstanceTypeHumanValue = "human";
-const std::string kMotionTypeStaticValue = "static";
-const std::string kMotionTypeDynamicValue = "dynamic";
-const std::string kRigidityTypeRigidValue = "rigid";
-const std::string kRigidityTypeDeformableValue = "deformable";
-const std::string kSkeletonMetadataKey = "SkeletonMetadata";
-const std::string kSkeletonNameKey = "SkeletonName";
-const std::string kSkeletonIdKey = "SkeletonId";
-const std::string kSkeletonDeviceSerialKey = "AssociatedDeviceSerial";
-const std::string kInvalidSkeletonName = "NONE";
-const std::string kDatasetNameKey = "dataset_name";
-const std::string kDatasetVersionKey = "dataset_version";
-const std::string kDatasetNameDefault = "ADT_2023";
-const std::string kDatasetVersionDefault = "1.0";
-const std::string kDatasetVersionUnknown = "Unknown";
-
 constexpr auto kInstanceFileErrorTemplate =
     "invalid instance file. key: '{}' not available in instances json file for instance id {}";
-
-const std::unordered_map<std::string, std::string> kLatestDatasetVersions{{"ADT_2023", "1.1"}};
 
 namespace {
 std::ifstream openFile(const fs::path& filePath, bool skipHeader = true) {

@@ -29,7 +29,8 @@ add_library(
         AriaDigitalTwinDataProvider.h
         AriaDigitalTwinDataPathsProvider.cpp
         AriaDigitalTwinDataPathsProvider.h
-
+        AriaDigitalTwinDataFileNames.h
+        AriaDigitalTwinDataFileKeys.h
 )
 target_link_libraries(
     AriaDigitalTwinDataProviderLib

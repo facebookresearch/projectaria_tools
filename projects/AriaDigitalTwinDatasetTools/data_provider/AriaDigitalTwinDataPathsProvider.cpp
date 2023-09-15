@@ -29,48 +29,12 @@
 #define DEFAULT_LOG_CHANNEL "AriaDigitalTwinDataPathsProvider"
 #include <logging/Log.h>
 
+#include "AriaDigitalTwinDataFileKeys.h"
+#include "AriaDigitalTwinDataFileNames.h"
+
 namespace fs = std::filesystem;
 
 namespace projectaria::dataset::adt {
-
-// sequence metadata file name
-const std::string kMetadataFile = "metadata.json";
-const std::string kMetadataFileDeprecated = "gt-metadata.json";
-
-// sequence metadata keys
-const std::string kSubtoursKey = "subtours";
-const std::string kSubtourNameKey = "subtour_name";
-const std::string kDeviceSerialKey = "device_serial";
-const std::string kSceneKey = "scene";
-const std::string kIsMultiPersonKey = "is_multi_person";
-const std::string kNumSkeletonKey = "num_skeletons";
-
-// Gt file names
-const std::string kInstanceFile = "instances.json";
-const std::string k3dBoxFile = "3d_bounding_box.csv";
-const std::string kObjTrajFile = "scene_objects.csv";
-const std::string kAriaTrajFile = "aria_trajectory.csv";
-const std::string kEyeGazeFile = "eyegaze.csv";
-const std::string k2dBoxFileNoSkel = "2d_bounding_box.csv";
-const std::string k2dBoxFileWithSkel = "2d_bounding_box_with_skeleton.csv";
-const std::string kDepthImageFileNoSkel = "depth_images.vrs";
-const std::string kDepthImageFileWithSkel = "depth_images_with_skeleton.vrs";
-const std::string kSegmentationImageFileNoSkel = "segmentations.vrs";
-const std::string kSegmentationImageFileWithSkel = "segmentations_with_skeleton.vrs";
-const std::string kSyntheticVrsFile = "synthetic_video.vrs";
-const std::string kSkeletonMetadataFile = "skeleton_aria_association.json";
-const std::string kSkeletonMetadataKey = "SkeletonMetadata";
-const std::string kSkeletonNameKey = "SkeletonName";
-const std::string kSkeletonIdKey = "SkeletonId";
-const std::string kSkeletonFileKey = "Skeleton_";
-const std::string kVrsFileName = "video.vrs";
-
-const std::string kInvalidSkeletonName = "NONE";
-
-const std::unordered_map<vrs::StreamId, std::string, StreamIdHash> kStreamIdToName_{
-    {vrs::StreamId::fromNumericName("214-1"), "rgb"},
-    {vrs::StreamId::fromNumericName("1201-1"), "left_slam"},
-    {vrs::StreamId::fromNumericName("1201-2"), "right_slam"}};
 
 std::optional<AriaDigitalTwinDataPaths>
 AriaDigitalTwinDataPathsProvider::getDataPathsUsingSubtourName(
