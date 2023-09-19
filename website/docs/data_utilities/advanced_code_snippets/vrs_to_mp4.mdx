@@ -1,14 +1,15 @@
 ---
-sidebar_position: 10
-title: VRS to MP4 export (Python)
+sidebar_position: 30
+title: Export VRS to MP4 (Python)
 ---
 
-# Tutorial: how to export a VRS file to MP4
+# Tutorial: How to Export a VRS file to MP4
 
-In this example, we show how to:
+This tutorial shows how to convert a Project Aria VRS file to Mp4. This example covers how to:
 * Query RGB images from a VRS file
 * Export those RGB images to a video
    * Video export is managed with `moviepy`
+
 
 ## Install dependencies
 
@@ -22,7 +23,9 @@ pip install projectaria_tools moviepy
 python vrs_to_mp4.py --input_vrs "projectaria_tools/data/mps_sample/sample.vrs" --output_video "test.mp4"
 ```
 
-## Script (to copy paste to vrs_to_mp4.py file)
+## vrs_to_mp4.py script
+
+Copy and paste the following script to the vrs_to_mp4.py file:
 
 ```python
 import argparse

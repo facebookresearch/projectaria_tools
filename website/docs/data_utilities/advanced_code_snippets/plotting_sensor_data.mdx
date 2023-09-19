@@ -1,17 +1,18 @@
 ---
 sidebar_position: 10
-title: Plotting Sensor Data (Python)
+title: Plot Sensor Data (Python)
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-# Plotting Aria Sensor Data Using Python
+# Tutorial: How to Plot Sensor Data Using Python
 
-In this example, we show how to:
+This tutorial shows how to plot Project Aria sensor data using Python. This example covers how to:
+
 * Save images as PNGs
 * Plot raw sensor data from a VRS file and store the plots in PDF files
    * Data is plotted with `matplotlib`
 
-We start by opening a VRS file.
+We start by opening a VRS file:
 ```python
 from projectaria_tools.core import dataprovider, image
 from projectaria_tools.core.stream_id import stream_id
