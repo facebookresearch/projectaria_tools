@@ -163,11 +163,11 @@ for data in provider.deliver_queued_sensor_data():
 Alternatively can use iterator-type syntax
 ```python
 seq = provider.deliver_queued_sensor_data()
-iter_data = iter(seq)
+obj = next(seq)
 while True:
-  print(iter_data.get_time_ns(TimeDomain.DEVICE_TIME))
+  print(obj.get_time_ns(TimeDomain.DEVICE_TIME))
   try:
-    next(iter_data)
+    obj = next(seq)
   except StopIteration:
     break
 ```
