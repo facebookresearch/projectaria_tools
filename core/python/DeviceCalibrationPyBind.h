@@ -469,6 +469,11 @@ inline void declareDeviceCalibration(py::module& m) {
         return deviceCalibrationFromJson(jsonStr);
       },
       "Load calibration from json.");
+
+  m.def(
+      "device_calibration_from_json_string",
+      &deviceCalibrationFromJson,
+      "Load calibration from json string.");
 }
 
 template <typename T>
