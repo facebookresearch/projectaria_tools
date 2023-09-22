@@ -56,7 +56,8 @@ class Data3DGui {
       const std::optional<projectaria::tools::data_provider::ImageData>& slamRightImageData,
       const std::vector<PointObservationPair>& leftPtObs,
       const std::vector<PointObservationPair>& rightPtObs,
-      const std::optional<EyeGaze>& eyeGaze);
+      const std::optional<EyeGaze>& generalizedEyeGaze,
+      const std::optional<EyeGaze>& calibratedEyeGaze);
 
   // Clear history of last traj
   void clearLastTraj();
@@ -78,7 +79,8 @@ class Data3DGui {
   void drawEyeGaze(
       const Eigen::Vector3d& eyeGazePointCpf,
       const Sophus::SE3d& T_World_Device,
-      const Sophus::SE3d& T_Device_Cpf) const;
+      const Sophus::SE3d& T_Device_Cpf,
+      bool calibrated) const;
 
   const bool plot2DView_;
 
@@ -146,6 +148,15 @@ class Data3DGui {
 
   pangolin::Var<bool> uiPlotObsRay{"ui3d.plot obs ray", false, true};
 
+  // Eye Gaze UI & control
+  pangolin::Var<std::string> uiDelimiterEyeGaze{
+      "ui3d.------------------ Eye Gaze ------------------",
+      "",
+      pangolin::META_FLAG_READONLY};
+  pangolin::Var<bool> uiPlotGeneralizedGaze{"ui3d.Generalized Eye gaze", true, true};
+  pangolin::Var<bool> uiPlotCalibratedGaze{"ui3d.Calibrated Eye gaze", true, true};
+  pangolin::Var<float> uiGazeRayLength{"ui3d.Eye gaze ray length (m)", 0.35, 0.1, 20};
+
   pangolin::Var<std::string> uiDelimiterScaleRef_{
       "ui3d.-------------- Scale reference ---------------",
       "",
@@ -172,7 +183,8 @@ class Data3DGui {
   std::vector<PointObservationPair> rightPtObs_;
 
   calibration::CameraCalibration camCalib_;
-  std::optional<Eigen::Vector2d> eyeGazeProj_;
+  std::optional<Eigen::Vector2d> generalizedEyeGazeProj_;
+  std::optional<Eigen::Vector2d> calibratedEyeGazeProj_;
 };
 
 } // namespace projectaria::tools::mps

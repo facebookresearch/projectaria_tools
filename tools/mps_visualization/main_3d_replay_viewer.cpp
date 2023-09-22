@@ -65,8 +65,12 @@ int main(int argc, char* argv[]) {
       "Path(s) to semi-dense points (in global frame) .csv.gz file(s)");
   std::string pointObservationPath;
   app.add_option("--point-obs", pointObservationPath, "Path to point observation .csv.gz file");
-  std::string eyeGazePath;
-  app.add_option("--eye-gaze", eyeGazePath, "Path to eye gaze .csv file");
+  std::string generalizedEyeGazePath;
+  app.add_option(
+      "--generalized-eye-gaze", generalizedEyeGazePath, "Path to generalized eye gaze .csv file");
+  std::string calibratedEyeGazePath;
+  app.add_option(
+      "--calibrated-eye-gaze", calibratedEyeGazePath, "Path to calibrated eye gaze .csv file");
   CLI11_PARSE(app, argc, argv);
 
   if (closedLoopTrajPaths.empty()) {
@@ -84,7 +88,10 @@ int main(int argc, char* argv[]) {
   if (pointObservationPath.empty()) {
     XR_LOGW("Point observation file is not provided");
   }
-  if (eyeGazePath.empty()) {
+  if (generalizedEyeGazePath.empty()) {
+    XR_LOGW("Eye gaze file is not provided");
+  }
+  if (calibratedEyeGazePath.empty()) {
     XR_LOGW("Eye gaze file is not provided");
   }
 
@@ -187,9 +194,11 @@ int main(int argc, char* argv[]) {
   const auto deviceCalib = vrsProvider.getDeviceCalibration();
 
   // Get eye gazes
-  const auto eyeGazes = readEyeGaze(eyeGazePath);
-  EyeGazeProvider eyeGazeProvider(eyeGazes);
-  XR_LOGI("Loaded and cached eye gazes with size: {}", eyeGazeProvider.numEyeGazes());
+  const auto generalizedEyeGazes = readEyeGaze(generalizedEyeGazePath);
+  const auto calibratedEyeGazes = readEyeGaze(calibratedEyeGazePath);
+  EyeGazeProvider generalizedEyeGazeProvider(generalizedEyeGazes);
+  EyeGazeProvider calibratedEyeGazeProvider(calibratedEyeGazes);
+  XR_LOGI("Loaded and cached eye gazes with size: {}", generalizedEyeGazeProvider.numEyeGazes());
 
   XR_CHECK_LE(
       allWorldFrameUids.size(),
@@ -223,7 +232,8 @@ int main(int argc, char* argv[]) {
   std::optional<Sophus::SE3d> currPose;
   std::vector<PointObservationPair> currLeftPointObs;
   std::vector<PointObservationPair> currRightPointObs;
-  std::optional<EyeGaze> eyeGaze;
+  std::optional<EyeGaze> generalizedEyeGaze;
+  std::optional<EyeGaze> calibratedEyeGaze;
 
   // Main viewer loop
   while (!pangolin::ShouldQuit()) {
@@ -300,14 +310,18 @@ int main(int argc, char* argv[]) {
         }
 
         // Get current eye gaze
-        if (!eyeGazePath.empty()) {
+        if (!generalizedEyeGazes.empty() || !calibratedEyeGazes.empty()) {
           if (pose) {
             const int64_t poseTimestampNs =
                 std::chrono::duration_cast<std::chrono::nanoseconds>(pose.value().trackingTimestamp)
                     .count();
-            eyeGaze = eyeGazeProvider.findEyeGaze(poseTimestampNs);
-            if (!eyeGaze) {
-              XR_LOGW("No eye gaze data is available at this frame");
+            generalizedEyeGaze = generalizedEyeGazeProvider.findEyeGaze(poseTimestampNs);
+            calibratedEyeGaze = calibratedEyeGazeProvider.findEyeGaze(poseTimestampNs);
+            if (!generalizedEyeGaze) {
+              XR_LOGW("No generalized eye gaze data is available at this frame");
+            }
+            if (!calibratedEyeGaze) {
+              XR_LOGW("No calibrated eye gaze data is available at this frame");
             }
           }
         }
@@ -331,7 +345,8 @@ int main(int argc, char* argv[]) {
         slamRightImageData,
         currLeftPointObs,
         currRightPointObs,
-        eyeGaze);
+        generalizedEyeGaze,
+        calibratedEyeGaze);
 
     pangolin::FinishFrame();
   }

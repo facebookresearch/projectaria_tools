@@ -39,6 +39,8 @@ const std::vector<Eigen::Vector3f> kTrajColors{
     {0.5, 0.5, 0.5},
     {0.74, 0.74, 0.13},
     {0.09, 0.75, 0.81}};
+constexpr float kGeneralizedGazeColor[] = {0.0f, 1.0f, 1.0f};
+constexpr float kCalibratedGazeColor[] = {1.0f, 0.0f, 1.0f};
 
 extern const unsigned char AnonymousPro_ttf[];
 static pangolin::GlFont kGlFont(AnonymousPro_ttf, 20);
@@ -225,12 +227,17 @@ void Data3DGui::drawRig(
 void Data3DGui::drawEyeGaze(
     const Eigen::Vector3d& eyeGazePointCpf,
     const Sophus::SE3d& T_World_Device,
-    const Sophus::SE3d& T_Device_Cpf) const {
+    const Sophus::SE3d& T_Device_Cpf,
+    bool calibrated) const {
   const auto T_World_Cpf = T_World_Device * T_Device_Cpf;
   const Eigen::Vector3d cpfPointWorld = T_World_Cpf.translation();
   const Eigen::Vector3d eyeGazePointWorld = T_World_Cpf * eyeGazePointCpf;
 
-  glColor3f(0.0f, 1.0f, 1.0f);
+  if (calibrated) {
+    glColor3f(kCalibratedGazeColor[0], kCalibratedGazeColor[1], kCalibratedGazeColor[2]);
+  } else {
+    glColor3f(kGeneralizedGazeColor[0], kGeneralizedGazeColor[1], kGeneralizedGazeColor[2]);
+  }
   glLineWidth(6);
   pangolin::glDrawLine(
       cpfPointWorld[0],
@@ -250,7 +257,8 @@ void Data3DGui::draw(
     const std::optional<projectaria::tools::data_provider::ImageData>& slamRightImageData,
     const std::vector<std::pair<Eigen::Vector2f, GlobalPointPosition>>& leftPtObs,
     const std::vector<std::pair<Eigen::Vector2f, GlobalPointPosition>>& rightPtObs,
-    const std::optional<EyeGaze>& eyeGaze) {
+    const std::optional<EyeGaze>& generalizedEyeGaze,
+    const std::optional<EyeGaze>& calibratedEyeGaze) {
   // Plot fixed scene
   draw();
 
@@ -294,21 +302,42 @@ void Data3DGui::draw(
   }
 
   // Update cached eye gaze point for plot
-  Eigen::Vector3d eyeGazePointCpf;
-  if (eyeGaze) {
-    const float depth = 1.0f;
+  const float depth = uiGazeRayLength;
+  const auto T_Cpf_Sensor = deviceCalib.value().getT_Cpf_Sensor("camera-rgb", true);
+  Eigen::Vector3d generalizedEyeGazePointCpf;
+  if (generalizedEyeGaze && uiPlotGeneralizedGaze && uiGazeRayLength > 0.0f) {
     // Find eye gaze point in the central pupil frame (CPF)
-    eyeGazePointCpf = getEyeGazePointAtDepth(eyeGaze.value().yaw, eyeGaze.value().pitch, depth);
+    generalizedEyeGazePointCpf = getEyeGazePointAtDepth(
+        generalizedEyeGaze.value().yaw, generalizedEyeGaze.value().pitch, depth);
     // Project onto RGB image
     if (deviceCalib) {
-      const auto T_Cpf_Sensor = deviceCalib.value().getT_Cpf_Sensor("camera-rgb", true);
-      eyeGazeProj_ = camCalibs.front().project(T_Cpf_Sensor->inverse() * eyeGazePointCpf);
+      generalizedEyeGazeProj_ =
+          camCalibs.front().project(T_Cpf_Sensor->inverse() * generalizedEyeGazePointCpf);
     } else {
-      eyeGazeProj_ = camCalibs.front().project(eyeGazePointCpf);
+      generalizedEyeGazeProj_ = camCalibs.front().project(generalizedEyeGazePointCpf);
+      calibratedEyeGazeProj_ = camCalibs.front().project(generalizedEyeGazePointCpf);
     }
     // Reject if out of the image boundary
-    if (!camCalibs.front().isVisible(*eyeGazeProj_)) {
-      eyeGazeProj_ = {};
+    if (!camCalibs.front().isVisible(*generalizedEyeGazeProj_)) {
+      generalizedEyeGazeProj_ = {};
+    }
+  }
+  // Update cached eye gaze point for plot
+  Eigen::Vector3d calibratedEyeGazePointCpf;
+  if (calibratedEyeGaze && uiPlotCalibratedGaze && uiGazeRayLength > 0.0f) {
+    // Find eye gaze point in the central pupil frame (CPF)
+    calibratedEyeGazePointCpf = getEyeGazePointAtDepth(
+        calibratedEyeGaze.value().yaw, calibratedEyeGaze.value().pitch, depth);
+    // Project onto RGB image
+    if (deviceCalib) {
+      calibratedEyeGazeProj_ =
+          camCalibs.front().project(T_Cpf_Sensor->inverse() * calibratedEyeGazePointCpf);
+    } else {
+      calibratedEyeGazeProj_ = camCalibs.front().project(calibratedEyeGazePointCpf);
+    }
+    // Reject if out of the image boundary
+    if (!camCalibs.front().isVisible(*calibratedEyeGazeProj_)) {
+      calibratedEyeGazeProj_ = {};
     }
   }
 
@@ -366,18 +395,26 @@ void Data3DGui::draw(
     // rotate 90
     rgbView->SetAspect(static_cast<float>(rgbHeight_) / static_cast<float>(rgbWidth_));
     // Plot 2D eye gaze point in RGB image
-    if (eyeGaze) {
+    if (generalizedEyeGaze && uiPlotGeneralizedGaze) {
       rgbView->extern_draw_function = [&](pangolin::View&) { drawEyeGazePoint(); };
     }
   }
 
-  // Plot eye gaze ray in the 3D viewer
-  if (T_World_Device && eyeGaze) {
+  // Plot eye gaze rays in the 3D viewer
+  if (T_World_Device && generalizedEyeGaze && uiPlotGeneralizedGaze) {
     if (deviceCalib) {
       const auto T_Device_Cpf = deviceCalib.value().getT_Device_Cpf();
-      drawEyeGaze(eyeGazePointCpf, T_World_Device.value(), T_Device_Cpf);
+      drawEyeGaze(generalizedEyeGazePointCpf, T_World_Device.value(), T_Device_Cpf, false);
     } else {
-      drawEyeGaze(eyeGazePointCpf, T_World_Device.value(), Sophus::SE3d());
+      drawEyeGaze(generalizedEyeGazePointCpf, T_World_Device.value(), Sophus::SE3d(), false);
+    }
+  }
+  if (T_World_Device && calibratedEyeGaze && uiPlotCalibratedGaze) {
+    if (deviceCalib) {
+      const auto T_Device_Cpf = deviceCalib.value().getT_Device_Cpf();
+      drawEyeGaze(calibratedEyeGazePointCpf, T_World_Device.value(), T_Device_Cpf, true);
+    } else {
+      drawEyeGaze(calibratedEyeGazePointCpf, T_World_Device.value(), Sophus::SE3d(), true);
     }
   }
 }
@@ -421,14 +458,23 @@ void Data3DGui::drawRightPointObs() const {
 }
 
 void Data3DGui::drawEyeGazePoint() const {
-  if (eyeGazeProj_) {
-    const float scaleX = (float)rgbWidth_ / (float)camCalib_.getImageSize().x();
-    const float scaleY = (float)rgbHeight_ / (float)camCalib_.getImageSize().y();
-    XR_CHECK_EQ(scaleX, scaleY);
-    glColor3f(0.0f, 1.0f, 1.0f);
-    glLineWidth(20);
+  const float scaleX = (float)rgbWidth_ / (float)camCalib_.getImageSize().x();
+  const float scaleY = (float)rgbHeight_ / (float)camCalib_.getImageSize().y();
+  XR_CHECK_EQ(scaleX, scaleY);
+  glLineWidth(20);
+  if (generalizedEyeGazeProj_ && uiPlotGeneralizedGaze) {
+    glColor3f(kGeneralizedGazeColor[0], kGeneralizedGazeColor[1], kGeneralizedGazeColor[2]);
     pangolin::glDrawCircle(
-        rgbHeight_ - 1 - (eyeGazeProj_->y() * scaleY), eyeGazeProj_->x() * scaleX, 6);
+        rgbHeight_ - 1 - (generalizedEyeGazeProj_->y() * scaleY),
+        generalizedEyeGazeProj_->x() * scaleX,
+        6);
+  }
+  if (calibratedEyeGazeProj_ && uiPlotCalibratedGaze) {
+    glColor3f(kCalibratedGazeColor[0], kCalibratedGazeColor[1], kCalibratedGazeColor[2]);
+    pangolin::glDrawCircle(
+        rgbHeight_ - 1 - (calibratedEyeGazeProj_->y() * scaleY),
+        calibratedEyeGazeProj_->x() * scaleX,
+        6);
   }
 }
 
