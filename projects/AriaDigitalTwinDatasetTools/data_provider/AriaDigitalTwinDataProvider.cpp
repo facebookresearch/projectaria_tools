@@ -45,8 +45,6 @@ namespace fs = std::filesystem;
 
 namespace projectaria::dataset::adt {
 
-constexpr int64_t kInvalidDeviceTimeStampNs = -1;
-
 constexpr auto kInstanceFileErrorTemplate =
     "invalid instance file. key: '{}' not available in instances json file for instance id {}";
 
@@ -270,7 +268,7 @@ AriaImageDataWithDt AriaDigitalTwinDataProvider::getAriaImageByTimestampNs(
 int64_t AriaDigitalTwinDataProvider::getDeviceTimeFromTimecodeNs(int64_t timecodeNs) const {
   if (!hasAriaData()) {
     XR_LOGW("Aria Images are empty, no vrs is provided\n");
-    return kInvalidDeviceTimeStampNs;
+    return kInvalidDeviceTimestampNs;
   }
   return dataProvider_->convertFromTimeCodeToDeviceTimeNs(timecodeNs);
 }
@@ -278,7 +276,7 @@ int64_t AriaDigitalTwinDataProvider::getDeviceTimeFromTimecodeNs(int64_t timecod
 int64_t AriaDigitalTwinDataProvider::getTimecodeFromDeviceTimeNs(int64_t deviceTimeNs) const {
   if (!hasAriaData()) {
     XR_LOGW("Aria Images are empty, no vrs is provided\n");
-    return kInvalidDeviceTimeStampNs;
+    return kInvalidDeviceTimestampNs;
   }
   return dataProvider_->convertFromDeviceTimeToTimeCodeNs(deviceTimeNs);
 }

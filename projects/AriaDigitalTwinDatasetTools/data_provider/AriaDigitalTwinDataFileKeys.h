@@ -74,4 +74,7 @@ inline const std::string kDatasetNameKey = "dataset_name";
 inline const std::unordered_map<std::string, std::string> kLatestDatasetVersions{
     {"ADT_2023", "1.1"}};
 
+// data values
+constexpr int64_t kInvalidDeviceTimestampNs = -1;
+
 } // namespace projectaria::dataset::adt
