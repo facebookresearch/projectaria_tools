@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # Start from an ubuntu container
-FROM ubuntu:jammy
+FROM ubuntu:jammy as base
 
 # Ensure a SUDO command is available in the container
 RUN if type sudo 2>/dev/null; then \
@@ -66,8 +66,26 @@ RUN mkdir /opt/projectaria_tools_Build; cd /opt/projectaria_tools_Build; \
       -DPROJECTARIA_TOOLS_BUILD_PROJECTS_ASE=ON \
       /opt/projectaria_tools;
 
-# Build & test
-RUN cd /opt/projectaria_tools_Build; make -j2 ; ctest -j;
+# Build
+RUN cd /opt/projectaria_tools_Build; make -j2;
 
 # Build python bindings
-RUN cd /opt/projectaria_tools; pip install --upgrade pip --user; pip3 install --global-option=build_ext .;
+RUN cd /opt/projectaria_tools;\
+    pip install --upgrade pip --user; \
+    pip install patchelf; \
+    sudo apt-get install -y libopenblas-dev; \
+    CMAKE_BUILD_PARALLEL_LEVEL=4 pip3 install --global-option=build_ext .;
+
+# See multistage docker file
+# https://docs.docker.com/language/java/run-tests/#multi-stage-dockerfile-for-testing
+
+FROM base as test
+
+# Run C++ unit test
+RUN cd /opt/projectaria_tools_Build; ctest -j;
+
+# Run Python unit test
+RUN cd /opt/projectaria_tools; \
+    export TEST_FOLDER="/opt/projectaria_tools/data/"; \
+    python3 -m unittest core/python/test/pybindTest.py; \
+    python3 -m unittest core/python/sophus/test/sophusPybindTest.py;
