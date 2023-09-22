@@ -52,7 +52,7 @@ class MPSData3DGui {
   //
 
   pangolin::Var<std::string> uiDelimiterPtCloud_{
-      "ui3d.------- Semi-dense Point cloud --------",
+      "ui3d.----------- Semi-dense point cloud -----------",
       "",
       pangolin::META_FLAG_READONLY};
   pangolin::Var<bool> uiAllPoints_{"ui3d.Show all semi-dense points", true, true};
@@ -79,7 +79,7 @@ class MPSData3DGui {
       true};
 
   pangolin::Var<std::string> uiDelimiterCam_{
-      "ui3d.------- Static cameras --------",
+      "ui3d.--------------- Static cameras ---------------",
       "",
       pangolin::META_FLAG_READONLY};
   pangolin::Var<bool> uiShowCameras_{"ui3d.Show static cameras", true, true};
@@ -87,7 +87,7 @@ class MPSData3DGui {
   pangolin::Var<double> uiCameraFrustumSize_{"ui3d.Static camera frustum size(m)", 0.3, 0.1, 1.0};
 
   pangolin::Var<std::string> uiDelimiterAriaTraj_{
-      "ui3d.------- Aria device trajectories --------",
+      "ui3d.---------- Aria device trajectories ----------",
       "",
       pangolin::META_FLAG_READONLY};
   pangolin::Var<float> uiTrajAlpha_{"ui3d.Trajectory alpha", 1.0, 0, 1};
