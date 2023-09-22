@@ -148,6 +148,18 @@ class CMakeBuild(build_ext):
             ["cmake", "--build", "."] + build_args, cwd=self.build_temp
         )
 
+        subprocess.run(
+            "mkdir -p projectaria_tools-stubs/projectaria_tools/",
+            shell=True,
+            check=True,
+        )
+
+        subprocess.run(
+            f"cp -r projectaria_tools-stubs/projectaria_tools {self.build_lib}/",
+            shell=True,
+            check=True,
+        )
+
 
 def main():
     # The information here can also be placed in setup.cfg - better separation of
