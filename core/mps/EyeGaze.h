@@ -16,6 +16,7 @@
 
 #pragma once
 #include <chrono>
+#include <string>
 #include <vector>
 
 namespace projectaria::tools::mps {
@@ -46,6 +47,9 @@ struct EyeGaze {
   float pitch_high; /**< [pitch_low, pitch_high] represent the confidence interval of the eye gaze
                        pitch.  The `pitch` is in the [pitch_low, pitch_high] interval but not
                        necessarily in the middle */
+  std::string session_uid; /*unique id for the calibration session. If there are multiple
+                            in-session calibrations in the recording, each segment will have a
+                            different session_uid.*/
 };
 
 /**

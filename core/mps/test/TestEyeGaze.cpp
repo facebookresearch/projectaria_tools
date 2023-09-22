@@ -28,6 +28,14 @@ static const std::string testDataFolder = XSTRING(TEST_FOLDER);
 TEST(mps_eyegaze_valid_file, reader) {
   const auto eyegazeValues = readEyeGaze(testDataFolder + "mps_sample/eye_gaze/eyegaze.csv");
   EXPECT_TRUE(eyegazeValues.size() > 0);
+  EXPECT_EQ("", eyegazeValues[0].session_uid); // They should be empty
+}
+
+TEST(mps_eyegaze_valid_file_with_session_uid, reader) {
+  const auto eyegazeValues =
+      readEyeGaze(testDataFolder + "mps_sample/eye_gaze/generalized_eye_gaze.csv");
+  EXPECT_TRUE(eyegazeValues.size() > 0);
+  EXPECT_NE("", eyegazeValues[0].session_uid); // They should be NON empty
 }
 
 TEST(mps_eyegaze_invalid_file, reader) {

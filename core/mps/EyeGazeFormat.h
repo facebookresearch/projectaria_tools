@@ -32,7 +32,7 @@ struct fmt::formatter<projectaria::tools::mps::EyeGaze> {
     constexpr double kRadsToDegs = 180.0 / M_PI;
     return format_to(
         ctx.out(),
-        "EyeGaze(tracking_timestamp: {}, yaw: {} degs, pitch: {} degs, depth: {} m, yaw_low: {} degs, yaw_high: {} degs, pitch_low: {} degs, pitch_high: {} degs)",
+        "EyeGaze(tracking_timestamp: {}, yaw: {} degs, pitch: {} degs, depth: {} m, yaw_low: {} degs, yaw_high: {} degs, pitch_low: {} degs, pitch_high: {} degs, session_uid: {})",
         gaze.trackingTimestamp,
         gaze.yaw * kRadsToDegs,
         gaze.pitch * kRadsToDegs,
@@ -40,6 +40,7 @@ struct fmt::formatter<projectaria::tools::mps::EyeGaze> {
         gaze.yaw_low * kRadsToDegs,
         gaze.yaw_high * kRadsToDegs,
         gaze.pitch_low * kRadsToDegs,
-        gaze.pitch_high * kRadsToDegs);
+        gaze.pitch_high * kRadsToDegs,
+        gaze.session_uid);
   }
 };

@@ -56,11 +56,11 @@ void exportMps(py::module& m) {
       .def_readwrite(
           "depth",
           &EyeGaze::depth,
-          "Depth in meters of the 3D eye gaze point in CPF frame.  A value of 0 indicates that the depth is not available.")
+          "Depth in meters of the 3D eye gaze point in CPF frame. A value of 0 indicates that the depth is not available.")
       .def_readwrite(
           "yaw_low",
           &EyeGaze::yaw_low,
-          "[yaw_low, yaw_high] represent the confidence interval of the eye gaze yaw.  The `yaw` is in the [yaw_low, yaw_high] interval but not necessarily in the middle.")
+          "[yaw_low, yaw_high] represent the confidence interval of the eye gaze yaw. The `yaw` is in the [yaw_low, yaw_high] interval but not necessarily in the middle.")
       .def_readwrite(
           "pitch_low",
           &EyeGaze::pitch_low,
@@ -68,11 +68,15 @@ void exportMps(py::module& m) {
       .def_readwrite(
           "yaw_high",
           &EyeGaze::yaw_high,
-          "[yaw_low, yaw_high] represent the confidence interval of the eye gaze yaw.  The `yaw` is in the [yaw_low, yaw_high] interval but not necessarily in the middle.")
+          "[yaw_low, yaw_high] represent the confidence interval of the eye gaze yaw. The `yaw` is in the [yaw_low, yaw_high] interval but not necessarily in the middle.")
       .def_readwrite(
           "pitch_high",
           &EyeGaze::pitch_high,
           "[pitch_low, pitch_high] represents the confidence interval of the eye gaze pitch. The `pitch` is in the [pitch_low, pitch_high] interval but not necessarily in the middle.")
+      .def_readwrite(
+          "session_uid",
+          &EyeGaze::session_uid,
+          "`unique id` for the calibration session. If there are multiple in-session calibrations in the recording, each segment will have a different `session_uid`.")
       .def("__repr__", [](EyeGaze const& self) { return fmt::to_string(self); });
 
   m.def(

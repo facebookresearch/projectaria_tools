@@ -15,7 +15,6 @@
  */
 
 #include <array>
-#include <fstream>
 #include <iostream>
 
 #ifndef CSV_IO_NO_THREAD
@@ -26,7 +25,7 @@
 
 namespace projectaria::tools::mps {
 
-constexpr std::array<const char*, 8> kEyeGazeColumns = {
+constexpr std::array<const char*, 9> kEyeGazeColumns = {
     "tracking_timestamp_us",
     "yaw_rads_cpf",
     "pitch_rads_cpf",
@@ -35,17 +34,32 @@ constexpr std::array<const char*, 8> kEyeGazeColumns = {
     "pitch_low_rads_cpf",
     "yaw_high_rads_cpf",
     "pitch_high_rads_cpf",
+    "session_uid", // V2: Added for calibrated eye gaze sessions
 };
 
 EyeGazes readEyeGaze(const std::string& path) {
   EyeGazes eyeGazes;
   try {
     io::CSVReader<kEyeGazeColumns.size()> csv(path);
+
     // Read in the CSV header
     const auto readHeader = [&](auto&&... args) {
-      csv.read_header(io::ignore_extra_column, args...);
+      csv.read_header(io::ignore_missing_column, args...);
     };
     std::apply(readHeader, kEyeGazeColumns);
+    // check if the first 8 mandatory columns are present
+    for (int i = 0; i < 8; i++) {
+      if (!csv.has_column(kEyeGazeColumns[i])) {
+        std::string columnName(kEyeGazeColumns[i]);
+        throw std::runtime_error("Missing column: " + columnName);
+      }
+    }
+
+    // Default: assume we have V1 file format
+    int version = 1;
+    if (csv.has_column(kEyeGazeColumns[8])) { // checking "session_uid"
+      version = 2;
+    }
 
     EyeGaze eyeGaze;
     std::int64_t tracking_timestamp_us;
@@ -58,11 +72,15 @@ EyeGazes readEyeGaze(const std::string& path) {
         eyeGaze.yaw_low,
         eyeGaze.pitch_low,
         eyeGaze.yaw_high,
-        eyeGaze.pitch_high)) {
+        eyeGaze.pitch_high,
+        eyeGaze.session_uid)) {
+      if (version == 1) {
+        eyeGaze.session_uid = ""; // V1 format does not have session UID
+      }
       eyeGaze.trackingTimestamp = std::chrono::microseconds(tracking_timestamp_us);
       eyeGazes.push_back(eyeGaze);
     }
-    std::cout << "Loaded #eyegaze records: " << eyeGazes.size() << std::endl;
+
   } catch (std::exception& e) {
     std::cerr << "Failed to parse eye gaze file: " << e.what() << std::endl;
   }
