@@ -2,7 +2,7 @@ name: Build projects
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop_iccv]
   pull_request:
     branches: [main]
 
