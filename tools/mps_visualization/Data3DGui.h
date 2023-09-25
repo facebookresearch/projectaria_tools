@@ -62,6 +62,9 @@ class Data3DGui {
   // Clear history of last traj
   void clearLastTraj();
 
+  void setUiPlotGeneralizedGaze(bool value);
+  void setUiPlotCalibratedGaze(bool value);
+
  private:
   void drawRig(
       const std::vector<calibration::CameraCalibration>& camCalibs,

@@ -248,6 +248,14 @@ void Data3DGui::drawEyeGaze(
       eyeGazePointWorld[2]);
 }
 
+void Data3DGui::setUiPlotGeneralizedGaze(bool value) {
+  uiPlotGeneralizedGaze = value;
+}
+
+void Data3DGui::setUiPlotCalibratedGaze(bool value) {
+  uiPlotCalibratedGaze = value;
+}
+
 void Data3DGui::draw(
     const std::vector<calibration::CameraCalibration>& camCalibs,
     const std::optional<calibration::DeviceCalibration>& deviceCalib,

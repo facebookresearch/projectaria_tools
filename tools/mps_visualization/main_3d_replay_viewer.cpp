@@ -198,7 +198,12 @@ int main(int argc, char* argv[]) {
   const auto calibratedEyeGazes = readEyeGaze(calibratedEyeGazePath);
   EyeGazeProvider generalizedEyeGazeProvider(generalizedEyeGazes);
   EyeGazeProvider calibratedEyeGazeProvider(calibratedEyeGazes);
-  XR_LOGI("Loaded and cached eye gazes with size: {}", generalizedEyeGazeProvider.numEyeGazes());
+  XR_LOGI(
+      "Loaded and cached eye gazes (generalized) with size: {}",
+      generalizedEyeGazeProvider.numEyeGazes());
+  XR_LOGI(
+      "Loaded and cached eye gazes (calibrated) with size: {}",
+      calibratedEyeGazeProvider.numEyeGazes());
 
   XR_CHECK_LE(
       allWorldFrameUids.size(),
@@ -226,6 +231,8 @@ int main(int argc, char* argv[]) {
   pangolin::Var<int>::Attach("ui3d.replay frame", replayFrame, 0, numSlamData - 1);
   Data3DGui gui3d(true, fullTrajs, staticCams, ptClouds, boundary.getDilatedBoundary());
 
+  gui3d.setUiPlotGeneralizedGaze(generalizedEyeGazeProvider.numEyeGazes() > 0);
+  gui3d.setUiPlotCalibratedGaze(calibratedEyeGazeProvider.numEyeGazes() > 0);
   // Declare per-frame variables to draw
   std::optional<projectaria::tools::data_provider::ImageData> slamLeftImageData, slamRightImageData,
       rgbImageData;
