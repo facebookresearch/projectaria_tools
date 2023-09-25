@@ -23,13 +23,17 @@ using namespace projectaria::tools::mps;
 
 EyeGazeAriaPlayer::EyeGazeAriaPlayer(
     std::shared_ptr<VrsDataProvider> dataProvider,
-    std::shared_ptr<EyeGazes> eyeGazes,
+    std::shared_ptr<projectaria::tools::mps::EyeGazes> generalizedEyeGazes,
+    std::shared_ptr<EyeGazeVisualizationData> generalizedEyeGazesVisData,
+    std::shared_ptr<projectaria::tools::mps::EyeGazes> calibratedEyeGazes,
+    std::shared_ptr<EyeGazeVisualizationData> calibratedEyeGazesVisData,
     std::shared_ptr<AriaVisualizationData> visData,
-    std::shared_ptr<EyeGazeVisualizationData> eyeGazesVisData,
     std::shared_ptr<AriaVisualizationControl> visControl)
     : AriaPlayer(dataProvider, visData, visControl),
-      eyeGazes_(eyeGazes),
-      eyeGazesVisData_(eyeGazesVisData) {}
+      generalizedEyeGazes_(generalizedEyeGazes),
+      generalizedEyeGazesVisData_(generalizedEyeGazesVisData),
+      calibratedEyeGazes_(calibratedEyeGazes),
+      calibratedEyeGazesVisData_(calibratedEyeGazesVisData) {}
 
 void EyeGazeAriaPlayer::playFromTimeNsMultiThread(int64_t timestampNs) {
   std::vector<std::thread> threadPool;
@@ -81,12 +85,16 @@ inline int queryEyetrackIndex(const EyeGazes& eyeGazes, std::chrono::microsecond
 void EyeGazeAriaPlayer::updateImagesStatic(int64_t timestampNs) {
   AriaPlayer::updateImagesStatic(timestampNs);
   auto timestampUs = durationDoubleToChronoUsCast(timestampNs * 1e-9);
-  int startIndex = queryEyetrackIndex(*eyeGazes_, timestampUs);
-  if (startIndex == -1) {
-    return;
+  int startIndex = queryEyetrackIndex(*generalizedEyeGazes_, timestampUs);
+  if (startIndex != -1) {
+    auto eyegaze = generalizedEyeGazes_->at(startIndex);
+    generalizedEyeGazesVisData_->lastYawPitch = Sophus::Vector2d(eyegaze.yaw, eyegaze.pitch);
   }
-  auto eyegaze = eyeGazes_->at(startIndex);
-  eyeGazesVisData_->lastYawPitch = Sophus::Vector2d(eyegaze.yaw, eyegaze.pitch);
+  startIndex = queryEyetrackIndex(*calibratedEyeGazes_, timestampUs);
+  if (startIndex != -1 && calibratedEyeGazes_) {
+    auto eyegaze = calibratedEyeGazes_->at(startIndex);
+    calibratedEyeGazesVisData_->lastYawPitch = Sophus::Vector2d(eyegaze.yaw, eyegaze.pitch);
+  }
 }
 
 void EyeGazeAriaPlayer::playEyetrackingFromTimeNs(int64_t timestampNs) {
@@ -94,16 +102,23 @@ void EyeGazeAriaPlayer::playEyetrackingFromTimeNs(int64_t timestampNs) {
   auto systemStartTime = std::chrono::steady_clock::now();
 
   auto timestampUs = durationDoubleToChronoUsCast(timestampNs * 1e-9);
-  int startIndex = std::max(queryEyetrackIndex(*eyeGazes_, timestampUs), 0);
-  for (int i = startIndex; i < eyeGazes_->size(); ++i) {
+  int startIndex = std::max(queryEyetrackIndex(*generalizedEyeGazes_, timestampUs), 0);
+  for (int i = startIndex; i < generalizedEyeGazes_->size(); ++i) {
     if (!visControl_->isPlaying_ || visControl_->shouldClose_) {
       return;
     }
 
-    auto eyegaze = eyeGazes_->at(i);
-    eyeGazesVisData_->lastYawPitch = Sophus::Vector2d(eyegaze.yaw, eyegaze.pitch);
+    auto generalizedEyeGaze = generalizedEyeGazes_->at(i);
+    generalizedEyeGazesVisData_->lastYawPitch =
+        Sophus::Vector2d(generalizedEyeGaze.yaw, generalizedEyeGaze.pitch);
 
-    uint64_t currentTimestampNs = eyegaze.trackingTimestamp.count() * 1e3;
+    if (calibratedEyeGazes_ && !calibratedEyeGazes_->empty()) {
+      auto calibratedEyeGaze = calibratedEyeGazes_->at(i);
+      calibratedEyeGazesVisData_->lastYawPitch =
+          Sophus::Vector2d(calibratedEyeGaze.yaw, calibratedEyeGaze.pitch);
+    }
+
+    uint64_t currentTimestampNs = generalizedEyeGaze.trackingTimestamp.count() * 1e3;
     auto sensorTimeDiffNs = currentTimestampNs - playbackStartTime;
     auto systemDiffNs = std::chrono::duration_cast<std::chrono::nanoseconds>(
                             std::chrono::steady_clock::now() - systemStartTime)
@@ -115,7 +130,8 @@ void EyeGazeAriaPlayer::playEyetrackingFromTimeNs(int64_t timestampNs) {
 
 std::shared_ptr<EyeGazeAriaPlayer> createEyeGazeAriaPlayer(
     const std::string& vrsPath,
-    const std::string& eyeGazeRecordsPath,
+    const std::string& generalizedGazePath,
+    const std::string& calibratedGazePath,
     const std::vector<vrs::StreamId>& imageStreamIds) {
   // Open the VRS File
   auto dataProvider = data_provider::createVrsDataProvider(vrsPath);
@@ -125,16 +141,27 @@ std::shared_ptr<EyeGazeAriaPlayer> createEyeGazeAriaPlayer(
   }
 
   // load aria eye gaze data
-  std::shared_ptr<EyeGazes> eyeGazes = std::make_shared<EyeGazes>();
-  if (eyeGazeRecordsPath != "") {
-    *eyeGazes = readEyeGaze(eyeGazeRecordsPath);
+  std::shared_ptr<EyeGazes> generalizedEyeGazes;
+  std::shared_ptr<EyeGazeVisualizationData> generalizedEyeGazesVisData;
+  if (generalizedGazePath != "") {
+    generalizedEyeGazes = std::make_shared<EyeGazes>();
+    *generalizedEyeGazes = readEyeGaze(generalizedGazePath);
+    generalizedEyeGazesVisData = std::make_shared<EyeGazeVisualizationData>();
+    generalizedEyeGazesVisData->lastYawPitch = {0, 0};
+    generalizedEyeGazesVisData->calibrated = false;
+  }
+  std::shared_ptr<EyeGazes> calibratedEyeGazes;
+  std::shared_ptr<EyeGazeVisualizationData> calibratedEyeGazesVisData;
+  if (calibratedGazePath != "") {
+    calibratedEyeGazes = std::make_shared<EyeGazes>();
+    *calibratedEyeGazes = readEyeGaze(calibratedGazePath);
+    calibratedEyeGazesVisData = std::make_shared<EyeGazeVisualizationData>();
+    calibratedEyeGazesVisData->lastYawPitch = {0, 0};
+    calibratedEyeGazesVisData->calibrated = true;
   }
 
   auto visData = std::make_shared<AriaVisualizationData>();
   visData->initDataStreams(imageStreamIds, {}, {});
-
-  auto eyeGazesVisData = std::make_shared<EyeGazeVisualizationData>();
-  eyeGazesVisData->lastYawPitch = {0, 0};
 
   // load visualization control
   auto visControl = std::make_shared<AriaVisualizationControl>();
@@ -143,5 +170,11 @@ std::shared_ptr<EyeGazeAriaPlayer> createEyeGazeAriaPlayer(
 
   // load aria visualization data
   return std::make_shared<EyeGazeAriaPlayer>(
-      dataProvider, eyeGazes, visData, eyeGazesVisData, visControl);
+      dataProvider,
+      generalizedEyeGazes,
+      generalizedEyeGazesVisData,
+      calibratedEyeGazes,
+      calibratedEyeGazesVisData,
+      visData,
+      visControl);
 }

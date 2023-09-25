@@ -37,18 +37,25 @@ const std::vector<vrs::StreamId> kImageStreamIds = {
 int main(int argc, const char* argv[]) {
   CLI::App app{"MPS Eye Gaze Visualizer"};
   std::string vrsPath;
-  std::string eyegazePath;
+  std::string generalizedEyegazePath;
+  std::string calibratedEyegazePath;
   app.add_option("--vrs", vrsPath, "Path to the source vrs file")
       ->check(CLI::ExistingPath)
       ->required();
-  app.add_option("--eyegaze", eyegazePath, "Path to the eye gaze csv file")
+  app.add_option(
+         "--generalized-eye-gaze",
+         generalizedEyegazePath,
+         "Path to the generalized eye gaze csv file")
       ->check(CLI::ExistingPath)
       ->required();
+  app.add_option(
+         "--calibrated-eye-gaze", calibratedEyegazePath, "Path to the calibrated eye gaze csv file")
+      ->check(CLI::ExistingPath);
 
   CLI11_PARSE(app, argc, argv);
 
-  std::shared_ptr<EyeGazeAriaPlayer> eyegazeAriaPlayer =
-      createEyeGazeAriaPlayer(vrsPath, eyegazePath, kImageStreamIds);
+  std::shared_ptr<EyeGazeAriaPlayer> eyegazeAriaPlayer = createEyeGazeAriaPlayer(
+      vrsPath, generalizedEyegazePath, calibratedEyegazePath, kImageStreamIds);
   if (!eyegazeAriaPlayer) {
     return EXIT_FAILURE;
   }

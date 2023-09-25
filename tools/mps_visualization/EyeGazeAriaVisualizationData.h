@@ -23,6 +23,8 @@
 struct EyeGazeVisualizationData {
   // Last current valid EyeGaze recording {yaw, pitch [rad]}
   Eigen::Vector2d lastYawPitch;
+  // True if this is calibrated eye gaze
+  bool calibrated;
   // A rolling buffer history of EyeGaze yaw, pitch recordings
   std::deque<Eigen::Vector2d> yawPitchHistory;
 };

@@ -25,13 +25,18 @@ class EyeGazeAriaPlayer : public AriaPlayer {
  public:
   EyeGazeAriaPlayer(
       std::shared_ptr<projectaria::tools::data_provider::VrsDataProvider> dataProvider,
-      std::shared_ptr<projectaria::tools::mps::EyeGazes> eyeGazes,
+      std::shared_ptr<projectaria::tools::mps::EyeGazes> generalizedEyeGazes,
+      std::shared_ptr<EyeGazeVisualizationData> generalizedEyeGazesVisData,
+      std::shared_ptr<projectaria::tools::mps::EyeGazes> calibratedEyeGazes,
+      std::shared_ptr<EyeGazeVisualizationData> calibratedEyeGazesVisData,
       std::shared_ptr<AriaVisualizationData> visData,
-      std::shared_ptr<EyeGazeVisualizationData> eyeGazesVisData,
       std::shared_ptr<AriaVisualizationControl> visControl);
 
-  std::shared_ptr<EyeGazeVisualizationData> getEyeGazeVisDataPtr() {
-    return eyeGazesVisData_;
+  std::shared_ptr<EyeGazeVisualizationData> getGeneralizedEyeGazeVisDataPtr() const {
+    return generalizedEyeGazesVisData_;
+  }
+  std::shared_ptr<EyeGazeVisualizationData> getCalibratedEyeGazeVisDataPtr() const {
+    return calibratedEyeGazesVisData_;
   }
 
  protected:
@@ -40,11 +45,15 @@ class EyeGazeAriaPlayer : public AriaPlayer {
   void playEyetrackingFromTimeNs(int64_t timestampNs);
 
  private:
-  std::shared_ptr<projectaria::tools::mps::EyeGazes> eyeGazes_;
-  std::shared_ptr<EyeGazeVisualizationData> eyeGazesVisData_;
+  std::shared_ptr<projectaria::tools::mps::EyeGazes> generalizedEyeGazes_;
+  std::shared_ptr<EyeGazeVisualizationData> generalizedEyeGazesVisData_;
+
+  std::shared_ptr<projectaria::tools::mps::EyeGazes> calibratedEyeGazes_;
+  std::shared_ptr<EyeGazeVisualizationData> calibratedEyeGazesVisData_;
 };
 
 std::shared_ptr<EyeGazeAriaPlayer> createEyeGazeAriaPlayer(
     const std::string& vrsPath,
-    const std::string& eyeGazeRecordsPath,
+    const std::string& generalizedGazePath,
+    const std::string& calibratedGazePath,
     const std::vector<vrs::StreamId>& imageStreamIds);

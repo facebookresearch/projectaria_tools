@@ -34,13 +34,33 @@ using namespace projectaria::tools;
 using namespace projectaria::tools::data_provider;
 using namespace projectaria::tools::mps;
 
+constexpr float kGeneralizedGazeColor[] = {0.0f, 1.0f, 1.0f};
+constexpr float kCalibratedGazeColor[] = {1.0f, 0.0f, 1.0f};
+
+namespace {
+void plotEt(std::shared_ptr<EyeGazeVisualizationData> eyeGazeVisData) {
+  if (eyeGazeVisData->calibrated) {
+    glColor3f(kCalibratedGazeColor[0], kCalibratedGazeColor[1], kCalibratedGazeColor[2]);
+  } else {
+    glColor3f(kGeneralizedGazeColor[0], kGeneralizedGazeColor[1], kGeneralizedGazeColor[2]);
+  }
+  // Draw current gaze yaw, pitch
+  const Eigen::Vector2f center(
+      eyeGazeVisData->yawPitchHistory.back().x(), eyeGazeVisData->yawPitchHistory.back().y());
+  pangolin::glDrawVertices(std::vector<Eigen::Vector2f>{center}, GL_POINTS);
+  for (double r = .1; r < .3; r += 0.1)
+    pangolin::glDrawCirclePerimeter(center.cast<double>(), r);
+}
+} // namespace
+
 EyeGazeAriaViewer::EyeGazeAriaViewer(
     const std::shared_ptr<EyeGazeAriaPlayer> eyegazeAriaPlayer,
     int width,
     int height,
     const std::string& name)
     : AriaViewer(width, height, name, eyegazeAriaPlayer),
-      eyeGazesVisData_(eyegazeAriaPlayer->getEyeGazeVisDataPtr()) {}
+      generalizedEyeGazesVisData_(eyegazeAriaPlayer->getGeneralizedEyeGazeVisDataPtr()),
+      calibratedEyeGazesVisData_(eyegazeAriaPlayer->getCalibratedEyeGazeVisDataPtr()) {}
 
 void EyeGazeAriaViewer::init() {
   createWindowWithDisplay(width_, height_);
@@ -57,6 +77,11 @@ void EyeGazeAriaViewer::init() {
   // Widget layout (On/Off)
   showETTemporal_ = std::make_unique<pangolin::Var<bool>>(prefix + ".EyeGaze Temporal", true, true);
   showETRadar_ = std::make_unique<pangolin::Var<bool>>(prefix + ".EyeGaze Radar", true, true);
+  showGeneralizedGaze_ =
+      std::make_unique<pangolin::Var<bool>>(prefix + ".Generalized Eye Gaze", true, true);
+  showCalibratedGaze_ =
+      std::make_unique<pangolin::Var<bool>>(prefix + ".Calibrated Eye Gaze", true, true);
+  depth_ = std::make_unique<pangolin::Var<float>>(prefix + ".Eye Gaze depth(m) ", 0.35, 0.1, 30);
 }
 
 void EyeGazeAriaViewer::run() {
@@ -65,6 +90,8 @@ void EyeGazeAriaViewer::run() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     updateGuiAndControl();
+    // Keep the check box off if we don't have calibrated eye gaze data
+    *showCalibratedGaze_ = *showCalibratedGaze_ && calibratedEyeGazesVisData_;
 
     updateImages();
     updateEtPlot();
@@ -116,6 +143,7 @@ void drawEyeGazePoint(
     const std::shared_ptr<projectaria::tools::data_provider::VrsDataProvider> dataProvider,
     std::shared_ptr<AriaVisualizationData> ariaVisData,
     std::shared_ptr<EyeGazeVisualizationData> eyeGazesVisData,
+    float depth,
     const vrs::StreamId& vrsStreamId,
     const std::string& cameraString) {
   std::unique_lock lock(drawEyeGazeMutex);
@@ -134,7 +162,7 @@ void drawEyeGazePoint(
       glLineWidth(10);
       glColor3f(1.0, 1.0, 1.0);
       Eigen::Vector3d gazePointCpf = getEyeGazePointAtDepth(
-          eyeGazesVisData->lastYawPitch.x(), eyeGazesVisData->lastYawPitch.y(), 1.0f);
+          eyeGazesVisData->lastYawPitch.x(), eyeGazesVisData->lastYawPitch.y(), depth);
       auto gazePointProjected = ProjectEyeGazePointInCamera(
           cameraString, dataProvider->getDeviceCalibration().value(), gazePointCpf);
       if (gazePointProjected) {
@@ -145,9 +173,13 @@ void drawEyeGazePoint(
           std::swap(gazePointProjected->y(), gazePointProjected->x());
         }
         *gazePointProjected *= scale;
-        glLineWidth(2);
-        glColor3f(1.0, 0.0, 0.0);
-        pangolin::glDrawCircle(*gazePointProjected);
+        glLineWidth(20);
+        if (eyeGazesVisData->calibrated) {
+          glColor3f(kCalibratedGazeColor[0], kCalibratedGazeColor[1], kCalibratedGazeColor[2]);
+        } else {
+          glColor3f(kGeneralizedGazeColor[0], kGeneralizedGazeColor[1], kGeneralizedGazeColor[2]);
+        }
+        pangolin::glDrawCircle(*gazePointProjected, 2.0);
       }
     }
   }
@@ -159,7 +191,12 @@ void drawEyeGazePoint(
 void EyeGazeAriaViewer::addEtPlot() {
   // Time Series setup for {yaw, pitch}
   logEyeGaze_ = std::make_shared<pangolin::DataLog>();
-  logEyeGaze_->SetLabels({"eyeGaze_yaw [rad]", "eyeGaze_pitch [rad]"});
+  std::vector<std::string> labels = {"Generalized gaze yaw [rad]", "Generalized gaze pitch [rad]"};
+  if (calibratedEyeGazesVisData_) {
+    labels.push_back("Calibrated gaze yaw [rad]");
+    labels.push_back("Calibrated gaze pitch [rad]");
+  }
+  logEyeGaze_->SetLabels(labels);
   eyeGazePlotter_ = std::make_shared<pangolin::Plotter>(
       logEyeGaze_.get(), 0.0f, 200.f, -M_PI / 3, M_PI / 3, 50, 1.);
   eyeGazePlotter_->Track("$i");
@@ -179,15 +216,30 @@ void EyeGazeAriaViewer::addEtPlot() {
       continue;
     }
     streamIdToPixelFrame_[streamId]->extern_draw_function = [&](pangolin::View& v) {
-      drawEyeGazePoint(
-          v,
-          *streamIdToPixelFrame_[streamId],
-          *showNaturalImageOrientation_,
-          dataProvider_,
-          ariaVisData_,
-          eyeGazesVisData_,
-          streamId,
-          *dataProvider_->getLabelFromStreamId(streamId));
+      if (*showGeneralizedGaze_) {
+        drawEyeGazePoint(
+            v,
+            *streamIdToPixelFrame_[streamId],
+            *showNaturalImageOrientation_,
+            dataProvider_,
+            ariaVisData_,
+            generalizedEyeGazesVisData_,
+            *depth_,
+            streamId,
+            *dataProvider_->getLabelFromStreamId(streamId));
+      }
+      if (*showCalibratedGaze_ && calibratedEyeGazesVisData_) {
+        drawEyeGazePoint(
+            v,
+            *streamIdToPixelFrame_[streamId],
+            *showNaturalImageOrientation_,
+            dataProvider_,
+            ariaVisData_,
+            calibratedEyeGazesVisData_,
+            *depth_,
+            streamId,
+            *dataProvider_->getLabelFromStreamId(streamId));
+      }
     };
   }
 }
@@ -201,22 +253,37 @@ void EyeGazeAriaViewer::updateEtPlot() {
   if (ariaVisData_->isDataChanged(kEyeCameraStreamId)) {
     // Draw ET Gaze vector (time series)
     ariaVisData_->setDataChanged(false, kEyeCameraStreamId);
-    const auto gaze = eyeGazesVisData_->lastYawPitch.cast<float>();
     if (*isPlaying_) {
-      logEyeGaze_->Log({gaze.x(), gaze.y()});
+      const auto gaze = generalizedEyeGazesVisData_->lastYawPitch.cast<float>();
+      std::vector<float> values = {gaze.x(), gaze.y()};
+
+      if (calibratedEyeGazesVisData_) {
+        const auto calibrated_gaze = calibratedEyeGazesVisData_->lastYawPitch.cast<float>();
+        values.push_back(calibrated_gaze.x());
+        values.push_back(calibrated_gaze.y());
+      }
+      logEyeGaze_->Log(values);
     }
 
     // Add this measurement to the EyeGaze history buffer
-    eyeGazesVisData_->yawPitchHistory.push_back(eyeGazesVisData_->lastYawPitch);
+    generalizedEyeGazesVisData_->yawPitchHistory.push_back(
+        generalizedEyeGazesVisData_->lastYawPitch);
+    if (calibratedEyeGazesVisData_) {
+      calibratedEyeGazesVisData_->yawPitchHistory.push_back(
+          calibratedEyeGazesVisData_->lastYawPitch);
+    }
     // If buffer too large remove first element
     // - create a rolling buffer
-    if (eyeGazesVisData_->yawPitchHistory.size() > 10) {
-      eyeGazesVisData_->yawPitchHistory.pop_front();
+    if (generalizedEyeGazesVisData_->yawPitchHistory.size() > 10) {
+      generalizedEyeGazesVisData_->yawPitchHistory.pop_front();
+    }
+    if (calibratedEyeGazesVisData_ && calibratedEyeGazesVisData_->yawPitchHistory.size() > 10) {
+      calibratedEyeGazesVisData_->yawPitchHistory.pop_front();
     }
   }
 
   // Draw radar (using history saved data)
-  if (!eyeGazesVisData_->yawPitchHistory.empty() && *showETRadar_) {
+  if (!generalizedEyeGazesVisData_->yawPitchHistory.empty() && *showETRadar_) {
     eyeGazeRadar_->Activate(*radar_view_camera_);
 
     // Draw radar view background
@@ -224,16 +291,11 @@ void EyeGazeAriaViewer::updateEtPlot() {
     for (double r = .1; r < 2; r += 0.5)
       pangolin::glDrawCirclePerimeter(Eigen::Vector2d(0, 0), r);
 
-    // Draw eye gaze yaw, pitch history
-    glColor3f(1, 0.8, 0);
-    std::vector<Eigen::Vector2d> eyeGazeHistory{
-        eyeGazesVisData_->yawPitchHistory.begin(), eyeGazesVisData_->yawPitchHistory.end()};
-    pangolin::glDrawLineStrip(eyeGazeHistory);
-    // Draw current gaze yaw, pitch
-    const Eigen::Vector2f center(
-        eyeGazesVisData_->yawPitchHistory.back().x(), eyeGazesVisData_->yawPitchHistory.back().y());
-    pangolin::glDrawVertices(std::vector<Eigen::Vector2f>{center}, GL_POINTS);
-    for (double r = .1; r < .3; r += 0.1)
-      pangolin::glDrawCirclePerimeter(center.cast<double>(), r);
+    if (*showGeneralizedGaze_) {
+      plotEt(generalizedEyeGazesVisData_);
+    }
+    if (*showCalibratedGaze_ && calibratedEyeGazesVisData_) {
+      plotEt(calibratedEyeGazesVisData_);
+    }
   }
 }

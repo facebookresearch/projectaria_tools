@@ -94,7 +94,7 @@ void AriaViewer::addControlPanel(std::shared_ptr<VrsDataProvider> dataProvider) 
   // prefix to give each viewer its own set of controls (otherwise they are
   // shared if multiple viewers are opened)
   const std::string prefix = "ui";
-  pangolin::CreatePanel(prefix).SetBounds(0.0, 1.0, 0.0, pangolin::Attach::Pix(180));
+  pangolin::CreatePanel(prefix).SetBounds(0.0, 1.0, 0.0, pangolin::Attach::Pix(228));
   // Settings
   isPlaying_ = std::make_unique<pangolin::Var<bool>>(
       prefix + ".Play", ariaVisControl_.get()->isPlaying_, true);

@@ -158,13 +158,13 @@ class Data3DGui {
       pangolin::META_FLAG_READONLY};
   pangolin::Var<bool> uiPlotGeneralizedGaze{"ui3d.Generalized Eye gaze", true, true};
   pangolin::Var<bool> uiPlotCalibratedGaze{"ui3d.Calibrated Eye gaze", true, true};
-  pangolin::Var<float> uiGazeRayLength{"ui3d.Eye gaze ray length (m)", 0.35, 0.1, 20};
+  pangolin::Var<float> uiGazeRayLength{"ui3d.Eye gaze depth(m) ", 0.35, 0.1, 20};
 
   pangolin::Var<std::string> uiDelimiterScaleRef_{
       "ui3d.-------------- Scale reference ---------------",
       "",
       pangolin::META_FLAG_READONLY};
-  pangolin::Var<int> uiWorldGridSize{"ui3d.world grid size (m)", 10, 0, 20};
+  pangolin::Var<int> uiWorldGridSize{"ui3d.world grid size(m) ", 10, 0, 20};
 
   pangolin::OpenGlRenderState visualization3dState_;
   std::unique_ptr<pangolin::Handler3D> vis3dState;

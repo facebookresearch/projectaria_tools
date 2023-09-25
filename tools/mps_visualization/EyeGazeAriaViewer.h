@@ -38,7 +38,8 @@ class EyeGazeAriaViewer : public AriaViewer {
   void updateEtPlot();
 
  private:
-  std::shared_ptr<EyeGazeVisualizationData> eyeGazesVisData_;
+  std::shared_ptr<EyeGazeVisualizationData> generalizedEyeGazesVisData_;
+  std::shared_ptr<EyeGazeVisualizationData> calibratedEyeGazesVisData_;
 
   std::shared_ptr<pangolin::DataLog> logEyeGaze_;
 
@@ -46,5 +47,7 @@ class EyeGazeAriaViewer : public AriaViewer {
   std::shared_ptr<pangolin::View> eyeGazeRadar_;
   std::shared_ptr<pangolin::OpenGlRenderState> radar_view_camera_;
 
-  std::unique_ptr<pangolin::Var<bool>> showETTemporal_, showETRadar_;
+  std::unique_ptr<pangolin::Var<bool>> showETTemporal_, showETRadar_, showGeneralizedGaze_,
+      showCalibratedGaze_;
+  std::unique_ptr<pangolin::Var<float>> depth_;
 };
