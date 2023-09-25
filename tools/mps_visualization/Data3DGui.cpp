@@ -403,9 +403,7 @@ void Data3DGui::draw(
     // rotate 90
     rgbView->SetAspect(static_cast<float>(rgbHeight_) / static_cast<float>(rgbWidth_));
     // Plot 2D eye gaze point in RGB image
-    if (generalizedEyeGaze && uiPlotGeneralizedGaze) {
-      rgbView->extern_draw_function = [&](pangolin::View&) { drawEyeGazePoint(); };
-    }
+    rgbView->extern_draw_function = [&](pangolin::View&) { drawEyeGazePoint(); };
   }
 
   // Plot eye gaze rays in the 3D viewer
