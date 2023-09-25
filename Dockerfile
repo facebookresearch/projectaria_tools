@@ -87,6 +87,6 @@ RUN cd /opt/projectaria_tools_Build; ctest -j;
 # Run Python unit test
 RUN cd /opt/projectaria_tools; \
     export TEST_FOLDER="/opt/projectaria_tools/data/"; \
-    python3 -m unittest core/python/test/pybindTest.py; \
+    python3 -m unittest core/python/test/corePyBindTest.py; \
     python3 -m unittest core/python/test/mpsPyBindTest.py; \
     python3 -m unittest core/python/sophus/test/sophusPybindTest.py;
