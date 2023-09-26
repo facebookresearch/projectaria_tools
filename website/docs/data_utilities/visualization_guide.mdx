@@ -129,10 +129,33 @@ The [MPS Eye Gaze visualizer](https://github.com/facebookresearch/projectaria_to
 
 ```bash
 cd $HOME/Documents/projectaria_sandbox/build
+```
 
-./tools/mps_visualization/mps_eyegaze_viewer \
-    --vrs ../projectaria_tools/data/mps_sample/sample.vrs \
-    --eyegaze  ../projectaria_tools/data/mps_sample/eye_gaze/eyegaze.csv
+You should download the sample dataset with in-session calibration from which both a `generalized_eye_gaze.csv` and `calibrated_eye_gaze.csv`
+are generated. These files can be obtained as follows:
+
+### Change this path as desired
+```
+MPS_SAMPLE_PATH=/tmp/mps_sample
+mkdir -p $MPS_SAMPLE_PATH
+```
+
+### Download the files
+```
+curl -o $MPS_SAMPLE_PATH/sample.vrs -O -J -L "https://www.projectaria.com/async/sample/download/?bucket=mps&filename=sample.vrs"
+curl -o $MPS_SAMPLE_PATH/eye_gaze.zip -O -J -L "https://www.projectaria.com/async/sample/download/?bucket=mps&filename=eye_gaze.zip"
+```
+
+### Unzip the MPS outputputs
+```
+unzip -o $MPS_SAMPLE_PATH/eye_gaze.zip  -d $MPS_SAMPLE_PATH
+```
+
+### Run visualizer and visualize both generalized and calibrated eye gaze
+```
+ ./tools/mps_visualization/mps_eyegaze_viewer --vrs $MPS_SAMPLE_PATH/sample.vrs \
+    --generalized-eye-gaze $MPS_SAMPLE_PATH/eye_gaze/generalized_eye_gaze.csv \
+    --calibrated-eye-gaze $MPS_SAMPLE_PATH/eye_gaze/calibrated_eye_gaze.csv
 ```
 
 ![Screenshot of MPS Eye Gaze Viewer](/img/data_utilities/mps-eyegaze-viewer.png)
