@@ -17,11 +17,14 @@ import unittest
 
 from projectaria_tools.core import mps
 
+TEST_FOLDER = os.getenv("TEST_FOLDER")
+
+
 closed_loop_trajectory_file = os.path.join(
-    os.getenv("TEST_FOLDER"), "mps_sample/trajectory/closed_loop_trajectory.csv"
+    TEST_FOLDER, "mps_sample/trajectory/closed_loop_trajectory.csv"
 )
 open_loop_trajectory_file = os.path.join(
-    os.getenv("TEST_FOLDER"), "mps_sample/trajectory/open_loop_trajectory.csv"
+    TEST_FOLDER, "mps_sample/trajectory/open_loop_trajectory.csv"
 )
 
 
@@ -48,10 +51,10 @@ class MPSTrajectory(unittest.TestCase):
 
 
 global_points_file = os.path.join(
-    os.getenv("TEST_FOLDER"), "mps_sample/trajectory/global_points.csv.gz"
+    TEST_FOLDER, "mps_sample/trajectory/global_points.csv.gz"
 )
 semidense_observations_file = os.path.join(
-    os.getenv("TEST_FOLDER"), "mps_sample/trajectory/semidense_observations.csv.gz"
+    TEST_FOLDER, "mps_sample/trajectory/semidense_observations.csv.gz"
 )
 
 
@@ -104,7 +107,7 @@ class MPSPointCloudAndObservations(unittest.TestCase):
 
 
 online_calibration_file = os.path.join(
-    os.getenv("TEST_FOLDER"), "mps_sample/trajectory/online_calibration.jsonl"
+    TEST_FOLDER, "mps_sample/trajectory/online_calibration.jsonl"
 )
 
 
@@ -120,3 +123,28 @@ class MPSOnlineCalibration(unittest.TestCase):
     def test_online_calibration_invalid_file(self) -> None:
         mps_online_calibration = mps.read_online_calibration("")
         assert len(mps_online_calibration) == 0
+
+
+class MPSEyeGaze(unittest.TestCase):
+    """
+    Tests for reading eye gaze data from csv files
+    """
+
+    def test_eyegaze_valid_file(self) -> None:
+        eye_gaze_file = os.path.join(TEST_FOLDER, "mps_sample/eye_gaze/eyegaze.csv")
+        mps_eye_gazes = mps.read_eyegaze(eye_gaze_file)
+        self.assertGreater(len(mps_eye_gazes), 0)
+        self.assertEqual(mps_eye_gazes[0].session_uid, "")
+
+    def test_eyegaze_valid_file_with_session_id(self) -> None:
+        eye_gaze_file = os.path.join(
+            TEST_FOLDER, "mps_sample/eye_gaze/generalized_eye_gaze.csv"
+        )
+        mps_eye_gazes = mps.read_eyegaze(eye_gaze_file)
+        self.assertGreater(len(mps_eye_gazes), 0)
+        self.assertNotEqual(mps_eye_gazes[0].session_uid, "")
+
+    def test_eyegaze_invalid_file(self) -> None:
+        eye_gaze_file = ""
+        mps_eye_gazes = mps.read_eyegaze(eye_gaze_file)
+        self.assertEqual(len(mps_eye_gazes), 0)
