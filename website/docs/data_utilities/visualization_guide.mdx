@@ -10,8 +10,9 @@ This page introduces the core visualization tools available in Project Aria Tool
 
 
 * [Aria Viewer](#aria-viewer): visualize raw Aria data
-* [MPS 3D Scene Viewer](#mps-static-scene-visualizer):  renders a static scene using Aria data with trajectories,
+* [MPS 3D Scene Viewer](#mps-static-scene-visualizer): renders a static scene using Aria data with trajectories,
 global point cloud, and static camera poses
+* [MPS 3D Replay Viewer](#mps-3d-replay-visualizer): renders static scene and dynamic elements: 2D/3D observations rays + eye gaze data,
 * [MPS Eye Gaze Viewer](#mps-eye-gaze-visualizer): visualize Aria data with eye gaze data
 ---
 
@@ -76,6 +77,41 @@ cd $HOME/Documents/projectaria_sandbox/build
 :::info
 Because the sample dataset doesn't have static cameras you won't be able to interact with the static camera settings
 :::
+
+<div id="mps-3d-replay-visualizer"></div>
+
+## Run MPS 3D Replay Viewer
+
+The [MPS 3D Replay Viewer](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/mps_visualization/main_3d_replay_viewer.cpp) renders static scene and dynamic elements at each frame: Aria's pose + 2D/3D observations rays + eye gaze data.
+
+Through this tool you can create visualizations using:
+* Closed loop trajectories
+* Semi-Dense Point Cloud
+   * Global point cloud
+   * Point observations
+* Static camera poses
+
+This tutorial generates a visualization containing:
+* Static elements
+   * Closed loop trajectories
+   * Global point cloud
+* Dynamic elements
+   * One closed loop trajectory for replay
+   * 2D/3D point observations rays
+   * Eye Gaze vector
+
+```bash
+cd $HOME/Documents/projectaria_sandbox/build
+
+./tools/mps_visualization/mps_3d_replay_viewer \
+  --vrs ../projectaria_tools/data/mps_sample/sample.vrs  \
+  --replay-trajectory ../projectaria_tools/data/mps_sample/trajectory/closed_loop_trajectory.csv \
+  --closed-loop-traj ../projectaria_tools/data/mps_sample/trajectory/closed_loop_trajectory.csv \
+  --global-point-cloud ../projectaria_tools/data/mps_sample/trajectory/global_points.csv.gz \
+  --point-obs ../projectaria_tools/data/mps_sample/trajectory/semidense_observations.csv.gz \
+  --generalized-eye-gaze ../projectaria_tools/data/mps_sample/eye_gaze/eyegaze.csv
+```
+![Screenshot of 3D Replay Viewer UI](/img/data_utilities/mps-3d-replay-viewer.png)
 
 
 <div id="mps-eye-gaze-visualizer"></div>
