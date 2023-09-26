@@ -175,7 +175,7 @@ def main():
         cmdclass={"build_ext": CMakeBuild},
         zip_safe=False,
         python_requires=">=3.6",
-        install_requires=["numpy", "pybind11-stubgen==1.1"],
+        install_requires=["numpy"],
         extras_require={
             "all": [
                 ## Required for datasets
