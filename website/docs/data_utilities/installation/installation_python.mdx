@@ -50,7 +50,7 @@ jupyter notebook projectaria_tools/core/examples/mps_quickstart_tutorial.ipynb
 Check the [Python module import error](/docs/data_utilities/installation/troubleshooting#python-module-import-error) section of [Data Utilities Troubleshooting Guide](/docs/data_utilities/installation/troubleshooting) if you encounter this issue
 :::
 
-# Building Python bindings from source (advanced user)
+## Building Python bindings from source (advanced user)
 You'll need to install C++ dependencies to build Python bindings from source.
 
 1. Go to the [C++ Installation page](/docs/data_utilities/installation/installation_cpp) and follow the instructions to [install dependencies](/docs/data_utilities/installation/installation_cpp)
@@ -62,4 +62,17 @@ cd $HOME/Documents/projectaria_sandbox/projectaria_tools
 pip3 install --upgrade pip
 
 pip3 install --global-option=build_ext --config-settings=compile-args="-j2" .;
+```
+
+## Generate and install type hinting from source (advanced user)
+1. Install pybind11-stubgen to generate the stub files
+2. Generate python type hinting with generate_stubs.py script once projectaria_tools package is installed
+3. Install type hinting package for projectaria_tools
+```bash
+pip3 install pybind11-stubgen==1.1
+
+cd $HOME/Documents/projectaria_sandbox/projectaria_tools
+python3 generate_stubs.py
+
+pip3 install projectaria_tools-stubs/
 ```

@@ -27,20 +27,3 @@ Please follow the [link](/docs/data_utilities/installation/installation_python) 
 ![Image](/img/data_utilities/typehinting/pycharm_enter_interpreter.png)
 * Type hinting appears when hover the mouse over the imported functions in your python code
 ![Image](/img/data_utilities/typehinting/pycharm_typehinting_example.png)
-
-## Generate and install your own type hinting (advanced users)
-* [Download the codebase](/docs/data_utilities/installation/download_codebase)
-* Compile the codebase for projectaria_tools python package
-```bash
-cd $HOME/Documents/projectaria_sandbox/projectaria_tools
-pip3 install --upgrade pip
-pip3 install --global-option=build_ext --config-settings=compile-args="-j2" .;
-```
-* Generate python type hinting with generate_stubs.py script
-```bash
-python3 generate_stubs.py
-```
-* Install stub files for projectaria_tools package
-```bash
-pip3 install projectaria_tools-stubs/
-```
