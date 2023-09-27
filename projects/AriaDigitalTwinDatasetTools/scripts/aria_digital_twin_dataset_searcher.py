@@ -76,7 +76,7 @@ if __name__ == "__main__":
     )
     print("Sequences with 1 skeleton: ", searcher.get_sequences_with_skeleton_number(1))
     print(
-        "Sequences with 2 skeleton2: ", searcher.get_sequences_with_skeleton_number(2)
+        "Sequences with 2 skeletons: ", searcher.get_sequences_with_skeleton_number(2)
     )
     print(
         "Sequences with multiple persons: ", searcher.get_sequences_with_multi_persons()
