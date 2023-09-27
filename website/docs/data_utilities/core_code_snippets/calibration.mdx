@@ -7,7 +7,10 @@ import TabItem from '@theme/TabItem';
 
 # Calibration Code Snippets
 
-In this section, we introduce the Python/C++ API to access calibration data from Project Aria VRS files ([projectaria_tools/main/core/calibration](https://github.com/facebookresearch/projectaria_tools/blob/main/core/calibration)).
+
+In this section, we introduce the Python/C++ API for accessing calibration data from Project Aria VRS files ([projectaria_tools/main/core/calibration](https://github.com/facebookresearch/projectaria_tools/blob/main/core/calibration)).
+
+We also introduce Python binding for the [Sophus Library](https://github.com/strasdat/Sophus), providing access to SO3, SE3, interpolate and iterativeMean features ([projectaria_tools/main/core/sophus](https://github.com/facebookresearch/projectaria_tools/blob/main/core/sophus)).
 
 ### Accessing device calibration
 Device calibration stores:
@@ -53,7 +56,7 @@ std::cout << deviceCalib..getDeviceSubtype() << std::endl;
 </Tabs>
 ```
 
-### Accessing 6DoF poses of sensors
+### Accessing 6DoF poses of sensors with Sophus Python binding
 All 6DoF poses (a.k.a. extrinsic parameters) are represented as relative to the device frame.
 The device frame is a specific sensor frame, identified by the sensor's label. Aria device frame is by default `camera-slam-left`.
 We also provide the pose of [the central-pupil-frame](/docs/data_formats/coordinate_convention/3d_coordinate_frame_convention#the-nominal-central-pupil-frame-cpf) in the device frame or as relative to a sensor frame.
@@ -135,7 +138,7 @@ auto imuCalib = deviceCalib.getImuCalib("imu-left");
 </Tabs>
 ```
 
-#### Accessing ET and Microphone calibration
+### Accessing ET and Microphone calibration
 Note Aria's ET camera stream and audio are special types:
 
 * Aria's ET stream switches the stream for left and right ET together, thus its calibration is a pair of CameraCalibration.
@@ -167,3 +170,67 @@ std::cout << micCalib[0].getLabel() << std::endl;
 </TabItem>
 </Tabs>
 ```
+
+<div id="sophus"></div>
+
+## Python binding for Sophus library
+
+Sophus Python PyBind implements Python binding for Sophus that provides access to SO3, SE3, interpolate and iterativeMean features.
+
+The user interface is inspired by [scipy.spatial.transform.Rotation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.transform.Rotation.html).
+
+
+
+### Feature list
+
+* SO3
+  * Initialize with from_quat(), from_matrix(), exp()
+  * Convert to functions: to_quat(), to_matrix(), log()
+  * Multiplication with SO3 or 3D points
+  * Operator [] for setting/getting items with index or slices
+  * Inverse, copy, print, and len
+  * Function vectorization
+* SE3
+  * Initialize with from_quat_and_translation(), from_matrix(), from_matrix3x4(), exp()
+  * Convert to functions to_quat_and_translation(), to_matrix(), to_matrix3x4(), log()
+  * Multiplication with SE3 or 3D points
+  * Get rotation and translation component with rotation() and translation()
+  * Operator [] for setting/getting items with index or slices
+  * Function vectorization
+  * Inverse, copy, print, and len
+  * Interpolate between two SE3
+  * Iterative mean of a group of SE3
+
+
+### Import Sophus Python binding
+
+
+```
+from projectaria_tools.core.sophus import SO3, SE3, interpolate, iterativeMean
+```
+
+
+
+### Example code
+
+Example code is provided in `projectaria_tools/core/examples/sophus_quickstart_tutorial.ipynb`
+
+
+`python3 -m jupyter` ensures that the Jupyter comes from the virtual environment that contains the projectaria_tools module.
+
+
+
+
+### Vectorization detail
+
+In Python, we chose to export our Sophus::SO3 as a vector of SO3 objects by binding the cpp object `SO3Group` defined below. This is because numerical code in Python tends to work with array of values so that the program can be efficient. This approach is inspired by scipy.spatial.transform.Rotation.
+
+
+
+
+### Passing a single SO3/SE3 object to C++ code in Python binding
+
+
+To allow other Python binding C++ code to take in a single SO3/SE3 object, we built a caster so that, even if we wrap SO3Group/SE3Group in Python, those can be implicitly converted to the C++ Sophus::SO3/SE3 object at the boundaries between languages.
+
+This enables us to pass the Python SO3/SE3 object to a C++ function as if they were a regular 1-element Sophus::SO3/SE3 object. This simplifies binding the rest of the C++ code. The implicit cast fails if the Python object is not a 1-element object.

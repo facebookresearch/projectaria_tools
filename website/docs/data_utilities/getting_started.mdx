@@ -9,7 +9,7 @@ In this guide, we introduce how to install the `projectaria_tools` Python packag
 
 You can run this tutorial via Google Colab or install `projectaria_tools` locally and use Jupyter notebooks.
 
-We've provided two tutorials:
+We've provided three tutorials:
 
 * **Dataprovider quickstart tutorial**: using the Aria Data Provider to access sensor data from a [VRS file](/docs/data_formats/aria_vrs/aria_vrs_format). Content covered includes:
    * Retrieve image data
@@ -17,6 +17,7 @@ We've provided two tutorials:
    * Obtaining sensor calibrations
    * Access project/unproject functionalities
    * Undistorting an image
+* **Sophus Pybind Tutorial**: access [Sophus Library](https://github.com/strasdat/Sophus) SO3, SE3, interpolate and iterativeMean features
 * **Machine Perception Services (MPS) quickstart tutorial**: a guide to visualizing MPS (derived) data. Content covered includes visualizing:
    * [Eye gaze](/docs/data_formats/mps/mps_eye_gaze)
    * [Trajectory](/docs/data_formats/mps/mps_trajectory)
@@ -73,7 +74,16 @@ jupyter notebook projectaria_tools/core/examples/dataprovider_quickstart_tutoria
 If you get a [**Jupyter notebook error**](/docs/data_utilities/installation/troubleshooting#jupyter-notebook-error) please [upgrade Python 3](https://www.python.org/downloads/) to the latest version and recreate your virtual environment.
 :::
 
-### Step 5: Run Machine Perception Services (MPS) quickstart tutorial
+### Step 5: Run Sophus Pybind Tutorial
+
+```bash
+cd $HOME/Documents/projectaria_sandbox
+
+jupyter notebook projectaria_tools/core/examples/sophus_quickstart_tutorial.ipynb
+```
+
+
+### Step 6: Run Machine Perception Services (MPS) quickstart tutorial
 In the MPS tutorial, the notebook walks through how to visualize gaze, trajectory, and point cloud from MPS data.
 ```bash
 cd $HOME/Documents/projectaria_sandbox
