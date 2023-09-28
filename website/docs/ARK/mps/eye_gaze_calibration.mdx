@@ -1,0 +1,99 @@
+---
+sidebar_position: 30
+title: Eye Gaze Calibration
+---
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+# Project Aria In-Session Eye Gaze Calibration
+
+
+## Overview
+
+This page provides an overview of what In-Session Eye Gaze Calibration does, and how to collect In-Session Eye Gaze Calibration with Project Aria glasses.
+
+
+## What In-Session Eye Gaze Calibration does
+
+
+In-Session Eye Gaze Calibration enables researchers to improve the eye gaze estimations in Eye Gaze MPS outputs, enabling researchers to more accurately determine where wearers are looking during the recordings.
+
+When you request Eye Gaze Machine Perception Services (MPS) and the file has an in-session Eye Gaze Calibration as part of the VRS file, you will receive two outputs:
+
+* `generalized_eye_gaze.csv` - based on the standard eye gaze configuration
+* `calibrated_eye_gaze.csv` - calibrated eye gaze data based on the calibration data collected in the recording
+
+Every person is unique in terms of how they move their eyes and look at objects, so the calibrated_eye_gaze estimation is expected to be more accurate for the individual.
+
+**Further resources:**
+
+* [Eye Gaze Data Formats](/docs/data_formats/mps/mps_eye_gaze)
+* [How to Request MPS](/docs/ARK/mps/request_mps)
+* [Recording Profiles That Support MPS](/docs/ARK/glasses_manual/profile_guide#recording-profiles-that-support-mps)
+* [Machine Perception Services Tutorial](/docs/data_utilities/getting_started) - includes sample output from a recording where good in-session Eye Gaze Calibration data was collected
+
+:::note
+
+Eye gaze calibration is not the same as Aria device calibration. For information about Aria device calibration, go to [Project Aria Device Calibration](/docs/tech_spec/device_calibration).
+
+:::
+
+## How to Collect In-Session Eye Gaze Calibration
+
+In-Session Eye Gaze Calibration can only be initiated via the Mobile Companion App. Follow these steps for any recording where you may wish to generate Calibrated Eye Gaze MPS.
+
+
+1. In the Mobile Companion app, create a new recording using a profile that includes ET and RGB cameras (such as Profile 15 or 25)
+2. Once your recording has started, close the recording window
+    * Select X on the top left of the screen
+3. Go to Device Settings (select the gear next to your glasses)
+![Image of how to find Project Aria glasses' Device Settings page from the Dashboard](/img/ARK/mobile_app_device_settings.png)
+4. Select **Eye Tracking Calibration**
+5. Confirm that you’d like to run it during the current recording session
+6. Follow the prompts to calibrate your glasses
+
+
+
+### Multiple Users Within the One Recording
+
+It’s possible for multiple users to do an in-session calibration within the one recording.
+
+
+When a new user gets the glasses, the first thing they should do is the in-session Eye Tracking Calibration.
+
+* See [Eye Gaze Data Format](/docs/data_formats/mps/mps_eye_gaze) for how multiple users are tracked.
+
+
+## Eye Gaze Calibration tips
+
+### Things to avoid
+
+❌ Do not wear a face covering during eye calibration.
+
+❌ Choose an area with ample and even lighting; do not face a bright light, window or reflective surface.
+
+❌ Do not set your phone screen brightness too high compared to your surroundings.
+
+❌ Do not fully extend your arm(s) during eye calibration. Your elbows should be bent so that the phone is roughly 1 ft (30 cm) away from your face.
+
+### Things to do
+
+✅ The phone should be held straight in front of your face, so that you shouldn't look up or down to see the screen. Hold the phone plumb (90 degrees) vertically to the ground.
+
+![Image of Project Aria Eye Gaze Calibration screen](/img/ARK/eye_calibration.png)
+
+✅ The "Leveler" stage appears if the position of your phone isn't within specifications for the calibration process. Adjust the phone in front of you and its distance by bending your elbow until the smaller, black circle turns into a green disk with a check mark.
+
+![](/img/ARK/eye_calibration_leveler_stage.png)
+![](/img/ARK/eye_calibration_leveler_success.png)
+✅ Once the "Leveler" stage is successfully completed, do your best to keep your phone in exactly the same position throughout the full eye calibration process. If your phone is moved to a position no longer suited to calibrate your device, the app will return to the "Leveler" stage.
+
+✅ During eye calibration stages 1 to 10, move your nose towards the direction indicated by the arrow. If you're only following the direction with your gaze without moving your head, the calibration stage will time out and fail. However, please make sure to keep your eyes fixed on the number within the dot the whole time.
+
+![](/img/ARK/eye_calibration_pointer.jpg)
+
+
+
+<video width="800" controls>
+  <source src={useBaseUrl('img/ARK/eye_calibration.mp4')} type="video/mp4"/>
+  Your browser does not support the video tag. Video of successful Project Aria In-Session Eye Gaze Calibration.
+</video>

@@ -7,7 +7,17 @@ title: Eye Gaze
 
 ## Eye Gaze Data Format
 
-Project Aria's [Machine Perception Services (MPS)](/docs/ARK/mps) uses Aria's Eye Tracking (ET) camera images to estimate the direction the user is looking. This eye gaze estimation is in [Central Pupil Frame](/docs/data_formats/coordinate_convention/3d_coordinate_frame_convention#the-nominal-central-pupil-frame-cpf). The output is generated in csv format and consists of the following fields:
+Project Aria's [Machine Perception Services (MPS)](/docs/ARK/mps) uses Aria's Eye Tracking (ET) camera images to estimate the direction the user is looking. This eye gaze estimation is in [Central Pupil Frame](/docs/data_formats/coordinate_convention/3d_coordinate_frame_convention#the-nominal-central-pupil-frame-cpf).
+
+Eye Gaze MPS outputs are:
+* `summary.json` - high level report on MPS eye gaze generation
+* `generalized_eye_gaze.csv` - based on the standard eye gaze configuration
+* `calibrated_eye_gaze.csv` - only if you’ve made the recording with [in-session Eye Gaze Calibration](/docs/ARK/mps/eye_gaze_calibration)
+
+## generalized_eye_gaze.csv
+`generalized_eye_gaze.csv` outputs are available for all recordings made with Eye Tracking cameras, and contain the following fields:
+
+
 
 |**Column**	|Type	|Description	|
 |---	|---	|---	|
@@ -19,7 +29,19 @@ Project Aria's [Machine Perception Services (MPS)](/docs/ARK/mps) uses Aria's Ey
 |`pitch_low_rads_cpf`	|float	|This value represents the lower bound of the confidence interval for the **pitch** estimation.	|
 |`yaw_high_rads_cpf`	|float	|This value represents the upper bound of the confidence interval for the **yaw** estimation.	|
 |`pitch_high_rads_cpf`	|float	|This value represents the upper bound of the confidence interval for the **pitch** estimation.	|
+| `session_uid` | string | Unique identifier for a session within the VRS file.|
 
+
+## calibrated_eye_gaze.csv
+`calibrated_eye_gaze.csv` outputs are only generated if the recording has [in-session Eye Gaze Calibration data](/docs/ARK/mps/eye_gaze_calibration). The schema is exactly the same as generalized_eye_gaze.csv.  The session_uids between generalized_gaze output and calibrated gaze output will be the same.
+
+The in-session calibration is used to compute user specific calibration (gaze correction parameters). The yaw, pitch, yaw_low, yaw_high, pitch_low, pitch_high will be adjusted based on this calibration. If the instructions for in-session calibration are followed correctly, the calibrated eye gaze is expected to be more accurate in comparison to generalized eye gaze.
+
+
+## General Principles
+The following principles apply to `generalized_eye_gaze.csv` and  `calibrated_eye_gaze.csv`
+
+### Confidence Intervals
 The confidence intervals represent the models uncertainty estimation. A smaller interval represents higher confidence and a wider interval represents lower confidence. The confidence interval angles are in radians and in CPF frame.
 Some common factors that impact uncertainty include:
 
@@ -29,6 +51,299 @@ Some common factors that impact uncertainty include:
 
 For utility function to load the eye gaze in Python and C++, please check the [code examples](/docs/data_utilities/core_code_snippets/mps#eye-gaze)
 
-## Yaw/Pitch to 3D vector conversion
+
+### Yaw/Pitch to 3D vector conversion
 
 A common use case is to convert the gaze angles into 3D vectors. To convert a gaze measurement (yaw/pitch) into a 3D gaze vector originating at the origin of CPF use the operation [here](https://github.com/facebookresearch/projectaria_tools/blob/main/core/mps/EyeGazeReader.h#L40).
+
+
+### Session_uid
+
+When there are multiple users in the same vrs file (users handing off glasses to a different user without stopping the recording), `session_uid`  identifies intervals corresponding to different calibration sessions if in-app calibration is performed during the hand-offs.
+
+* All the rows with the same session_uid belong to the same session within the VRS file
+* If there are multiple calibration sessions, the session_uid would be unique for each session
+
+`generalized_eye_gaze.csv`
+
+* There will be a single value when there is no in-session eye calibration or only one in-session calibration
+* The session_uid column values will always match those in calibrated_eye_gaze.csv
+
+
+#### Examples
+
+* No calibrated eye gaze - generalized_eye_gaze will have one session_uid across all rows
+* One in-session calibration - generalized_eye_gaze will have one session_uid across all rows and this value will be identical in calibrated_eye_gaze
+* k > 1 in-session calibrations - both generalized and calibrated eye gaze will have k unique session_uid that start when in-session calibration begins and this value will be identical in calibrated_eye_gaze
+
+
+## summary.json
+
+The summary.json file provides a high level overview of the output for each of the major stages. This is similar to the [operator summary output](https://facebookresearch.github.io/projectaria_tools/docs/data_formats/mps/mps_summary#operator-summary) from the MPS location pipeline.
+
+For each stage of the ET pipeline, there will be one section in this file. If the section is missing, that means that the stage is not applicable or was not run.
+
+
+### Stage 1: GazeInference (all recordings)
+
+Uncalibrated Eye Gaze derived data has been generated. If you’re able to download the data to view the .json file it will say SUCCESS.
+
+
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type </strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>status
+   </td>
+   <td>string
+   </td>
+   <td>SUCCESS (if you are able to download the data and view this file)
+   </td>
+  </tr>
+  <tr>
+   <td>message
+   </td>
+   <td>string
+   </td>
+   <td>Any further details, if available
+   </td>
+  </tr>
+</table>
+
+
+
+### Stage 2: InSessionCalibration (if in-session calibration available)
+
+If the recording contains one or more valid in-session calibration intervals, the ET pipeline will compute the calibration parameters.
+
+Each calibration session found in the VRS file will generate the following information:
+
+
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>status
+   </td>
+   <td>string
+   </td>
+   <td>SUCCESS / FAIL
+   </td>
+  </tr>
+  <tr>
+   <td>message
+   </td>
+   <td>string
+   </td>
+   <td>Any further details, if available
+   </td>
+  </tr>
+  <tr>
+   <td>session_uid
+   </td>
+   <td>string
+   </td>
+   <td>Unique ID representing the session
+   </td>
+  </tr>
+  <tr>
+   <td>start_time_us
+   </td>
+   <td>int
+   </td>
+   <td>When the first wearer starts using the Aria glasses, or when subsequent wearer begins in-session calibration (2nd eye calibration onwards)
+   </td>
+  </tr>
+  <tr>
+   <td>end_time_us
+   </td>
+   <td>int
+   </td>
+   <td>When a wearer session or recording ends
+   </td>
+  </tr>
+  <tr>
+   <td>params
+   </td>
+   <td>Array[float]
+   </td>
+   <td>The calibration parameters (4 floats)
+   </td>
+  </tr>
+</table>
+
+
+:::note
+The status should be SUCCESS, unless there was an issue where the wearer began the in-session calibration, but did not generate the necessary data. In this case it would FAIL.
+:::
+
+### Stage 3: CalibrationCorrection
+
+If Stage 2 has been successful, CalibrationCorrection will contain details about calibrated eye gaze. For each calibration session, we will output the following information:
+
+
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>status
+   </td>
+   <td>string
+   </td>
+   <td>SUCCESS / FAIL
+   </td>
+  </tr>
+  <tr>
+   <td>message
+   </td>
+   <td>string
+   </td>
+   <td>Any further details, if available
+   </td>
+  </tr>
+  <tr>
+   <td>session_uid
+   </td>
+   <td>string
+   </td>
+   <td>Unique id representing the session.
+   </td>
+  </tr>
+  <tr>
+   <td>generalized_gaze_error_rads
+   </td>
+   <td>dict
+   </td>
+   <td>Generalized gaze error in radians
+   </td>
+  </tr>
+  <tr>
+   <td>calibrated_gaze_error_rads
+   </td>
+   <td>dict
+   </td>
+   <td>Calibrated gaze error in radians
+   </td>
+  </tr>
+</table>
+
+
+If the previous stages completed successfully, the status for this stage should always be SUCCESS.
+
+
+### Example summary.json files
+
+
+#### **Scenario 1: No calibration available**
+
+This report is quite short, as no in-session calibration data is available. Eye Gaze MPS was successfully created:
+
+
+```json
+{
+    "GazeInference": {
+        "status": "SUCCESS"
+    }
+}
+```
+
+
+
+#### **Scenario 2: In-session calibration available**
+
+In this example, there were multiple calibration sessions:
+
+
+
+* In session one calibration was completed successfully
+* In session two, the user began the in-session calibration, but did not generate the necessary data.
+
+
+```json
+{
+    "GazeInference": {
+        "status": "SUCCESS"
+    },
+    "InSessionCalibration": [
+        {
+            "Status": "SUCCESS",
+            "session_uid": "01ac9bf2-334a-49c6-9dc6-fdc07ab08a2a",
+            "message": "",
+            "start_time_us": 147588973,
+            "end_time_us": 208304973,
+            "num_calibu_frames": 1000,
+            "parameters":[1.02361481, 1.05426864, 0.01158671, 0.01403982]
+        },
+        {
+            "Status": "FAIL",
+            "message": "Couldn't compute GT gaze vectors for the interval [487241235, 508304973]",
+            "session_uid": "6063bf11-84ef-4ed5-a785-ac44b4328fdc",
+            "start_time_us": 487241235,
+            "end_time_us": 508304973,
+            "num_calibu_frames": 10,
+        }
+    ],
+    "CalibrationCorrection": [
+        {
+            "status": "SUCCESS",
+            "message": "",
+            "session_uid": "01ac9bf2-334a-49c6-9dc6-fdc07ab08a2a",
+            "generalized_gaze_error_rads": {
+                "mean": 0.047444001119500284,
+                                     "std": 0.015775822542178554,
+
+                                     "min": 0.009264740570696107,
+
+                                     "max": 0.16895371875829926,
+
+                                     "p25": 0.036160872560797655,
+
+                                     "p50": 0.04529629090291307,
+
+                                     "p75": 0.05761677117669144,
+
+                                     "p95": 0.0675233675673802<code>
+            },
+            "calibrated_gaze_error_rads": {
+                "mean": 0.037444001119500284,
+
+                                     "std": 0.005775822542178554,
+
+                                     "min": 0.006364740570696107,
+
+                                     "max": 0.06835371875829926,
+
+                                     "p25": 0.026060872560797655,
+
+                                     "p50": 0.02519329090291307,
+
+                                     "p75": 0.03760677117669144,
+
+                                     "p95": 0.0474232675673802<code>
+            }
+        },
+        {
+            "status": "FAILURE",
+            "message": "No calibration available for this session",
+            "session_uid": "6063bf11-84ef-4ed5-a785-ac44b4328fdc"
+        }    ]
+}
+```

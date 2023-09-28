@@ -1,5 +1,5 @@
 ---
-sidebar_position: 70
+sidebar_position: 10
 title: Machine Perception Services (MPS)
 ---
 
@@ -38,7 +38,9 @@ In the Desktop app, this can be requested as an addition to trajectory (location
 Eye gaze is the most important indicator of human’s attention, [eye gaze direction](/docs/data_formats/mps/mps_eye_gaze) estimation with uncertainty is provided by MPS. Eye gaze estimation uses the data from the Eye Tracking (ET) cameras.
 
 
-Request Eye Gaze data in the Desktop app to get these outputs, the [recording profile](/docs/tech_spec/recording_profiles) must have ET cameras enabled.
+Request Eye Gaze data in the Desktop app to get these outputs, for any recording that had [ET cameras enabled](/docs/tech_spec/recording_profiles).
+
+If you have made a recording with [In-Session Eye Gaze Calibration](/docs/ARK/mps/eye_gaze_calibration), you will receive a second .csv file with calibrated eye gaze outputs.
 
 
 ## About MPS Data Loader APIs
