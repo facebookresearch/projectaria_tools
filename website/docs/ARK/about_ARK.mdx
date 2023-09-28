@@ -18,9 +18,9 @@ The instructions in this section will only be useful if you have access to the A
 
 
 
-## Hardware Requirements
+## Mobile Companion App requirements
 
-To be able to use Aria glasses you will need to use the Aria Mobile Companion app
+To be able to use Aria glasses you will need to use the [Aria Mobile Companion app](/docs/ARK/mobile_companion_app).
 
 * Mobile Companion App:
     * Android device - 64-bit is preferred, although 32-bit is supported
@@ -28,15 +28,23 @@ To be able to use Aria glasses you will need to use the Aria Mobile Companion ap
     * ARM64 processor preferred
     * ARCore Depth API (https://developers.google.com/ar/devices) support needed for eye-tracking calibration
 
-## Other Requirements
+Go to the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) to get this software.
 
-To be able to request Machine Perception Services or stream data, you will need to use the Desktop Companion app.
+## Other requirements (optional software)
+
+### Desktop Companion App
+To be able to request Machine Perception Services or stream data, you will need to use the [Desktop Companion App](/docs/ARK/desktop_companion_app).
+
+Go to the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) to get this software.
 
 * Desktop Companion App runs on the following platforms:
     * MacOS Big Sur 11.3+, both Intel and Apple Silicon
     * Windows 10 x86_64 with DirectX (or OpenGL but the latest drivers should be installed)
     * Windows 11 may work, but is not actively supported at this time
     * Linux, as a debian package for Ubuntu, 22.04 LTS version. The app was only tested for that specific version under Gnome 42.5 and X11 (X Server) as well as Wayland. Any other debian distribution (Ubuntu 22.04 fork such as Kubuntu, Mint etc.) or environment may or may not work.
+
+### Project Aria Tools
+Project Aria Tools is open source tooling for working with Aria data, go to [Data Utilities](/docs/data_utilities) for more details.
 
 Project Aria Tools and [VRS tooling](https://github.com/facebookresearch/vrs) are not available on Windows at this time. The codebase has been tested on the following platforms:
 * Fedora 36,37,38 recommended

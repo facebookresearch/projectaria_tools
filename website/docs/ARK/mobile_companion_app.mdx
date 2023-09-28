@@ -8,7 +8,7 @@ title: Mobile Companion App
 
 The Project Aria Mobile Companion App, provides the ability to interact & record with your Aria glasses via Bluetooth. This section covers:
 
-* Install, Pair and Update
+* Getting Started (Update Your Glasses)
 * Recording
 * Mobile Companion App Screens
 
@@ -22,30 +22,14 @@ These instructions are only useful if you have access to Aria glasses. Go to [pr
 * Update Aria glasses to the latest OS build
 * Select a recording profile and start recording directly from the mobile app
 * Set default recording profile
+* in-session Eye Gaze Calibration
 
-# Install, Pair and Update
+# Getting Started (Update Your Glasses)
 
-## Install
+## Download and Install
 
-### Download the App
+Follow the instructions in the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) to download and install the app (this is where you'll download updates as well).
 
-1. Using your Android smartphone, download Aria's Android APK from [here](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/android/Aria_v125_arm64.apk)
-
-If your phone only accepts 32-bit apps, please reach out to [AriaOps@meta.com](mailto:AriaOps@meta.com) for the 32-bit .apk.
-
-### Install the App
-
-Launch the app once it has finished downloading.
-
-#### Installation trouble shooting
-
-If you see an error message such as “for security, your phone is not allowed to install unknown apps from this source” you’ll need to enable your web browser to install unknown apps.
-
-![Install error message](/img/ARK/unknown_app_error.png)
-
-1. Go to Settings → Apps & notifications → Advanced → Special app access → Install unknown apps.
-2. Select the app (usually your internet browser) that you want to grant permission to install from unknown sources.
-3. Select Allow from this source
 
 ## Sign in and pairing
 
@@ -67,9 +51,9 @@ If you see an error message such as “for security, your phone is not allowed t
 
 ## Set Default Recording Profile
 
-You can set the default recording profile via Mobile or Desktop Companion App. This is the recording profile used when you initiate recording via the capture button or Desktop app.
+The default recording profile determines determines which recording profile the New Recordings page starts with, as well as the profile used when initiating recording via the capture button or Desktop app.
 
-When you select New Recording in the Mobile Companion app you'll initially see the default recording profile. Select the recording profile to view sensor settings or to select a different recording profile.
+You can set the default recording profile via Mobile or Desktop Companion App.
 
 In the Mobile Companion App, you can change the Default Recording Profile at any time via Device Settings (select the settings/gear icon next to your glasses on the dashboard).
 
@@ -111,14 +95,18 @@ Each pair of Aria glasses can only be paired with a single account. Multiple gla
 
 ### To start recording
 
-1. Select New Recording Session on the Aria Dashboard.
+1. Select **New Recording Session** on the Aria Dashboard.
 2. You have the option to configure your recording session before it begins:
     * **Name (optional):** This will define the name of your VRS file. If you do not provide a name a random alphanumeric name will be given
     * **Notes (optional):** Notes are appended to your recordings ID. You can input a short or long text string in this field. Notes is a value that is provided in the vrs.json file associated with your recording.
     * **Sensors Used:** Select Sensors Used to see details of the recording profile. From the Sensors Used menu, select Profile to choose different recording profiles to record with.
+    * If you’ve selected a default recording profile, that profile will be automatically populated, otherwise you will need to select a recording profile.
 3. Select **Begin new recording**
     * While you're recording the Sensor Status field will let you know if there are any data quality issues
-4. End your recording by selecting **Complete Recording** in the app or use the capture button on the top right side of the glasses
+4. Perform in-session Eye Gaze Calibration (optional)
+    * You only need to do this if you want Eye Gaze MPS with Calibrated data
+    * Go To [Eye Gaze Calibration](/docs/ARK/mps/eye_gaze_calibration) for more information
+5. End your recording by selecting **Complete Recording** in the app or use the capture button on the top right side of the glasses
 
 Once you've completed or discarded a recording, you'll return to the New Recording screen, pre-populated with your previous details.
 
