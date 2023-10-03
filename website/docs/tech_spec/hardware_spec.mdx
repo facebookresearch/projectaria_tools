@@ -12,10 +12,15 @@ The glasses support multiple recording profiles that enable users to choose whic
 
 ![Project Aria Glasses Sensor Diagram](/img/tech_spec/aria_hardware_diagram.png)
 
+**Figure 1:** *Project Aria Glasses Sensor Diagram*
 
 ## Sensor specifications
 
-The following table summarizes the specs for the five cameras on Aria glasses.
+### Visual sensors
+
+The following table summarizes the specs for the five glasses on Aria glasses (two Mono Scene/SLAM, one RGB, and two ET cameras).
+
+**Table 1:** *Aria Glasses Camera Specs*
 
 <table>
   <thead>
@@ -68,6 +73,12 @@ The following table summarizes the specs for the five cameras on Aria glasses.
   </tbody>
 </table>
 
+:::note
+Cameras on Project Aria devices are installed sideways. Project Aria Tools visualizers rotate the images to show a more natural view.
+:::
+
+### Non-visual sensors
+
 The non-visual sensors in Aria glasses are:
 
 * Two IMUs operating at 1000Hz and 800Hz respectively
@@ -78,6 +89,19 @@ The non-visual sensors in Aria glasses are:
 * One GPS receiver, Wi-Fi beacon, and Bluetooth beacon.
 
 All cameras, as well as the IMU, magnetometer, barometer and microphone are calibrated and all sensor measurements are timestamped on a common clock at nanosecond resolution. The SLAM and RGB cameras have [fisheye](https://en.wikipedia.org/wiki/Fisheye_lens) lenses to maximize the visible field of view.
+
+### Coordinate systems
+
+Applications like stereo vision and navigation usually handle 2D and 3D points in different spaces, and transformations need to be conducted between them. With Project Aria data, we attach a local R3 coordinate frame to each sensor.
+
+![Diagram of Project Aria coordinates, showing the Optical center and the Lens FOV](/img/data_formats/aria_local_frames.png)
+
+**Figure 2:** *Sensors and Sensor Directions on Project Aria Devices*
+
+To find out more about the coordinate systems and access calibration data, got to:
+* [2D Image Coordinate System Conventions](/docs/data_formats/coordinate_convention/2d_image_coordinate_system_convention)
+* [3D Coordinate Frame Conventions](/docs/data_formats/coordinate_convention/3d_coordinate_frame_convention)
+* [Calibration Code Snippets](/docs/data_utilities/core_code_snippets/calibration)
 
 
 ## Other hardware specifications
