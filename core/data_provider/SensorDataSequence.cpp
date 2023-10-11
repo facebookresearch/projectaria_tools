@@ -106,11 +106,11 @@ SensorDataIterator SensorDataIterator::operator++() {
   return *this;
 }
 
-bool SensorDataIterator::operator!=(const SensorDataIterator& other) {
+bool SensorDataIterator::operator!=(const SensorDataIterator& other) const {
   return queue_.empty() != other.queue_.empty();
 }
 
-bool SensorDataIterator::operator==(const SensorDataIterator& other) {
+bool SensorDataIterator::operator==(const SensorDataIterator& other) const {
   return queue_.empty() && other.queue_.empty();
 }
 

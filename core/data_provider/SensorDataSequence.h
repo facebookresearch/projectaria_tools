@@ -47,8 +47,8 @@ class SensorDataIterator {
       const int64_t endDeviceTimeNs);
 
   SensorDataIterator operator++();
-  bool operator!=(const SensorDataIterator& other);
-  bool operator==(const SensorDataIterator& other);
+  bool operator!=(const SensorDataIterator& other) const;
+  bool operator==(const SensorDataIterator& other) const;
 
   const SensorData& operator*() const;
 
