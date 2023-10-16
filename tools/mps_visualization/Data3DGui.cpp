@@ -25,7 +25,6 @@ constexpr int UI_WIDTH = 400;
 constexpr int kMapPanelWidth = 1920;
 constexpr int kWindowWidth = kMapPanelWidth + UI_WIDTH;
 constexpr int kWindowHeight = 1080;
-constexpr float kImageWidthRatio = 0.33;
 constexpr int kLastTrajLength = 90; // 3s
 constexpr float k3dViewFocal = 420.f / 4.f;
 const std::vector<Eigen::Vector3f> kTrajColors{
@@ -80,9 +79,12 @@ Data3DGui::Data3DGui(
   pangolin::CreatePanel("ui3d").SetBounds(0, 1, 0, pangolin::Attach::Pix(UI_WIDTH));
 
   if (plot2DView) {
-    imageViews = &pangolin::CreateDisplay()
-                      .SetBounds(0.0, 1.0, pangolin::Attach::Pix(UI_WIDTH), kImageWidthRatio)
-                      .SetLayout(pangolin::LayoutEqual);
+    imageViews =
+        &pangolin::CreateDisplay()
+             .SetBounds(
+                 0.0, 1.0, pangolin::Attach::Pix(UI_WIDTH), pangolin::Attach::Pix(UI_WIDTH + 480))
+             .SetLayout(pangolin::LayoutEqual);
+
     // SLAM
     slamView1 = new pangolin::ImageView("Aria SLAM Left");
     slamView2 = new pangolin::ImageView("Aria SLAM Right");
