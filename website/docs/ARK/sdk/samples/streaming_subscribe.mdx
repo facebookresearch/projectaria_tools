@@ -1,39 +1,36 @@
 ---
 sidebar_position: 25
-title: Subscribe To Live Stream
+title: Subscribe to Live Stream
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl'
 
-# How to Subscribe to and Display Aria Streaming Data
+# Subscribe to and Display Aria Streaming Data
 
-This page shows how to use the code sample `streaming_subscribe` to subscribe to an Aria glasses datastream and provides a code walkthrough of `streaming_subscribe`'s capabilities.
+## Overview
+This page shows how to use the code sample `streaming_subscribe` to subscribe to a Project Aria glasses datastream. It also provides a code walkthrough of `streaming_subscribe`'s capabilities.
 
 `streaming_subscribe` enables you to:
-  * Subscribe to a streaming session initiated by device_stream and access sensor data through its observer
-  * Visualize the live stream
-  * Unsubscribe from a streaming session
+* Subscribe to a streaming session initiated by device_stream or the CLI and access sensor data through its observer
+* Visualize the live stream
+* Unsubscribe from a streaming session
 
 If you're on MacOS and lose internet connection, run `aria-doctor` in a separate terminal.
 
-## Stream and subscribe example
+## Stream and subscribe examples
+
+### Example 1: Stream and subscribe over USB
 In this example you will:
 * Start streaming using the CLI
 * Subscribe to the live stream using the SDK
-* Show a live preview of the sensor data from Aria's RGB and SLAM cameras
+* Show a live preview of the sensor data from Aria's RGB and Mono Scene (SLAM) cameras
 
 
 1. Plug your Aria glasses into your computer, using the provided cable
-2. In terminal, go to the samples directory and run:
+2. In Terminal, go to the samples directory and run:
 
 ```bash
 aria streaming start --interface usb --use-ephemeral-certs
 ```
-
-:::info
-To stream data over wifi, use `--interface wifi` instead.
-To start streaming wirelessly, use `--ip-address <glasses IP>`.
-:::
-
 
 3. Wait for the stream to start then run:
 
@@ -48,17 +45,34 @@ You should then see:
 </div>
 
 4. There are several ways you can stop streaming:
-   * Press q or ESC to quit the app
-   * Use Ctrl-C to terminate in terminal
-   * Press the Capture button on your glasses
+  * Press q or ESC to quit the app
+  * Use Ctrl-C to terminate in terminal
+  * Press the Capture button on your glasses
+
+### Example 2: Using Wi-Fi
+
+To use Wi-Fi to initiate streaming or to stream data, alter the `aria streaming start --interface usb --use-ephemeral-certs` command.
+
+* To stream data over Wi-Fi, use `--interface wifi`
+* To initiate streaming over Wi-Fi, add `--device-ip <glasses IP>`
+  * To get your glasses' IP address, open the Mobile Companion app and tap Wi-Fi
+
+<div style={{textAlign: 'center'}}>
+<img width="40%" src={useBaseUrl('img/ARK/sdk/aria_wi-fi.jpg')} alt="Project Aria Mobile Companion App Dashboard, showing where the Wi-Fi setting is"/>
+<img width="40%" src={useBaseUrl('img/ARK/sdk/aria_wi-fi2.jpg')} alt="Wi-Fi settings screen, showing IP address"/>
+
+</div>
+
 
 ## Code walkthrough
 
-Ensure that Aria CLI is started using the `--use-ephemeral-certs` flag to use ephemeral certificates for streaming data securely.
+Ensure that Aria CLI is started using the `--use-ephemeral-certs` flag to use ephemeral certificates to stream data securely. Go to [Streaming Internals](/docs/ARK/sdk/concepts/streaming_internals) to find out more about streaming certificates (which are not the same as the authorization certificate in the Mobile Companion app).
+
 This code snippet assumes basic familiarity with OpenCV for image rendering and interaction.
 
 ### 1. Instantiate Streaming Client
-  - An instance of `StreamingClient` is created to manage streaming data.
+
+An instance of `StreamingClient` is created to manage streaming data.
 
 ```python
 streaming_client = aria.StreamingClient()
@@ -111,7 +125,7 @@ streaming_client.set_streaming_client_observer(observer)
 streaming_client.subscribe()
 ```
 
-### 6. Visualize Live Stream
+### 6. Visualize the live stream
   - RGB and SLAM images are visualized in separate windows using OpenCV. The images are processed and displayed the streaming stops or the application quit. We rotate the image and stack the SLAM images so that they are shown in a single window.
 
 
@@ -138,7 +152,7 @@ while not quit_keypress():
 
 
 :::note
-Cameras on Aria glasses are installed sideways. By default, images are reported and viewed as they were provided by cameras and will appear sideways.
+Cameras on Aria glasses are installed sideways. The visualizer rotates the raw image data for a more natural view.
 :::
 
 ### 7. Unsubscribe from the stream and free resources

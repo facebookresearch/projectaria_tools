@@ -4,18 +4,19 @@ title: Stream & Display Live Sensor Data
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl'
 
-## How to Stream Data Using the Project Aria Client SDK
+# Stream and Display Live Sensor Data
 
-This page shows how to run the code sample `device_stream` to stream data from Project Aria sensors and provides a code walkthrough of its capabilities.
+## Overview
+This page shows how to run the code sample `device_stream` to stream data from Project Aria sensors. It also provides a code walkthrough of its capabilities.
 
 `device_stream` enables you to:
-    * Set how the sensors will stream data using [recording profiles](/docs/tech_spec/recording_profiles)
-    * Access sensor calibration through the streaming manager.
-    * Start and stop streaming data from Aria glasses over USB
-    * Start and stop streaming data from Aria glasses over Wi-FI
-    * Visualize the sensor streams
-      * Use [`device_subscribe`](/docs/ARK/sdk/samples/streaming_subscribe) to access the data
-    * Display undistorted RGB live stream
+* Set how the sensors will stream data using [recording profiles](/docs/tech_spec/recording_profiles)
+* Access sensor calibration through the streaming manager.
+* Start and stop streaming data from Aria glasses over USB
+* Start and stop streaming data from Aria glasses over Wi-FI
+* Visualize the sensor streams
+  * Use [`device_subscribe`](/docs/ARK/sdk/samples/streaming_subscribe) to access the data
+* Display undistorted RGB live stream
 
 If you're on MacOS and lose internet connection, run `aria-doctor` in a separate terminal.
 
@@ -30,14 +31,14 @@ You can skip `--update_iptables` for all streaming sample apps on MacOS
 
 ### Example 1: Start and stop streaming over USB
 
-In this example you'll use the SDK to:
-* Connect to the device via USB
+In this example, you'll use the Client SDK to:
+* Connect to the glasses via USB
 * Start streaming over USB
-* Show a live preview of the sensor data from Aria's RGB, SLAM, ET cameras as well as IMU sensors.
+* Show a live preview of the sensor data from Aria's RGB, Mono Scene (SLAM), ET cameras as well as IMU sensors.
 
 
 1. Plug your Aria glasses into your computer, using the provided cable
-2. In terminal, go to the samples directory and run:
+2. From the samples directory in Terminal, run:
 
 ```bash
 python -m device_stream --interface usb --update_iptables
@@ -50,7 +51,7 @@ You should then see:
 </div>
 
 :::note
-Cameras on Aria glasses are installed sideways. By default, images are reported and viewed as they were provided by cameras and will appear sideways.
+Cameras on Aria glasses are installed sideways. The visualizer rotates the raw image data for a more natural view.
 :::
 
 
@@ -64,13 +65,16 @@ Cameras on Aria glasses are installed sideways. By default, images are reported 
 Streaming over Wi-Fi is similar, with a few extra steps.
 
 1. Connect your Aria Glasses and Computer to the same Wi-Fi compatible Wi-Fi network:
-  * Check [Requirements](/docs/ARK/sdk/setup.mdx) for details about compatible routers
-2. Find the IP address of your glasses in the Companion App under `Wi-Fi` status
-3. In terminal, go to the samples directory and run:
+   * Check [Requirements](/docs/ARK/sdk/setup.mdx) for details about compatible routers
+2. Open the Mobile Companion app and tap [Wi-Fi on the Dashboard](/docs/ARK/mobile_companion_app#dashboard) to see your glasses' IP address
+3. From the samples directory in Terminal, run:
 
 ```bash
-python device_stream --interface wifi --ip-address <Glasses IP> --update_iptables
+python -m device_stream --interface wifi --device-ip <Glasses IP> --update_iptables
 ```
+
+Make sure you replace `<Glasses IP>` with the IP address you got from the Mobile Companion app
+
 
 4. Stop streaming using any of the methods listed in Example 1
 
@@ -79,7 +83,7 @@ python device_stream --interface wifi --ip-address <Glasses IP> --update_iptable
 To display undistorted RGB live stream over USB, follow the steps in Example 1, but run a different command from the samples directory.
 
 ```bash
-python undistort_rgb_image --interface usb --update_iptables
+python -m undistort_rgb_image --interface usb --update_iptables
 ```
 
 :::info
@@ -95,7 +99,7 @@ Use `--interface wifi` to stream over Wi-FI
 ## Code walkthrough
 
 ### 1. Get set up
-Import the SDK and connect to the Aria glasses using the Get Set Up instructions in [device_connection](/docs/ARK/sdk/samples/device_connection.mdx).
+Import the Client SDK and connect to the Aria glasses using the Get Set Up instructions in [device_connection](/docs/ARK/sdk/samples/device_connection.mdx).
 
 ### 2. Retrieve StreamingManager instance
 - Get an instance of `StreamingManager` from the connected Aria glasses.
@@ -107,7 +111,7 @@ streaming_manager = device.streaming_manager
 ### 3. Configure Streaming Settings (optional)
   - Set a custom configuration for streaming using the `aria.sdk.StreamingConfig` class.
   - `args.profile_name` allows you to specify the profile name for the streaming.
-    _ Go to the [Sensor Profiles page](/docs/ARK/sdk/concepts/sdk_sensor_profiles) for how to retrieve details about custom profiles via CLI or SDK
+    _ Go to the [Sensor Profiles page](/docs/ARK/sdk/concepts/sdk_sensor_profiles) for how to retrieve details about custom profiles via CLI or Client SDK
   - By default, streaming uses Wi-Fi. Use the `StreamingConfig` instance to set the streaming interface to USB. Go to the [Streaming Internals page](/docs/ARK/sdk/concepts/streaming_internals.mdx) for information about the differences between Wi-Fi and USB streaming
   - Use ephemeral streaming certificates for security. This needs to be set to `true` when no persistent certificates were pre-installed. Go to the [Streaming Internals page](/docs/ARK/sdk/concepts/streaming_internals.mdx) on the various aspects of streaming security and how certificates are used.
 

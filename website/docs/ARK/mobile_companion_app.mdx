@@ -2,6 +2,8 @@
 sidebar_position: 50
 title: Mobile Companion App
 ---
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
 # Project Aria Mobile Companion App
 
 ## Overview
@@ -113,6 +115,27 @@ Once you've completed or discarded a recording, you'll return to the New Recordi
 
 
 ## Mobile Companion App Screens
+
+### Dashboard
+
+The Aria Dashboard has several interactive elements:
+
+* Tap **New Recording Session** to make a recording
+* Tap **Add glasses** to pair additional devices with your Aria glasses
+    * One account can have multiple Aria glasses associated it, but each pair of glasses can only be associated with one account
+    * Multiple glasses can be paired, but only one pair of glasses can be connected at a time
+* Tap **Select glasses** to toggle between multiple paired Aria glasses or pair with new glasses
+    * This will replace **Add glasses** if more than one set of glasses is paired
+* Tap the gear icon to go to Device Settings
+* Tap the Bluetooth icon to disconnect your glasses
+* Tap the Wi-Fi icon to connect to different Wi-Fi network, forget a network or see the glasses' IP address
+
+<div style={{textAlign: 'center'}}>
+<img width="40%" src={useBaseUrl('img/ARK/sdk/aria_wi-fi.jpg')} alt="Project Aria Mobile Companion App Dashboard, showing where the Wi-Fi setting is"/>
+<img width="40%" src={useBaseUrl('img/ARK/sdk/aria_wi-fi2.jpg')} alt="Wi-Fi settings screen, showing IP address"/>
+
+</div>
+
 
 ### Recordings menu
 

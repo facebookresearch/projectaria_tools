@@ -6,11 +6,15 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Project Aria glasses have multiple profiles that enable users to choose what sensors to record or stream with and what settings to use. Go to the [Recording Profiles page](/docs/tech_spec/recording_profiles.mdx) for more information about possible sensor configurations. You can also view different recording profile details when you select **Create a Recording** in the mobile app.
+# Access Sensor Profiles Using the CLI or SDK
 
-This page describes how sensor profiles can be retrieved via the CLI and used with the SDK
+## Overview
 
-## Retrieve List Of Available Sensor Profiles
+This page provides information about how to access information about how your Project Aria glasses sensors can be configured and are configured, using the Cli or SDK.
+
+Project Aria glasses have multiple recording profiles that enable users to choose what sensors to record or stream with and what settings to use. Go to the [Recording Profiles page](/docs/tech_spec/recording_profiles.mdx) for more information about possible sensor configurations. You can also view different recording profile details when you select **Create a Recording** in the Mobile Companion app.
+
+## Retrieve list of available sensor profiles
 
 The CLI or SDK can be used to retrieve the available sensor profiles depending on your usage, recording or streaming:
 
@@ -164,9 +168,9 @@ The `aria streaming profiles` command above will store the sensor profiles as js
 
 This JSON content shows exactly which sensors are used and how each sensor is configured. This can provide insight into how battery and thermal levels can be affected. For a general guide on which sensor to use depending on the use case go to the [Recording Profile Guide](/docs/ARK/glasses_manual/profile_guide.mdx)
 
-## Use Sensor Profile
+## Use Recording (Sensor) Profile
 
-Once retrieved a sensor profile can be used to start recording or streaming.
+Once retrieved a recording profile can be used to start recording or streaming.
 
 Below, we will use the sensor profile `profile12` obtained from the previous step to start streaming:
 

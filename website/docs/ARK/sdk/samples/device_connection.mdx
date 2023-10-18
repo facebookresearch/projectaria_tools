@@ -4,9 +4,11 @@ title: Fetch Device Info & Status
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl'
 
-# How to Connect Aria Glasses and Fetch Info Using the Client SDK
+# Connect Glasses and Fetch Info Using the Client SDK
 
-This page shows how to run the code sample `device_connect` and provides a code walkthrough of its capabilities.
+## Overview
+
+This page shows how to run the code sample `device_connect` to connect to Project Aria Glasses and fetch info. It also provides a code walkthrough of its capabilities.
 
 `device_connect enables` you to validate that your Aria glasses have successfully connected to your computer by fetching:
 * Device Status information, such as such as battery level, Wi-Fi SSID or Wi-Fi IP address
@@ -16,10 +18,9 @@ This page shows how to run the code sample `device_connect` and provides a code 
 
 ## Run `device_connect`
 
-In terminal, go to the samples directory and run `python device_connect`:
+In Terminal, from the samples directory, run:
 
 ```bash
-cd samples
 python -m device_connect
 ```
 
@@ -29,7 +30,7 @@ You should then see:
 [AriaSdk:DeviceControllerImpl][INFO]: Connecting to device <serial_number> using ADB
 [AriaSdk:DeviceClientImpl][INFO]: Connection established with device <serial_number>
 Aria Device Status: battery level 100, wifi ssid <xxxxxxxx> , wifi ip <192.168.xx.xx>, mode DeviceMode.Partner
-Aria Device Info: model Aria, serial <serial_number>, manufacturer Facebook
+Aria Device Info: model Aria, serial <serial_number>
 Aria Device Connected, disconnecting
 ```
 
@@ -47,15 +48,16 @@ import aria.sdk as aria
 
 ```python
 aria.set_log_level(aria.Level.Info)
+```
 
 ### 2. Create a Device Client
 
 `DeviceClient` is the main SDK entry point. Once created it is used to retrieve a `Device` instance providing various SDKs features such as recording, streaming or fetching device information and status.
 
-By default, `DeviceClient` will attempt to connect to Aria glasses over USB. To connect to glasses over WiFi configure you can configure the `DeviceClient` by creating a `DeviceClientConfig`, setting `ip_v4_address` and setting the config.
+By default, `DeviceClient` will attempt to connect to Aria glasses over USB. To connect to glasses over Wi-Fi configure you can configure the `DeviceClient` by creating a `DeviceClientConfig`, setting `ip_v4_address` and setting the config.
 
 :::info
-You can find the Glasses IP address in the Companion App under `WiFi` status.
+Get your Aria glasses' IP address from the Mobile Companion App by tapping [Wi-Fi on the Dashboard](/docs/ARK/mobile_companion_app#dashboard).
 :::
 
 ```python
@@ -72,6 +74,7 @@ Connect to the Aria glasses and retrieve a `Device` instance.
 
 ```python
 device = device_client.connect()
+```
 
 ### 2. Fetch device status
 
