@@ -9,6 +9,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 ## Overview
 This page provides all of the commands available when using the Project Aria CLI (installed as part of the [Client SDK](/docs/ARK/sdk)). You can also use [ADB](https://developer.android.com/studio/command-line/adb) to interact with Project Aria glasses.
 
+For any command with [OPTIONS], use --help or -h to find out about the options and subcommands available.
+
 ## Authentication
 
 Manage device pairing with external client over Wi-Fi and USB
@@ -22,7 +24,7 @@ aria auth [OPTIONS] SUBCOMMAND
 Pair device with client
 
 ```
-aria auth pair [OPTIONS]
+aria auth pair
 ```
 
 ### unpair
@@ -30,7 +32,7 @@ aria auth pair [OPTIONS]
 Unpair device from client
 
 ```
-aria auth unpair [OPTIONS]
+aria auth unpair
 ```
 
 ## Device
@@ -41,50 +43,41 @@ Control device.
 aria device [OPTIONS] SUBCOMMAND
 ```
 
-Use `aria device --help` or `aria device -h` for usage information.
-
 
 ### list
 
 List connected USB devices.
 
 ```
-aria device list [OPTIONS]
+aria device list
 ```
-
-Use `aria device list --help` or `aria device list -h` for usage information.
 
 ### info
 
 Get device info.
 
 ```
-aria device info [OPTIONS]
+aria device info
 ```
 
-Use `aria device info --help` or `aria device info -h` for usage information.
 
 ### status
 
 Get device status.
 
 ```
-aria device status [OPTIONS]
+aria device status
 ```
-
-Use `aria device status --help` or `aria device status -h` for usage information.
 
 ### default-profile
 
 Manage default profile.
 
 ```
-aria device default-profile [OPTIONS]
+aria device default-profile [OPTIONS] SUBCOMMAND
 ```
 
-Use `aria device default-profile --help` or `aria device default-profile -h` for usage information.
-
-#### Options
+#### Subcommands include
 
 ```
 --status
@@ -106,7 +99,6 @@ Control device recording.
 aria recording [OPTIONS] SUBCOMMAND
 ```
 
-Use `aria recording --help` or `aria recording -h` for usage information.
 
 ### start
 
@@ -116,7 +108,6 @@ Start recording.
 aria recording start [OPTIONS]
 ```
 
-Use `aria recording start --help` or `aria recording start -h` for usage information.
 
 #### Options
 
@@ -131,10 +122,8 @@ Recording profile name.
 Stop recording.
 
 ```
-aria recording stop [OPTIONS]
+aria recording stop
 ```
-
-Use `aria recording stop --hel`p or `aria recording stop -h` for usage information.
 
 ### profiles
 
@@ -143,8 +132,6 @@ List recording profiles.
 ```
 aria recording profiles [OPTIONS]
 ```
-
-Use `aria recording profiles --help` or `aria recording profiles -h` for usage information.
 
 #### Options
 
@@ -168,20 +155,16 @@ Control device streaming.
 aria streaming [OPTIONS] SUBCOMMAND
 ```
 
-Use aria streaming --help or aria streaming -h for usage information.
-
 
 ### start
 
 Start streaming
 
-##
 
 ```
 aria streaming start [OPTIONS]
 ```
 
-Use aria streaming start --help or aria streaming start -h for usage information.
 
 #### Options
 
@@ -215,7 +198,7 @@ Use ephemeral streaming certs on both device and local host (see aria streaming 
 
 Local streaming certificates directory. Use to specify the local directory where local streaming certificates are installed on local host.
 
-### stop
+### Stop
 
 Stop streaming.
 
@@ -223,15 +206,19 @@ Stop streaming.
 aria streaming stop [OPTIONS]
 ```
 
-Use aria streaming stop --help or aria streaming stop -h for usage information.
-
-## Options
+### Options
 
 ```
 --remove-ephemeral-certs (flag)
 ```
 
-Remove ephemeral streaming certs from local host (see aria streaming uninstall-certs --help to uninstall certs on both device and local host).
+Remove ephemeral streaming certs from local host.
+
+Use aria streaming uninstall-certs --help for commands to uninstall ephemeral certs on Aria glasses and local host.
+
+:::info
+Ephemeral certificates should automatically expire and be removed when streaming stops.
+:::
 
 ```
 --local-certs-dir (string)
@@ -249,8 +236,6 @@ List streaming profiles.
 aria streaming profiles [OPTIONS]
 ```
 
-Use aria streaming profiles --help or aria streaming profiles -h for usage information.
-
 #### Options
 
 ```
@@ -267,13 +252,11 @@ Location of directory where profiles will be saved as JSON files.
 
 ### install-certs
 
-Installs streaming certificates both on the device and on the local host.
+Installs streaming certificates on Aria glasses and on the local host.
 
 ```
 aria streaming install-certs [OPTIONS]
 ```
-
-Use aria streaming install-certs --help or aria streaming install-certs -h for usage information.
 
 #### Options
 
@@ -285,13 +268,11 @@ Local streaming certificates directory. Use to specify the local directory where
 
 ### uninstall-certs
 
-Removes streaming certificate both on the device and on the local host.
+Removes streaming certificates on Aria glasses and on the local host.
 
 ```
 aria streaming uninstall-certs [OPTIONS]
 ```
-
-Use aria streaming uninstall-certs --help or aria streaming uninstall-certs -h for usage information.
 
 #### Options
 

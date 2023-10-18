@@ -29,20 +29,14 @@ To be able to use these commands, follow the [setup instructions](/docs/ARK/sdk/
 aria --help
 ```
 
-will show you all the available options
+will show you available options and subcommands.
 
 ## Connecting
 
-Connecting to the device is done in two ways:
+You can connect to Aria glasses via Wi-Fi or USB.
 
-- Wi-Fi: you will need to specify the `--device-ip` option
-
-- USB: you do not need to manually input the device IP when the device is plugged in via USB. The CLI will automatically connect to the device. Use the `--serial` option if more than one device is plugged in via USB.
-
-### Retrieve device IP
-
-If you wish to manually input a device IP via the --device-ip option, you first need to pair your Aria device with the Companion App, connect your glasses to a Wi-Fi network and use the Companion App to retrieve the device IP:
-
-<div style={{textAlign: 'center'}}>
-<img width="50%" height="50%" src={useBaseUrl('img/ARK/sdk/companionAppDeviceIp.jpg')} alt="Companion App WiFi Settings"/>
-</div>
+- Wi-Fi: you will need to specify the option `--device-ip`
+    - Pair your Aria glasses with the Mobile Companion app to get their IP address by tapping Wi-Fi in the Dashboard
+    - Go to the [Mobile Companion app page](/docs/ARK/mobile_companion_app/#dashboard) for screenshots and further instructions
+- USB: you don't need to manually input the device IP when it is plugged in via USB, the CLI will automatically connect
+    - Use the option `--serial`, if more than one device is plugged in via USB
