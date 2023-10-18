@@ -1,0 +1,82 @@
+---
+sidebar_position: 1
+title: About the SDK
+---
+import useBaseUrl from '@docusaurus/useBaseUrl'
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Project Aria Client SDK and CLI
+
+The Project Aria Client SDK provides robust capabilities for creating computer vision and machine learning applications with Project Aria glasses. CLI capabilities are also installed as part of the SDK.
+
+
+### Client SDK and CLI capabilities
+
+
+
+```mdx-code-block
+<Tabs groupId="cli-sdk-capabilities">
+<TabItem value="sdk" label="SDK">
+```
+
+Through the SDK you can:
+- Connect and disconnect from the glasses via USB or Wi-Fi
+- Retrieve detailed device information and its current status
+- Control Aria recording capabilities
+- Control Aria streaming capabilities
+- Access calibration data for the sensors you're recording with
+- Subscribe and listen to Aria sensor data
+- Visualize streaming data
+
+```mdx-code-block
+</TabItem>
+<TabItem value="cli" label="CLI">
+```
+
+Through the CLI, you can:
+- Pair the glasses via USB or Wi-Fi
+- Connect to the glasses via USB or Wi-Fi
+- Control Aria recording capabilities
+- Control Aria streaming capabilities
+
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+
+### This documentation covers:
+
+* [Set Up Guide](/docs/ARK/sdk/setup)
+    * Requirements
+    * Download and Install
+    * Pair your Aria glasses to the computer
+    * Download code samples
+* Code Samples
+    * [device_connect](/docs/ARK/sdk/samples/device_connection)
+        * Connect to the Aria glasses using USB
+            * USB connection is required to initiate all connections, including streaming over Wi-Fi
+        * Fetch device information, such as the device serial number
+        * Fetch device status, such as battery level or Wi-Fi SSID
+    * [device_record](/docs/ARK/sdk/samples/device_recording)
+        * Set a [recording profile](/docs/tech_spec/recording_profiles)
+        * Access sensor calibration through the recording manager
+        * Start recording, stop recording, and record for a specific duration
+    * [device_stream](/docs/ARK/sdk/samples/device_stream)
+        * Set how the sensors will stream data using [recording profiles](/docs/tech_spec/recording_profiles)
+        * Access sensor calibration through the streaming manager.
+        * Start and stop streaming data from Aria glasses
+        * Visualize the live stream
+    * [streaming_subscribe](/docs/ARK/sdk/samples/streaming_subscribe)
+        * Subscribe to a streaming session initiated by device_stream and access sensor data through its observer
+        * Visualize the live stream
+        * Unsubscribe from a streaming session
+* Core Concepts
+    * [Sensor Profiles](/docs/ARK/sdk/concepts/sdk_sensor_profiles) - access information about Aria Recording Profiles via the CLI or SDK
+    * [Streaming Internals](/docs/ARK/sdk/concepts/streaming_internals) - deeper dives into how data is streamed
+* [API References](/docs/ARK/sdk/api_reference)
+* [CLI documentation](/docs/ARK/sdk/cli/cli.mdx)
+* [Troubleshooting](/docs/ARK/sdk/sdk_troubleshooting)
+
+If you run into any issues, please check out the [Troubleshooting page](/docs/ARK/sdk/sdk_troubleshooting), post to [Academic Partners Feedback and Support](/docs/ARK/workplacegroup) or email to AriaOps@meta.com

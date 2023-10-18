@@ -1,0 +1,297 @@
+---
+sidebar_position: 10
+title: Command Reference
+---
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+## Authentication
+
+Manage device pairing with external client over Wi-Fi and USB
+
+```
+aria auth [OPTIONS] SUBCOMMAND
+```
+
+### pair
+
+Pair device with client
+
+```
+aria auth pair [OPTIONS]
+```
+
+### unpair
+
+Unpair device from client
+
+```
+aria auth unpair [OPTIONS]
+```
+
+## Device
+
+Control device.
+
+```
+aria device [OPTIONS] SUBCOMMAND
+```
+
+Use `aria device --help` or `aria device -h` for usage information.
+
+
+### list
+
+List connected USB devices.
+
+```
+aria device list [OPTIONS]
+```
+
+Use `aria device list --help` or `aria device list -h` for usage information.
+
+### info
+
+Get device info.
+
+```
+aria device info [OPTIONS]
+```
+
+Use `aria device info --help` or `aria device info -h` for usage information.
+
+### status
+
+Get device status.
+
+```
+aria device status [OPTIONS]
+```
+
+Use `aria device status --help` or `aria device status -h` for usage information.
+
+### default-profile
+
+Manage default profile.
+
+```
+aria device default-profile [OPTIONS]
+```
+
+Use `aria device default-profile --help` or `aria device default-profile -h` for usage information.
+
+#### Options
+
+```
+--status
+```
+
+Get default profile status.
+
+```
+--set
+```
+
+Set default profile.
+
+## Recording
+
+Control device recording.
+
+```bash
+aria recording [OPTIONS] SUBCOMMAND
+```
+
+Use `aria recording --help` or `aria recording -h` for usage information.
+
+### start
+
+Start recording.
+
+```
+aria recording start [OPTIONS]
+```
+
+Use `aria recording start --help` or `aria recording start -h` for usage information.
+
+#### Options
+
+```
+--profile (string)
+```
+
+Recording profile name.
+
+### stop
+
+Stop recording.
+
+```
+aria recording stop [OPTIONS]
+```
+
+Use `aria recording stop --hel`p or `aria recording stop -h` for usage information.
+
+### profiles
+
+List recording profiles.
+
+```
+aria recording profiles [OPTIONS]
+```
+
+Use `aria recording profiles --help` or `aria recording profiles -h` for usage information.
+
+#### Options
+
+```
+--save-json (string)
+```
+
+Save profiles as JSON files.
+
+```
+--json-dir (string)
+```
+
+Location of directory where profiles will be saved as JSON files.
+
+## Streaming
+
+Control device streaming.
+
+```
+aria streaming [OPTIONS] SUBCOMMAND
+```
+
+Use aria streaming --help or aria streaming -h for usage information.
+
+
+### start
+
+Start streaming
+
+##
+
+```
+aria streaming start [OPTIONS]
+```
+
+Use aria streaming start --help or aria streaming start -h for usage information.
+
+#### Options
+
+```
+--profile (string)
+```
+
+Streaming profile name.
+
+```
+--topic-prefix (string)
+```
+
+Streaming topic prefix.
+
+```
+--interface (string)
+```
+
+Streaming interface name. Values can be:[usb] - Streaming over USB. [wifi] - Streaming over Wi-Fi network. [hotspot] - Streaming over Aria Wi-Fi hotspot.
+
+```
+--use-ephemeral-certs (flag)
+```
+
+Use ephemeral streaming certs on both device and local host (see aria streaming install-certs --help)
+
+```
+--local-certs-dir (string)
+```
+
+Local streaming certificates directory. Use to specify the local directory where local streaming certificates are installed on local host.
+
+### stop
+
+Stop streaming.
+
+```
+aria streaming stop [OPTIONS]
+```
+
+Use aria streaming stop --help or aria streaming stop -h for usage information.
+
+## Options
+
+```
+--remove-ephemeral-certs (flag)
+```
+
+Remove ephemeral streaming certs from local host (see aria streaming uninstall-certs --help to uninstall certs on both device and local host).
+
+```
+--local-certs-dir (string)
+```
+
+Local streaming certificates directory.
+
+Use to specify the local directory where local streaming certificates are installed on local host.
+
+### profiles
+
+List streaming profiles.
+
+```
+aria streaming profiles [OPTIONS]
+```
+
+Use aria streaming profiles --help or aria streaming profiles -h for usage information.
+
+#### Options
+
+```
+--save-json (flag)
+```
+
+Save profiles as JSON files.
+
+```
+--json-dir (string)
+```
+
+Location of directory where profiles will be saved as JSON files.
+
+### install-certs
+
+Installs streaming certificates both on the device and on the local host.
+
+```
+aria streaming install-certs [OPTIONS]
+```
+
+Use aria streaming install-certs --help or aria streaming install-certs -h for usage information.
+
+#### Options
+
+```
+--local-certs-dir (string)
+```
+
+Local streaming certificates directory. Use to specify the local directory where local streaming certificates are installed on local host.
+
+### uninstall-certs
+
+Removes streaming certificate both on the device and on the local host.
+
+```
+aria streaming uninstall-certs [OPTIONS]
+```
+
+Use aria streaming uninstall-certs --help or aria streaming uninstall-certs -h for usage information.
+
+#### Options
+
+```
+--local-certs-dir (string)
+```
+
+Local streaming certificates directory. Use to specify the local directory where local streaming certificates are installed on local host.

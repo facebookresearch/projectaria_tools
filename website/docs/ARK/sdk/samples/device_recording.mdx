@@ -1,0 +1,100 @@
+---
+sidebar_position: 15
+title: Record a VRS file
+---
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+## How to Make a Recording Using the Project Aria Client SDK
+
+This page shows how to run the code sample `device_record` to make Project Aria glasses recordings (VRS file format) and provides a code walkthrough of its capabilities.
+
+`device_record` enables you to:
+ * Set a [recording profile](/docs/tech_spec/recording_profiles)
+ * Access sensor calibration through the recording manager
+ * Start recording, stop recording, and record for a specific duration
+
+## Run `device_record`
+
+### Example 1: start and stop recording
+Use the SDK to connect to the device via USB, start a 10 seconds recording using the [default recording profile](docs/ARK/ARK_quickstart#set-your-default-recording-profile), then automatically stop the recording.
+
+1. Plug your Aria glasses into your computer, using the provided cable
+2. In terminal, go to the samples directory and run `python device_record`
+2. The recording LED will show on your Aria glasses
+3. After 10 seconds the recording will stop and be stored in your Aria glasses
+   * View the recording metadata in the Recordings tab of the Mobile Companion app
+   * Run `adb shell ls -l /sdcard/recording` and you should see your newly recorded file
+   * Run `adb pull /sdcard/recording/myVrsFile.vrs myLocalFolder/` to download the VRS file
+   * Run `adb pull /sdcard/recording/myVrsFile.json myLocalFolder/` to download the VRS metadata
+   * VRS files can be visualized using the [Aria Viewer](/docs/data_utilities/visualization_guide.mdx)
+
+### Example 2: start and stop recording using a custom sensor profile
+
+You can use Recording Profiles to set the sensors used when recording or streaming data. Go to [Project Aria Recording Profiles](/docs/tech_spec/recording_profiles) to find out more about the custom sensor profiles available.
+
+This example shows mirrors the previous example, except that a specific sensor profile has been selected.
+
+Open your terminal and, from the samples directory, run:
+
+```bash
+python -m device_record --profile profile15
+```
+
+After 10 seconds, the recording will stop and be stored on your Aria glasses.
+
+## Code walkthrough
+
+### 1. Get set up
+Import the SDK and connect to the Aria glasses using the Get Set Up instructions in [device_connection](/docs/ARK/sdk/samples/device_connection.mdx).
+
+### 2. Retrieve RecordingManager instance
+   - Get an instance of `RecordingManager` from the connected device.
+
+```python
+recording_manager = device.recording_manager
+```
+
+### 3. Configure recording settings (optional)
+ Use a custom configuration for your recordings
+ -  `args.profile_name` allows you to specify the profile name for the recording. See [the Sensors Profiles page](/docs/ARK/sdk/concepts/sdk_sensor_profiles) to retrieve the available profiles
+
+```python
+recording_config = aria.RecordingConfig()
+# If set, profile_name takes precedence over the default profile
+recording_config.profile_name = args.profile_name
+recording_manager.recording_config = recording_config
+```
+
+### 4. Access sensor calibration (optional)
+Once the sensors have been configured, the recording manager can provide the sensor calibration data for those settings.
+
+```python
+recording_calib_json = recording_manager.sensors_calibration()
+```
+
+### 5. Start recording
+
+```python
+recording_manager.start_recording()
+```
+
+### 6. Record for specific amount of time (optional)
+Set how long the Aria glasses will record before automatically turning off.
+
+```python
+time.sleep(args.recording_duration)
+```
+
+### 7. Stop Recording (optional)
+To stop recording using this code snippet, you'll need to plug your glasses into your computer to send the stop recording command. You can also stop recording using the Capture button on the glasses or using the Mobile companion app.
+
+```python
+recording_manager.stop_recording()
+```
+
+### 8. Disconnect
+Once you've finished recording make sure you disconnect from the Aria glasses to release any held resources.
+
+```python
+device_client.disconnect(device)
+```

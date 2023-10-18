@@ -1,0 +1,40 @@
+---
+sidebar_position: 5
+title: Code Samples
+---
+
+# Project Aria Client SDK Code Samples
+
+
+This section provides code samples and walkthroughs for using the Aria Client SDK to interact with the Project Aria glasses.
+
+* [device_connect](/docs/ARK/sdk/samples/device_connection)
+    * Connect to the Aria glasses using USB
+        * USB connection is required to initiate all connections, including streaming over Wi-Fi
+    * Fetch device information, such as the device serial number
+    * Fetch device status, such as battery level or Wi-Fi SSID.
+* [device_record](/docs/ARK/sdk/samples/device_recording)
+    * Set a [recording profile](/docs/tech_spec/recording_profiles)
+    * Access sensor calibration through the recording manager
+    * Start recording, stop recording, and record for a specific duration
+* [device_stream](/docs/ARK/sdk/samples/device_stream)
+    * Set how the sensors will stream data using [recording profiles](/docs/tech_spec/recording_profiles)
+    * Access sensor calibration through the streaming manager
+    * Start and stop streaming data from Aria glasses
+    * Display undistorted RGB live stream (this is similar to the visualization you can see via Aria Desktop app)
+* [streaming_subscribe](/docs/ARK/sdk/samples/streaming_subscribe)
+    * Subscribe to a streaming session initiated by device_stream and access sensor data through its observer
+    * Visualize the live stream
+    * Unsubscribe from a streaming session
+
+
+Go to the [Setup Guide](/docs/ARK/sdk/setup.mdx) for how to download the code samples.
+
+
+:::info
+All of the sample apps assume your Aria glasses receive commands via USB, even if you then unplug the glasses stream over Wi-Fi.
+:::
+
+:::danger
+The SDK does not currently support streaming over corporate, university or public networks. Those networks are protected by many layers of security and firewalls. We recommend using one of the recommended routers listed in [the setup instructions](/docs/ARK/sdk/setup.mdx) to stream over Wi-Fi.
+:::

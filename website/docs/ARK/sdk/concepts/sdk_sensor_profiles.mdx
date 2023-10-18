@@ -1,0 +1,197 @@
+---
+sidebar_position: 5
+title: Access Sensor Profiles
+---
+import useBaseUrl from '@docusaurus/useBaseUrl'
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Project Aria glasses have multiple profiles that enable users to choose what sensors to record or stream with and what settings to use. Go to the [Recording Profiles page](/docs/tech_spec/recording_profiles.mdx) for more information about possible sensor configurations. You can also view different recording profile details when you select **Create a Recording** in the mobile app.
+
+This page describes how sensor profiles can be retrieved via the CLI and used with the SDK
+
+## Retrieve List Of Available Sensor Profiles
+
+The CLI or SDK can be used to retrieve the available sensor profiles depending on your usage, recording or streaming:
+
+<Tabs
+  defaultValue="sdk"
+  values={[
+    {label: 'SDK', value: 'sdk'},
+    {label: 'CLI', value: 'cli'},
+  ]}>
+<TabItem value="sdk">
+
+```python
+import aria.sdk as aria
+
+device_client = aria.DeviceClient()
+device = device_client.connect()
+
+# sensors profiles for recording
+recording_manager = device.recording_manager
+recording_profiles = recording_manager.recording_profiles
+print(*recording_profiles)
+
+# sensors profiles for streaming
+streaming_manager = device.streaming_manager
+streaming_profiles = streaming_manager.streaming_profiles
+print(*streaming_profiles)
+```
+
+</TabItem>
+<TabItem value="cli">
+
+```bash
+# sensors profiles for recording
+aria recording profiles --save-json --json-dir ~/recordingProfiles
+
+# sensors profiles for streaming
+aria streaming profiles --save-json --json-dir ~/streamingProfiles
+```
+
+</TabItem>
+</Tabs>
+
+The `aria streaming profiles` command above will store the sensor profiles as json files under the specified directory where you will find e.g. `profile12.json` which contains the following
+
+```json
+{
+ "name": "profile12",
+ "description": "Streaming mode with JPEG (RGB 10fps 2MP, SLAM 10fps, ET 10fps QVGA, JPEG; Audio, GPS, Wi-Fi and BLE off)",
+ "imu1": {
+  "enabled": true,
+  "dataRateHz": 1000
+ },
+ "imu2": {
+  "enabled": true,
+  "dataRateHz": 800
+ },
+ "magnetometer": {
+  "enabled": true,
+  "dataRateHz": 10
+ },
+ "barometer": {
+  "enabled": true,
+  "dataRateHz": 50
+ },
+ "audio": {
+  "enabled": false,
+  "numChannels": 0,
+  "sampleRateHz": "0",
+  "periodSize": 0
+ },
+ "gps": {
+  "enabled": false,
+  "dataRateHz": 0
+ },
+ "ble": {
+  "enabled": false,
+  "scanDurationMs": 0
+ },
+ "wifi": {
+  "enabled": false,
+  "scanDurationMs": 0,
+  "wifiScanModeActive": false,
+  "wifiMinDwellTimeMs": 0,
+  "wifiMaxDwellTimeMs": 0
+ },
+ "slamCameras": {
+  "enabled": true,
+  "width": 640,
+  "height": 480,
+  "fps": 10,
+  "autoExposureEnabled": true,
+  "exposureMinUs": "0",
+  "exposureMaxUs": "0",
+  "gainMin": 0,
+  "gainMax": 0,
+  "exposureUs": "0",
+  "gain": 0,
+  "irLedEnabled": false,
+  "imageFormat": "JPEG",
+  "jpegEncoderType": "HARDWARE",
+  "jpegQuality": 80,
+  "videoEncoderQp": 0,
+  "videoCodecType": "H264",
+  "targetIntensity": 0
+ },
+ "etCamera": {
+  "enabled": true,
+  "width": 320,
+  "height": 240,
+  "fps": 10,
+  "autoExposureEnabled": false,
+  "exposureMinUs": "0",
+  "exposureMaxUs": "0",
+  "gainMin": 0,
+  "gainMax": 0,
+  "exposureUs": "1000",
+  "gain": 1,
+  "irLedEnabled": true,
+  "imageFormat": "JPEG",
+  "jpegEncoderType": "HARDWARE",
+  "jpegQuality": 80,
+  "videoEncoderQp": 0,
+  "videoCodecType": "H264",
+  "targetIntensity": 0
+ },
+ "rgbCamera": {
+  "enabled": true,
+  "width": 1408,
+  "height": 1408,
+  "fps": 10,
+  "autoExposureEnabled": true,
+  "exposureMinUs": "0",
+  "exposureMaxUs": "0",
+  "gainMin": 0,
+  "gainMax": 0,
+  "exposureUs": "0",
+  "gain": 0,
+  "irLedEnabled": false,
+  "imageFormat": "JPEG",
+  "jpegEncoderType": "HARDWARE",
+  "jpegQuality": 80,
+  "videoEncoderQp": 0,
+  "videoCodecType": "H264",
+  "targetIntensity": 0
+ },
+ "attention": {
+  "enabled": false
+ }
+}
+```
+
+This JSON content shows exactly which sensors are used and how each sensor is configured. This can provide insight into how battery and thermal levels can be affected. For a general guide on which sensor to use depending on the use case go to the [Recording Profile Guide](/docs/ARK/glasses_manual/profile_guide.mdx)
+
+## Use Sensor Profile
+
+Once retrieved a sensor profile can be used to start recording or streaming.
+
+Below, we will use the sensor profile `profile12` obtained from the previous step to start streaming:
+
+<Tabs
+  defaultValue="sdk"
+  values={[
+    {label: 'SDK', value: 'sdk'},
+    {label: 'CLI', value: 'cli'},
+  ]}>
+<TabItem value="sdk">
+
+```python
+streaming_manager = device.streaming_manager
+streaming_config = aria.RecordingConfig()
+streaming_config.profile_name = "profile12"
+streaming_manager.streaming_config = streaming_config
+streaming_manager.start_streaming()
+```
+
+</TabItem>
+<TabItem value="cli">
+
+```bash
+aria streaming start --profile profile12
+```
+
+</TabItem>
+</Tabs>

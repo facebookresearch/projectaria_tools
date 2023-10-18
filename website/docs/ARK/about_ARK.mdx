@@ -4,6 +4,8 @@ title: About the Aria Research Kit
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import ThemedImage from '@theme/ThemedImage';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # Aria Research Kit
 
@@ -11,24 +13,52 @@ The Aria Research Kit (ARK) provides Aria glasses, services and tools to enable 
 
 The instructions in this section will only be useful if you have access to the ARK.
 
-## If you just received your Aria glasses
-* Go to the [Quickstart guide to download Mobile and Desktop Companion app software](/docs/ARK/ARK_quickstart)
-* [Join the Academic Partners Workplace Group](/docs/ARK/workplacegroup)
-* If you have any difficulties getting set up, please contact ariaops@meta.com
+Through the ARK, researchers can:
+* Use Aria glasses to record and stream egocentric data
+* Generate derived data through [Machine Perception Services](/docs/ARK/mps)
+* Use our [Client SDK and CLI](/docs/ARK/sdk) to directly interface with Aria glasses
 
+
+## If you just received your Aria glasses
+We suggest the following steps:
+* Go to the [Quickstart guide](/docs/ARK/ARK_quickstart) to get set up
+* [Join the Academic Partners Workplace Group](/docs/ARK/workplacegroup)
+* Join the Project Aria Discord
+* If you have any difficulties getting set up, please contact ariaops@meta.com
 
 
 ## Mobile Companion App requirements
 
 To be able to use Aria glasses you will need to use the [Aria Mobile Companion app](/docs/ARK/mobile_companion_app).
 
-* Mobile Companion App:
-    * Android device - 64-bit is preferred, although 32-bit is supported
-    * Android OS version 10 or above installed
-    * ARM64 processor preferred
-    * ARCore Depth API (https://developers.google.com/ar/devices) support needed for eye-tracking calibration
+
+```mdx-code-block
+<Tabs>
+  <TabItem value="android" label="Android" default>
+```
+
+If you're using Android, your mobile device will need:
+- Android OS version 10 or above installed
+- ARM64 processor preferred
+- ARCore Depth API (https://developers.google.com/ar/devices) support needed for eye-tracking calibration
+- 64-bit is preferred, although 32-bit is supported
 
 Go to the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) to get this software.
+
+```mdx-code-block
+  </TabItem>
+    <TabItem value="ios" label="iOS">
+```
+If you're using iOS:
+- OS version must be iOS 14 or above
+- On your phone, [follow this invitation link](https://testflight.apple.com/join/G9sm51a8) to download the app from TestFlight
+
+Go to the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) for more information about downloading or updating software.
+
+```mdx-code-block
+  </TabItem>
+</Tabs>
+```
 
 ## Other requirements (optional software)
 

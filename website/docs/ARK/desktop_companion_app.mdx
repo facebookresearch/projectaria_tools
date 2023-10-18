@@ -43,11 +43,39 @@ After accepting the guidelines and logging in, you should see the Aria Dashboard
 
 The Desktop App will detect devices that are plugged in via USB. Once plugged in, your device will display as Aria and as Active with its serial number visible in the list of devices next to My Device.
 
-If you cannot see your device, make sure you have updated the firmware using the Aria Mobile Companion app
+If you cannot see your device, make sure you have updated the firmware using the Aria Mobile Companion app.
 
-## Recording
+## Machine Perception Services (MPS)
 
-While you can initiate recording via the Desktop app, we recommend using the Mobile Companion app or Capture button.
+The Desktop App exposes a cloud-based web service or MPS allowing you to generate a ground-truth trajectory out of an Aria VRS recording. Go to Access MPS Data for more information.
+
+
+## Use Desktop App as CLI
+
+The Desktop App can be run directly from the command line without needing a GUI. It can be found under `C:\Program Files\Aria\v3\AriaHub.exe` on Windows and `/Applications/Aria.app/Contents/MacOS/AriaHub` on Mac.
+You may print the app's help using the `AriaHub --help` command.
+
+### health
+
+- Usage :
+
+```
+AriaHub health vrsFilePath.vrs
+```
+
+Use this to run validity checks on an Aria recording (VRS file). These checks are also run on the VRS file automatically, before the file gets uploaded for MPS processing.
+The results of those checks can be found under your home directory under  `./aria/logs`
+
+### vrs
+
+- Usage :
+
+```
+AriaHub vrs vrsFilePath.vrs
+```
+
+Use it as a Swiss army knife utility to manipulate VRS files in different ways. Go to the [VRS official documentation](https://facebookresearch.github.io/vrs/docs/VrsCliTool/) for a full list of commands.
+
 
 ## Download your data
 
@@ -60,7 +88,6 @@ While you can download recordings using the Desktop app, we recommend using ADB 
 
 ![Aria Desktop App Recordings Page](/img/ARK/desktop_app_recordings.png)
 Every recording will generate a VRS file and a .vrs.json file containing the recording's metadata.
-
 
 
 To download a recording:
@@ -127,10 +154,10 @@ Playback can be directly controlled from the keyboard:
 
 When using the arrow keys, all frames are guaranteed to be read. Use this feature if you want to be sure to view every frame of your file.
 
-## Streaming
+## Stream a basic visualization
+Through the Desktop app, you can steam data over Wi-Fi, however it does not have the capabilities of the Client SDK and you can't subscribe to the data. When using the Desktop app, we recommend only using Profiles 12 and 18, which are optimized for streaming.
 
-Aria Sensor data can be live streamed via Wi-Fi. While you can use any recording profile when streaming, we recommend only using Profiles 12 and 18, which are optimized for streaming.
-Streaming over will not work on any Meta corporate network.
+Install the [CLient SDK](/docs/ARK/sdk/sdk.mdx) if you would like to stream and subscribe to Aria data.
 
 To stream data, your Aria glasses need to be on the same network as your computer.
 
@@ -146,11 +173,10 @@ If you need to change the Wi-Fi network your Aria is connected to:
 1. Open Mobile Companion App
 2. In the Paired Glasses section of the Dashboard, select Select Wi-Fi
 3. Select your preferred network and follow the prompts to connect
-
     * You can also forget an existing network from the Wi-Fi menu
     * Make sure it is a non-corporate network that is the same as your computer
 
-Once connected, the Wi-Fi network name will appear in the Desktop App under My Device underneath the WiFi icon which will become blue.
+Once connected, the Wi-Fi network name will appear in the Desktop App under My Device underneath the Wi-Fi icon which will become blue.
 
 ### Wi-Fi connection via Desktop App
 
@@ -160,10 +186,9 @@ Once connected, the Wi-Fi network name will appear in the Desktop App under My D
 3. Select your desired network and enter its password. Click on Connect to confirm your selected profile
 
 
-
 ### Start Streaming
 
-To start streaming, select Streaming on the Dashboard device toolbar under My Device.
+To start streaming, select **Streaming** on the Dashboard device toolbar under My Device.
 The streaming session will then start
 
 ### Streaming Visualization
@@ -178,9 +203,6 @@ To stop streaming, select Stop on the same device toolbar
 You will need to effectively click on the Stop button for the stream to stop.
 :::
 
-## Machine Perception Services (MPS)
-
-The Desktop App exposes a cloud-based web service or MPS allowing you to generate a ground-truth trajectory out of an Aria VRS recording. Go to Access MPS Data for more information.
 
 
 # Appendix A - Recording using the Desktop app
@@ -205,29 +227,3 @@ The profile you select will also be the profile used when you initiate recording
 
 1. Plug your Aria device into your computer
 2. Select **Stop**
-
-## Use Desktop App as CLI
-
-The Desktop App can be run directly from the command line without needing a GUI. It can be found under `C:\Program Files\Aria\v3\AriaHub.exe` on Windows and `/Applications/Aria.app/Contents/MacOS/AriaHub` on Mac.
-You may print the app's help using the `AriaHub --help` command.
-
-### health
-
-- Usage :
-
-```
-AriaHub health vrsFilePath.vrs
-```
-
-Use this to run validity checks on an Aria recording (VRS file). These checks are also run on the VRS file automatically, before the file gets uploaded for MPS processing.
-The results of those checks can be found under your home directory under  `./aria/logs`
-
-### vrs
-
-- Usage :
-
-```
-AriaHub vrs vrsFilePath.vrs
-```
-
-Use it as a Swiss army knife utility to manipulate VRS files in different ways. Go to the [VRS official documentation](https://facebookresearch.github.io/vrs/docs/VrsCliTool/) for a full list of commands

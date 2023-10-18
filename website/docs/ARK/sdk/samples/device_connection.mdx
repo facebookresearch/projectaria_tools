@@ -1,0 +1,115 @@
+---
+sidebar_position: 10
+title: Fetch Device Info & Status
+---
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+# How to Connect Aria Glasses and Fetch Info Using the Client SDK
+
+This page shows how to run the code sample `device_connect` and provides a code walkthrough of its capabilities.
+
+`device_connect enables` you to validate that your Aria glasses have successfully connected to your computer by fetching:
+* Device Status information, such as such as battery level, Wi-Fi SSID or Wi-Fi IP address
+* Device information such as the device serial number or device model
+
+
+
+## Run `device_connect`
+
+In terminal, go to the samples directory and run `python device_connect`:
+
+```bash
+cd samples
+python -m device_connect
+```
+
+You should then see:
+
+```
+[AriaSdk:DeviceControllerImpl][INFO]: Connecting to device <serial_number> using ADB
+[AriaSdk:DeviceClientImpl][INFO]: Connection established with device <serial_number>
+Aria Device Status: battery level 100, wifi ssid <xxxxxxxx> , wifi ip <192.168.xx.xx>, mode DeviceMode.Partner
+Aria Device Info: model Aria, serial <serial_number>, manufacturer Facebook
+Aria Device Connected, disconnecting
+```
+
+## Code walkthrough
+
+### 1. Set Up
+1. Import the Aria Client SDK from aria.sdk
+
+```python
+import aria.sdk as aria
+```
+
+2.  Set the log level for the SDK (optional)
+    * By default, it is set to `Info`, use `Trace` or `Debug` for more detailed logs.
+
+```python
+aria.set_log_level(aria.Level.Info)
+
+### 2. Create a Device Client
+
+`DeviceClient` is the main SDK entry point. Once created it is used to retrieve a `Device` instance providing various SDKs features such as recording, streaming or fetching device information and status.
+
+By default, `DeviceClient` will attempt to connect to Aria glasses over USB. To connect to glasses over WiFi configure you can configure the `DeviceClient` by creating a `DeviceClientConfig`, setting `ip_v4_address` and setting the config.
+
+:::info
+You can find the Glasses IP address in the Companion App under `WiFi` status.
+:::
+
+```python
+device_client = aria.DeviceClient()
+
+client_config = aria.DeviceClientConfig()
+if args.ip_address:
+    client_config.ip_v4_address = args.ip_address
+device_client.set_client_config(client_config)
+```
+
+### 3. Connect to a Device
+Connect to the Aria glasses and retrieve a `Device` instance.
+
+```python
+device = device_client.connect()
+
+### 2. Fetch device status
+
+Use the following commands to:
+   - Obtain the status of the Aria glasses.
+   - Print details such as battery level, connected Wi-Fi SSID, Wi-Fi IP address, and device mode
+
+```python
+status = device.status
+print(
+    "Aria Device Status: battery level {0}, wifi ssid {1}, wifi ip {2}, mode {3}".format(
+        status.battery_level,
+        status.wifi_ssid,
+        status.wifi_ip_address,
+        status.device_mode,
+    )
+)
+```
+
+### 3. Retrieve device information
+
+Use the following commands to:
+   - Get comprehensive information about the Aria glasses
+   - Display device-specific details like its model, serial number, and manufacturer.
+
+```python
+info = device.info
+print(
+    "Aria Device Info: model {}, serial {}, manufacturer {}".format(
+        info.model, info.serial, info.manufacturer
+    )
+)
+```
+
+### 4. Disconnect
+
+Once all operations have been completed, make sure you disconnect your glasses to release any held resources.
+
+```python
+device_client.disconnect(device)
+```

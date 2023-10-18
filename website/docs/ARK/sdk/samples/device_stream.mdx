@@ -1,0 +1,181 @@
+---
+sidebar_position: 20
+title: Stream & Display Live Sensor Data
+---
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+## How to Stream Data Using the Project Aria Client SDK
+
+This page shows how to run the code sample `device_stream` to stream data from Project Aria sensors and provides a code walkthrough of its capabilities.
+
+`device_stream` enables you to:
+    * Set how the sensors will stream data using [recording profiles](/docs/tech_spec/recording_profiles)
+    * Access sensor calibration through the streaming manager.
+    * Start and stop streaming data from Aria glasses over USB
+    * Start and stop streaming data from Aria glasses over Wi-FI
+    * Visualize the sensor streams
+      * Use [`device_subscribe`](/docs/ARK/sdk/samples/streaming_subscribe) to access the data
+    * Display undistorted RGB live stream
+
+If you're on MacOS and lose internet connection, run `aria-doctor` in a separate terminal.
+
+:::note
+This code sample requires Python 3.9+ because of a fastplotlib dependency
+:::
+
+## Run `device_stream`
+:::info
+You can skip `--update_iptables` for all streaming sample apps on MacOS
+:::
+
+### Example 1: Start and stop streaming over USB
+
+In this example you'll use the SDK to:
+* Connect to the device via USB
+* Start streaming over USB
+* Show a live preview of the sensor data from Aria's RGB, SLAM, ET cameras as well as IMU sensors.
+
+
+1. Plug your Aria glasses into your computer, using the provided cable
+2. In terminal, go to the samples directory and run:
+
+```bash
+python -m device_stream --interface usb --update_iptables
+```
+
+You should then see:
+
+<div style={{textAlign: 'center'}}>
+<img width="100%" height="100%" src={useBaseUrl('img/ARK/sdk/device_stream.png')} alt="Aria Live Stream Window"/>
+</div>
+
+:::note
+Cameras on Aria glasses are installed sideways. By default, images are reported and viewed as they were provided by cameras and will appear sideways.
+:::
+
+
+3. There are several ways you can stop streaming:
+  * Press q or ESC to quit the app
+  * Use Ctrl-C to terminate in terminal
+  * Press the Capture button on your glasses
+
+
+### Example 2: Start and stop streaming over Wi-Fi
+Streaming over Wi-Fi is similar, with a few extra steps.
+
+1. Connect your Aria Glasses and Computer to the same Wi-Fi compatible Wi-Fi network:
+  * Check [Requirements](/docs/ARK/sdk/setup.mdx) for details about compatible routers
+2. Find the IP address of your glasses in the Companion App under `Wi-Fi` status
+3. In terminal, go to the samples directory and run:
+
+```bash
+python device_stream --interface wifi --ip-address <Glasses IP> --update_iptables
+```
+
+4. Stop streaming using any of the methods listed in Example 1
+
+### Example 3: Display undistorted RGB live stream over USB
+
+To display undistorted RGB live stream over USB, follow the steps in Example 1, but run a different command from the samples directory.
+
+```bash
+python undistort_rgb_image --interface usb --update_iptables
+```
+
+:::info
+Use `--interface wifi` to stream over Wi-FI
+:::
+
+<div style={{textAlign: 'center'}}>
+<img width="100%" height="100%" src={useBaseUrl('img/ARK/sdk/rgb_rectified.png')} alt="Aria Live Stream Window"/>
+</div>
+
+
+
+## Code walkthrough
+
+### 1. Get set up
+Import the SDK and connect to the Aria glasses using the Get Set Up instructions in [device_connection](/docs/ARK/sdk/samples/device_connection.mdx).
+
+### 2. Retrieve StreamingManager instance
+- Get an instance of `StreamingManager` from the connected Aria glasses.
+
+```python
+streaming_manager = device.streaming_manager
+```
+
+### 3. Configure Streaming Settings (optional)
+  - Set a custom configuration for streaming using the `aria.sdk.StreamingConfig` class.
+  - `args.profile_name` allows you to specify the profile name for the streaming.
+    _ Go to the [Sensor Profiles page](/docs/ARK/sdk/concepts/sdk_sensor_profiles) for how to retrieve details about custom profiles via CLI or SDK
+  - By default, streaming uses Wi-Fi. Use the `StreamingConfig` instance to set the streaming interface to USB. Go to the [Streaming Internals page](/docs/ARK/sdk/concepts/streaming_internals.mdx) for information about the differences between Wi-Fi and USB streaming
+  - Use ephemeral streaming certificates for security. This needs to be set to `true` when no persistent certificates were pre-installed. Go to the [Streaming Internals page](/docs/ARK/sdk/concepts/streaming_internals.mdx) on the various aspects of streaming security and how certificates are used.
+
+```python
+streaming_config = StreamingConfig()
+streaming_config.profile_name = args.profile_name
+
+if args.streaming_interface == "usb":
+    streaming_config.streaming_interface = StreamingInterface.Usb
+
+streaming_config.security_options.use_ephemeral_certs = True
+streaming_manager.streaming_config = streaming_config
+```
+
+### 4. Access sensor calibration (optional)
+
+Once the sensors have been configured, the recording manager can provide the sensor calibration data for those settings.
+
+```python
+sensors_calib_json = streaming_manager.sensors_calibration()
+```
+- A Project Aria Tools type device calibration object can then be retrieved by using the `device_calibration_from_json_string` function:
+```python
+from projectaria_tools.core.calibration import (
+    device_calibration_from_json_string,
+)
+sensors_calib = device_calibration_from_json_string(sensors_calib_json)
+```
+To find out more about how to use sensor calibration, go to the [Accessing sensor calibration page](docs/data_utilities/core_code_snippets/calibration#accessing-sensor-calibration) and try the `undistort_rgb_image` sample app.
+
+### 5. Start Streaming
+
+Start streaming, using all the previously set configurations.
+
+```python
+streaming_manager.start_streaming()
+```
+
+### 6. Configure visualization settings
+  - Create a visualizer using the `AriaVisualizer` class. Look at the `visualizer` file for how you can extend or define your own visualizer
+  - Create a `aria.sdk.StreamingClientObserver` instance allowing you to subscribe to Aria live stream data
+
+```python
+aria_visualizer = AriaVisualizer()
+aria_visualizer_streaming_client_observer = AriaVisualizerStreamingClientObserver(aria_visualizer)
+```
+
+### 6. Visualize live stream
+  - Retrieve a `StreamingClient` instance from the previously retrieved `StreamingManager` instance
+  - Set the `StreamingClient`'s observer instance and start subscribing to the live stream data
+  - Enter the rendering loop to visualize the streaming data until the window is closed.
+
+```python
+streaming_client = streaming_manager.streaming_client
+streaming_client.set_streaming_client_observer(aria_visualizer_streaming_client_observer)
+streaming_client.subscribe()
+
+aria_visualizer.render_loop()
+```
+
+### 7. Stop the stream & free resources
+Once you've finished streaming:
+  - Unsubscribe from `StreamingClient` instance, so that any held resources can be released
+  - Stop streaming
+  - Disconnect the device
+
+```python
+streaming_client.unsubscribe()
+streaming_manager.stop_streaming()
+device_client.disconnect(device)
+```

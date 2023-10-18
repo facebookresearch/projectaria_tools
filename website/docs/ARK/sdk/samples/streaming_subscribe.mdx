@@ -1,0 +1,149 @@
+---
+sidebar_position: 25
+title: Subscribe To Live Stream
+---
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+# How to Subscribe to and Display Aria Streaming Data
+
+This page shows how to use the code sample `streaming_subscribe` to subscribe to an Aria glasses datastream and provides a code walkthrough of `streaming_subscribe`'s capabilities.
+
+`streaming_subscribe` enables you to:
+  * Subscribe to a streaming session initiated by device_stream and access sensor data through its observer
+  * Visualize the live stream
+  * Unsubscribe from a streaming session
+
+If you're on MacOS and lose internet connection, run `aria-doctor` in a separate terminal.
+
+## Stream and subscribe example
+In this example you will:
+* Start streaming using the CLI
+* Subscribe to the live stream using the SDK
+* Show a live preview of the sensor data from Aria's RGB and SLAM cameras
+
+
+1. Plug your Aria glasses into your computer, using the provided cable
+2. In terminal, go to the samples directory and run:
+
+```bash
+aria streaming start --interface usb --use-ephemeral-certs
+```
+
+:::info
+To stream data over wifi, use `--interface wifi` instead.
+To start streaming wirelessly, use `--ip-address <glasses IP>`.
+:::
+
+
+3. Wait for the stream to start then run:
+
+```bash
+python -m streaming_subscribe
+```
+
+You should then see:
+
+<div style={{textAlign: 'center'}}>
+<img src={useBaseUrl('img/ARK/sdk/streaming_subscribe.png')} alt="Aria Live Stream Window"/>
+</div>
+
+4. There are several ways you can stop streaming:
+   * Press q or ESC to quit the app
+   * Use Ctrl-C to terminate in terminal
+   * Press the Capture button on your glasses
+
+## Code walkthrough
+
+Ensure that Aria CLI is started using the `--use-ephemeral-certs` flag to use ephemeral certificates for streaming data securely.
+This code snippet assumes basic familiarity with OpenCV for image rendering and interaction.
+
+### 1. Instantiate Streaming Client
+  - An instance of `StreamingClient` is created to manage streaming data.
+
+```python
+streaming_client = aria.StreamingClient()
+```
+### 2. Configure the subscription
+  - Subscription is configured to listen to Aria's RGB and SLAM streams. The `subscriber_data_type` attribute determines the type of data the client subscribes to.
+
+```python
+config = streaming_client.subscription_config
+config.subscriber_data_type = (
+    aria.StreamingDataType.Rgb | aria.StreamingDataType.Slam
+)
+```
+
+### 3. Set message queue size
+  - The message queue size determines how many recent frames will be retained. A smaller queue size is utilized to process only the most recent data.
+
+```python
+config.message_queue_size[aria.StreamingDataType.Rgb] = 1
+config.message_queue_size[aria.StreamingDataType.Slam] = 1
+```
+
+### 4. Set streaming security options
+  - Security options are set to use ephemeral certificates through a `StreamingSecurityOptions` instance. Go to [the Streaming Internals page](/docs/ARK/sdk/concepts/streaming_internals) for various aspects of streaming security and how certificates are used.
+
+```python
+options = aria.StreamingSecurityOptions()
+options.use_ephemeral_certs = True
+config.security_options = options
+```
+### 5. Create an StreamingClient observer and attach it
+   - An observer class `StreamingClientObserver` is defined and instantiated. It manages the received image data. The method `on_image_received` is a callback that allows you to store images with their corresponding camera ID.
+
+```python
+class StreamingClientObserver:
+    def __init__(self):
+        self.images = {}
+
+    def on_image_received(self, image: np.array, record: ImageDataRecord):
+        self.images[record.camera_id] = image
+
+observer = StreamingClientObserver()
+streaming_client.set_streaming_client_observer(observer)
+```
+
+### 6. Start subscribing and listen to the live stream
+   - The client begins listening for incoming streaming data from the subscribed data types.
+
+```python
+streaming_client.subscribe()
+```
+
+### 6. Visualize Live Stream
+  - RGB and SLAM images are visualized in separate windows using OpenCV. The images are processed and displayed the streaming stops or the application quit. We rotate the image and stack the SLAM images so that they are shown in a single window.
+
+
+```python
+while not quit_keypress():
+    # Render the RGB image
+    if aria.CameraId.Rgb in observer.images:
+        rgb_image = np.rot90(observer.images[aria.CameraId.Rgb], -1)
+        rgb_image = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2RGB)
+        cv2.imshow(rgb_window, rgb_image)
+        del observer.images[aria.CameraId.Rgb]
+
+    # Stack and display the SLAM images
+    if (
+        aria.CameraId.Slam1 in observer.images
+        and aria.CameraId.Slam2 in observer.images
+    ):
+        slam1_image = np.rot90(observer.images[aria.CameraId.Slam1], -1)
+        slam2_image = np.rot90(observer.images[aria.CameraId.Slam2], -1)
+        cv2.imshow(slam_window, np.hstack((slam1_image, slam2_image)))
+        del observer.images[aria.CameraId.Slam1]
+        del observer.images[aria.CameraId.Slam2]
+```
+
+
+:::note
+Cameras on Aria glasses are installed sideways. By default, images are reported and viewed as they were provided by cameras and will appear sideways.
+:::
+
+### 7. Unsubscribe from the stream and free resources
+   - Unsubscribing stops the client from listening to streaming data and cleans up resources.
+
+```python
+streaming_client.unsubscribe()
+```

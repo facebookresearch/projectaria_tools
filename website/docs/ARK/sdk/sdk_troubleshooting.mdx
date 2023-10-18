@@ -1,0 +1,94 @@
+---
+sidebar_position: 45
+title: Troubleshooting & Known Issues
+---
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+# Project Aria Client SDK and CLI Troubleshooting and Known Issues
+
+## Overview
+This page provides troubleshooting information specific to using Project Aria Client SDK.
+
+Go to the [Aria Glasses User Manual](https://facebookresearch.github.io/projectaria_tools/docs/ARK/glasses_manual/glasses_user_manual) for general information about using your glasses.
+
+Go to the [Aria Research Kit (ARK) Troubleshooting and Known Issues page](https://facebookresearch.github.io/projectaria_tools/docs/ARK/troubleshooting/troubleshooting_issues) for general Aria Glasses troubleshooting information.
+
+## Aria Doctor
+
+The Project Aria Doctor utility can help detect and resolve common issues connecting and streaming from the glasses.
+
+Run the utility using the following command and follow the prompts to resolve any issues.
+
+```bash
+aria-doctor
+```
+
+## Connection and pairing issues
+
+### Computer can't find Aria Glasses
+It may be that the battery is drained, make sure your Aria Glasses are correctly charging (there should be a blue LED on the right arm) and wait ten minutes.
+
+On Linux, this may be due to USB driver issues. See [Fix USB Driver Issues in Linux](https://facebookresearch.github.io/projectaria_tools/docs/ARK/troubleshooting/linux_usb_driver)
+
+### Mobile Companion app doesn't receive authorization code
+1. Restart the Mobile Companion app and send `aria auth pair` again with the app in the foreground
+2. Revoke any existing certificates (via [Device Settings](/docs/ARK/mobile_companion_app#aria-device-settings) and try again
+
+
+## Streaming or Recording Issues
+
+### Lost Internet Connection (MacOS)
+
+If you lose internet connection on MacOS while streaming, run `aria-doctor` in a separate terminal.
+
+### Can't start streaming/recording. RuntimeError: (9) Failed to read data from socket: Operation canceled
+
+You may encounter this error message if you:
+* Tried to start streaming/recording and the Privacy Switch was engaged
+* Turned off the Privacy Switch
+* Immediately tried to start recording again
+
+The Aria glasses were still switching modes. Please try again.
+
+
+### Streaming is laggy/ only some streaming visualizations appear/ visualizer is blank
+
+This issue can occur for several reasons.
+
+####  Corporate or VPN interference (even if streaming via ADB)
+
+This issue may occur if you're on a VPN or corporate network. Even if you're only streaming via ADB, some security protocols may interfere.
+
+#### Aria Glasses and Computer on different Wi-Fi networks
+:::info
+This can occur if you know you've set both devices to the same network!
+:::
+
+Devices will sometimes preferentially switch back to Wi-Fi connections with stronger signal strength, so you may need to forget a corporate network on the Aria Glasses or computer.
+
+##### How to adjust Wi-Fi settings via the mobile app
+1. Open the Aria Mobile Companion App
+2. In the Paired Glasses section of the Dashboard, select Select Wi-Fi
+3. Select your preferred network and follow the prompts to connect
+    * You can also forget an existing network from the Wi-Fi menu
+    * Make sure it is a non-corporate network that is the same as your computer
+    * The glasses Wi-Fi network is independent of your phone's Wi-Fi network
+
+Once connected, the Wi-Fi network name will appear in the Desktop App under My Device underneath the WiFi icon which will become blue.
+
+#### Resources are tied up
+
+You may have a previous streaming session running. Follow the [device_stream.py](/docs/ARK/sdk/samples/device_stream) or [streaming_subscribe.py](/docs/ARK/sdk/samples/streaming_subscribe) instructions to stop the stream and free resources.
+
+
+#### Linux connection issue
+
+If streaming on Linux does not show any data, try the following steps to address connection issues:
+  1. Make sure that you have run the nmcli command shown in [the setup instructions](/docs/ARK/sdk/setup.mdx)
+  2. Make sure that the UDP ports used for streaming are not blocked by your machine firewall. You can add an iptable entry to open these ports with the following commands
+
+```bash
+sudo iptables -A INPUT -p udp -m udp --dport 7000:8000 -j ACCEPT
+```
+
+  3. Ensure that during streaming, USB Ethernet tab in the "Network Settings Window" has `Aria` selected
