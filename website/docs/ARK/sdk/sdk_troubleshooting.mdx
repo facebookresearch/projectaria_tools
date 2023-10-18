@@ -1,13 +1,13 @@
 ---
 sidebar_position: 45
-title: Troubleshooting & Known Issues
+title: SDK Troubleshooting & Known Issues
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl'
 
-# Project Aria Client SDK and CLI Troubleshooting and Known Issues
+# Client SDK & CLI Troubleshooting & Known Issues
 
 ## Overview
-This page provides troubleshooting information specific to using Project Aria Client SDK.
+This page provides troubleshooting information specific to using Project Aria Client SDK or CLI.
 
 Go to the [Aria Glasses User Manual](https://facebookresearch.github.io/projectaria_tools/docs/ARK/glasses_manual/glasses_user_manual) for general information about using your glasses.
 
@@ -30,10 +30,26 @@ It may be that the battery is drained, make sure your Aria Glasses are correctly
 
 On Linux, this may be due to USB driver issues. See [Fix USB Driver Issues in Linux](https://facebookresearch.github.io/projectaria_tools/docs/ARK/troubleshooting/linux_usb_driver)
 
-### Mobile Companion app doesn't receive authorization code
-1. Restart the Mobile Companion app and send `aria auth pair` again with the app in the foreground
-2. Revoke any existing certificates (via [Device Settings](/docs/ARK/mobile_companion_app#aria-device-settings) and try again
 
+### Mobile app doesn't receive authorization
+If you use `aria auth pair` and don't receive an authorization prompt in the Mobile Companion app, try the following steps.
+
+1. Make sure the Mobile Companion app is in the foreground and try again
+2. Restart the Mobile Companion app and try again
+3. Revoke any existing certificates (via [Device Settings](/docs/ARK/mobile_companion_app#aria-device-settings) and try again
+
+#### If you've paired multiple Aria glasses to the one account
+If you've paired multiple Aria glasses to the one account, the wrong glasses may be connected to the app.
+1. Tap **Select other** on the top right of the dashboard
+    - If you see **Add glasses** instead, only one set of Aria glasses is connected to this account
+2. Tap the glasses connected to your computer
+
+If you're not sure which glasses you're using:
+1. Go to Device Info in the Mobile Companion app to find out the serial number of the glasses that are currently connected to the Mobile Companion app
+2. To find out the serial number of the glasses connected to your computer
+    - The serial number is printed on the right arm of the glasses, near the privacy switch (go to the Glasses Manual for screenshots of where it is)
+    - In Terminal, use `adb devices` ([ADB](https://developer.android.com/studio/command-line/adb) is part of Android Studio)
+      - The device number returned is the serial number
 
 ## Streaming or Recording Issues
 
@@ -44,9 +60,9 @@ If you lose internet connection on MacOS while streaming, run `aria-doctor` in a
 ### Can't start streaming/recording. RuntimeError: (9) Failed to read data from socket: Operation canceled
 
 You may encounter this error message if you:
-* Tried to start streaming/recording and the Privacy Switch was engaged
-* Turned off the Privacy Switch
-* Immediately tried to start recording again
+- Tried to start streaming/recording and the Privacy Switch was engaged
+- Turned off the Privacy Switch
+- Immediately tried to start recording again
 
 The Aria glasses were still switching modes. Please try again.
 
@@ -60,6 +76,7 @@ This issue can occur for several reasons.
 This issue may occur if you're on a VPN or corporate network. Even if you're only streaming via ADB, some security protocols may interfere.
 
 #### Aria Glasses and Computer on different Wi-Fi networks
+
 :::info
 This can occur if you know you've set both devices to the same network!
 :::
@@ -70,9 +87,9 @@ Devices will sometimes preferentially switch back to Wi-Fi connections with stro
 1. Open the Aria Mobile Companion App
 2. In the Paired Glasses section of the Dashboard, select Select Wi-Fi
 3. Select your preferred network and follow the prompts to connect
-    * You can also forget an existing network from the Wi-Fi menu
-    * Make sure it is a non-corporate network that is the same as your computer
-    * The glasses Wi-Fi network is independent of your phone's Wi-Fi network
+    - You can also forget an existing network from the Wi-Fi menu
+    - Make sure it is a non-corporate network that is the same as your computer
+    - The glasses Wi-Fi network is independent of your phone's Wi-Fi network
 
 Once connected, the Wi-Fi network name will appear in the Desktop App under My Device underneath the WiFi icon which will become blue.
 
