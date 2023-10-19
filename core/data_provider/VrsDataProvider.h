@@ -383,6 +383,8 @@ class VrsDataProvider {
       const std::shared_ptr<StreamIdLabelMapper>& streamIdLabelMapper,
       const std::optional<calibration::DeviceCalibration>& maybeDeviceCalib);
 
+  virtual ~VrsDataProvider() = default; // Add a virtual destructor
+
  private:
   // assert if a streamId is not active
   void assertStreamIsActive(const vrs::StreamId& streamId) const;
