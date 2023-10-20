@@ -32,7 +32,7 @@ def parse_args():
     #    names will be ignored
     # :phase: value 1~4, corresponding to the 4 phases of challenge sequences. Default is 1
     # :sequence_names: a list of ADT sequence names (separated by space) to be downloaded,
-    #    If not set, all sequences of the input phase will be downloaed
+    #    If not set, all sequences of the input phase will be downloaded
     #####################################################################
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument(
@@ -73,7 +73,7 @@ def parse_args():
         required=False,
         default=False,
         help="""
-        If set, redownload and overwrite sequences which have been downloaded before
+        If set, download again and overwrite sequences which have been downloaded before
         """,
     )
 
@@ -105,7 +105,7 @@ def parse_args():
         required=False,
         help="""
         a list of ADT sequence names (separated by space) to be downloaded.
-        If not set, all sequences of the input phase will be downloaed
+        If not set, all sequences of the input phase will be downloaded
         """,
     )
 
