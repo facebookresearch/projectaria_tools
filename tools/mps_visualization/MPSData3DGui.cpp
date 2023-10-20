@@ -97,7 +97,7 @@ MPSData3DGui::MPSData3DGui(
   if (!fullTrajsWorld_.empty()) {
     pangolin_helpers::centerViewOnMap(
         visualization3dState_, fullTrajsWorld_[0], k3dViewFocal, kMapPanelWidth);
-  } else {
+  } else if (!filteredClouds_.empty()) {
     // We need to center on the point cloud
     pangolin_helpers::centerViewOnMap(
         visualization3dState_, filteredClouds_[0], k3dViewFocal, kMapPanelWidth);

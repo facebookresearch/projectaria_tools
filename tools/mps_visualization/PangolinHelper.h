@@ -55,6 +55,9 @@ inline void centerViewOnMap(
     const std::vector<Eigen::Vector3f>& points,
     const float focalLength,
     const int windowWidth) {
+  if (points.empty()) {
+    return;
+  }
   // Map input point to an Eigen3X matrix
   using Matrix3X = Eigen::Matrix<float, 3, Eigen::Dynamic, Eigen::RowMajor>;
   using MatrixCRef = Eigen::Map<const Matrix3X>;
