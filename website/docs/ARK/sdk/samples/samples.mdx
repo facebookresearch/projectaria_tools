@@ -8,29 +8,23 @@ title: Code Samples
 
 This section provides code samples and walkthroughs for using the Aria Client SDK to interact with the Project Aria glasses.
 
-* [device_connect](/docs/ARK/sdk/samples/device_connection)
-    * Connect to the Aria glasses using USB
-        * USB connection is required to initiate all connections, including streaming over Wi-Fi
+* [Connection](/docs/ARK/sdk/samples/device_connection)
+    * Connect to the Aria glasses using USB and Wi-Fi
     * Fetch device information, such as the device serial number
     * Fetch device status, such as battery level or Wi-Fi SSID.
-* [device_record](/docs/ARK/sdk/samples/device_recording)
-    * Set a [recording profile](/docs/tech_spec/recording_profiles)
-    * Access sensor calibration through the recording manager
-    * Start recording, stop recording, and record for a specific duration
-* [device_stream](/docs/ARK/sdk/samples/device_stream)
-    * Set how the sensors will stream data using [recording profiles](/docs/tech_spec/recording_profiles)
-    * Access sensor calibration through the streaming manager
-    * Start and stop streaming data from Aria glasses
-    * Display undistorted RGB live stream (this is similar to the visualization you can see via Aria Desktop app)
-* [streaming_subscribe](/docs/ARK/sdk/samples/streaming_subscribe)
-    * Subscribe to a streaming session initiated by device_stream and access sensor data through its observer
+* [Recording](/docs/ARK/sdk/samples/device_recording)
+    * Start and stop recording on an Aria device via USB and Wi-Fi
+    * Set a [recording profile](/docs/tech_spec/recording_profiles) for a recording
+* [Streaming Subscription](/docs/ARK/sdk/samples/streaming_subscribe)
+    * Subscribe to and unsubscribe from a streaming session
     * Visualize the live stream
-    * Unsubscribe from a streaming session
+* [Streaming and Visualizing All Live Sensor Data](/docs/ARK/sdk/samples/device_stream)
+    * Start and stop streaming from an Aria device to a computer via USB and Wi-Fi
+    * Add callbacks to visualize and manipulate the streamed data
+* [Streaming Undistorted RGB Image Using Calibration](/docs/ARK/sdk/samples/undistort_rgb_image)
+    * Start and stop streaming from an Aria device to a computer via USB and Wi-Fi
+    * Access sensor calibration and undistort an RGB live stream
 
+Make sure you have finished the [Setup Guide](/docs/ARK/sdk/setup.mdx).
 
-Go to the [Setup Guide](/docs/ARK/sdk/setup.mdx) for how to access the code samples.
-
-
-:::danger
-The Client SDK does not currently support streaming over corporate, university or public networks. Those networks are protected by many layers of security and firewalls. We recommend using one of the recommended routers listed in [the setup instructions](/docs/ARK/sdk/setup.mdx) to stream over Wi-Fi.
-:::
+We recommend starting with [device_connect.py](/docs/ARK/sdk/samples/device_connection) to validate that your Aria glasses have connected successfully.

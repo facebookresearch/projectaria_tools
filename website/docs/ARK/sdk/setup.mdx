@@ -6,18 +6,19 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Aria Client SDK & CLI Setup Guide
+# Project Aria Client SDK and CLI Setup Guide
+
 
 ## Overview
 
 The page provides instructions about how to get started with the Project Aria Client SDK, covering:
 
-* [Hardware and SW Requirements](#requirements)
-* [Download and install the SDK](#install)
+* [Hardware and software requirements](#requirements)
+* [Downloading and installing the SDK](#install)
     * Installing `projectaria_client_sdk` via pip will also add the [Aria CLI](/docs/ARK/sdk/cli/cli.mdx) to your PATH
-* [Run Project Aria Doctor](#doctor)
+* [Running Project Aria Doctor to setup your computer and fix common issues](#doctor)
 * [Pairing your Aria Glasses](#pair)
-* [How to download and explore the sample apps](#explore)
+* [Extracting and exploring the sample apps](#explore)
 
 
 <div id="requirements"></div>
@@ -33,21 +34,21 @@ The page provides instructions about how to get started with the Project Aria Cl
   - Supports Wi-Fi 6
     - So that the glasses can connect to the 5GHz band when streaming over Wi-Fi
 
+:::danger
+The Client SDK does not currently support streaming over corporate, university or public networks. Those networks are protected by many layers of security and firewalls. We recommend using one of the recommended routers listed above to stream over Wi-Fi.
+:::
+
 ### Platforms
 The codebase is supported for the following platforms:
-- Fedora 36 or newer
-- Ubuntu 22.04 or newer
-- Mac Intel or Mac ARM-based (M1)
-  - Mac Big Sur or newer
+- Fedora 36, 37 and 38
+- Ubuntu 22.04 or later
+- Mac Intel or Mac M1 with MacOS 11 (Big Sur) or later
 
 ### Software
 * Python 3.8-3.11
-  * Python 3.9+ if you want to use the device_stream code sample
-    * This is because of a fastplotlib dependency
+  * Python 3.9+ if you want to use the `device_stream` code sample due to the `fastplotlib` dependency
   * [Python 3 download page](https://www.python.org/downloads/)
-  * To check what version of Python 3 you have, use `python3 --version`
-* PyPi
-  * Use [pip](https://pypi.org/project/pip/) to install the software in a virtual environment
+  * To check which version of Python 3 you have, use `python3 --version`
 * [ADB](https://developer.android.com/studio/command-line/adb) (optional)
   * In addition to the CLI, you can use ADB to interact with Aria glasses
   * ADB is one of the ways that you can [download Aria data](/docs/ARK/ARK_quickstart#download-data)
@@ -60,39 +61,34 @@ The codebase is supported for the following platforms:
 
 ### Create a virtual environment
 
-When using pip, it is best practice to use a virtual environment. This will keep all the modules under one folder and will not break your local environment. Use the following command with your version of Python3.
-
+When using `pip`, it is best practice to use a virtual environment. This will keep all the modules under one folder and will not break your local environment. Use the following command with your version of Python3.
 ```bash
 python3 -m venv ~/venv
 ```
 
 ### Install the Client SDK and CLI
 
-Installing `projectaria_client_sdk` through pip will install the Aria Client SDK and add the [Aria CLI](/docs/ARK/sdk/cli/cli.mdx) to your PATH.
+Install `projectaria_client_sdk` with pip
 
-Use the following commands for MacOS, Fedora or Ubuntu, with your version of Python.
-
-<!-- TODO: Remove --extra-index-url and test.pypi url -->
 
 ```bash
 source ~/venv/bin/activate
 
-python -m pip install projectaria_client_sdk --extra-index-url https://test.pypi.org/simple --no-cache-dir
+python -m pip install projectaria_client_sdk --no-cache-dir
 ```
 
-<div id="doctor"></div>
 
 ## Step 2: Run Project Aria Doctor utility
 
 The Project Aria Doctor utility can help detect and resolve common issues connecting and streaming from the glasses.
 
-Run the utility using the following command and follow the prompts to resolve any issues.
+Run the utility and follow the prompts to resolve any issues.
 
 ```bash
 aria-doctor
 ```
 :::info
-If you're on MacOS and lose internet connection while streaming, run `aria-doctor` in a separate terminal.
+If you're on MacOS and lose internet connection while streaming, run `aria-doctor` again.
 :::
 
 <div id="pair">
@@ -100,14 +96,11 @@ If you're on MacOS and lose internet connection while streaming, run `aria-docto
 
 ## Step 3: Pair Aria Glasses with your computer
 
-Pairing your Aria glasses to your computer will let the Client SDK control the glasses and run the sample apps.
+Pairing your Aria glasses to your computer allows the Client SDK and CLI to control the glasses. A pair of Aria glasses can be paired to multiple computers.
 
-Follow these steps with every computer you want to have permission to connect to your Aria glasses:
-
-
-1. Connect your Aria glasses to your computer, using the provided cable
-3. Open the Mobile Companion app on your phone
-4. On your computer, run:
+1. Turn on your Aria glasses and connect it to your computer using the provided USB cable
+2. Open the Mobile Companion app on your phone
+3. On your computer, run:
 
 ```
 aria auth pair
@@ -123,14 +116,12 @@ aria auth pair
 </div>
 
 :::info
-At this point, you can now use the [Aria CLI](docs/ARK/sdk/cli/cli.mdx) to interact with you Aria glasses.
+At this point, you can now use the [Aria CLI](/docs/ARK/sdk/cli/cli.mdx) to interact with you Aria glasses.
 :::
 
 <div id="explore"></div>
 
-## Step 4: Explore sample apps
-
-### Extract the code samples and install necessary dependencies
+## Step 4: Extract and explore the sample apps
 
 1. Extract the Client SDK code samples (here to your home directory)
 
@@ -150,12 +141,15 @@ cd ~/projectaria_client_sdk_samples
 pip install -r requirements.txt
 ```
 
-### Explore the apps
+Go to [Code Samples](/docs/ARK/sdk/samples/samples.mdx) to explore Aria Client SDK features.
 
+* [Connection](/docs/ARK/sdk/samples/device_connection): connect an Aria device to a computer, fetch the device information and status.
+* [Recording](/docs/ARK/sdk/samples/device_recording): start and stop a recording via USB and Wi-Fi.
+* [Streaming Subscription](/docs/ARK/sdk/samples/streaming_subscribe): subscribe to and unsubscribe from a streaming device
+* [Streaming and Visualizing All Live Sensor Data](/docs/ARK/sdk/samples/device_stream): programmatically start and stop a streaming session, add callbacks to visualize and manipulate the streamed data
+* [Streaming Undistorted RGB Image Using Calibration](/docs/ARK/sdk/samples/undistort_rgb_image): programmatically start and stop a streaming session, access sensor calibration and undistort an RGB live stream
 
-Go to [Sample Apps](/docs/ARK/sdk/samples/samples.mdx) to explore Aria Client SDK features. Each code sample page starts with commands you can just run from the samples directory, followed by a detailed walkthrough of the code used.
-
-We recommend starting with [device_connect.py](/docs/ARK/sdk/samples/device_connection) to validate that your Aria glasses have connected successfully.
+Go to [Streaming Internals](/docs/ARK/sdk/concepts/streaming_internals) to understand how streaming works and how to configure your own streaming setup.
 
 If you encounter any issues please run `aria-doctor` in a separate terminal or check out [troubleshooting](/docs/ARK/sdk/sdk_troubleshooting).
 
@@ -167,13 +161,8 @@ You can check your Aria glasses' recording or streaming status in the [Mobile Co
 The Client SDK does not currently support streaming over corporate, university or public networks. Those networks are protected by many layers of security and firewalls. We recommend using one of the recommended routers listed above to stream over Wi-Fi.
 :::
 
-### Explore the Client SDK
-
-The examples only show some of the Client SDK's capabilities. Go to [API Reference](/docs/ARK/sdk/api_reference) to see what else is possible.
-
-<!-------ONCE BUILT OUT----->
-<!--- Go to [Streaming Internals](/docs/ARK/sdk/concepts/streaming_internals) for more information about streaming data------>
-
-### End any streaming sessions and disconnect Aria
-
-Once you've finished exploring, end any streaming sessions and disconnect Aria glasses to free up system resources. This is built into all the code snippets we provide.
+## Useful Links
+* [Streaming Internals](/docs/ARK/sdk/concepts/streaming_internals)
+* [SDK API Reference](/docs/ARK/sdk/api_reference) - full list of APIs
+* [CLI Command Reference](/docs/ARK/sdk/cli/api_reference)
+* [SDK & CLI Troubleshooting](/docs/ARK/sdk/sdk_troubleshooting).

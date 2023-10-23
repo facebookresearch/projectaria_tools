@@ -7,14 +7,12 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 # Client SDK & CLI Troubleshooting & Known Issues
 
 ## Overview
-This page provides troubleshooting information specific to using Project Aria Client SDK or CLI.
+This page provides troubleshooting information for using Project Aria Client SDK or CLI. If you cannot find a solution for your problem on this page, please contact our team:
 
-Go to the [Aria Glasses User Manual](https://facebookresearch.github.io/projectaria_tools/docs/ARK/glasses_manual/glasses_user_manual) for general information about using your glasses.
-
-Go to the [Aria Research Kit (ARK) Troubleshooting and Known Issues page](https://facebookresearch.github.io/projectaria_tools/docs/ARK/troubleshooting/troubleshooting_issues) for general Aria Glasses troubleshooting information.
-
-If you continue to experience issues, please post to [Academic Partners Feedback and Support](/docs/ARK/workplacegroup), post to our Academic Partners Discord group or email to AriaOps@meta.com.
-
+* Post to [Project Aria Tools Github Issues page](https://github.com/facebookresearch/projectaria_tools/issues)
+* Post to our Academic Partners Discord group
+* Email to AriaOps@meta.com
+* Post to [Academic Partners Feedback and Support](/docs/ARK/workplacegroup)
 
 ## Aria Doctor
 
@@ -31,7 +29,7 @@ aria-doctor
 ### Computer can't find Aria Glasses
 It may be that the battery is drained, make sure your Aria Glasses are correctly charging (there should be a blue LED on the right arm) and wait ten minutes.
 
-On Linux, this may be due to USB driver issues. See [Fix USB Driver Issues in Linux](https://facebookresearch.github.io/projectaria_tools/docs/ARK/troubleshooting/linux_usb_driver)
+On Linux, this may be due to USB driver issues, see [Fix USB Driver Issues in Linux](https://facebookresearch.github.io/projectaria_tools/docs/ARK/troubleshooting/linux_usb_driver).
 
 
 ### Mobile app doesn't receive authorization
@@ -39,7 +37,7 @@ If you use `aria auth pair` and don't receive an authorization prompt in the Mob
 
 1. Make sure the Mobile Companion app is in the foreground and try again
 2. Restart the Mobile Companion app and try again
-3. Revoke any existing certificates (via [Device Settings](/docs/ARK/mobile_companion_app#aria-device-settings) and try again
+3. Revoke any existing certificates (via [Device Settings](/docs/ARK/mobile_companion_app#aria-device-settings)) and try again
 
 #### If you've paired multiple Aria glasses to the one account
 If you've paired multiple Aria glasses to the one account, the wrong glasses may be connected to the app.
@@ -112,3 +110,9 @@ sudo iptables -A INPUT -p udp -m udp --dport 7000:8000 -j ACCEPT
 ```
 
   3. Ensure that during streaming, USB Ethernet tab in the "Network Settings Window" has `Aria` selected
+
+
+## Other Useful Links
+
+* [Aria Glasses User Manual](https://facebookresearch.github.io/projectaria_tools/docs/ARK/glasses_manual/glasses_user_manual) for general information about using your glasses.
+* [Aria Research Kit (ARK) Troubleshooting and Known Issues page](https://facebookresearch.github.io/projectaria_tools/docs/ARK/troubleshooting/troubleshooting_issues) for general Aria Glasses troubleshooting information.

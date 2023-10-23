@@ -1,24 +1,20 @@
 ---
-sidebar_position: 10
-title: Fetch Device Info & Status
+sidebar_position: 20
+title: Connection
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl'
 
-# Connect Glasses and Fetch Info Using the Client SDK
+# Connect to the glasses and retrieve device status
 
 ## Overview
 
-This page shows how to run the code sample `device_connect` to connect to Project Aria Glasses and fetch info. It also provides a code walkthrough of its capabilities.
+The `device_connect` example shows how to connect to your Project Aria device using the Client SDK and retrieve:
+* Device status, such as such as battery level, Wi-Fi SSID or Wi-Fi IP address
+* Device information, such as the device serial number or device model
 
-`device_connect enables` you to validate that your Aria glasses have successfully connected to your computer by fetching:
-* Device Status information, such as such as battery level, Wi-Fi SSID or Wi-Fi IP address
-* Device information such as the device serial number or device model
+## Running the sample
 
-
-
-## Run `device_connect`
-
-In Terminal, from the samples directory, run:
+In your terminal, from the samples directory, run:
 
 ```bash
 python -m device_connect
@@ -34,53 +30,38 @@ Aria Device Info: model Aria, serial <serial_number>
 Aria Device Connected, disconnecting
 ```
 
-## Code walkthrough
+### Code walkthrough
 
-### 1. Set Up
-1. Import the Aria Client SDK from aria.sdk
+#### 1. Create and configure a Device Client
 
-```python
-import aria.sdk as aria
-```
-
-2.  Set the log level for the SDK (optional)
-    * By default, it is set to `Info`, use `Trace` or `Debug` for more detailed logs.
-
-```python
-aria.set_log_level(aria.Level.Info)
-```
-
-### 2. Create a Device Client
-
-`DeviceClient` is the main SDK entry point. Once created it is used to retrieve a `Device` instance providing various SDKs features such as recording, streaming or fetching device information and status.
-
-By default, `DeviceClient` will attempt to connect to Aria glasses over USB. To connect to glasses over Wi-Fi configure you can configure the `DeviceClient` by creating a `DeviceClientConfig`, setting `ip_v4_address` and setting the config.
-
-:::info
-Get your Aria glasses' IP address from the Mobile Companion App by tapping [Wi-Fi on the Dashboard](/docs/ARK/mobile_companion_app#dashboard).
-:::
+`DeviceClient` allow you to connect to Project Aria glasses over Wi-Fi or USB.
 
 ```python
 device_client = aria.DeviceClient()
+```
 
+By default, `DeviceClient` connects to Aria glasses over USB. To connect to glasses over Wi-Fi, configure the `DeviceClient` by creating a `DeviceClientConfig`, setting `ip_v4_address` and setting the config.
+
+```python
 client_config = aria.DeviceClientConfig()
 if args.ip_address:
     client_config.ip_v4_address = args.ip_address
 device_client.set_client_config(client_config)
 ```
 
-### 3. Connect to a Device
-Connect to the Aria glasses and retrieve a `Device` instance.
+:::info
+Get your Aria glasses' IP address from the Mobile Companion App by tapping [Wi-Fi on the Dashboard](/docs/ARK/mobile_companion_app#dashboard).
+:::
+
+#### 2. Connect to a Device
+Connect to the Aria glasses and retrieve a `Device` instance. An Exception will be thrown if the connection is not successful.
 
 ```python
 device = device_client.connect()
 ```
 
-### 2. Fetch device status
-
-Use the following commands to:
-   - Obtain the status of the Aria glasses.
-   - Print details such as battery level, connected Wi-Fi SSID, Wi-Fi IP address, and device mode
+#### 3. Fetch device status and information
+We can then obtain the device status and information:
 
 ```python
 status = device.status
@@ -94,11 +75,7 @@ print(
 )
 ```
 
-### 3. Retrieve device information
-
-Use the following commands to:
-   - Get comprehensive information about the Aria glasses
-   - Display device-specific details like its model, serial number, and manufacturer.
+Check out the [full status list](/docs/ARK/sdk/api_reference#ariasdkdevicestatus).
 
 ```python
 info = device.info
@@ -109,9 +86,11 @@ print(
 )
 ```
 
-### 4. Disconnect
+Check out the [full information list](/docs/ARK/sdk/api_reference#ariasdkdeviceinfo).
 
-Once all operations have been completed, make sure you disconnect your glasses to release any held resources.
+#### 4. Disconnect
+
+Once all operations have been completed, you can disconnect from your glasses to release any held resources.
 
 ```python
 device_client.disconnect(device)
