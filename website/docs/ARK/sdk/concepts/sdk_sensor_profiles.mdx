@@ -1,5 +1,5 @@
 ---
-sidebar_position: 5
+sidebar_position: 20
 title: Access Sensor Profiles
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl'
@@ -10,13 +10,20 @@ import TabItem from '@theme/TabItem';
 
 ## Overview
 
-This page provides information about how to access information about how your Project Aria glasses sensors can be configured and are configured, using the Cli or SDK.
+Project Aria glasses have multiple recording profiles, so that you can choose what sensors record or stream data, as well as the settings those sensors use. This page shows how to use the Client SDK or CLI to download profile information and set which profile is used.
 
-Project Aria glasses have multiple recording profiles that enable users to choose what sensors to record or stream with and what settings to use. Go to the [Recording Profiles page](/docs/tech_spec/recording_profiles.mdx) for more information about possible sensor configurations. You can also view different recording profile details when you select **Create a Recording** in the Mobile Companion app.
+If a value is not set, Aria glasses will use the [default recording profile](/docs/ARK/ARK_quickstart#set-your-default-recording-profile). If a default recording profile is not set, it will use `profile8` when making recordings and `profile18` when streaming data.
+
+Go to the [Recording Profiles page](/docs/tech_spec/recording_profiles) for more information about possible sensor configurations. You can also view all available recording profile details when you select **Create a Recording** in the Mobile Companion app.  In addition to sensor setup, recording profile information can provide insights into how battery and thermal levels can be affected when streaming or recording.
 
 ## Retrieve list of available sensor profiles
 
-The CLI or SDK can be used to retrieve the available sensor profiles depending on your usage, recording or streaming:
+The CLI or SDK can be used to retrieve the available sensor profiles for recording or streaming stored on your Aria glasses. To make sure you have access to all possible profiles, make sure your [Aria glasses OS](/docs/ARK/mobile_companion_app#os-update) are up to date.
+
+The available profiles for recording or streaming are the same, but `profile12` and `profile18` were created specifically for streaming data.
+
+### Save streaming/recording profiles
+The following commands export all profiles as JSON files. There is one JSON file per recording, `profile12.json` etc.
 
 <Tabs
   defaultValue="sdk"
@@ -32,12 +39,12 @@ import aria.sdk as aria
 device_client = aria.DeviceClient()
 device = device_client.connect()
 
-# sensors profiles for recording
+# sensor profiles for recording
 recording_manager = device.recording_manager
 recording_profiles = recording_manager.recording_profiles
 print(*recording_profiles)
 
-# sensors profiles for streaming
+# sensor profiles for streaming
 streaming_manager = device.streaming_manager
 streaming_profiles = streaming_manager.streaming_profiles
 print(*streaming_profiles)
@@ -57,7 +64,10 @@ aria streaming profiles --save-json --json-dir ~/streamingProfiles
 </TabItem>
 </Tabs>
 
-The `aria streaming profiles` command above will store the sensor profiles as json files under the specified directory where you will find e.g. `profile12.json` which contains the following
+### Example output
+Each JSON file will show which sensors are used and how each sensor is configured.
+
+`profile12.json` will contain the following:
 
 ```json
 {
@@ -166,13 +176,12 @@ The `aria streaming profiles` command above will store the sensor profiles as js
 }
 ```
 
-This JSON content shows exactly which sensors are used and how each sensor is configured. This can provide insight into how battery and thermal levels can be affected. For a general guide on which sensor to use depending on the use case go to the [Recording Profile Guide](/docs/ARK/glasses_manual/profile_guide.mdx)
 
-## Use Recording (Sensor) Profile
+## Use a recording/sensor profile
 
-Once retrieved a recording profile can be used to start recording or streaming.
+Once retrieved a profile can be used to start recording or streaming.
 
-Below, we will use the sensor profile `profile12` obtained from the previous step to start streaming:
+In this example, we use the sensor profile `profile12` obtained from the previous step to start streaming:
 
 <Tabs
   defaultValue="sdk"
