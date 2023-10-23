@@ -39,6 +39,7 @@ target_link_libraries(
             Sophus::Sophus
             Eigen3::Eigen
             eye_gaze
+            mps
             vrslib
             vrs_data_provider
 )

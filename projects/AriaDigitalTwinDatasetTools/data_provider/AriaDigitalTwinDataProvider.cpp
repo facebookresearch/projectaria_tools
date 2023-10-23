@@ -26,7 +26,6 @@
 #include <valarray>
 
 #define RAPIDJSON_NAMESPACE rapidjson
-#include <mps/EyeGazeReader.h>
 #include <rapidjson/document.h>
 #include <rapidjson/rapidjson.h>
 
@@ -34,6 +33,9 @@
 
 #define DEFAULT_LOG_CHANNEL "AriaDigitalTwinDataProvider"
 #include <logging/Log.h>
+
+#include <mps/EyeGazeReader.h>
+#include <mps/TrajectoryReaders.h>
 
 #include "AriaDigitalTwinDataFileKeys.h"
 #include "AriaDigitalTwinDataFileNames.h"
@@ -762,50 +764,24 @@ void AriaDigitalTwinDataProvider::loadObject3dBoundingBoxes() {
 }
 
 void AriaDigitalTwinDataProvider::loadAria3dPoses() {
-  fs::path fileAriaTraj(dataPaths_.ariaTrajectoryFilePath);
-  if (fileAriaTraj.empty()) {
+  if (dataPaths_.ariaTrajectoryFilePath.empty()) {
     XR_LOGI("skip loading fileAriaTraj because the data path is empty");
     return;
   }
-  std::ifstream fileStream = openFile(fileAriaTraj);
-  std::string line;
-  std::vector<std::string> tokens;
-  while (std::getline(fileStream, line)) {
-    std::stringstream ss(line);
-    getTokens(ss, tokens, ',', 20);
-    int64_t deviceTimeStampNs = std::stoll(tokens.at(1)) * 1e3;
 
+  tools::mps::ClosedLoopTrajectory trajectory =
+      tools::mps::readClosedLoopTrajectory(dataPaths_.ariaTrajectoryFilePath);
+  for (const tools::mps::ClosedLoopTrajectoryPose& closedLoopPose : trajectory) {
+    int64_t deviceTimeStampNs = closedLoopPose.trackingTimestamp.count() * 1000;
     Aria3dPose aria3dPose;
-    aria3dPose.T_Scene_Device.translation() = {
-        std::stod(tokens.at(3)), std::stod(tokens.at(4)), std::stod(tokens.at(5))};
-
-    Eigen::Quaternion<double> q;
-    if (datasetVersion_ == "1.0") {
-      // dataset version 1.0 had w, x, y, z
-      q.w() = std::stod(tokens.at(6));
-      q.x() = std::stod(tokens.at(7));
-      q.y() = std::stod(tokens.at(8));
-      q.z() = std::stod(tokens.at(9));
-    } else {
-      // reads as x, y, z, w but Eigen requires w, x, y, z
-      q.w() = std::stod(tokens.at(9));
-      q.x() = std::stod(tokens.at(6));
-      q.y() = std::stod(tokens.at(7));
-      q.z() = std::stod(tokens.at(8));
-    }
-    aria3dPose.T_Scene_Device.setQuaternion(q);
-
-    aria3dPose.deviceLinearVelocity = {
-        std::stod(tokens.at(10)), std::stod(tokens.at(11)), std::stod(tokens.at(12))};
-
-    aria3dPose.deviceRotationalVelocity = {
-        std::stod(tokens.at(13)), std::stod(tokens.at(14)), std::stod(tokens.at(15))};
-
-    aria3dPoses_[deviceTimeStampNs] = aria3dPose;
-
-    tokens.clear();
+    aria3dPose.T_Scene_Device = closedLoopPose.T_world_device;
+    aria3dPose.deviceLinearVelocity = closedLoopPose.deviceLinearVelocity_device;
+    aria3dPose.deviceRotationalVelocity = closedLoopPose.angularVelocity_device;
+    aria3dPose.gravityWorld = closedLoopPose.gravity_world;
+    aria3dPose.graphUid = closedLoopPose.graphUid;
+    aria3dPose.qualityScore = closedLoopPose.qualityScore;
+    aria3dPoses_.emplace(deviceTimeStampNs, aria3dPose);
   }
-  fileStream.close();
 }
 
 void AriaDigitalTwinDataProvider::loadInstance2dBoundingBoxes() {

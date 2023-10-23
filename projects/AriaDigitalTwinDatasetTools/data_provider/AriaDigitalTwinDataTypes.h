@@ -93,6 +93,15 @@ struct Aria3dPose {
                                   = T_Scene_Device * point_in_device @endcode */
   Sophus::Vector3d deviceLinearVelocity; /**< linear velocity of the device in meter/s */
   Sophus::Vector3d deviceRotationalVelocity; /**< rotation velocity of the device in rad/s */
+  Eigen::Vector3d
+      gravityWorld; /**< Earth gravity vector in world frame. This vector is pointing toward the
+     ground, and includes gravitation and centrifugal forces from earth rotation. */
+  std::string
+      graphUid; /**< Unique identifier of the world coordinate frame. When the graphUid is the same,
+                   poses, velocities and point clouds are defined in the same coordinate frame. */
+  float qualityScore; /**< Value between 0 and 1 which describes the tracking quality. The value is
+                         determined based on Motive's mean tracking error where 0 quality
+                         corresponds to 5 mm error or more */
 };
 
 /**
