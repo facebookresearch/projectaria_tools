@@ -6,6 +6,7 @@ Project Aria Tools is a suite of C++/Python utilities for researchers to expand 
 
 - [Aria VRS Data Provider](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/core/examples/dataprovider_quickstart_tutorial.ipynb)
 - [Aria Machine Perception Services](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/core/examples/mps_quickstart_tutorial.ipynb)
+- [Aria Digital Twin Dataset](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/projects/AriaDigitalTwinDatasetTools/examples/adt_quickstart_tutorial.ipynb)
 
 ## Documentation
 
