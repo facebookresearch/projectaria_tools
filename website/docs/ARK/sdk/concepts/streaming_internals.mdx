@@ -7,19 +7,108 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 # Streaming Internals
 
 ## Overview
-In the future, this page will provide deeper dives into how data is streamed. For now, here are a few points!
+
+This page provides details about how Project Aria data is streamed using the Client SDK. This is followed by how to stream and subscribe to Aria glasses’ sensor streams.
+
+## Concepts
+
+### Introduction
+
+Project Aria glasses can be configured to stream sensor data over a network to one or more devices running the Client SDK. You can stream data from the glasses over Wi-Fi or USB.
+
+There are two aspects to streaming; configuring the glasses to stream data and subscribing to the data. You may configure the device for streaming via the SDK, the CLI or by changing the [default recording set by the Companion App](/docs/ARK/ARK_quickstart#set-your-default-recording-profile). During configuration, you can select a profile that determines which sensors stream data and at what rate and resolution. Once streaming has started, the glasses will start capturing data according to the set profile, but no data will be transmitted over the network until a computer running the SDK subscribes to the data.
+
+A computer running the SDK may then subscribe to all or a subset of the sensor streams from the glasses.  The device or process subscribing does not need to be the same as the device that configured the sensors or started the streaming.
+
+### Streaming security
+
+The sensor data streams are secured via a certificate pair. A subscribing device must have a valid certificate matching the one installed on the glasses to successfully subscribe to the sensor streams.
+
+:::note
+Streaming certificates are not the same as the certificates used to pair the SDK with the glasses.
+:::
 
 
-## Wi-Fi vs USB Streaming
+You may use *ephemeral* or *persistent* streaming certificates.
 
-Lag (or perceptions of lag) can be caused by a number of factors. USB streaming provides higher throughput and lower latency compared to streaming over Wi-Fi.
+#### Persistent certificates
+
+Persistent certificates are generated once and are valid for a year. They may be used to subscribe to streaming data from several different computers. Persistent certificates may be generated and installed on the glasses via the CLI using:
+
+```
+aria streaming install-certs 
+```
+
+Future streaming sessions will use these certificates by default. The certificates may be used on another machine by copying the certificates from the following directory to the same directory on another machine.
+
+```
+~/.aria/streaming-certs/persistent
+```
+
+#### Ephemeral certificates
+
+Ephemeral certificates are generated on the fly for each streaming session and are only valid for that streaming session. These are most useful when you are configuring streaming and subscribing from the same machine.
+
+To start streaming with ephemeral certificates from the CLI use
 
 
-## Real Time Publish-Subscribe Data Distribution Service
+```
+aria streaming start *--use-ephemeral-certs*
 
-We use the [eProsima implementation of Fast DDS](https://fast-dds.docs.eprosima.com/) as the Real Time Publish-Subscribe Data Distribution Service.
+```
 
+### Streaming interfaces
 
-## Streaming Security
+Data may be streamed over Wi-Fi or a USB network interface.
 
-This section will contain details about streaming certificates used (these are not the same as the authorization certificates stored in the Mobile Companion app).
+#### Streaming over W-Fi
+
+Streaming over Wi-Fi provides more flexibility in terms of mobility, but the bandwidth and latency is dependent on the strength of the Wi-Fi connection and contention from other network users.
+
+#### Streaming over USB
+
+Streaming over USB gives higher bandwidth and a more stable connection. Since the glasses are powered over USB the duration of the streaming session is not limited by the battery.    
+
+### Streaming backend
+
+We use [eProsima implementation of Fast DDS](https://fast-dds.docs.eprosima.com/) to support streaming between glasses and the SDK.
+DDS enables automatic discovery of glasses over the network.
+
+To support streaming, the following requirements must be met on the network:
+
+* Multicast UDP must be supported across the network
+* UDP ports in the range 7000-8000 should be open on your machine
+
+Each sensor stream is published over a DDS topic. If multiple Aria glasses are present on the network, a separate topic prefix should be used for each pair of glasses.
+
+## Starting streaming
+
+### With the CLI
+
+The [Subscribe to Aria Streaming Data code sample](https://facebookresearch.github.io/projectaria_tools/docs/ARK/sdk/samples/streaming_subscribe) shows how to initiate streaming using the CLI over USB or Wi-Fi.
+
+### With the SDK
+
+Setting up the glasses for streaming is configured via `StreamingManager`. There you can configure which sensors should be streamed by setting the profile and configure the security settings for subscribing to the data.
+
+Go to the [Streaming code example](https://facebookresearch.github.io/projectaria_tools/docs/ARK/sdk/samples/device_stream) for how to start streaming using the SDK.
+
+## Subscribing to data with the SDK
+
+Go to [Subscribe to Aria Streaming Data code samples](https://facebookresearch.github.io/projectaria_tools/docs/ARK/sdk/samples/streaming_subscribe) for a code walkthrough of the streaming subscription setup and configuration steps described below.
+
+### Setting up the streaming client
+
+You can subscribe to data from the glasses using a `StreamingClient` object. If you have started streaming from the SDK you can obtain a preconfigured `StreamingClient` from `StreamingManager` using `streamingManager.streamingClient()`.
+
+If you set up streaming from another CLI or another machine, you will need to set the `StreamingSubscriptionConfig` appropriately.
+
+You may control which sensor streams you subscribe to using the `subscriber_data_type` configuration option. If you are only using a subset of the streams, this can significantly reduce the bandwidth required for stable streaming and reduce the power consumption of the glasses, extending the length of the streaming session.  
+
+### Message queue size
+
+For each data type you may set a custom queue size, controlling how many messages will be queued if the message callback is slow. The best setting for this value is application-dependent. If the processing time is bursty and it is important not to drop messages you may wish to set a long queue length. Conversely if processing is known to be slow and you are only interested in the most recent data (for example visualizing the image stream) you may wish to set the queue depth to 1.
+
+### Adding an observer to receive data
+
+Streaming data is provided via callbacks on an observer object you provide to the streaming client. Please be aware that the callbacks will not be invoked from the main thread and may be invoked from a different thread from message to message. If the callback runs slowly, subsequent data on that topic will be queued up to the queue size you have configured. If the queue is full, older data will be dropped.
