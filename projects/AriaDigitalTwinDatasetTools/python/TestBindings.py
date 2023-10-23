@@ -190,8 +190,13 @@ if __name__ == "__main__":
         print(
             "aria 3d pose transform_scene_device: ", aria_3d_pose.transform_scene_device
         )
-        print("aria device linear velo: ", aria_3d_pose.device_linear_velocity)
-        print("aria device rotational velo: ", aria_3d_pose.device_rotational_velocity)
+        print("aria device linear velocity: ", aria_3d_pose.device_linear_velocity)
+        print(
+            "aria device rotational velocity: ", aria_3d_pose.device_rotational_velocity
+        )
+        print("aria device gravity world: ", aria_3d_pose.gravity_world)
+        print("aria device graph uid: ", aria_3d_pose.graph_uid)
+        print("aria device quality score: ", aria_3d_pose.quality_score)
 
         # Object 3d bbox
         obj_3d_bboxes_with_dt = gt_provider.get_object_3d_boundingboxes_by_timestamp_ns(

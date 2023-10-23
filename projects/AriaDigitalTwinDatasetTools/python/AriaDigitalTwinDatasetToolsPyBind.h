@@ -54,7 +54,22 @@ void exportAriaDigitalTwin(py::module& m) {
       .def_readwrite(
           "device_rotational_velocity",
           &Aria3dPose::deviceRotationalVelocity,
-          "rotation velocity of the device in rad/s");
+          "rotation velocity of the device in rad/s")
+      .def_readwrite(
+          "gravity_world",
+          &Aria3dPose::gravityWorld,
+          "Earth gravity vector in world frame. This vector is pointing toward the "
+          "ground, and includes gravitation and centrifugal forces from earth rotation")
+      .def_readwrite(
+          "graph_uid",
+          &Aria3dPose::graphUid,
+          "Unique identifier of the world coordinate frame. When the graphUid is the same, "
+          "poses, velocities and point clouds are defined in the same coordinate frame")
+      .def_readwrite(
+          "quality_score",
+          &Aria3dPose::qualityScore,
+          "Value between 0 and 1 which describes the tracking quality. The value is "
+          "determined based on Motive's mean tracking error where 0 quality corresponds to 5 mm error or more");
 
   py::class_<BoundingBox3dData>(
       m,
