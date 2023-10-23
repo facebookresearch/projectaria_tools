@@ -74,13 +74,20 @@ if __name__ == "__main__":
     print(
         "Sequences without skeleton: ", searcher.get_sequences_with_skeleton_number(0)
     )
-    print("Sequences with 1 skeleton: ", searcher.get_sequences_with_skeleton_number(1))
     print(
-        "Sequences with 2 skeletons: ", searcher.get_sequences_with_skeleton_number(2)
+        "\nSequences with 1 skeleton: ", searcher.get_sequences_with_skeleton_number(1)
     )
     print(
-        "Sequences with multiple persons: ", searcher.get_sequences_with_multi_persons()
+        "\nSequences with 2 skeletons: ", searcher.get_sequences_with_skeleton_number(2)
     )
-    print("Sequences with single person: ", searcher.get_sequences_with_single_person())
-    print("Sequences from Apartment: ", searcher.get_sequences_of_scene("Apartment"))
-    print("Sequences from LiteOffice: ", searcher.get_sequences_of_scene("LiteOffice"))
+    print(
+        "\nSequences with multiple persons: ",
+        searcher.get_sequences_with_multi_persons(),
+    )
+    print(
+        "\nSequences with single person: ", searcher.get_sequences_with_single_person()
+    )
+    print("\nSequences from Apartment: ", searcher.get_sequences_of_scene("Apartment"))
+    print(
+        "\nSequences from LiteOffice: ", searcher.get_sequences_of_scene("LiteOffice")
+    )
