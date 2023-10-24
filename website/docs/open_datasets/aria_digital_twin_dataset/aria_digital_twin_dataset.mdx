@@ -2,12 +2,66 @@
 sidebar_position: 10
 title: Overview
 ---
+# Aria Digital Twin Dataset
+
+## Overview
 
 Project Aria Tools provides Python and C++ APIs to access the [Aria Digital Twin (ADT) dataset](https://www.projectaria.com/datasets/adt/) ([paper](https://arxiv.org/abs/2306.06362)).
-This section provides a detailed walk through of:
+
+## About the data
+
+The ADT dataset contains 222 sequences recording single and dual-person activities. The data was recorded in two spaces: an apartment and a single room office. There are 74 single-instance dynamic objects shared between the two spaces.
+
+Go to the [Getting Started Tutorial](/docs/open_datasets/aria_digital_twin_dataset/getting_started) to explore the sample dataset (available on Googlecollab, no download necessary) or the [Dataset Download page](/docs/open_datasets/aria_digital_twin_dataset/dataset_download) to get started.
+
+The sample dataset is a single-user dataset with body pose in the Apartment. It is a pretty representative example that should give you an idea of the dataset.
+
+### Apartment scene
+170 sequences were recorded in the apartment scene. The apartment comprised of a living room, kitchen, dining room and bedroom and contained 281 unique stationary objects.
+
+Given some objects have multiple instances that may differ slightly, the apartment has 324 stationary object instances in total.
+
+### Office scene
+52 sequences were recorded in the office scene, a single room with minimal office furniture.  The office room contained 15 unique stationary objects and 20 stationary object instances.
+
+
+### Activities
+In the office scene, users examined objects. For the apartment scene we designed five single-person activities and three dual-person activities.
+
+The single-person activities were:
+
+* Room decoration
+* Meal preparation
+* Work
+* Object examination
+* Room cleaning
+
+The dual-person activities included:
+
+* Partying
+* Room cleaning
+* Dining table cleaning
+
+Every activity has 10 to 50 sequences and the activity names are embedded into the sequence_names.
+
+
+### Other statistics:
+
+* Number of multi-person sequences: 77
+* Number of sequences with no skeletons: 110
+* Number of sequences with 1 skeleton: 92
+* Number of sequences with 2 skeleton: 20
+
+:::note
+We provide a mix of datasets where users may or may not be wearing an Aria and/or a bodysuit.
+Please refer to the `skeleton_aria_association.json` to see the case for each specific sub-sequence.
+:::
+
+### Documentation
+The ADT section of the wiki covers:
 
 * [Getting started](/docs/open_datasets/aria_digital_twin_dataset/getting_started)
-    * A quickstart to install Project Aria Tools python package and run Aria Digital Twin tutorial notebook to access and visualize ADT ground-truth data.
+    * A quickstart tutorial available as a Google colab project or install Project Aria Tools python package to run locally, run the ADT notebook to access and visualize ground-truth data.
 * [Dataset download](/docs/open_datasets/aria_digital_twin_dataset/dataset_download.mdx)
    * A walkthrough of using `adt_benchmark_dataset_downloader` to download the published ADT dataset.
 * [Visualizers](/docs/open_datasets/aria_digital_twin_dataset/visualizers)
