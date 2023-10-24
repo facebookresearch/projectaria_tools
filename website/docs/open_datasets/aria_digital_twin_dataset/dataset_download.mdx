@@ -51,6 +51,9 @@ adt_benchmark_dataset_downloader -c $HOME/Documents/projectaria_tools_adt_data/a
 -d 0 1 2 3 -e
 ```
 
+The sample dataset is a single-user dataset with body pose in the Apartment. This is a pretty representative example to give an idea of the dataset.
+For more information on the content in the other sequences, see the Data Content section below
+
 ## Download the Aria Digital Twin (ADT) benchmark dataset
 ### Data size
 
@@ -62,6 +65,49 @@ Aria Digital Twin dataset consists of 222 sequences in total. The total size of 
 | segmentation | Instance segmentation data | 2 - 4 GB | ~750 GB |
 | depth | Depth map data | 4 - 8 GB | ~1.5 TB |
 | synthetic | Synthetic rendering data | 2 - 4 GB | 500 GB |
+
+### Data content
+
+The ADT dataset was recorded in two spaces: an apartment and an office environment.
+The apartment is composed of a living room, kitchen, dining room and bedroom,whereas the office space is a single room with very minimal
+office furniture. The apartment has 281 unique stationary
+objects and the office room has 15 unique stationary objects.
+Given some objects have multiple instances that may differ
+slightly, the apartment has a total of 324 stationary object
+instances and the office room has 20 stationary object instances. In addition, there are 74 single-instance dynamic
+objects shared between two spaces.
+
+We release 222 sequences in total with 170 sequences
+in the apartment and 52 sequences in the office room. We
+designed 5 single-person activities and 3 dual-person activities in the apartment.
+
+The single-person activities are:
+
+* room decoration
+* meal preparation
+* work
+* object examination
+* room cleaning
+
+The dual-person activities include:
+
+* partying
+* room cleaning
+* dining table cleaning
+
+Every activity has 10 to 50 sequences and these activities names are embedded into the seqeuence_names.
+
+Note for the office dataset, we only include object examination as the single-person activity.
+
+Other statistics:
+
+* Number of multi-person sequences: 77
+* Number of sequences with no skeletons: 110
+* Number of sequences with 1 skeleton: 92
+* Number of sequences with 2 skeleton: 20
+
+Note that we provide a mix of datasets where users may or may not be wearing an Aria and/or a bodysuit.
+Please refer to the skeleton_aria_association.json to see the case for each specific subsequence.
 
 ### Download via CLI
 
