@@ -160,7 +160,7 @@ void exportAriaDigitalTwin(py::module& m) {
       .def(
           "at",
           [](const SyntheticData& self, int x, int y, int channel)
-              -> std::variant<uint8_t, float, uint16_t, uint64_t, Eigen::half> {
+              -> tools::image::PixelValueVariant {
             return tools::image::at(self.imageVariant().value(), x, y, channel);
           },
           py::arg("x"),

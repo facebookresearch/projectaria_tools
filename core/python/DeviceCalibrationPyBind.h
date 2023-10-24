@@ -558,6 +558,7 @@ void declareDistortByCalibration(py::module& m) {
 inline void declareDistortByCalibrationAll(py::module& m) {
   declareDistortByCalibration<uint8_t>(m);
   declareDistortByCalibration<float>(m);
+  declareDistortByCalibration<uint16_t>(m);
   declareDistortByCalibration<uint64_t>(m);
 }
 } // namespace

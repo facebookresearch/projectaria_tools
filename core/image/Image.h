@@ -379,8 +379,10 @@ PROJECTARIA_HOST_DEVICE inline T Image<T, MaxValue>::operator()(P u, P v) const 
     using Scalar = typename DefaultImageValTraits<T>::Scalar;
     return val.template cast<Scalar>();
   } else {
-    return ((const T*)(bpc + pitch_))[1] * dxdy + ((const T*)(bpc + pitch_))[0] * (dy - dxdy) +
-        ((const T*)(bpc))[1] * (dx - dxdy) + ((const T*)(bpc))[0] * (1 - dx - dy + dxdy);
+    return static_cast<float>(((const T*)(bpc + pitch_))[1]) * dxdy +
+        static_cast<float>(((const T*)(bpc + pitch_))[0]) * (dy - dxdy) +
+        static_cast<float>(((const T*)(bpc))[1]) * (dx - dxdy) +
+        static_cast<float>(((const T*)(bpc))[0]) * (1.0 - dx - dy + dxdy);
   }
 }
 

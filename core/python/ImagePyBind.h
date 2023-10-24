@@ -89,11 +89,13 @@ inline void exportImage(py::module& m) {
   declare_image<projectaria::tools::image::ManagedImage3U8>(m, "ManagedImage3U8");
   declare_image<projectaria::tools::image::ManagedImageU8>(m, "ManagedImageU8");
   declare_image<projectaria::tools::image::ManagedImage<float>>(m, "ManagedImageF32");
+  declare_image<projectaria::tools::image::ManagedImage<uint16_t>>(m, "ManagedImageU16");
   declare_image<projectaria::tools::image::ManagedImage<uint64_t>>(m, "ManagedImageU64");
 
   declare_image<projectaria::tools::image::Image3U8>(m, "Image3U8");
   declare_image<projectaria::tools::image::ImageU8>(m, "ImageU8");
   declare_image<projectaria::tools::image::Image<float>>(m, "ImageF32");
+  declare_image<projectaria::tools::image::Image<uint16_t>>(m, "ImageU16");
   declare_image<projectaria::tools::image::Image<uint64_t>>(m, "ImageU64");
 
   declare_debayer(m);
