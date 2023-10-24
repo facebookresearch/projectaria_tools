@@ -21,6 +21,15 @@
 #include <image/ImageVariant.h>
 
 namespace projectaria::tools::image {
+
+/**
+ * @brief Enum class for different interpolation methods
+ */
+enum class InterpolationMethod {
+  NearestNeighbor, /**< NearestNeighbor interpolation method*/
+  Bilinear /**< Bilinear interpolation method*/
+};
+
 /**
  * @brief Distorts an input image
  * @param srcVariant the input image
@@ -30,6 +39,7 @@ namespace projectaria::tools::image {
 image::ManagedImageVariant distortImageVariant(
     const image::ImageVariant& srcVariant,
     const std::function<std::optional<Eigen::Vector2f>(const Eigen::Vector2f&)>& inverseWarp,
-    const Eigen::Vector2i& imageSize);
+    const Eigen::Vector2i& imageSize,
+    const InterpolationMethod method = InterpolationMethod::Bilinear);
 
 } // namespace projectaria::tools::image

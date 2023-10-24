@@ -17,15 +17,42 @@
 #pragma once
 #include <calibration/CameraCalibration.h>
 #include <image/ImageVariant.h>
+#include <image/utility/Distort.h>
 
 namespace projectaria::tools::calibration {
 /**
  * @brief Distorts an input image to swap its underlying image distortion model
  * @param srcVariant the input image
  * @param dstCalib the calibration model of the output image
- * @param dstCalib the calibration model of the input image
+ * @param srcCalib the calibration model of the input image
+ * @param method the interpolation method (Bilinear, NearestNeighbor)
  */
 image::ManagedImageVariant distortByCalibration(
+    const image::ImageVariant& srcVariant,
+    const CameraCalibration& dstCalib,
+    const CameraCalibration& srcCalib,
+    const image::InterpolationMethod method = image::InterpolationMethod::Bilinear);
+
+/**
+ * @brief Distorts an input depth image using InterpolationMethod::Bilinear to swap its underlying
+ * image distortion model
+ * @param srcVariant the input image
+ * @param dstCalib the calibration model of the output image
+ * @param srcCalib the calibration model of the input image
+ */
+image::ManagedImageVariant distortDepthByCalibration(
+    const image::ImageVariant& srcVariant,
+    const CameraCalibration& dstCalib,
+    const CameraCalibration& srcCalib);
+
+/**
+ * @brief Distorts an input label mask image using InterpolationMethod::NearestNeighbor to swap its
+ * underlying image distortion model
+ * @param srcVariant the input image
+ * @param dstCalib the calibration model of the output image
+ * @param dstCalib the calibration model of the input image
+ */
+image::ManagedImageVariant distortLabelMaskByCalibration(
     const image::ImageVariant& srcVariant,
     const CameraCalibration& dstCalib,
     const CameraCalibration& srcCalib);

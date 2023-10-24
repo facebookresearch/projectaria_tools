@@ -23,8 +23,10 @@ template <class T, int MaxVal>
 ManagedImage<T, DefaultImageAllocator<T>, MaxVal> distortImage(
     const Image<T, MaxVal>& src,
     const std::function<std::optional<Eigen::Vector2f>(const Eigen::Vector2f&)>& inverseWarp,
-    const Eigen::Vector2i& imageSize) {
+    const Eigen::Vector2i& imageSize,
+    const InterpolationMethod method) {
   ManagedImage<T, DefaultImageAllocator<T>, MaxVal> dst(imageSize(0), imageSize(1));
+
   for (int y = 0; y < dst.height(); y++) {
     for (int x = 0; x < dst.width(); x++) {
       Eigen::Vector2f dstPixel(static_cast<float>(x), static_cast<float>(y));
@@ -32,26 +34,31 @@ ManagedImage<T, DefaultImageAllocator<T>, MaxVal> distortImage(
       if (!maybeSrcPixel || !src.inBounds((*maybeSrcPixel)(0), (*maybeSrcPixel)(1), 0.5f)) {
         dst(x, y) = Zero<T>::val();
       } else {
-        if constexpr (std::is_same<T, uint64_t>::value) {
-          Eigen::Vector2i nearestPixel =
-              (*maybeSrcPixel + Eigen::Vector2f(0.5, 0.5)).template cast<int>();
-          dst(x, y) = src(nearestPixel(0), nearestPixel(1));
-        } else {
-          dst(x, y) = src((*maybeSrcPixel)(0), (*maybeSrcPixel)(1));
+        switch (method) {
+          case InterpolationMethod::Bilinear:
+            dst(x, y) = src((*maybeSrcPixel)(0), (*maybeSrcPixel)(1));
+            break;
+          case InterpolationMethod::NearestNeighbor:
+            Eigen::Vector2i nearestPixel =
+                (*maybeSrcPixel + Eigen::Vector2f(0.5, 0.5)).template cast<int>();
+            dst(x, y) = src(nearestPixel(0), nearestPixel(1));
+            break;
         }
       }
     }
   }
+
   return dst;
 }
 
 ManagedImageVariant distortImageVariant(
     const ImageVariant& srcVariant,
     const std::function<std::optional<Eigen::Vector2f>(const Eigen::Vector2f&)>& inverseWarp,
-    const Eigen::Vector2i& imageSize) {
+    const Eigen::Vector2i& imageSize,
+    const InterpolationMethod method) {
   return std::visit(
-      [&inverseWarp, &imageSize](const auto& src) {
-        return ManagedImageVariant{distortImage(src, inverseWarp, imageSize)};
+      [&inverseWarp, &imageSize, &method](const auto& src) {
+        return ManagedImageVariant{distortImage(src, inverseWarp, imageSize, method)};
       },
       srcVariant);
 }

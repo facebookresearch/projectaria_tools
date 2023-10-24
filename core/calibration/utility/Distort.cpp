@@ -15,14 +15,15 @@
  */
 
 #include "Distort.h"
-#include <image/utility/Distort.h>
+#include "image/utility/Distort.h"
 
 namespace projectaria::tools::calibration {
 
 image::ManagedImageVariant distortByCalibration(
     const image::ImageVariant& srcVariant,
     const CameraCalibration& dstCalib,
-    const CameraCalibration& srcCalib) {
+    const CameraCalibration& srcCalib,
+    const image::InterpolationMethod method) {
   auto inverseWarp =
       [&dstCalib, &srcCalib](const Eigen::Vector2f& dstPixel) -> std::optional<Eigen::Vector2f> {
     Eigen::Vector3d rayDir = dstCalib.unprojectNoChecks(dstPixel.template cast<double>());
@@ -33,6 +34,22 @@ image::ManagedImageVariant distortByCalibration(
       return maybeSrcPixel->template cast<float>();
     }
   };
-  return distortImageVariant(srcVariant, inverseWarp, dstCalib.getImageSize());
+  return distortImageVariant(srcVariant, inverseWarp, dstCalib.getImageSize(), method);
 }
+
+image::ManagedImageVariant distortDepthByCalibration(
+    const image::ImageVariant& srcVariant,
+    const CameraCalibration& dstCalib,
+    const CameraCalibration& srcCalib) {
+  return distortByCalibration(srcVariant, dstCalib, srcCalib, image::InterpolationMethod::Bilinear);
+}
+
+image::ManagedImageVariant distortLabelMaskByCalibration(
+    const image::ImageVariant& srcVariant,
+    const CameraCalibration& dstCalib,
+    const CameraCalibration& srcCalib) {
+  return distortByCalibration(
+      srcVariant, dstCalib, srcCalib, image::InterpolationMethod::NearestNeighbor);
+}
+
 } // namespace projectaria::tools::calibration

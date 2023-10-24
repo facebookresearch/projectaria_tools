@@ -483,7 +483,8 @@ void declareDistortByCalibration(py::module& m) {
       "distort_by_calibration",
       [](py::array_t<T> arraySrc,
          const CameraCalibration& dstCalib,
-         const CameraCalibration& srcCalib) {
+         const CameraCalibration& srcCalib,
+         const image::InterpolationMethod method) {
         py::buffer_info info = arraySrc.request();
 
         size_t imageWidth = arraySrc.shape()[1];
@@ -492,18 +493,66 @@ void declareDistortByCalibration(py::module& m) {
         if (!isRgb) {
           image::Image<T, MaxVal> imageSrc((T*)info.ptr, imageWidth, imageHeight);
           return image::toPyArrayVariant(
-              distortByCalibration(image::ImageVariant{imageSrc}, dstCalib, srcCalib));
+              distortByCalibration(image::ImageVariant{imageSrc}, dstCalib, srcCalib, method));
         } else {
           if constexpr (std::is_same<T, uint8_t>::value) {
             image::Image3U8 imageSrc((Eigen::Vector3<T>*)info.ptr, imageWidth, imageHeight);
             return image::toPyArrayVariant(
-                distortByCalibration(image::ImageVariant{imageSrc}, dstCalib, srcCalib));
+                distortByCalibration(image::ImageVariant{imageSrc}, dstCalib, srcCalib, method));
           } else {
             throw std::runtime_error("Type is not uint8_t but has 3 channels.");
           }
         }
       },
+      py::arg("arraySrc"),
+      py::arg("dstCalib"),
+      py::arg("srcCalib"),
+      py::arg("method") = image::InterpolationMethod::Bilinear,
       "Distorts an input image to swap its underlying image distortion model.");
+
+  m.def(
+      "distort_depth_by_calibration",
+      [](py::array_t<T> arraySrc,
+         const CameraCalibration& dstCalib,
+         const CameraCalibration& srcCalib) {
+        py::buffer_info info = arraySrc.request();
+
+        size_t imageWidth = arraySrc.shape()[1];
+        size_t imageHeight = arraySrc.shape()[0];
+        bool isThreeChannel = arraySrc.ndim() == 3 && arraySrc.shape()[2] == 3;
+        if (!isThreeChannel) {
+          image::Image<T, MaxVal> imageSrc((T*)info.ptr, imageWidth, imageHeight);
+          return image::toPyArrayVariant(
+              distortDepthByCalibration(image::ImageVariant{imageSrc}, dstCalib, srcCalib));
+        } else {
+          throw std::runtime_error("Depth image should not have 3 channels.");
+        }
+      },
+      "Distorts an input depth image using InterpolationMethod::Bilinear to swap its underlying image distortion model.");
+
+  m.def(
+      "distort_label_by_calibration",
+      [](py::array_t<T> arraySrc,
+         const CameraCalibration& dstCalib,
+         const CameraCalibration& srcCalib) {
+        py::buffer_info info = arraySrc.request();
+
+        size_t imageWidth = arraySrc.shape()[1];
+        size_t imageHeight = arraySrc.shape()[0];
+        bool isThreeChannel = arraySrc.ndim() == 3 && arraySrc.shape()[2] == 3;
+        if (!isThreeChannel) {
+          image::Image<T, MaxVal> imageSrc((T*)info.ptr, imageWidth, imageHeight);
+          return image::toPyArrayVariant(
+              distortLabelMaskByCalibration(image::ImageVariant{imageSrc}, dstCalib, srcCalib));
+        } else if constexpr (std::is_same<T, uint8_t>::value) {
+          image::Image3U8 imageSrc((Eigen::Vector3<T>*)info.ptr, imageWidth, imageHeight);
+          return image::toPyArrayVariant(
+              distortLabelMaskByCalibration(image::ImageVariant{imageSrc}, dstCalib, srcCalib));
+        } else {
+          throw std::runtime_error("Type is not uint8_t but has 3 channels.");
+        }
+      },
+      "Distorts an input image label using InterpolationMethod::NearestNeighbor to swap its underlying image distortion model.");
 }
 
 inline void declareDistortByCalibrationAll(py::module& m) {

@@ -20,6 +20,7 @@
 
 #include <image/ImageVariant.h>
 #include <image/utility/Debayer.h>
+#include <image/utility/Distort.h>
 
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
@@ -73,6 +74,14 @@ void declare_debayer(py::module& module) {
       "Debayer and also correct color by preset color calibration");
 }
 
+void declare_interpolationMethod(py::module& module) {
+  py::enum_<InterpolationMethod>(module, "InterpolationMethod", "Image interpolation method.")
+      // image type
+      .value("NEAREST_NEIGHBOR", InterpolationMethod::NearestNeighbor)
+      .value("BILINEAR", InterpolationMethod::Bilinear)
+      .export_values();
+}
+
 inline void exportImage(py::module& m) {
   // For submodule documentation, see: projectaria_tools/projectaria_tools/core/image.py
 
@@ -88,5 +97,7 @@ inline void exportImage(py::module& m) {
   declare_image<projectaria::tools::image::Image<uint64_t>>(m, "ImageU64");
 
   declare_debayer(m);
+
+  declare_interpolationMethod(m);
 }
 } // namespace projectaria::tools::image
