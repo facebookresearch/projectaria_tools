@@ -15,7 +15,12 @@ To be able to use Aria glasses you will need to use the Mobile Companion app. Yo
 
 ## Mobile Companion App
 
-The latest version is v125, go to [ARK Software Release Notes](/docs/ARK/sw_release_notes) to find out about the latest features.
+The latest version is v135, go to [ARK Software Release Notes](/docs/ARK/sw_release_notes) to find out about the latest features.
+
+```mdx-code-block
+<Tabs groupId="operating-systems">
+<TabItem value="ios" label="iOS">
+```
 
 ### iOS
 The Aria Mobile Companion app is available on iOS as a beta app through TestFlight.
@@ -23,27 +28,37 @@ The Aria Mobile Companion app is available on iOS as a beta app through TestFlig
 * On your phone, [follow this invitation link](https://testflight.apple.com/join/G9sm51a8) to download the app.
 
 To update:
-* Open the Twilight app
-* Select Aria
-* Select Update
+* Open the TestFlight app
+* Next to the Aria app, select **Update**
+
+
+```mdx-code-block
+</TabItem>
+<TabItem value="android" label="Android">
+```
 
 ### Android
 Follow one of these links on your Android device to download the app:
 
-* Mobile Companion App APK v125 - [recommended (64-bit architecture)](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/android/Aria_v125_arm64.apk)
-* Mobile Companion App APK v125 - [for 32-bit architecture](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/android/Aria_v125_arm32.apk)
+* Mobile Companion App APK v135 - [recommended (64-bit architecture)](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/android/Aria_v135_ARM64.apk)
+* Mobile Companion App APK v135 - [for 32-bit architecture](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/android/Aria_v135_ARMV7.apk)
 
 To update the app, download and install the latest version.
 
 #### Installation troubleshooting
 
-On Android, if you see an error message such as “for security, your phone is not allowed to install unknown apps from this source” you’ll need to enable your web browser to install unknown apps.
+On Android, if you see an error message such as, “For security, your phone is not allowed to install unknown apps from this source,” you’ll need to enable your web browser to install unknown apps.
 
 ![Aria Mobile Companion App install error message](/img/ARK/unknown_app_error.png)
 
 1. Go to Settings → Apps & notifications → Advanced → Special app access → Install unknown apps.
 2. Select the app (usually your internet browser) that you want to grant permission to install from unknown sources.
 3. Select **Allow from this source**
+
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
 
 ## Desktop Companion App
 
@@ -53,6 +68,7 @@ The latest version is v37, go to [ARK Software Release Notes](/docs/ARK/sw_relea
 <Tabs groupId="operating-systems">
 <TabItem value="macos" label="MacOS">
 ```
+
 ### Aria For MacOS Installer (Intel & Apple Silicon)
 
 1. [Download Aria's DMG installer](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/mac/Aria_v37.dmg)
@@ -86,7 +102,7 @@ It is important to note the app was only tested for that specific version under 
 2. Right-click on the Deb file and select “Open With Other Application“.
 3. Select “Software Install” and then “Select” at the top-right.
 4. The Software Center will open up on the screen with information on the app you are installing.
-5. Select Install
+5. Select **Install**
 
 The app will then be visible through "Activities"
 
@@ -95,10 +111,9 @@ The app will then be visible through "Activities"
 </Tabs>
 ```
 
+
 ## Are the Companion apps open source?
 
 No, the Mobile and Desktop app are Meta Licensed Materials and are licensed by Meta to research partners via organizational or individual research agreements. Go to [projectaria.com](https://www.projectaria.com/research-kit/) to find out how to become a research partner.
-
-
 
 This software is not part of Project Aria Tools, so it won’t be downloaded when you install [Project Aria Tools Data Utilities](https://facebookresearch.github.io/projectaria_tools/docs/data_utilities), which is open source and licensed under Apache 2.0.

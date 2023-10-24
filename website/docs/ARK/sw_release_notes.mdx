@@ -9,6 +9,192 @@ These SW Release notes are for the Aria Research Kit (ARK), and are for Meta SW 
 
 Our Open Source Project Aria Tools SW Release notes are posted to [Project Aria Tools GitHub repository](https://github.com/facebookresearch/projectaria_tools), using Tags > Releases.
 
+
+## **Announcing,  Project Aria Updates (ARK V1.5 & Project Aria Tools V1.2)**
+October 24, 2023
+
+We’re delighted to announce Project Aria Research Kit V1.5, a point release encompassing new features for every aspect of Project Aria Research Kit (ARK), from a Client SDK and CLI, enabling you to directly interact with the glasses; to new Calibrated Eye Gaze, enabling you to achieve more accurate eye gaze estimations. Plus, you can now download the Mobile Companion app on iOS!
+
+In this release:
+
+* Project Aria Client SDK V1.0.2
+* Aria Mobile Companion app V135
+* Project Aria OS build **4965072.660.70**
+* Project Aria Tools V1.2
+
+### To access the new ARK features
+
+Update the Mobile Companion app and Aria glasses OS to the latest version:
+
+* Follow the instructions in [ARK SW Downloads and Updates](/docs/ARK/ark_downloads) to download and update the Aria Mobile Companion App on Android or iOS
+* Connect your Aria Glasses to Wi-Fi and power and they will automatically update
+   * You can [manually trigger an update](/docs/ARK/mobile_companion_app#os-update) from the Mobile Companion app’s Device Settings
+
+The Aria Research Kit parts of this release, support research partners with access to Project Aria glasses.
+
+### To access new Open Science features
+
+Update Project Aria Tools:
+
+* Python users: [Update projectaria_tools python package](/docs/data_utilities/installation/installation_python)
+* C++ users: [Update projectaria_tools git repository](/docs/data_utilities/installation/download_codebase)
+
+Open Science releases can be helpful for users with or without access to Aria glasses.
+
+### Aria Research Kit Release Notes
+
+#### Project Aria Client SDK with CLI
+
+`projectaria_client_sdk` is a new Python package/client library that enables you to directly interact with your Project Aria glasses from a client machine. This enables you to stream Aria data and run MP algorithms on that data, in real-time.
+
+The Client SDK currently offers the ability to:
+
+* Connect and disconnect from the device via USB and WiFi
+* Retrieve detailed device information and its current status
+* Control Aria streaming and recording capabilities
+* Access calibration data for the sensors you're recording with
+* Subscribe and listen to Aria sensors data
+* Visualize streaming data
+
+A CLI, installed as part of the SDK, provides the ability to:
+
+* Pair the glasses via USB or Wi-Fi
+* Connect to the glasses via USB or Wi-Fi
+* Retrieve the device status and information
+* Control Aria recording and streaming capabilities
+
+
+To support this new feature, we’ve added a Client SDK section to ARK Documentation in Project Aria Tools, including:
+
+* [Project Aria Client SDK](https://facebookresearch.github.io/projectaria_tools/docs/ARK/sdk)
+* [Setup Guide](https://facebookresearch.github.io/projectaria_tools/docs/ARK/sdk/setup)
+* [Code Sample Examples and Walkthroughs](https://facebookresearch.github.io/projectaria_tools/docs/ARK/sdk/samples)
+
+#### New & Improved Machine Perception Service: Calibrated Eye Gaze
+
+You can now generate Calibrated Eye Gaze MPS for sequences captured on Project Aria glasses that have in-session Eye Gaze Calibration. This enables you to capture more data about how Aria wearers look at objects, and improve the eye gaze estimations for any given recording.
+
+When you request Eye Gaze Machine Perception Services (MPS) and the file has an in-session Eye Gaze Calibration as part of the VRS file, you will receive two outputs:
+
+* `generalized_eye_gaze.csv` - based on the standard eye gaze configuration
+* `calibrated_eye_gaze.csv` - calibrated eye gaze data based on the calibration data collected in the recording.
+
+Additional improvements to Eye Gaze MPS include:
+
+* `Summary.json` files are also now available for Eye Gaze MPS output
+* We’ve created a new visualization tool, [MPS Replay Viewer (C++)](/docs/data_utilities/visualization_guide#mps-3d-replay-visualizer),  to render static scene and dynamic elements.
+
+See below for more details:
+
+* [How to collect in-session eye gaze calibration data](https://facebookresearch.github.io/projectaria_tools/docs/ARK/mps/eye_gaze_calibration)
+* [Eye Gaze Data Format documentation](https://facebookresearch.github.io/projectaria_tools/docs/data_formats/mps/mps_eye_gaze) - updated to reflect new outputs
+
+#### Mobile Companion App improvements (and now available on iOS)
+
+The Aria Mobile Companion App allows users to interact with their Aria glasses via mobile device. With this release, users will now be able to download the app on iOS as beta testing software via Testflight.
+
+Installing or updating the Mobile Companion app on Android just became easier. You no longer need to sign in to the partner portal to ARK specific software. You can download it as a direct link from the ARK SW Downloads and Updates page or from an update prompt in the app.
+
+Additionally, you’ll now have the ability to change the default [Recording Profile](/docs/ARK/glasses_manual/profile_guide) when you make a recording using the Mobile Companion app.
+
+See below for more details:
+
+* [ARK SW Downloads and Updates](/docs/ARK/ark_downloads) 
+* [Aria Mobile Companion App documentation](/docs/ARK/mobile_companion_app)
+
+
+### ARK Bug Fixes
+Minor bug fixes and general quality of life improvements.
+
+### Known Issues
+
+#### Client SDK/CLI
+
+* Unlike Project Aria Tools, the Client SDK is not available on Ubuntu 20.04
+* Device Settings tab does not automatically refresh after you’ve paired your glasses with SDK.
+   * If you’re in the Device Settings tab when you select “aria auth pair”, navigate away from Device Settings and back again to view your certificate.
+
+Further resources:
+* [ARK Troubleshooting and Known Issues](/docs/ARK/troubleshooting/troubleshooting_issues)
+* [Client SDK & CLI Troubleshooting & Known Issues](/docs/ARK/sdk/sdk_troubleshooting)
+
+
+#### Getting Support
+
+If you encounter any problems using ARK resources, there are several ways approved Academic Research Partners can access user support:
+
+* [Report or view issues on GitHub](https://github.com/facebookresearch/projectaria_tools/issues) - can be used to report ARK or Open Science issues
+* Post to Project Aria discord - best for discussion, feedback or user support
+* Post to Academic Partners Feedback and Support workplace group - discussion, feedback or user support
+* Email [AriaOps@meta.com](mailto:AriaOps@meta.com) - for feedback or user support
+
+
+#### PROJECT ARIA LATEST OS
+
+The latest Project Aria OS build **4965072.660.70** was released on October 17th, 2023.
+
+
+### Open Science Updates (for everybody)
+
+The Aria Research Kit, builds on top of projectaria_tools, which is available to anyone wishing to work with Aria data. New features contained within projectaria_tools V1.2 include:
+
+* Google Colab Notebooks
+   * You can now explore Project Aria Tools without needing to install it on your own machine!
+      * [Dataprovider Quickstart Tutorial](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/core/examples/dataprovider_quickstart_tutorial.ipynb)
+      * [Machine Perception Services Tutorial](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/core/examples/mps_quickstart_tutorial.ipynb)
+* [Python binding for the Sophus Library](https://facebookresearch.github.io/projectaria_tools/docs/data_utilities/core_code_snippets/calibration#sophus) 
+   * Sophus PyBind provides access to SO3, SE3, interpolate and iterativeMean features
+   * This Python binding has been submitted to Sophus and will be officially supported by the Sophus Library GitHub repo soon
+* Python binding type hinting
+   * Python type hinting/stubs are now automatically generated if you’ve installed the tools using pip
+   * Change the type of hinting in generate_stubs.py
+* [MPS Replay Viewer (C++)](/docs/data_utilities/visualization_guide#mps-3d-replay-visualizer)
+   * This new visualization tool renders static scene and dynamic elements:
+      * 2D/3D observations rays
+      * Eye gaze data
+* [Output image data from data_provider now contains information about which camera it came from ](https://github.com/facebookresearch/projectaria_tools/commit/f3010063b8869244ba1ef776e4dbc1c2d47675a2)
+   * cameraId has been added to ImageDataRecord
+
+
+Update Project Aria Tools to access these features:
+* Python users: [Update projectaria_tools python package](/docs/data_utilities/installation/installation_python)
+* C++ users: [Update projectaria_tools git repository](/docs/data_utilities/installation/download_codebase)
+
+Documentation updates and improvements for this release include:
+* How to Convert [VRS to MP4](/docs/data_utilities/advanced_code_snippets/vrs_to_mp4)
+* Updates to [Machine Perception Services documentation](/docs/ARK/mps)
+
+For more details, please [go to Project Aria Tools Release notes](https://github.com/facebookresearch/projectaria_tools/releases).
+
+#### Open Science Bug Fixes
+
+Bug fixes include:
+
+* [When camera intrinsics are updated, all sensor calibration is now updated](https://github.com/facebookresearch/projectaria_tools/commit/feaa489303ddf7fee3e74ed1fdb3001df142f541)
+   * The Sophus API has been updated, if you encounter issues, please update to v1.2 of Project Aria Tools and update your code
+      * This fix resolves:
+         * [TypeError: 'unsupported operand type(s) for @: '_core_pybinds.sophus.SE3d' and '_core_pybinds.sophus.SE3d'](https://github.com/facebookresearch/projectaria_tools/issues/20)
+         * [AttributeError: '_core_pybinds.sophus.SE3d' object has no attribute 'to_matrix'](https://github.com/facebookresearch/projectaria_tools/issues/19)
+   * The API has been corrected so that the calibration data will match the sensor and device access point: get_sensor_calibration(stream_id).camera_calibration() and provider.get_device_calibration().get_camera_calib(name) will now match
+
+
+Go to [Project Aria Tools Issues on GitHub](https://github.com/facebookresearch/projectaria_tools/issues?q=is%3Aissue+is%3Aclosed) for more information.
+
+If you encounter any problems working with Open Science tooling or data, we encourage you to [post the issue on Github](https://github.com/facebookresearch/projectaria_tools/issues).
+
+
+#### Open Science Known Issues
+
+* The Sophus API has been updated, if you encounter issues, please update to v1.2 of Project Aria Tools
+
+
+**Further resources**
+
+* Project Aria Tools [Troubleshooting and Known Issues](/docs/ARK/troubleshooting/troubleshooting_issues)
+* [Report or view issues on GitHub](https://github.com/facebookresearch/projectaria_tools/issues)
+
+
+
 ## August Release - Project Aria Mobile App v125 is now available
 8/22/2023
 

@@ -16,6 +16,8 @@ Aria data includes raw sensor data collected with Aria glasses and derived data 
 ## Further resources
 * [projectaria.com](https://projectaria.com/) - about the project, how to partner with Project Aria, learn about Grand Challenges and download datasets
 * [Project Aria: A New Data Platform for Egocentric Multi-modal AI Research](https://arxiv.org/abs/2308.13561) - Project Aria Whitepaper
+* [VRS (Vision Replay System)](https://github.com/facebookresearch/vrs) - A file format optimized to record and playback streams of sensor data, stored in per-device streams of timestamped records
+* [EgoBlur](https://www.projectaria.com/tools/egoblur/) - an open source AI model from Meta to preserve privacy by detecting and blurring PII from images
 
 
 ## Overview of sections
