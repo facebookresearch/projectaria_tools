@@ -62,7 +62,7 @@ from projectaria_tools.core import data_provider, calibration
 camera_label = "camera-slam-left"
 stream_id = provider.get_stream_id_from_label(camera_label)
 
-calib = provider.get_device_calibration().get_camera_calib(camera_name)
+calib = provider.get_device_calibration().get_camera_calib(camera_label)
 pinhole = calibration.get_linear_camera_calibration(512, 512, 150)
 
 raw_image = provider.get_image_data_by_index(stream_id, 0)[0].to_numpy_array()
