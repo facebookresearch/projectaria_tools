@@ -15,6 +15,12 @@
 include(FetchContent) # once in the project to include the module
 
 FetchContent_Declare(
+  Dispenso
+  GIT_REPOSITORY      https://github.com/facebookincubator/dispenso.git
+  GIT_TAG             9360e1e214a4a295e44174d7703676a94d9ebfce # v1.1.0
+)
+
+FetchContent_Declare(
   vrs
   GIT_REPOSITORY  https://github.com/facebookresearch/vrs.git
   GIT_TAG        e8ef307247d4c4ee7f736672b7419f6fd5340396 # master Aug 4, 2023. V 1.1.0
@@ -49,7 +55,7 @@ FetchContent_Declare(
   GIT_TAG        v2.3.2
 )
 
-set(dependencies cli11 eigen Sophus)
+set(dependencies cli11 eigen Sophus Dispenso)
 foreach(X IN LISTS dependencies)
   message("Pulling deps: {${X}}")
   FetchContent_MakeAvailable(${X})
