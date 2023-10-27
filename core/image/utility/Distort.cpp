@@ -15,7 +15,9 @@
  */
 
 #include "Distort.h"
+#include <dispenso/parallel_for.h>
 #include <iostream>
+#include <vector>
 
 namespace projectaria::tools::image {
 
@@ -27,26 +29,35 @@ ManagedImage<T, DefaultImageAllocator<T>, MaxVal> distortImage(
     const InterpolationMethod method) {
   ManagedImage<T, DefaultImageAllocator<T>, MaxVal> dst(imageSize(0), imageSize(1));
 
+  std::vector<Eigen::Vector2i> dstPixels;
+  dstPixels.reserve(dst.height() * dst.width());
   for (int y = 0; y < dst.height(); y++) {
     for (int x = 0; x < dst.width(); x++) {
-      Eigen::Vector2f dstPixel(static_cast<float>(x), static_cast<float>(y));
-      std::optional<Eigen::Vector2f> maybeSrcPixel = inverseWarp(dstPixel);
-      if (!maybeSrcPixel || !src.inBounds((*maybeSrcPixel)(0), (*maybeSrcPixel)(1), 0.5f)) {
-        dst(x, y) = Zero<T>::val();
-      } else {
-        switch (method) {
-          case InterpolationMethod::Bilinear:
-            dst(x, y) = src((*maybeSrcPixel)(0), (*maybeSrcPixel)(1));
-            break;
-          case InterpolationMethod::NearestNeighbor:
-            Eigen::Vector2i nearestPixel =
-                (*maybeSrcPixel + Eigen::Vector2f(0.5, 0.5)).template cast<int>();
-            dst(x, y) = src(nearestPixel(0), nearestPixel(1));
-            break;
-        }
-      }
+      dstPixels.push_back(Eigen::Vector2i{x, y});
     }
   }
+
+  dispenso::parallel_for(
+      0, dstPixels.size(), [&src, &dst, &inverseWarp, &dstPixels, &method](size_t index) {
+        Eigen::Vector2f pixel(
+            static_cast<float>(dstPixels[index](0)), static_cast<float>(dstPixels[index](1)));
+        std::optional<Eigen::Vector2f> maybeSrcPixel = inverseWarp(pixel);
+        dst(dstPixels[index].x(), dstPixels[index].y()) = Zero<T>::val();
+        if (maybeSrcPixel && src.inBounds((*maybeSrcPixel)(0), (*maybeSrcPixel)(1), 0.5f)) {
+          switch (method) {
+            case InterpolationMethod::Bilinear:
+              dst(dstPixels[index].x(), dstPixels[index].y()) =
+                  src((*maybeSrcPixel)(0), (*maybeSrcPixel)(1));
+              break;
+            case InterpolationMethod::NearestNeighbor:
+              Eigen::Vector2i nearestPixel =
+                  (*maybeSrcPixel + Eigen::Vector2f(0.5, 0.5)).template cast<int>();
+              dst(dstPixels[index].x(), dstPixels[index].y()) =
+                  src(nearestPixel(0), nearestPixel(1));
+              break;
+          }
+        }
+      });
 
   return dst;
 }
