@@ -86,7 +86,7 @@ void AriaViewer::createWindowWithDisplay(int width, int height) {
   pangolin::CreateWindowAndBind(windowName_, width, height);
 
   container_ = &pangolin::CreateDisplay()
-                    .SetBounds(0.0, 1.0, pangolin::Attach::Pix(180), 1.0)
+                    .SetBounds(0.0, 1.0, pangolin::Attach::Pix(228), 1.0)
                     .SetLayout(pangolin::LayoutEqual);
 }
 
@@ -106,6 +106,8 @@ void AriaViewer::addControlPanel(std::shared_ptr<VrsDataProvider> dataProvider) 
       static_cast<float>(dataProvider->getLastTimeNsAllStreams(TimeDomain::DeviceTime)) * 1e-9;
   timestampSec_ = std::make_unique<pangolin::Var<float>>(
       prefix + ".timestamp(s)", startTime, startTime, endTime);
+  playbackSpeed_ =
+      std::make_unique<pangolin::Var<float>>(prefix + ".playback speed", 1.0, 0.01, 10.0);
 
   pangolin::Var<std::function<void(void)>> save_window(prefix + ".Snapshot UI", [&]() {
     std::ostringstream filename;
@@ -147,6 +149,8 @@ void AriaViewer::addSensorToggle(std::shared_ptr<VrsDataProvider> dataProvider) 
       prefix + ".Magnetometer", dataProvider->checkStreamIsActive(kMagnetometerStreamId), true);
   showAudio_ = std::make_unique<pangolin::Var<bool>>(
       prefix + ".Audio", dataProvider->checkStreamIsActive(kAudioStreamId), true);
+  showBaroTemp_ = std::make_unique<pangolin::Var<bool>>(
+      prefix + ".Baro_Temp", dataProvider->checkStreamIsActive(kBarometerStreamId), true);
 }
 
 void AriaViewer::addImageDisplays(std::shared_ptr<VrsDataProvider> dataProvider) {
@@ -226,6 +230,30 @@ void AriaViewer::addBaroDisplays(std::shared_ptr<VrsDataProvider> dataProvider) 
       std::make_unique<pangolin::Var<float>>(prefix + ".temp [C]", 0., 0.0, 0., false);
   pressureDisplay_ =
       std::make_unique<pangolin::Var<float>>(prefix + ".pres [kPa]", 0., 0.0, 0., false);
+
+  // setup line plots
+  streamIdToMultiDataLog_[kBarometerStreamId] =
+      std::vector<std::shared_ptr<pangolin::DataLog>>(2, nullptr);
+  streamIdToMultiDataLog_.at(kBarometerStreamId).at(0) = std::make_shared<pangolin::DataLog>();
+  streamIdToMultiDataLog_.at(kBarometerStreamId).at(0)->SetLabels({"Pressure [kPa]"});
+  streamIdToMultiDataLog_.at(kBarometerStreamId).at(1) = std::make_shared<pangolin::DataLog>();
+  streamIdToMultiDataLog_.at(kBarometerStreamId).at(1)->SetLabels({"Temperature [C]"});
+
+  streamIdToMultiplotters_.emplace(
+      kBarometerStreamId, std::vector<std::unique_ptr<pangolin::Plotter>>{});
+
+  auto& logs = streamIdToMultiDataLog_.at(kBarometerStreamId);
+  streamIdToMultiplotters_.at(kBarometerStreamId)
+      .emplace_back(
+          std::make_unique<pangolin::Plotter>(logs.at(0).get(), 0.0f, 1500.f, 99., 102., 100, 5.));
+  streamIdToMultiplotters_.at(kBarometerStreamId)
+      .emplace_back(
+          std::make_unique<pangolin::Plotter>(logs.at(1).get(), 0.0f, 1500.f, 20., 30., 100, 1.));
+
+  for (const auto& plotter : streamIdToMultiplotters_.at(kBarometerStreamId)) {
+    plotter->Track("$i");
+    container_->AddDisplay(*plotter);
+  }
 }
 
 void AriaViewer::updateGuiAndControl() {
@@ -236,7 +264,9 @@ void AriaViewer::updateGuiAndControl() {
     *isPlaying_ = ariaVisControl_->isPlaying_;
   }
 
-  if (timestampSec_->GuiChanged()) { // triggers random access mode
+  if (timestampSec_->GuiChanged() || playbackSpeed_->GuiChanged()) { // triggers random access mode
+    ariaVisControl_->playbackSpeed_ = *playbackSpeed_;
+
     ariaVisControl_->isPlaying_ = false;
     *isPlaying_ = false;
     for (const auto& it : streamIdToDataLog_) {
@@ -249,6 +279,11 @@ void AriaViewer::updateGuiAndControl() {
     }
     for (const auto& it : streamIdToPlotters_) {
       it.second->ResetView();
+    }
+    for (const auto& itVec : streamIdToMultiplotters_) {
+      for (const auto& it : itVec.second) {
+        it->ResetView();
+      }
     }
   }
 
@@ -304,43 +339,53 @@ void AriaViewer::updateImages() {
 
 void AriaViewer::updateSensors() {
   if (ariaVisData_->isDataChanged(kMagnetometerStreamId)) {
-    streamIdToDataLog_.at(kMagnetometerStreamId)
-        ->Log(ariaVisData_->magMicroTesla_.at(kMagnetometerStreamId));
+    for (const auto& data : ariaVisData_->magMicroTesla_.at(kMagnetometerStreamId)) {
+      streamIdToDataLog_.at(kMagnetometerStreamId)->Log(data);
+    }
+    ariaVisData_->clearData(kMagnetometerStreamId);
     ariaVisData_->setDataChanged(false, kMagnetometerStreamId);
   }
 
   if (ariaVisData_->isDataChanged(kImuRightStreamId)) {
-    streamIdToMultiDataLog_.at(kImuRightStreamId)
-        .at(0)
-        ->Log(ariaVisData_->accMSec2Map_.at(kImuRightStreamId));
-    streamIdToMultiDataLog_.at(kImuRightStreamId)
-        .at(1)
-        ->Log(ariaVisData_->gyroRadSecMap_.at(kImuRightStreamId));
+    for (const auto& data : ariaVisData_->accMSec2Map_.at(kImuRightStreamId)) {
+      streamIdToMultiDataLog_.at(kImuRightStreamId).at(0)->Log(data);
+    }
+
+    for (const auto& data : ariaVisData_->gyroRadSecMap_.at(kImuRightStreamId)) {
+      streamIdToMultiDataLog_.at(kImuRightStreamId).at(1)->Log(data);
+    }
+
+    ariaVisData_->clearData(kImuRightStreamId);
     ariaVisData_->setDataChanged(false, kImuRightStreamId);
   }
 
   if (ariaVisData_->isDataChanged(kImuLeftStreamId)) {
-    streamIdToMultiDataLog_.at(kImuLeftStreamId)
-        .at(0)
-        ->Log(ariaVisData_->accMSec2Map_.at(kImuLeftStreamId));
-    streamIdToMultiDataLog_.at(kImuLeftStreamId)
-        .at(1)
-        ->Log(ariaVisData_->gyroRadSecMap_.at(kImuLeftStreamId));
+    for (const auto& data : ariaVisData_->accMSec2Map_.at(kImuLeftStreamId)) {
+      streamIdToMultiDataLog_.at(kImuLeftStreamId).at(0)->Log(data);
+    }
+
+    for (const auto& data : ariaVisData_->gyroRadSecMap_.at(kImuLeftStreamId)) {
+      streamIdToMultiDataLog_.at(kImuLeftStreamId).at(1)->Log(data);
+    }
+    ariaVisData_->clearData(kImuLeftStreamId);
     ariaVisData_->setDataChanged(false, kImuLeftStreamId);
   }
 
   if (ariaVisData_->isDataChanged(kBarometerStreamId)) {
-    ariaVisData_->setDataChanged(false, kBarometerStreamId);
-    *pressureDisplay_ = ariaVisData_->pressure_.back() * 1e-3; // kPa
+    streamIdToMultiDataLog_.at(kBarometerStreamId).at(0)->Log(ariaVisData_->pressure_);
+    streamIdToMultiDataLog_.at(kBarometerStreamId).at(1)->Log(ariaVisData_->temperature_);
+    *pressureDisplay_ = ariaVisData_->pressure_.back(); // kPa
     *temperatureDisplay_ = ariaVisData_->temperature_.back(); // C
+    ariaVisData_->clearData(kBarometerStreamId);
+    ariaVisData_->setDataChanged(false, kBarometerStreamId);
   }
 
   if (ariaVisData_->isDataChanged(kAudioStreamId)) {
     if (!ariaVisData_->audio_.empty()) {
-      ariaVisData_->setDataChanged(false, kAudioStreamId);
       for (const auto& audio : ariaVisData_->audio_) {
         streamIdToDataLog_.at(kAudioStreamId)->Log(audio);
       }
+      ariaVisData_->setDataChanged(false, kAudioStreamId);
     }
   }
 }
@@ -367,5 +412,8 @@ void AriaViewer::updateSensorVisibility() {
   }
   for (const auto& plotter : streamIdToMultiplotters_.at(kImuRightStreamId)) {
     plotter->Show(*showRightImu_);
+  }
+  for (const auto& plotter : streamIdToMultiplotters_.at(kBarometerStreamId)) {
+    plotter->Show(*showBaroTemp_);
   }
 }

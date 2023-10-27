@@ -67,10 +67,11 @@ class AriaViewer {
   pangolin::View* container_; // Pangolin window
   /// Pangolin variables
   std::unique_ptr<pangolin::Var<bool>> isPlaying_;
-  std::unique_ptr<pangolin::Var<float>> timestampSec_, temperatureDisplay_, pressureDisplay_;
+  std::unique_ptr<pangolin::Var<float>> timestampSec_, temperatureDisplay_, pressureDisplay_,
+      playbackSpeed_;
   std::unique_ptr<pangolin::Var<bool>> showLeftCamImg_, showRightCamImg_, showRgbCamImg_,
       showEyeImg_, showLeftImu_, showRightImu_, showMagnetometer_, showAudio_,
-      showNaturalImageOrientation_;
+      showNaturalImageOrientation_, showBaroTemp_;
 
   // Pangolin graphic elements
   std::map<vrs::StreamId, std::unique_ptr<pangolin::ImageView>> streamIdToPixelFrame_;

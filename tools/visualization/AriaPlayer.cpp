@@ -17,6 +17,7 @@
 #include "AriaPlayer.h"
 
 using namespace projectaria::tools::data_provider;
+constexpr int64_t kSleepInteruptPeriodNs = 100000000; // 100 ms
 
 AriaPlayer::AriaPlayer(
     std::shared_ptr<projectaria::tools::data_provider::VrsDataProvider> dataProvider,
@@ -77,16 +78,31 @@ void AriaPlayer::playStreamFromTimeNs(int64_t timestampNs, const vrs::StreamId& 
     }
 
     auto sensorData = dataProvider_->getSensorDataByIndex(streamId, i);
-    const int64_t currentTimestampNs = sensorData.getTimeNs(TimeDomain::DeviceTime);
     visData_->updateData(sensorData);
 
-    visControl_->timestampNs_ = currentTimestampNs;
+    const int64_t currentTimestampNs = sensorData.getTimeNs(TimeDomain::DeviceTime);
+
+    if (visControl_->timestampNs_ < currentTimestampNs) {
+      visControl_->timestampNs_ = currentTimestampNs;
+    }
     auto sensorTimeDiffNs = currentTimestampNs - playbackStartTime;
     auto systemDiffNs = std::chrono::duration_cast<std::chrono::nanoseconds>(
                             std::chrono::steady_clock::now() - systemStartTime)
                             .count();
-    auto waitTimeNs = sensorTimeDiffNs - systemDiffNs;
-    std::this_thread::sleep_for(std::chrono::nanoseconds(waitTimeNs));
+    auto waitTimeNs =
+        sensorTimeDiffNs - static_cast<int64_t>(systemDiffNs * visControl_->playbackSpeed_);
+
+    // Sleep for waitTimeNs and check if the viewer gets interupted during the sleep period
+    // This prevents the viewer from doing nothing if waitTimeNs is too long, which happens when
+    // playbackSpeed is set to too high and the renderer cannot catch up
+    for (int64_t timer = 0; timer < waitTimeNs - kSleepInteruptPeriodNs;
+         timer += kSleepInteruptPeriodNs) {
+      std::this_thread::sleep_for(std::chrono::nanoseconds(kSleepInteruptPeriodNs));
+      if (!visControl_->isPlaying_ || visControl_->shouldClose_) {
+        return;
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::nanoseconds(waitTimeNs % kSleepInteruptPeriodNs));
   }
 }
 
@@ -105,7 +121,7 @@ std::shared_ptr<AriaPlayer> createAriaPlayer(
   fmt::print(stdout, "Opened '{}'.\n", vrsPath);
 
   // Set the data buffer for visualization and Variable for playback control
-  auto visData = std::make_shared<AriaVisualizationData>();
+  auto visData = std::make_shared<AriaVisualizationData>(dataProvider);
   visData->initDataStreams(imageStreamIds, imuStreamIds, dataStreamIds);
   auto visControl = std::make_shared<AriaVisualizationControl>();
 
