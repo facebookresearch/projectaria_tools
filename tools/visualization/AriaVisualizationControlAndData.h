@@ -32,10 +32,14 @@ struct AriaVisualizationControl {
   std::atomic<bool> isPlaying_ = false;
   std::atomic<bool> shouldClose_ = false;
   std::atomic<int64_t> timestampNs_ = -1;
+  std::atomic<float> playbackSpeed_ = 1.0;
 };
 
 struct AriaVisualizationData {
   AriaVisualizationData() = default;
+  explicit AriaVisualizationData(
+      std::shared_ptr<projectaria::tools::data_provider::VrsDataProvider> provider)
+      : dataProvider_(provider) {}
   virtual ~AriaVisualizationData() = default;
 
   void setDataChanged(bool dataChanged, const vrs::StreamId& streamId) {
@@ -57,6 +61,7 @@ struct AriaVisualizationData {
 
   // read data until currentTimestampNs
   bool updateData(const projectaria::tools::data_provider::SensorData& sensorData);
+  void clearData(const vrs::StreamId& streamId);
 
   // Store boolean information to know if a given data chunk has been updated
   std::map<vrs::StreamId, bool> dataChangedMap_;
@@ -65,8 +70,10 @@ struct AriaVisualizationData {
   // Data chunk storage
   // - current images data chunks
   std::map<vrs::StreamId, projectaria::tools::data_provider::ImageData> cameraImageBufferMap_;
+
   // - current Array data accMSec2, gyroRadSec, magnetometer chunks
-  std::map<vrs::StreamId, std::vector<float>> accMSec2Map_, gyroRadSecMap_, magMicroTesla_;
+  std::map<vrs::StreamId, std::vector<std::vector<float>>> accMSec2Map_, gyroRadSecMap_,
+      magMicroTesla_;
 
   // - current audio chunks
   std::vector<std::vector<float>> audio_;
@@ -75,9 +82,9 @@ struct AriaVisualizationData {
   std::vector<float> temperature_, pressure_;
 
   // Aria VRS data provider
-  projectaria::tools::data_provider::VrsDataProvider* dataProvider_;
+  std::shared_ptr<projectaria::tools::data_provider::VrsDataProvider> dataProvider_;
   // VRS stream data handled by this interface
   std::vector<vrs::StreamId> imageStreamIds_, imuStreamIds_, dataStreamIds_, playbackStreamIds_;
 
-  std::mutex viewerMutex_;
+  std::map<vrs::StreamId, std::mutex> streamDataMutex_;
 };

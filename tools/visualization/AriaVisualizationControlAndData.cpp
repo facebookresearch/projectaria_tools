@@ -36,7 +36,9 @@ void AriaVisualizationData::initDataStreams(
 bool AriaVisualizationData::updateData(
     const projectaria::tools::data_provider::SensorData& sensorData) {
   using namespace projectaria::tools::data_provider;
+
   vrs::StreamId streamId = sensorData.streamId();
+  streamDataMutex_[streamId].lock();
   setDataChanged(true, streamId);
   SensorDataType type = sensorData.sensorDataType();
   switch (type) {
@@ -48,24 +50,23 @@ bool AriaVisualizationData::updateData(
       // Read data from last timestamp to current timestamp
       const auto& accel = sensorData.imuData().accelMSec2;
       const auto& gyro = sensorData.imuData().gyroRadSec;
-      accMSec2Map_[streamId] = accel;
-      gyroRadSecMap_[streamId] = gyro;
+      accMSec2Map_[streamId].push_back(accel);
+      gyroRadSecMap_[streamId].push_back(gyro);
       break;
     }
     case SensorDataType::Magnetometer: {
-      magMicroTesla_[streamId] = sensorData.magnetometerData().magTesla;
-      magMicroTesla_[streamId][0] *= 1e6;
-      magMicroTesla_[streamId][1] *= 1e6;
-      magMicroTesla_[streamId][2] *= 1e6;
+      auto magData = sensorData.magnetometerData().magTesla;
+      magData[0] *= 1e6;
+      magData[1] *= 1e6;
+      magData[2] *= 1e6;
+      magMicroTesla_[streamId].push_back(magData);
       break;
     }
     case SensorDataType::Barometer: {
-      std::vector<float> temperature, pressure;
-      temperature.emplace_back(sensorData.barometerData().temperature);
-      pressure.emplace_back(sensorData.barometerData().pressure);
-
-      temperature_ = temperature;
-      pressure_ = pressure;
+      temperature_.clear();
+      pressure_.clear();
+      temperature_.push_back(sensorData.barometerData().temperature); // temperature in C
+      pressure_.push_back(sensorData.barometerData().pressure * 1e-3); // pressure in kPa
       break;
     }
     case SensorDataType::Audio: {
@@ -103,5 +104,45 @@ bool AriaVisualizationData::updateData(
     default:
       break;
   }
+  streamDataMutex_[streamId].unlock();
+
   return true;
+}
+
+void AriaVisualizationData::clearData(const vrs::StreamId& streamId) {
+  using namespace projectaria::tools::data_provider;
+  streamDataMutex_[streamId].lock();
+  SensorDataType type = dataProvider_->getSensorDataType(streamId);
+  switch (type) {
+    case SensorDataType::Image: {
+      // Image data is not buffered. Therefore, no need to clean the buffer here.
+      break;
+    }
+    case SensorDataType::Imu: {
+      accMSec2Map_[streamId].clear();
+      gyroRadSecMap_[streamId].clear();
+      break;
+    }
+    case SensorDataType::Magnetometer: {
+      magMicroTesla_[streamId].clear();
+      break;
+    }
+    case SensorDataType::Barometer: {
+      temperature_.clear();
+      pressure_.clear();
+      break;
+    }
+    case SensorDataType::Audio: {
+      audio_.clear();
+      break;
+    }
+    // case SensorDataType::Gps:
+    // case SensorDataType::Wps:
+    // case SensorDataType::Bluetooth:
+    // case SensorDataType::NotValid:
+    //   break;
+    default:
+      break;
+  }
+  streamDataMutex_[streamId].unlock();
 }
