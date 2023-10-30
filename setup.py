@@ -197,6 +197,7 @@ def main():
                 "adt_challenge_prepare_submission = projectaria_tools.projects.adt.adt_challenge_prepare_submission:main",
                 "viewer_aria_sensors = projectaria_tools.utils.viewer_aria_sensors:main",
                 "viewer_projects_adt = projectaria_tools.utils.viewer_projects_adt:main",
+                "viewer_projects_ase = projectaria_tools.utils.viewer_projects_ase:main",
             ]
         },
         packages=find_packages(),
