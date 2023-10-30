@@ -20,6 +20,7 @@
 #include <string>
 
 #include <sophus/se3.hpp>
+#include <sophus/so3.hpp>
 
 #include <calibration/camera_projections/CameraProjection.h>
 
@@ -136,22 +137,30 @@ class CameraCalibration {
  * @param imageHeight Height of the camera in pixels.
  * @param focalLength Focal length of the camera in pixels.
  * @param label Label of the camera, Default value is empty string.
+ * @param T_Device_Camera Pose of the Camera Calibration (Should be the same as the original
+ * camera's pose before undistortion).
  */
 CameraCalibration getLinearCameraCalibration(
     const int imageWidth,
     const int imageHeight,
     const double focalLength,
-    const std::string& label = "");
+    const std::string& label = "",
+    const Sophus::SE3d& T_Device_Camera = Sophus::SE3d{});
 /**
  * @brief Function to create a simple Spherical camera calibration object from some parameters.
  * @param imageWidth Width of the camera in pixels.
  * @param imageHeight Height of the camera in pixels.
  * @param focalLength Focal length of the camera in pixels.
  * @param label Label of the camera, Default value is empty string.
+ * @param T_Device_Camera Pose of the Camera Calibration (Should be the same as the original
+ * camera's pose before undistortion).
  */
 CameraCalibration getSphericalCameraCalibration(
     const int imageWidth,
     const int imageHeight,
     const double focalLength,
-    const std::string& label = "");
+    const std::string& label = "",
+    const Sophus::SE3d& T_Device_Camera = Sophus::SE3d{});
+
+CameraCalibration rotateCameraCalibCW90Deg(const CameraCalibration& camCalib);
 } // namespace projectaria::tools::calibration
