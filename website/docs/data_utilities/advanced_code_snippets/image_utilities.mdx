@@ -92,3 +92,60 @@ auto undistortedImage = distortByCalibration(rawImage.imageVariant(), pinhole, c
 ![Image](/img/data_utilities/advanced_guide/undistortion.png)
 
 See [projectaria_tools/core/calibration/utility/Distort.cpp](https://github.com/facebookresearch/projectaria_tools/blob/main/core/calibration/utility/Distort.cpp) for implementation.
+
+## Rotated image clockwise 90 degrees
+In this example, we rotated the RGB image 90 degrees and provide the new calibration object.
+* Calibration rotation only applies to pinhole camera model
+* Pinhole camera calibration object needs to be initialized as `pinhole = calibration.get_linear_camera_calibration(512, 512, 150, camera_label, calib.get_transform_device_camera())`
+with `camera_label` and the pose `calib.get_transform_device_camera()` so that `pinhole_cw90` can have the correct transformation matrix when unprojecting a pixel to get `ray_in_device_frame`.
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+camera_label = "camera-rgb"
+stream_id = provider.get_stream_id_from_label(camera_label)
+
+calib = provider.get_device_calibration().get_camera_calib(camera_label)
+pinhole = calibration.get_linear_camera_calibration(512, 512, 150, camera_label,
+calib.get_transform_device_camera())
+
+raw_image = provider.get_image_data_by_index(stream_id, 0)[0].to_numpy_array()
+undistorted_image = calibration.distort_by_calibration(raw_image, pinhole, calib)
+
+# Rotated image by CW90 degrees
+rotated_image = np.rot90(undistorted_image, k=3)
+
+# Get rotated image calibration
+pinhole_cw90 = calibration.rotate_camera_calib_cw90deg(pinhole)
+
+# Unproject a pixel and get a ray from device coordinate frame
+test_pixel_in_rotated_image = [10,0]
+ray_in_device_frame =  pinhole_cw90.get_transform_device_camera() @ pinhole_cw90.unproject_no_checks(test_pixel_in_rotated_image)
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <dataprovider/VrsDataProvider.h>
+#include <calibration/utility/Distort.h>
+
+std::string cameraLabel = "camera-rgb";
+vrs::StreamId streamId = provider->getStreamIdFromLabel(cameraLabel);
+
+CameraCalibration calib = provider->getCameraCalibration(streamId);
+CameraCalibration pinhole = getLinearCameraCalibration(512, 512, 150, cameraLabel, calib.getT_Device_Camera());
+
+// Get rotated image calibration
+CameraCalibration pinholeCW90 = rotatedCameraCalibCW90Deg(pinhole);
+
+// Unproject a pixel and get a ray from device coordinate frame
+Eigen::Vector2d textPixelInRotatedImage{10,0};
+auto ray = pinholeCW90.getT_Device_Camera() * pinholeCW90.projectNoChecks(textPixelInRotatedImage);
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
