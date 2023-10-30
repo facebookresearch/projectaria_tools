@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <math.h>
+
 #include <calibration/CameraCalibration.h>
 
 namespace projectaria::tools::calibration {
@@ -143,30 +145,67 @@ CameraCalibration CameraCalibration::rescale(
   return camCalib;
 }
 
+CameraCalibration rotateCameraCalibCW90Deg(const CameraCalibration& camCalib) {
+  if (camCalib.modelName() != CameraProjection::ModelType::Linear) {
+    throw ::std::runtime_error("Only support CameraProjection::ModelType::Linear");
+  }
+  // create clock-wise 90 degree rotation matrix
+  Sophus::SE3d T_camera_cameraCW90 = Sophus::SE3d::rotZ(M_PI / -2.0);
+
+  // update extrinsics
+  Sophus::SE3d T_Device_CameraCW90 = camCalib.getT_Device_Camera() * T_camera_cameraCW90;
+
+  // update image width and height
+  auto oldImageSize = camCalib.getImageSize();
+  int newImageWidth = oldImageSize[1];
+  int newImageHeight = oldImageSize[0];
+
+  // update intrinsics
+  Eigen::VectorXd oldProjectionParams = camCalib.projectionParams();
+  Eigen::VectorXd newProjectionParams(4);
+  newProjectionParams << camCalib.projectionParams()[LinearProjection::kFocalYIdx],
+      camCalib.projectionParams()[LinearProjection::kFocalXIdx],
+      newImageWidth - camCalib.projectionParams()[LinearProjection::kPrincipalPointRowIdx] - 1,
+      camCalib.projectionParams()[LinearProjection::kPrincipalPointColIdx];
+
+  // updated camera calibration
+  return CameraCalibration{
+      camCalib.getLabel(),
+      camCalib.modelName(),
+      newProjectionParams,
+      T_Device_CameraCW90,
+      newImageWidth,
+      newImageHeight,
+      std::nullopt,
+      M_PI};
+}
+
 CameraCalibration getLinearCameraCalibration(
     const int imageWidth,
     const int imageHeight,
     const double focalLength,
-    const std::string& label) {
+    const std::string& label,
+    const Sophus::SE3d& T_Device_Camera) {
   CameraProjection::ModelType type = CameraProjection::ModelType::Linear;
   Eigen::VectorXd projectionParams(4);
   projectionParams << focalLength, focalLength, double(imageWidth - 1) / 2.0,
       double(imageHeight - 1) / 2.0;
   return CameraCalibration(
-      label, type, projectionParams, Sophus::SE3d{}, imageWidth, imageHeight, std::nullopt, M_PI);
+      label, type, projectionParams, T_Device_Camera, imageWidth, imageHeight, std::nullopt, M_PI);
 }
 
 CameraCalibration getSphericalCameraCalibration(
     const int imageWidth,
     const int imageHeight,
     const double focalLength,
-    const std::string& label) {
+    const std::string& label,
+    const Sophus::SE3d& T_Device_Camera) {
   CameraProjection::ModelType type = CameraProjection::ModelType::Spherical;
   Eigen::VectorXd projectionParams(4);
   projectionParams << focalLength, focalLength, double(imageWidth - 1) / 2.0,
       double(imageHeight - 1) / 2.0;
   return CameraCalibration(
-      label, type, projectionParams, Sophus::SE3d{}, imageWidth, imageHeight, std::nullopt, M_PI);
+      label, type, projectionParams, T_Device_Camera, imageWidth, imageHeight, std::nullopt, M_PI);
 }
 
 } // namespace projectaria::tools::calibration

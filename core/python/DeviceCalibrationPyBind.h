@@ -173,7 +173,8 @@ inline void declareCameraCalibration(py::module& m) {
       py::arg("image_width"),
       py::arg("image_height"),
       py::arg("focal_length"),
-      py::arg("label") = "");
+      py::arg("label") = "",
+      py::arg("T_Device_Camera") = Sophus::SE3d{});
 
   m.def(
       "get_spherical_camera_calibration",
@@ -182,7 +183,14 @@ inline void declareCameraCalibration(py::module& m) {
       py::arg("image_width"),
       py::arg("image_height"),
       py::arg("focal_length"),
-      py::arg("label") = "");
+      py::arg("label") = "",
+      py::arg("T_Device_Camera") = Sophus::SE3d{});
+
+  m.def(
+      "rotate_camera_calib_cw90deg",
+      rotateCameraCalibCW90Deg,
+      "Rotate CameraCalibration (Linear model only) clock-wise for 90 degrees (Upright view)",
+      py::arg("camera_calibration"));
 }
 
 inline void declareImuCalibration(py::module& m) {
