@@ -15,6 +15,8 @@
 import os
 import unittest
 
+import numpy as np
+
 from projectaria_tools.core import calibration, data_provider
 from projectaria_tools.core.sensor_data import (
     SensorDataType,
@@ -138,3 +140,33 @@ class CalibrationTests(unittest.TestCase):
                 assert time_after >= time
                 delta = abs(time_closest - time)
                 assert delta <= (time_after - time) and delta <= (time - time_before)
+
+    def test_camera_calibration_rotation(self) -> None:
+        provider = data_provider.create_vrs_data_provider(timecode_vrs_filepath)
+        sensor_name = "camera-rgb"
+        # input: retrieve image calibration
+        src_calib = provider.get_device_calibration().get_camera_calib(sensor_name)
+
+        image_size = [300, 400]
+        dst_calib = calibration.get_linear_camera_calibration(
+            image_size[0],
+            image_size[1],
+            150,
+            sensor_name,
+            src_calib.get_transform_device_camera(),
+        )
+        # Get rotated image calibration
+        dst_calib_cw90 = calibration.rotate_camera_calib_cw90deg(dst_calib)
+
+        test_pixel = [10.4, 23.1]
+        ray_dst = (
+            dst_calib.get_transform_device_camera()
+            @ dst_calib.unproject_no_checks(test_pixel)
+        )
+        ray_dst_cw90 = (
+            dst_calib_cw90.get_transform_device_camera()
+            @ dst_calib_cw90.unproject_no_checks(
+                [image_size[1] - test_pixel[1] - 1, test_pixel[0]]
+            )
+        )
+        np.testing.assert_array_almost_equal(ray_dst, ray_dst_cw90)
