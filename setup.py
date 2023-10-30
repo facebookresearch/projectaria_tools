@@ -195,6 +195,7 @@ def main():
                 "adt_benchmark_dataset_downloader = projectaria_tools.projects.adt.adt_benchmark_dataset_downloader:main",
                 "adt_challenge_dataset_downloader = projectaria_tools.projects.adt.adt_challenge_dataset_downloader:main",
                 "adt_challenge_prepare_submission = projectaria_tools.projects.adt.adt_challenge_prepare_submission:main",
+                "viewer_aria_sensors = projectaria_tools.utils.viewer_aria_sensors:main",
             ]
         },
         packages=find_packages(),

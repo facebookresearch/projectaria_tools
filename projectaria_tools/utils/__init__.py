@@ -12,5 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This makes the modules discoverable when doing dir(projectaria_tools)
-from . import core, projects  # noqa
+# This makes the modules discoverable when doing dir(projectaria_tools.utils)
+
+"""
+projectaria_tools utils
+"""
+
+from . import rerun, viewer_aria_sensors  # noqa
