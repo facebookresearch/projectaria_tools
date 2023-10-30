@@ -116,7 +116,7 @@ std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& ca
     }
   }
 
-  DeviceCadExtrinsics deviceCadExtrinsics = DeviceCadExtrinsics(deviceSubtype, originLabel);
+  DeviceCadExtrinsics deviceCadExtrinsics(deviceSubtype, originLabel);
 
   return DeviceCalibration{
       cameraCalibs,
