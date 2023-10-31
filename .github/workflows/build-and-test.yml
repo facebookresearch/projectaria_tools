@@ -79,9 +79,9 @@ jobs:
           # Installing Python and dependencies
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt-get install libpython3-dev python3-pip
-            sudo pip3 install numpy pandas
+            sudo pip3 install numpy
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            pip3 install numpy pandas
+            pip3 install numpy
           else
             echo "$RUNNER_OS not supported"
             exit 1
