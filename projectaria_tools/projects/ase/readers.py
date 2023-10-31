@@ -15,7 +15,7 @@
 import os
 
 import numpy as np
-import pandas as pd
+from projectaria_tools.core import mps
 from projectaria_tools.core.sophus import SE3
 
 
@@ -76,7 +76,5 @@ def read_trajectory_file(filepath):
 # Reads a Semidense point cloud
 def read_points_file(filepath):
     assert os.path.exists(filepath), f"Could not find point cloud file: {filepath}"
-    df = pd.read_csv(filepath, compression="gzip")
-    point_cloud = df[["px_world", "py_world", "pz_world"]]
-    print(f"Loaded point cloud with {len(point_cloud)} points.")
-    return point_cloud.to_numpy()
+    points = mps.read_global_point_cloud(filepath, mps.StreamCompressionMode.GZIP)
+    return np.stack([it.position_world for it in points])

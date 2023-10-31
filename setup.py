@@ -175,7 +175,7 @@ def main():
         cmdclass={"build_ext": CMakeBuild},
         zip_safe=False,
         python_requires=">=3.6",
-        install_requires=["numpy", "pandas", "rerun-sdk"],
+        install_requires=["numpy", "rerun-sdk"],
         extras_require={
             "all": [
                 ## Required for datasets
@@ -184,6 +184,7 @@ def main():
                 ## Required for tutorial/quickstart notebooks
                 "jupyter",
                 "matplotlib",
+                "pandas",
                 "pillow",
                 "plotly",
                 "scipy",
