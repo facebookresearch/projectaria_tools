@@ -20,6 +20,7 @@
 #include "SensorDataPyBind.h"
 #include "StreamIdPyBind.h"
 #include "VrsDataProviderPyBind.h"
+#include "VrsPyBind.h"
 
 #include "sophus/SophusPyBind.h"
 
@@ -49,4 +50,7 @@ PYBIND11_MODULE(_core_pybinds, m) {
 
   py::module mps = m.def_submodule("mps");
   mps::exportMps(mps);
+
+  py::module vrs = m.def_submodule("vrs");
+  vrspybind::exportVrs(vrs);
 }
