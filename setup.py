@@ -174,7 +174,7 @@ def main():
         author="Meta Reality Labs Research",
         cmdclass={"build_ext": CMakeBuild},
         zip_safe=False,
-        python_requires=">=3.6",
+        python_requires=">=3.8",
         install_requires=["numpy", "rerun-sdk"],
         extras_require={
             "all": [

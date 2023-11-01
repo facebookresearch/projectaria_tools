@@ -6,7 +6,7 @@
 # cibuildwheel will look for each version of python in /Library/Frameworks/Python.framework/Versions/
 #
 [tool.cibuildwheel]
-build="cp36-*64 cp37-*64 cp38-*64 cp39-*64 cp310-*64 cp311-*64"
+build="cp38-*64 cp39-*64 cp310-*64 cp311-*64"
 
 [tool.cibuildwheel.macos]
 archs = ["arm64"]

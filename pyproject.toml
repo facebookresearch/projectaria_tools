@@ -5,7 +5,7 @@
 #    python3 -m cibuildwheel --output-dir dist --platform macos --arch x86_64 .
 #
 [tool.cibuildwheel]
-build="cp36-*64 cp37-*64 cp38-*64 cp39-*64 cp310-*64 cp311-*64"
+build="cp38-*64 cp39-*64 cp310-*64 cp311-*64"
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]

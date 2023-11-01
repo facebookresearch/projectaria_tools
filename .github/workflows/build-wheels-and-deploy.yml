@@ -76,16 +76,15 @@ jobs:
         run: |
           # Installing Python and dependencies
           if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt-get install libpython3-dev python3-pip
-            sudo pip3 install numpy
+            sudo pip3 install numpy  rerun-sdk
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            pip3 install numpy
+            pip3 install numpy  rerun-sdk
           else
             echo "$RUNNER_OS not supported"
             exit 1
           fi
           # Build and install Python bindings
-          pip3 install --global-option=build_ext --global-option="-j8" .
+          CMAKE_BUILD_PARALLEL_LEVEL=4 pip3 install .
           # remove the build folder
           rm -rf build
       - name: Generate stubs
@@ -93,7 +92,7 @@ jobs:
           python3 generate_stubs.py
       - name: Re-generate python package with stubs
         run: |
-          pip3 install --global-option=build_ext --global-option="-j8" .
+          CMAKE_BUILD_PARALLEL_LEVEL=4 pip3 install .
           # remove the build folder
           rm -rf build
       - name: Build wheels for CPython
