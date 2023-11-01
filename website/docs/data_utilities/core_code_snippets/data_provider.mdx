@@ -214,14 +214,16 @@ deliverOption.deactivateStreamAll();
 
 // Only play data from two cameras, also reduce framerate to half of vrs
 for (const auto& label : {"camera-slam-left", "camera-slam-right"}) {
-  vrs::StreamId streamId = provider.getStreamIdFromLabel(label);
-  deliverOption.activateStream(streamId);
-  deliverOption.setSubsampleRate(streamId, 2);
+  std::optional<vrs::StreamId> maybeStreamId = provider.getStreamIdFromLabel(label);
+  if (maybeStreamId) {
+    deliverOption.activateStream(maybeStreamId.value());
+    deliverOption.setSubsampleRate(maybeStreamId.value(), 2);
+  }
 }
 
 // skip first 100ns
 deliverOption.setTruncateFirstDeviceTimeNs(100);
-for (const SensorData& data : provider.deliverQueuedSensorData(deliverOptions)) {
+for (const SensorData& data : provider.deliverQueuedSensorData(deliverOption)) {
   std::cout << data.getTimeNs(TimeDomain::DeviceTime) << std::endl;
 }
 ```
