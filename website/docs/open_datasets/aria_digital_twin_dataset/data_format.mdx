@@ -3,14 +3,13 @@ sidebar_position: 50
 title: Data Format
 ---
 
-# Data Format
+# ADT Data Format
 
 ## Sequence and Subsequence
 
-A sequence in ADT represents a data recording in a scene. It can be either a multi-person activity,
-which may include multiple Aria devices recording at the same time, or a single-person activity, which includes only one Aria device.
-Inside a sequence, we use subsequences to represent the recording of each Aria device and its associated ground truth data.
-So far, an ADT sequence contains at most 2 subsequences. Each sequence has the following folder structure:
+A sequence in Aria Digital Twin (ADT) dataset represents a data recording in a scene. It can be either a multi-person activity, which may include multiple Aria devices recording at the same time, or a single-person activity, which includes only one Aria device.
+
+Inside a sequence, we use subsequences to represent the recording of each Aria device and its associated ground truth data. So far, an ADT sequence contains at most 2 subsequences. Each sequence has the following folder structure:
 
 ```
 |SequenceName|
@@ -18,12 +17,16 @@ So far, an ADT sequence contains at most 2 subsequences. Each sequence has the f
 -----|Subsequence2Name| [Optional] # Omitted if a sequence is a single person activity
 -----|metadata.json
 ```
-The metadata.json file contains the high-level sequence information such as the included Aria's serial number, the scene name, etc, which can be
-loaded and queried by AriaDigitalTwinDataPathProvider. Note that prior to dataset v1.1, this was named gt-metadata. Please see [release_note](https://github.com/facebookresearch/projectaria_tools/releases/tag/1.1.0)
+The `metadata.json` file contains the high-level sequence information such as the included Aria's serial number, the scene name, etc, which can be loaded and queried by `AriaDigitalTwinDataPathProvider`.
+
+:::note gt-metadata.json name change
+Prior to [v1.1](https://github.com/facebookresearch/projectaria_tools/releases/tag/1.1.0) of the dataset `metadata.json` was called `gt-metadata.json`.
+:::
+
 
 ## Ground Truth Data
-You can use the AriaDigitalTwinDataPathProvider to load a sequence and select a subsequence.
-AriaDigitalTwinDataPathProvider will manage all the ground truth files (see below) in a subsequence folder.
+You can use the `AriaDigitalTwinDataPathProvider` to load a sequence and select a subsequence.
+`AriaDigitalTwinDataPathProvider` will manage all the ground truth files (see below) in a subsequence folder.
 
 ```
 |SubsequenceName|
@@ -44,26 +47,25 @@ AriaDigitalTwinDataPathProvider will manage all the ground truth files (see belo
 ----segmentations_with_skeleton.vrs [optional]  # Segmentations with body mesh occlusions. Omitted if a sequence does not have skeleton ground truth
 ```
 
-Note that prior to dataset v1.1, skeleton_aria_association.json was named SkeletonMetaData.json. Please see [release note](https://github.com/facebookresearch/projectaria_tools/releases/tag/1.1.0)
+:::note SkeletonMetaData.json name change
+Prior to [v1.1](https://github.com/facebookresearch/projectaria_tools/releases/tag/1.1.0) of the dataset, `skeleton_aria_association.json` was called `SkeletonMetaData.json`.
+:::
 
 ## Skeleton Data and Availability
-Note that not all ADT sequences have skeleton tracking.
-For those sequences with skeleton tracking enabled, we use the marker measurements from the bodysuit to generate a 3D mesh estimate of the wearer which is then used in our ground truth
-generation pipeline to calculate 2D bounding boxes, segmentation images and depth images.
-In these cases, ADT provide two sets of ground truth data: one with skeleton occlusion, one without.
+Not all ADT sequences have skeleton tracking. For those sequences with skeleton tracking enabled, we use the marker measurements from the bodysuit to generate a 3D mesh estimate of the wearer which is then used in our ground truth generation pipeline to calculate 2D bounding boxes, segmentation images and depth images.
 
-* segmentations.vrs vs. segmentations_with_skeleton.vrs
-* depth_images.vrs vs. depth_images_with_skeleton.vrs
-* 2d_bounding_box_with_skeleton.csv
+In these cases, ADT provides two sets of ground truth data: one with skeleton occlusion, one without.
 
-You can use AriaDigitalTwinDataPathsProvider to easily switch between these two sets.
+* `segmentations.vrs` vs. `segmentations_with_skeleton.vrs`
+* `depth_images.vrs` vs. `depth_images_with_skeleton.vrs`
+* '2d_bounding_box.csv' vs. '2d_bounding_box_with_skeleton.csv'
+
+You can use `AriaDigitalTwinDataPathsProvider` to switch between these two sets.
 
 ## Format of Ground Truth Data
-Our data loader loads all this data into a single class with useful tools for accessing data.
-For more information on the data classes returned by the loader, see this [section](/docs/open_datasets/aria_digital_twin_dataset/data_loader).
-Below you will find more information on the above csv and json files.
+Our data loader loads all this data into a single class with useful tools for accessing data. For more information on the data classes returned by the loader, go to the [Data Loader page](/docs/open_datasets/aria_digital_twin_dataset/data_loader).
 
-### 2d_bounding_box.csv (or 2d_bounding_box_with_skeleton).csv
+### 2d_bounding_box.csv or 2d_bounding_box_with_skeleton.csv
 
 |Column	|Type	|Description	|
 |---	|---	|---	|
@@ -91,11 +93,15 @@ Below you will find more information on the above csv and json files.
 
 ### aria_trajectory.csv
 
-We are using the same trajectory format as [the closed loop trajectory in MPS](/docs/data_formats/mps/mps_trajectory#closed-loop-trajectory).
+ADT uses the same trajectory format as [closed loop trajectory in MPS](/docs/data_formats/mps/mps_trajectory#closed-loop-trajectory).
+
+While the data structure is the same, the file is generated by the ADT ground truth system, not by MPS.
 
 ### eyegaze.csv
 
-We are using the same [eye gaze format as MPS](/docs/data_formats/mps/mps_eye_gaze#eye-gaze-data-format).
+ADT uses the same [eye gaze format as MPS](/docs/data_formats/mps/mps_eye_gaze#eye-gaze-data-format).
+
+This file is generated by MPS, but the depth is estimated by the ADT ground truth system.
 
 ### scene_objects.csv
 
@@ -176,11 +182,13 @@ We are using the same [eye gaze format as MPS](/docs/data_formats/mps/mps_eye_ga
 }
 ```
 
-### SkeletonMetaData.json
+### skeleton_aria_association.json
 
 This file shows the skeleton info including name, Id, and associated Aria device for each human in the sequence.
-Since it's possible to have a human wearing a bodysuit that does not have an Aria, it's possible to have a skeleton with no associated Aria.
-Conversely, it's also possible to have an Aria wearer with no bodysuit, which means there may be an empty skeleton Id and name associated with an Aria.
+
+Because it's possible to have a person wearing a bodysuit that is not wearing an Aria device, it's possible to have a skeleton with no associated AriaDeviceSerial.
+
+It's also possible to have an Aria wearer with no bodysuit, which means there may be an empty skeleton Id and a name associated with an Aria device.
 
 ```
 {
@@ -194,3 +202,22 @@ Conversely, it's also possible to have an Aria wearer with no bodysuit, which me
     ]
 }
 ```
+
+### video.vrs
+`video.vrs` contains the raw sensor recording from the Aria device.
+* [Aria Hardware Specifications](/docs/tech_spec/hardware_spec) shows the sensors used to make recordings
+  * Images were all recorded at 30 fps
+
+### depth_images.vrs
+
+`depth_images.vrs1` contains 3 streams of images corresponding to the exact streams in `video.vrs`.
+
+* Each depth image is the same size as their corresponding raw image, where the pixel contents are integers expressing the depth in the camera’s Z-axis, in units of mm.
+  * This should not to be confused with ASE depth images, which describe the depth along each pixel ray
+* Depth data is calculated using ADT’s ground truth system
+
+### segmentations.vrs
+`segmentations.vrs` contains 3 streams of images corresponding to the exact streams in `video.vrs`.
+
+* Each segmentation image is the same size as their corresponding raw image, where the pixel contents are integers expressing the Instance Id that was observed by that pixel
+* Segmentation data is calculated using ADT’s ground truth system
