@@ -175,12 +175,11 @@ def main():
         cmdclass={"build_ext": CMakeBuild},
         zip_safe=False,
         python_requires=">=3.8",
-        install_requires=["numpy", "rerun-sdk"],
+        install_requires=["numpy", "rerun-sdk", "tqdm"],
         extras_require={
             "all": [
                 ## Required for datasets
                 "requests",
-                "tqdm",  # required for datasets and tutorials
                 ## Required for tutorial/quickstart notebooks
                 "jupyter",
                 "matplotlib",
