@@ -39,8 +39,10 @@ export default function Home() {
         }}>
           <div className={clsx(styles.mainLogo)} />
         </div>
+      </header>
 
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
+      <main id="main" role="main">
+        <p className={clsx(styles.tagLine, "hero__subtitle")}>{siteConfig.tagline}</p>
         <div className={styles.buttons}>
           <Link
             className={clsx(
@@ -51,7 +53,7 @@ export default function Home() {
             GET STARTED
           </Link>
         </div>
-      </header>
+      </main>
     </Layout>
   );
 }

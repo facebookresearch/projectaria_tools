@@ -40,6 +40,11 @@
   justify-content: center;
 }
 
+.tagLine {
+  position: relative;
+  text-align: center;
+}
+
 .mainLogo {
   display: 'block';
   width: 268px;
