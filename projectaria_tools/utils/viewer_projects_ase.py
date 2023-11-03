@@ -140,11 +140,14 @@ def main():
     # Load camera calibration
     device = ase.get_ase_rgb_calibration()
     T_device_from_camera = device.get_transform_device_camera()
-    for timestamp_ns, pose in zip(
-        trajectory["timestamps"],
-        trajectory["Ts_world_from_device"],
+    for frame_id, (timestamp_ns, pose) in enumerate(
+        zip(
+            trajectory["timestamps"],
+            trajectory["Ts_world_from_device"],
+        )
     ):
         rr.set_time_nanos("device_time", int(timestamp_ns * 1e3))  # convert to us to ns
+        rr.set_time_sequence("frame_id", frame_id)
         T_world_from_device = pose  # SE3.from_matrix(pose)
         T_world_camera = T_world_from_device @ T_device_from_camera
         rr.log("world/device", ToTransform3D(T_world_camera, False))
