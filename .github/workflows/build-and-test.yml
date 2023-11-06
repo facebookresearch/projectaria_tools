@@ -73,22 +73,16 @@ jobs:
           make -j8
           ctest -j
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
       - name: Python - Build and Test Python bindings
         shell: bash
         run: |
-          # Installing Python and dependencies
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt-get install libpython3-dev python3-pip
-            sudo pip3 install numpy
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            pip3 install numpy
-          else
-            echo "$RUNNER_OS not supported"
-            exit 1
-          fi
-
           # Build and install Python bindings
-          CMAKE_BUILD_PARALLEL_LEVEL=8 pip3 install .
+          CMAKE_BUILD_PARALLEL_LEVEL=4 pip3 install .
 
           # Run Python unit tests
           export TEST_FOLDER="./data/"
