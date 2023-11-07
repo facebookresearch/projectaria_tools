@@ -65,7 +65,7 @@ jobs:
               # Install system deps with Homebrew
               brew install cmake
               # VRS dependencies
-              brew install boost fmt sophus googletest glog lz4 zstd xxhash libpng jpeg-turbo
+              brew install boost fmt googletest glog lz4 zstd xxhash libpng jpeg-turbo
               # Install gsed for easy string replacement
               brew install gsed
           else
@@ -74,15 +74,6 @@ jobs:
           fi
       - name: Install projectaria_tools
         run: |
-          # Installing Python and dependencies
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo pip3 install numpy  rerun-sdk
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            pip3 install numpy  rerun-sdk
-          else
-            echo "$RUNNER_OS not supported"
-            exit 1
-          fi
           # Build and install Python bindings
           CMAKE_BUILD_PARALLEL_LEVEL=4 pip3 install .
           # remove the build folder
@@ -97,7 +88,7 @@ jobs:
           rm -rf build
       - name: Build wheels for CPython
         run: |
-          python3 -m cibuildwheel --output-dir dist
+          CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist
       - uses: actions/upload-artifact@v2
         with:
           name: python-package-distributions

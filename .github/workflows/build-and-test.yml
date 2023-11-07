@@ -53,7 +53,7 @@ jobs:
               # Install system deps with Homebrew
               brew install cmake
               # VRS dependencies
-              brew install boost fmt sophus googletest glog lz4 zstd xxhash libpng jpeg-turbo
+              brew install boost fmt googletest glog lz4 zstd xxhash libpng jpeg-turbo
           else
               echo "$RUNNER_OS not supported"
               exit 1
