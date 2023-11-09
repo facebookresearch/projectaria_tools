@@ -27,17 +27,23 @@ CameraCalibration::CameraCalibration(
     const int imageWidth,
     const int imageHeight,
     const std::optional<double> maybeValidRadius,
-    const double maxSolidAngle)
+    const double maxSolidAngle,
+    const std::string& serialNumber)
     : label_(label),
       projectionModel_(projectionModelType, projectionParams),
       T_Device_Camera_(T_Device_Camera),
       imageWidth_(imageWidth),
       imageHeight_(imageHeight),
       maybeValidRadius_(maybeValidRadius),
-      maxSolidAngle_(maxSolidAngle) {}
+      maxSolidAngle_(maxSolidAngle),
+      serialNumber_(serialNumber) {}
 
 std::string CameraCalibration::getLabel() const {
   return label_;
+}
+
+std::string CameraCalibration::getSerialNumber() const {
+  return serialNumber_;
 }
 
 Sophus::SE3d CameraCalibration::getT_Device_Camera() const {
@@ -177,7 +183,8 @@ CameraCalibration rotateCameraCalibCW90Deg(const CameraCalibration& camCalib) {
       newImageWidth,
       newImageHeight,
       std::nullopt,
-      M_PI};
+      M_PI,
+      camCalib.getSerialNumber()};
 }
 
 CameraCalibration getLinearCameraCalibration(
@@ -191,7 +198,15 @@ CameraCalibration getLinearCameraCalibration(
   projectionParams << focalLength, focalLength, double(imageWidth - 1) / 2.0,
       double(imageHeight - 1) / 2.0;
   return CameraCalibration(
-      label, type, projectionParams, T_Device_Camera, imageWidth, imageHeight, std::nullopt, M_PI);
+      label,
+      type,
+      projectionParams,
+      T_Device_Camera,
+      imageWidth,
+      imageHeight,
+      std::nullopt,
+      M_PI,
+      "LinearCameraCalibration");
 }
 
 CameraCalibration getSphericalCameraCalibration(
@@ -205,7 +220,15 @@ CameraCalibration getSphericalCameraCalibration(
   projectionParams << focalLength, focalLength, double(imageWidth - 1) / 2.0,
       double(imageHeight - 1) / 2.0;
   return CameraCalibration(
-      label, type, projectionParams, T_Device_Camera, imageWidth, imageHeight, std::nullopt, M_PI);
+      label,
+      type,
+      projectionParams,
+      T_Device_Camera,
+      imageWidth,
+      imageHeight,
+      std::nullopt,
+      M_PI,
+      "SphericalCameraCalibration");
 }
 
 } // namespace projectaria::tools::calibration

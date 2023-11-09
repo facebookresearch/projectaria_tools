@@ -86,6 +86,7 @@ CameraCalibration parseCameraCalibrationFromJson(const rapidjson::Value& json) {
   Eigen::VectorXd projectionParams = parseVectorXdFromJson(json["Projection"]["Params"]);
 
   std::string label = json["Label"].GetString();
+  std::string serialNumber = json["SerialNumber"].GetString();
   auto T_Device_Camera = parseSe3dFromJson(json["T_Device_Camera"]);
 
   std::optional<double> validRadius;
@@ -119,7 +120,8 @@ CameraCalibration parseCameraCalibrationFromJson(const rapidjson::Value& json) {
       width,
       height,
       validRadius,
-      maxSolidAngle);
+      maxSolidAngle,
+      serialNumber);
   return camCalib;
 }
 

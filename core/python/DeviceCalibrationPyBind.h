@@ -115,7 +115,8 @@ inline void declareCameraCalibration(py::module& m) {
               const int,
               const int,
               const std::optional<double>,
-              const double>(),
+              const double,
+              const std::string&>(),
           R"pbdoc(Constructor with a list of parameters for CameraCalibration.
   Args:
     label: The label of the camera, e.g. "camera-slam-left".
@@ -129,6 +130,7 @@ inline void declareCameraCalibration(py::module& m) {
     max_solid_angle an angle theta representing the FOV cone of the camera. Rays out of
             [-theta, +theta] will be rejected during projection.)pbdoc")
       .def("get_label", &CameraCalibration::getLabel)
+      .def("get_serial_number", &CameraCalibration::getSerialNumber)
       .def("get_transform_device_camera", &CameraCalibration::getT_Device_Camera)
       .def("get_image_size", &CameraCalibration::getImageSize)
       .def(

@@ -49,6 +49,7 @@ class CameraCalibration {
    * this to nullopt means the entire sensor plane is valid.
    * @param maxSolidAngle an angle theta representing the FOV cone of the camera. Rays out of
    * [-theta, +theta] will be rejected during projection.
+   * @param serialNumber The serial number of the camera
    */
   CameraCalibration(
       const std::string& label,
@@ -58,9 +59,11 @@ class CameraCalibration {
       const int imageWidth,
       const int imageHeight,
       const std::optional<double> maybeValidRadius,
-      const double maxSolidAngle);
+      const double maxSolidAngle,
+      const std::string& serialNumber = "");
 
   std::string getLabel() const;
+  std::string getSerialNumber() const;
   Sophus::SE3d getT_Device_Camera() const;
   Eigen::Vector2i getImageSize() const;
   /**
@@ -129,6 +132,7 @@ class CameraCalibration {
   //  - If radius is < 0, it means you have full sensor data.
   std::optional<double> maybeValidRadius_;
   double maxSolidAngle_;
+  std::string serialNumber_;
 };
 
 /**

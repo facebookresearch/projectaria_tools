@@ -35,13 +35,14 @@ struct fmt::formatter<projectaria::tools::calibration::CameraCalibration> {
       FormatContext& ctx) {
     return format_to(
         ctx.out(),
-        "CameraCalibration(label: {}, model name: {}, principal point: {}, focal length: {}, projection params: {}, image size (w,h): {}, T_Device_Camera:{})",
+        "CameraCalibration(label: {}, model name: {}, principal point: {}, focal length: {}, projection params: {}, image size (w,h): {}, T_Device_Camera:{}, serialNumber:{})",
         camCalib.getLabel(),
         camCalib.modelName(),
         camCalib.getPrincipalPoint(),
         camCalib.getFocalLengths(),
         camCalib.projectionParams(),
         camCalib.getImageSize(),
-        camCalib.getT_Device_Camera());
+        camCalib.getT_Device_Camera(),
+        camCalib.getSerialNumber());
   }
 };
