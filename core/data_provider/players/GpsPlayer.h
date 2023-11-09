@@ -21,9 +21,6 @@
 
 namespace projectaria::tools::data_provider {
 
-using GpsCallback =
-    std::function<bool(const vrs::CurrentRecord& r, vrs::DataLayout& dataLayout, bool verbose)>;
-
 /**
  * @brief Gps sensor configuration type
  */
@@ -46,6 +43,9 @@ struct GpsData {
   float speed;
   std::vector<std::string> rawData;
 };
+
+using GpsCallback =
+    std::function<bool(const GpsData& data, const GpsConfigRecord& config, bool verbose)>;
 
 class GpsPlayer : public vrs::RecordFormatStreamPlayer {
  public:
@@ -84,7 +84,7 @@ class GpsPlayer : public vrs::RecordFormatStreamPlayer {
       override;
 
   const vrs::StreamId streamId_;
-  GpsCallback callback_ = [](const vrs::CurrentRecord&, vrs::DataLayout&, bool) { return true; };
+  GpsCallback callback_ = [](const GpsData&, const GpsConfigRecord&, bool) { return true; };
 
   GpsConfigRecord configRecord_;
   GpsData dataRecord_;

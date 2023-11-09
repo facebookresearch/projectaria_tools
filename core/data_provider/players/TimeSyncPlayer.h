@@ -21,9 +21,6 @@
 
 namespace projectaria::tools::data_provider {
 
-using TimeSyncCallback =
-    std::function<bool(const vrs::CurrentRecord& r, vrs::DataLayout& dataLayout, bool verbose)>;
-
 struct AriaTimeSyncConfigRecord {
   uint32_t streamId;
   double sampleRateHz;
@@ -34,6 +31,9 @@ struct TimeSyncData {
   int64_t monotonicTimestampNs;
   int64_t realTimestampNs;
 };
+
+using TimeSyncCallback = std::function<
+    bool(const TimeSyncData& data, const AriaTimeSyncConfigRecord& config, bool verbose)>;
 
 class TimeSyncPlayer : public vrs::RecordFormatStreamPlayer {
  public:
@@ -72,7 +72,7 @@ class TimeSyncPlayer : public vrs::RecordFormatStreamPlayer {
       override;
 
   const vrs::StreamId streamId_;
-  TimeSyncCallback callback_ = [](const vrs::CurrentRecord&, vrs::DataLayout&, bool) {
+  TimeSyncCallback callback_ = [](const TimeSyncData&, const AriaTimeSyncConfigRecord&, bool) {
     return true;
   };
 

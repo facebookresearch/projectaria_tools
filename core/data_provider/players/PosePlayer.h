@@ -21,9 +21,6 @@
 
 namespace projectaria::tools::data_provider {
 
-using PoseCallback =
-    std::function<bool(const vrs::CurrentRecord& r, vrs::DataLayout& dataLayout, bool verbose)>;
-
 struct PoseConfig {
   uint32_t streamId;
 };
@@ -33,6 +30,9 @@ struct PoseData {
   std::vector<float> T_World_ImuLeft_translation = {0, 0, 0};
   std::vector<float> T_World_ImuLeft_quaternion = {0, 0, 0, 1};
 };
+
+using PoseCallback =
+    std::function<bool(const PoseData& data, const PoseConfig& config, bool verbose)>;
 
 class PosePlayer : public vrs::RecordFormatStreamPlayer {
  public:
@@ -71,7 +71,7 @@ class PosePlayer : public vrs::RecordFormatStreamPlayer {
       override;
 
   const vrs::StreamId streamId_;
-  PoseCallback callback_ = [](const vrs::CurrentRecord&, vrs::DataLayout&, bool) { return true; };
+  PoseCallback callback_ = [](const PoseData&, const PoseConfig&, bool) { return true; };
 
   PoseConfig configRecord_;
   PoseData dataRecord_;

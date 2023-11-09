@@ -40,7 +40,7 @@ bool WifiBeaconPlayer::onDataLayoutRead(
     dataRecord_.freqMhz = data.freqMhz.get();
     data.rssiPerAntenna.get(dataRecord_.rssiPerAntenna);
     nextTimestampSec_ = std::nextafter(r.timestamp, std::numeric_limits<double>::max());
-    callback_(r, data, verbose_);
+    callback_(dataRecord_, configRecord_, verbose_);
   }
   return true;
 }

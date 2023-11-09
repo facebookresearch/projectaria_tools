@@ -22,9 +22,6 @@
 
 namespace projectaria::tools::data_provider {
 
-using AudioCallback =
-    std::function<bool(const vrs::CurrentRecord& r, std::vector<int32_t>& data, bool verbose)>;
-
 /**
  * @brief Audio sensor data type: the audio value
  */
@@ -58,6 +55,12 @@ struct AudioDataRecord {
   std::vector<int64_t> captureTimestampsNs; ///< @brief timestamps in device time domain
   uint8_t audioMuted; ///< @brief whether audio is muted
 };
+
+using AudioCallback = std::function<bool(
+    const AudioData& data,
+    const AudioDataRecord& record,
+    const AudioConfig& config,
+    bool verbose)>;
 
 class AudioPlayer : public vrs::RecordFormatStreamPlayer {
  public:
@@ -102,7 +105,7 @@ class AudioPlayer : public vrs::RecordFormatStreamPlayer {
       override;
 
   const vrs::StreamId streamId_;
-  AudioCallback callback_ = [](const vrs::CurrentRecord&, std::vector<int32_t>&, bool) {
+  AudioCallback callback_ = [](const AudioData&, const AudioDataRecord&, const AudioConfig&, bool) {
     return true;
   };
   AudioData data_;

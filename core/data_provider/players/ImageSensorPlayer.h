@@ -22,8 +22,6 @@
 #include <vrs/RecordFormatStreamPlayer.h>
 
 namespace projectaria::tools::data_provider {
-using ImageCallback =
-    std::function<bool(const vrs::CurrentRecord& r, std::vector<uint8_t>& data, bool verbose)>;
 
 /**
  * @brief Image data type: the pixels
@@ -91,6 +89,12 @@ struct ImageDataRecord {
   double temperature; ///< @brief capture temperature on the sensor, may be NAN
 };
 
+using ImageCallback = std::function<bool(
+    const ImageData& data,
+    const ImageDataRecord& record,
+    const ImageConfigRecord& config,
+    bool verbose)>;
+
 class ImageSensorPlayer : public vrs::RecordFormatStreamPlayer {
  public:
   explicit ImageSensorPlayer(vrs::StreamId streamId) : streamId_(streamId) {}
@@ -138,9 +142,9 @@ class ImageSensorPlayer : public vrs::RecordFormatStreamPlayer {
       override;
 
   const vrs::StreamId streamId_;
-  ImageCallback callback_ = [](const vrs::CurrentRecord&, std::vector<uint8_t>&, bool) {
-    return true;
-  };
+  ImageCallback callback_ =
+      [](const ImageData&, const ImageDataRecord&, const ImageConfigRecord&, bool) { return true; };
+
   ImageData data_;
   ImageConfigRecord configRecord_;
   ImageDataRecord dataRecord_;

@@ -34,7 +34,7 @@ bool TimeSyncPlayer::onDataLayoutRead(
     dataRecord_.monotonicTimestampNs = data.monotonicTimestampNs.get();
     dataRecord_.realTimestampNs = data.realTimestampNs.get();
     nextTimestampSec_ = std::nextafter(r.timestamp, std::numeric_limits<double>::max());
-    callback_(r, data, verbose_);
+    callback_(dataRecord_, configRecord_, verbose_);
   }
   return true;
 }

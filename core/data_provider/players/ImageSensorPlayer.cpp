@@ -106,10 +106,10 @@ bool ImageSensorPlayer::onImageRead(
   // Synchronously read the image data, which is jpg compressed with Aria
   if (imageSpec.getImageFormat() == vrs::ImageFormat::JPG) {
     vrs::utils::PixelFrame::readJpegFrame(data_.pixelFrame, r.reader, cb.getBlockSize());
-    callback_(r, data_.pixelFrame->getBuffer(), verbose_);
+    callback_(data_, dataRecord_, configRecord_, verbose_);
   } else if (imageSpec.getImageFormat() == vrs::ImageFormat::RAW) {
     vrs::utils::PixelFrame::readRawFrame(data_.pixelFrame, r.reader, imageSpec);
-    callback_(r, data_.pixelFrame->getBuffer(), verbose_);
+    callback_(data_, dataRecord_, configRecord_, verbose_);
   }
 
   if (verbose_) {

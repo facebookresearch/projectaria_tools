@@ -21,9 +21,6 @@
 
 namespace projectaria::tools::data_provider {
 
-using BarometerCallback =
-    std::function<bool(const vrs::CurrentRecord& r, vrs::DataLayout& dataLayout, bool verbose)>;
-
 /**
  * @brief Barometer sensor configuration type
  */
@@ -41,6 +38,9 @@ struct BarometerData {
   double temperature; ///< @brief temperature of the sensor in degrees Celsius
   double pressure; ///< @brief raw sensor readout of pressure in Pascal
 };
+
+using BarometerCallback = std::function<
+    bool(const BarometerData& data, const BarometerConfigRecord& config, bool verbose)>;
 
 class BarometerPlayer : public vrs::RecordFormatStreamPlayer {
  public:
@@ -79,7 +79,7 @@ class BarometerPlayer : public vrs::RecordFormatStreamPlayer {
       override;
 
   const vrs::StreamId streamId_;
-  BarometerCallback callback_ = [](const vrs::CurrentRecord&, vrs::DataLayout&, bool) {
+  BarometerCallback callback_ = [](const BarometerData&, const BarometerConfigRecord&, bool) {
     return true;
   };
 

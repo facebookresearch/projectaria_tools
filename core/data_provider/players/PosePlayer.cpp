@@ -42,7 +42,7 @@ bool PosePlayer::onDataLayoutRead(
     dataRecord_.T_World_ImuLeft_quaternion[2] = quaternion[2];
     dataRecord_.T_World_ImuLeft_quaternion[3] = quaternion[3];
     nextTimestampSec_ = std::nextafter(r.timestamp, std::numeric_limits<double>::max());
-    callback_(r, data, verbose_);
+    callback_(dataRecord_, configRecord_, verbose_);
   }
   return true;
 }

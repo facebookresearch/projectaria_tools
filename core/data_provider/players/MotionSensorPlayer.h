@@ -21,9 +21,6 @@
 
 namespace projectaria::tools::data_provider {
 
-using MotionCallback =
-    std::function<bool(const vrs::CurrentRecord& r, vrs::DataLayout& dataLayout, bool verbose)>;
-
 /**
  * @brief Motion sensor configurations
  */
@@ -59,6 +56,9 @@ struct MotionData {
   std::vector<float> gyroRadSec; ///< @brief gyroscope data in rad/sec2
   std::vector<float> magTesla; ///<@brief magnetometer data in Tesla
 };
+
+using MotionCallback =
+    std::function<bool(const MotionData& data, const MotionConfigRecord& config, bool verbose)>;
 
 class MotionSensorPlayer : public vrs::RecordFormatStreamPlayer {
  public:
@@ -97,7 +97,9 @@ class MotionSensorPlayer : public vrs::RecordFormatStreamPlayer {
       override;
 
   const vrs::StreamId streamId_;
-  MotionCallback callback_ = [](const vrs::CurrentRecord&, vrs::DataLayout&, bool) { return true; };
+  MotionCallback callback_ = [](const MotionData&, const MotionConfigRecord&, bool) {
+    return true;
+  };
 
   MotionConfigRecord configRecord_;
   MotionData dataRecord_;

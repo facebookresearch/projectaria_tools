@@ -52,7 +52,7 @@ bool MotionSensorPlayer::onDataLayoutRead(
     data.gyroRadSec.get(dataRecord_.gyroRadSec);
     data.magTesla.get(dataRecord_.magTesla);
     nextTimestampSec_ = std::nextafter(r.timestamp, std::numeric_limits<double>::max());
-    callback_(r, data, verbose_);
+    callback_(dataRecord_, configRecord_, verbose_);
   }
   return true;
 }

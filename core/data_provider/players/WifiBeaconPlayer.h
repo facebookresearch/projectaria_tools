@@ -21,9 +21,6 @@
 
 namespace projectaria::tools::data_provider {
 
-using WifiBeaconCallback =
-    std::function<bool(const vrs::CurrentRecord& r, vrs::DataLayout& dataLayout, bool verbose)>;
-
 /**
  * @brief Wi-Fi beacon sensor configurations
  */
@@ -45,6 +42,9 @@ struct WifiBeaconData {
   float freqMhz; ///< @brief frequency of the data
   std::vector<float> rssiPerAntenna;
 };
+
+using WifiBeaconCallback = std::function<
+    bool(const WifiBeaconData& data, const WifiBeaconConfigRecord& config, bool verbose)>;
 
 class WifiBeaconPlayer : public vrs::RecordFormatStreamPlayer {
  public:
@@ -83,7 +83,7 @@ class WifiBeaconPlayer : public vrs::RecordFormatStreamPlayer {
       override;
 
   const vrs::StreamId streamId_;
-  WifiBeaconCallback callback_ = [](const vrs::CurrentRecord&, vrs::DataLayout&, bool) {
+  WifiBeaconCallback callback_ = [](const WifiBeaconData&, const WifiBeaconConfigRecord&, bool) {
     return true;
   };
 

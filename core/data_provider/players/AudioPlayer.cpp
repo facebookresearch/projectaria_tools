@@ -54,7 +54,7 @@ bool AudioPlayer::onAudioRead(
   if (r.reader->read(dataVec) == 0) {
     // Actually read the audio data
     data_.data = dataVec;
-    callback_(r, data_.data, verbose_);
+    callback_(data_, dataRecord_, configRecord_, verbose_);
     if (verbose_) {
       fmt::print(
           "{:.3f} {} [{}]: {} {}x{} samples.\n",

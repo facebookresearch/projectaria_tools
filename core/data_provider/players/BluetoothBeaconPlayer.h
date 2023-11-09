@@ -21,9 +21,6 @@
 
 namespace projectaria::tools::data_provider {
 
-using BluetoothBeaconCallback =
-    std::function<bool(const vrs::CurrentRecord& r, vrs::DataLayout& dataLayout, bool verbose)>;
-
 /**
  * @brief Bluetooth sensor configuration type
  */
@@ -45,6 +42,9 @@ struct BluetoothBeaconData {
   float rssi; ///< @brief bluetooth data readout in dBm
   float freqMhz; ///< @brief frequency of the data
 };
+
+using BluetoothBeaconCallback = std::function<
+    bool(const BluetoothBeaconData& data, const BluetoothBeaconConfigRecord& config, bool verbose)>;
 
 class BluetoothBeaconPlayer : public vrs::RecordFormatStreamPlayer {
  public:
@@ -83,9 +83,8 @@ class BluetoothBeaconPlayer : public vrs::RecordFormatStreamPlayer {
       override;
 
   const vrs::StreamId streamId_;
-  BluetoothBeaconCallback callback_ = [](const vrs::CurrentRecord&, vrs::DataLayout&, bool) {
-    return true;
-  };
+  BluetoothBeaconCallback callback_ =
+      [](const BluetoothBeaconData&, const BluetoothBeaconConfigRecord&, bool) { return true; };
 
   BluetoothBeaconConfigRecord configRecord_;
   BluetoothBeaconData dataRecord_;
