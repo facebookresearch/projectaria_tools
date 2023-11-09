@@ -37,6 +37,7 @@ bool MotionSensorPlayer::onDataLayoutRead(
     configRecord_.nominalRateHz = config.nominalRateHz.get();
     configRecord_.hasAccelerometer = config.hasAccelerometer.get();
     configRecord_.hasGyroscope = config.hasGyroscope.get();
+    configRecord_.hasMagnetometer = config.hasMagnetometer.get();
     configRecord_.factoryCalibration = config.factoryCalibration.get();
     configRecord_.onlineCalibration = config.onlineCalibration.get();
     configRecord_.description = config.description.get();
