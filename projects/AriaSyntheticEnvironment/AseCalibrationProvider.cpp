@@ -57,7 +57,7 @@ CameraCalibration getAseRgbCalibration(const size_t imageSize) {
   if (imageSize == 704) {
     return calib;
   } else { // 1408:
-    return calib.rescale(Eigen::Vector2i(1408, 1408), 2, -Eigen::Vector2d{0, 0});
+    return calib.rescale({1408, 1408}, 2, {0, 0});
   }
 }
 } // namespace projectaria::dataset::ase
