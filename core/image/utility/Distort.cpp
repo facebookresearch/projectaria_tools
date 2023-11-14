@@ -33,7 +33,7 @@ ManagedImage<T, DefaultImageAllocator<T>, MaxVal> distortImage(
   dstPixels.reserve(dst.height() * dst.width());
   for (int y = 0; y < dst.height(); y++) {
     for (int x = 0; x < dst.width(); x++) {
-      dstPixels.push_back(Eigen::Vector2i{x, y});
+      dstPixels.emplace_back(x, y);
     }
   }
 

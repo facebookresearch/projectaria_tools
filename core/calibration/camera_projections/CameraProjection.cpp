@@ -45,23 +45,22 @@ Eigen::VectorXd CameraProjection::projectionParams() const {
 
 Eigen::Vector2d CameraProjection::getFocalLengths() const {
   return std::visit(
-      [this](auto&& projection) {
+      [this](auto&& projection) -> Eigen::Vector2d {
         using T = std::decay_t<decltype(projection)>;
         int focalXIdx = T::kFocalXIdx;
         int focalYIdx = T::kFocalYIdx;
-        return Eigen::Vector2d{projectionParams_(focalXIdx), projectionParams_(focalYIdx)};
+        return {projectionParams_(focalXIdx), projectionParams_(focalYIdx)};
       },
       projectionVariant_);
 }
 
 Eigen::Vector2d CameraProjection::getPrincipalPoint() const {
   return std::visit(
-      [this](auto&& projection) {
+      [this](auto&& projection) -> Eigen::Vector2d {
         using T = std::decay_t<decltype(projection)>;
         int principalPointColIdx = T::kPrincipalPointColIdx;
         int principalPointRowIdx = T::kPrincipalPointRowIdx;
-        return Eigen::Vector2d{
-            projectionParams_(principalPointColIdx), projectionParams_(principalPointRowIdx)};
+        return {projectionParams_(principalPointColIdx), projectionParams_(principalPointRowIdx)};
       },
       projectionVariant_);
 }
