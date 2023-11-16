@@ -13,7 +13,8 @@
 # limitations under the License.
 
 """
-A pybind11 binding for projectaria_tools mps submodule
+Projectaria_tools mps submodule (pybind + Python code)
 """
 
 from _core_pybinds.mps import *  # noqa
+from . import utils  # noqa
