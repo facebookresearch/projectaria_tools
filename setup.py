@@ -197,6 +197,7 @@ def main():
                 "adt_challenge_dataset_downloader = projectaria_tools.projects.adt.adt_challenge_dataset_downloader:main",
                 "adt_challenge_prepare_submission = projectaria_tools.projects.adt.adt_challenge_prepare_submission:main",
                 "viewer_aria_sensors = projectaria_tools.utils.viewer_aria_sensors:main",
+                "viewer_mps = projectaria_tools.utils.viewer_mps:main",
                 "viewer_projects_adt = projectaria_tools.utils.viewer_projects_adt:main",
                 "viewer_projects_ase = projectaria_tools.utils.viewer_projects_ase:main",
                 "vrs_to_mp4 = projectaria_tools.utils.vrs_to_mp4:main",
