@@ -69,19 +69,9 @@ class MPSPointCloudAndObservations(unittest.TestCase):
         )
         assert len(mps_global_points) > 0
 
-    def test_global_points_invalid_mode(self) -> None:
-        mps_global_points = mps.read_global_point_cloud(
-            global_points_file, mps.StreamCompressionMode.NONE
-        )
-        assert len(mps_global_points) == 0
-
     def test_global_points_invalid_file(self) -> None:
-        try:
-            mps.read_global_point_cloud("")
-        except Exception as e:
-            print(e)
-        else:
-            self.fail("ExpectedException not raised")
+        mps_global_points = mps.read_global_point_cloud("")
+        assert len(mps_global_points) == 0
 
     def test_semidense_observations(self) -> None:
         mps_semidense_observations = mps.read_point_observations(
@@ -89,20 +79,8 @@ class MPSPointCloudAndObservations(unittest.TestCase):
         )
         assert len(mps_semidense_observations) > 0
 
-    def test_semidense_observations_invalid_mode(self) -> None:
-        mps_semidense_observations = mps.read_point_observations(
-            semidense_observations_file, mps.StreamCompressionMode.NONE
-        )
-        assert len(mps_semidense_observations) == 0
-
     def test_semidense_observations_invalid_file(self) -> None:
-        mps_semidense_observations = mps.read_point_observations(
-            "", mps.StreamCompressionMode.GZIP
-        )
-        assert len(mps_semidense_observations) == 0
-        mps_semidense_observations = mps.read_point_observations(
-            "", mps.StreamCompressionMode.NONE
-        )
+        mps_semidense_observations = mps.read_point_observations("")
         assert len(mps_semidense_observations) == 0
 
 

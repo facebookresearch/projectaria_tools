@@ -16,14 +16,13 @@
 
 #pragma once
 
-#include "GlobalPointCloud.h"
-
 #include "CompressedIStream.h"
 
-#include <array>
-#include <vector>
+#include "GlobalPointCloud.h"
 
 namespace projectaria::tools::mps {
+
+GlobalPointCloud readGlobalPointCloud(const std::string& path);
 
 GlobalPointCloud readGlobalPointCloud(
     const std::string& path,

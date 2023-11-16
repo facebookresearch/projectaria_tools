@@ -20,10 +20,9 @@
 
 #include "CompressedIStream.h"
 
-#include <string>
-#include <vector>
-
 namespace projectaria::tools::mps {
+
+PointObservations readPointObservations(const std::string& path);
 
 PointObservations readPointObservations(
     const std::string& path,

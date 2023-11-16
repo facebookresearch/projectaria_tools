@@ -23,15 +23,16 @@
 #include <sophus/se3.hpp>
 
 #include "EyeGazeFormat.h"
-#include "EyeGazeReader.h"
 #include "GlobalPointCloudFormat.h"
-#include "GlobalPointCloudReader.h"
 #include "OnlineCalibrationFormat.h"
 #include "PointObservationFormat.h"
-#include "PointObservationReader.h"
 #include "StaticCameraCalibrationFormat.h"
-#include "StaticCameraCalibrationReader.h"
 #include "TrajectoryFormat.h"
+
+#include "EyeGazeReader.h"
+#include "GlobalPointCloudReader.h"
+#include "PointObservationReader.h"
+#include "StaticCameraCalibrationReader.h"
 #include "TrajectoryReaders.h"
 #include "onlineCalibrationReader.h"
 
@@ -101,7 +102,6 @@ void exportMps(py::module& m) {
   yaw_rads: Yaw angle in radians in CPF frame.
   pitch_rads: Pitch angle in radians in CPF frame.
   depth_m: Depth of the point in meters.
-
   )docdelimiter");
 
   // trajectory
@@ -206,8 +206,8 @@ void exportMps(py::module& m) {
   Parameters
   __________
   path: Path to the open loop trajectory csv file. Usually named 'open_loop_trajectory.csv'
-
   )docdelimiter");
+
   m.def(
       "read_closed_loop_trajectory",
       &readClosedLoopTrajectory,
@@ -216,7 +216,6 @@ void exportMps(py::module& m) {
   Parameters
   __________
   path: Path to the closed loop trajectory csv file. Usually named 'closed_loop_trajectory.csv'
-
   )docdelimiter");
 
   // online calibrations
@@ -243,7 +242,6 @@ void exportMps(py::module& m) {
   Parameters
   __________
   path: Path to the online calibration jsonl file. Usually named 'online_calibration.jsonl'
-
   )docdelimiter");
 
   // compression mode
@@ -275,7 +273,13 @@ void exportMps(py::module& m) {
 
   m.def(
       "read_global_point_cloud",
-      &readGlobalPointCloud,
+      [](const std::string& path, StreamCompressionMode& mode) -> GlobalPointCloud {
+        auto warnings = pybind11::module::import("warnings");
+        warnings.attr("warn")(
+            "readGlobalPointCloud(path, mode) is deprecated, use readGlobalPointCloud(path) instead.");
+
+        return readGlobalPointCloud(path);
+      },
       "path"_a,
       "compression"_a,
       R"docdelimiter(Read global point cloud.
@@ -283,7 +287,16 @@ void exportMps(py::module& m) {
   __________
   path: Path to the global point cloud file. Usually named 'global_pointcloud.csv.gz'
   compression: Stream compression mode for reading csv file.
+  )docdelimiter");
 
+  m.def(
+      "read_global_point_cloud",
+      [](const std::string& path) -> GlobalPointCloud { return readGlobalPointCloud(path); },
+      "path"_a,
+      R"docdelimiter(Read global point cloud.
+  Parameters
+  __________
+  path: Path to the global point cloud file. Usually named 'global_pointcloud' with a '.csv' or '.csv.gz'
   )docdelimiter");
 
   // point observations
@@ -308,7 +321,13 @@ void exportMps(py::module& m) {
 
   m.def(
       "read_point_observations",
-      &readPointObservations,
+      [](const std::string& path, StreamCompressionMode& mode) -> PointObservations {
+        auto warnings = pybind11::module::import("warnings");
+        warnings.attr("warn")(
+            "readPointObservations(path, mode) is deprecated, use readPointObservations(path) instead.");
+
+        return readPointObservations(path);
+      },
       "path"_a,
       "compression"_a,
       R"docdelimiter(Read point observations.
@@ -316,7 +335,16 @@ void exportMps(py::module& m) {
   __________
   path: Path to the point observations file. Usually named 'semidense_observations.csv.gz'
   compression: Stream compression mode for reading csv file.
+  )docdelimiter");
 
+  m.def(
+      "read_point_observations",
+      [](const std::string& path) -> PointObservations { return readPointObservations(path); },
+      "path"_a,
+      R"docdelimiter(Read point observations.
+  Parameters
+  __________
+  path: Path to the point observations file. Usually named 'semidense_observations' with a '.csv' or '.csv.gz'
   )docdelimiter");
 
   // static camera calibrations
@@ -360,7 +388,6 @@ void exportMps(py::module& m) {
   Parameters
   __________
   path: Path to the static camera calibrations file.
-
   )docdelimiter");
 }
 

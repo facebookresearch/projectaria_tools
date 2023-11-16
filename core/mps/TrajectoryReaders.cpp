@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Trajectory.h"
+#include "TrajectoryReaders.h"
 
 #ifndef CSV_IO_NO_THREAD
 #define CSV_IO_NO_THREAD

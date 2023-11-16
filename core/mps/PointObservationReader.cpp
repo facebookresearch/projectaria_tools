@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#include "PointObservation.h"
-
-#include "CompressedIStream.h"
+#include "PointObservationReader.h"
 
 #ifndef CSV_IO_NO_THREAD
 #define CSV_IO_NO_THREAD
@@ -24,8 +22,8 @@
 #include "fast-cpp-csv-parser/csv.h"
 
 #include <array>
+#include <filesystem>
 #include <iostream>
-#include <vector>
 
 namespace projectaria::tools::mps {
 
@@ -36,6 +34,16 @@ constexpr std::array<const char*, 5> kPointObservationColumns = {
     "u",
     "v",
 };
+
+PointObservations readPointObservations(const std::string& path) {
+  namespace fs = std::filesystem;
+  if (fs::path(path).extension() == ".csv") {
+    return readPointObservations(path, StreamCompressionMode::NONE);
+  } else if (fs::path(path).extension() == ".gz") {
+    return readPointObservations(path, StreamCompressionMode::GZIP);
+  }
+  return {};
+}
 
 PointObservations readPointObservations(
     const std::string& path,

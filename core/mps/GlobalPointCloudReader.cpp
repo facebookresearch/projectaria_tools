@@ -16,19 +16,29 @@
 
 #include "GlobalPointCloudReader.h"
 
-#include "CompressedIStream.h"
-
 #ifndef CSV_IO_NO_THREAD
 #define CSV_IO_NO_THREAD
 #endif
 #include <fast-cpp-csv-parser/csv.h>
 
+#include <array>
+#include <filesystem>
 #include <iostream>
 
 namespace projectaria::tools::mps {
 
 constexpr std::array<const char*, 7> kGlobalPointCloudColumns =
     {"uid", "graph_uid", "px_world", "py_world", "pz_world", "inv_dist_std", "dist_std"};
+
+GlobalPointCloud readGlobalPointCloud(const std::string& path) {
+  namespace fs = std::filesystem;
+  if (fs::path(path).extension() == ".csv") {
+    return readGlobalPointCloud(path, StreamCompressionMode::NONE);
+  } else if (fs::path(path).extension() == ".gz") {
+    return readGlobalPointCloud(path, StreamCompressionMode::GZIP);
+  }
+  return {};
+}
 
 GlobalPointCloud readGlobalPointCloud(
     const std::string& path,

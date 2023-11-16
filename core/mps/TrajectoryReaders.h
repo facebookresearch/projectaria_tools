@@ -18,8 +18,6 @@
 
 #include "Trajectory.h"
 
-#include <filesystem>
-
 namespace projectaria::tools::mps {
 
 OpenLoopTrajectory readOpenLoopTrajectory(const std::string& path);
