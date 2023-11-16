@@ -2,6 +2,9 @@
 sidebar_position: 10
 title: Download Codebase
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # How to Download Project Aria Tools
 
 ## Supported Platforms
@@ -11,12 +14,33 @@ The codebase has been tested on the following platforms.
 - Mac Intel or Mac ARM-based (M1)
     - Mac Big Sur or newer
 
+## Stable versus Develop
+
+Access the latest stable version of Project Aria Tools with git TAGS. The develop version is pushed continuously to the `main` branch.
+
 ## Download codebase
 
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="stable" label="Stable">
+```
 ```bash
 mkdir -p $HOME/Documents/projectaria_sandbox
-
 cd $HOME/Documents/projectaria_sandbox
 
-git clone https://github.com/facebookresearch/projectaria_tools.git
+git clone https://github.com/facebookresearch/projectaria_tools.git -b 1.2.0
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="develop" label="Develop">
+```
+```bash
+mkdir -p $HOME/Documents/projectaria_sandbox
+cd $HOME/Documents/projectaria_sandbox
+
+git clone https://github.com/facebookresearch/projectaria_tools.git -b main
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
 ```
