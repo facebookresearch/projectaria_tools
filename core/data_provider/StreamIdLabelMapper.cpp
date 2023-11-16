@@ -36,8 +36,8 @@ std::optional<std::string> StreamIdLabelMapper::getLabelFromStreamId(
   if (maybeLabel != streamIdToLabel_.end()) {
     return maybeLabel->second;
   } else {
-    XR_LOGE(
-        "stream id {} not found in Aria Device Model. Double check stream id. ",
+    XR_LOGW(
+        "stream id {} not found in Aria Device Model. You will not be able to get the label of this stream. ",
         streamId.getNumericName());
     return {};
   }
