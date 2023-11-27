@@ -49,7 +49,7 @@ class ImageIterator {
     return *this;
   }
 
-  PROJECTARIA_HOST_DEVICE_INLINE ImageIterator& operator++(int) {
+  PROJECTARIA_HOST_DEVICE_INLINE ImageIterator operator++(int) {
     ImageIterator copy = *this;
     ++(*this);
     return copy;
@@ -65,7 +65,7 @@ class ImageIterator {
     return *this;
   }
 
-  PROJECTARIA_HOST_DEVICE_INLINE ImageIterator& operator--(int) {
+  PROJECTARIA_HOST_DEVICE_INLINE ImageIterator operator--(int) {
     ImageIterator copy = *this;
     --(*this);
     return copy;
