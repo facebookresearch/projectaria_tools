@@ -90,8 +90,7 @@ StaticCameraCalibrations readStaticCameraCalibrations(const std::string& fileNam
     pose.intrinsics = intrinsics;
 
     XR_CHECK(
-        (start_frame_idx == -1 && start_frame_idx == -1) ||
-            (start_frame_idx >= 0 && end_frame_idx >= 0 && start_frame_idx <= end_frame_idx),
+        start_frame_idx >= 0 && end_frame_idx >= 0 && start_frame_idx <= end_frame_idx,
         "start and end frame indices are invalid");
     if (start_frame_idx >= 0) {
       pose.startFrameIdx = start_frame_idx;

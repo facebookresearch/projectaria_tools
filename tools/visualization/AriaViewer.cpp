@@ -180,7 +180,6 @@ void AriaViewer::addImuDisplays(std::shared_ptr<VrsDataProvider> dataProvider) {
     auto streamId = *dataProvider->getStreamIdFromLabel(label);
 
     streamIdToMultiDataLog_[streamId] = std::vector<std::shared_ptr<pangolin::DataLog>>(2, nullptr);
-    streamIdToMultiDataLog_[streamId] = std::vector<std::shared_ptr<pangolin::DataLog>>(2, nullptr);
 
     streamIdToMultiDataLog_.at(streamId).at(0) = std::make_shared<pangolin::DataLog>();
     streamIdToMultiDataLog_.at(streamId).at(0)->SetLabels(
