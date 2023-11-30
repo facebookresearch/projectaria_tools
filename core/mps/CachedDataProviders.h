@@ -18,6 +18,13 @@
 
 #include <logging/Checks.h>
 
+#include "EyeGaze.h"
+#include "GlobalPointCloud.h"
+#include "PointObservation.h"
+#include "Trajectory.h"
+
+#include <optional>
+
 namespace projectaria::tools::mps {
 
 using PointObservationPair = std::pair<Eigen::Vector2f, GlobalPointPosition>;
@@ -30,7 +37,7 @@ class TrajectoryProvider {
       const ClosedLoopTrajectory& singleSessionTraj,
       const int64_t startTimestampNs,
       const int64_t endTimestampNs,
-      const int64_t quantizedFrameRateNs = 1000000)
+      const int64_t quantizedFrameRateNs = 1e6)
       : startTimestampNs_(startTimestampNs - quantizedFrameRateNs),
         endTimestampNs_(endTimestampNs + quantizedFrameRateNs),
         quantizedFrameRateNs_(quantizedFrameRateNs) {
@@ -100,8 +107,7 @@ class TrajectoryProvider {
   size_t numPoses_ = 0;
 
   // Start and end timestamps of the replay trajectory
-  const int64_t startTimestampNs_;
-  const int64_t endTimestampNs_;
+  const int64_t startTimestampNs_, endTimestampNs_;
 
   // Quantized frame rate MUST be selected based on the frequency of the input trajectory
   const int64_t quantizedFrameRateNs_;
@@ -119,7 +125,7 @@ class PointAndObservationProvider {
       const std::string& rightCameraSerial,
       const int64_t startTimestampNs,
       const int64_t endTimestampNs,
-      const int64_t numericalErrorNs = 1000000)
+      const int64_t numericalErrorNs = 1e6)
       : leftCameraSerial_(leftCameraSerial),
         rightCameraSerial_(rightCameraSerial),
         startTimestampNs_(startTimestampNs - numericalErrorNs),
@@ -193,9 +199,9 @@ class PointAndObservationProvider {
       XR_CHECK(obs.cameraSerial == leftCameraSerial_ || obs.cameraSerial == rightCameraSerial_);
 
       const auto iter = uidPoints_.find(obs.pointUid);
-      XR_CHECK(
-          iter != uidPoints_.end(),
-          "No 3D point can be found to match with point observation. Maybe Global point cloud file(s) or Point observation file is not correctly provided");
+      if (iter == uidPoints_.end()) {
+        return; // No corresponding point in GlobalPointCloud, we are not storing data for it
+      }
 
       const int64_t quantizedTimestampNs = timestampNs / numericalErrorNs_;
 
@@ -211,14 +217,12 @@ class PointAndObservationProvider {
 
   // Cache of the 2D/3D points for quick lookup
   std::unordered_map<uint32_t, const GlobalPointPosition*> uidPoints_;
-  std::unordered_map<int64_t, std::vector<PointObservationPair>> timestampLeftPoints_;
-  std::unordered_map<int64_t, std::vector<PointObservationPair>> timestampRightPoints_;
+  std::unordered_map<int64_t, std::vector<PointObservationPair>> timestampLeftPoints_,
+      timestampRightPoints_;
   size_t numPointObs_ = 0;
 
-  const std::string leftCameraSerial_;
-  const std::string rightCameraSerial_;
-  const int64_t startTimestampNs_;
-  const int64_t endTimestampNs_;
+  const std::string leftCameraSerial_, rightCameraSerial_;
+  const int64_t startTimestampNs_, endTimestampNs_;
 
   // Quantized frame rate MUST be selected based on the frequency of the input trajectory
   const int64_t numericalErrorNs_;

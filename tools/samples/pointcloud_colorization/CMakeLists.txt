@@ -12,13 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-find_package(Pangolin QUIET)
-if (Pangolin_FOUND)
-    find_package(Threads REQUIRED)
-    add_subdirectory(visualization)
-    add_subdirectory(mps_visualization)
-else()
-    message("Pangolin has not been found. Visualization tools will not be compiled.")
-endif()
+find_package(Boost REQUIRED)
 
-add_subdirectory(samples)
+message("--- Compiling mps_point_cloud_colorization.")
+add_executable(mps_point_cloud_colorization
+    main_PointCloudColorization.cpp
+    GlobalPointCloudToPly.h
+    PointCloudColorizer.h
+    SLAMPointCloudColorizer.h
+    RGBPointCloudColorizer.h)
+
+target_link_libraries(mps_point_cloud_colorization
+    PRIVATE
+        CLI11::CLI11
+        ${Boost_LIBRARIES}
+        mps
+        vrs_data_provider)
