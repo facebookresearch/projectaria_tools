@@ -21,15 +21,15 @@ Eye Gaze MPS outputs are:
 
 |**Column**	|Type	|Description	|
 |---	|---	|---	|
-|`tracking_timestamp_us`	|int	|This is the timestamp, in microseconds, of the eye tracking camera frame in device time domain. The MPS location output also contains pose estimations in the same time domain and these timestamps can be directly used to infer the device pose from the MPS location output.	|
-|`yaw_rads_cpf`	|float	|This is the eye gaze yaw angle in radians in CPF frame. The yaw angle is the angle between the projection of the eye gaze vector (originating at CPF) on XZ plane and the Z axis in the CPF frame.	|
-|`pitch_rads_cpf`	|float	|This is the eye gaze pitch angle in radians in CPF frame. The pitch angle is the angle between the projection of the eye gaze vector (originating at CPF) on YZ plane and the Z axis in the CPF frame.	|
-|`depth_m`	|float	|This is the absolute depth in meters of the 3D gaze point in CPF frame. This value is currently not available as part of MPS output.	|
-|`yaw_low_rads_cpf`	|float	|This value represents the lower bound of the confidence interval for the **yaw** estimation.	|
-|`pitch_low_rads_cpf`	|float	|This value represents the lower bound of the confidence interval for the **pitch** estimation.	|
-|`yaw_high_rads_cpf`	|float	|This value represents the upper bound of the confidence interval for the **yaw** estimation.	|
-|`pitch_high_rads_cpf`	|float	|This value represents the upper bound of the confidence interval for the **pitch** estimation.	|
-| `session_uid` | string | Unique identifier for a session within the VRS file.|
+|`tracking_timestamp_us`	|int	|This is the timestamp, in microseconds, of the eye tracking camera frame in device time domain. The MPS location output also contains pose estimations in the same time domain and these timestamps can be directly used to infer the device pose from the MPS location output	|
+|`yaw_rads_cpf`	|float	|This is the eye gaze yaw angle in radians in CPF frame. The yaw angle is the angle between the projection of the eye gaze vector (originating at CPF) on XZ plane and the Z axis in the CPF frame	|
+|`pitch_rads_cpf`	|float	|This is the eye gaze pitch angle in radians in CPF frame. The pitch angle is the angle between the projection of the eye gaze vector (originating at CPF) on YZ plane and the Z axis in the CPF frame	|
+|`depth_m`	|float	|This is the absolute depth in meters of the 3D gaze point in CPF frame. This value is currently not available as part of MPS output	|
+|`yaw_low_rads_cpf`	|float	|This value represents the lower bound of the confidence interval for the **yaw** estimation	|
+|`pitch_low_rads_cpf`	|float	|This value represents the lower bound of the confidence interval for the **pitch** estimation	|
+|`yaw_high_rads_cpf`	|float	|This value represents the upper bound of the confidence interval for the **yaw** estimation	|
+|`pitch_high_rads_cpf`	|float	|This value represents the upper bound of the confidence interval for the **pitch** estimation	|
+| `session_uid` | string | Unique identifier for a session within the VRS file|
 
 
 ## calibrated_eye_gaze.csv
@@ -224,7 +224,7 @@ If Stage 2 has been successful, CalibrationCorrection will contain details about
    </td>
    <td>string
    </td>
-   <td>Unique id representing the session.
+   <td>Unique id representing the session
    </td>
   </tr>
   <tr>

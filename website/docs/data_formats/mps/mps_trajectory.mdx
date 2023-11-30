@@ -26,11 +26,11 @@ For the utility function to load the open loop trajectory in Python and C++, ple
 |---	|---	|---	|
 |`tracking_timestamp_us`	|int	|Aria device timestamp in microseconds	|
 |`utc_timestamp_ns`	|int	|Wall clock UTC time in nanoseconds. If not available, the value will be -1	|
-|`session_uid`	|string	|Unique identifier of the odometry coordinate frame. When the session_uid is the same, poses and velocities are defined in the same coordinate frame.	|
+|`session_uid`	|string	|Unique identifier of the odometry coordinate frame. When the session_uid is the same, poses and velocities are defined in the same coordinate frame	|
 |`{tx,ty,tz,qx,qy,qz,qw}_odometry_device`	|float	|Pose of the device coordinate frame in odometry frame T_odometry_device, include translation (tx, ty, tz) in meters and rotation quaternion (qx, qy, qz, qw)	|
 |`device_linear_velocity_{x,y,z}_odometry`	|float	|Velocity of device coordinate frame in odometry frame, (x, y, z) in meter/s	|
 |`angular_velocity_{x,y,z}_device`	|float	|Angular velocity of device coordinate frame in device frame, (x, y, z) in rad/s	|
-|`gravity_{x,y,z}_odometry`	|float	|Earth gravity vector in odometry frame, (x, y, z) in meter/s^2. This vector is pointing toward the ground, and includes gravitation and centrifugal forces from earth rotation.	|
+|`gravity_{x,y,z}_odometry`	|float	|Earth gravity vector in odometry frame, (x, y, z) in meter/s^2. This vector is pointing toward the ground, and includes gravitation and centrifugal forces from earth rotation	|
 |`quality_score`	|float	|A quality score between 0.0 to 1.0. The larger the score is, the higher confidence the estimation has higher quality	|
 
 ## Closed loop trajectory
@@ -49,7 +49,7 @@ For the utility function to load the closed loop trajectory in Python and C++, p
 |`tracking_timestamp_us`	|int	|Aria device timestamp in microsecond	|
 |`utc_timestamp_ns`	|int	|Wall clock UTC time in nanosecond. If not available, the value will be -1	|
 |`{tx,ty,tz,qx,qy,qz,qw}_world_device`	|float	|Pose of the device coordinate frame in world frame T_world_device, translation (tx, ty, tz) in meters and rotation quaternion (qx, qy, qz, qw)	|
-|`device_linear_velocity_{x,y,z}_device`	|float	|Velocity of device coordinate frame in device frame, (x, y, z) in meter/s.	|
+|`device_linear_velocity_{x,y,z}_device`	|float	|Velocity of device coordinate frame in device frame, (x, y, z) in meter/s	|
 |`angular_velocity_{x,y,z}_device`	|float	|Angular velocity of device coordinate frame in device frame, (x, y, z) in rad/s	|
 |`gravity_{x,y,z}_world`	|float	|Gravity vector (x, y, z) in the world frame, in meter/s^2. MPS output will all have fixed value` [0, 0, -9.81]’, while other source (e.g. simulation or Optitrack ground truth) may give different values	|
 |`quality_score`	|float	|A quality score between 0.0 to 1.0. The larger the score is, the higher confidence the estimation has higher quality`	|
@@ -71,5 +71,5 @@ Poses and intrinsic calibration of a set of stationary cameras. For the utility 
 |`image_height`	|int	|Image size in pixels|
 |`intrinsics_type`	|string	|Camera intrinsics calibration type. Currently support types: `KANNALABRANDTK3`: [KB3 model](/docs/tech_insights/camera_intrinsic_models#the-kannalabrandtk3-kb3-model)	|
 |`intrinsics_{0-7}`	|float	|Camera intrinsics parameters	|
-|`start_frame_idx`	|int	|The start frame number of the video is stationary, and camera pose and intrinsic calibration results are applicable. Both will be -1 if the pose and intrinsic calibration are applicable to the whole video.|
-|`end_frame_idx`	|int	|The end frame number of the video is stationary, and camera pose and intrinsic calibration results are applicable. Both will be -1 if the pose and intrinsic calibration are applicable to the whole video.|
+|`start_frame_idx`	|int	|The start frame number of the video is stationary, and camera pose and intrinsic calibration results are applicable. Both will be -1 if the pose and intrinsic calibration are applicable to the whole video|
+|`end_frame_idx`	|int	|The end frame number of the video is stationary, and camera pose and intrinsic calibration results are applicable. Both will be -1 if the pose and intrinsic calibration are applicable to the whole video|

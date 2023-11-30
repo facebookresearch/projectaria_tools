@@ -25,8 +25,8 @@ This file is the gzip compressed semi-dense points in the world coordinate syste
 |Column	|Type	|Description	|
 |---	|---	|---	|
 |`uid`	|int	|A unique identifier of this point within this map	|
-|`graph_uid`	|string	|Unique identifier of the world coordinate frame. Associated with an equivalent graph_uid found in close_loop_trajectory.csv, depending on the frame this point was first observed in.	|
-|`p{x,y,z}_world`	|float	|Point location in the world coordinate frame p_world.	|
+|`graph_uid`	|string	|Unique identifier of the world coordinate frame. Associated with an equivalent graph_uid found in close_loop_trajectory.csv, depending on the frame this point was first observed in	|
+|`p{x,y,z}_world`	|float	|Point location in the world coordinate frame p_world	|
 |`inv_dist_std`	|float	|Standard deviation of the inverse distance estimate, in meter^-1. Could be used for determining the quality of the 3D point position estimate	|
 |`dist_std`	|float	|Standard deviation of the distance estimate, in meters. Could be used for determining the quality of the 3D point position estimate	|
 
@@ -36,8 +36,8 @@ The observation file is the gzip compressed semi-dense 2D observations, describe
 
 |Column	|Type	|Description	|
 |---	|---	|---	|
-|`uid`	|int	|A unique identifier integer of this point within this map.	|
+|`uid`	|int	|A unique identifier integer of this point within this map	|
 |`frame_tracking_timestamp_us`	|int	|Aria device timestamp of the host frame’s center of exposure, in microsecond	|
 |`camera_serial`	|string	|The serial number of the camera which observes this point	|
-|`u`	|float	|The sub-pixel-accuracy observed measurement of the point in pixels, in the observing frame’s camera.	|
-|`v`	|float	|The sub-pixel-accuracy observed measurement of the point in pixels, in the observing frame’s camera. |
+|`u`	|float	|The sub-pixel-accuracy observed measurement of the point in pixels, in the observing frame’s camera	|
+|`v`	|float	|The sub-pixel-accuracy observed measurement of the point in pixels, in the observing frame’s camera |
