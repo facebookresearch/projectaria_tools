@@ -147,21 +147,23 @@ def main():
     rgb_stream_label = provider.get_label_from_stream_id(rgb_stream_id)
     device_calibration = provider.get_device_calibration()
     T_device_CPF = device_calibration.get_transform_device_cpf()
+    rgb_camera_calibration = device_calibration.get_camera_calib(rgb_stream_label)
 
     #
     # Log RGB camera calibration
     #
     if mps_data_available:
-        camera_calibration = device_calibration.get_camera_calib(rgb_stream_label)
         rr.log(
             f"world/device/{rgb_stream_label}",
             rr.Pinhole(
                 resolution=[
-                    camera_calibration.get_image_size()[0] / args.down_sampling_factor,
-                    camera_calibration.get_image_size()[1] / args.down_sampling_factor,
+                    rgb_camera_calibration.get_image_size()[0]
+                    / args.down_sampling_factor,
+                    rgb_camera_calibration.get_image_size()[1]
+                    / args.down_sampling_factor,
                 ],
                 focal_length=float(
-                    camera_calibration.get_focal_lengths()[0]
+                    rgb_camera_calibration.get_focal_lengths()[0]
                     / args.down_sampling_factor
                 ),
             ),
@@ -198,9 +200,14 @@ def main():
             pose_info = get_nearest_pose(trajectory_data, device_time_ns)
             if pose_info:
                 T_world_device = pose_info.transform_world_device
+                T_device_camera = rgb_camera_calibration.get_transform_device_camera()
                 rr.log(
                     "world/device",
                     ToTransform3D(T_world_device, False),
+                )
+                rr.log(
+                    f"world/device/{rgb_stream_label}",
+                    ToTransform3D(T_device_camera, False),
                 )
 
         if data.sensor_data_type() == SensorDataType.IMAGE:
@@ -237,7 +244,7 @@ def main():
                     eye_gaze,
                     rgb_stream_label,
                     device_calibration,
-                    camera_calibration,
+                    rgb_camera_calibration,
                     depth_m,
                 )
                 rr.log(
