@@ -12,13 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-find_package(Pangolin QUIET)
-if (Pangolin_FOUND)
-    find_package(Threads REQUIRED)
-    add_subdirectory(visualization)
-    add_subdirectory(mps_visualization)
-else()
-    message("Pangolin has not been found. Visualization tools will not be compiled.")
-endif()
-
-add_subdirectory(samples)
+message("--- Compiling samples.")
+add_subdirectory(pointcloud_colorization)

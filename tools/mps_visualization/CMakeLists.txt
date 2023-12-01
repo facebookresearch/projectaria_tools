@@ -44,7 +44,7 @@ message("--- Compiling mps_3d_replay_viewer.")
 add_executable(mps_3d_replay_viewer
     main_3d_replay_viewer.cpp
     Data3DGui.cpp Data3DGui.h
-    Boundary.h CachedDataProviders.h
+    Boundary.h
     PangolinHelper.h
 )
 target_link_libraries(mps_3d_replay_viewer

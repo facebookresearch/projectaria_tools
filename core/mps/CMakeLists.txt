@@ -26,11 +26,13 @@ target_include_directories(eye_gaze
 )
 
 add_library(mps
+    CachedDataProviders.h
     OnlineCalibration.h
     OnlineCalibrationFormat.h
     onlineCalibrationReader.h onlineCalibrationReader.cpp
     GlobalPointCloud.h
     GlobalPointCloudFormat.h
+    GlobalPointCloudFilter.h
     GlobalPointCloudReader.h GlobalPointCloudReader.cpp
     PointObservation.h
     PointObservationFormat.h
