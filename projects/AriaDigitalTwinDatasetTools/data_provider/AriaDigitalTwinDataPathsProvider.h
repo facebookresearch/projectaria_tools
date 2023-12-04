@@ -40,6 +40,7 @@ struct StreamIdHash {
  * device.
  */
 struct AriaDigitalTwinDataPaths {
+  std::string sequenceName; /**< name of the sequence loaded */
   std::string ariaVrsFilePath; /**< Aria vrs */
   std::string ariaTrajectoryFilePath; /**< Aria 6DoF pose trajectory */
   std::string objectTrajectoriesFilePath; /**< object 6Dof pose trajectory */

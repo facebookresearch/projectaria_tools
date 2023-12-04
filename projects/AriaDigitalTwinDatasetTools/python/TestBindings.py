@@ -58,6 +58,7 @@ if __name__ == "__main__":
         print("print all ground truth files")
         print(data_paths)
         print("access each members of data_paths")
+        print("sequence_name: ", data_paths.sequence_name)
         print("aria_vrs_filepath: ", data_paths.aria_vrs_filepath)
         print("aria_trajectory_filepath: ", data_paths.aria_trajectory_filepath)
         print("object_trajectories_filepath: ", data_paths.object_trajectories_filepath)

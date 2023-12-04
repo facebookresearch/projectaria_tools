@@ -50,6 +50,11 @@ namespace projectaria::dataset::adt {
 constexpr auto kInstanceFileErrorTemplate =
     "invalid instance file. key: '{}' not available in instances json file for instance id {}";
 
+const std::unordered_map<std::string, std::string> kCorruptDatasets{
+    {"Apartment_release_multiuser_party_seq145", "IMU data corrupted"},
+    {"Apartment_release_multiuser_clean_seq115", "IMU data corrupted"},
+    {"Apartment_release_clean_seq139", "IMU data corrupted"}};
+
 namespace {
 std::ifstream openFile(const fs::path& filePath, bool skipHeader = true) {
   std::ifstream fileStream(filePath);
@@ -876,6 +881,14 @@ void AriaDigitalTwinDataProvider::loadDatasetVersion() {
 }
 
 void AriaDigitalTwinDataProvider::validateDatasetVersion() const {
+  if (kCorruptDatasets.find(dataPaths_.sequenceName) != kCorruptDatasets.end()) {
+    std::cout << "\n\n\n[WARNING] BAD DATASET DETECTED\n";
+    XR_LOGE(
+        "Dataset {} has been flagged as corrupted, please use data carefully. Reason: {}. ",
+        dataPaths_.sequenceName,
+        kCorruptDatasets.at(dataPaths_.sequenceName));
+  }
+
   if (datasetVersion_ == kDatasetVersionUnknown) {
     XR_LOGW(
         "Unknown dataset version, we recommend loading with the metadata file to validate the dataset version is compatible with this version of the data provider.");

@@ -43,6 +43,13 @@ AriaDigitalTwinDataPathsProvider::getDataPathsUsingSubtourName(
     bool skeletonFlag) {
   AriaDigitalTwinDataPaths paths;
 
+  // get sequence name
+  if (fs::path(sequencePath).has_stem()) {
+    paths.sequenceName = fs::path(sequencePath).stem().string();
+  } else {
+    paths.sequenceName = fs::path(sequencePath).parent_path().stem().string();
+  }
+
   // get main data root
   const auto mainPath = fs::path(sequencePath) / fs::path(subtourName);
 
@@ -344,6 +351,7 @@ AriaDigitalTwinDataPathsProvider::getDataPathsByDeviceSerial(
 
 std::string AriaDigitalTwinDataPaths::toString() const {
   std::string result;
+  result += "--sequenceName: " + sequenceName + "\n";
   result += "--ariaVrsFilePath: " + ariaVrsFilePath + "\n";
   result += "--ariaTrajectoryFilePath: " + ariaTrajectoryFilePath + "\n";
   result += "--objectTrajectoriesFilePath: " + objectTrajectoriesFilePath + "\n";
