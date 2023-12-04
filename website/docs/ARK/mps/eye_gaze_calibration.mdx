@@ -11,18 +11,23 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 This page provides an overview of what In-Session Eye Gaze Calibration does, and how to collect In-Session Eye Gaze Calibration with Project Aria glasses.
 
+:::tip Not required to request Eye Gaze MPS
+
+In-Session Eye Gaze Calibration provides an additional personalized [Eye Gaze output](/docs/data_formats/mps/mps_eye_gaze), but is not required for requesting Eye Gaze MPS.
+
+:::
+
 
 ## What In-Session Eye Gaze Calibration does
-
 
 In-Session Eye Gaze Calibration enables researchers to improve the eye gaze estimations in Eye Gaze MPS outputs, enabling researchers to more accurately determine where wearers are looking during the recordings.
 
 When you request Eye Gaze Machine Perception Services (MPS) and the file has an in-session Eye Gaze Calibration as part of the VRS file, you will receive two outputs:
 
-* `generalized_eye_gaze.csv` - based on the standard eye gaze configuration
-* `calibrated_eye_gaze.csv` - calibrated eye gaze data based on the calibration data collected in the recording
+* `general_eye_gaze.csv` - based on the standard eye gaze configuration
+* `personalized_eye_gaze.csv` - personalized eye gaze data based on the calibration data collected in the recording
 
-Every person is unique in terms of how they move their eyes and look at objects, so the calibrated_eye_gaze estimation is expected to be more accurate for the individual.
+Every person is unique in terms of how they move their eyes and look at objects, so the personalized_eye_gaze estimation is expected to be more accurate for the individual.
 
 **Further resources:**
 

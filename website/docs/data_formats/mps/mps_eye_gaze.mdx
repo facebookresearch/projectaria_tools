@@ -11,11 +11,11 @@ Project Aria's [Machine Perception Services (MPS)](/docs/ARK/mps) uses Aria's Ey
 
 Eye Gaze MPS outputs are:
 * `summary.json` - high level report on MPS eye gaze generation
-* `generalized_eye_gaze.csv` - based on the standard eye gaze configuration
-* `calibrated_eye_gaze.csv` - only if you’ve made the recording with [in-session Eye Gaze Calibration](/docs/ARK/mps/eye_gaze_calibration)
+* `general_eye_gaze.csv` - based on the standard eye gaze configuration
+* `personalized_eye_gaze.csv` - only if you’ve made the recording with [in-session Eye Gaze Calibration](/docs/ARK/mps/eye_gaze_calibration)
 
-## generalized_eye_gaze.csv
-`generalized_eye_gaze.csv` outputs are available for all recordings made with Eye Tracking cameras, and contain the following fields:
+## general_eye_gaze.csv
+`general_eye_gaze.csv` outputs are available for all recordings made with Eye Tracking cameras, and contain the following fields:
 
 
 
@@ -32,14 +32,14 @@ Eye Gaze MPS outputs are:
 | `session_uid` | string | Unique identifier for a session within the VRS file|
 
 
-## calibrated_eye_gaze.csv
-`calibrated_eye_gaze.csv` outputs are only generated if the recording has [in-session Eye Gaze Calibration data](/docs/ARK/mps/eye_gaze_calibration). The schema is exactly the same as generalized_eye_gaze.csv.  The session_uids between generalized_gaze output and calibrated gaze output will be the same.
+## personalized_eye_gaze.csv
+`personalized_eye_gaze.csv` outputs are only generated if the recording has [in-session Eye Gaze Calibration data](/docs/ARK/mps/eye_gaze_calibration). The schema is exactly the same as `general_eye_gaze.csv`.  The session_uids between generalized_gaze output and calibrated gaze output will be the same.
 
 The in-session calibration is used to compute user specific calibration (gaze correction parameters). The yaw, pitch, yaw_low, yaw_high, pitch_low, pitch_high will be adjusted based on this calibration. If the instructions for in-session calibration are followed correctly, the calibrated eye gaze is expected to be more accurate in comparison to generalized eye gaze.
 
 
 ## General Principles
-The following principles apply to `generalized_eye_gaze.csv` and  `calibrated_eye_gaze.csv`
+The following principles apply to `general_eye_gaze.csv` and  `personalized_eye_gaze.csv`
 
 ### Confidence Intervals
 The confidence intervals represent the models uncertainty estimation. A smaller interval represents higher confidence and a wider interval represents lower confidence. The confidence interval angles are in radians and in CPF frame.
@@ -64,17 +64,17 @@ When there are multiple users in the same vrs file (users handing off glasses to
 * All the rows with the same session_uid belong to the same session within the VRS file
 * If there are multiple calibration sessions, the session_uid would be unique for each session
 
-`generalized_eye_gaze.csv`
+`general_eye_gaze.csv`
 
 * There will be a single value when there is no in-session eye calibration or only one in-session calibration
-* The session_uid column values will always match those in calibrated_eye_gaze.csv
+* The session_uid column values will always match those in `personalized_eye_gaze.csv`
 
 
 #### Examples
 
-* No calibrated eye gaze - generalized_eye_gaze will have one session_uid across all rows
-* One in-session calibration - generalized_eye_gaze will have one session_uid across all rows and this value will be identical in calibrated_eye_gaze
-* k > 1 in-session calibrations - both generalized and calibrated eye gaze will have k unique session_uid that start when in-session calibration begins and this value will be identical in calibrated_eye_gaze
+* No calibrated eye gaze - general_eye_gaze will have one session_uid across all rows
+* One in-session calibration - general_eye_gaze will have one session_uid across all rows and this value will be identical in personalized_eye_gaze
+* k > 1 in-session calibrations - both generalized and calibrated eye gaze will have k unique session_uid that start when in-session calibration begins and this value will be identical in personalized_eye_gaze
 
 
 ## summary.json

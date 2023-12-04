@@ -79,7 +79,7 @@ When the Aria recording is long, loading point observations could be memory and 
 ```python
 import projectaria_tools.core.mps as mps
 
-global_points_path = "/path/to/mps/output/trajectory/global_points.csv.gz"
+global_points_path = "/path/to/mps/output/trajectory/semidense_points.csv.gz"
 points = mps.read_global_point_cloud(global_points_path, mps.StreamCompressionMode.GZIP)
 
 # filter the point cloud by inverse depth and depth
@@ -190,7 +190,7 @@ for (const OnlineCalibration& calib : onlineCalibs) {
 ```python
 import projectaria_tools.core.mps as mps
 
-gaze_path = "/path/to/mps/output/eye_gaze/generalized_eye_gaze.csv"
+gaze_path = "/path/to/mps/output/eye_gaze/general_eye_gaze.csv"
 gaze_cpf = mps.read_eye_gaze(eye_gaze_path)
 
 # project the 3D gaze point assume depth is 1.0 meter

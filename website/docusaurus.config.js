@@ -113,6 +113,10 @@ const config = {
                 label: 'Documentation',
                 to: '/docs/intro',
               },
+              {
+                label: 'Get Support',
+                to: '/docs/support',
+              },
             ],
           },
           {
