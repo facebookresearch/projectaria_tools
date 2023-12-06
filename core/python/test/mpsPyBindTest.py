@@ -69,6 +69,9 @@ class MPSPointCloudAndObservations(unittest.TestCase):
         )
         assert len(mps_global_points) > 0
 
+        mps_global_points2 = mps.read_global_point_cloud(global_points_file)
+        assert len(mps_global_points2) > 0
+
     def test_global_points_invalid_file(self) -> None:
         mps_global_points = mps.read_global_point_cloud("")
         assert len(mps_global_points) == 0
@@ -78,6 +81,11 @@ class MPSPointCloudAndObservations(unittest.TestCase):
             semidense_observations_file, mps.StreamCompressionMode.GZIP
         )
         assert len(mps_semidense_observations) > 0
+
+        mps_semidense_observations2 = mps.read_point_observations(
+            semidense_observations_file
+        )
+        assert len(mps_semidense_observations2) > 0
 
     def test_semidense_observations_invalid_file(self) -> None:
         mps_semidense_observations = mps.read_point_observations("")

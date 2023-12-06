@@ -161,10 +161,7 @@ int main(int argc, char* argv[]) {
   GlobalPointCloud ptClouds;
   for (const auto& path : globalPointCloudPaths) {
     // Load point cloud (can be .csv or .gz)
-    const auto ptCloud = readGlobalPointCloud(
-        path,
-        std::filesystem::path(path).extension() == ".csv" ? StreamCompressionMode::NONE
-                                                          : StreamCompressionMode::GZIP);
+    const auto ptCloud = readGlobalPointCloud(path);
     for (const auto& point : ptCloud) {
       allWorldFrameUids.insert(point.graphUid);
     }
@@ -176,7 +173,7 @@ int main(int argc, char* argv[]) {
   XR_LOGI("Loading point observations can take some time...");
   PointObservations pointObs;
   if (!pointObservationPath.empty()) {
-    pointObs = readPointObservations(pointObservationPath, StreamCompressionMode::GZIP);
+    pointObs = readPointObservations(pointObservationPath);
   }
   const auto leftCameraSerial =
       vrsProvider.getImageConfiguration(slam_left_streamId.value()).sensorSerial;

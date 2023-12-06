@@ -76,5 +76,5 @@ def read_trajectory_file(filepath):
 # Reads a Semidense point cloud
 def read_points_file(filepath):
     assert os.path.exists(filepath), f"Could not find point cloud file: {filepath}"
-    points = mps.read_global_point_cloud(filepath, mps.StreamCompressionMode.GZIP)
+    points = mps.read_global_point_cloud(filepath)
     return np.stack([it.position_world for it in points])

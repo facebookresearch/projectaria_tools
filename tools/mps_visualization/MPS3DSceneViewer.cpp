@@ -105,10 +105,7 @@ int mps3dSceneViewerCli(int argc, const char** argv) {
   ptClouds.reserve(globalPointCloudPaths.size());
   for (const auto& path : globalPointCloudPaths) {
     // Load point cloud (can be .csv or .gz)
-    auto ptCloud = readGlobalPointCloud(
-        path,
-        std::filesystem::path(path).extension() == ".csv" ? StreamCompressionMode::NONE
-                                                          : StreamCompressionMode::GZIP);
+    auto ptCloud = readGlobalPointCloud(path);
     for (const auto& point : ptCloud) {
       allWorldFrameUids.insert(point.graphUid);
     }
