@@ -78,42 +78,42 @@ When the Aria recording is long, loading point observations could be memory and 
 ```
 ```python
 import projectaria_tools.core.mps as mps
+from projectaria_tools.core.mps.utils import filter_points_from_confidence
 
 global_points_path = "/path/to/mps/output/trajectory/semidense_points.csv.gz"
-points = mps.read_global_point_cloud(global_points_path, mps.StreamCompressionMode.GZIP)
+points = mps.read_global_point_cloud(global_points_path)
 
 # filter the point cloud by inverse depth and depth
-filtered_points = []
-for point in points:
-    if (point.inverse_distance_std < 0.001 and point.distance_std < 0.15):
-        filtered_points.append(point)
+const float inverse_distance_std_threshold = 0.001;
+const float distance_std_threshold = 0.15;
+
+filtered_points = filter_points_from_confidence(points, inverse_distance_std_threshold, distance_std_threshold)
 
 # example: get position of this point in the world coordinate frame
 for point in filtered_points:
     position_world = point.position_world
 
 observations_path = "/path/to/mps/output/trajectory/semidense_observations.csv.gz"
-observations = mps.read_point_observations(observations_path, mps.StreamCompressionMode.GZIP)
+observations = mps.read_point_observations(observations_path)
 ```
 ```mdx-code-block
 </TabItem>
 <TabItem value="cpp" label="C++">
 ```
 ```cpp
+#include <GlobalPointCloudFilter.h>
 #include <GlobalPointCloudReader.h>
 #include <PointObservationReader.h>
+
 using namespace projectaria::tools::mps;
 
 std::string globalPointsPath = "/path/to/mps/output/trajectory/open_loop_trajectory.csv";
-GlobalPointCloud points = readGlobalPointCloud(globalPointsPath, StreamCompressionMode::GZIP);
+GlobalPointCloud points = readGlobalPointCloud(globalPointsPath);
 
 // filter the point cloud by inverse depth and depth
-GlobalPointCloud filteredPoints;
-for (const GlobalPointPosition& point : points) {
-    if (point.inverseDistanceStd < 0.001 && point.distanceStd < 0.15) {
-        filteredPoints.push_back(point);
-    }
-}
+const float inverseDistanceStdThreshold = 0.001;
+const float distanceStdThreshold = 0.15;
+GlobalPointCloud filteredPoints = filterPointsFromConfidence(points, inverseDistanceStdThreshold, distanceStdThreshold);
 
 // example: get position of this point in the world coordinate frame
 for (const GlobalPointPosition& point : filteredPoints) {
@@ -121,7 +121,7 @@ for (const GlobalPointPosition& point : filteredPoints) {
 }
 
 std::string observationsPath = "/path/to/mps/output/trajectory/semidense_observations.csv.gz";
-PointObservations observations = readPointObservations(observationsPath, StreamCompressionMode::GZIP);
+PointObservations observations = readPointObservations(observationsPath);
 ```
 ```mdx-code-block
 </TabItem>
