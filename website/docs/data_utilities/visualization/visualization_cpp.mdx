@@ -1,12 +1,12 @@
 ---
-sidebar_position: 30
-title: Visualizers
+sidebar_position: 20
+title: C++ Visualization
 ---
 
-# Project Aria Tools Visualizers
+# Project Aria Tools C++ Visualization
 
 ## Overview
-This page introduces the core visualization tools available in Project Aria Tools. We've provided example datasets to test these tools.
+This page introduces our C++ visualization tools available in Project Aria Tools. We've provided example datasets to test these tools.
 
 
 * [Aria Viewer](#aria-viewer): visualize raw Aria data
@@ -22,28 +22,11 @@ global point cloud, and static camera poses
 
 Go to the [Download Codebase](/docs/data_utilities/installation/download_codebase) page to:
    * Check your system is supported
-   * Download projectaria_tools codebase from the github
+   * Download projectaria_tools codebase from the GitHub
 ### Step 1 : Download the sample dataset
-This sample (hosted at projectaria.com) contains a raw VRS file and all the corresponding MPS outputs.
 
-:::info
-If you are in zsh (default on Mac OS), you may need to run `setopt shwordsplit` for the following instructions to work
-:::
+* Go to the [Download MPS Sample dataset](/docs/data_utilities/installation/download_mps_sample_data) to retrieve a raw VRS file and all the corresponding MPS outputs.
 
-```bash
-export MPS_SAMPLE_PATH=/tmp/mps_sample
-export BASE_URL="https://www.projectaria.com/async/sample/download/?bucket=mps&filename="
-mkdir -p $MPS_SAMPLE_PATH
-
-export OPTIONS="-C - -O -L"
-curl -o $MPS_SAMPLE_PATH/sample.vrs $OPTIONS "${BASE_URL}sample.vrs"
-curl -o $MPS_SAMPLE_PATH/trajectory.zip $OPTIONS "${BASE_URL}trajectory.zip"
-curl -o $MPS_SAMPLE_PATH/eye_gaze.zip $OPTIONS "${BASE_URL}eye_gaze.zip"
-
-unzip -o $MPS_SAMPLE_PATH/eye_gaze.zip  -d $MPS_SAMPLE_PATH
-unzip -o $MPS_SAMPLE_PATH/trajectory.zip -d $MPS_SAMPLE_PATH
-```
-Alternatively you could also use the [sample dataset](https://github.com/facebookresearch/projectaria_tools/tree/main/data/mps_sample) in the repository.
 ### Step 2 : Build and install visualizers
 
 The visualizers need the C++ version of Project Aria Tools to run.

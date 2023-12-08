@@ -18,18 +18,35 @@ These helper functions are broadly categorized into the following types:
     * Provides an interpreter for the ASE Scene Language to convert them into a 3D model in the form of bounding boxes
 * Data readers: `readers.py`
     * Provide readers for the:
-        * `ASE Scene Language`,
-        * `Ground-truth trajectory` and
-        * `Semi-dense Map points`.
+        * `ASE Scene Language`
+        * `Ground-truth trajectory`
+        * `Semi-dense Map points`
 * Data Plotters: `plotters.py`
     * Provide simple plotting functions for the:
-        * `3D scene from ASE Scene Language`,
-        * `Ground-truth trajectory` and
-        * `Semi Dense Map points`.
+        * `3D scene from ASE Scene Language`
+        * `Ground-truth trajectory`
+        * `Semi Dense Map points`
 
 
 
-## Visualization Notebook
+## Visualization
+
+## Python sample
+
+`Viewer_projects_ase` displays an interactive view of an ASE sequence with [ReRun](/docs/data_utilities/visualization/visualization_python#rerun). It allows you to see all data in 3D context.
+
+You can call as the following (`frame_id` being optional):
+```
+viewer_projects_ase --dataset_path ase_data/7  --frame_id 745
+```
+![ASE Viewer Screenshot](/img/open_datasets/aria_synthetic_environments_dataset/rerun-ase.png)
+
+:::tip
+- The timeline enables you to switch before device_time and frame_id to know to which image frame_id a camera pose corresponds to
+- The 3D world view is clickable, you can quickly select an object and see its instance name
+:::
+
+## Python Notebook
 
 We also provide Jupyter notebooks to visualize the data for each sequence. To get started download ASE data following steps from [Dataset Download](ase_download_dataset)
 

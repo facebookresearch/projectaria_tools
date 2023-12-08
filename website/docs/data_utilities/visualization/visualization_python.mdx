@@ -1,0 +1,77 @@
+---
+sidebar_position: 10
+title: Python Visualization
+---
+
+# Project Aria Tools Python Visualization
+
+## Overview
+This page introduces our core Python visualization tools, developed with [ReRun](#rerun), and available as part of Project Aria Tools.
+
+* [Aria Sensor Viewer](#viewer_aria_sensors): 3D visualization of Aria sensors
+* [MPS Viewer](#viewer_mps): renders MPS metadata (point cloud, device trajectory and wearer eye gaze)
+
+
+## Requirements
+
+- [Python Project Aria Tools is installed](docs/data_utilities/installation/installation_python#install-via-virtual-environment)
+- MPS Sample data
+  - [Official Sample Data](/docs/data_utilities/installation/download_mps_sample_data.mdx) - most up to date sample data
+  - [GitHub Repo Sample dataset](https://github.com/facebookresearch/projectaria_tools/tree/main/data/mps_sample) - useful for unit testing etc. It will work, but is not maintained and updated the way the official sample data is
+
+
+<div id="viewer_aria_sensors"></div>
+
+## Run Aria Sensor Viewer
+
+`viewer_aria_sensors`  displays the relative position and orientation of all most of Project Aria glasses sensors (cameras, IMUs, microphones, magnetometer & barometer) in a common reference.
+
+```bash
+viewer_aria_sensors --vrs $MPS_SAMPLE_PATH/sample.vrs
+```
+![Aria Sensors Viewer](/img/data_utilities/visualization/rerun-sensors.png)
+
+:::tip
+- Selecting the different sensors in the Blueprint left column will help you quickly identify where a given sensor is located
+:::
+
+<div id="viewer_mps"></div>
+
+## Run MPS Viewer
+
+`viewer_mps` displays an interactive visualization of the Aria VRS RGB frames along with MPS data (Closed loop trajectory, Global point cloud, Wearer eye gaze).
+As you are playing or moving along the timeline, you can see the position of the camera and the wearer eye gaze direction at the timestamp of your choice.
+
+```bash
+
+viewer_mps --vrs $MPS_SAMPLE_PATH/sample.vrs
+
+or to specify each MPS file
+
+viewer_mps --vrs $MPS_SAMPLE_PATH/sample.vrs \
+--trajectory $MPS_SAMPLE_PATH/closed_loop_trajectory.csv \
+--points $MPS_SAMPLE_PATH/global_points.csv.gz \
+--eyegaze $MPS_SAMPLE_PATH/generalized_eye_gaze.csv
+```
+![MPS Visualizer](/img/data_utilities/visualization/rerun-mps.png)
+
+:::tip
+- Switching between device_time and timestamp timeline allows you to retrieve a specific timestamp for the VRS sequence or MPS annotation
+:::
+
+<div id="rerun"></div>
+
+## An introduction to ReRun
+
+[ReRun](https://www.rerun.io/) is an open source SDK and engine for visualizing and interacting with multi modal data streams. It's usable from Python, Rust and C++. ReRun consists in a log API and a visualizer.
+
+The main GUI sections of the ReRun visualizer are:
+- BluePrint
+  - A: User defined Scene Graph (Entities and hierarchy you define)
+  - B: Visual view of the Scene Graph (User customizable)
+- Timeline
+  - C: Interactive navigation and inspection of log events on multiple timeline (log, frame, or device time)
+- Visibility and property control
+  - D: Fine grained control and inspection of Entities/Components
+
+![ReRun Visualizer Interface](/img/data_utilities/visualization/rerun-intro.png)
