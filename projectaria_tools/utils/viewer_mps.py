@@ -82,11 +82,26 @@ def main():
         args.trajectory = possible_trajectory_file_path
 
     possible_points_file_path = os.path.join(
+        vrs_folder_path, "trajectory", "semidense_points.csv.gz"
+    )
+    if not args.points and os.path.exists(possible_points_file_path):
+        args.points = possible_points_file_path
+
+    possible_eyegaze_file_path = os.path.join(
+        vrs_folder_path, "eye_gaze", "general_eye_gaze.csv"
+    )
+    if not args.eyegaze and os.path.exists(possible_eyegaze_file_path):
+        args.eyegaze = possible_eyegaze_file_path
+
+    # Try load legacy file name
+    # (global_points == semidense_points)
+    possible_points_file_path = os.path.join(
         vrs_folder_path, "trajectory", "global_points.csv.gz"
     )
     if not args.points and os.path.exists(possible_points_file_path):
         args.points = possible_points_file_path
 
+    # (generalized_eye_gaze == general_eye_gaze)
     possible_eyegaze_file_path = os.path.join(
         vrs_folder_path, "eye_gaze", "generalized_eye_gaze.csv"
     )
@@ -94,6 +109,16 @@ def main():
         args.eyegaze = possible_eyegaze_file_path
 
     mps_data_available = args.trajectory or args.points or args.eyegaze
+
+    print(
+        f"""
+    Trying to load the following list of files:
+    - vrs: {args.vrs}
+    - trajectory/closed_loop_trajectory: {args.trajectory}
+    - trajectory/point_cloud: {args.points}
+    - eye_gaze/general_eye_gaze: {args.eyegaze}
+    """
+    )
 
     #
     # MPS Data loading
