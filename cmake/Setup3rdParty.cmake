@@ -55,7 +55,14 @@ FetchContent_Declare(
   GIT_TAG        v2.3.2
 )
 
-set(dependencies cli11 eigen Sophus Dispenso)
+
+FetchContent_Declare(
+  nlohmann
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG        v3.11.3
+)
+
+set(dependencies cli11 eigen Sophus Dispenso nlohmann)
 foreach(X IN LISTS dependencies)
   message("Pulling deps: {${X}}")
   FetchContent_MakeAvailable(${X})

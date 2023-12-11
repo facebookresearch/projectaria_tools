@@ -12,20 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This makes the modules discoverable when doing dir(projectaria_tools.core)
+find_package(GTest)
 
-"""
-A pybind11 binding for projectaria_tools core module
-"""
-
-from . import (  # noqa
-    calibration,
-    data_provider,
-    image,
-    mps,
-    sensor_data,
-    sophus,
-    stream_id,
-    vrs,
-    vrs_health_check,
+add_executable(test_periodic TestPeriodic.cpp)
+target_link_libraries(test_periodic
+    PUBLIC
+    vrs_health_check
+    GTest::Main
 )
+gtest_discover_tests(test_periodic)
+add_test(NAME test_periodic WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+             COMMAND $<TARGET_FILE:test_periodic>)
+target_compile_definitions(test_periodic
+    PRIVATE -DTEST_FOLDER=${CMAKE_CURRENT_SOURCE_DIR}/../../../data/)

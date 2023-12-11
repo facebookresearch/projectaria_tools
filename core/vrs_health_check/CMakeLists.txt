@@ -12,20 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This makes the modules discoverable when doing dir(projectaria_tools.core)
 
-"""
-A pybind11 binding for projectaria_tools core module
-"""
+file(
+  GLOB
+  source_files
+  *.cpp
+)
+file(
+  GLOB
+  header_files
+  *.h
+)
 
-from . import (  # noqa
-    calibration,
-    data_provider,
-    image,
-    mps,
-    sensor_data,
-    sophus,
-    stream_id,
-    vrs,
-    vrs_health_check,
+add_library(vrs_health_check ${source_files} ${header_files})
+target_link_libraries(vrs_health_check
+  PUBLIC nlohmann_json::nlohmann_json
+  PRIVATE device_calibration_json format vrslib vrs_utils players CLI11::CLI11)
+target_include_directories(vrs_health_check
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR} "../.."
 )

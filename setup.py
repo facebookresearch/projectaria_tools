@@ -201,6 +201,7 @@ def main():
                 "viewer_projects_adt = projectaria_tools.utils.viewer_projects_adt:main",
                 "viewer_projects_ase = projectaria_tools.utils.viewer_projects_ase:main",
                 "vrs_to_mp4 = projectaria_tools.utils.vrs_to_mp4:main",
+                "run_vrs_health_check = projectaria_tools.utils.run_vrs_health_check:main",
             ]
         },
         packages=find_packages(),
