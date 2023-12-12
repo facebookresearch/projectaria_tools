@@ -46,7 +46,7 @@ class Periodic : public Stream {
   Periodic(vrs::StreamId streamId, float minScore);
   void setMaxDeviationFromPeriodUs();
   // Get stats during processing, useful for showing processing progress
-  const Stats getStats() override;
+  Stats getStats() override;
   void logStats() override;
   float getScore() override;
   void logScore() override;

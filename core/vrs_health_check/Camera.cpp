@@ -133,7 +133,7 @@ void Camera::performSensorSerialCheck(vrs::RecordFileReader& reader) {
   calibrationSensorSerialsMatch_ = (sensorSerials.count(config.sensorSerial) == 1);
 }
 
-const CameraStats Camera::getCameraStats() {
+CameraStats Camera::getCameraStats() {
   std::lock_guard lock{mutex_};
   return cameraStats_;
 }

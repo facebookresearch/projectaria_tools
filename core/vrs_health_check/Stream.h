@@ -39,7 +39,7 @@ class Stream {
   // Setup the motion player
   virtual bool setup(vrs::RecordFileReader& reader) = 0;
   // Get stats during processing, useful for showing processing progress
-  virtual const Stats getStats() = 0;
+  virtual Stats getStats() = 0;
   virtual void logStats() = 0;
   //! "Score" is an integrity check (all expected records are present),
   //! not a quality check (I like the values I got).

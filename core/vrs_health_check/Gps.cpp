@@ -66,7 +66,7 @@ bool Gps::setup(vrs::RecordFileReader& reader) {
   return true;
 }
 
-const GpsStats Gps::getGpsStats() {
+GpsStats Gps::getGpsStats() {
   std::lock_guard lock{mutex_};
   return gpsStats_;
 }

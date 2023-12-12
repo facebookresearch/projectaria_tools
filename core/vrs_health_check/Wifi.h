@@ -34,7 +34,7 @@ class Wifi : public Stream {
  public:
   explicit Wifi(vrs::StreamId streamId);
   bool setup(vrs::RecordFileReader& reader) override; // Setup the Wi-Fi player
-  const Stats getStats() override;
+  Stats getStats() override;
   void logStats() override;
   bool getResult() override; // Pass or fail for this stream
   uint32_t getPeriodUs() override {

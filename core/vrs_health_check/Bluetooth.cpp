@@ -49,7 +49,7 @@ bool Bluetooth::setup(vrs::RecordFileReader& reader) {
   return true;
 }
 
-const Stats Bluetooth::getStats() {
+Stats Bluetooth::getStats() {
   std::lock_guard lock{mutex_};
   return stats_;
 }

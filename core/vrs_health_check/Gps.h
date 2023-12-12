@@ -33,7 +33,7 @@ class Gps : public Periodic {
   Gps(vrs::StreamId streamId, double sampleRateHz, float minAccuracy);
   // Setup the gps player
   bool setup(vrs::RecordFileReader& reader) override;
-  const GpsStats getGpsStats(); // Get stats specific to GPS
+  GpsStats getGpsStats(); // Get stats specific to GPS
   void logStats() override;
   bool getResult() override; // Pass or fail for this stream
 

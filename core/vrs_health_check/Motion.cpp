@@ -90,8 +90,8 @@ nlohmann::json Motion::statsToJson() {
   jsonStats["zero_acceleration"] = (stats.zeroAccel + 2) / 3; // normalize by rounding up.
   jsonStats["zero_gyroscope"] = (stats.zeroGyro + 2) / 3; // normalize by rounding up.
   jsonStats["zero_magnitude"] = stats.zeroMag;
-  jsonStats["longest_continous_repeat_acceleration"] = stats.longestContRepeatAccel;
-  jsonStats["longest_continous_repeat_gyroscope"] = stats.longestContRepeatGyro;
+  jsonStats["longest_continuous_repeat_acceleration"] = stats.longestContRepeatAccel;
+  jsonStats["longest_continuous_repeat_gyroscope"] = stats.longestContRepeatGyro;
   jsonStats["non_physical_accel"] = stats.nonPhysicalAccel;
   jsonStats["non_physical_rotAccel"] = stats.numNonPhysicalRotationAccel_;
   jsonStats["max_observed_rotAccel_rad_per_s2"] = stats.maxObservedRotationAccel_radPerS2_;

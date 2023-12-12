@@ -32,7 +32,7 @@ class Bluetooth : public Stream {
  public:
   explicit Bluetooth(vrs::StreamId streamId);
   bool setup(vrs::RecordFileReader& reader) override; // Setup the bluetooth player
-  const Stats getStats() override;
+  Stats getStats() override;
   void logStats() override;
   bool getResult() override; // Pass or fail for this stream
   uint32_t getPeriodUs() override {

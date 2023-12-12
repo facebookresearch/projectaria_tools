@@ -50,7 +50,7 @@ bool Wifi::setup(vrs::RecordFileReader& reader) {
   return true;
 }
 
-const Stats Wifi::getStats() {
+Stats Wifi::getStats() {
   std::lock_guard lock{mutex_};
   return stats_;
 }

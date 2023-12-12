@@ -53,7 +53,7 @@ class Camera : public Periodic {
       float maxTemp,
       const CameraCheckSetting& cameraCheckSetting);
   bool setup(vrs::RecordFileReader& reader) override; // Setup the camera player
-  const CameraStats getCameraStats(); // Get stats specific to camera sensors
+  CameraStats getCameraStats(); // Get stats specific to camera sensors
   void logStats() override;
   bool getResult() override; // Pass or fail for this stream
   nlohmann::json statsToJson() override;

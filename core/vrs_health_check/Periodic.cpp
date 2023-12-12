@@ -45,7 +45,7 @@ SensorMisalignmentStats* Periodic::getSensorMisalignmentStats() {
   return sensorMisalignmentStats_.get();
 }
 
-const Stats Periodic::getStats() {
+Stats Periodic::getStats() {
   std::lock_guard lock{mutex_};
   return stats_;
 }
