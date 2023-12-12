@@ -226,7 +226,7 @@ def main():
         ),
         timeless=True,
     )
-    # Log the RGB image (undistorted so we have pixel perfect reprojection in ReRun UI)
+    # Log the RGB image (undistorted so we have pixel perfect reprojection in Rerun UI)
     rgb = Image.open(rgb_path)
     undistorted_rgb = calibration.distort_by_calibration(rgb, pinhole, device)
     rr.log(f"world/frame/{frame_idx}", rr.Image(undistorted_rgb), timeless=True)

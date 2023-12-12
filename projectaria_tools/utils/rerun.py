@@ -19,13 +19,13 @@ from projectaria_tools.core.calibration import DeviceCalibration
 from projectaria_tools.core.sophus import SE3
 
 #
-# ReRun helper functions
+# Rerun helper functions
 #
 
 
 def ToTransform3D(pose: SE3, from_parent: bool = False) -> rr.Transform3D:
     """
-    Helper function to convert Sophus SE3D pose to a ReRun Transform3D
+    Helper function to convert Sophus SE3D pose to a Rerun Transform3D
     """
     quat_xyzw = np.roll(
         pose.rotation().to_quat()[0], -1

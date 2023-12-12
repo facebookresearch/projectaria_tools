@@ -92,7 +92,7 @@ def main():
             f"skeleton (id: {skeleton_id} name: {skeleton_info.name}) wears {skeleton_info.associated_device_serial} - Wearing glasses: {is_skeleton_displayed}"
         )
 
-    # Initializing ReRun viewer
+    # Initializing Rerun viewer
     rr.init("ADT Sequence Viewer", spawn=True)
     rr.log("world", rr.ViewCoordinates.RIGHT_HAND_Y_UP, timeless=True)
 

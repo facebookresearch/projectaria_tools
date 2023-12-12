@@ -129,7 +129,7 @@ def main():
     points_data = mps.read_global_point_cloud(args.points) if args.points else None
     eyegaze_data = mps.read_eyegaze(args.eyegaze) if args.eyegaze else None
 
-    # Initializing ReRun viewer
+    # Initializing Rerun viewer
     rr.init("MPS Data Viewer", spawn=True)
 
     #
