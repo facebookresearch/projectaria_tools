@@ -13,4 +13,4 @@
 # limitations under the License.
 
 # This makes the modules discoverable when doing dir(projectaria_tools)
-from . import core, projects  # noqa
+from . import core  # noqa
