@@ -18,7 +18,7 @@ add_library(compressed_istream CompressedIStream.cpp CompressedIStream.h)
 target_link_libraries(compressed_istream PUBLIC Boost::iostreams)
 
 add_library(eye_gaze EyeGaze.h EyeGazeReader.cpp EyeGazeFormat.h EyeGazeReader.h)
-target_link_libraries(eye_gaze PUBLIC device_calibration_json)
+target_link_libraries(eye_gaze PUBLIC device_calibration_json Sophus::Sophus)
 add_dependencies(eye_gaze fast-cpp-csv-parser)
 target_include_directories(eye_gaze
     PRIVATE
@@ -50,7 +50,10 @@ target_link_libraries(mps
         device_calibration_json
         eye_gaze
         format
-        Sophus::Sophus)
+        Sophus::Sophus
+    PRIVATE
+        vrs_logging
+        sensor_calibration_json)
 add_dependencies(mps fast-cpp-csv-parser)
 target_include_directories(mps
     PUBLIC

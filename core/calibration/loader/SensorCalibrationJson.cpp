@@ -17,7 +17,6 @@
 #include <calibration/loader/SensorCalibrationJson.h>
 
 #include <calibration/SensorCalibration.h>
-#include <rapidjson/document.h>
 
 #include <logging/Checks.h>
 #define DEFAULT_LOG_CHANNEL "SensorCalibrationJson"
@@ -35,22 +34,22 @@ const double kSlamMaxSolidAngleRad = 1.4;
 const double kRgbMaxSolidAngleRad = 1;
 const double kEtMaxSolidAngleRad = 0.75;
 
-Eigen::VectorXd parseVectorXdFromJson(const rapidjson::Value& json) {
-  Eigen::VectorXd vec(json.Size());
-  for (size_t i = 0; i < json.Size(); ++i) {
-    vec(i) = json[i].GetDouble();
+Eigen::VectorXd parseVectorXdFromJson(const nlohmann::json& json) {
+  Eigen::VectorXd vec(json.size());
+  for (size_t i = 0; i < json.size(); ++i) {
+    vec(i) = json[i];
   }
   return vec;
 }
 
-Eigen::Vector3d parseVector3dFromJson(const rapidjson::Value& json) {
-  XR_CHECK(json.Size() == 3, "Expects a 3d vector from json, actual size: {}", json.Size());
+Eigen::Vector3d parseVector3dFromJson(const nlohmann::json& json) {
+  XR_CHECK(json.size() == 3, "Expects a 3d vector from json, actual size: {}", json.size());
 
-  return {json[0].GetDouble(), json[1].GetDouble(), json[2].GetDouble()};
+  return Eigen::Vector3d(json[0], json[1], json[2]);
 }
 
-Eigen::Matrix3d parseMatrix3dFromJson(const rapidjson::Value& json) {
-  XR_CHECK(json.Size() == 3, "Expects 3 rows from matrix, actual number of rows: {}", json.Size());
+Eigen::Matrix3d parseMatrix3dFromJson(const nlohmann::json& json) {
+  XR_CHECK(json.size() == 3, "Expects 3 rows from matrix, actual number of rows: {}", json.size());
 
   Eigen::Matrix3d mat;
   for (size_t i = 0; i < 3; ++i) {
@@ -59,14 +58,14 @@ Eigen::Matrix3d parseMatrix3dFromJson(const rapidjson::Value& json) {
   return mat;
 }
 
-Sophus::SE3d parseSe3dFromJson(const rapidjson::Value& json) {
+Sophus::SE3d parseSe3dFromJson(const nlohmann::json& json) {
   Eigen::Vector3d translation = parseVector3dFromJson(json["Translation"]);
 
   XR_CHECK(
-      json["UnitQuaternion"].Size() == 2,
+      json["UnitQuaternion"].size() == 2,
       "Expects UnitQuaternion to have two components, actual size: {}",
-      json.Size());
-  double qReal = json["UnitQuaternion"][0].GetDouble();
+      json.size());
+  double qReal = json["UnitQuaternion"][0];
   Eigen::Vector3d qImag = parseVector3dFromJson(json["UnitQuaternion"][1]);
 
   Eigen::Quaterniond rotation(qReal, qImag.x(), qImag.y(), qImag.z());
@@ -74,9 +73,9 @@ Sophus::SE3d parseSe3dFromJson(const rapidjson::Value& json) {
 }
 } // namespace
 
-CameraCalibration parseCameraCalibrationFromJson(const rapidjson::Value& json) {
+CameraCalibration parseCameraCalibrationFromJson(const nlohmann::json& json) {
   // Parse projection params
-  const std::string projectionModelName = json["Projection"]["Name"].GetString();
+  const std::string projectionModelName = json["Projection"]["Name"];
   CameraProjection::ModelType modelName;
   if (projectionModelName == "FisheyeRadTanThinPrism") {
     modelName = CameraProjection::ModelType::Fisheye624;
@@ -85,9 +84,9 @@ CameraCalibration parseCameraCalibrationFromJson(const rapidjson::Value& json) {
   }
   Eigen::VectorXd projectionParams = parseVectorXdFromJson(json["Projection"]["Params"]);
 
-  std::string label = json["Label"].GetString();
-  std::string serialNumber = json["SerialNumber"].GetString();
-  auto T_Device_Camera = parseSe3dFromJson(json["T_Device_Camera"]);
+  const std::string label = json["Label"];
+  const std::string serialNumber = json["SerialNumber"];
+  const auto T_Device_Camera = parseSe3dFromJson(json["T_Device_Camera"]);
 
   std::optional<double> validRadius;
   int width;
@@ -126,15 +125,15 @@ CameraCalibration parseCameraCalibrationFromJson(const rapidjson::Value& json) {
 }
 
 namespace {
-std::pair<Eigen::Matrix3d, Eigen::Vector3d> parseRectModelFromJson(const rapidjson::Value& json) {
+std::pair<Eigen::Matrix3d, Eigen::Vector3d> parseRectModelFromJson(const nlohmann::json& json) {
   return {
       parseMatrix3dFromJson(json["Model"]["RectificationMatrix"]),
       parseVector3dFromJson(json["Bias"]["Offset"])};
 }
 } // namespace
 
-ImuCalibration parseImuCalibrationFromJson(const rapidjson::Value& json) {
-  const auto label = json["Label"].GetString();
+ImuCalibration parseImuCalibrationFromJson(const nlohmann::json& json) {
+  const auto& label = json["Label"];
   const auto [accelMat, accelBias] = parseRectModelFromJson(json["Accelerometer"]);
   const auto [gyroMat, gyroBias] = parseRectModelFromJson(json["Gyroscope"]);
   const auto T_Device_Imu = parseSe3dFromJson(json["T_Device_Imu"]);
@@ -142,11 +141,11 @@ ImuCalibration parseImuCalibrationFromJson(const rapidjson::Value& json) {
   return ImuCalibration(label, accelMat, accelBias, gyroMat, gyroBias, T_Device_Imu);
 }
 
-MagnetometerCalibration parseMagnetometerCalibrationFromJson(const rapidjson::Value& json) {
-  const auto label = json["Label"].GetString();
+MagnetometerCalibration parseMagnetometerCalibrationFromJson(const nlohmann::json& json) {
+  const auto& label = json["Label"];
   const auto [magMatFromJson, biasInMicroTesla] = parseRectModelFromJson(json);
 
-  // In factory calib json:
+  // In factory calibration json:
   //    `rectified_in_T = magMatFromJson * (raw_in_uT - bias_in_uT). `.
   // We want to align to the following to match IMU convention:
   //    `rectified_in_T = magMat.inv() * (raw_in_T - bias_in_T)`.
@@ -157,7 +156,7 @@ MagnetometerCalibration parseMagnetometerCalibrationFromJson(const rapidjson::Va
 
   // 2. `magMat` is transformed as:
   auto magMat = (-magMatFromJson.inverse() * 1e-6); /* where the extra `-` sign is an intentional
-  patch to correct a sign error in factory calib process. */
+  patch to correct a sign error in factory calibration process. */
 
   // 3. `bias` is transformed as:
   auto biasInTesla = biasInMicroTesla * 1e-6;
@@ -165,17 +164,17 @@ MagnetometerCalibration parseMagnetometerCalibrationFromJson(const rapidjson::Va
   return MagnetometerCalibration(label, magMat, biasInTesla);
 }
 
-BarometerCalibration parseBarometerCalibrationFromJson(const rapidjson::Value& json) {
-  const auto label = json["Label"].GetString();
-  double slope = json["PressureModel"]["Slope"].GetDouble();
-  double offsetPa = json["PressureModel"]["OffsetPa"].GetDouble();
+BarometerCalibration parseBarometerCalibrationFromJson(const nlohmann::json& json) {
+  const auto& label = json["Label"];
+  double slope = json["PressureModel"]["Slope"];
+  double offsetPa = json["PressureModel"]["OffsetPa"];
 
   return BarometerCalibration(label, slope, offsetPa);
 }
 
-MicrophoneCalibration parseMicrophoneCalibrationFromJson(const rapidjson::Value& json) {
-  const auto label = json["Label"].GetString();
-  double dSensitivity1KDbv = json["DSensitivity1KDbv"].GetDouble();
+MicrophoneCalibration parseMicrophoneCalibrationFromJson(const nlohmann::json& json) {
+  const auto& label = json["Label"];
+  const double dSensitivity1KDbv = json["DSensitivity1KDbv"];
   return MicrophoneCalibration(label, dSensitivity1KDbv);
 }
 } // namespace projectaria::tools::calibration

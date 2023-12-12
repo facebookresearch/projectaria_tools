@@ -19,6 +19,8 @@
 #include <fmt/format.h>
 #include <format/Format.h>
 #include "OnlineCalibration.h"
+#include "calibration/CameraCalibrationFormat.h"
+#include "calibration/ImuMagnetometerCalibrationFormat.h"
 
 /*
  * fmt::format() specialization for OnlineCalibration
@@ -27,7 +29,7 @@ template <>
 struct fmt::formatter<projectaria::tools::mps::OnlineCalibration> {
   // No parse function needed
 
-  // Format the OnlineCalibrattion object
+  // Format the OnlineCalibration object
   template <typename FormatContext>
   auto format(const projectaria::tools::mps::OnlineCalibration& calib, FormatContext& ctx) {
     std::stringstream camCalibsStr;

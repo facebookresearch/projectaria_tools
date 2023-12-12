@@ -25,47 +25,46 @@
 
 namespace projectaria::tools::calibration {
 
-void patchSyntheticHomeCalib(rapidjson::Value& json) {
-  XR_CHECK(json.FindMember("DeviceClassInfo") != json.MemberEnd());
+void patchSyntheticHomeCalib(nlohmann::json& json) {
+  XR_CHECK(json.contains("DeviceClassInfo"));
   // fix device class info
-  if (json["DeviceClassInfo"]["BuildVersion"].GetString() == std::string("SimulatedDevice")) {
-    json["DeviceClassInfo"]["DeviceClass"].SetString("Aria");
+  if (json["DeviceClassInfo"]["BuildVersion"] == std::string("SimulatedDevice")) {
+    json["DeviceClassInfo"]["DeviceClass"] = "Aria";
   } else {
     return; // recording data, no need to patch
   }
   // fix origin specification
-  if (json.FindMember("OriginSpecification") != json.MemberEnd()) {
-    json["OriginSpecification"]["Type"].SetString("Custom");
-    json["OriginSpecification"]["ChildLabel"].SetString("imu-left");
+  if (json.contains("OriginSpecification")) {
+    json["OriginSpecification"]["Type"] = "Custom";
+    json["OriginSpecification"]["ChildLabel"] = "imu-left";
   }
 
   // fix imu label
-  if (json.FindMember("ImuCalibrations") != json.MemberEnd()) {
-    auto jsonArray = json["ImuCalibrations"].GetArray();
-    XR_CHECK(jsonArray.Size() == 1);
+  if (json.contains("ImuCalibrations")) {
+    auto jsonArray = json["ImuCalibrations"];
+    XR_CHECK(jsonArray.size() == 1);
     for (auto& imuJson : jsonArray) {
-      imuJson["Label"].SetString("imu-left");
+      imuJson["Label"] = "imu-left";
     }
   }
 }
 // calibration accessor for Aria device
 std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& calibJsonStr) {
-  rapidjson::Document json;
-  json.Parse(calibJsonStr.c_str());
+  auto json = nlohmann::json::parse(calibJsonStr.c_str());
   patchSyntheticHomeCalib(json);
 
   std::map<std::string, CameraCalibration> cameraCalibs;
   std::map<std::string, ImuCalibration> imuCalibs;
   {
-    if (json.FindMember("CameraCalibrations") != json.MemberEnd()) {
-      for (const auto& camJson : json["CameraCalibrations"].GetArray()) {
+    if (json.contains("CameraCalibrations")) {
+      for (const auto& camJson : json["CameraCalibrations"]) {
         CameraCalibration camCalib = parseCameraCalibrationFromJson(camJson);
         auto label = camCalib.getLabel();
         cameraCalibs.emplace(label, std::move(camCalib));
       }
     }
-    if (json.FindMember("ImuCalibrations") != json.MemberEnd()) {
-      for (const auto& imuJson : json["ImuCalibrations"].GetArray()) {
+    if (json.contains("ImuCalibrations")) {
+      for (const auto& imuJson : json["ImuCalibrations"]) {
         ImuCalibration imuCalib = parseImuCalibrationFromJson(imuJson);
         auto label = imuCalib.getLabel();
         imuCalibs.emplace(label, std::move(imuCalib));
@@ -77,26 +76,26 @@ std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& ca
   std::map<std::string, MagnetometerCalibration> magnetometerCalibs;
   std::map<std::string, BarometerCalibration> barometerCalibs;
   std::map<std::string, MicrophoneCalibration> microphoneCalibs;
-  if (json.FindMember("DeviceClassInfo") != json.MemberEnd()) {
-    deviceSubtype = json["DeviceClassInfo"]["BuildVersion"].GetString();
+  if (json.contains("DeviceClassInfo")) {
+    deviceSubtype = json["DeviceClassInfo"]["BuildVersion"];
   }
-  if (json.FindMember("MagCalibrations") != json.MemberEnd()) {
-    for (const auto& magnetometerJson : json["MagCalibrations"].GetArray()) {
+  if (json.contains("MagCalibrations")) {
+    for (const auto& magnetometerJson : json["MagCalibrations"]) {
       MagnetometerCalibration magnetometerCalib =
           parseMagnetometerCalibrationFromJson(magnetometerJson);
       auto label = magnetometerCalib.getLabel();
       magnetometerCalibs.emplace(label, std::move(magnetometerCalib));
     }
   }
-  if (json.FindMember("BaroCalibrations") != json.MemberEnd()) {
-    for (const auto& barometerJson : json["BaroCalibrations"].GetArray()) {
+  if (json.contains("BaroCalibrations")) {
+    for (const auto& barometerJson : json["BaroCalibrations"]) {
       BarometerCalibration barometerCalib = parseBarometerCalibrationFromJson(barometerJson);
       auto label = barometerCalib.getLabel();
       barometerCalibs.emplace(label, std::move(barometerCalib));
     }
   }
-  if (json.FindMember("MicCalibrations") != json.MemberEnd()) {
-    for (const auto& microphoneJson : json["MicCalibrations"].GetArray()) {
+  if (json.contains("MicCalibrations")) {
+    for (const auto& microphoneJson : json["MicCalibrations"]) {
       MicrophoneCalibration microphoneCalib = parseMicrophoneCalibrationFromJson(microphoneJson);
       auto label = microphoneCalib.getLabel();
       microphoneCalibs.emplace(label, std::move(microphoneCalib));
@@ -105,10 +104,10 @@ std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& ca
 
   std::string originLabel;
   // Parse in Origin Sensor Label
-  if (json.FindMember("OriginSpecification") != json.MemberEnd()) {
-    const std::string originType = json["OriginSpecification"]["Type"].GetString();
+  if (json.contains("OriginSpecification")) {
+    const std::string originType = json["OriginSpecification"]["Type"];
     if (originType == "Custom") {
-      originLabel = json["OriginSpecification"]["ChildLabel"].GetString();
+      originLabel = json["OriginSpecification"]["ChildLabel"];
     } else {
       XR_LOGE(
           "Origin Specification's Type in calibration.json should be 'Custom' instead of {}",

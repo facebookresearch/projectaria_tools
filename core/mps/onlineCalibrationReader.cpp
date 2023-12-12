@@ -19,22 +19,21 @@
 #include <iostream>
 #include <string>
 
-#define RAPIDJSON_HAS_STDSTRING 1
 #include <calibration/loader/SensorCalibrationJson.h>
 #include "OnlineCalibration.h"
 
 namespace projectaria::tools::mps {
 
 namespace {
-// loading new online calib format after Jun 2023
-OnlineCalibration readSingleOnlineCalibFromJson(const rapidjson::Document& doc) {
+// loading new online calibration format after Jun 2023
+OnlineCalibration readSingleOnlineCalibFromJson(const nlohmann::json& doc) {
   OnlineCalibration calib;
-  calib.trackingTimestamp = std::chrono::microseconds(doc["tracking_timestamp_us"].GetInt64());
-  calib.utcTimestamp = std::chrono::nanoseconds(doc["utc_timestamp_ns"].GetInt64());
-  for (const auto& camJson : doc["CameraCalibrations"].GetArray()) {
+  calib.trackingTimestamp = std::chrono::microseconds(doc["tracking_timestamp_us"]);
+  calib.utcTimestamp = std::chrono::nanoseconds(doc["utc_timestamp_ns"]);
+  for (const auto& camJson : doc["CameraCalibrations"]) {
     calib.cameraCalibs.push_back(calibration::parseCameraCalibrationFromJson(camJson));
   }
-  for (const auto& imuJson : doc["ImuCalibrations"].GetArray()) {
+  for (const auto& imuJson : doc["ImuCalibrations"]) {
     calib.imuCalibs.push_back(calibration::parseImuCalibrationFromJson(imuJson));
   }
   return calib;
@@ -57,23 +56,18 @@ std::string fixJsonString(const std::string& inputJsonStr) {
 }
 
 // loading old online calib format before Jun 2023
-OnlineCalibration readSingleOnlineCalibFromJsonString(const rapidjson::Document& doc) {
+OnlineCalibration readSingleOnlineCalibFromJsonString(const nlohmann::json& doc) {
   OnlineCalibration calib;
-  calib.trackingTimestamp =
-      std::chrono::microseconds(std::stoul(doc["tracking_timestamp_us"].GetString()));
-  calib.utcTimestamp = std::chrono::nanoseconds(std::stoul(doc["utc_timestamp_ns"].GetString()));
+  calib.trackingTimestamp = std::chrono::microseconds(doc["tracking_timestamp_us"]);
+  calib.utcTimestamp = std::chrono::nanoseconds(doc["utc_timestamp_ns"]);
   // cam
-  rapidjson::Document camDoc;
-  camDoc.Parse(fixJsonString(doc["CameraCalibrations"].GetString()));
-  for (int i = 0; i < camDoc.GetArray().Size(); i++) {
-    const auto& camJson = camDoc.GetArray()[i];
+  nlohmann::json camDoc = nlohmann::json::parse(fixJsonString(doc["CameraCalibrations"]));
+  for (const auto& camJson : camDoc) {
     calib.cameraCalibs.push_back(calibration::parseCameraCalibrationFromJson(camJson));
   }
   // imu
-  rapidjson::Document imuDoc;
-  imuDoc.Parse(fixJsonString(doc["ImuCalibrations"].GetString()));
-  for (int i = 0; i < imuDoc.GetArray().Size(); i++) {
-    const auto& imuJson = imuDoc.GetArray()[i];
+  nlohmann::json imuDoc = nlohmann::json::parse(fixJsonString(doc["ImuCalibrations"]));
+  for (const auto& imuJson : imuDoc) {
     calib.imuCalibs.push_back(calibration::parseImuCalibrationFromJson(imuJson));
   }
   return calib;
@@ -87,8 +81,7 @@ OnlineCalibrations readOnlineCalibration(const std::string& filepath) {
     OnlineCalibrations onlineCalibs;
 
     while (std::getline(infile, jsonCalibrationString)) {
-      rapidjson::Document doc;
-      doc.Parse(jsonCalibrationString.c_str());
+      nlohmann::json doc = nlohmann::json::parse(jsonCalibrationString.c_str());
 
       // whether the calibration content is saved in string
       // this is for backward compatibility of MPS online calib results release before Jun 2023.
@@ -96,7 +89,7 @@ OnlineCalibrations readOnlineCalibration(const std::string& filepath) {
       // Before June 2023: calibration content is in quote
       // After June 2023:  we update the JSON format for simplicity, calibration content is no
       // longer in quote
-      const bool contentInStr = doc["tracking_timestamp_us"].IsString();
+      const bool contentInStr = doc["tracking_timestamp_us"].is_string();
 
       if (contentInStr) {
         onlineCalibs.push_back(readSingleOnlineCalibFromJsonString(doc));

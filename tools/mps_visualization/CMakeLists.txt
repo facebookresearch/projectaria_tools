@@ -32,6 +32,7 @@ target_link_libraries(mps_3d_scene_viewer_lib
         mps
         CLI11::CLI11
         ${Pangolin_LIBRARIES}
+        vrs_logging
 )
 add_executable(mps_3d_scene_viewer
     main_3d_scene_viewer.cpp
@@ -39,6 +40,7 @@ add_executable(mps_3d_scene_viewer
 target_link_libraries(mps_3d_scene_viewer
     PRIVATE
         mps_3d_scene_viewer_lib
+        vrs_logging
 )
 message("--- Compiling mps_3d_replay_viewer.")
 add_executable(mps_3d_replay_viewer

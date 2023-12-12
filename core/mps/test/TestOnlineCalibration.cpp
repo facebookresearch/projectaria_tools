@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <mps/OnlineCalibrationFormat.h>
 #include <mps/onlineCalibrationReader.h>
 
 #include <gtest/gtest.h>
