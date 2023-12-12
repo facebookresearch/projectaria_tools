@@ -18,6 +18,7 @@
 #include <mps/StaticCameraCalibrationReader.h>
 
 #include <filesystem>
+#include <fstream>
 
 using namespace projectaria::tools::mps;
 

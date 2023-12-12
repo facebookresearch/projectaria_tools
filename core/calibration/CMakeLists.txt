@@ -34,4 +34,4 @@ target_link_libraries(device_cad_extrinsics PUBLIC vrs_logging Eigen3::Eigen Sop
 
 add_library(device_calibration DeviceCalibration.cpp DeviceCalibration.h)
 target_include_directories(device_calibration PUBLIC "../")
-target_link_libraries(device_calibration PUBLIC device_cad_extrinsics sensor_calibration)
+target_link_libraries(device_calibration PUBLIC device_cad_extrinsics sensor_calibration Sophus::Sophus)
