@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 #include <mps/StaticCameraCalibrationReader.h>
 
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 
@@ -27,13 +28,14 @@ static const std::string StaticCameraCalibrationFileTemplate =
  cam01,40084458-f219-16ca-0c3c-8bd94ee06e6c,1.691723,0.545741,-0.116511,-0.437056,-0.661141,0.501553,0.346871,3840,2160,KANNALABRANDTK3,1761.275757,1761.275757,1920.000000,1080.000000,0.036902,0.057131,-0.057154,0.018458,-1,-1)";
 
 TEST(mps_static_camera_calibration, valid_file) {
-  const std::string staticCameraCalibrationFilename = "static_camera_calibration.csv";
-  std::ofstream file(staticCameraCalibrationFilename);
+  const std::string staticCameraCalibrationTemporaryFilename = std::tmpnam(nullptr);
+  std::ofstream file(staticCameraCalibrationTemporaryFilename);
   file << StaticCameraCalibrationFileTemplate;
   file.close();
-  const auto staticCalibrations = readStaticCameraCalibrations(staticCameraCalibrationFilename);
+  const auto staticCalibrations =
+      readStaticCameraCalibrations(staticCameraCalibrationTemporaryFilename);
   EXPECT_FALSE(staticCalibrations.empty());
-  std::filesystem::remove(staticCameraCalibrationFilename);
+  std::filesystem::remove(staticCameraCalibrationTemporaryFilename);
 }
 
 TEST(mps_static_camera_calibration, invalid_file) {
