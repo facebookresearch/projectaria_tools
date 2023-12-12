@@ -12,20 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This makes the modules discoverable when doing dir(projectaria_tools.core)
-
 """
-A pybind11 binding for projectaria_tools core module
+A pybind11 binding for projectaria_tools vrs submodule
 """
 
-from . import (  # noqa
-    calibration,
-    data_provider,
-    image,
-    mps,
-    sensor_data,
-    sophus,
-    stream_id,
-    vrs,
-    vrs_health_check,
-)
+from _core_pybinds.vrs_health_check import *  # noqa

@@ -20,6 +20,7 @@
 #include "SensorDataPyBind.h"
 #include "StreamIdPyBind.h"
 #include "VrsDataProviderPyBind.h"
+#include "VrsHealthCheckPybind.h"
 #include "VrsPyBind.h"
 
 #include "sophus/SophusPyBind.h"
@@ -53,4 +54,7 @@ PYBIND11_MODULE(_core_pybinds, m) {
 
   py::module vrs = m.def_submodule("vrs");
   vrspybind::exportVrs(vrs);
+
+  py::module vrsHealthCheck = m.def_submodule("vrs_health_check");
+  vrs_check::exportVrsHealthCheck(vrsHealthCheck);
 }
