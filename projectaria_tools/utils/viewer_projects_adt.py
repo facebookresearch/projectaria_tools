@@ -20,6 +20,8 @@ from typing import Dict, Set
 import numpy as np
 import rerun as rr
 
+from projectaria_tools.core.mps.utils import get_gaze_vector_reprojection
+
 from projectaria_tools.core.sophus import SE3
 
 from projectaria_tools.core.stream_id import StreamId
@@ -31,7 +33,6 @@ from projectaria_tools.projects.adt import (
     DYNAMIC,
     STATIC,
 )
-
 from projectaria_tools.utils.rerun import AriaGlassesOutline, ToTransform3D
 from tqdm import tqdm
 
@@ -50,6 +51,11 @@ def parse_args():
         default=0,
         help="Device_number you want to visualize, default is 0",
     )
+    # Add options that does not show by default, but still accessible for debugging purpose
+    parser.add_argument(
+        "--down_sampling_factor", type=int, default=4, help=argparse.SUPPRESS
+    )
+    parser.add_argument("--jpeg_quality", type=int, default=75, help=argparse.SUPPRESS)
     return parser.parse_args()
 
 
@@ -101,22 +107,25 @@ def main():
     #
 
     # Log RGB camera calibration
-    camera_calibration = gt_provider.get_aria_camera_calibration(rgb_stream_id)
+    rgb_camera_calibration = gt_provider.get_aria_camera_calibration(rgb_stream_id)
     rr.log(
         "world/device/rgb",
         rr.Pinhole(
             resolution=[
-                camera_calibration.get_image_size()[0],
-                camera_calibration.get_image_size()[1],
+                rgb_camera_calibration.get_image_size()[0] / args.down_sampling_factor,
+                rgb_camera_calibration.get_image_size()[1] / args.down_sampling_factor,
             ],
-            focal_length=float(camera_calibration.get_focal_lengths()[0]),
+            focal_length=float(
+                rgb_camera_calibration.get_focal_lengths()[0]
+                / args.down_sampling_factor
+            ),
         ),
         timeless=True,
     )
     # Log Aria Glasses outline
     raw_data_provider_ptr = gt_provider.raw_data_provider_ptr()
-    device_calib = raw_data_provider_ptr.get_device_calibration()
-    aria_glasses_point_outline = AriaGlassesOutline(device_calib)
+    device_calibration = raw_data_provider_ptr.get_device_calibration()
+    aria_glasses_point_outline = AriaGlassesOutline(device_calibration)
     rr.log(
         "world/device/glasses_outline",
         rr.LineStrips3D([aria_glasses_point_outline]),
@@ -131,6 +140,23 @@ def main():
     for timestamp_ns in tqdm(img_timestamps_ns):
         rr.set_time_nanos("device_time", timestamp_ns)
         rr.set_time_sequence("timestamp", timestamp_ns)
+
+        # Log RGB image
+        image_with_dt = gt_provider.get_aria_image_by_timestamp_ns(
+            timestamp_ns, rgb_stream_id
+        )
+
+        if args.down_sampling_factor > 1:
+            img = image_with_dt.data().to_numpy_array()[
+                :: args.down_sampling_factor, :: args.down_sampling_factor
+            ]
+            # Note: We configure the QUEUE to return only RGB image, so we are sure this image is corresponding to a RGB frame
+            rr.log(
+                "world/device/rgb",
+                rr.Image(img).compress(jpeg_quality=args.jpeg_quality),
+            )
+
+        # Log skeleton(s)
         for skeleton_id in skeleton_ids:
             skeleton_with_dt = gt_provider.get_skeleton_by_timestamp_ns(
                 timestamp_ns, skeleton_id
@@ -152,7 +178,7 @@ def main():
                 rr.LineStrips3D(traces),
             )
 
-        # Draw device position and trajectory
+        # Log device position and trajectory
         aria_3d_pose_with_dt = gt_provider.get_aria_3d_pose_by_timestamp_ns(
             timestamp_ns
         )
@@ -160,7 +186,6 @@ def main():
         if aria_3d_pose_with_dt.is_valid():
             aria_3d_pose = aria_3d_pose_with_dt.data()
             device_to_rgb = gt_provider.get_aria_transform_device_camera(rgb_stream_id)
-            camera_calibration = gt_provider.get_aria_camera_calibration(rgb_stream_id)
 
             rr.log(
                 "world/device",
@@ -174,25 +199,43 @@ def main():
                 rr.Points3D(aria_3d_pose.transform_scene_device.translation()),
             )
 
-            # Log Eye gaze vector in RGB camera coordinate system
+            # Log Eye gaze vector in CPF coordinate system
             eye_gaze_with_dt = gt_provider.get_eyegaze_by_timestamp_ns(timestamp_ns)
-            rgb_camera_pose = aria_3d_pose.transform_scene_device @ device_to_rgb
+            transform_device_cpf = (
+                gt_provider.raw_data_provider_ptr()
+                .get_device_calibration()
+                .get_transform_device_cpf()
+            )
+            T_scene_cpf = aria_3d_pose.transform_scene_device @ transform_device_cpf
+
             if eye_gaze_with_dt.is_valid():
                 eye_gaze = eye_gaze_with_dt.data()
-                gaze_centered_in_cpf = (
+                gaze_ray_in_cpf = (
                     np.array(
                         [tan(eye_gaze.yaw), tan(eye_gaze.pitch), 1.0], dtype=np.float64
                     )
                     * eye_gaze.depth
                 )
-                gaze_centered_in_camera = (rgb_camera_pose @ gaze_centered_in_cpf)[:, 0]
+                gaze_ray_in_camera = T_scene_cpf @ gaze_ray_in_cpf
                 rr.log(
                     "world/eye_gaze",
-                    rr.LineStrips3D(
-                        [[rgb_camera_pose.translation()[0], gaze_centered_in_camera]]
-                    ),
+                    rr.LineStrips3D([[T_scene_cpf @ [0, 0, 0], gaze_ray_in_camera]]),
                 )
 
+                # Compute eye_gaze vector at depth_m reprojection in the image
+                gaze_projection = get_gaze_vector_reprojection(
+                    eye_gaze,
+                    rgb_camera_calibration.get_label(),
+                    device_calibration,
+                    rgb_camera_calibration,
+                    eye_gaze.depth,
+                )
+                rr.log(
+                    "world/device/rgb/eye-gaze_projection",
+                    rr.Points2D(gaze_projection / args.down_sampling_factor, radii=4),
+                )
+
+        # Log object Bounding Boxes
         bbox3d_with_dt = gt_provider.get_object_3d_boundingboxes_by_timestamp_ns(
             timestamp_ns
         )
@@ -247,7 +290,7 @@ def main():
                         f"world/objects/dynamic/{instance_info.name}",
                         rr.LineStrips3D([obb]),
                     )
-
+            # Static
             elif instance_info.motion_type == STATIC and obj_id not in static_obj_ids:
                 static_obj_ids.add(obj_id)
                 bbox_3d = bboxes3d[obj_id]
