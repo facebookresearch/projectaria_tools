@@ -37,6 +37,30 @@ closed_loop_traj = mps.read_closed_loop_trajectory(closed_loop_path)
 # example: get transformation from this device to world coordinate frame
 for closed_loop_pose in closed_loop_traj:
     transform_world_device = closed_loop_pose.transform_world_device
+
+# example: query to find the closest Timestamp device pose and move it to the Aria RGB camera pose
+from projectaria_tools.core import data_provider
+from projectaria_tools.core.mps.utils import get_nearest_pose
+from projectaria_tools.core.stream_id import StreamId
+
+query_timestamp_ns = int(closed_loop_traj[1].tracking_timestamp.total_seconds() * 1e9) # to be updated with your VRS timestamps
+
+pose_info = get_nearest_pose(closed_loop_traj, query_timestamp_ns)
+if pose_info:
+    T_world_device = pose_info.transform_world_device
+
+    # Move this pose to the Project Aria RGB camera
+    vrs_file = "example.vrs"
+    vrs_data_provider = data_provider.create_vrs_data_provider(vrs_file)
+    rgb_stream_id = StreamId("214-1")
+    rgb_stream_label = vrs_data_provider.get_label_from_stream_id(rgb_stream_id)
+    device_calibration = vrs_data_provider.get_device_calibration()
+    rgb_camera_calibration = device_calibration.get_camera_calib(rgb_stream_label)
+
+    T_device_rgb_camera = rgb_camera_calibration.get_transform_device_camera()
+    T_world_rgb_camera = T_world_device @ T_device_rgb_camera
+
+    print(T_world_rgb_camera)
 ```
 ```mdx-code-block
 </TabItem>
@@ -191,11 +215,42 @@ for (const OnlineCalibration& calib : onlineCalibs) {
 import projectaria_tools.core.mps as mps
 
 gaze_path = "/path/to/mps/output/eye_gaze/general_eye_gaze.csv"
-gaze_cpf = mps.read_eye_gaze(eye_gaze_path)
+gaze_cpf = mps.read_eyegaze(eye_gaze_path)
 
 # project the 3D gaze point assume depth is 1.0 meter
 depth_m = 1.0
-gaze_Point_cpf = mps.get_eyegaze_point_at_depth(gaze_cpf[0].yaw, gaze_cpf[0].pitch, depth_m)
+gaze_point_cpf = mps.get_eyegaze_point_at_depth(gaze_cpf[1].yaw, gaze_cpf[1].pitch, depth_m)
+
+# example: query to find the closest Timestamp eye gaze data
+from projectaria_tools.core import data_provider
+from projectaria_tools.core.stream_id import StreamId
+from projectaria_tools.core.mps.utils import (
+    get_gaze_vector_reprojection,
+    get_nearest_eye_gaze
+)
+
+query_timestamp_ns = int(gaze_cpf[1].tracking_timestamp.total_seconds() * 1e9)  # to be updated with your VRS timestamps
+
+eye_gaze_info = get_nearest_eye_gaze(gaze_cpf, query_timestamp_ns)
+
+if eye_gaze_info:
+    # Re project the eye gaze point in the RGB camera
+    vrs_file = "example.vrs"
+    vrs_data_provider = data_provider.create_vrs_data_provider(vrs_file)
+
+    rgb_stream_id = StreamId("214-1")
+    rgb_stream_label = vrs_data_provider.get_label_from_stream_id(rgb_stream_id)
+    device_calibration = vrs_data_provider.get_device_calibration()
+    rgb_camera_calibration = device_calibration.get_camera_calib(rgb_stream_label)
+
+    gaze_projection = get_gaze_vector_reprojection(
+                    eye_gaze_info,
+                    rgb_stream_label,
+                    device_calibration,
+                    rgb_camera_calibration,
+                    depth_m,
+                )
+    print(gaze_projection)
 ```
 ```mdx-code-block
 </TabItem>
