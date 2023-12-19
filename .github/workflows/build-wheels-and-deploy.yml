@@ -41,7 +41,7 @@ jobs:
         shell: bash
         run: |
           # Install system deps with Homebrew
-          arch -arm64 brew install cmake boost fmt googletest glog lz4 zstd xxhash libpng jpeg-turbo gsed
+          brew install cmake boost fmt googletest glog lz4 zstd xxhash libpng jpeg-turbo gsed
       - name: Install projectaria_tools
         run: |
           # Build and install Python bindings
@@ -56,13 +56,13 @@ jobs:
           CMAKE_BUILD_PARALLEL_LEVEL=4 pip3 install .
           # remove the build folder
           rm -rf build
+      # - name: Build wheels for CPython
+      #   if: matrix.os == 'macos-latest-xlarge'
+      #   shell: bash
+      #   run: |
+      #     CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist --config-file ./pyproject_arm64.toml
       - name: Build wheels for CPython
-        if: matrix.os == 'macos-latest-xlarge'
-        shell: bash
-        run: |
-          CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist --config-file ./pyproject_arm64.toml
-      - name: Build wheels for CPython
-        if: matrix.os != 'macos-latest-xlarge'
+        # if: matrix.os != 'macos-latest-xlarge'
         shell: bash
         run: |
           CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist
