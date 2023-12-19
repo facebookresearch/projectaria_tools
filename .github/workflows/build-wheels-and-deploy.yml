@@ -20,10 +20,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os:
-          - macos-latest # Intel (x86_64)
-          - macos-latest-xlarge # Apple Silicon (M1)
-          - ubuntu-latest
+        os: [
+            "macos-latest", # Intel (x86_64)
+            "macos-latest-xlarge", # Apple Silicon (M1)
+            "ubuntu-latest"
+        ]
     steps:
       - uses: actions/checkout@v3
         with:
