@@ -20,7 +20,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macOS-latest, ubuntu-latest]
+        os:
+          - macos-latest # Intel (x86_64)
+          - macos-latest-xlarge # Apple Silicon (M1)
+          - ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -86,9 +89,14 @@ jobs:
           CMAKE_BUILD_PARALLEL_LEVEL=4 pip3 install .
           # remove the build folder
           rm -rf build
-      - name: Build wheels for CPython
+      - name: Build wheels for CPython x86_64
+        runs-on: [ubuntu-latest, macOS-latest]
         run: |
           CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist
+      - name: Build wheels for CPython mac ARM64
+        runs-on: [macos-latest-xlarge]
+        run: |
+          CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist --config-file ./pyproject_arm64.toml --archs arm64
       - uses: actions/upload-artifact@v2
         with:
           name: python-package-distributions
