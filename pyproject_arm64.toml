@@ -11,7 +11,7 @@ build="cp38-*64 cp39-*64 cp310-*64 cp311-*64"
 [tool.cibuildwheel.macos]
 archs = ["arm64"]
 before-build='''
-brew update && brew upgrade && arch -arm64 brew reinstall boost cmake fmt glog jpeg-turbo libpng xxhash
+brew update && brew upgrade && arch -arm64 brew reinstall boost cmake fmt glog jpeg-turbo libpng
 
 # Build lz4
 git clone https://github.com/lz4/lz4.git
@@ -28,5 +28,13 @@ make
 sudo make install
 cd ..
 rm -rf ./zstd
+
+# Build xxhash
+git clone https://github.com/Cyan4973/xxHash.git
+cd xxHash
+make
+sudo make install
+cd ..
+rm -rf ./xxHash
 '''
 environment = {"ARCHFLAGS" ="-arch arm64", "CMAKE_ARGS"="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15  -DCMAKE_PREFIX_PATH=/Users/${USER}/homebrew -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"}
