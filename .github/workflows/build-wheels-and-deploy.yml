@@ -21,9 +21,7 @@ jobs:
     strategy:
       matrix:
         os: [
-            "macos-latest", # Intel (x86_64)
-            "macos-latest-xlarge", # Apple Silicon (M1)
-            "ubuntu-latest"
+            "macos-latest-xlarge" # Apple Silicon (M1)
         ]
     steps:
       - uses: actions/checkout@v3
@@ -42,40 +40,8 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-              # Update & upgrade package lists
-              sudo apt-get update -y
-              sudo apt-get upgrade
-              # Deal with Github CI limitation
-              # https://github.com/actions/runner-images/issues/6399#issuecomment-1285011525
-              sudo apt install -y libunwind-dev
-              # Generic dependencies
-              sudo apt-get install cmake libopenblas-dev
-              # Install VRS dependencies
-              sudo apt-get install -o Acquire::Retries=5 \
-                libgtest-dev libgmock-dev \
-                libfmt-dev \
-                libturbojpeg-dev libpng-dev \
-                liblz4-dev libzstd-dev libxxhash-dev \
-                libboost-chrono-dev \
-                libboost-date-time-dev \
-                libboost-filesystem-dev \
-                libboost-iostreams-dev \
-                libboost-system-dev \
-                libboost-thread-dev
-              # Clean APT cache
-              sudo apt-get clean
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-              # Install system deps with Homebrew
-              brew install cmake
-              # VRS dependencies
-              brew install boost fmt googletest glog lz4 zstd xxhash libpng jpeg-turbo
-              # Install gsed for easy string replacement
-              brew install gsed
-          else
-              echo "$RUNNER_OS not supported"
-              exit 1
-          fi
+          # Install system deps with Homebrew
+          arch -arm64 brew install cmake boost fmt googletest glog lz4 zstd xxhash libpng jpeg-turbo gsed
       - name: Install projectaria_tools
         run: |
           # Build and install Python bindings
@@ -94,7 +60,7 @@ jobs:
         if: matrix.os == 'macos-latest-xlarge'
         shell: bash
         run: |
-          CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist --config-file ./pyproject_arm64.toml --archs arm64
+          CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist --config-file ./pyproject_arm64.toml
       - name: Build wheels for CPython
         if: matrix.os != 'macos-latest-xlarge'
         shell: bash
