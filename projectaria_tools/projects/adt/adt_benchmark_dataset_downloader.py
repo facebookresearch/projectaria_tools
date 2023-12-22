@@ -36,6 +36,10 @@ def parse_args():
     #    1: segmentation images. Around 2~4GB per sequence
     #    2: depth images. Around 4~8GB per sequence
     #    3: synthetic images. Around 2~4GB per sequence
+    #    4: MPS Eyegaze. < 1MB per sequence
+    #    5: MPS SLAM trajectories. < 100MB per sequence
+    #    6: MPS SLAM semidense points and observations. 500MB~1GB per sequence
+    #    7: MPS SLAM online calibration. < 50MB per sequence
     # :sequence_names: a list of ADT sequence names (separated by space) to be downloaded,
     #    If not set, all sequences will be downloaed
     #####################################################################
@@ -101,10 +105,15 @@ def parse_args():
         default=[],
         help="""
         List (space separated) of data types to download for each sequence.
-        0: main data, including Aria data, 2D and 3D bounding boxes, instance information and skeleton ground-truth. Around 3~6G per sequence \n
-        1: segmentation images. Around 2~4GB per sequence \n
-        2: depth images. Around 4~8GB per sequence \n
-        3: synthetic images. Around 2~4GB per sequence \n
+        0: main data, including Aria data, 2D and 3D bounding boxes,
+           instance information and skeleton ground-truth. Around 3~6G per sequence
+        1: segmentation images. Around 2~4GB per sequence
+        2: depth images. Around 4~8GB per sequence
+        3: synthetic images. Around 2~4GB per sequence
+        4: MPS Eyegaze. < 1MB per sequence
+        5: MPS SLAM trajectories. < 100MB per sequence
+        6: MPS SLAM semidense points and observations. 500MB~1GB per sequence
+        7: MPS SLAM online calibration. < 50MB per sequence
         """,
     )
 
@@ -114,7 +123,7 @@ def parse_args():
         dest="sequence_names",
         nargs="+",
         required=False,
-        help="a list of ADT sequence names (separated by space) to be downloaded. If not set, all sequences will be downloaed",
+        help="a list of ADT sequence names (separated by space) to be downloaded. If not set, all sequences will be downloaded",
     )
 
     return parser.parse_args()
@@ -127,8 +136,20 @@ def main():
     for dt_str in args.data_types:
         data_types.append(AriaDigitalTwinDataType(int(dt_str)))
     if not args.metadata_only and not data_types:
-        print("-d(, --data_types) must be speficied for sequence or example")
+        print("-d(, --data_types) must be specified for sequence or example")
         exit(1)
+
+    # add slam summary if any slam data is requested
+    for data_type in data_types:
+        if (
+            data_type == AriaDigitalTwinDataType.MPS_SLAM_CALIBRATION
+            or data_type == AriaDigitalTwinDataType.MPS_SLAM_TRAJECTORIES
+            or data_type == AriaDigitalTwinDataType.MPS_SLAM_POINTS
+        ):
+            data_types.append(
+                AriaDigitalTwinDataType(AriaDigitalTwinDataType.MPS_SLAM_SUMMARY)
+            )
+            break
 
     data_category = None
     if args.metadata_only:
@@ -150,6 +171,10 @@ def main():
                     1: Total segmentation images: ~750GB
                     2: Total depth images: ~1.5TB
                     3: Total synthetic images: ~500GB
+                    4: Total MPS Eyegaze: ~150MB
+                    5: Total MPS SLAM trajectories: ~15GB
+                    6: Total MPS SLAM semidense points and observations: ~140GB
+                    7: Total MPS SLAM online calibration: ~5GB
                     Do you want to download all 222 sequences? [y/N]
                     """
                 ).lower()

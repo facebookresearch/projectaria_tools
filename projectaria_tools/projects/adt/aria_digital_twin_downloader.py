@@ -18,6 +18,7 @@ import os
 import shutil
 import tempfile
 from enum import Enum
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from zipfile import is_zipfile, ZipFile
 
@@ -30,6 +31,14 @@ CHUCK_SIZE_BYTE = 8192
 STATUS_CODE_DEFAULT = 404
 
 DOWNLOAD_STATUS_FILE = ".download_status.json"
+
+DATA_TYPE_TO_SAVE_PATH = {
+    "mps_eyegaze": os.path.join("mps", "eyegaze"),
+    "mps_slam_trajectories": os.path.join("mps", "slam"),
+    "mps_slam_points": os.path.join("mps", "slam"),
+    "mps_slam_calibration": os.path.join("mps", "slam"),
+    "mps_slam_summary": os.path.join("mps", "slam"),
+}
 
 
 class AriaDigitalTwinDataGroup(Enum):
@@ -45,6 +54,11 @@ class AriaDigitalTwinDataType(Enum):
     SEGMENTATIONS = 1
     DEPTH_IMAGES = 2
     SYNTHETIC = 3
+    MPS_EYEGAZE = 4
+    MPS_SLAM_TRAJECTORIES = 5
+    MPS_SLAM_POINTS = 6
+    MPS_SLAM_CALIBRATION = 7
+    MPS_SLAM_SUMMARY = 8
 
     def __str__(self):
         return self.name.lower()
@@ -69,6 +83,11 @@ class AriaDigitalTwinDownloadStatusManager:
         self.status[str(AriaDigitalTwinDataType.SEGMENTATIONS)] = False
         self.status[str(AriaDigitalTwinDataType.DEPTH_IMAGES)] = False
         self.status[str(AriaDigitalTwinDataType.SYNTHETIC)] = False
+        self.status[str(AriaDigitalTwinDataType.MPS_EYEGAZE)] = False
+        self.status[str(AriaDigitalTwinDataType.MPS_SLAM_TRAJECTORIES)] = False
+        self.status[str(AriaDigitalTwinDataType.MPS_SLAM_POINTS)] = False
+        self.status[str(AriaDigitalTwinDataType.MPS_SLAM_CALIBRATION)] = False
+        self.status[str(AriaDigitalTwinDataType.MPS_SLAM_SUMMARY)] = False
 
     def from_json(self, json_path: str):
         try:
@@ -81,6 +100,16 @@ class AriaDigitalTwinDownloadStatusManager:
                 if str(AriaDigitalTwinDataType.DEPTH_IMAGES) not in data:
                     return
                 if str(AriaDigitalTwinDataType.SYNTHETIC) not in data:
+                    return
+                if str(AriaDigitalTwinDataType.MPS_EYEGAZE) not in data:
+                    return
+                if str(AriaDigitalTwinDataType.MPS_SLAM_TRAJECTORIES) not in data:
+                    return
+                if str(AriaDigitalTwinDataType.MPS_SLAM_POINTS) not in data:
+                    return
+                if str(AriaDigitalTwinDataType.MPS_SLAM_CALIBRATION) not in data:
+                    return
+                if str(AriaDigitalTwinDataType.MPS_SLAM_SUMMARY) not in data:
                     return
                 self.status = data
         except Exception as e:
@@ -103,6 +132,16 @@ class AriaDigitalTwinDownloadStatusManager:
             self.status[str(AriaDigitalTwinDataType.DEPTH_IMAGES)] = value
         if data_type == AriaDigitalTwinDataType.SYNTHETIC:
             self.status[str(AriaDigitalTwinDataType.SYNTHETIC)] = value
+        if data_type == AriaDigitalTwinDataType.MPS_EYEGAZE:
+            self.status[str(AriaDigitalTwinDataType.MPS_EYEGAZE)] = value
+        if data_type == AriaDigitalTwinDataType.MPS_SLAM_TRAJECTORIES:
+            self.status[str(AriaDigitalTwinDataType.MPS_SLAM_TRAJECTORIES)] = value
+        if data_type == AriaDigitalTwinDataType.MPS_SLAM_POINTS:
+            self.status[str(AriaDigitalTwinDataType.MPS_SLAM_POINTS)] = value
+        if data_type == AriaDigitalTwinDataType.MPS_SLAM_CALIBRATION:
+            self.status[str(AriaDigitalTwinDataType.MPS_SLAM_CALIBRATION)] = value
+        if data_type == AriaDigitalTwinDataType.MPS_SLAM_SUMMARY:
+            self.status[str(AriaDigitalTwinDataType.MPS_SLAM_SUMMARY)] = value
 
     def get_download_status(self, data_type: AriaDigitalTwinDataType) -> bool:
         return self.status[str(data_type)]
@@ -122,7 +161,7 @@ class AriaDigitalTwinDatasetDownloader:
     #     of each camera
     # data group: benchmark vs challenge
     # data types: main_data, segmentations, segmentations_with_skeleton, depth_images,
-    #    depth_images_with_skeleton, synthetic
+    #    depth_images_with_skeleton, synthetic, plus MPS types
     # data category: metadata, examples, dataset (for benchmark),
     #    phase1/phase2/phase3/phase4 (for challenge)
     #####################################################################
@@ -131,6 +170,11 @@ class AriaDigitalTwinDatasetDownloader:
     __KEY_MAIN_DATA: str = "main_data"
     __KEY_SEGMENTATIONS: str = "segmentations"
     __KEY_DEPTH_IMAGES: str = "depth_images"
+    __KEY_MPS_EYEGAZE: str = "mps_eyegaze"
+    __KEY_MPS_SLAM_TRAJECTORIES: str = "mps_slam_trajectories"
+    __KEY_MPS_SLAM_POINTS: str = "mps_slam_points"
+    __KEY_MPS_SLAM_CALIBRATION: str = "mps_slam_calibration"
+    __KEY_MPS_SLAM_SUMMARY: str = "mps_slam_summary"
     __KEY_SEGMENTATIONS_WITH_SKELETON: str = "segmentations_with_skeleton"
     __KEY_DEPTH_IMAGES_WITH_SKELETON: str = "depth_images_with_skeleton"
     __KEY_SYNTHETIC: str = "synthetic"
@@ -153,6 +197,11 @@ class AriaDigitalTwinDatasetDownloader:
             __KEY_DEPTH_IMAGES_WITH_SKELETON,
         ],
         AriaDigitalTwinDataType.SYNTHETIC: [__KEY_SYNTHETIC],
+        AriaDigitalTwinDataType.MPS_EYEGAZE: [__KEY_MPS_EYEGAZE],
+        AriaDigitalTwinDataType.MPS_SLAM_TRAJECTORIES: [__KEY_MPS_SLAM_TRAJECTORIES],
+        AriaDigitalTwinDataType.MPS_SLAM_POINTS: [__KEY_MPS_SLAM_POINTS],
+        AriaDigitalTwinDataType.MPS_SLAM_CALIBRATION: [__KEY_MPS_SLAM_CALIBRATION],
+        AriaDigitalTwinDataType.MPS_SLAM_SUMMARY: [__KEY_MPS_SLAM_SUMMARY],
     }
 
     __KEY_URL: str = "download_url"
@@ -339,7 +388,24 @@ class AriaDigitalTwinDatasetDownloader:
                         )
                         if not os.path.exists(unzipped_dir):
                             os.makedirs(unzipped_dir)
-                        zip_ref.extractall(output_folder)
+
+                        # MOVE MPS FILES
+                        if data_type in DATA_TYPE_TO_SAVE_PATH.keys():
+                            zip_ref.extractall(output_folder)
+                            for local_path in zip_ref.namelist():
+                                abs_path = os.path.join(output_folder, local_path)
+                                if os.path.isfile(abs_path):
+                                    move_filename = os.path.basename(abs_path)
+                                    move_path = os.path.join(
+                                        Path(abs_path).parent,
+                                        DATA_TYPE_TO_SAVE_PATH[data_type],
+                                    )
+                                    os.makedirs(move_path, exist_ok=True)
+                                    shutil.move(
+                                        abs_path, os.path.join(move_path, move_filename)
+                                    )
+                        else:
+                            zip_ref.extractall(output_folder)
                 else:
                     shutil.copyfile(
                         download_file_path,
