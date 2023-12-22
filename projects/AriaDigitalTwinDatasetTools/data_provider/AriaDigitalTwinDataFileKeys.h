@@ -72,7 +72,7 @@ inline const std::string kDatasetVersionDefault = "1.0";
 inline const std::string kDatasetVersionUnknown = "Unknown";
 inline const std::string kDatasetNameKey = "dataset_name";
 inline const std::unordered_map<std::string, std::string> kLatestDatasetVersions{
-    {"ADT_2023", "1.1"}};
+    {"ADT_2023", "1.2"}};
 
 // data values
 constexpr int64_t kInvalidDeviceTimestampNs = -1;

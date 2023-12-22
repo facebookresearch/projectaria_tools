@@ -12,5 +12,5 @@
     "timecode_enabled": 1,
     "gt_time_domain": "DEVICE_CAPTURE",
     "dataset_name": "ADT_2023",
-    "dataset_version": "1.1"
+    "dataset_version": "1.2"
 }
