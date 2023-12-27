@@ -175,7 +175,7 @@ def main():
                     5: Total MPS SLAM trajectories: ~15GB
                     6: Total MPS SLAM semidense points and observations: ~140GB
                     7: Total MPS SLAM online calibration: ~5GB
-                    Do you want to download all 222 sequences? [y/N]
+                    Do you want to download all 217 sequences? [y/N]
                     """
                 ).lower()
                 == "y"

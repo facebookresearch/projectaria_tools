@@ -23,6 +23,8 @@ from typing import Dict, List, Optional, Tuple
 from zipfile import is_zipfile, ZipFile
 
 import requests
+
+from projectaria_tools.projects.adt import is_dataset_corrupt
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from tqdm import tqdm
@@ -230,6 +232,12 @@ class AriaDigitalTwinDatasetDownloader:
         self.sequences = sequences
         if sequences is None:
             self.sequences = self.__get_sequences_of_group(data_group)
+        else:
+            for sequence in sequences:
+                if is_dataset_corrupt(sequence):
+                    raise ValueError(
+                        f"Sequence {sequence} has been removed from downloads list due to corrupt data"
+                    )
         self.overwrite = overwrite
 
     def download_data(self, output_folder: str):

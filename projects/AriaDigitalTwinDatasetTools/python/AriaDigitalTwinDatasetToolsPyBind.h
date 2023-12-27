@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "AriaDigitalTwinDataFileKeys.h"
 #include "AriaDigitalTwinDataPathsProvider.h"
 #include "AriaDigitalTwinDataProvider.h"
 
@@ -693,6 +694,9 @@ void exportAriaDigitalTwin(py::module& m) {
       "[b1, b2, b3, b4, b1, t1, t2, t3, t4, t1, t2, b2, b3, t3, t4, b4] where b is for "
       "bottom and t is for top",
       py::arg("bbox"));
+  m.def("is_dataset_corrupt", [](const std::string& seq) {
+    return kCorruptDatasets.find(seq) != kCorruptDatasets.end();
+  });
 }
 
 } // namespace projectaria::dataset::adt

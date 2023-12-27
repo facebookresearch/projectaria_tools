@@ -50,13 +50,6 @@ namespace projectaria::dataset::adt {
 constexpr auto kInstanceFileErrorTemplate =
     "invalid instance file. key: '{}' not available in instances json file for instance id {}";
 
-const std::unordered_map<std::string, std::string> kCorruptDatasets{
-    {"Apartment_release_multiuser_party_seq145", "IMU data corrupted"},
-    {"Apartment_release_multiuser_clean_seq115", "IMU data corrupted"},
-    {"Apartment_release_clean_seq139", "IMU data corrupted"},
-    {"Apartment_release_multiskeleton_party_seq112", "IMU data corrupted"},
-    {"Apartment_release_multiskeleton_party_seq109", "IMU data corrupted"}};
-
 namespace {
 std::ifstream openFile(const fs::path& filePath, bool skipHeader = true) {
   std::ifstream fileStream(filePath);
