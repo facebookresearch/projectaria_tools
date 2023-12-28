@@ -35,7 +35,7 @@ STATUS_CODE_DEFAULT = 404
 DOWNLOAD_STATUS_FILE = ".download_status.json"
 
 DATA_TYPE_TO_SAVE_PATH = {
-    "mps_eyegaze": os.path.join("mps", "eyegaze"),
+    "mps_eyegaze": os.path.join("mps", "eye_gaze"),
     "mps_slam_trajectories": os.path.join("mps", "slam"),
     "mps_slam_points": os.path.join("mps", "slam"),
     "mps_slam_calibration": os.path.join("mps", "slam"),
