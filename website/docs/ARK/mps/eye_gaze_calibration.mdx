@@ -42,6 +42,26 @@ Eye gaze calibration is not the same as Aria device calibration. For information
 
 :::
 
+## HW & SW Requirements
+
+### Android
+
+#### Hardware
+* ARCore Depth API (https://developers.google.com/ar/devices) support
+
+#### Software
+* Google Play Services for AR (https://play.google.com/store/apps/details?id=com.google.ar.core)
+    * For phones that have ARCore Depth API capabilities, it's normally installed by default
+    * You'll see the error message "Please check that Google Play Services for AR is installed" if you don't have ARCore Depth API installed.
+
+### iOS
+
+#### Hardware
+* TrueDepth camera (iPhone X or later)
+
+#### Software
+* iOS 14 or later
+
 ## How to Collect In-Session Eye Gaze Calibration
 
 In-Session Eye Gaze Calibration can only be initiated via the Mobile Companion App. Follow these steps for any recording where you may wish to generate Calibrated Eye Gaze MPS.
