@@ -81,6 +81,7 @@ double SensorConfiguration::getNominalRateHz() const {
     case SensorDataType::Bluetooth:
       return bluetoothConfiguration().sampleRateHz;
     case SensorDataType::NotValid:
+    default:
       return -1;
   }
 }

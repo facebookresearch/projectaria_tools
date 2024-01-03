@@ -15,6 +15,7 @@
  */
 
 #include <calibration/camera_projections/CameraProjection.h>
+#include <stdexcept>
 
 namespace projectaria::tools::calibration {
 CameraProjection::ProjectionVariant getProjectionVariant(const CameraProjection::ModelType& type) {
@@ -28,6 +29,8 @@ CameraProjection::ProjectionVariant getProjectionVariant(const CameraProjection:
     case CameraProjection::ModelType::Fisheye624:
       return Fisheye624{};
   }
+
+  throw std::runtime_error("Unrecognized camera model.");
 }
 
 CameraProjection::CameraProjection(const ModelType& type, const Eigen::VectorXd& projectionParams)
