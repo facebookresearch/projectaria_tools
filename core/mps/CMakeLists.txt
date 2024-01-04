@@ -34,6 +34,8 @@ add_library(mps
     GlobalPointCloudFormat.h
     GlobalPointCloudFilter.h
     GlobalPointCloudReader.h GlobalPointCloudReader.cpp
+    MpsDataPathsProvider.h MpsDataPathsProvider.cpp
+    MpsDataPathsFormat.h
     PointObservation.h
     PointObservationFormat.h
     PointObservationReader.h PointObservationReader.cpp
