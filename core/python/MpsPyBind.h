@@ -24,6 +24,7 @@
 
 #include "EyeGazeFormat.h"
 #include "GlobalPointCloudFormat.h"
+#include "MpsDataPathsFormat.h"
 #include "OnlineCalibrationFormat.h"
 #include "PointObservationFormat.h"
 #include "StaticCameraCalibrationFormat.h"
@@ -31,6 +32,7 @@
 
 #include "EyeGazeReader.h"
 #include "GlobalPointCloudReader.h"
+#include "MpsDataPathsProvider.h"
 #include "PointObservationReader.h"
 #include "StaticCameraCalibrationReader.h"
 #include "TrajectoryReaders.h"
@@ -389,6 +391,58 @@ void exportMps(py::module& m) {
   __________
   path: Path to the static camera calibrations file.
   )docdelimiter");
+
+  // MPS data paths provider
+  py::class_<MpsDataPaths>(
+      m, "MpsDataPaths", "A struct that includes the file paths of all MPS data for a sequence.")
+      .def_readwrite("slam", &MpsDataPaths::slam, "MPS SLAM file paths")
+      .def_readwrite("eyegaze", &MpsDataPaths::eyegaze, "MPS eyegaze file paths")
+      .def("__repr__", [](MpsDataPaths const& self) { return fmt::to_string(self); });
+
+  py::class_<MpsSlamDataPaths>(
+      m,
+      "MpsSlamDataPaths",
+      "A struct that includes the file paths of all MPS SLAM data for a VRS sequence processed by MPS.")
+      .def_readwrite(
+          "closed_loop_trajectory_filepath",
+          &MpsSlamDataPaths::closedLoopTrajectory,
+          "Closed loop trajectory")
+      .def_readwrite(
+          "open_loop_trajectory_filepath",
+          &MpsSlamDataPaths::openLoopTrajectory,
+          "Open loop trajectory")
+      .def_readwrite(
+          "semidense_points_filepath", &MpsSlamDataPaths::semidensePoints, "Semidense points")
+      .def_readwrite(
+          "semidense_observations_filepath",
+          &MpsSlamDataPaths::semidenseObservations,
+          "Semidense point observations")
+      .def_readwrite(
+          "online_calibrations_filepath",
+          &MpsSlamDataPaths::onlineCalibration,
+          "Online calibration results from SLAM")
+      .def_readwrite("summary_filepath", &MpsSlamDataPaths::summary, "SLAM summary")
+      .def("__repr__", [](MpsSlamDataPaths const& self) { return fmt::to_string(self); });
+
+  py::class_<MpsEyegazeDataPaths>(
+      m,
+      "MpsEyegazeDataPaths",
+      "A struct that includes the file paths of all MPS eye gaze data for a sequence.")
+      .def_readwrite(
+          "general_eyegaze_filepath",
+          &MpsEyegazeDataPaths::generalEyegaze,
+          "General (non-calibrated) eyegaze results")
+      .def_readwrite("summary_filepath", &MpsEyegazeDataPaths::summary, "Eyegaze summary")
+      .def("__repr__", [](MpsEyegazeDataPaths const& self) { return fmt::to_string(self); });
+
+  py::class_<MpsDataPathsProvider>(
+      m,
+      "MpsDataPathsProvider",
+      "This class is allows you to get all MPS data paths associated with an Aria sequence. \n"
+      "Note that all Aria open datasets will have MPS results which fit the format specified in this data provider.\n"
+      "Use this data provider to avoid breaking changes in your code due to changes in MPS files\n")
+      .def(py::init<const std::string&>())
+      .def("get_data_paths", &MpsDataPathsProvider::getDataPaths, "Get the resulting data paths");
 }
 
 } // namespace projectaria::tools::mps
