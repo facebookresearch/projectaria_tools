@@ -21,3 +21,8 @@ endif()
 if(PROJECTARIA_TOOLS_BUILD_PROJECTS_ASE)
     add_subdirectory(AriaSyntheticEnvironment)
 endif()
+
+option(DPROJECTARIA_TOOLS_BUILD_PROJECTS_AEA OFF)
+if(DPROJECTARIA_TOOLS_BUILD_PROJECTS_AEA)
+    add_subdirectory(meta_only/AriaEverydayActivities)
+endif()
