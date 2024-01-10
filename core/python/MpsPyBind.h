@@ -404,24 +404,21 @@ void exportMps(py::module& m) {
       "MpsSlamDataPaths",
       "A struct that includes the file paths of all MPS SLAM data for a VRS sequence processed by MPS.")
       .def_readwrite(
-          "closed_loop_trajectory_filepath",
+          "closed_loop_trajectory",
           &MpsSlamDataPaths::closedLoopTrajectory,
           "Closed loop trajectory")
       .def_readwrite(
-          "open_loop_trajectory_filepath",
-          &MpsSlamDataPaths::openLoopTrajectory,
-          "Open loop trajectory")
+          "open_loop_trajectory", &MpsSlamDataPaths::openLoopTrajectory, "Open loop trajectory")
+      .def_readwrite("semidense_points", &MpsSlamDataPaths::semidensePoints, "Semidense points")
       .def_readwrite(
-          "semidense_points_filepath", &MpsSlamDataPaths::semidensePoints, "Semidense points")
-      .def_readwrite(
-          "semidense_observations_filepath",
+          "semidense_observations",
           &MpsSlamDataPaths::semidenseObservations,
           "Semidense point observations")
       .def_readwrite(
-          "online_calibrations_filepath",
+          "online_calibrations",
           &MpsSlamDataPaths::onlineCalibration,
           "Online calibration results from SLAM")
-      .def_readwrite("summary_filepath", &MpsSlamDataPaths::summary, "SLAM summary")
+      .def_readwrite("summary", &MpsSlamDataPaths::summary, "SLAM summary")
       .def("__repr__", [](MpsSlamDataPaths const& self) { return fmt::to_string(self); });
 
   py::class_<MpsEyegazeDataPaths>(
@@ -429,10 +426,14 @@ void exportMps(py::module& m) {
       "MpsEyegazeDataPaths",
       "A struct that includes the file paths of all MPS eye gaze data for a sequence.")
       .def_readwrite(
-          "general_eyegaze_filepath",
+          "general_eyegaze",
           &MpsEyegazeDataPaths::generalEyegaze,
           "General (non-calibrated) eyegaze results")
-      .def_readwrite("summary_filepath", &MpsEyegazeDataPaths::summary, "Eyegaze summary")
+      .def_readwrite(
+          "personalized_eyegaze",
+          &MpsEyegazeDataPaths::personalizedEyegaze,
+          "Personalized (calibrated) eyegaze results")
+      .def_readwrite("summary", &MpsEyegazeDataPaths::summary, "Eyegaze summary")
       .def("__repr__", [](MpsEyegazeDataPaths const& self) { return fmt::to_string(self); });
 
   py::class_<MpsDataPathsProvider>(
