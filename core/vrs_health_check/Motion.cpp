@@ -16,6 +16,8 @@
 
 #include "Motion.h"
 
+#include <iostream>
+
 #include <Eigen/Eigen>
 
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:Motion"

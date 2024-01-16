@@ -18,6 +18,7 @@
 
 #include <cctype>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:Wifi"

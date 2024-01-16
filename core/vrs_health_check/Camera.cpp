@@ -20,6 +20,7 @@
 #include <calibration/loader/DeviceCalibrationJson.h>
 
 #include <cmath>
+#include <iostream>
 #include <iterator>
 #include <string_view>
 #include <utility>

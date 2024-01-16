@@ -16,6 +16,8 @@
 
 #include "Barometer.h"
 
+#include <iostream>
+
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:Barometer"
 #include <logging/Log.h>
 

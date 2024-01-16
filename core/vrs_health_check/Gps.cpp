@@ -16,6 +16,7 @@
 
 #include "Gps.h"
 
+#include <iostream>
 #include <sstream>
 
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:Gps"

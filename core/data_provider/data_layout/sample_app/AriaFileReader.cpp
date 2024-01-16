@@ -15,8 +15,9 @@
  */
 
 #include <cassert>
-
 #include <cstdio>
+
+#include <iostream>
 
 #include <vrs/ErrorCode.h>
 #include <vrs/RecordFileReader.h>
