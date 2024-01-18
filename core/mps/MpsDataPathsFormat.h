@@ -24,12 +24,11 @@
  * fmt::format() specialization for MpsEyegazeDataPaths
  */
 template <>
-struct fmt::formatter<projectaria::tools::mps::MpsEyegazeDataPaths> {
-  // No parse function needed
-
+struct fmt::formatter<projectaria::tools::mps::MpsEyegazeDataPaths>
+    : fmt::formatter<std::string_view> {
   // Format the MpsEyegazeDataPaths object
   template <typename FormatContext>
-  auto format(const projectaria::tools::mps::MpsEyegazeDataPaths& paths, FormatContext& ctx) {
+  auto format(const projectaria::tools::mps::MpsEyegazeDataPaths& paths, FormatContext& ctx) const {
     return format_to(
         ctx.out(),
         "MPS Eyegaze Data Paths\n--generalEyegaze: {}\n--personalizedEyegaze: {}\n--summary: {}",
@@ -43,12 +42,11 @@ struct fmt::formatter<projectaria::tools::mps::MpsEyegazeDataPaths> {
  * fmt::format() specialization for MpsSlamDataPaths
  */
 template <>
-struct fmt::formatter<projectaria::tools::mps::MpsSlamDataPaths> {
-  // No parse function needed
-
+struct fmt::formatter<projectaria::tools::mps::MpsSlamDataPaths>
+    : fmt::formatter<std::string_view> {
   // Format the MpsSlamDataPaths object
   template <typename FormatContext>
-  auto format(const projectaria::tools::mps::MpsSlamDataPaths& paths, FormatContext& ctx) {
+  auto format(const projectaria::tools::mps::MpsSlamDataPaths& paths, FormatContext& ctx) const {
     return format_to(
         ctx.out(),
         "MPS SLAM Data Paths\n--closedLoopTrajectory: {}\n--openLoopTrajectory: {}\n--semidensePoints: {}\n--semidenseObservations: {}\n--onlineCalibration: {}\n--summary: {}",
@@ -65,12 +63,10 @@ struct fmt::formatter<projectaria::tools::mps::MpsSlamDataPaths> {
  * fmt::format() specialization for MpsDataPaths
  */
 template <>
-struct fmt::formatter<projectaria::tools::mps::MpsDataPaths> {
-  // No parse function needed
-
+struct fmt::formatter<projectaria::tools::mps::MpsDataPaths> : fmt::formatter<std::string_view> {
   // Format the MpsDataPaths object
   template <typename FormatContext>
-  auto format(const projectaria::tools::mps::MpsDataPaths& paths, FormatContext& ctx) {
+  auto format(const projectaria::tools::mps::MpsDataPaths& paths, FormatContext& ctx) const {
     return format_to(
         ctx.out(),
         "MPS Data Paths\n{}\n{}",

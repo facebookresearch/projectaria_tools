@@ -22,17 +22,13 @@
  * fmt::format() specialization for Eigen Matrix
  */
 template <typename SCALAR, int ROWS, int COLS, int Options, int MaxRows, int MaxCols>
-struct fmt::formatter<Eigen::Matrix<SCALAR, ROWS, COLS, Options, MaxRows, MaxCols>> {
-  // Need to define this function ourselves for partial specialization
-  constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
-    return ctx.begin();
-  }
-
+struct fmt::formatter<Eigen::Matrix<SCALAR, ROWS, COLS, Options, MaxRows, MaxCols>>
+    : fmt::formatter<std::string_view> {
   // Format the Eigen::Matrix object
   template <typename FormatContext>
   auto format(
       const Eigen::Matrix<SCALAR, ROWS, COLS, Options, MaxRows, MaxCols>& mat,
-      FormatContext& ctx) {
+      FormatContext& ctx) const {
     std::stringstream ss;
     if constexpr (COLS == 1) {
       ss << mat.format(kVectorFormat);
@@ -69,15 +65,10 @@ struct fmt::formatter<Eigen::Matrix<SCALAR, ROWS, COLS, Options, MaxRows, MaxCol
  * fmt::format() specialization for Sophus SE3
  */
 template <typename SCALAR>
-struct fmt::formatter<Sophus::SE3<SCALAR>> {
-  // Default parse implementation
-  auto parse(format_parse_context& ctx) {
-    return ctx.begin();
-  }
-
+struct fmt::formatter<Sophus::SE3<SCALAR>> : fmt::formatter<std::string_view> {
   // Format the Sophus::SE3 object
   template <typename FormatContext>
-  auto format(const Sophus::SE3<SCALAR>& se3, FormatContext& ctx) {
+  auto format(const Sophus::SE3<SCALAR>& se3, FormatContext& ctx) const {
     return format_to(
         ctx.out(),
         "(translation:{}, quaternion(x,y,z,w):{})",

@@ -16,20 +16,19 @@
 
 #pragma once
 
-#include <fmt/format.h>
-#include <format/Format.h>
 #include "StaticCameraCalibration.h"
+#include "format/Format.h"
 
 /*
  * fmt::format() specialization for StaticCameraCalibration
  */
 template <>
-struct fmt::formatter<projectaria::tools::mps::StaticCameraCalibration> {
-  // No parse function needed
-
-  // Format the Point object
+struct fmt::formatter<projectaria::tools::mps::StaticCameraCalibration>
+    : fmt::formatter<std::string_view> {
+  // Format the StaticCameraCalibration object
   template <typename FormatContext>
-  auto format(const projectaria::tools::mps::StaticCameraCalibration& calib, FormatContext& ctx) {
+  auto format(const projectaria::tools::mps::StaticCameraCalibration& calib, FormatContext& ctx)
+      const {
     return format_to(
         ctx.out(),
         "StaticCameraCalibration( cameraUid: {}, graphUid: {}, T_world_cam: {}, width: {}, height: {}, intrinsicsType: {}, intrinsics: {}, startFrameIdx: {}, endFrameIdx: {} )",

@@ -18,18 +18,18 @@
 
 #include <fmt/chrono.h>
 #include <fmt/format.h>
+
 #include "PointObservation.h"
 
 /*
  * fmt::format() specialization for PointObservation
  */
 template <>
-struct fmt::formatter<projectaria::tools::mps::PointObservation> {
-  // No parse function needed
-
+struct fmt::formatter<projectaria::tools::mps::PointObservation>
+    : fmt::formatter<std::string_view> {
   // Format the PointObservation object
   template <typename FormatContext>
-  auto format(const projectaria::tools::mps::PointObservation& obs, FormatContext& ctx) {
+  auto format(const projectaria::tools::mps::PointObservation& obs, FormatContext& ctx) const {
     return format_to(
         ctx.out(),
         "PointObservation(pointUid: {}, frameCaptureTimestamp: {}, cameraSerial: {}, uv: {})",

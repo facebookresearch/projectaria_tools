@@ -17,20 +17,20 @@
 #pragma once
 
 #include <fmt/chrono.h>
-#include <fmt/format.h>
-#include <format/Format.h>
+
 #include "Trajectory.h"
+#include "format/Format.h"
 
 /*
  * fmt::format() specialization for OpenLoopTrajectoryPose
  */
 template <>
-struct fmt::formatter<projectaria::tools::mps::OpenLoopTrajectoryPose> {
-  // No parse function needed
-
-  // Format the Point object
+struct fmt::formatter<projectaria::tools::mps::OpenLoopTrajectoryPose>
+    : fmt::formatter<std::string_view> {
+  // Format the OpenLoopTrajectoryPose object
   template <typename FormatContext>
-  auto format(const projectaria::tools::mps::OpenLoopTrajectoryPose& pose, FormatContext& ctx) {
+  auto format(const projectaria::tools::mps::OpenLoopTrajectoryPose& pose, FormatContext& ctx)
+      const {
     return format_to(
         ctx.out(),
         "OpenLoopTrajectory(tracking_timestamp: {}, utc_timestamp: {}, quality_score: {:.4f}, sessionUid: {}, T_odometry_device: {}, deviceLinearVelocity_odometry: {}, angularVelocity_device: {}, gravity_odometry: {})",
@@ -49,12 +49,12 @@ struct fmt::formatter<projectaria::tools::mps::OpenLoopTrajectoryPose> {
  * fmt::format() specialization for ClosedLoopTrajectoryPose
  */
 template <>
-struct fmt::formatter<projectaria::tools::mps::ClosedLoopTrajectoryPose> {
-  // No parse function needed
-
-  // Format the Point object
+struct fmt::formatter<projectaria::tools::mps::ClosedLoopTrajectoryPose>
+    : fmt::formatter<std::string_view> {
+  // Format the ClosedLoopTrajectoryPose object
   template <typename FormatContext>
-  auto format(const projectaria::tools::mps::ClosedLoopTrajectoryPose& pose, FormatContext& ctx) {
+  auto format(const projectaria::tools::mps::ClosedLoopTrajectoryPose& pose, FormatContext& ctx)
+      const {
     return format_to(
         ctx.out(),
         "ClosedLoopTrajectory(tracking_timestamp: {}, utc_timestamp: {}, quality_score: {:.4f}, graphUid: {}, T_world_device: {}, deviceLinearVelocity_device: {}, angularVelocity_device: {}, gravity_world: {})",
