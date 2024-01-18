@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <functional>
 #include <thread>
 
 #include <calibration/CameraCalibration.h>
@@ -62,6 +63,12 @@ class Data3DGui {
   // Clear history of last traj
   void clearLastTraj();
 
+  enum class ImageViewName { RGB_VIEW = 0, LEFT_SLAM_VIEW = 1, RIGHT_SLAM_VIEW = 2 };
+
+  using ExternDrawFunction = std::function<void(pangolin::View&)>;
+  // update plot's 2d view
+  void draw(ImageViewName imageViewName, ExternDrawFunction&& extern_draw_function);
+
   void setUiPlotGeneralizedGaze(bool value);
   void setUiPlotCalibratedGaze(bool value);
 
@@ -84,6 +91,8 @@ class Data3DGui {
       const Sophus::SE3d& T_World_Device,
       const Sophus::SE3d& T_Device_Cpf,
       bool calibrated) const;
+
+  pangolin::ImageView& getImageView(ImageViewName name);
 
   const bool plot2DView_;
 
@@ -174,6 +183,8 @@ class Data3DGui {
   pangolin::ImageView* slamView1;
   pangolin::ImageView* slamView2;
   pangolin::View* imageViews;
+
+  std::map<ImageViewName, std::vector<ExternDrawFunction>> externalDrawFunctions_;
 
   uint32_t slamLeftWidth_;
   uint32_t slamLeftHeight_;
