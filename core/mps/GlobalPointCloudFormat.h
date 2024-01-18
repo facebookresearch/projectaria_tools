@@ -16,20 +16,18 @@
 
 #pragma once
 
-#include <fmt/format.h>
-#include <format/Format.h>
 #include "GlobalPointCloud.h"
+#include "format/Format.h"
 
 /*
  * fmt::format() specialization for GlobalPointPosition
  */
 template <>
-struct fmt::formatter<projectaria::tools::mps::GlobalPointPosition> {
-  // No parse function needed
-
+struct fmt::formatter<projectaria::tools::mps::GlobalPointPosition>
+    : fmt::formatter<std::string_view> {
   // Format the Point object
   template <typename FormatContext>
-  auto format(const projectaria::tools::mps::GlobalPointPosition& point, FormatContext& ctx) {
+  auto format(const projectaria::tools::mps::GlobalPointPosition& point, FormatContext& ctx) const {
     return format_to(
         ctx.out(),
         "GlobalPointPosition(uid = {}, graphUid = {}, position_world = {}, inverseDistanceStd = {:.4f}, distanceStd = {:.4f})",

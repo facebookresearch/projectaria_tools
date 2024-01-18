@@ -17,18 +17,17 @@
 #pragma once
 #include <fmt/chrono.h>
 #include <fmt/format.h>
+
 #include "EyeGaze.h"
 
 /*
  * fmt::format() specialization for EyeGaze
  */
 template <>
-struct fmt::formatter<projectaria::tools::mps::EyeGaze> {
-  // No parse function needed
-
-  // Format the Point object
+struct fmt::formatter<projectaria::tools::mps::EyeGaze> : fmt::formatter<std::string_view> {
+  // Format the EyeGaze object
   template <typename FormatContext>
-  auto format(const projectaria::tools::mps::EyeGaze& gaze, FormatContext& ctx) {
+  auto format(const projectaria::tools::mps::EyeGaze& gaze, FormatContext& ctx) const {
     constexpr double kRadsToDegs = 180.0 / M_PI;
     return format_to(
         ctx.out(),

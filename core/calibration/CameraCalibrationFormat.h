@@ -16,23 +16,21 @@
 
 #pragma once
 
-#include <fmt/format.h>
-#include <format/Format.h>
 #include "CameraCalibration.h"
 #include "camera_projections/CameraProjectionFormat.h"
+#include "format/Format.h"
 
 /*
  * fmt::format() specialization for CameraCalibration
  */
 template <>
-struct fmt::formatter<projectaria::tools::calibration::CameraCalibration> {
-  // No parse function needed
-
-  // Format the Point object
+struct fmt::formatter<projectaria::tools::calibration::CameraCalibration>
+    : fmt::formatter<std::string_view> {
+  // Format the CameraCalibration object
   template <typename FormatContext>
   auto format(
       const projectaria::tools::calibration::CameraCalibration& camCalib,
-      FormatContext& ctx) {
+      FormatContext& ctx) const {
     return format_to(
         ctx.out(),
         "CameraCalibration(label: {}, model name: {}, principal point: {}, focal length: {}, projection params: {}, image size (w,h): {}, T_Device_Camera:{}, serialNumber:{})",

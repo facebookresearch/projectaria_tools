@@ -16,20 +16,19 @@
 
 #pragma once
 
-#include <fmt/format.h>
-#include <format/Format.h>
 #include "ImuMagnetometerCalibration.h"
+#include "format/Format.h"
 
 /*
  * fmt::format() specialization for IMUCalibration
  */
 template <>
-struct fmt::formatter<projectaria::tools::calibration::ImuCalibration> {
-  // No parse function needed
-
-  // Format the ImuCalibrattion object
+struct fmt::formatter<projectaria::tools::calibration::ImuCalibration>
+    : fmt::formatter<std::string_view> {
+  // Format the ImuCalibration object
   template <typename FormatContext>
-  auto format(const projectaria::tools::calibration::ImuCalibration& imuCalib, FormatContext& ctx) {
+  auto format(const projectaria::tools::calibration::ImuCalibration& imuCalib, FormatContext& ctx)
+      const {
     return format_to(
         ctx.out(),
         "ImuCalibration(label: {}, T_Device_Imu: {})",
