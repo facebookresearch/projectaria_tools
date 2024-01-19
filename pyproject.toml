@@ -4,8 +4,13 @@
 # To generate wheels locally for mac x86_64 run
 #    python3 -m cibuildwheel --output-dir dist --platform macos --arch x86_64 .
 #
-[tool.cibuildwheel]
-build="cp38-*64 cp39-*64 cp310-*64 cp311-*64"
+
+[build-system]
+requires = [
+    "setuptools",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]
@@ -13,32 +18,26 @@ before-build='''
 # Install system deps
 # Toolchains
 yum install -y cmake git gtest-devel \
-    lz4-devel libzstd-devel xxhash-devel libpng-devel \
-    python3-pip
-
-# Installing pybind11
-pip3 install pybind11[global]
+    lz4-devel libzstd-devel xxhash-devel libpng-devel
 
 # Install and compile libraries
 thread=$(nproc)
 
 # Build Fmt
-cd /tmp; git clone https://github.com/fmtlib/fmt.git -b 8.1.1 \
+cd /tmp; git clone https://github.com/fmtlib/fmt.git -b 10.2.1 \
     && cd fmt \
     && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE -DFMT_TEST=OFF .; make -j$thread install; rm -rf /tmp/fmt;
 
-cd /tmp && git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git -b 2.1.4 \
+cd /tmp && git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git -b 3.0.1 \
     && cd libjpeg-turbo \
     && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_JPEG8=1 -DCMAKE_INSTALL_DEFAULT_PREFIX=/usr .;make -j$thread install; rm -rf /tmp/libjpeg-turbo;
 
-cd /tmp && git clone --recursive https://github.com/boostorg/boost.git -b boost-1.81.0 \
+cd /tmp && git clone --recursive https://github.com/boostorg/boost.git -b boost-1.84.0 \
     && cd boost \
     && ./bootstrap.sh \
     && ./b2 --with-system --with-filesystem --with-thread --with-chrono --with-date_time --with-serialization --with-iostreams install \
     && rm -rf /tmp/boost;
 '''
-
-skip="*-manylinux_i686 *musllinux*"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64"]

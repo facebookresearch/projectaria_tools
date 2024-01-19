@@ -15,85 +15,124 @@ on:
           - prod
 
 jobs:
-  build-wheels:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macOS-latest, ubuntu-latest]
+  build-stubs:
+    name: Build Python stubs
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - name: Upgrade pip
+          python-version: 3.11
+      - name: Upgrade pip and python packages
         run: |
           python3 -m pip install --upgrade pip
-      - name: Install cibuildwheel
-        run: |
           python3 -m pip install cibuildwheel pybind11-stubgen==1.1
       - name: Install dependencies
         shell: bash
         run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-              # Update & upgrade package lists
-              sudo apt-get update -y
-              sudo apt-get upgrade
-              # Deal with Github CI limitation
-              # https://github.com/actions/runner-images/issues/6399#issuecomment-1285011525
-              sudo apt install -y libunwind-dev
-              # Generic dependencies
-              sudo apt-get install cmake libopenblas-dev
-              # Install VRS dependencies
-              sudo apt-get install -o Acquire::Retries=5 \
-                libgtest-dev libgmock-dev \
-                libfmt-dev \
-                libturbojpeg-dev libpng-dev \
-                liblz4-dev libzstd-dev libxxhash-dev \
-                libboost-chrono-dev \
-                libboost-date-time-dev \
-                libboost-filesystem-dev \
-                libboost-iostreams-dev \
-                libboost-system-dev \
-                libboost-thread-dev
-              # Clean APT cache
-              sudo apt-get clean
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-              # Install system deps with Homebrew
-              brew install cmake
-              # VRS dependencies
-              brew install boost fmt googletest glog lz4 zstd xxhash libpng jpeg-turbo
-              # Install gsed for easy string replacement
-              brew install gsed
-          else
-              echo "$RUNNER_OS not supported"
-              exit 1
-          fi
+            # Update & upgrade package lists
+            sudo apt-get update -y
+            sudo apt-get upgrade
+            # Deal with Github CI limitation
+            # https://github.com/actions/runner-images/issues/6399#issuecomment-1285011525
+            sudo apt install -y libunwind-dev
+            # Generic dependencies
+            sudo apt-get install cmake libopenblas-dev
+            # Install VRS dependencies
+            sudo apt-get install -o Acquire::Retries=5 \
+              libgtest-dev libgmock-dev \
+              libfmt-dev \
+              libturbojpeg-dev libpng-dev \
+              liblz4-dev libzstd-dev libxxhash-dev \
+              libboost-chrono-dev \
+              libboost-date-time-dev \
+              libboost-filesystem-dev \
+              libboost-iostreams-dev \
+              libboost-system-dev \
+              libboost-thread-dev
+            # Clean APT cache
+            sudo apt-get clean
       - name: Install projectaria_tools
         run: |
-          # Build and install Python bindings
+          # Build and install Python bindings (required to run the stubs on the pybind artifacts)
           CMAKE_BUILD_PARALLEL_LEVEL=4 pip3 install .
-          # remove the build folder
           rm -rf build
-      - name: Generate stubs
+      - name: Generate stubs & Include stubs in python package
         run: |
           python3 generate_stubs.py
-      - name: Re-generate python package with stubs
+          cp -r projectaria_tools-stubs/projectaria_tools .
+      - uses: actions/upload-artifact@v2
+        with:
+          name: projectaria_tools_stubs
+          path: projectaria_tools
+
+  build-wheels:
+    name: Build wheels ${{ matrix.os }} | ${{ matrix.python-version }}
+    needs:
+      - build-stubs
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macOS-latest, ubuntu-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        include:
+          - python-version: "3.8"
+            cibw_build: "cp38-*"
+          - python-version: "3.9"
+            cibw_build: "cp39-*"
+          - python-version: "3.10"
+            cibw_build: "cp310-*"
+          - python-version: "3.11"
+            cibw_build: "cp311-*"
+          - python-version: "3.12"
+            cibw_build: "cp312-*"
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Download the pre-computed python stubs
+        uses: actions/download-artifact@v2
+        with:
+          name: projectaria_tools_stubs
+          path: projectaria_tools
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Upgrade pip and python packages
         run: |
-          CMAKE_BUILD_PARALLEL_LEVEL=4 pip3 install .
-          # remove the build folder
-          rm -rf build
+          python3 -m pip install --upgrade pip
+          python3 -m pip install cibuildwheel
       - name: Build wheels for CPython
         run: |
-          CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist
+           CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist
+        env:
+          CIBW_BUILD_VERBOSITY: 3
+          CIBW_BUILD: ${{ matrix.cibw_build }}
+          CIBW_SKIP: "*-manylinux_i686 *-musllinux_*"
+          MACOSX_DEPLOYMENT_TARGET: '12'
       - uses: actions/upload-artifact@v2
         with:
           name: python-package-distributions
           path: dist
+      - name: Test wheel
+        shell: bash
+        run: |
+          # Install wheel
+          python3 -m pip install dist/*.whl
+          # Run Python unit tests
+          export TEST_FOLDER="./data/"
+          python3 -m unittest core/python/test/corePyBindTest.py
+          python3 -m unittest core/python/test/mpsPyBindTest.py
+
   publish-to-pypi:
+    name: Publish to Pypi
     runs-on: ubuntu-latest
     needs:
       - build-wheels

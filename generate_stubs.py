@@ -26,6 +26,8 @@ replace_adt_pybinds = f"find projectaria_tools-stubs/ -name '*.pyi' | xargs {com
 replace_ase_pybinds = f"find projectaria_tools-stubs/ -name '*.pyi' | xargs {command} -i 's/_ase_pybinds/projectaria_tools.project.ase/g'"
 
 command_list = [
+    "mkdir -p projectaria_tools-stubs",
+    "mkdir -p projectaria_tools-stubs/projectaria_tools",
     "pybind11-stubgen projectaria_tools -o projectaria_tools-stubs --ignore-all-errors",
     "pybind11-stubgen _core_pybinds -o projectaria_tools-stubs --ignore-all-errors",
     "cp -r projectaria_tools-stubs/_core_pybinds/* projectaria_tools-stubs/projectaria_tools/core/",
