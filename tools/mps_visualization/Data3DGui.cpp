@@ -15,6 +15,7 @@
  */
 
 #include "Data3DGui.h"
+#include <stdexcept>
 #include "PangolinHelper.h"
 
 #define DEFAULT_LOG_CHANNEL "Data3DGui"
@@ -95,6 +96,15 @@ Data3DGui::Data3DGui(
     rgbView = new pangolin::ImageView("Aria RGB");
     rgbView->SetThetaQuarterTurn(1);
     imageViews->AddDisplay(*rgbView);
+
+    for (ImageViewName viewName :
+         {ImageViewName::LEFT_SLAM_VIEW, ImageViewName::RIGHT_SLAM_VIEW, ImageViewName::RGB_VIEW}) {
+      getImageView(viewName).extern_draw_function = [=, this](pangolin::View& v) {
+        for (auto& extern_draw_function : this->externalDrawFunctions_[viewName]) {
+          extern_draw_function(v);
+        }
+      };
+    }
   }
 
   glEnable(GL_MULTISAMPLE);
@@ -190,6 +200,24 @@ void Data3DGui::draw() {
           .Draw(pcam_world[0], pcam_world[1], pcam_world[2]);
     }
   }
+}
+
+pangolin::ImageView& Data3DGui::getImageView(ImageViewName name) {
+  switch (name) {
+    case ImageViewName::RGB_VIEW:
+      return *rgbView;
+    case ImageViewName::LEFT_SLAM_VIEW:
+      return *slamView1;
+    case ImageViewName::RIGHT_SLAM_VIEW:
+      return *slamView2;
+    default:
+      XR_LOGE("Unknown image view name {}", static_cast<int>(name));
+      throw std::runtime_error("Unknown image view name");
+  }
+}
+
+void Data3DGui::draw(ImageViewName imageViewName, ExternDrawFunction&& extern_draw_function) {
+  externalDrawFunctions_[imageViewName].push_back(extern_draw_function);
 }
 
 void Data3DGui::clearLastTraj() {
@@ -376,7 +404,8 @@ void Data3DGui::draw(
     // rotate 90
     slamView1->SetAspect(static_cast<float>(slamLeftHeight_) / static_cast<float>(slamLeftWidth_));
     // Plot current point observations in SLAM left image
-    slamView1->extern_draw_function = [&](pangolin::View&) { drawLeftPointObs(); };
+    externalDrawFunctions_[ImageViewName::LEFT_SLAM_VIEW] = {
+        [&](pangolin::View&) { drawLeftPointObs(); }};
 
     // SLAM right
     slamRightWidth_ = getWidth(slamRightImage.value());
@@ -391,7 +420,8 @@ void Data3DGui::draw(
     slamView2->SetAspect(
         static_cast<float>(slamRightHeight_) / static_cast<float>(slamRightWidth_));
     // Plot current point observations in SLAM right image
-    slamView2->extern_draw_function = [&](pangolin::View&) { drawRightPointObs(); };
+    externalDrawFunctions_[ImageViewName::RIGHT_SLAM_VIEW] = {
+        [&](pangolin::View&) { drawRightPointObs(); }};
 
     // RGB
     rgbWidth_ = getWidth(rgbImage.value());
@@ -405,7 +435,8 @@ void Data3DGui::draw(
     // rotate 90
     rgbView->SetAspect(static_cast<float>(rgbHeight_) / static_cast<float>(rgbWidth_));
     // Plot 2D eye gaze point in RGB image
-    rgbView->extern_draw_function = [&](pangolin::View&) { drawEyeGazePoint(); };
+    externalDrawFunctions_[ImageViewName::RGB_VIEW] = {
+        [&](pangolin::View&) { drawEyeGazePoint(); }};
   }
 
   // Plot eye gaze rays in the 3D viewer
