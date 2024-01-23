@@ -77,13 +77,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macOS-latest, ubuntu-latest, macos-latest-xlarge]
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        os: [macos-latest-xlarge]
+        python-version: ["3.10", "3.11", "3.12"]
         include:
-          - python-version: "3.8"
-            cibw_build: "cp38-*"
-          - python-version: "3.9"
-            cibw_build: "cp39-*"
           - python-version: "3.10"
             cibw_build: "cp310-*"
           - python-version: "3.11"
