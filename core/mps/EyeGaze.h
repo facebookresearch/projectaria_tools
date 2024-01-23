@@ -27,9 +27,11 @@ struct EyeGaze {
   std::chrono::microseconds
       trackingTimestamp; /**< The timestamp of the eye gaze sample in device time domain */
 
-  float yaw; /**< Eye gaze yaw angle (horizontal) in radians in CPF frame. */
+  float yaw; /**< Eye gaze yaw angle: [the angle between projected gaze ray (on X-Z plane) and Z
+                axis] in radians in CPF frame.*/
 
-  float pitch; /**< Eye gaze pitch angle (vertical) in radians in CPF frame. */
+  float pitch; /**< Eye gaze pitch angle: [the angle between projected gaze ray (on Y-Z plane) and Z
+                  axis] in radians in CPF frame. */
 
   float depth; /**< Depth in meters of the 3D eye gaze point in CPF frame.  A value of 0 indicates
                   that the depth is not available. */
