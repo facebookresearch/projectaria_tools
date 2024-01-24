@@ -125,11 +125,12 @@ jobs:
         if: matrix.os == 'macos-latest-xlarge'
         shell: bash
         run: |
-          CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist --config-file ./pyproject_arm64.toml --archs arm64
+          CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist
         env:
           CIBW_BUILD_VERBOSITY: 3
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_* *x86_64*"
+          CIBW_ARCHS: "arm64"
       - name: Build wheels for CPython
         if: matrix.os != 'macos-latest-xlarge'
         shell: bash
@@ -139,6 +140,7 @@ jobs:
           CIBW_BUILD_VERBOSITY: 3
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_*"
+          CIBW_ARCHS: "x86_64"
       - uses: actions/upload-artifact@v2
         with:
           name: python-package-distributions
