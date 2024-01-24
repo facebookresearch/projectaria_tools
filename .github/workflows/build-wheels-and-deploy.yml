@@ -78,9 +78,17 @@ jobs:
     strategy:
       matrix:
         os: [macOS-latest, ubuntu-latest, macos-latest-xlarge]
-        python-version: ["3.10", "3.11", "3.12"] #actions/setup-python does not work for python<3.10 and mac-silicon
-        include:
-          # Add back Python ["3.8", "3.9"] to [macOS-latest, ubuntu-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+        # Default consider only Python >=3.10 since actions/setup-python supports only python<3.10 and mac-silicon
+        # Other Python versions are added below as matrix entries
+        include: # Customize cibuildwheel python version to build
+          - python-version: "3.10"
+            cibw_build: "cp310-*"
+          - python-version: "3.11"
+            cibw_build: "cp311-*"
+          - python-version: "3.12"
+            cibw_build: "cp312-*"
+          # Add matrix entries: Python ["3.8", "3.9"] to [macOS-latest, ubuntu-latest]
           - os: ubuntu-latest
             python-version: "3.8"
             cibw_build: "cp38-*"
