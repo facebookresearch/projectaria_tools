@@ -28,7 +28,7 @@ from projectaria_tools.core.mps.utils import (
 from projectaria_tools.core.sensor_data import SensorDataType, TimeDomain
 from projectaria_tools.core.stream_id import StreamId
 
-from projectaria_tools.utils.rerun import AriaGlassesOutline, ToTransform3D
+from projectaria_tools.utils.rerun_helpers import AriaGlassesOutline, ToTransform3D
 
 from tqdm import tqdm
 

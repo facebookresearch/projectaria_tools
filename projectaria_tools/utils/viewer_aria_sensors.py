@@ -18,7 +18,7 @@ import sys
 import rerun as rr
 
 from projectaria_tools.core import data_provider
-from projectaria_tools.utils.rerun import AriaGlassesOutline, ToTransform3D
+from projectaria_tools.utils.rerun_helpers import AriaGlassesOutline, ToTransform3D
 
 
 def main():

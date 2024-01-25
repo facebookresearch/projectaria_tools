@@ -33,7 +33,7 @@ from projectaria_tools.projects.adt import (
     DYNAMIC,
     STATIC,
 )
-from projectaria_tools.utils.rerun import AriaGlassesOutline, ToTransform3D
+from projectaria_tools.utils.rerun_helpers import AriaGlassesOutline, ToTransform3D
 from tqdm import tqdm
 
 

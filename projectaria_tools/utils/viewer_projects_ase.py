@@ -29,7 +29,7 @@ from projectaria_tools.projects.ase.readers import (
     read_points_file,
     read_trajectory_file,
 )
-from projectaria_tools.utils.rerun import ToTransform3D
+from projectaria_tools.utils.rerun_helpers import ToTransform3D
 
 
 def parse_args():
