@@ -24,7 +24,7 @@ aria-doctor
 ### Computer can't find Aria Glasses
 It may be that the battery is drained, make sure your Aria Glasses are correctly charging (there should be a blue LED on the right arm) and wait ten minutes.
 
-On Linux, this may be due to USB driver issues, see [Fix USB Driver Issues in Linux](/ARK/troubleshooting/linux_usb_driver.mdx).
+On Linux, this may be due to USB driver issues. Run `adb kill-server && adb start-server` and `aria-doctor`, then try connecting to Aria glasses again.
 
 
 ### Mobile app doesn't receive authorization
