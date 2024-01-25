@@ -176,7 +176,7 @@ def main():
         cmdclass={"build_ext": CMakeBuild},
         zip_safe=False,
         python_requires=">=3.8",
-        install_requires=["numpy", "rerun-sdk>=0.12.0", "tqdm"],
+        install_requires=["numpy", "tqdm"],
         extras_require={
             "all": [
                 ## Required for datasets

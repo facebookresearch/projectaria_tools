@@ -18,4 +18,19 @@
 projectaria_tools utils
 """
 
-from . import rerun, viewer_aria_sensors  # noqa
+# Lazy installation of the rerun-sdk dependency for the utils module
+# If module not installed yet, it will install it, and refresh the current python session
+# to take into account the new installed module
+import subprocess
+import sys
+
+try:
+    import rerun as rr
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "rerun-sdk>=0.12.0"])
+finally:
+    import site
+    from importlib import reload
+
+    reload(site)
+    import rerun as rr  # noqa
