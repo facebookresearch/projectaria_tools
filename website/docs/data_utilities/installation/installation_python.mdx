@@ -61,8 +61,16 @@ cd $HOME/Documents/projectaria_sandbox/projectaria_tools
 
 pip3 install --upgrade pip
 
-pip3 install --global-option=build_ext --config-settings=compile-args="-j2" .;
+pip3 install .
 ```
+
+:::info
+For multithread build use the following:
+- `CMAKE_BUILD_PARALLEL_LEVEL=4 pip3 install .`
+
+If you encounter error during the build process like `ERROR: No matching distribution found for library X`:
+- Double check that you are using the right pip, or python version and then use `python -m pip install .` or `python3 -m pip install .`
+:::
 
 ## Generate and install type hinting from source (advanced user)
 1. Install pybind11-stubgen to generate the stub files
@@ -73,6 +81,6 @@ pip3 install pybind11-stubgen==1.1
 
 cd $HOME/Documents/projectaria_sandbox/projectaria_tools
 python3 generate_stubs.py
-
-pip3 install projectaria_tools-stubs/
+cp -r projectaria_tools-stubs/projectaria_tools .
+pip3 install .
 ```
