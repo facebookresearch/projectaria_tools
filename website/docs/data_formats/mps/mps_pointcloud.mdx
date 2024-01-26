@@ -7,6 +7,10 @@ title: Semi-Dense Point Cloud
 
 Semi-Dense Point Cloud is a a Project Aria [Machine Perception Service (MPS)](/docs/ARK/mps) that can be requested as an addition to [Trajectory MPS](/docs/data_formats/mps/mps_trajectory).
 
+Semi-Dense Point Cloud MPS file outputs are:
+* `semidense_points.csv.gz`: Points in the world coordinate frame
+* `semidense_observations.csv.gz`: Point observations
+
 ## What are semi-dense points?
 
 Semi-dense points are the 3D points associated with tracks from our semi-dense tracking pipeline. Semi-dense tracks are continually created in pixel locations of input frames that lie in regions of high image gradient, and are then successively tracked in the following frames. Each track is associated with a 3D point, parameterized as an inverse distance along a ray originating from the track's first initial observation, as well as its uncertainty in inverse distance and distance. These points are transformed from their original camera coordinate spaces to the same coordinate frame associated with the closed loop trajectory of the sequence.
