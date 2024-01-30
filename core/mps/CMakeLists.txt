@@ -29,7 +29,7 @@ add_library(mps
     CachedDataProviders.h
     OnlineCalibration.h
     OnlineCalibrationFormat.h
-    onlineCalibrationReader.h onlineCalibrationReader.cpp
+    OnlineCalibrationsReader.h OnlineCalibrationsReader.cpp
     GlobalPointCloud.h
     GlobalPointCloudFormat.h
     GlobalPointCloudFilter.h

@@ -33,10 +33,10 @@
 #include "EyeGazeReader.h"
 #include "GlobalPointCloudReader.h"
 #include "MpsDataPathsProvider.h"
+#include "OnlineCalibrationsReader.h"
 #include "PointObservationReader.h"
 #include "StaticCameraCalibrationReader.h"
 #include "TrajectoryReaders.h"
-#include "onlineCalibrationReader.h"
 
 namespace py = pybind11;
 using namespace pybind11::literals;

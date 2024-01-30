@@ -15,7 +15,7 @@
  */
 
 #include <mps/OnlineCalibrationFormat.h>
-#include <mps/onlineCalibrationReader.h>
+#include <mps/OnlineCalibrationsReader.h>
 
 #include <gtest/gtest.h>
 
