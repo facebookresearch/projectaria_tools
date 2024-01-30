@@ -35,6 +35,7 @@ add_library(mps
     GlobalPointCloudFilter.h
     GlobalPointCloudReader.h GlobalPointCloudReader.cpp
     MpsDataPathsProvider.h MpsDataPathsProvider.cpp
+    MpsDataProvider.h MpsDataProvider.cpp
     MpsDataPathsFormat.h
     PointObservation.h
     PointObservationFormat.h
@@ -54,6 +55,7 @@ target_link_libraries(mps
         format
         Sophus::Sophus
     PRIVATE
+        utils
         vrs_logging
         sensor_calibration_json)
 add_dependencies(mps fast-cpp-csv-parser)
