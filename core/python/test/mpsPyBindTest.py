@@ -134,3 +134,45 @@ class MPSEyeGaze(unittest.TestCase):
         eye_gaze_file = ""
         mps_eye_gazes = mps.read_eyegaze(eye_gaze_file)
         self.assertEqual(len(mps_eye_gazes), 0)
+
+
+mps_root_path = os.path.join(TEST_FOLDER, "mps_sample")
+
+
+class MPSDataProvider(unittest.TestCase):
+    """
+    Tests for loading and querying data with MpsDataProvider
+    """
+
+    def test_data_paths_provider(self) -> None:
+        data_paths_provider = mps.MpsDataPathsProvider(mps_root_path)
+        data_paths = data_paths_provider.get_data_paths()
+        assert os.path.exists(data_paths.eyegaze.general_eyegaze)
+        assert os.path.exists(data_paths.eyegaze.summary)
+        assert os.path.exists(data_paths.slam.closed_loop_trajectory)
+        assert os.path.exists(data_paths.slam.open_loop_trajectory)
+        assert os.path.exists(data_paths.slam.semidense_points)
+        assert os.path.exists(data_paths.slam.semidense_observations)
+        assert os.path.exists(data_paths.slam.online_calibrations)
+        assert os.path.exists(data_paths.slam.summary)
+
+    def test_data_provider(self) -> None:
+        data_paths_provider = mps.MpsDataPathsProvider(mps_root_path)
+        data_paths = data_paths_provider.get_data_paths()
+        dp = mps.MpsDataProvider(data_paths)
+
+        assert dp.has_general_eyegaze()
+        assert not dp.has_personalized_eyegaze()
+        assert dp.has_open_loop_poses()
+        assert dp.has_closed_loop_poses()
+        assert dp.has_online_calibrations()
+        assert dp.has_semidense_point_cloud()
+        assert dp.has_semidense_observations()
+
+        assert len(dp.get_semidense_point_cloud()) > 0
+        assert len(dp.get_semidense_observations()) > 0
+
+        assert dp.get_open_loop_pose(0)
+        assert dp.get_closed_loop_pose(0)
+        assert dp.get_general_eyegaze(0)
+        assert dp.get_online_calibration(0)

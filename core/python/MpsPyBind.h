@@ -33,6 +33,7 @@
 #include "EyeGazeReader.h"
 #include "GlobalPointCloudReader.h"
 #include "MpsDataPathsProvider.h"
+#include "MpsDataProvider.h"
 #include "OnlineCalibrationsReader.h"
 #include "PointObservationReader.h"
 #include "StaticCameraCalibrationReader.h"
@@ -444,6 +445,94 @@ void exportMps(py::module& m) {
       "Use this data provider to avoid breaking changes in your code due to changes in MPS files\n")
       .def(py::init<const std::string&>())
       .def("get_data_paths", &MpsDataPathsProvider::getDataPaths, "Get the resulting data paths");
+
+  py::class_<MpsDataProvider, std::shared_ptr<MpsDataProvider>>(
+      m,
+      "MpsDataProvider",
+      "This class is to load all MPS data given an MpsDataPaths object, and also provide all API needed "
+      "to query that data. NOTE: to minimize disk usage, this data provider only loads data from disk "
+      "after that data type is first queried.\n")
+      .def(py::init<const MpsDataPaths&>())
+      .def(
+          "has_general_eyegaze",
+          &MpsDataProvider::hasGeneralEyeGaze,
+          "Check if general eye gaze data is available in the MPS data paths")
+      .def(
+          "has_personalized_eyegaze",
+          &MpsDataProvider::hasPersonalizedEyeGaze,
+          "Check if personalized eye gaze data is available in the MPS data paths")
+      .def(
+          "has_open_loop_poses",
+          &MpsDataProvider::hasOpenLoopPoses,
+          "Check if open loop poses are available in the MPS data paths")
+      .def(
+          "has_closed_loop_poses",
+          &MpsDataProvider::hasClosedLoopPoses,
+          "Check if closed loop poses are available in the MPS data paths")
+      .def(
+          "has_online_calibrations",
+          &MpsDataProvider::hasOnlineCalibrations,
+          "Check if online calibrations are available in the MPS data paths")
+      .def(
+          "has_semidense_point_cloud",
+          &MpsDataProvider::hasSemidensePointCloud,
+          "Check if semidense point cloud data is available in the MPS data paths")
+      .def(
+          "has_semidense_observations",
+          &MpsDataProvider::hasSemidenseObservations,
+          "Check if semidense observations are available in the MPS data paths")
+      .def(
+          "get_general_eyegaze",
+          &MpsDataProvider::getGeneralEyeGaze,
+          "Query MPS for general EyeGaze at a specific timestamp. This will throw an exception if "
+          "general eye gaze data is not available. Check for data availability first using: "
+          "`has_general_eyegaze()`",
+          py::arg("device_timestamp_ns"),
+          py::arg("time_query_options") = TimeQueryOptions::Closest)
+      .def(
+          "get_personalized_eyegaze",
+          &MpsDataProvider::getPersonalizedEyeGaze,
+          "Query MPS for personalized EyeGaze at a specific timestamp. This will throw an "
+          "exception if personalized eye gaze data is not available. Check for data availability "
+          "first using `has_personalized_eyegaze()`",
+          py::arg("device_timestamp_ns"),
+          py::arg("time_query_options") = TimeQueryOptions::Closest)
+      .def(
+          "get_open_loop_pose",
+          &MpsDataProvider::getOpenLoopPose,
+          "Query MPS for OpenLoopTrajectoryPose at a specific timestamp. This will throw an "
+          "exception if open loop trajectory data is not available. Check for data availability "
+          "first using `has_open_loop_poses()`",
+          py::arg("device_timestamp_ns"),
+          py::arg("time_query_options") = TimeQueryOptions::Closest)
+      .def(
+          "get_closed_loop_pose",
+          &MpsDataProvider::getClosedLoopPose,
+          "Query MPS for ClosedLoopTrajectoryPose at a specific timestamp. This will throw an "
+          "exception if open loop trajectory data is not available. Check for data availability "
+          "first using `has_closed_loop_poses()`",
+          py::arg("device_timestamp_ns"),
+          py::arg("time_query_options") = TimeQueryOptions::Closest)
+      .def(
+          "get_online_calibration",
+          &MpsDataProvider::getOnlineCalibration,
+          "Query MPS for OnlineCalibration at a specific timestamp. This will throw an exception "
+          "if online calibration data is not available. Check for data availability first "
+          "using `has_online_calibrations()`",
+          py::arg("device_timestamp_ns"),
+          py::arg("time_query_options") = TimeQueryOptions::Closest)
+      .def(
+          "get_semidense_point_cloud",
+          &MpsDataProvider::getSemidensePointCloud,
+          py::return_value_policy::reference_internal,
+          "Get the MPS semidense point cloud. This will throw an exception if the point cloud is "
+          "not available. Check for data availability first using 'has_semidense_point_cloud()'")
+      .def(
+          "get_semidense_observations",
+          &MpsDataProvider::getSemidenseObservations,
+          py::return_value_policy::reference_internal,
+          "Get the MPS point observations. This will throw an exception if the observations are "
+          "not available. Check for data availability first using 'has_semidense_observations()'");
 }
 
 } // namespace projectaria::tools::mps
