@@ -166,14 +166,6 @@ class MpsDataProvider {
   const PointObservations& getSemidenseObservations();
 
  private:
-  bool loadGeneralEyeGazesIfAvailable();
-  bool loadPersonalizedEyeGazesIfAvailable();
-  bool loadOpenLoopPosesIfAvailable();
-  bool loadClosedLoopPosesIfAvailable();
-  bool loadOnlineCalibrationsIfAvailable();
-  bool loadGlobalPointCloudIfAvailable();
-  bool loadPointObservationsIfAvailable();
-
   MpsDataPaths dataPaths_;
   std::map<int64_t, EyeGaze> generalEyeGazes_;
   std::map<int64_t, EyeGaze> personalizedEyeGazes_;

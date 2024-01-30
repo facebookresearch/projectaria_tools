@@ -16,6 +16,7 @@
 
 #include <mps/MpsDataProvider.h>
 
+#include <data_provider/QueryMapByTimestamp.h>
 #include <mps/EyeGazeReader.h>
 #include <mps/GlobalPointCloudReader.h>
 #include <mps/OnlineCalibrationsReader.h>
@@ -24,6 +25,8 @@
 
 #define DEFAULT_LOG_CHANNEL "MpsDataProvider"
 #include <logging/Log.h>
+
+constexpr int64_t kUsToNs{1000};
 
 namespace projectaria::tools::mps {
 
@@ -57,132 +60,131 @@ bool MpsDataProvider::hasSemidenseObservations() const {
   return !dataPaths_.slam.semidenseObservations.empty();
 }
 
-bool MpsDataProvider::loadGeneralEyeGazesIfAvailable() {
-  // check if already loaded
-  if (!generalEyeGazes_.empty()) {
-    return true;
-  }
-
-  // check if file exists
+std::optional<EyeGaze> MpsDataProvider::getGeneralEyeGaze(
+    int64_t deviceTimeStampNs,
+    const TimeQueryOptions& timeQueryOptions) {
   if (!hasGeneralEyeGaze()) {
-    return false;
+    std::string error = "Cannot query for general eye gaze since the data is not available";
+    XR_LOGE("{}", error);
+    throw std::runtime_error{error};
+  }
+  if (generalEyeGazes_.empty()) {
+    auto eyeGazesVec = readEyeGaze(dataPaths_.eyegaze.generalEyegaze);
+    for (const auto& eyeGaze : eyeGazesVec) {
+      generalEyeGazes_.emplace(eyeGaze.trackingTimestamp.count() * kUsToNs, eyeGaze);
+    }
   }
 
-  // load
-  auto eyeGazesVec = readEyeGaze(dataPaths_.eyegaze.generalEyegaze);
-  for (const auto& eyeGaze : eyeGazesVec) {
-    generalEyeGazes_.emplace(eyeGaze.trackingTimestamp.count() * 1000, eyeGaze);
-  }
-
-  return true;
+  auto iter = data_provider::queryMapByTimestamp<EyeGaze>(
+      generalEyeGazes_, deviceTimeStampNs, timeQueryOptions);
+  return iter == generalEyeGazes_.end() ? std::optional<EyeGaze>() : iter->second;
 }
 
-bool MpsDataProvider::loadPersonalizedEyeGazesIfAvailable() {
-  // check if already loaded
-  if (!personalizedEyeGazes_.empty()) {
-    return true;
-  }
-
-  // check if file exists
+std::optional<EyeGaze> MpsDataProvider::getPersonalizedEyeGaze(
+    int64_t deviceTimeStampNs,
+    const TimeQueryOptions& timeQueryOptions) {
   if (!hasPersonalizedEyeGaze()) {
-    return false;
+    std::string error = "Cannot query for personalized eye gaze since the data is not available";
+    XR_LOGE("{}", error);
+    throw std::runtime_error{error};
+  }
+  if (personalizedEyeGazes_.empty()) {
+    auto eyeGazesVec = readEyeGaze(dataPaths_.eyegaze.personalizedEyegaze);
+    for (const auto& eyeGaze : eyeGazesVec) {
+      personalizedEyeGazes_.emplace(eyeGaze.trackingTimestamp.count() * kUsToNs, eyeGaze);
+    }
   }
 
-  // load
-  auto eyeGazesVec = readEyeGaze(dataPaths_.eyegaze.personalizedEyegaze);
-  for (const auto& eyeGaze : eyeGazesVec) {
-    personalizedEyeGazes_.emplace(eyeGaze.trackingTimestamp.count() * 1000, eyeGaze);
-  }
-  return true;
+  auto iter = data_provider::queryMapByTimestamp<EyeGaze>(
+      personalizedEyeGazes_, deviceTimeStampNs, timeQueryOptions);
+  return iter == personalizedEyeGazes_.end() ? std::optional<EyeGaze>() : iter->second;
 }
 
-bool MpsDataProvider::loadOpenLoopPosesIfAvailable() {
-  // check if already loaded
-  if (!openLoopPoses_.empty()) {
-    return true;
-  }
-
-  // check if file exists
+std::optional<OpenLoopTrajectoryPose> MpsDataProvider::getOpenLoopPose(
+    int64_t deviceTimeStampNs,
+    const TimeQueryOptions& timeQueryOptions) {
   if (!hasOpenLoopPoses()) {
-    return false;
+    std::string error = "Cannot query for open loop pose since the data is not available";
+    XR_LOGE("{}", error);
+    throw std::runtime_error{error};
+  }
+  if (openLoopPoses_.empty()) {
+    OpenLoopTrajectory trajectory = readOpenLoopTrajectory(dataPaths_.slam.openLoopTrajectory);
+    for (const auto& pose : trajectory) {
+      openLoopPoses_.emplace(pose.trackingTimestamp.count() * kUsToNs, pose);
+    }
   }
 
-  // load
-  OpenLoopTrajectory trajectory = readOpenLoopTrajectory(dataPaths_.slam.openLoopTrajectory);
-  for (const auto& pose : trajectory) {
-    openLoopPoses_.emplace(pose.trackingTimestamp.count() * 1000, pose);
-  }
-  return true;
+  auto iter = data_provider::queryMapByTimestamp<OpenLoopTrajectoryPose>(
+      openLoopPoses_, deviceTimeStampNs, timeQueryOptions);
+  return iter == openLoopPoses_.end() ? std::optional<OpenLoopTrajectoryPose>() : iter->second;
 }
 
-bool MpsDataProvider::loadClosedLoopPosesIfAvailable() {
-  // check if already loaded
-  if (!closedLoopPoses_.empty()) {
-    return true;
-  }
-
-  // check if file exists
+std::optional<ClosedLoopTrajectoryPose> MpsDataProvider::getClosedLoopPose(
+    int64_t deviceTimeStampNs,
+    const TimeQueryOptions& timeQueryOptions) {
   if (!hasClosedLoopPoses()) {
-    return false;
+    std::string error = "Cannot query for closed loop pose since the data is not available";
+    XR_LOGE("{}", error);
+    throw std::runtime_error{error};
+  }
+  if (closedLoopPoses_.empty()) {
+    ClosedLoopTrajectory trajectory =
+        readClosedLoopTrajectory(dataPaths_.slam.closedLoopTrajectory);
+    for (const auto& pose : trajectory) {
+      closedLoopPoses_.emplace(pose.trackingTimestamp.count() * kUsToNs, pose);
+    }
   }
 
-  // load
-  ClosedLoopTrajectory trajectory = readClosedLoopTrajectory(dataPaths_.slam.closedLoopTrajectory);
-  for (const auto& pose : trajectory) {
-    closedLoopPoses_.emplace(pose.trackingTimestamp.count() * 1000, pose);
-  }
-  return true;
+  auto iter = data_provider::queryMapByTimestamp<ClosedLoopTrajectoryPose>(
+      closedLoopPoses_, deviceTimeStampNs, timeQueryOptions);
+  return iter == closedLoopPoses_.end() ? std::optional<ClosedLoopTrajectoryPose>() : iter->second;
 }
 
-bool MpsDataProvider::loadOnlineCalibrationsIfAvailable() {
-  // check if already loaded
-  if (!onlineCalibrations_.empty()) {
-    return true;
-  }
-
-  // check if file exists
+std::optional<OnlineCalibration> MpsDataProvider::getOnlineCalibration(
+    int64_t deviceTimeStampNs,
+    const TimeQueryOptions& timeQueryOptions) {
   if (!hasOnlineCalibrations()) {
-    return false;
+    std::string error = "Cannot query for online calibration since the data is not available";
+    XR_LOGE("{}", error);
+    throw std::runtime_error{error};
+  }
+  if (onlineCalibrations_.empty()) {
+    OnlineCalibrations calibrations = readOnlineCalibration(dataPaths_.slam.onlineCalibration);
+    for (const auto& calibration : calibrations) {
+      onlineCalibrations_.emplace(calibration.trackingTimestamp.count() * kUsToNs, calibration);
+    }
   }
 
-  // load
-  OnlineCalibrations calibrations = readOnlineCalibration(dataPaths_.slam.onlineCalibration);
-  for (const auto& calibration : calibrations) {
-    onlineCalibrations_.emplace(calibration.trackingTimestamp.count() * 1000, calibration);
-  }
-  return true;
+  auto iter = data_provider::queryMapByTimestamp<OnlineCalibration>(
+      onlineCalibrations_, deviceTimeStampNs, timeQueryOptions);
+  return iter == onlineCalibrations_.end() ? std::optional<OnlineCalibration>() : iter->second;
 }
 
-bool MpsDataProvider::loadGlobalPointCloudIfAvailable() {
-  // check if already loaded
-  if (!globalPointCloud_.empty()) {
-    return true;
-  }
-
-  // check if file exists
+const GlobalPointCloud& MpsDataProvider::getSemidensePointCloud() {
   if (!hasSemidensePointCloud()) {
-    return false;
+    std::string error = "Cannot retrive Semidense pointcloud since the data is not available";
+    XR_LOGE("{}", error);
+    throw std::runtime_error{error};
+  }
+  if (globalPointCloud_.empty()) {
+    globalPointCloud_ = readGlobalPointCloud(dataPaths_.slam.semidensePoints);
   }
 
-  // load
-  globalPointCloud_ = readGlobalPointCloud(dataPaths_.slam.semidensePoints);
-  return true;
+  return globalPointCloud_;
 }
 
-bool MpsDataProvider::loadPointObservationsIfAvailable() {
-  // check if already loaded
-  if (!pointObservations_.empty()) {
-    return true;
-  }
-
-  // check if file exists
+const PointObservations& MpsDataProvider::getSemidenseObservations() {
   if (!hasSemidenseObservations()) {
-    return false;
+    std::string error = "Cannot retrive Semidense observations since the data is not available";
+    XR_LOGE("{}", error);
+    throw std::runtime_error{error};
+  }
+  if (pointObservations_.empty()) {
+    pointObservations_ = readPointObservations(dataPaths_.slam.semidenseObservations);
   }
 
-  // load
-  pointObservations_ = readPointObservations(dataPaths_.slam.semidenseObservations);
-  return true;
+  return pointObservations_;
 }
 
 } // namespace projectaria::tools::mps
