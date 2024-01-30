@@ -163,7 +163,7 @@ std::optional<OnlineCalibration> MpsDataProvider::getOnlineCalibration(
 
 const GlobalPointCloud& MpsDataProvider::getSemidensePointCloud() {
   if (!hasSemidensePointCloud()) {
-    std::string error = "Cannot retrive Semidense pointcloud since the data is not available";
+    std::string error = "Cannot retrieve Semidense pointcloud since the data is not available";
     XR_LOGE("{}", error);
     throw std::runtime_error{error};
   }
@@ -176,7 +176,7 @@ const GlobalPointCloud& MpsDataProvider::getSemidensePointCloud() {
 
 const PointObservations& MpsDataProvider::getSemidenseObservations() {
   if (!hasSemidenseObservations()) {
-    std::string error = "Cannot retrive Semidense observations since the data is not available";
+    std::string error = "Cannot retrieve Semidense observations since the data is not available";
     XR_LOGE("{}", error);
     throw std::runtime_error{error};
   }

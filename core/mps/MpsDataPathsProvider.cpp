@@ -93,7 +93,7 @@ void MpsDataPathsProvider::loadDataPaths() {
       mpsEyegazePath, kMpsPersonalEyegazeFile, dataPaths_.eyegaze.personalizedEyegaze);
   if (dataPaths_.eyegaze.personalizedEyegaze.empty()) {
     loadFilePathIfExists(
-        mpsEyegazePath, kMpsGeneralEyegazeFileDeprecated, dataPaths_.eyegaze.personalizedEyegaze);
+        mpsEyegazePath, kMpsPersonalEyegazeFileDeprecated, dataPaths_.eyegaze.personalizedEyegaze);
   }
 
   loadFilePathIfExists(mpsEyegazePath, kMpsEyegazeSummaryFile, dataPaths_.eyegaze.summary);

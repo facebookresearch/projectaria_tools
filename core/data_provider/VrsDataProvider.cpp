@@ -431,7 +431,6 @@ std::vector<int64_t> VrsDataProvider::getTimestampsNs(
       supportsTimeDomain(streamId, timeDomain),
       fmt::format(
           "Timedomain {} not supported by stream {}", getName(timeDomain), streamId.getName()));
-
   return timeQuery_->getTimestampsNs(streamId, timeDomain);
 }
 
