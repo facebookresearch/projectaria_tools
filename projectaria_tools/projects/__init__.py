@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import adt, ase
+from . import adt, aea, ase
 
-__all__ = ["adt", "ase"]
+__all__ = ["adt", "ase", "aea"]

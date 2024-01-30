@@ -12,17 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-option(PROJECTARIA_TOOLS_BUILD_PROJECTS_ADT "Build Projects/AriaDigitalTwinDatasetTools." OFF)
+message("--- Compiling Project Aria Everyday Activities.")
 
-if(PROJECTARIA_TOOLS_BUILD_PROJECTS_ADT)
-    add_subdirectory(AriaDigitalTwinDatasetTools)
-endif()
+# Adding core libraries
+add_subdirectory(data_provider)
 
-if(PROJECTARIA_TOOLS_BUILD_PROJECTS_ASE)
-    add_subdirectory(AriaSyntheticEnvironment)
-endif()
-
-option(PROJECTARIA_TOOLS_BUILD_PROJECTS_AEA OFF)
-if(PROJECTARIA_TOOLS_BUILD_PROJECTS_AEA)
-    add_subdirectory(AriaEverydayActivities)
-endif()
+if(BUILD_PYTHON_BINDINGS)
+    add_subdirectory(python)
+endif(BUILD_PYTHON_BINDINGS)

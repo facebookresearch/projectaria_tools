@@ -71,7 +71,7 @@ class CMakeBuild(build_ext):
             "-DPROJECTARIA_TOOLS_BUILD_PROJECTS=ON",
             "-DPROJECTARIA_TOOLS_BUILD_PROJECTS_ADT=ON",
             "-DPROJECTARIA_TOOLS_BUILD_PROJECTS_ASE=ON",
-            "-DPROJECTARIA_TOOLS_BUILD_PROJECTS_AEA=OFF",
+            "-DPROJECTARIA_TOOLS_BUILD_PROJECTS_AEA=ON",
         ]
         build_args = []
         # Adding CMake arguments set as environment variable

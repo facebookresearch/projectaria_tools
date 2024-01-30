@@ -12,17 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-option(PROJECTARIA_TOOLS_BUILD_PROJECTS_ADT "Build Projects/AriaDigitalTwinDatasetTools." OFF)
+"""
+A pybind11 binding for Aria Everyday Activities dataset tools module
+"""
 
-if(PROJECTARIA_TOOLS_BUILD_PROJECTS_ADT)
-    add_subdirectory(AriaDigitalTwinDatasetTools)
-endif()
-
-if(PROJECTARIA_TOOLS_BUILD_PROJECTS_ASE)
-    add_subdirectory(AriaSyntheticEnvironment)
-endif()
-
-option(PROJECTARIA_TOOLS_BUILD_PROJECTS_AEA OFF)
-if(PROJECTARIA_TOOLS_BUILD_PROJECTS_AEA)
-    add_subdirectory(AriaEverydayActivities)
-endif()
+from _aea_pybinds import *  # noqa

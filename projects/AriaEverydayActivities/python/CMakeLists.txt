@@ -12,17 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-option(PROJECTARIA_TOOLS_BUILD_PROJECTS_ADT "Build Projects/AriaDigitalTwinDatasetTools." OFF)
-
-if(PROJECTARIA_TOOLS_BUILD_PROJECTS_ADT)
-    add_subdirectory(AriaDigitalTwinDatasetTools)
-endif()
-
-if(PROJECTARIA_TOOLS_BUILD_PROJECTS_ASE)
-    add_subdirectory(AriaSyntheticEnvironment)
-endif()
-
-option(PROJECTARIA_TOOLS_BUILD_PROJECTS_AEA OFF)
-if(PROJECTARIA_TOOLS_BUILD_PROJECTS_AEA)
-    add_subdirectory(AriaEverydayActivities)
-endif()
+add_subdirectory(${pybind11_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/pybind)
+pybind11_add_module(_aea_pybinds ${CMAKE_CURRENT_SOURCE_DIR}/bindings.cpp)
+target_link_libraries(_aea_pybinds PUBLIC AriaEverydayActivitiesLib)
