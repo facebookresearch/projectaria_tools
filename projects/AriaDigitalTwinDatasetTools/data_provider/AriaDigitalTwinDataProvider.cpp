@@ -219,6 +219,7 @@ AriaDigitalTwinDataProvider::AriaDigitalTwinDataProvider(const AriaDigitalTwinDa
   loadSkeletonInfo();
   loadSkeletons();
   loadEyeGaze();
+  loadMps();
 }
 
 std::set<vrs::StreamId> AriaDigitalTwinDataProvider::getAriaAllStreams() const {
@@ -1129,6 +1130,10 @@ const AriaDigitalTwinSkeletonProvider& AriaDigitalTwinDataProvider::getSkeletonP
     throw std::runtime_error(fmt::format("No skeleton with instance id {}", instanceId));
   }
   return skeletons_.at(instanceId);
+}
+
+void AriaDigitalTwinDataProvider::loadMps() {
+  mps_ = std::make_shared<projectaria::tools::mps::MpsDataProvider>(dataPaths_.mps);
 }
 
 Aria3dPoseDataWithDt getInterpolatedAria3dPoseAtTimestampNs(

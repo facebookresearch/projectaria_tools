@@ -599,6 +599,7 @@ void exportAriaDigitalTwin(py::module& m) {
       .def("has_eyegaze", &AriaDigitalTwinDataProvider::hasEyeGaze)
       .def("has_skeleton", &AriaDigitalTwinDataProvider::hasSkeleton)
       .def("has_instances_info", &AriaDigitalTwinDataProvider::hasInstancesInfo)
+      .def("has_mps", &AriaDigitalTwinDataProvider::hasMps)
       .def(
           "get_instance_ids",
           &AriaDigitalTwinDataProvider::getInstanceIds,
@@ -645,6 +646,10 @@ void exportAriaDigitalTwin(py::module& m) {
           "synthetic_data_provider_ptr",
           &AriaDigitalTwinDataProvider::syntheticDataProviderPtr,
           "get a pointer to the synthetic data provider")
+      .def(
+          "mps_data_provider_ptr",
+          &AriaDigitalTwinDataProvider::mpsDataProviderPtr,
+          "return the MPS data provider")
       .def(
           "get_skeleton_provider",
           &AriaDigitalTwinDataProvider::getSkeletonProvider,

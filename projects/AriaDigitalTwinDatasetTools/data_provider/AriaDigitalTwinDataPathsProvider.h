@@ -22,6 +22,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include <mps/MpsDataPathsProvider.h>
 #include <vrs/StreamId.h>
 
 namespace projectaria::dataset::adt {
@@ -57,6 +58,8 @@ struct AriaDigitalTwinDataPaths {
   std::string skeletonMetaDataFilePath; /**< skeleton metadata file */
   std::string metaDataFilePath; /**< data collection metadata file */
   std::string instancesFilePath; /**< instances file, a.k.a. object instance information file */
+
+  tools::mps::MpsDataPaths mps;
 
   std::string toString() const;
 };

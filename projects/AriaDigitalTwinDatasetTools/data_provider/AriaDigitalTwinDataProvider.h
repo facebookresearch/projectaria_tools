@@ -24,6 +24,7 @@
 #include "AriaDigitalTwinDataTypes.h"
 #include "AriaDigitalTwinSkeletonProvider.h"
 #include "AriaDigitalTwinUtils.h"
+#include "MpsDataProvider.h"
 #include "data_provider/VrsDataProvider.h"
 #include "data_provider/players/ImageSensorPlayer.h"
 
@@ -264,6 +265,10 @@ class AriaDigitalTwinDataProvider {
     return !instancesInfo_.empty();
   }
 
+  bool hasMps() const {
+    return mps_ != nullptr;
+  }
+
   // ---- Query information in this subsequence ----
   /**
    * @brief get all instance ids as a vector, including all `InstanceType`s.
@@ -315,6 +320,9 @@ class AriaDigitalTwinDataProvider {
       const {
     return syntheticVrsProvider_;
   }
+  std::shared_ptr<tools::mps::MpsDataProvider> mpsDataProviderPtr() {
+    return mps_;
+  }
 
   const AriaDigitalTwinSkeletonProvider& getSkeletonProvider(InstanceId instanceId) const;
 
@@ -330,6 +338,7 @@ class AriaDigitalTwinDataProvider {
   void loadSkeletonInfo();
   void loadSkeletons();
   void loadEyeGaze();
+  void loadMps();
 
   void loadObjectAABBbboxes();
   void loadInstancesInfo();
@@ -339,6 +348,9 @@ class AriaDigitalTwinDataProvider {
 
   // vrs provider for raw vrs data
   std::shared_ptr<projectaria::tools::data_provider::VrsDataProvider> dataProvider_;
+
+  // MPS data provider
+  std::shared_ptr<projectaria::tools::mps::MpsDataProvider> mps_;
 
   // <ts, aria pose in global coordinate>
   std::map<int64_t, Aria3dPose> aria3dPoses_;

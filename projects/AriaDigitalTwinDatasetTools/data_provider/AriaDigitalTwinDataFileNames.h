@@ -40,4 +40,7 @@ inline const std::string kSyntheticVrsFile = "synthetic_video.vrs";
 inline const std::string kSkeletonMetadataFile = "skeleton_aria_association.json";
 inline const std::string kVrsFileName = "video.vrs";
 
+// folders
+inline const std::string kMpsFolderName = "mps";
+
 } // namespace projectaria::dataset::adt

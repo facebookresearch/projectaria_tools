@@ -205,6 +205,13 @@ AriaDigitalTwinDataPathsProvider::getDataPathsUsingSubtourName(
   } else {
     paths.instancesFilePath = instancesFilePath;
   }
+
+  std::string mpsRootFolder = (fs::path(mainPath) / kMpsFolderName).string();
+  if (std::filesystem::exists(mpsRootFolder)) {
+    const auto dataPathsProvider = tools::mps::MpsDataPathsProvider(mpsRootFolder);
+    paths.mps = dataPathsProvider.getDataPaths();
+  }
+
   return paths;
 }
 
