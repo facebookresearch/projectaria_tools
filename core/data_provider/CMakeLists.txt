@@ -71,6 +71,10 @@ add_library(streamid_configuration_mapper STATIC StreamIdConfigurationMapper.cpp
 target_include_directories(streamid_configuration_mapper PUBLIC "../")
 target_link_libraries(streamid_configuration_mapper PUBLIC sensor_configuration)
 
+add_library(utils INTERFACE)
+target_sources(utils INTERFACE QueryMapByTimestamp.h)
+target_include_directories(utils INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+
 add_library(vrs_data_provider STATIC
         VrsDataProvider.cpp VrsDataProvider.h
         VrsDataProviderFactory.cpp

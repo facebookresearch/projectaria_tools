@@ -34,6 +34,7 @@
 #define DEFAULT_LOG_CHANNEL "AriaDigitalTwinDataProvider"
 #include <logging/Log.h>
 
+#include <data_provider/QueryMapByTimestamp.h>
 #include <mps/EyeGazeReader.h>
 #include <mps/TrajectoryReaders.h>
 
@@ -327,7 +328,7 @@ Aria3dPoseDataWithDt AriaDigitalTwinDataProvider::getAria3dPoseByTimestampNs(
   }
 
   auto queryPoseIter =
-      queryTimestampsMap<Aria3dPose>(aria3dPoses_, deviceTimeStampNs, timeQueryOptions);
+      queryMapByTimestamp<Aria3dPose>(aria3dPoses_, deviceTimeStampNs, timeQueryOptions);
 
   if (queryPoseIter != aria3dPoses_.end()) {
     return Aria3dPoseDataWithDt(queryPoseIter->second, queryPoseIter->first - deviceTimeStampNs);
@@ -355,7 +356,7 @@ BoundingBox3dDataWithDt AriaDigitalTwinDataProvider::getObject3dBoundingBoxesByT
   }
 
   // Query dynamic objects according to timestamp
-  auto queryDynamicObjectIter = queryTimestampsMap<TypeBoundingBox3dMap>(
+  auto queryDynamicObjectIter = queryMapByTimestamp<TypeBoundingBox3dMap>(
       dynamicObject3dBoundingBoxSeries_, deviceTimeStampNs, timeQueryOptions);
   if (queryDynamicObjectIter != dynamicObject3dBoundingBoxSeries_.end()) {
     // valid result, insert all dynamic objects into the map and return
@@ -385,7 +386,7 @@ BoundingBox2dDataWithDt AriaDigitalTwinDataProvider::getObject2dBoundingBoxesByT
   }
 
   auto iter =
-      queryTimestampsMap<TypeBoundingBox2dMap>(cameraBoxes, deviceTimeStampNs, timeQueryOptions);
+      queryMapByTimestamp<TypeBoundingBox2dMap>(cameraBoxes, deviceTimeStampNs, timeQueryOptions);
   if (iter == cameraBoxes.end()) {
     XR_LOGW(
         "invalid query time for object 2d bounding box data of camera {}. Query {}Ns, data range: [{}, {}]Ns\n",
@@ -422,7 +423,7 @@ BoundingBox2dDataWithDt AriaDigitalTwinDataProvider::getSkeleton2dBoundingBoxesB
   }
 
   auto iter =
-      queryTimestampsMap<TypeBoundingBox2dMap>(cameraBoxes, deviceTimeStampNs, timeQueryOptions);
+      queryMapByTimestamp<TypeBoundingBox2dMap>(cameraBoxes, deviceTimeStampNs, timeQueryOptions);
   if (iter == cameraBoxes.end()) {
     XR_LOGW(
         "invalid query time for skeleton 2d bounding box data of camera {}. Query {}Ns, data range: [{}, {}]Ns\n",
@@ -450,7 +451,7 @@ EyeGazeWithDt AriaDigitalTwinDataProvider::getEyeGazeByTimestampNs(
     return EyeGazeWithDt();
   }
 
-  auto iter = queryTimestampsMap<EyeGaze>(eyeGazes_, deviceTimeStampNs, timeQueryOptions);
+  auto iter = queryMapByTimestamp<EyeGaze>(eyeGazes_, deviceTimeStampNs, timeQueryOptions);
   if (iter == eyeGazes_.end()) {
     XR_LOGW(
         "invalid query time for eye gaze data. Query {}Ns, data range: [{}, {}]Ns\n",

@@ -22,6 +22,8 @@
 #include <rapidjson/document.h>
 #include <rapidjson/rapidjson.h>
 
+#include <data_provider/QueryMapByTimestamp.h>
+
 #include "AriaDigitalTwinDataFileKeys.h"
 #include "AriaDigitalTwinUtils.h"
 
@@ -29,6 +31,8 @@
 #include <logging/Log.h>
 
 namespace projectaria::dataset::adt {
+
+using namespace projectaria::tools::data_provider;
 
 AriaDigitalTwinSkeletonProvider::AriaDigitalTwinSkeletonProvider(
     const std::string& skeletonJsonPath) {
@@ -106,7 +110,7 @@ SkeletonFrameWithDt AriaDigitalTwinSkeletonProvider::getSkeletonByTimestampNs(
     return {};
   }
 
-  auto iter = queryTimestampsMap<SkeletonFrame>(frames_, deviceTimeStampNs, timeQueryOptions);
+  auto iter = queryMapByTimestamp<SkeletonFrame>(frames_, deviceTimeStampNs, timeQueryOptions);
   if (iter == frames_.end()) {
     fmt::print(
         "invalid query time for skeleton joints data. Query {}Ns, data range: [{}, {}]Ns\n",
