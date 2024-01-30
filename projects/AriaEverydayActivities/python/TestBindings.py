@@ -50,7 +50,6 @@ class TestAeaPybindings(unittest.TestCase):
         # Check MPS data paths
         self.assertTrue(os.path.exists(data_paths.mps.eyegaze.summary))
         self.assertTrue(os.path.exists(data_paths.mps.eyegaze.general_eyegaze))
-        self.assertTrue(os.path.exists(data_paths.mps.eyegaze.general_eyegaze))
         self.assertFalse(data_paths.mps.slam.closed_loop_trajectory)
         self.assertFalse(data_paths.mps.slam.open_loop_trajectory)
         self.assertFalse(data_paths.mps.slam.semidense_points)

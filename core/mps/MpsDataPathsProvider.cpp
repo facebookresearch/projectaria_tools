@@ -68,7 +68,7 @@ void MpsDataPathsProvider::loadDataPaths() {
   }
 
   if (!fs::exists(mpsSlamPath)) {
-    XR_LOGE(
+    XR_LOGW(
         "MPS SLAM folder does not exist in MPS root folder with the name {} or {}, not loading SLAM data paths",
         kMpsSlamFolder,
         kMpsSlamFolderDeprecated);
