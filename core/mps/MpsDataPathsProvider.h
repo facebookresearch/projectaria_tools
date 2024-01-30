@@ -47,6 +47,7 @@ struct MpsSlamDataPaths {
 struct MpsDataPaths {
   MpsSlamDataPaths slam; /**< SLAM data paths */
   MpsEyegazeDataPaths eyegaze; /**< EyeGaze data paths */
+  std::string root; /**< Root directory of the MPS data */
 };
 
 /**

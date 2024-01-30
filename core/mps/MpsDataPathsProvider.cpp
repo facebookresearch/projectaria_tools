@@ -56,6 +56,12 @@ MpsDataPaths MpsDataPathsProvider::getDataPaths() const {
 }
 
 void MpsDataPathsProvider::loadDataPaths() {
+  dataPaths_.root = mpsRootPath_;
+  if (!fs::exists(dataPaths_.root)) {
+    XR_LOGW("MPS root not found at {}, not loading MPS paths", dataPaths_.root);
+    return;
+  }
+
   std::string mpsSlamPath = (fs::path(mpsRootPath_) / fs::path(kMpsSlamFolder)).string();
   if (!fs::exists(mpsSlamPath)) {
     mpsSlamPath = (fs::path(mpsRootPath_) / fs::path(kMpsSlamFolderDeprecated)).string();
