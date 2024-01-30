@@ -15,6 +15,8 @@
 import argparse
 import os
 
+from projectaria_tools.core.mps import MpsDataPathsProvider, MpsDataProvider
+
 from projectaria_tools.core.sensor_data import TimeQueryOptions
 
 from projectaria_tools.core.stream_id import StreamId
@@ -307,3 +309,7 @@ if __name__ == "__main__":
         print(
             f"synthetic vrs data have streams: {synthetic_data_provider.get_all_streams()}"
         )
+        print(f"Has MPS data? {gt_provider.has_mps()}")
+        mps_data_provider = gt_provider.mps_data_provider_ptr()
+        print(f"Has General Eyegaze data? {mps_data_provider.has_general_eyegaze()}")
+        print(f"First MPS Eyegaze: {mps_data_provider.get_general_eyegaze(0)}")

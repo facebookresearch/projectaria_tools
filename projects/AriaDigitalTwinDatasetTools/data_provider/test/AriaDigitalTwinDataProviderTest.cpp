@@ -283,11 +283,32 @@ TEST(AdtDataProvider, InterpolationTest) {
   const auto maybeDataPaths = dataPathsProvider.getDataPathsByDeviceNum(0);
   EXPECT_TRUE(maybeDataPaths.has_value());
 
-  //
   std::shared_ptr<AriaDigitalTwinDataProvider> provider =
       std::make_shared<AriaDigitalTwinDataProvider>(maybeDataPaths.value());
   EXPECT_NE(provider, nullptr);
 
   auto interpolationTester = InterpolationFunctionTester(provider);
   interpolationTester.run();
+}
+
+TEST(AdtDataProvider, Mps) {
+  // Construct a ADT data provider from the test data path
+  const auto dataPathsProvider = AriaDigitalTwinDataPathsProvider(adtTestDataPath);
+  const auto maybeDataPaths = dataPathsProvider.getDataPathsByDeviceNum(0);
+  EXPECT_TRUE(maybeDataPaths.has_value());
+
+  auto adtProvider = std::make_shared<AriaDigitalTwinDataProvider>(maybeDataPaths.value());
+  EXPECT_NE(adtProvider, nullptr);
+  auto mpsProvider = adtProvider->mpsDataProviderPtr();
+  EXPECT_NE(mpsProvider, nullptr);
+  EXPECT_TRUE(mpsProvider->hasGeneralEyeGaze());
+  EXPECT_FALSE(mpsProvider->hasPersonalizedEyeGaze());
+  EXPECT_FALSE(mpsProvider->hasOpenLoopPoses());
+  EXPECT_FALSE(mpsProvider->hasClosedLoopPoses());
+  EXPECT_FALSE(mpsProvider->hasOnlineCalibrations());
+  EXPECT_FALSE(mpsProvider->hasSemidensePointCloud());
+  EXPECT_FALSE(mpsProvider->hasSemidenseObservations());
+
+  auto maybeEyeGaze = mpsProvider->getGeneralEyeGaze(0);
+  EXPECT_TRUE(maybeEyeGaze.has_value());
 }
