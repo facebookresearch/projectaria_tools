@@ -21,6 +21,8 @@
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:Barometer"
 #include <logging/Log.h>
 
+#include "Logging.h"
+
 namespace projectaria::tools::vrs_check {
 
 Barometer::Barometer(vrs::StreamId streamId, float minScore, float minTemp, float maxTemp)

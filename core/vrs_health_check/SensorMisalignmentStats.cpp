@@ -30,6 +30,8 @@
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:SensorMisalignmentStats"
 #include <logging/Log.h>
 
+#include "Logging.h"
+
 namespace projectaria::tools::vrs_check {
 
 namespace {

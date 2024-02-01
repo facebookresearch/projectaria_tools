@@ -19,6 +19,8 @@
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:TimeDomainMapping"
 #include <logging/Log.h>
 
+#include "Logging.h"
+
 namespace projectaria::tools::vrs_check {
 
 TimeDomainMapping::TimeDomainMapping(vrs::StreamId streamId, float minScore)

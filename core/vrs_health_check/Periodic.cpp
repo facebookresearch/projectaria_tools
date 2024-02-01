@@ -28,6 +28,8 @@
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:Periodic"
 #include <logging/Log.h>
 
+#include "Logging.h"
+
 namespace projectaria::tools::vrs_check {
 
 Periodic::Periodic(vrs::StreamId streamId, float minScore)

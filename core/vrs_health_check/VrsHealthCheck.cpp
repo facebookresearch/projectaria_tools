@@ -36,6 +36,8 @@
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:VrsHealthCheck"
 #include <logging/Log.h>
 
+#include "Logging.h"
+
 #include <vrs/ErrorCode.h>
 #include <vrs/StreamId.h>
 #include <filesystem>

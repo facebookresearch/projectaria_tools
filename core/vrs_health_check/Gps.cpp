@@ -22,6 +22,8 @@
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:Gps"
 #include <logging/Log.h>
 
+#include "Logging.h"
+
 namespace projectaria::tools::vrs_check {
 
 Gps::Gps(vrs::StreamId streamId, double sampleRateHz, float minAccuracy)

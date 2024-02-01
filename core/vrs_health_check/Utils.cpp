@@ -36,6 +36,8 @@
 #include <logging/Log.h>
 #include <logging/LogLevel.h>
 
+#include "Logging.h"
+
 namespace projectaria::tools::vrs_check {
 
 bool Utils::doColor_ = true;

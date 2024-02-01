@@ -23,6 +23,8 @@
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:Bluetooth"
 #include <logging/Log.h>
 
+#include "Logging.h"
+
 namespace projectaria::tools::vrs_check {
 
 Bluetooth::Bluetooth(vrs::StreamId streamId) : Stream(streamId) {}

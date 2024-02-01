@@ -24,6 +24,8 @@
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:Wifi"
 #include <logging/Log.h>
 
+#include "Logging.h"
+
 namespace projectaria::tools::vrs_check {
 
 Wifi::Wifi(vrs::StreamId streamId) : Stream(streamId) {}

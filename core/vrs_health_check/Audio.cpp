@@ -19,6 +19,8 @@
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:Audio"
 #include <logging/Log.h>
 
+#include "Logging.h"
+
 namespace projectaria::tools::vrs_check {
 
 Audio::Audio(vrs::StreamId streamId, float minScore) : Periodic(streamId, minScore) {}

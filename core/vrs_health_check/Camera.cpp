@@ -28,6 +28,8 @@
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:Camera"
 #include <logging/Log.h>
 
+#include "Logging.h"
+
 namespace projectaria::tools::vrs_check {
 
 Camera::Camera(
