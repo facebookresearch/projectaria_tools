@@ -35,7 +35,6 @@ void loadFilePathIfExists(
     std::string& filepathOut) {
   const std::string filepath = (fs::path(filepathIn) / filename).string();
   if (!fs::exists(filepath)) {
-    XR_LOGW("{} file not found at {}", filename, filepath);
     filepathOut.clear();
   } else {
     filepathOut = filepath;
