@@ -16,7 +16,7 @@
 
 /*
 This macro will change all XR_LOG to std::cout.
-Since setGloablLogLevel cannot disable the XR_LOG, changing to std::cout will disable all logging
+Since setGlobalLogLevel cannot disable the XR_LOG, changing to std::cout will disable all logging
 when --disable-logging is added
 */
 #include <iostream>
@@ -28,7 +28,7 @@ when --disable-logging is added
 
 #undef XR_LOGE
 #define XR_LOGE(...)                                    \
-  std::cout << "[" << DEFAULT_LOG_CHANNEL << "][ERORR]" \
+  std::cout << "[" << DEFAULT_LOG_CHANNEL << "][ERROR]" \
             << ": " << fmt::format(__VA_ARGS__) << std::endl;
 
 #undef XR_LOGW
