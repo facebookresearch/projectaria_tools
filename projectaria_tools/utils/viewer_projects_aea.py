@@ -27,7 +27,7 @@ from projectaria_tools.core.sensor_data import TimeDomain, TimeQueryOptions
 from projectaria_tools.core.sophus import SE3
 from projectaria_tools.core.stream_id import StreamId
 from projectaria_tools.projects.aea import AriaEverydayActivitiesDataProvider
-from projectaria_tools.utils.rerun_helpers import ToTransform3D
+from projectaria_tools.utils.rerun_helpers import AriaGlassesOutline, ToTransform3D
 
 
 # Define global variables
@@ -119,6 +119,13 @@ def logStaticData(
             ),
             timeless=True,
         )
+    # Log Aria Glasses Outline
+    aria_glasses_point_outline = AriaGlassesOutline(device_calibration)
+    rr.log(
+        f"world/device_{index}/glasses_outline",
+        rr.LineStrips3D([aria_glasses_point_outline]),
+        timeless=True,
+    )
 
 
 # Log instance data at different timestamp such as images from each sensor, eyegaze, and speech data
@@ -200,10 +207,17 @@ def logInstanceData(
         if pose_info:
             T_world_device = pose_info.transform_world_device
             rr.log(
+                f"world/device_{index}/",
+                ToTransform3D(
+                    T_world_device,
+                    False,
+                ),
+            )
+
+            rr.log(
                 f"world/device_{index}/{rgb_stream_label}",
                 ToTransform3D(
-                    T_world_device
-                    @ updated_camera_calibration.get_transform_device_camera(),
+                    updated_camera_calibration.get_transform_device_camera(),
                     False,
                 ),
             )
@@ -233,14 +247,12 @@ def logInstanceData(
                 rr.Points2D(gaze_projection, colors=[GAZE_COLOR], radii=4),
             )
 
-            # Move EyeGaze vector to world coordinate system for visualization
-            origin = T_world_device @ [0, 0, 0]
-            gaze_vector = T_world_device @ T_device_CPF @ gaze_vector_in_cpf
+            # Draw EyeGaze vector
             rr.log(
                 f"world/device_{index}/eye-gaze",
                 rr.Arrows3D(
-                    origins=origin.T,
-                    vectors=gaze_vector.T - origin.T,
+                    origins=[T_device_CPF @ [0, 0, 0]],
+                    vectors=[T_device_CPF @ gaze_vector_in_cpf],
                     colors=[GAZE_COLOR],
                 ),
             )
