@@ -28,12 +28,13 @@ from projectaria_tools.core.sophus import SE3
 from projectaria_tools.core.stream_id import StreamId
 from projectaria_tools.projects.aea import AriaEverydayActivitiesDataProvider
 from projectaria_tools.utils.rerun_helpers import AriaGlassesOutline, ToTransform3D
+from tqdm import tqdm
 
 
 # Define global variables
 RGB_STREAM_ID = StreamId("214-1")
 POINT_COLOR = [200, 200, 200]
-TRAJECTORY_COLORS = [[100, 10, 10], [10, 100, 10]]
+TRAJECTORY_COLORS = [[191, 255, 191], [191, 191, 255]]
 GAZE_COLOR = [200, 0, 0]
 MAX_POINT_CLOUD_POINTS = 500_000
 
@@ -147,6 +148,7 @@ def logInstanceData(
             timestamp_ns
         )
     rr.set_time_nanos("device_time_ns", device_time_ns)
+    rr.set_time_sequence("timestamp", device_time_ns)
 
     rgb_stream_label = aea_data_provider.vrs.get_label_from_stream_id(RGB_STREAM_ID)
     device_calibration = aea_data_provider.vrs.get_device_calibration()
@@ -244,7 +246,9 @@ def logInstanceData(
                 gaze_projection = gaze_projection / down_sampling_factor
             rr.log(
                 f"world/device_{index}/{rgb_stream_label}/image/eye-gaze-projection",
-                rr.Points2D(gaze_projection, colors=[GAZE_COLOR], radii=4),
+                rr.Points2D(
+                    gaze_projection, colors=[TRAJECTORY_COLORS[index]], radii=8
+                ),
             )
 
             # Draw EyeGaze vector
@@ -263,14 +267,25 @@ def logInstanceData(
             device_time_ns, TimeQueryOptions.BEFORE
         )
         image_shape = np.shape(image_display)
-        rr.log(
-            f"world/device_{index}/{rgb_stream_label}/image/text",
-            rr.Points2D(
-                positions=[image_shape[0] / 2.0, image_shape[1] - 40],
-                radii=0,
-                labels=sentence,
-            ),
-        )
+        if sentence:
+            if (
+                device_time_ns >= sentence.start_timestamp_ns
+                and device_time_ns < sentence.end_timestamp_ns
+            ):
+                rr.log(
+                    f"world/device_{index}/{rgb_stream_label}/image/text",
+                    rr.Points2D(
+                        positions=[image_shape[0] / 2.0, image_shape[1] - 40],
+                        radii=0,
+                        labels=sentence,
+                        colors=[TRAJECTORY_COLORS[index]],
+                    ),
+                )
+            else:
+                rr.log(
+                    f"world/device_{index}/{rgb_stream_label}/image/text",
+                    rr.Clear(recursive=False),
+                )
 
 
 def parse_args():
@@ -341,7 +356,7 @@ def main():
     total_time_ns = np.array(list(set(total_time_ns)))
     total_time_ns = np.sort(total_time_ns)
 
-    for time_ns in total_time_ns:
+    for time_ns in tqdm(total_time_ns):
         for index in range(0, np.size(paths)):
             logInstanceData(
                 aea_data_provider[index],
