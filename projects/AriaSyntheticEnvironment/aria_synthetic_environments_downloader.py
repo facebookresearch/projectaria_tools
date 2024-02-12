@@ -132,7 +132,7 @@ def main(
                 local_sha = hashlib.sha1(f.read()).hexdigest()
             assert (
                 local_sha == download_sha
-            ), "Downloaded file does not match sha1 hash in metadata file."
+            ), f"Downloaded file has a checksum that does not match the checksum in the metadata file. Expected: {download_sha}, actual: {local_sha}"
 
             if unzip_flag:
                 with ZipFile(download_local_filename, "r") as zip_ref:

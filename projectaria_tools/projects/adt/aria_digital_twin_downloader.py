@@ -384,8 +384,11 @@ class AriaDigitalTwinDatasetDownloader:
                     # raise exception if download fails and skip the unzip part below
                     r.raise_for_status()
 
-                if sha1sum != calculate_file_sha1(download_file_path):
-                    raise Exception("different checksum value, validation fails")
+                calculated_checksum = calculate_file_sha1(download_file_path)
+                if sha1sum != calculated_checksum:
+                    raise Exception(
+                        f"different checksum value, validation failed. Calculated checksum: {calculated_checksum}, expected checksum: {sha1sum}"
+                    )
 
                 if is_zipfile(download_file_path):
                     # unzip and reorganize
