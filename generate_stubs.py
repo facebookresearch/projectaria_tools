@@ -24,6 +24,7 @@ if system == "Linux":
 replace_core_pybinds = f"find projectaria_tools-stubs/ -name '*.pyi' | xargs {command} -i 's/_core_pybinds/projectaria_tools.core/g'"
 replace_adt_pybinds = f"find projectaria_tools-stubs/ -name '*.pyi' | xargs {command} -i 's/_adt_pybinds/projectaria_tools.project.adt/g'"
 replace_ase_pybinds = f"find projectaria_tools-stubs/ -name '*.pyi' | xargs {command} -i 's/_ase_pybinds/projectaria_tools.project.ase/g'"
+replace_aea_pybinds = f"find projectaria_tools-stubs/ -name '*.pyi' | xargs {command} -i 's/_aea_pybinds/projectaria_tools.project.aea/g'"
 
 command_list = [
     "mkdir -p projectaria_tools-stubs",
@@ -37,9 +38,12 @@ command_list = [
     "mv projectaria_tools-stubs/_adt_pybinds.pyi projectaria_tools-stubs/projectaria_tools/projects/adt.pyi",
     "pybind11-stubgen _ase_pybinds -o projectaria_tools-stubs --ignore-all-errors",
     "mv projectaria_tools-stubs/_ase_pybinds.pyi projectaria_tools-stubs/projectaria_tools/projects/ase.pyi",
+    "pybind11-stubgen _aea_pybinds -o projectaria_tools-stubs --ignore-all-errors",
+    "mv projectaria_tools-stubs/_aea_pybinds.pyi projectaria_tools-stubs/projectaria_tools/projects/aea.pyi",
     replace_core_pybinds,
     replace_adt_pybinds,
     replace_ase_pybinds,
+    replace_aea_pybinds,
 ]
 
 for command in command_list:
