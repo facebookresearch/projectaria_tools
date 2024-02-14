@@ -589,6 +589,7 @@ void exportAriaDigitalTwin(py::module& m) {
           py::arg("device_timeStamp_ns"),
           py::arg("instance_id"),
           py::arg("time_query_options") = TimeQueryOptions::Closest)
+      .def("has_aria_data", &AriaDigitalTwinDataProvider::hasAriaData)
       .def("has_aria_3d_poses", &AriaDigitalTwinDataProvider::hasAria3dPoses)
       .def("has_object_3d_boundingboxes", &AriaDigitalTwinDataProvider::hasObject3dBoundingboxes)
       .def(
