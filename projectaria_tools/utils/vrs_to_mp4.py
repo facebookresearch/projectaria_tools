@@ -121,7 +121,7 @@ class Vrs2MoviePyFrameConverter:
 
     def stream_fps(self) -> int:
         """Collect stream characteristic, Get the time period between two image sample."""
-        return int(self.provider_.get_nominalRateHz(self.rgb_stream_id_))
+        return int(self.provider_.get_nominal_rate_hz(self.rgb_stream_id_))
 
     def stream_duration(self) -> int:
         """Return the RGB stream duration in seconds."""

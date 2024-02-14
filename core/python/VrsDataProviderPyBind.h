@@ -211,8 +211,18 @@ inline void declareVrsDataProvider(py::module& m) {
           py::arg("stream_id"),
           "Get configuration of a specific stream.")
       .def(
-          "get_nominalRateHz",
+          "get_nominal_rate_hz",
           &VrsDataProvider::getNominalRateHz,
+          py::arg("stream_id"),
+          "Gets the nominal frame rate in Hz of a specific stream.")
+      .def(
+          "get_nominalRateHz",
+          [](const VrsDataProvider& self, const vrs::StreamId& streamId) -> double {
+            auto warnings = pybind11::module::import("warnings");
+            warnings.attr("warn")(
+                "get_nominalRateHz(stream_id) is deprecated, use get_nominal_rate_hz(stream_id) instead.");
+            return self.getNominalRateHz(streamId);
+          },
           py::arg("stream_id"),
           "Gets the nominal frame rate in Hz of a specific stream.")
       .def(
