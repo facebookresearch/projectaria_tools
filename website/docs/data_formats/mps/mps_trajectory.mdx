@@ -5,7 +5,7 @@ title: Trajectory
 
 # MPS output - Trajectory
 
-Standard [Machine Perception Services (MPS)](/docs/ARK/mps) outputs are:
+Standard [Machine Perception Services (MPS)](/ARK/mps/mps.mdx) outputs are:
 
 * `open_loop_trajectory.csv` file
 * `closed_loop_trajectory.csv` file
@@ -20,7 +20,7 @@ Open loop trajectory is the high frequency (IMU rate, which is 1kHz) odometry es
 
 The open loop trajectory has good “relative” and “local” accuracy: the relative transformation between two poses is accurate when the time span between two frames is short (within a few minutes). However, the open loop trajectory has increased drift error accumulated over time spent and travel distance. Consider using closed loop trajectory if you are looking for trajectory without drift error.
 
-For the utility function to load the open loop trajectory in Python and C++, please check the [code examples](/docs/data_utilities/core_code_snippets/mps#open-loopclosed-loop-trajectory)
+For the utility function to load the open loop trajectory in Python and C++, please check the [code examples](/data_utilities/core_code_snippets/mps.mdx#open-loopclosed-loop-trajectory)
 
 |Column	|Type	|Description	|
 |---	|---	|---	|
@@ -41,7 +41,7 @@ Closed loop trajectories are fully bundle adjusted with detected loop closures, 
 
 In some open datasets we also share and use this format for trajectory pose ground truth from simulation or Optitrack, and the files will be called in a different file name aria_gt_trajectory.csv.
 
-For the utility function to load the closed loop trajectory in Python and C++, please check the [code examples](/docs/data_utilities/core_code_snippets/mps#open-loopclosed-loop-trajectory)
+For the utility function to load the closed loop trajectory in Python and C++, please check the [code examples](/data_utilities/core_code_snippets/mps.mdx#open-loopclosed-loop-trajectory)
 
 |Column	|Type	|Description	|
 |---	|---	|---	|
@@ -56,11 +56,11 @@ For the utility function to load the closed loop trajectory in Python and C++, p
 
 ## Online calibration
 
-JSON files contain one json online calibration record per line. Each record is a json dict object that contains timestamp metadata and the result of online calibration for the cameras and IMUs. The calibration parameters contain [intrinsics](/docs/tech_insights/camera_intrinsic_models)) and [extrinsics](/docs/data_formats/coordinate_convention/3d_coordinate_frame_convention) parameters for each sensor as well as a time offsets which best temporally align their data. For how to load and read online calibrations in Python and C++, please checkout the [code examples](/docs/data_utilities/core_code_snippets/mps#online-calibration)
+JSON files contain one json online calibration record per line. Each record is a json dict object that contains timestamp metadata and the result of online calibration for the cameras and IMUs. The calibration parameters contain [intrinsics](/tech_insights/camera_intrinsic_models.mdx) and [extrinsics](/data_formats/coordinate_convention/3d_coordinate_frame_convention.mdx) parameters for each sensor as well as a time offsets which best temporally align their data. For how to load and read online calibrations in Python and C++, please checkout the [code examples](/data_utilities/core_code_snippets/mps.mdx#online-calibration)
 
 ## Static camera calibration
 
-Poses and intrinsic calibration of a set of stationary cameras. For the utility function to load the static cameras in Python and C++, please check the [code examples](/docs/data_utilities/core_code_snippets/mps#static-camera-calibration)
+Poses and intrinsic calibration of a set of stationary cameras. For the utility function to load the static cameras in Python and C++, please check the [code examples](/data_utilities/core_code_snippets/mps.mdx#static-camera-calibration)
 
 |Column	|Type	|Description	|
 |---	|---	|---	|
@@ -69,7 +69,7 @@ Poses and intrinsic calibration of a set of stationary cameras. For the utility 
 |`{tx,ty,tz,qx,qy,qz,qw}_world_cam`	|float	|Pose of the camera coordinate frame in world frame T_world_cam, translation (tx, ty, tz) in meters and rotation quaternion (qx, qy, qz, qw)	|
 |`image_width`	|int	|Image size in pixels	|
 |`image_height`	|int	|Image size in pixels|
-|`intrinsics_type`	|string	|Camera intrinsics calibration type. Currently support types: `KANNALABRANDTK3`: [KB3 model](/docs/tech_insights/camera_intrinsic_models#the-kannalabrandtk3-kb3-model)	|
+|`intrinsics_type`	|string	|Camera intrinsics calibration type. Currently support types: `KANNALABRANDTK3`: [KB3 model](/tech_insights/camera_intrinsic_models.mdx#the-kannalabrandtk3-kb3-model)	|
 |`intrinsics_{0-7}`	|float	|Camera intrinsics parameters	|
 |`start_frame_idx`	|int	|The start frame number of the video is stationary, and camera pose and intrinsic calibration results are applicable. Both will be -1 if the pose and intrinsic calibration are applicable to the whole video|
 |`end_frame_idx`	|int	|The end frame number of the video is stationary, and camera pose and intrinsic calibration results are applicable. Both will be -1 if the pose and intrinsic calibration are applicable to the whole video|

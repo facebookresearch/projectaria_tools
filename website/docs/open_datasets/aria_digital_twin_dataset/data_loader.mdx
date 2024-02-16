@@ -1,5 +1,5 @@
 ---
-sidebar_position: 60
+sidebar_position: 50
 title: Data Loader
 ---
 import Tabs from '@theme/Tabs';
@@ -15,9 +15,9 @@ with [pybindings](https://github.com/facebookresearch/projectaria_tools/blob/mai
 ## AriaDigitalTwinDataPathsProvider
 
 The main goal of this loader is to give the user an easy way to load
-an ADT [sequence](/docs/open_datasets/aria_digital_twin_dataset/data_format#sequence-and-subsequence) and its metadata,
-to select a specific [subsequence](/docs/open_datasets/aria_digital_twin_dataset/data_format#sequence-and-subsequence),
-and to select specific annotations to load (e.g., [with or without skeleton](/docs/open_datasets/aria_digital_twin_dataset/data_format#skeleton-data-and-availability)). AriaDigitalTwinDataPathsProvider manages all ground truth file
+an ADT [sequence](data_format.mdx#sequence-and-subsequence) and its metadata,
+to select a specific [subsequence](data_format.mdx#sequence-and-subsequence),
+and to select specific annotations to load (e.g., [with or without skeleton](data_format.mdx#skeleton-data-and-availability)). AriaDigitalTwinDataPathsProvider manages all ground truth file
 paths that can be used to load ground truth data in AriaDigitalTwinDataProvider.
 The following shows an example code snippet which loads an ADT sequence and select a subsequence to be passed to the AriaDigitalTwinDataProvider.
 
@@ -145,8 +145,8 @@ to check if data exists by calling their appropriate functions before calling th
 
 ### Ground Truth Data Getter Functions
 
-For a full example of the python getters, please refer to the notebook in the [Getting Started](/docs/open_datasets/aria_digital_twin_dataset/getting_started).
-For a full example of the C++ getters, please refer to the [visualizer example](/docs/open_datasets/aria_digital_twin_dataset/visualizers).
+For a full example of the python getters, please refer to the notebook in the [Getting Started](getting_started.mdx).
+For a full example of the C++ getters, please refer to the [visualizer example](visualizers.mdx).
 
 #### Getting Instance Information
 
@@ -175,7 +175,12 @@ in [AriaDigitalTwinDataProvider](https://github.com/facebookresearch/projectaria
 
 ### Time Synchronization Between Subsequences
 
-Please refer to [this tutorial](/docs/open_datasets/aria_digital_twin_dataset/advanced_tutorials) to find out how to synchronize subsequences in an ADT sequence.
+The [Advanced Tutorial](advanced_tutorials.mdx) shows how to synchronize subsequences in an ADT sequence.
+
+**Further resources:**
+* [Timestamps in Aria VRS Files](/data_formats/aria_vrs/timestamps_in_aria_vrs.mdx) - how Project Aria timestamp data is formatted in VRS for single and multiple devices
+* [Project Aria Device Timestamping](/tech_insights/device_timestamping.mdx) - how the hardware is configured
+* [Temporal Alignment of Aria Sensor Data](/tech_insights/temporal_alignment_of_sensor_data.mdx) - how the data is temporally aligned and how to finely align IMU, barometer and magnetometer data
 
 ### Skeleton Data
 

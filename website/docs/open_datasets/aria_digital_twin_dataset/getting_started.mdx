@@ -19,7 +19,7 @@ This notebook provides a walkthrough of:
     * Eye gaze
 * An example of undistorting ADT ground-truth data
 
-We also have an [advanced tutorial page](/docs/open_datasets/aria_digital_twin_dataset/advanced_tutorials) that will walk you through getting synchronized ground truth data in a multi-person sequence.
+We also have an [Advanced Tutorial](advanced_tutorials.mdx) that will walk you through getting synchronized ground truth data in a multi-person sequence.
 
 ## Run Jupyter Notebook on Google Colab
 Use the following link to run the Python notebook in an installation free playground:
@@ -36,7 +36,9 @@ Use the following link to run the Python notebook in an installation free playgr
 
 If you have already installed `projectaria-tools` using [Python Package Installation](/docs/data_utilities/installation/installation_python), you can skip to Step 4. The ADT Python code is part of the main projectaria-tools package.
 
-[**Jupyter notebook error**](/docs/data_utilities/installation/troubleshooting#jupyter-notebook-error) : If you have problems using Jupyter examples, please [upgrade python3](https://www.python.org/downloads/) to the latest version.
+:::tip [Jupyter notebook error](/data_utilities/installation/troubleshooting.mdx#jupyter-notebook-error)
+If you have problems using Jupyter examples, please [upgrade python3](https://www.python.org/downloads/) to the latest version.
+:::
 
 ### Step 2 : Create a virtual environment
 
@@ -58,8 +60,8 @@ pip3 install projectaria-tools'[all]'
 
 ### Step 4 : Download Sample Sequence:
 
-Download the sample Aria Digital Twin (ADT) sequence by following steps 0 to 4 in
-[this guide](/docs/open_datasets/aria_digital_twin_dataset/dataset_download#download-the-sample-aria-digital-twin-adt-sequence).
+Download the sample ADT sequence by following steps 0 to 4 in
+[How to Download the ADT Dataset](dataset_download.mdx#download-the-sample-aria-digital-twin-adt-sequence).
 
 ### Step 5 : Run Tutorial
 
@@ -75,8 +77,6 @@ jupyter notebook projectaria_tools/projects/AriaDigitalTwinDatasetTools/examples
 
 Go to [Data Utilities Troubleshooting](/docs/data_utilities/installation/troubleshooting) if you have issues implementing this guide.
 
-## Other Useful Links
-* [Dataset download](/docs/open_datasets/aria_digital_twin_dataset/dataset_download)
-* [Visualizers](/docs/open_datasets/aria_digital_twin_dataset/visualizers)
-* [Advanced tutorial](/docs/open_datasets/aria_digital_twin_dataset/advanced_tutorials)
-* [Use projectaria_tools with CMake](/docs/data_utilities/installation/installation_cpp)
+## Other useful links
+* [Use projectaria_tools with CMake](/data_utilities/installation/installation_cpp.mdx)
+* [Timestamps in Aria VRS Files](/data_formats/aria_vrs/timestamps_in_aria_vrs.mdx)

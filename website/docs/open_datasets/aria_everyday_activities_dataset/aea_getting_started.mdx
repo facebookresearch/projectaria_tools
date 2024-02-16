@@ -1,0 +1,89 @@
+---
+sidebar_position: 10
+title: Getting Started
+---
+
+# Getting Started With AEA
+
+## Overview
+
+This section provides a step-by-step guide to run the Aria Everyday Activities (AEA) quickstart tutorial in a Jupyter notebook.
+
+This notebook covers how to:
+
+
+* Access raw sensor data (VRS files)
+* Visualize Eye Gaze data
+* Visualize Speech data
+* Load concurrent sequences from multiple Project Aria glasses in a shared space location
+* Use Timecode to get synchronized data between two devices
+
+
+## Run Jupyter Notebook on Google Colab
+
+Use the following link to run the Python notebook in an installation free playground:
+
+* [Aria Everyday Activities (AEA)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/projects/AriaEverydayActivities/examples/aea_quickstart_tutorial.ipynb)
+
+
+
+## Running the Jupyter Notebook locally
+
+
+### Step 0 : Check system requirements and download codebase
+
+[Ensure your system is supported and then download projectaria_tools codebase from the github](/data_utilities/installation/download_codebase.mdx)
+
+
+### Step 1 : Install Python
+
+If you have already installed `projectaria-tools` using [Python Package Installation](/data_utilities/installation/installation_python.mdx), you can skip to Step 4. The AEA Python code is part of the main `projectaria-tools` package.
+
+:::tip [Jupyter notebook error](/data_utilities/installation/troubleshooting.mdx#jupyter-notebook-error)
+If you have problems using Jupyter examples, please [upgrade python3](https://www.python.org/downloads/) to the latest version.
+:::
+
+### Step 2 : Create a virtual environment
+
+
+```
+rm -rf $HOME/projectaria_tools_python_env
+
+python3 -m venv $HOME/projectaria_tools_python_env
+
+source $HOME/projectaria_tools_python_env/bin/activate
+```
+
+
+### Step 3 : Install `projectaria_tools` from pypi
+
+```
+pip3 install --upgrade pip
+
+pip3 install projectaria-tools'[all]'
+```
+
+
+
+### Step 4 : Download Sample Sequence:
+
+Download the sample AEA sequence by following steps 0 to 4 in [Dataset Download](aea_download_dataset.mdx).
+
+
+### Step 5 : Run Tutorial
+
+From your projectaria_tools python virtual environment, run:
+
+```
+cd $HOME/Documents/projectaria_sandbox
+
+jupyter notebook projectaria_tools/projects/AriaEverydayActivitiesTools/examples/aea_quickstart_tutorial.ipynb
+```
+
+
+## Troubleshooting
+Go to [Data Utilities Troubleshooting](/data_utilities/installation/troubleshooting.mdx) if you experience issues implementing this guide.
+
+## Other useful links
+* [Use projectaria_tools with CMake](/data_utilities/installation/installation_cpp.mdx)
+* [Timestamps in Aria VRS Files](/data_formats/aria_vrs/timestamps_in_aria_vrs.mdx)

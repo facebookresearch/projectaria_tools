@@ -1,0 +1,42 @@
+---
+sidebar_position: 35
+title: Visualizer
+---
+
+# Aria Everyday Activities Visualization
+
+To help you visualize and debug your algorithms when using the Aria Everyday Activities (AEA) dataset, we’ve provided a Python based visualizer that can work with time synchronized data from multiple Project Aria glasses in a shared world location.
+
+## Python Visualizer
+
+`viewer_projects_aea` displays an interactive view of a single of couple of synchronized sequences with [Rerun](/data_utilities/visualization/visualization_python.mdx#rerun). It allows you to see all data in 3D context.
+
+### Visualization of a single sequence:
+
+```
+
+viewer_projects_aea ---rotate-image --path loc1_script2_seq1_rec1
+
+```
+
+### Visualization of a couple of synchronized recording “locX_scriptY_seqZ_rec(1/2)”
+
+```
+
+viewer_projects_aea ---rotate-image --path loc1_script2_seq6_rec1 loc1_script2_seq6_rec2
+
+```
+
+![AEA Viewer Screenshot](/img/open_datasets/aria_everyday_activities_dataset/aea_shared_3d_global_trajectories.png)
+
+### Visualization of aligned 3D data per location
+
+```
+viewer_mps.py --trajectory `find . -wholename "*/loc1*closed_loop_trajectory.csv" -print` --points `find . -wholename "*/loc1*semidense_points.csv.gz" -print`
+```
+
+![Visualization of aligned 3D data](/img/open_datasets/aria_everyday_activities_dataset/aea_mps_data_viewer.png)
+
+## Troubleshooting
+
+Go to [Data Utilities Troubleshooting](/data_utilities/installation/troubleshooting.mdx) if you experience any issues.
