@@ -9,10 +9,11 @@ title: Overview
 Project Aria Tools provides Python and C++ APIs to access the [Aria Digital Twin (ADT) dataset](https://www.projectaria.com/datasets/adt/) ([paper](https://arxiv.org/abs/2306.06362)).
 
 ## About the data
+ADT provides raw and synthesized sensor data from Project Aria glasses, combined with groundtruth data generated using a motion capture system including depth images, device trajectories, object trajectories and bounding boxes, and human tracking. We also provide processed sensor data from our [Machine Perception Services](/ARK/mps/mps.mdx). Go to [ADT Data Format](data_format.mdx) to see a full list of the data we provide.
 
 The ADT dataset contains 222 sequences recording single and dual-person activities. The data was recorded in two spaces: an apartment and a single room office. There are 74 single-instance dynamic objects shared between the two spaces.
 
-Go to the [Getting Started Tutorial](/docs/open_datasets/aria_digital_twin_dataset/getting_started) to explore the sample dataset (available on Googlecollab, no download necessary) or the [Dataset Download page](/docs/open_datasets/aria_digital_twin_dataset/dataset_download) to get started.
+Go to the [Getting Started Tutorial](getting_started.mdx) to explore the sample dataset (available on Google colab, no download necessary) or the [Dataset Download page](dataset_download.mdx) to get started.
 
 The sample dataset is a single-user dataset with body pose in the Apartment. It is a pretty representative example that should give you an idea of the dataset.
 
@@ -52,7 +53,7 @@ Every activity has 10 to 50 sequences and the activity names are embedded into t
 * Number of sequences with 1 skeleton: 92
 * Number of sequences with 2 skeleton: 20
 
-:::note
+:::info
 We provide a mix of datasets where users may or may not be wearing an Aria and/or a bodysuit.
 Please refer to the `skeleton_aria_association.json` to see the case for each specific sub-sequence.
 :::
@@ -60,15 +61,17 @@ Please refer to the `skeleton_aria_association.json` to see the case for each sp
 ### Documentation
 The ADT section of the wiki covers:
 
-* [Getting started](/docs/open_datasets/aria_digital_twin_dataset/getting_started)
+* [Getting Started](getting_started.mdx)
     * A quickstart tutorial available as a Google colab project or install Project Aria Tools python package to run locally, run the ADT notebook to access and visualize ground-truth data.
-* [Dataset download](/docs/open_datasets/aria_digital_twin_dataset/dataset_download.mdx)
+* [Dataset Download](dataset_download.mdx)
    * A walkthrough of using `adt_benchmark_dataset_downloader` to download the published ADT dataset.
-* [Visualizers](/docs/open_datasets/aria_digital_twin_dataset/visualizers)
-   * Compile and run our visualizer using an example that accesses ADT data in C++.
-* [Advanced tutorial](/docs/open_datasets/aria_digital_twin_dataset/advanced_tutorials)
-  * A guide to learn how device synchronization works in ADT and run through a Jupyter notebook.
-* [Data loader](/docs/open_datasets/aria_digital_twin_dataset/data_loader)
-   *  APIs to load ADT data with handy code snippets
-* [Data format](/docs/open_datasets/aria_digital_twin_dataset/data_format)
+* [Data Format](data_format.mdx)
     *  How ADT data is organized and stored
+* [Data Loader](data_loader.mdx)
+   *  APIs to load ADT data with handy code snippets
+* [Visualizers](visualizers.mdx)
+   * Compile and run our visualizer using an example that accesses ADT data in C++.
+* [Advanced tutorial](advanced_tutorials.mdx)
+  * A guide to learn how device synchronization works in ADT and run through a Jupyter notebook.
+* [ADT Challenges](adt_challenges.mdx)
+   - Learn more about the ADT Grand Challenge
