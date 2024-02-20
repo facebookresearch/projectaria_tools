@@ -943,13 +943,10 @@ void AriaDigitalTwinDataProvider::loadSegmentations() {
     XR_LOGI("skip loading fileSegmentation because the data path is empty");
     return;
   }
-  auto maybeSegmentationProvider = createVrsDataProvider(fileSeg.string());
-  if (!maybeSegmentationProvider) {
+  segmentationProvider_ = createVrsDataProvider(fileSeg.string());
+  if (!segmentationProvider_) {
     XR_LOGE("Segmentations cannot be loaded from {}", fileSeg.string());
-    return;
   }
-  segmentationProvider_ = std::make_shared<projectaria::tools::data_provider::VrsDataProvider>(
-      *maybeSegmentationProvider);
 }
 
 void AriaDigitalTwinDataProvider::loadDepthImages() {
@@ -958,13 +955,10 @@ void AriaDigitalTwinDataProvider::loadDepthImages() {
     XR_LOGI("skip loading fileDepth because the data path is empty");
     return;
   }
-  auto maybeDepthImageProvider = createVrsDataProvider(fileDep.string());
-  if (!maybeDepthImageProvider) {
-    XR_LOGE("depth images cannot be loaded from {}", fileDep.string());
-    return;
+  depthImageProvider_ = createVrsDataProvider(fileDep.string());
+  if (!depthImageProvider_) {
+    XR_LOGE("Depth images cannot be loaded from {}", fileDep.string());
   }
-  depthImageProvider_ = std::make_shared<projectaria::tools::data_provider::VrsDataProvider>(
-      *maybeDepthImageProvider);
 }
 
 void AriaDigitalTwinDataProvider::loadSyntheticVrs() {
@@ -973,13 +967,10 @@ void AriaDigitalTwinDataProvider::loadSyntheticVrs() {
     XR_LOGI("skip loading fileSynthetic because the data path is empty");
     return;
   }
-  auto syntheticVrsProvider = createVrsDataProvider(fileSynthetic.string());
-  if (!syntheticVrsProvider) {
+  syntheticVrsProvider_ = createVrsDataProvider(fileSynthetic.string());
+  if (!syntheticVrsProvider_) {
     XR_LOGW("Cannot load synthetic vrs at {}", fileSynthetic.string());
-    return;
   }
-  syntheticVrsProvider_ =
-      std::make_shared<projectaria::tools::data_provider::VrsDataProvider>(*syntheticVrsProvider);
 }
 
 void AriaDigitalTwinDataProvider::loadSkeletonInfo() {
