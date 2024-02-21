@@ -28,21 +28,18 @@ SensorDataSequence::SensorDataSequence(
 SensorDataIterator SensorDataSequence::begin() {
   const auto& streamIds = options_.getActiveStreamIds();
 
-  int64_t startDeviceTimeNs = std::numeric_limits<int64_t>::max();
-  int64_t endDeviceTimeNs = -1;
-
-  for (const auto& streamId : streamIds) {
-    if (provider_->getNumData(streamId) == 0) {
-      continue;
-    }
-    startDeviceTimeNs =
-        std::min(startDeviceTimeNs, provider_->getFirstTimeNs(streamId, TimeDomain::DeviceTime));
-    endDeviceTimeNs =
-        std::max(endDeviceTimeNs, provider_->getLastTimeNs(streamId, TimeDomain::DeviceTime));
-  }
+  int64_t startDeviceTimeNs = provider_->getFirstTimeNsAllStreams(TimeDomain::DeviceTime);
+  int64_t endDeviceTimeNs = provider_->getLastTimeNsAllStreams(TimeDomain::DeviceTime);
 
   startDeviceTimeNs += options_.getTruncateFirstDeviceTimeNs();
   endDeviceTimeNs -= options_.getTruncateLastDeviceTimeNs();
+
+  checkAndThrow(
+      startDeviceTimeNs <= endDeviceTimeNs,
+      fmt::format(
+          "Start time : {} should be smaller or equal to end time : {} after truncation.",
+          startDeviceTimeNs,
+          endDeviceTimeNs));
 
   std::map<vrs::StreamId, int> streamIdToNextIndex;
   std::map<vrs::StreamId, int> streamIdToSubsampleRate;
