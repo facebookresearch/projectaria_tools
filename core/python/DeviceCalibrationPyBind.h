@@ -195,6 +195,19 @@ inline void declareCameraCalibration(py::module& m) {
       py::arg("camera_calibration"));
 }
 
+inline void declareLinearRectificationModel(py::module& m) {
+  py::class_<LinearRectificationModel3d>(
+      m,
+      "LinearRectificationModel3d",
+      "A class that contains imu and mag intrinsics rectification model.")
+      .def(py::init<const Eigen::Matrix3d&, const Eigen::Vector3d&>())
+      .def(
+          "get_rectification",
+          &LinearRectificationModel3d::getRectification,
+          "Get the rectification matrix. ")
+      .def("get_bias", &LinearRectificationModel3d::getBias, "Get the bias vector.");
+}
+
 inline void declareImuCalibration(py::module& m) {
   py::class_<ImuCalibration>(
       m,
@@ -233,6 +246,14 @@ inline void declareImuCalibration(py::module& m) {
           py::arg("rectified"),
           "simulate imu gyro sensor readout from actual angular velocity: "
           " raw = rectificationMatrix * rectified + bias.")
+      .def(
+          "get_accel_model",
+          &ImuCalibration::getAccelModel,
+          "Get accelerometer intrinsics model that contains rectification matrix and bias vector.")
+      .def(
+          "get_gyro_model",
+          &ImuCalibration::getGyroModel,
+          "Get gyroscope intrinsics model that contains rectification matrix and bias vector.")
       .def("get_transform_device_imu", &ImuCalibration::getT_Device_Imu)
       .def("__repr__", [](const ImuCalibration& self) { return fmt::to_string(self); });
 }
@@ -278,6 +299,7 @@ inline void declareMicrophoneCalibration(py::module& m) {
 
 inline void declareSensorCalibration(py::module& m) {
   declareCameraCalibration(m);
+  declareLinearRectificationModel(m);
   declareImuCalibration(m);
   declareMagnetometerCalibration(m);
   declareBarometerCalibration(m);

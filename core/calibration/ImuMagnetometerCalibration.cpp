@@ -32,6 +32,14 @@ Eigen::Vector3d LinearRectificationModel3d::rectifiedToRaw(const Eigen::Vector3d
   return rectificationMatrix_ * rectified + bias_;
 }
 
+Eigen::Matrix3d LinearRectificationModel3d::getRectification() const {
+  return rectificationMatrix_;
+}
+
+Eigen::Vector3d LinearRectificationModel3d::getBias() const {
+  return bias_;
+}
+
 /* ImuCalibration */
 ImuCalibration::ImuCalibration(
     const std::string& label,
@@ -66,6 +74,14 @@ Eigen::Vector3d ImuCalibration::rawToRectifiedGyro(const Eigen::Vector3d& raw) c
 
 Eigen::Vector3d ImuCalibration::rectifiedToRawGyro(const Eigen::Vector3d& rectified) const {
   return gyro_.rectifiedToRaw(rectified);
+}
+
+LinearRectificationModel3d ImuCalibration::getAccelModel() const {
+  return accel_;
+}
+
+LinearRectificationModel3d ImuCalibration::getGyroModel() const {
+  return gyro_;
 }
 
 /* MagnetometerCalibration */

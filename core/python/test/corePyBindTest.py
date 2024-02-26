@@ -34,6 +34,44 @@ timecode_vrs_filepath = os.path.join(
 
 
 class CalibrationTests(unittest.TestCase):
+    def test_imu_calibration_getter(self) -> None:
+        provider = data_provider.create_vrs_data_provider(vrs_filepath)
+
+        device_calib = provider.get_device_calibration()
+        assert device_calib is not None
+
+        imu_labels = ["imu-left", "imu-right"]
+
+        raw_accel_data = np.array([1.0, 0.2, 3.1])
+        raw_gyro_data = np.array([11.7, 1.2, 10.1])
+
+        for label in imu_labels:
+            imu_calib = device_calib.get_imu_calib(label)
+            assert imu_calib is not None
+
+            accel_model = imu_calib.get_accel_model()
+            gyro_model = imu_calib.get_gyro_model()
+
+            accel_rect = accel_model.get_rectification()
+            accel_bias = accel_model.get_bias()
+
+            gyro_rect = gyro_model.get_rectification()
+            gyro_bias = gyro_model.get_bias()
+
+            rectified_accel = imu_calib.raw_to_rectified_accel(raw_accel_data)
+            rectified_accel_compare = np.linalg.inv(accel_rect) @ (
+                raw_accel_data - accel_bias
+            )
+            np.testing.assert_array_almost_equal(
+                rectified_accel, rectified_accel_compare
+            )
+
+            rectified_gyro = imu_calib.raw_to_rectified_gyro(raw_gyro_data)
+            rectified_gyro_compare = np.linalg.inv(gyro_rect) @ (
+                raw_gyro_data - gyro_bias
+            )
+            np.testing.assert_array_almost_equal(rectified_gyro, rectified_gyro_compare)
+
     def test_calibration_label(self) -> None:
         provider = data_provider.create_vrs_data_provider(vrs_filepath)
 

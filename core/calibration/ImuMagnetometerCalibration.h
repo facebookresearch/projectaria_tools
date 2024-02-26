@@ -50,6 +50,16 @@ class LinearRectificationModel3d {
    */
   Eigen::Vector3d rectifiedToRaw(const Eigen::Vector3d& rectified) const;
 
+  /**
+   * @brief getter function for rectification matrix
+   */
+  Eigen::Matrix3d getRectification() const;
+
+  /**
+   * @brief getter function for bias vector
+   */
+  Eigen::Vector3d getBias() const;
+
  private:
   Eigen::Matrix3d rectificationMatrix_;
   Eigen::Vector3d bias_;
@@ -99,6 +109,16 @@ class ImuCalibration {
    * @brief simulate imu gyro sensor readout from actual angular velocity
    */
   Eigen::Vector3d rectifiedToRawGyro(const Eigen::Vector3d& rectified) const;
+
+  /**
+   * @brief get accelerometer linear rectification model that includes rectification matrix and bias
+   */
+  LinearRectificationModel3d getAccelModel() const;
+
+  /**
+   * @brief get gyroscope linear rectification model that includes rectification matrix and bias
+   */
+  LinearRectificationModel3d getGyroModel() const;
 
  private:
   std::string label_;
