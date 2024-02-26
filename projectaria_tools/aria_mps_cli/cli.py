@@ -14,10 +14,10 @@
 
 try:
     ## python, outside of buck, doesn't work with relative imports
-    from cli_lib import run
+    from cli_lib import run as main
 except ModuleNotFoundError:
     ## buck only works with relative imports
-    from .cli_lib import run
+    from .cli_lib import run as main
 
 if __name__ == "__main__":
-    run()
+    main()
