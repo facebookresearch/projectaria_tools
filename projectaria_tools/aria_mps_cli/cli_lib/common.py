@@ -83,7 +83,7 @@ def unzip(zip_filepath: Path, dest_dir: Path) -> None:
             shutil.rmtree(dest_dir)
         elif dest_dir.is_file():
             dest_dir.unlink()
-        Path(tmp_dir).rename(dest_dir)
+        shutil.move(tmp_dir, dest_dir)
 
 
 def retry(
