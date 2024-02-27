@@ -42,6 +42,9 @@ def parse_args():
         type=str,
         help="path to VRS file",
     )
+    # Add options for the MPS Artifacts
+    # - They can be specified individually,
+    # - Or globally as a 'mps_folder' path
     parser.add_argument(
         "--trajectory",
         nargs="+",
@@ -58,6 +61,11 @@ def parse_args():
         "--eyegaze",
         type=str,
         help="path to the MPS eye gaze file",
+    )
+    parser.add_argument(
+        "--mps_folder",
+        type=str,
+        help="path to the MPS folder (will overwrite default value <vrs_file>/mps)",
     )
 
     # Add options that does not show by default, but still accessible for debugging purpose
@@ -79,9 +87,13 @@ def main():
         vrs_folder_path = os.path.dirname(args.vrs)
         # - If MPS data has not been provided we try to find them automatically using default folder hierarchy
         if args.points is None and args.eyegaze is None and args.trajectory is None:
-            mps_data_paths_provider = MpsDataPathsProvider(
-                str(Path(vrs_folder_path + "/mps"))
-            )
+            if args.mps_folder:
+                mps_data_paths_provider = MpsDataPathsProvider(args.mps_folder)
+            else:
+                # Try loading from default mps path (<vrs_file>/mps)
+                mps_data_paths_provider = MpsDataPathsProvider(
+                    str(Path(vrs_folder_path + "/mps"))
+                )
             mps_data_paths = mps_data_paths_provider.get_data_paths()
 
             if not args.trajectory and os.path.exists(
