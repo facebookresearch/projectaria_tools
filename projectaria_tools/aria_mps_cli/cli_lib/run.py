@@ -41,7 +41,7 @@ def _add_common_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "-i",
         "--input",
-        help="Path to the input VRS file or directory containing VRS files",
+        help="Path to the input VRS file or directory containing VRS files.",
         action="append",
         type=Path,
         required=True,
@@ -60,7 +60,7 @@ def _add_common_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "-u",
         "--username",
-        help="Username to use when connecting to MPS. This can be an email address, or a username",
+        help="Username to use when connecting to MPS. This can be an email address, or a username.",
         type=str,
     )
     parser.add_argument(
@@ -77,7 +77,7 @@ def _add_common_args(parser: argparse.ArgumentParser):
     )
     parser.add_argument(
         "--no-ui",
-        help="Do not display the UI showing status of each MPS Request",
+        help="Do not display the UI showing status of each MPS Request.",
         action="store_false",
         dest="show_ui",
     )
@@ -103,7 +103,7 @@ def _parse_args() -> argparse.Namespace:
     # Define the single_sequence subcommand
     parser_single = subparsers.add_parser(
         _SINGLE_COMMAND,
-        help="Single sequence MPS. MPS will process each VRS file separately",
+        help="Single sequence MPS. MPS will process each VRS file separately.",
     )
     _add_common_args(parser_single)
     parser_single.add_argument(
@@ -123,7 +123,7 @@ def _parse_args() -> argparse.Namespace:
     parser_multi.add_argument(
         "-o",
         "--output",
-        help="Output directory where the results will be stored",
+        help="Output directory where the results will be stored.",
         dest="output_dir",
         type=Path,
         required=True,

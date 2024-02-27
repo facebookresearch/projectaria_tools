@@ -159,7 +159,7 @@ class HttpHelper:
         self, file_hash: str
     ) -> List[MpsFeatureRequest]:
         """
-        Query the lastest MPS requested features associated with the given
+        Query the latest MPS requested features associated with the given
         file hash that cover all the single sequence features (SLAM and EYE Gaze).
 
         Args:
