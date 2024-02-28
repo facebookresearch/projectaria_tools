@@ -89,7 +89,7 @@ for (const ClosedLoopTrajectoryPose& closedLoopPose : closedLoopTraj) {
 ### Point cloud
 
 :::info Always filter global point clouds in 3D
-Post-filtering the point cloud using inverse distance and distance certainty is required to get point cloud **accurate in 3D space**. There are points cannot be accurately estimated in 3D space due to low parallax, but those points are well tracked in 2D images, and produce valid 2D observations. We choose to output **all** the points, include those have poor 3D estimations, in case researchers need them. Go to the [Semi-Dense Point Cloud page](/docs/data_formats/mps/mps_pointcloud) for more information.
+Post-filtering the point cloud using inverse distance and distance certainty is required to get point cloud **accurate in 3D space**. There are points cannot be accurately estimated in 3D space due to low parallax, but those points are well tracked in 2D images, and produce valid 2D observations. We choose to output **all** the points, include those have poor 3D estimations, in case researchers need them. Go to the [Semi-Dense Point Cloud page](/data_formats/mps/slam/mps_pointcloud.mdx) for more information.
 :::
 
 :::info Loading observations could be slow

@@ -1,0 +1,511 @@
+---
+sidebar_position: 30
+title: MPS CLI Guide
+---
+# Project Aria Machine Perception Services CLI Guide
+
+## Overview
+The Project Aria MPS CLI Guide provides detailed information about how to use this tool. The guide contain:
+* [About the MPS CLI](#about)
+* [How the MPS CLI works](#how)
+ * Go to [MPS Data Lifecycle](/ARK/mps/mps_processing.mdx) for more details about how sequences are processed on the server
+* [MPS CLI Settings](#settings)
+* [MPS CLI Command Line Reference](#clr)
+* [Troubleshooting and Error Codes](#troubleshooting)
+
+Go to [Getting Started With the MPS CLI](mps_cli_getting_started.mdx) for a quick tutorial showing basic commands using sample data.
+
+
+<div id="about"> &nbsp; </div>
+
+## About
+
+The Project Aria MPS Command Line Interface (MPS CLI), part of Project Aria Tools, is the preferred way to request Machine Perception Services (MPS). While you can use the Desktop Companion app to request MPS, the MPS CLI provides more features and ease of upload.
+
+The MPS CLI has two modes:
+
+* Single
+ * Process each recording individually
+ * The input can be a file and/or directory, so you can batch process multiple recordings with a single command
+ * Output is always saved next to the input file
+ * The most common way to request MPS
+* Multi
+ * Process multiple recordings to generate multi-sequence SLAM data
+ * User must provide a directory for the outputs
+
+Go to [MPS CLI Overview](mps_cli.mdx) for a full breakdown of all the features available.
+
+
+<div id="how"> <br/></div>
+
+## How the MPS CLI works
+The MPS CLI enables you to upload VRS files from your computer to the Meta servers for processing. The outputs are then saved to your local directory. The MPS CLI will try to process multiple recordings concurrently. The concurrency for various stages can be controlled via [Settings](#settings).
+
+![MPS CLU UI for single mode](/img/ARK/mps/mps_cli_ui_single.png)
+
+1. Once you submit your request, the MPS CLI for the selected mode will open and show the status of your requests.
+ * See the Getting Started or the [Command Line Reference](#clr) below for how to submit a request.
+2. Once authenticated, the request tool checks with the server to see if this recording was previously processed. We use unique IDs (Hashing stage) to check if this is a new or a previously known recording.
+3. If it is a known recording, we skip processing and directly download the results (Download Results stage) or show the error code.
+4. If this is a new recording, we run health checks on the recording (HealthCheck stage), to minimize the chances that it will fail during processing. While this check catches obvious errors, like gaps in data and ensures presence of the right sensor streams, but server side processing may still fail.
+5. If the health check passes, the recording is encrypted on your machine (Encrypting stage).
+6. After encryption, the recordings are uploaded to the MPS servers (Uploading stage) for processing.
+ * Uploads are resumable.
+ * Interrupted uploads can be resumed within 24 hours.
+7. Data is processed on MPS servers (Processing stage).
+ * The MPS CLI periodically checks the MPS request's status on the server.
+ * It is safe to close the MPS Request tool once the data is processing. When the MPS CLI is reopened, it will check the status of your data and progress to Downloading if it is ready.
+
+:::tip If you get an error code
+The server re-attempts processing multiple times before it stops and provides an error message
+* Check [Error Codes](#error_codes) to see what the error was.
+* We encourage you to send a bug report with log files to [Aria User Support](/support.mdx) if it is not an error code 1xx. By default, logs are stored in /tmp/logs/projectaria/mps/.
+:::
+
+8. Once the processing is complete, and the tool is open, outputs are automatically downloaded (Downloading stage).
+9. Recordings in the MPS CLI UI will show the Success status once the outputs been successfully downloaded.
+
+
+### Logs
+Each run will write the console logs to a log file on the local drive. Since the MPS CLI can run concurrently on multiple recordings, these logs are useful for debugging purposes. The logs are named by the current time when the request was initiated via CLI.
+
+By default, logs are stored in `/tmp/logs/projectaria/mps/`. The location can be modified in settings.
+
+<div id="settings"><br/></div>
+
+## CLI Settings
+
+Project Aria MPS CLI settings can be customized via the mps.ini file. This file is located in the $HOME/.projectaria/mps.ini
+
+
+<table>
+ <tr>
+ <td><strong>Setting</strong>
+ </td>
+ <td><strong>Description</strong>
+ </td>
+ <td><strong>Default Value</strong>
+ </td>
+ </tr>
+ <tr>
+ <td colspan="3" ><strong>General settings</strong>
+ </td>
+ </tr>
+ <tr>
+ <td><code>log_dir</code>
+ </td>
+ <td>Where log files are saved for each run. The filename is the timestamp from when the request tool started running.
+ </td>
+ <td><code>/tmp/logs/projectaria/mps/</code>
+ </td>
+ </tr>
+ <tr>
+ <td><code>status_check_interval</code>
+ </td>
+ <td>How long the MPS CLI waits to check the status of data during the Processing stage.
+ </td>
+ <td>30 secs
+ </td>
+ </tr>
+ <tr>
+ <td colspan="3" > <strong>HASH</strong>
+ </td>
+ </tr>
+ <tr>
+ <td><code>concurrent_hashes</code>
+ </td>
+ <td>Maximum number of files that can be concurrently hashed
+ </td>
+ <td>4
+ </td>
+ </tr>
+ <tr>
+ <td><code>chunk_size</code>
+ </td>
+ <td>Chunk size to use for hashing
+ </td>
+ <td>10MB
+ </td>
+ </tr>
+ <tr>
+ <td colspan="3" ><strong>Encryption</strong>
+ </td>
+ </tr>
+ <tr>
+ <td><code>chunk_size</code>
+ </td>
+ <td>Chunk size to use for encryption
+ </td>
+ <td>50MB
+ </td>
+ </tr>
+ <tr>
+ <td><code>concurrent_encryptions</code>
+ </td>
+ <td>Maximum number of files that can be concurrently encrypted
+ </td>
+ <td>4
+ </td>
+ </tr>
+ <tr>
+ <td><code>delete_encrypted_files</code>
+ </td>
+ <td>Whether to delete the encrypted files after upload is done. If you set this to false local disk usage will double, due to an encrypted copy of each file.
+ </td>
+ <td>True.
+ </td>
+ </tr>
+ <tr>
+ <td colspan="3" ><strong>Health Check</strong>
+ </td>
+ </tr>
+ <tr>
+ <td><code>concurrent_health_checks</code>
+ </td>
+ <td>Maximum number of VRS file healthchecks that can be run concurrently
+ </td>
+ <td>2
+ </td>
+ </tr>
+ <tr>
+ <td colspan="3" ><strong>Uploads</strong>
+ </td>
+ </tr>
+ <tr>
+ <td><code>backoff</code>
+ </td>
+ <td>The exponential back off factor for retries during failed uploads. The wait time between successive retries will increase with this factor.
+ </td>
+ <td>1.5
+ </td>
+ </tr>
+ <tr>
+ <td><code>interval</code>
+ </td>
+ <td>Base delay between retries.
+ </td>
+ <td>20 secs
+ </td>
+ </tr>
+ <tr>
+ <td><code>retries</code>
+ </td>
+ <td>Maximum number of retries before giving up.
+ </td>
+ <td>10
+ </td>
+ </tr>
+ <tr>
+ <td><code>concurrent_uploads</code>
+ </td>
+ <td>Maximum number of concurrent uploads.
+ </td>
+ <td>4
+ </td>
+ </tr>
+ <tr>
+ <td><code>max_chunk_size</code>
+ </td>
+ <td>Maximum chunk size that can be used during uploads.
+ </td>
+ <td>100 MB
+ </td>
+ </tr>
+ <tr>
+ <td><code>min_chunk_size</code>
+ </td>
+ <td>The minimum upload chunk size.
+ </td>
+ <td>5 MB
+ </td>
+ </tr>
+ <tr>
+ <td><code>smoothing_window_size</code>
+ </td>
+ <td>Size of the smoothing window to adjust the chunk size. This value defines the number of uploaded chunks that will be used to determine the next chunk size.
+ </td>
+ <td>10
+ </td>
+ </tr>
+ <tr>
+ <td><code>target_chunk_upload_secs</code>
+ </td>
+ <td>Target time to upload a single chunk. If the chunks in a smoothing window take longer, we reduce the chunk size. If it takes less time, we increase the chunk size.
+ </td>
+ <td>3 secs
+ </td>
+ </tr>
+ <tr>
+ <td colspan="3" ><strong>GraphQL (Query the MPS backend for MPS Status)</strong>
+ </td>
+ </tr>
+ <tr>
+ <td><code>backoff</code>
+ </td>
+ <td>This the exponential back off factor for retries for failed queries. The wait time between successive retries will increase with this factor
+ </td>
+ <td>1.5
+ </td>
+ </tr>
+ <tr>
+ <td><code>interval</code>
+ </td>
+ <td>Base delay between retries
+ </td>
+ <td>4 secs
+ </td>
+ </tr>
+ <tr>
+ <td><code>retries</code>
+ </td>
+ <td>Maximum number of retries before giving up
+ </td>
+ <td>3
+ </td>
+ </tr>
+ <tr>
+ <td colspan="3" ><strong>Download</strong>
+ </td>
+ </tr>
+ <tr>
+ <td><code>backoff</code>
+ </td>
+ <td>This the exponential back off factor for retries during failed downloads. The wait time between successive retries will increase with this factor.
+ </td>
+ <td>1.5
+ </td>
+ </tr>
+ <tr>
+ <td><code>interval</code>
+ </td>
+ <td>Base delay between retries
+ </td>
+ <td>20 secs
+ </td>
+ </tr>
+ <tr>
+ <td><code>retries</code>
+ </td>
+ <td>Maximum number of retries before giving up
+ </td>
+ <td>10
+ </td>
+ </tr>
+ <tr>
+ <td><code>chunk_size</code>
+ </td>
+ <td>The chunk size to use for downloads
+ </td>
+ <td>10MB
+ </td>
+ </tr>
+ <tr>
+ <td><code>concurrent_downloads</code>
+ </td>
+ <td>Number of concurrent downloads
+ </td>
+ <td>10
+ </td>
+ </tr>
+ <tr>
+ <td><code>delete_zip</code>
+ </td>
+ <td>The server will send the results in a zip file. This flag controls whether to delete the zip file after extraction or not
+ </td>
+ <td>True
+ </td>
+ </tr>
+</table>
+
+
+<div id="clr"><br/></div>
+
+## Command line reference
+
+The MPS CLI has two distinct modes: single (process each recording individually) and multi (SLAM outputs for multiple recordings in a shared co-ordinate frame).
+
+
+```
+aria_mps single <options>
+```
+
+or
+
+```
+aria_mps multi <options>
+```
+
+
+### Help
+
+To see the available options and subcommands, use:
+
+```
+--help
+```
+
+or
+
+```
+-h
+```
+
+
+### Authentication
+
+
+#### Log in
+
+The first time you use the MPS CLI, you’ll be prompted to enter your username and password. Use the Project Aria credentials you use to sign into the Mobile Companion app. You can also supply the username and password via CLI input. This option is more suited for running MPS as part of a batch script or other automated workflows.
+
+The authentication token gets saved in the `$HOME/.projectaria` directory.
+
+To log in using the CLI
+
+```
+-u USERNAME -p PASSWORD
+```
+
+or
+
+ ```
+--username USERNAME --password PASSWORD
+```
+
+
+#### Token storage
+The login token is saved onto your machine by default.
+
+If you request MPS using `--no-ui` , you'll have the option to pass `--no-save-token`. This means the token won't be saved. Once processing is complete the MPS CLI will also logout and invalidate any existing tokens.
+
+
+#### Log out
+
+Use the following command to log out the authentication token and delete it from the system. Next time you run the CLI, it will ask for username and password again.
+
+```
+aria_mps logout
+```
+
+
+### Request commands for any mode
+
+These options are shared between both modes.
+
+
+#### Define input path
+
+Provides the path for a directory or file that will be uploaded for processing. Where a directory is provided, all subdirectories will be scanned for VRS files. At least one input file must be provided. There is no limit of how many files or folders can be included in a single request.
+
+```
+-i INPUT
+```
+
+or
+
+```
+--input INPUT
+```
+
+
+#### Force the provided files to be reprocessed
+
+Force the server to reprocess all of the provided files, regardless of their current state on the server.
+
+```
+--force
+```
+
+
+#### Automatically retry processing if it fails
+
+By default the MPS server will retry processing data multiple times before generating a failure code. By adding this flag requests automatically retries again if the processing fails. This command is generally only worth using if you’ve done some debugging to warrant it.
+
+```
+--retry-failed
+```
+
+:::note
+If you retry 24 hours after the recording was uploaded, you'll also need to re-upload the data.
+:::
+
+
+
+#### Don’t show the UI
+
+Instead of the MPS CLI UI, you’ll see the raw outputs and processes in the command line.
+
+```
+--no-ui
+```
+
+
+### Single Recording mode
+
+
+#### Select the MPS you wish to generate
+
+By default, Eye Gaze and SLAM MPS are generated. Use the features option to select a single service, which can speed up processing.
+
+```
+--features {EYE_GAZE,SLAM}
+```
+
+
+### Multi-Recording mode
+
+#### Define the output directory
+
+Define the output directory where the results will be stored. Setting the output path is required. The output directory must be empty before processing starts.
+
+```
+-o OUTPUT_DIR
+```
+
+Or
+
+```
+--output OUTPUT_DIR
+```
+
+<div id="troubleshooting"><br/></div>
+
+## Troubleshooting
+
+
+### Authentication issue on macOS
+
+If you encounter a permissions error while trying to sign in to the MPS CLI, try:
+
+```
+ln -s /etc/ssl/* /Library/Frameworks/Python.framework/Versions/3.9/etc/openssl
+```
+
+### Terminal display issues in macOS
+
+Some users have reported that the MPS CLI UI has display issues in Terminal. Using a different terminal app may help. [Why doesn't Textual look good on macOS](https://textual.textualize.io/FAQ/#why-doesnt-textual-look-good-on-macos) provides further details about this issue.
+
+
+### Error codes
+
+
+| **Error Code** | Description |
+|--------|-------------------------------------------|
+| | *All 1xx codes are local client errors* |
+| 100 | Multi-Recording processing error. Another recording in the group had a failure, so the processing was halted. We need the full group of recordings to successfully process and generate multi-slam MPS output. The recording that fails will show its own error code, processing then stops and and sets the other recordings to this error code. |
+| 101 | Something failed on your computer. When you see this error, we suggest inspecting the local log for this run. If you need to reach out to support, please include this log file. |
+| 102 | There were health check failures during processing. Check the vrs_health_check.json and vrs_health_check_slam.json for more information about what went wrong. |
+| 103 | Multi-Recording processing error. Duplicate file detected. Duplicate recordings are not allowed for multi-SLAM processing. |
+| 104 | MPS CLI failed to encrypt the file. Check error logs for more information. |
+| 105 | Input-output mismatch error. This error happens when you try to run multi-SLAM processing but pass an output directory that already contains output or intermediate artifacts from a different multi-SLAM job. |
+| 106 | The output directory used for multi-SLAM processing is not empty. Non-empty output directory is only allowed if the output directory contains output or artifacts from a previous run of the same group of recordings. |
+| 108 | The server failed to query the status of the request. Retrying should usually fix this issue. |
+| 109 | Error during computing the hash id of the file. Check error logs for more information. |
+| 110 | Error when checking existing outputs on the disk. Check error logs for more information. |
+| 111 | Error when checking previously submitted MPS requests for a file. Check error logs for more information. |
+| 112 | Error when checking if the recording was previously uploaded. Check error logs for more information. |
+| 113 | Error uploading the VRS file. Check error logs for more information. |
+| 114 | Error submitting MPS request to the server. Check error logs for more information. Retrying should fix the issue. |
+| 115 | Error when checking the processing status of the MPS request. Check error logs for more information. |
+| 116 | Error when downloading the MPS results. Check error logs for more information. |
+| All other error codes | Server side failure. Reach out to support with the error code and log file. |

@@ -29,14 +29,18 @@ Aria data includes raw sensor data collected with Aria glasses and derived data 
 * [Data Utilities](/docs/data_utilities/data_utilities.mdx): our opensource C++/Python library provides the ability to work with Aria raw sensor data as well as MPS data. We also provide binaries implemented in C++ to visualize the data.
    * If you want to immediately dive in with the code, go to the Python [Getting Started](/docs/data_utilities/getting_started.mdx) guide for a quick tour of the library in a Jupyter notebook.
 
-* [Aria Research Kit](/docs/ARK/about_ARK.mdx): how to use an Aria glasses, the companion app or request Machine Perception Services.
+* [Aria Research Kit](/docs/ARK/about_ARK.mdx): Project Aria glasses quickstart guide, the Companion apps, the Client SDK or request Machine Perception Services.
 
-* [Open Datasets](/docs/open_datasets/open_datasets.mdx): [the Aria Digital Twin dataset](https://www.projectaria.com/datasets/adt/) and [the Aria synthetic environments dataset](https://www.projectaria.com/datasets/ase/). How to download the data and use our opensource tooling to visualize and access the data.
-    * For documentation about the [Aria Pilot Dataset](https://facebookresearch.github.io/Aria_data_tools/docs/pilotdata/pilotdata-index/) , go to our previous wiki in Aria Data Tools. Please note, some of the file formatting will be different.
+* [Open Datasets](/docs/open_datasets/open_datasets.mdx), how to download the data and use our opensource tooling to visualize and access the data of:
+    * [Aria Everyday Activities dataset](/open_datasets/aria_everyday_activities_dataset/aria_everyday_activities_dataset.mdx)
+    * [Aria Digital Twin dataset](/open_datasets/aria_digital_twin_dataset/aria_digital_twin_dataset.mdx)
+    * [Aria Synthetic Environments dataset](/open_datasets/aria_synthetic_environments_dataset/aria_synthetic_environments_dataset.mdx)
 
 * [Tech Insights](/docs/tech_insights/tech_insights.mdx): technical deeper dives on domain-specific topics.
 
 * [Attribution and Contributing](/docs/attribution_citation/attribution_citation.mdx): Citation information and how to contribute to Project Aria Tools.
+
+* [Support](/support.mdx)
 
 ## SW Release Notes
 Project Aria Tools SW Release notes are posted to [Project Aria Tools GitHub repository](https://github.com/facebookresearch/projectaria_tools), using Tags > Releases.

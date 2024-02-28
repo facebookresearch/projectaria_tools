@@ -1,13 +1,50 @@
 ---
-sidebar_position: 40
+sidebar_position: 10
 title: Basics
 ---
 This page provides an overview of how Project Aria [Machine Perception Services (MPS)](/docs/ARK/mps) output files are formatted.
 
 MPS provides derived data generated from Aria raw data (VRS files).
 
-* Go to [MPS Overview](/docs/ARK/mps) for an introduction to MPS
-* Go to [Request MPS](/docs/ARK/mps/request_mps) for how to request MPS on Aria raw data, if you have access to the [Aria Research Kit](https://www.projectaria.com/research-kit/)
+* Go to [MPS Overview](/ARK/mps/mps.mdx) for an introduction to MPS
+* Go to [Request MPS](/ARK/mps/request_mps/mps_cli.mdx) for how to request MPS on Aria raw data, if you have access to the [Aria Research Kit](https://www.projectaria.com/research-kit/)
+
+
+## MPS File Structure
+
+MPS outputs use the following structure, in this example recording1.vrs was used to generate MPS.
+
+```
+    └── Example folder
+        ├── mps_recording1_vrs
+        │   ├── eye_gaze
+        │   │   ├── general_eye_gaze.csv
+        │   │   └── summary.json
+        │   ├── slam
+        │   │   ├── closed_loop_trajectory.csv
+        │   │   ├── online_calibration.jsonl
+        │   │   ├── open_loop_trajectory.csv
+        │   │   ├── semidense_observations.csv.gz
+        │   │   ├── semidense_points.csv.gz
+        │   │   └── summary.json
+        │   ├── vrs_health_check.json
+        │   └── vrs_health_check_slam.json
+        └── recording1.vrs
+```
+
+* mps_[name of VRS file]_vrs
+    * Sibling directory where all the intermediate data and MPS output is saved
+* vrs_health_check.json
+    * Output of the health check performed on your computer before data is uploaded
+    * Contains information about data drops in all the sensor streams
+* vrs_health_check_slam.json
+    * Summary of SLAM specific checks on the VRS files
+    * If the health check fails it will contain details about which health checks failed
+* slam folder
+    * Contains outputs after running SLAM (Trajectory and Semi-Dense Point Cloud data)
+* eye_gaze folder
+    * Contains eye gaze outputs
+
 
 ## Common terminologies
 
@@ -49,7 +86,7 @@ Other than the status flag, extra information (or warning/error reasons if known
 Here’s an example summary JSON output:
 
 ```json
-{
+
     "SLAM": {
         "status": "SUCCESS",
         "info": [

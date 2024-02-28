@@ -1,0 +1,35 @@
+---
+sidebar_position: 50
+title: Calibration Data
+---
+
+# MPS output - Calibration
+
+Online calibration is generated as part of SLAM (Location in the Desktop Companion app) [MPS requests](/ARK/mps/mps.mdx).
+
+* `online_calibration.jsonl` file
+
+Static camera calibration may also be available in some datasets that include stationary cameras as well as moving Project Aria glasses.
+
+* Static camera calibration .csv file
+
+
+## Online calibration
+
+The JSONL file contains one json online calibration record per line. Each record is a json dict object that contains timestamp metadata and the result of online calibration for the cameras and IMUs. The calibration parameters contain [intrinsics](/tech_insights/camera_intrinsic_models.mdx) and [extrinsics](/data_formats/coordinate_convention/3d_coordinate_frame_convention.mdx) parameters for each sensor as well as a time offsets which best temporally align their data. For how to load and read online calibrations in Python and C++, please checkout the [code examples](/data_utilities/core_code_snippets/mps.mdx#online-calibration)
+
+## Static camera calibration
+
+Some Aria data may contain the poses and intrinsic calibration of set stationary cameras. For the utility function to load the static cameras in Python and C++, please check the [code examples](/data_utilities/core_code_snippets/mps.mdx#static-camera-calibration)
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|`cam_uid`	|string	|Unique identifier of camera	|
+|`graph_uid`	|string	|Unique identifier of the world coordinate frame	|
+|`{tx,ty,tz,qx,qy,qz,qw}_world_cam`	|float	|Pose of the camera coordinate frame in world frame T_world_cam, translation (tx, ty, tz) in meters and rotation quaternion (qx, qy, qz, qw)	|
+|`image_width`	|int	|Image size in pixels	|
+|`image_height`	|int	|Image size in pixels|
+|`intrinsics_type`	|string	|Camera intrinsics calibration type. Currently support types: `KANNALABRANDTK3`: [KB3 model](/tech_insights/camera_intrinsic_models.mdx#the-kannalabrandtk3-kb3-model)	|
+|`intrinsics_{0-7}`	|float	|Camera intrinsics parameters	|
+|`start_frame_idx`	|int	|Used to determine if start frame number of the video is stationary, and if stationary camera pose and intrinsic calibration results can be applied. `start_frame_idx` and `end_frame_idx` will both be -1 if the stationary pose and intrinsic calibration can be applied to the whole video|
+|`end_frame_idx`	|int	|Used to determine if the end frame number of the video is stationary and if stationary camera pose and intrinsic calibration results can be applied. `start_frame_idx` and `end_frame_idx` will both be -1 if the stationary pose and intrinsic calibration can be applied to the whole video|

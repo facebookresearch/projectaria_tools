@@ -13,7 +13,7 @@ For more information on the activities, see:
 * [Activities](aea_activities.mdx): details about the scenarios and where specific activities are in the recording sequence
 * [Recording Scripts](aea_scripts.mdx): more details about each scenario
 
-Aria Everyday Activities Dataset was first released as part of the Aria Pilot Dataset (Project Aria’s first open dataset). It has now been improved with a new data format, new tooling that enables it to be used with Project Aria Tools, and additional machine perception data.
+Aria Everyday Activities Dataset was first released as part of the Aria Pilot Dataset (Project Aria’s first open dataset). It has now been improved with a new data format, new tooling that enables it to be used with Project Aria Tools, and additional machine perception data. The data was recorded using [Recording Profile 9](/tech_spec/recording_profiles.mdx).
 
 ## About the data
 
@@ -23,10 +23,10 @@ In addition to providing raw sensor data from Project Aria glasses, this dataset
 * Per-frame eye tracking
     * Generalized [Eye Gaze data](/data_formats/mps/mps_eye_gaze.mdx)
 * Accurate 3D trajectories of users across multiple everyday activities in the same location
-    * [Trajectory](/data_formats/mps/mps_trajectory.mdx) and [Semi-Dense Point Cloud](/data_formats/mps/mps_pointcloud.mdx) data
+    * [Trajectory](/data_formats/mps/slam/mps_trajectory.mdx) and [Semi-Dense Point Cloud](/data_formats/mps/slam/mps_pointcloud.mdx) data
 * Timestamped with a shared clock to allow synchronization of data from multiple concurrent recordings
 * Location information expressed in a shared global coordinate frame for all recordings collected in the same physical location
-* [Online calibration information](/data_formats/mps/mps_trajectory.mdx#online-calibration) for the cameras and IMUs
+* [Online calibration information](/data_formats/mps/slam/mps_calibration.mdx) for the cameras and IMUs
 * [Speech-to-text annotation](aea_data_format.mdx#speech-to-text-annotation)
 
 The dataset contains:

@@ -10,9 +10,9 @@ This page provides troubleshooting information for issues you may encounter whil
 It covers:
   - [Device and Recording Issues](#device-and-recording-issues)
   - [Desktop App Issues](#desktop-app-issues)
-  - [Machine Perception Services Issues and Error Messages](#machine-perception-services-mps)
+  - [Desktop App Machine Perception Services Issues and Error Messages](#machine-perception-services-mps)
 
-Go to the [Glasses Manual](/docs/ARK/glasses_manual/glasses_user_manual.mdx) for information about LED States, button configuration, how to factory reset and power cycle your device.
+Go to the [Glasses Manual](/ARK/glasses_manual/glasses_user_manual.mdx) for information about LED States, button configuration, how to factory reset and power cycle your device.
 
 If you need further support, have feedback or feature requests, go to our [Support page](/support.mdx).
 
@@ -71,7 +71,7 @@ We recommend copying data from your Aria device using ADB or MTP (Windows automa
 
 On a Windows machine, your Aria device will be automatically detected as a USB drive when plugged in and the Windows File Explorer will automatically open a new window showing Aria and its internal device storage.
 
-Go to the [Quickstart Guide](http://localhost:3000/projectaria_tools/docs/ARK/ARK_quickstart) for ADB commands and MTP instructions.
+Go to the [Quickstart Guide](/ARK/ARK_quickstart.mdx) for ADB commands and MTP instructions.
 
 
 ### Desktop app/computer can't detect my Aria device
@@ -80,7 +80,7 @@ It may be that your Aria device's battery is drained, make sure it is correctly 
 
 On Linux, this also may be due to USB driver issues.
 
-* [Fix USB Driver Issues in Linux](/docs/ARK/troubleshooting/linux_usb_driver)
+* [Fix USB Driver Issues in Linux](linux_usb_driver.mdx)
 
 
 ## Machine Perception Services (MPS)
@@ -93,7 +93,7 @@ There are several ways to check what recording profile was used.
 
 Every VRS recording comes with a .vrs.json file that contains metadata about that recording. Open the file with any text editor and check the `recording_profile`  value.
 
-#### Method 2: Get metadata from the VRS file
+#### Method 2: Use the Desktop app to get metadata from the VRS file
 
 1. Go to Recordings in the Desktop App
 2. Select Tools
@@ -102,11 +102,11 @@ Every VRS recording comes with a .vrs.json file that contains metadata about tha
 5. Search the opened .vrs-description.txt file for “profile”
 
 ### Can’t upload data to MPS/Upload keeps failing
-If you cannot upload your data to MPS it could be that your VRS file is timing out during upload. Finding a faster internet connection may help or you can reduce your VRS file’s size.
-* [How to reduce VRS file size](/docs/ARK/troubleshooting/reduce_vrs_file_size)
+If you cannot upload your data to MPS it could be that your VRS file is timing out during upload. Finding a faster internet connection may help or you can reduce your VRS file’s size. You may also wish to try the [MPS CLI](/ARK/mps/request_mps/mps_cli.mdx)
+* [How to reduce VRS file size](reduce_vrs_file_size.mdx)
 
 
-## Machine Perception Services (MPS) Error Messages
+## Desktop App MPS Error Messages
 ### Unsupported Format
 You may encounter this error message when trying to unzip a downloaded MPS output file, especially large trajectory files. “Unsupported Format” occurs when the zip file has not fully downloaded. Please wait and try again later.
 
@@ -114,7 +114,7 @@ You may encounter this error message when trying to unzip a downloaded MPS outpu
 _This recording profile does not support trajectory generation._ <br/>
 _This recording profile does not support eye gaze generation._
 
-Trajectory and Eye Gaze derived data can only be generated if they have the necessary sensor data. Go to the [Recording Profiles page](/docs/ARK/glasses_manual/profile_guide) for information about supported profiles.
+Trajectory and Eye Gaze derived data can only be generated if they have the necessary sensor data. Go to the [Recording Profiles page](/ARK/glasses_manual/profile_guide.mdx) for information about supported profiles.
 
 ### Recording duration not supported
 
@@ -130,4 +130,4 @@ When trajectory data is derived, it goes through a series of health checks that 
 
 Go to Recordings > Uploads to download the summary.json file.
 
-If you need to reach out to Support, please include the Transaction ID (found in the Tools tab, MPS Uploads) as well as the summary.json file.
+If you need to reach out to [Support](/support.mdx), please include the Transaction ID (found in the Tools tab, MPS Uploads) as well as the summary.json file.

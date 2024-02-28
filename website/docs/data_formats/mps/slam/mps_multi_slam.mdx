@@ -1,0 +1,55 @@
+---
+sidebar_position: 1000
+title: Multi-SLAM
+---
+
+Multi-SLAM is a Project Aria [Machine Perception Service (MPS)](/ARK/mps/mps.mdx) that can be requested on two or more recordings. It creates SLAM MPS outputs in a shared co-ordinate frame.
+
+Open datasets that contain Multi-SLAM outputs where there are recordings with 2 or more Project Aria glasses:
+
+* [Aria Everyday Activities (AEA) dataset](/open_datasets/aria_everyday_activities_dataset/aria_everyday_activities_dataset.mdx)
+* [Aria Digital Twin (ADT) dataset](/open_datasets/aria_digital_twin_dataset/aria_digital_twin_dataset.mdx)
+
+The Multi-SLAM outputs are mostly the same as the standard [SLAM MPS outputs](slam.mdx). The differences are:
+
+* Multi-SLAM can only be requested via MPS CLI
+* All the recordings that were aligned together will have the same `graph_uid` in the output.
+* The output may contain multiple aligned islands and multiple consecutive graph_uids.
+
+Outputs are saved to a user defined directory. Each numbered folder contains the outputs for a specific VRS file:
+
+```
+└── multi_slam_output # user defined directory for outputs
+    ├── 0
+    │   ├── slam
+    │   │    ├── closed_loop_trajectory.csv
+    │   │    ├── online_calibration.jsonl
+    │   │    ├── open_loop_trajectory.csv
+    │   │    ├── semidense_observations.csv.gz
+    │   │    ├── semidense_points.csv.gz
+    │   │    └── summary.json
+    │   ├── vrs_health_check.json
+    │   └── vrs_health_check_slam.json
+    ├── 1
+    │   ├── slam
+    │   │    ├── closed_loop_trajectory.csv
+    │   │    ├── online_calibration.jsonl
+    │   │    ├── open_loop_trajectory.csv
+    │   │    ├── semidense_observations.csv.gz
+    │   │    ├── semidense_points.csv.gz
+    │   │    └── summary.json
+    │   ├── vrs_health_check.json
+    │   └── vrs_health_check_slam.json
+    └── vrs_to_multi_slam.json
+```
+
+`vrs_to_multi_slam.json` associates the VRS file name with a numbered folder, for example:
+
+```
+{
+  "/example/recording1.vrs": "0",
+  "/example/recording2.vrs": "1",
+  "/example2/recording1.vrs": "2",
+}
+
+```
