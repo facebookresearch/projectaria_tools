@@ -33,6 +33,8 @@ If you use `aria auth pair` and don't receive an authorization prompt in the Mob
 1. Make sure the Mobile Companion app is in the foreground and try again
 2. Restart the Mobile Companion app and try again
 3. Revoke any existing certificates (via [Device Settings](/docs/ARK/mobile_companion_app#aria-device-settings)) and try again
+4. Make sure you're using [venv](https://docs.python.org/3/library/venv.html) as your virtual environment
+    * Users have experienced difficulties using the Client SDK in other virtual environments, such as Conda
 
 #### If you've paired multiple Aria glasses to the one account
 If you've paired multiple Aria glasses to the one account, the wrong glasses may be connected to the app.

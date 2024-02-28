@@ -46,11 +46,11 @@ VrsDataProvider& provider = *maybeProvider;
 <Tabs groupId="programming-language">
 <TabItem value="python" label="Python">
 ```
-Stream ids can be mapped from labels by using `get_stream_id_from_label`
+Stream IDs can be mapped from labels by using `get_stream_id_from_label`:
 ```python
 stream_id = provider.get_stream_id_from_label("camera-slam-left")
 ```
-Inversely, you can retrieve a label from stream id by using `get_stream_id_from_label`
+Inversely, you can retrieve a label from a stream ID by using `get_stream_id_from_label`:
 ```python
 label = provider.get_label_from_stream_id(StreamId("1201-1"))
 ```
@@ -58,11 +58,11 @@ label = provider.get_label_from_stream_id(StreamId("1201-1"))
 </TabItem>
 <TabItem value="cpp" label="C++">
 ```
-Stream ids can be mapped from labels by using `getStreamIdFromLabel`
+Stream IDs can be mapped from labels by using `getStreamIdFromLabel`:
 ```cpp
 auto streamId = provider.getStreamIdFromLabel("camera-slam-left");
 ```
-Inversely, you can retrieve a label from stream id by using `getLabelFromStreamId`
+Inversely, you can retrieve a label from a stream id by using `getLabelFromStreamId`.
 ```cpp
 auto label = provider.getLabelFromStreamId(StreamId::fromNumericalName("1201-1"));
 ```
@@ -98,15 +98,17 @@ for (const auto& streamId : provider.getAllStreams()) {
 ```
 
 ### Random access data by timestamp
+
+Project Aria data has four kinds of TimeDomain entries. We strongly recommend always working with `DEVICE_TIME` when using single-device Aria data. The `TIME_CODE` TimeDomain is used when synchronizing time across multiple devices. Go to [Timestamps in Aria VRS Files](/data_formats/aria_vrs/timestamps_in_aria_vrs.mdx) for more information.
+
 ```mdx-code-block
 <Tabs groupId="programming-language">
 <TabItem value="python" label="Python">
 ```
-We support four [time domains](/docs/data_formats/aria_vrs/timestamps_in_aria_vrs):
 * TimeDomain.RECORD_TIME
-* TimeDomain.DEVICE_TIME
+* TimeDomain.DEVICE_TIME - recommended
 * TimeDomain.HOST_TIME
-* TimeDomain.TIME_CODE
+* TimeDomain.TIME_CODE - for multiple devices
 
 You can also search using three different time query options:
 * TimeQueryOptions.BEFORE (default): last data with t <= t_query
@@ -124,11 +126,11 @@ for stream_id in provider.get_all_streams():
 </TabItem>
 <TabItem value="cpp" label="C++">
 ```
-We support four [time domains](/docs/data_formats/aria_vrs/timestamps_in_aria_vrs):
+
 * TimeDomain::RecordTime
-* TimeDomain::DeviceTime
+* TimeDomain::DeviceTime - recommended
 * TimeDomain::HostTime
-* TimeDomain::TimeCode
+* TimeDomain::TimeCode - for multiple devices
 
 You can also search using three different time query options:
 * TimeQueryOptions::Before : last data with t <= t_query
@@ -155,12 +157,12 @@ for (const auto& streamId : provider.getAllStreams()) {
 <Tabs groupId="programming-language">
 <TabItem value="python" label="Python">
 ```
-Async iterator to deliver sensor data for all streams in device time order.
+Async iterator to deliver sensor data for all streams in device time order:
 ```python
 for data in provider.deliver_queued_sensor_data():
   print(data.get_time_ns(TimeDomain.DEVICE_TIME))
 ```
-Alternatively can use iterator-type syntax
+Alternatively, you can use iterator-type syntax:
 ```python
 seq = provider.deliver_queued_sensor_data()
 obj = next(seq)
@@ -171,7 +173,7 @@ while True:
   except StopIteration:
     break
 ```
-Deliver with sub-stream selection, time truncation, and frame rate subsampling:
+Deliver with sub-stream selection, time truncation, and frame rate sub-sampling:
 ```python
 # Starts by default options which activates all sensors
 deliver_option = provider.get_default_deliver_queued_options()
@@ -192,13 +194,13 @@ for data in provider.deliver_queued_sensor_data() :
 </TabItem>
 <TabItem value="cpp" label="C++">
 ```
-Async iterator to deliver sensor data for all streams in device time order.
+Async iterator to deliver sensor data for all streams in device time order:
 ```cpp
 for (const SensorData& data : provider.deliverQueuedSensorData()) {
   std::cout << data.getTimeNs(TimeDomain::DeviceTime) << std::endl;
 }
 ```
-Alternatively can use iterator-type syntax
+Alternatively, you can use iterator-type syntax:
 ```cpp
 auto seq = provider.deliverQueuedSensorData();
 for (const auto& it = seq.begin(), it != seq.end(); ++it) {
@@ -206,7 +208,7 @@ for (const auto& it = seq.begin(), it != seq.end(); ++it) {
   std::cout << data.getTimeNs(TimeDomain::DeviceTime) << std::endl;
 }
 ```
-Deliver with sub-stream selection, time truncation, and frame rate subsampling:
+Deliver with sub-stream selection, time truncation, and frame rate sub-sampling:
 ```cpp
 // Starts by default options which activates all sensors
 deliverOption = provider.getDefaultDeliverQueuedOptions();
