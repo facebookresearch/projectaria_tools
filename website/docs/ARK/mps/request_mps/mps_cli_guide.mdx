@@ -8,7 +8,7 @@ title: MPS CLI Guide
 The Project Aria MPS CLI Guide provides detailed information about how to use this tool. The guide contain:
 * [About the MPS CLI](#about)
 * [How the MPS CLI works](#how)
- * Go to [MPS Data Lifecycle](/ARK/mps/mps_processing.mdx) for more details about how sequences are processed on the server
+    * Go to [MPS Data Lifecycle](/ARK/mps/mps_processing.mdx) for more details about how sequences are processed on the server
 * [MPS CLI Settings](#settings)
 * [MPS CLI Command Line Reference](#clr)
 * [Troubleshooting and Error Codes](#troubleshooting)
@@ -25,13 +25,13 @@ The Project Aria MPS Command Line Interface (MPS CLI), part of Project Aria Tool
 The MPS CLI has two modes:
 
 * Single
- * Process each recording individually
- * The input can be a file and/or directory, so you can batch process multiple recordings with a single command
- * Output is always saved next to the input file
- * The most common way to request MPS
+    * Process each recording individually
+    * The input can be a file and/or directory, so you can batch process multiple recordings with a single command
+    * Output is always saved next to the input file
+    * The most common way to request MPS
 * Multi
- * Process multiple recordings to generate multi-sequence SLAM data
- * User must provide a directory for the outputs
+    * Process multiple recordings to generate multi-sequence SLAM data
+    * User must provide a directory for the outputs
 
 Go to [MPS CLI Overview](mps_cli.mdx) for a full breakdown of all the features available.
 
@@ -44,21 +44,21 @@ The MPS CLI enables you to upload VRS files from your computer to the Meta serve
 ![MPS CLU UI for single mode](/img/ARK/mps/mps_cli_ui_single.png)
 
 1. Once you submit your request, the MPS CLI for the selected mode will open and show the status of your requests.
- * See the Getting Started or the [Command Line Reference](#clr) below for how to submit a request.
+    * See the Getting Started or the [Command Line Reference](#clr) below for how to submit a request.
 2. Once authenticated, the request tool checks with the server to see if this recording was previously processed. We use unique IDs (Hashing stage) to check if this is a new or a previously known recording.
 3. If it is a known recording, we skip processing and directly download the results (Download Results stage) or show the error code.
 4. If this is a new recording, we run health checks on the recording (HealthCheck stage), to minimize the chances that it will fail during processing. While this check catches obvious errors, like gaps in data and ensures presence of the right sensor streams, but server side processing may still fail.
 5. If the health check passes, the recording is encrypted on your machine (Encrypting stage).
 6. After encryption, the recordings are uploaded to the MPS servers (Uploading stage) for processing.
- * Uploads are resumable.
- * Interrupted uploads can be resumed within 24 hours.
+    * Uploads are resumable.
+    * Interrupted uploads can be resumed within 24 hours.
 7. Data is processed on MPS servers (Processing stage).
- * The MPS CLI periodically checks the MPS request's status on the server.
- * It is safe to close the MPS Request tool once the data is processing. When the MPS CLI is reopened, it will check the status of your data and progress to Downloading if it is ready.
+    * The MPS CLI periodically checks the MPS request's status on the server.
+    * It is safe to close the MPS Request tool once the data is processing. When the MPS CLI is reopened, it will check the status of your data and progress to Downloading if it is ready.
 
 :::tip If you get an error code
 The server re-attempts processing multiple times before it stops and provides an error message
-* Check [Error Codes](#error_codes) to see what the error was.
+* Check [Error Codes](#error-codes) to see what the error was.
 * We encourage you to send a bug report with log files to [Aria User Support](/support.mdx) if it is not an error code 1xx. By default, logs are stored in /tmp/logs/projectaria/mps/.
 :::
 

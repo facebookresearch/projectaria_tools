@@ -1,8 +1,7 @@
 ---
 sidebar_position: 20
-title: Getting Started
+title: MPS CLI Getting Started
 ---
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 # Getting Started With the MPS CLI
 
@@ -44,11 +43,16 @@ source $HOME/projectaria_tools_python_env/bin/activate
 
 ### Download the MPS CLI sample dataset
 
-To try out the following commands on VRS files, download:
-* https://www.projectaria.com/async/sample/download/?bucket=mps&filename=sample_multi_slam_1.vrs
-* https://www.projectaria.com/async/sample/download/?bucket=mps&filename=sample_multi_slam_2.vrs
+To try out the following commands on VRS files:
 
+1. Download the sample files:
+    * [Sample 1](https://www.projectaria.com/async/sample/download/?bucket=mps&filename=sample_multi_slam_1.vrs) - single VRS file
+    * [Sample 2](https://www.projectaria.com/async/sample/download/?bucket=mps&filename=sample_multi_slam_2.vrs) - single VRS file
+2. Move them to a directory called Example in your downloads directory
+
+:::info
 You may also wish to use your own recordings.
+:::
 
 ### Request MPS for all VRS files in the “Example” directory and it’s subdirectories:
 
@@ -96,7 +100,7 @@ If you quit the request tool once the files have been uploaded, the MPS processe
 When you request MPS using `multi` mode, MPS will process a group of recordings together to generate Multi-SLAM MPS. [Multi-SLAM MPS](/data_formats/mps/slam/mps_multi_slam.mdx) creates SLAM MPS outputs in a shared co-ordinate frame. Once the request has been processed, the MPS output will be downloaded to the directory you defined.
 
 ```
-aria_mps multi -i ~Downloads/Example/ -o ~/Documents/multi_slam_output
+aria_mps multi -i ~/Downloads/Example/ -o ~/Documents/multi_slam_output
 ```
 
 ![MPS CLU UI for single mode](/img/ARK/mps/mps_cli_ui_multi.png)
