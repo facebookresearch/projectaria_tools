@@ -317,6 +317,11 @@ def parse_args():
         "--memory-limit", type=str, default="100%", help=argparse.SUPPRESS
     )
 
+    # If this path is set, we will save the rerun (.rrd) file to the given path
+    parser.add_argument(
+        "--rrd_output_path", type=str, default="", help=argparse.SUPPRESS
+    )
+
     return parser.parse_args()
 
 
@@ -336,8 +341,10 @@ def main():
         aea_data_provider.append(AriaEverydayActivitiesDataProvider(path))
 
     # Initializing ReRun viewer
-    rr.init("AEA Viewer")
-    rr.spawn(memory_limit=args.memory_limit)
+    rr.init("AEA Viewer", spawn=(not args.rrd_output_path))
+    if args.rrd_output_path:
+        print(f"Saving .rrd file to {args.rrd_output_path}")
+        rr.save(args.rrd_output_path)
 
     time_domain = TimeDomain.DEVICE_TIME
     total_time_ns = []

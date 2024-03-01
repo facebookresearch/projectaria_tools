@@ -37,6 +37,12 @@ def main():
             default="True",
             help="Use CAD or Factory calibration data (default use CAD calibration)",
         )
+
+        # If this path is set, we will save the rerun (.rrd) file to the given path
+        parser.add_argument(
+            "--rrd_output_path", type=str, default="", help=argparse.SUPPRESS
+        )
+
         args = parser.parse_args()
     except SystemExit as e:
         print(f"Error: {e}")
@@ -52,7 +58,10 @@ def main():
     device_calib = provider.get_device_calibration()
 
     # Spawn rerun and log things we want to see
-    rr.init("Aria_Sensor_Viewer", spawn=True)
+    rr.init("Aria_Sensor_Viewer", spawn=(not args.rrd_output_path))
+    if args.rrd_output_path:
+        print(f"Saving .rrd file to {args.rrd_output_path}")
+        rr.save(args.rrd_output_path)
     # Aria coordinate system sets X down, Z in front, Y Left
     rr.log("device", rr.ViewCoordinates.RIGHT_HAND_X_DOWN, timeless=True)
 

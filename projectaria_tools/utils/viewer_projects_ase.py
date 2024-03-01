@@ -45,6 +45,12 @@ def parse_args():
         type=int,
         help="Display the frame_id of the scene as a 3D camera (if valid, i.e id exists in the dataset)",
     )
+
+    # If this path is set, we will save the rerun (.rrd) file to the given path
+    parser.add_argument(
+        "--rrd_output_path", type=str, default="", help=argparse.SUPPRESS
+    )
+
     return parser.parse_args()
 
 
@@ -80,10 +86,13 @@ def main():
     rr.init(
         "ASE Data Inspector",
         recording_id=None,
-        spawn=True,
+        spawn=(not args.rrd_output_path),
         default_enabled=True,
         strict=False,
     )
+    if args.rrd_output_path:
+        print(f"Saving .rrd file to {args.rrd_output_path}")
+        rr.save(args.rrd_output_path)
 
     # Interpret scene commands into 3D Boxes
     entity_boxes = language_to_bboxes(entities)

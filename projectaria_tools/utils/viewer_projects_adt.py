@@ -56,6 +56,11 @@ def parse_args():
         "--down_sampling_factor", type=int, default=4, help=argparse.SUPPRESS
     )
     parser.add_argument("--jpeg_quality", type=int, default=75, help=argparse.SUPPRESS)
+
+    # If this path is set, we will save the rerun (.rrd) file to the given path
+    parser.add_argument(
+        "--rrd_output_path", type=str, default="", help=argparse.SUPPRESS
+    )
     return parser.parse_args()
 
 
@@ -99,7 +104,11 @@ def main():
         )
 
     # Initializing Rerun viewer
-    rr.init("ADT Sequence Viewer", spawn=True)
+    rr.init("ADT Sequence Viewer", spawn=(not args.rrd_output_path))
+    if args.rrd_output_path:
+        print(f"Saving .rrd file to {args.rrd_output_path}")
+        rr.save(args.rrd_output_path)
+
     rr.log("world", rr.ViewCoordinates.RIGHT_HAND_Y_UP, timeless=True)
 
     #

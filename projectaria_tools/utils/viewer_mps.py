@@ -74,6 +74,11 @@ def parse_args():
     )
     parser.add_argument("--jpeg_quality", type=int, default=75, help=argparse.SUPPRESS)
 
+    # If this path is set, we will save the rerun (.rrd) file to the given path
+    parser.add_argument(
+        "--rrd_output_path", type=str, default="", help=argparse.SUPPRESS
+    )
+
     return parser.parse_args()
 
 
@@ -130,7 +135,10 @@ def main():
         exit(1)
 
     # Initializing Rerun viewer
-    rr.init("MPS Data Viewer", spawn=True)
+    rr.init("MPS Data Viewer", spawn=(not args.rrd_output_path))
+    if args.rrd_output_path:
+        print(f"Saving .rrd file to {args.rrd_output_path}")
+        rr.save(args.rrd_output_path)
     rr.log("world", rr.ViewCoordinates.RIGHT_HAND_Z_UP, timeless=True)
 
     #
