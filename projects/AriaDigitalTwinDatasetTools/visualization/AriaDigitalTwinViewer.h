@@ -26,7 +26,9 @@ namespace projectaria::dataset::adt {
 
 class AriaDigitalTwinViewer {
  public:
-  explicit AriaDigitalTwinViewer(const AriaDigitalTwinDataPaths& dataPaths);
+  explicit AriaDigitalTwinViewer(
+      const AriaDigitalTwinDataPaths& dataPaths,
+      const std::string& renderPath = "");
   ~AriaDigitalTwinViewer() = default;
   void run();
 
@@ -62,6 +64,7 @@ class AriaDigitalTwinViewer {
       std::vector<Eigen::Vector2d>& joints) const;
 
   std::unique_ptr<AriaDigitalTwinDataProvider> adtDataProvider_;
+  const std::string renderPath_;
 
   const vrs::StreamId rgbStreamId_ = vrs::StreamId::fromNumericName("214-1");
   const vrs::StreamId slamLeftStreamId_ = vrs::StreamId::fromNumericName("1201-1");

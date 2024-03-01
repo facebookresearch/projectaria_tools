@@ -26,6 +26,7 @@ using namespace projectaria::dataset::adt;
 
 int main(int argc, const char* argv[]) {
   std::string sequencePath;
+  std::string renderPath;
   int deviceNum = -1;
   bool skeletonFlag = false;
 
@@ -35,7 +36,7 @@ int main(int argc, const char* argv[]) {
          "--sequence-path",
          sequencePath,
          "Path to the recording sequence containing all digital twin datasets. "
-         " This should contain per-device folders, which further contains the actual data files")
+         "This should contain per-device folders, which further contains the actual data files")
       ->required();
   app.add_option(
          "--device-num",
@@ -49,6 +50,10 @@ int main(int argc, const char* argv[]) {
          "A boolean value to indicate whether to include skeleton ground-truth in 2D bounding box, "
          " depth map, segmentation with or without human occlusion. By default set to False.")
       ->default_val(false);
+  app.add_option(
+      "--render-path",
+      renderPath,
+      "If this path is set, then the viewer will run in headless mode and render all frames to the this path.");
 
   app.footer(fmt::format(
       "------ Aria Digital Twin Viewer Help ------\n"
@@ -96,7 +101,7 @@ int main(int argc, const char* argv[]) {
   fmt::print("--------------------------------------------------------------\n");
 
   // get and open data provider
-  AriaDigitalTwinViewer viewer(dataPaths.value());
+  AriaDigitalTwinViewer viewer(dataPaths.value(), renderPath);
   viewer.run();
 
   fmt::print("Visualizer finished cleanly\n");

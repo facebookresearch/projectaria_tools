@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <fmt/core.h>
 #include <pangolin/gl/glpixformat.h>
 #include <filesystem>
 
@@ -25,19 +26,23 @@ namespace projectaria::dataset::adt {
 constexpr int kWindowSizeX{1280};
 constexpr int kWindowSizeY{800};
 constexpr double kJointsPointSize{3.0};
+constexpr int kRenderEveryNFrames{3}; // setting this to 3 means we are rendering at 10fps
 
 constexpr double kEyeGazeMinDepth{0.1}; // minimum eye gaze depth to render is 10 cm
 constexpr double kEyeGazeCrossScale{0.05}; // defined as a fraction of the image width
 constexpr double kEyeGazeCircleScale{0.0075}; // defined as a fraction of the image width
 constexpr bool kOutputRenderTime{false};
 
-AriaDigitalTwinViewer::AriaDigitalTwinViewer(const AriaDigitalTwinDataPaths& dataPaths) {
+AriaDigitalTwinViewer::AriaDigitalTwinViewer(
+    const AriaDigitalTwinDataPaths& dataPaths,
+    const std::string& renderPath)
+    : renderPath_(renderPath) {
   loadData(dataPaths);
   setupPangolin();
 }
 
 void AriaDigitalTwinViewer::loadData(const AriaDigitalTwinDataPaths& dataPaths) {
-  fmt::print("loading vrs and ground truth data...\n");
+  fmt::print("Loading vrs and ground truth data...\n");
   adtDataProvider_ = std::make_unique<AriaDigitalTwinDataProvider>(dataPaths);
 
   // get overlapping time
@@ -67,7 +72,17 @@ void AriaDigitalTwinViewer::loadData(const AriaDigitalTwinDataPaths& dataPaths) 
 }
 
 void AriaDigitalTwinViewer::setupPangolin() {
-  pangolin::CreateWindowAndBind("AriaDigitalTwinViewer", kWindowSizeX, kWindowSizeY);
+  if (renderPath_.empty()) {
+    pangolin::CreateWindowAndBind("AriaDigitalTwinViewer", kWindowSizeX, kWindowSizeY);
+  } else {
+    fmt::print("Render path set, rending images and setting pangolin to headless\n");
+    pangolin::CreateWindowAndBind(
+        "AriaDigitalTwinViewer",
+        kWindowSizeX,
+        kWindowSizeY,
+        pangolin::Params({{"scheme", "headless"}}));
+  }
+
   container_ = &(pangolin::CreateDisplay());
   container_->SetBounds(0.0, 1.0, pangolin::Attach::Pix(180), 1.0);
   container_->SetLayout(pangolin::LayoutEqual);
@@ -139,6 +154,12 @@ void AriaDigitalTwinViewer::setupPangolin() {
 }
 
 void AriaDigitalTwinViewer::run() {
+  if (!renderPath_.empty() && !std::filesystem::exists(renderPath_)) {
+    fmt::print("ERROR: Render path does not exist: {}\n", renderPath_);
+    fmt::print("Exiting...\n");
+    exit(1);
+  }
+
   bool isFirstView = true; // always run the viz the first time to populate display
   while (!pangolin::ShouldQuit()) {
     timer_.reset();
@@ -189,11 +210,28 @@ void AriaDigitalTwinViewer::run() {
         drawSyntheticImages(tsQuery);
         ++tsNsRgbIter_;
       }
+
+      if (!renderPath_.empty()) {
+        isPlaying_ = true;
+        int count = frameBar_->Get();
+        if (count % kRenderEveryNFrames == 0) {
+          fmt::print("Rendering frame {}/{}\n", count, numberOfFrames_);
+          std::filesystem::path savePath =
+              std::filesystem::path(renderPath_) / std::filesystem::path(std::to_string(count));
+          container_->SaveOnRender(savePath.string());
+        }
+
+        if (count >= numberOfFrames_ || tsNsRgbIter_ == tsNsOverlapEndIter_) {
+          fmt::print("Done rendering frames, quitting viewer\n");
+          exit(1);
+        }
+      }
+
       updateDisplay();
     }
     if (kOutputRenderTime) {
-      fmt::print("total render time: {} Ms\n", timer_.elapsedInMs());
-      fmt::print("render rate: {} Hz\n", timer_.elapsedInHz());
+      fmt::print("Total render time: {} Ms\n", timer_.elapsedInMs());
+      fmt::print("Render rate: {} Hz\n", timer_.elapsedInHz());
     }
   }
 
@@ -494,7 +532,7 @@ bool AriaDigitalTwinViewer::checkUserInput() {
   }
 
   if (frameBar_->GuiChanged()) {
-    fmt::print("setting current frame to {}\n", frameBar_->Get());
+    fmt::print("Setting current frame to {}\n", frameBar_->Get());
     tsNsRgbIter_ = tsNsOverlapStartIter_;
     std::advance(tsNsRgbIter_, frameBar_->Get());
     return true;
