@@ -117,15 +117,15 @@ class AriaEverydayActivitiesDownloadStatusManager:
         if data_type == AriaEverydayActivitiesDataType.MPS_EYEGAZE:
             self.status[str(AriaEverydayActivitiesDataType.MPS_EYEGAZE)] = value
         if data_type == AriaEverydayActivitiesDataType.MPS_SLAM_TRAJECTORIES:
-            self.status[
-                str(AriaEverydayActivitiesDataType.MPS_SLAM_TRAJECTORIES)
-            ] = value
+            self.status[str(AriaEverydayActivitiesDataType.MPS_SLAM_TRAJECTORIES)] = (
+                value
+            )
         if data_type == AriaEverydayActivitiesDataType.MPS_SLAM_POINTS:
             self.status[str(AriaEverydayActivitiesDataType.MPS_SLAM_POINTS)] = value
         if data_type == AriaEverydayActivitiesDataType.MPS_SLAM_CALIBRATION:
-            self.status[
-                str(AriaEverydayActivitiesDataType.MPS_SLAM_CALIBRATION)
-            ] = value
+            self.status[str(AriaEverydayActivitiesDataType.MPS_SLAM_CALIBRATION)] = (
+                value
+            )
         if data_type == AriaEverydayActivitiesDataType.MPS_SLAM_SUMMARY:
             self.status[str(AriaEverydayActivitiesDataType.MPS_SLAM_SUMMARY)] = value
 

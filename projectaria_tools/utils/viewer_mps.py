@@ -155,9 +155,11 @@ def main():
                 it.transform_world_device.translation()[0] for it in trajectory_data
             ][0::80]
             rr.log(
-                "world/device_trajectory"
-                if trajectory_list_size == 1
-                else f"world/device_trajectory_{i}",
+                (
+                    "world/device_trajectory"
+                    if trajectory_list_size == 1
+                    else f"world/device_trajectory_{i}"
+                ),
                 rr.LineStrips3D(device_trajectory, radii=0.008),
                 timeless=True,
             )

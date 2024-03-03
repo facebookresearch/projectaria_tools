@@ -26,6 +26,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 SCENES_PER_CHUNK = 10
 
+
 # Copied from tqdm website/documentation - probably worth moving into a utils.py
 def urllib_tqdm_hook(t):
     last_b = [0]
@@ -44,9 +45,11 @@ def ASEIdsParser(string):
     try:
         ids = string.split(",")
         ids = [
-            list(range(int(x.split("-")[0]), int(x.split("-")[1]) + 1))
-            if "-" in x
-            else [int(x)]
+            (
+                list(range(int(x.split("-")[0]), int(x.split("-")[1]) + 1))
+                if "-" in x
+                else [int(x)]
+            )
             for x in ids
         ]
         ids = [item for sublist in ids for item in sublist]

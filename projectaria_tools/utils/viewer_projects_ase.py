@@ -103,13 +103,19 @@ def main():
     #
 
     boxes_labels = [
-        entity_box["id"]
-        if "wall" in entity_box["id"]
-        else "walls/" + entity_box["id"]
-        if "window" in entity_box["id"]
-        else "windows/" + entity_box["id"]
-        if "door" in entity_box["id"]
-        else "doors/" + entity_box["id"]
+        (
+            entity_box["id"]
+            if "wall" in entity_box["id"]
+            else (
+                "walls/" + entity_box["id"]
+                if "window" in entity_box["id"]
+                else (
+                    "windows/" + entity_box["id"]
+                    if "door" in entity_box["id"]
+                    else "doors/" + entity_box["id"]
+                )
+            )
+        )
         for entity_box in entity_boxes
     ]
     rr.log(

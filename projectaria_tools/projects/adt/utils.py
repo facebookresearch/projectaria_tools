@@ -44,6 +44,7 @@ VERTICES_AXIS = _np.array(
     ]
 )
 
+
 # Project an obj AABB into the image coordinate frame of a camera
 #
 # Inputs:

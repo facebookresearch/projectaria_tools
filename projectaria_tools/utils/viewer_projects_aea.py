@@ -38,6 +38,7 @@ TRAJECTORY_COLORS = [[191, 255, 191], [191, 191, 255]]
 GAZE_COLOR = [200, 0, 0]
 MAX_POINT_CLOUD_POINTS = 500_000
 
+
 # log static data that does not change over time such as trajectory and point cloud
 def logStaticData(
     aea_data_provider: AriaEverydayActivitiesDataProvider,

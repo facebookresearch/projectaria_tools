@@ -301,10 +301,10 @@ class SingleRecordingModel:
         self._logger.debug(event)
         if not self._force:
             # check if there are any existing requests with this file hash
-            prev_requested_features: List[
-                MpsFeatureRequest
-            ] = await self._http_helper.query_mps_requested_features_by_file_hash(
-                self._recording.file_hash
+            prev_requested_features: List[MpsFeatureRequest] = (
+                await self._http_helper.query_mps_requested_features_by_file_hash(
+                    self._recording.file_hash
+                )
             )
             # Ignore features not requested for this run
             prev_requested_features = [

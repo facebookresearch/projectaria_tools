@@ -282,9 +282,9 @@ def main():
                 if display_dynamic_object:  # Not in cache, or object moved enough
 
                     # We store the last known pose of the object
-                    dynamic_obj_pose_cache[
-                        instance_info.name
-                    ] = bbox_3d.transform_scene_object
+                    dynamic_obj_pose_cache[instance_info.name] = (
+                        bbox_3d.transform_scene_object
+                    )
 
                     aabb_coords = bbox3d_to_line_coordinates(bbox_3d.aabb)
                     obb = np.zeros(shape=(len(aabb_coords), 3))
