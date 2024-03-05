@@ -74,7 +74,7 @@ std::string openLoopTrajPath = "/path/to/mps/output/trajectory/open_loop_traject
 OpenLoopTrajectory openLoopTraj = readOpenLoopTrajectory(openLoopTrajPath);
 
 std::string closedLoopTrajPath = "/path/to/mps/output/trajectory/closed_loop_trajectory.csv";
-ClosedLoopTrajectory closedLoopTraj = readClosedLoopTrajectory(openLoopTrajPath);
+ClosedLoopTrajectory closedLoopTraj = readClosedLoopTrajectory(closedLoopTrajPath);
 
 // example: get transformation from this device to world coordinate frame
 for (const ClosedLoopTrajectoryPose& closedLoopPose : closedLoopTraj) {
