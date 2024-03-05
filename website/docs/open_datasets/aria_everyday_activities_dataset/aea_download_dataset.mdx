@@ -36,7 +36,7 @@ Scroll down the page to select AEA Download Links and download the file to the f
 
 :::warning The download-links file will expire in 14 days
 
-You can redownload the download links whenever they expire
+You can re-download the download-links whenever they expire
 :::
 
 
@@ -68,7 +68,7 @@ The sample sequence is representative of a typical single-user sequence, which g
 
 ### Data size
 
-The AEA dataset consists of 143 sequences in total. The total size of the dataset is about 353GB. The dataset is split into main data, plus the standard MPS results including eyegaze and SLAM. Go to [Project Aria Machine Perception Services](/ARK/mps/mps.mdx) for more information about MPS data. The MPS data is also broken into chunks that can be included or excluded at download time. The size of each data type is below.
+The AEA dataset contains 143 sequences and the total size of the dataset is about 353GB. The dataset is split into main data and MPS outputs, eye gaze and Multi-SLAM (SLAM outputs created in shared coordinate frame) results. Go to [Project Aria Machine Perception Services](/ARK/mps/mps.mdx) for more information about MPS data. The MPS data is also broken into chunks that can be included or excluded at download time.
 
 
 <table>
@@ -105,7 +105,7 @@ The AEA dataset consists of 143 sequences in total. The total size of the datase
   <tr>
    <td>MPS SLAM points
    </td>
-   <td>Semidense points and observations
+   <td>Semi-dense points and observations
    </td>
    <td>200 - 500 MB
    </td>
@@ -226,7 +226,10 @@ All these commands must be run from your Python virtual environment that has the
 :::
 
 
-#### Download metadata for ADT datasets
+#### Download metadata for all datasets
+This will download the  `aria_everyday_activities_metadata.json`, which contains metadata for each AEA sequence, including: location number, script number, sequence number, recording number,  dataset version, dataset name, and list of concurrent recordings.
+
+You can use this data to select specific sequences to download.
 
 ```
 aea_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --metadata_only
@@ -261,11 +264,6 @@ aea_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUT
 ```
 
 
-
-
-### Select specific sequences
-
-The dataset metadata JSON `aria_everyday_activities_metadata.json`, which can be downloaded using `aea_dataset_downloader`, contains metadata for each AEA sequence, including: location number, script number, sequence number, recording number,  dataset version, dataset name, and list of concurrent recordings.
 
 
 ## Troubleshooting

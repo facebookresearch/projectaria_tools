@@ -9,31 +9,32 @@ To help you visualize and debug your algorithms when using the Aria Everyday Act
 
 ## Python Visualizer
 
-`viewer_projects_aea` displays an interactive view of a single of couple of synchronized sequences with [Rerun](/data_utilities/visualization/visualization_python.mdx#rerun). It allows you to see all data in 3D context.
+`viewer_projects_aea` displays an interactive view of one or two synchronized sequences using [Rerun](/data_utilities/visualization/visualization_python.mdx#rerun). It also allows you to see all data in a 3D context.
 
 ### Visualization of a single sequence:
 
 ```
-
-viewer_projects_aea ---rotate-image --path loc1_script2_seq1_rec1
-
+viewer_projects_aea --rotate-image --path loc1_script2_seq1_rec1
 ```
 
-### Visualization of a couple of synchronized recording “locX_scriptY_seqZ_rec(1/2)”
+### Visualization of two time synchronized recordings “locX_scriptY_seqZ_rec(1/2)”
+
+The following command enables you to visualize recordings that were made in the same space and time.
+Select `timecode_ns` from the timeline to view the data via synchronized timestamps, and select `device_time_ns` to see device specific timestamps.
+
+Go to [Timestamp Definitions](/data_formats/aria_vrs/timestamps_in_aria_vrs.mdx) to find out more about Project Aria data timestamps.
 
 ```
-
-viewer_projects_aea ---rotate-image --path loc1_script2_seq6_rec1 loc1_script2_seq6_rec2
-
+viewer_projects_aea --rotate-image --path loc1_script2_seq6_rec1 loc1_script2_seq6_rec2
 ```
 
 ![AEA Viewer Screenshot](/img/open_datasets/aria_everyday_activities_dataset/aea_shared_3d_global_trajectories.png)
 
-### Visualization of aligned 3D data per location
+### Visualization of aligned 3D data in a single location
 
-```
-viewer_mps.py --trajectory `find . -wholename "*/loc1*closed_loop_trajectory.csv" -print` --points `find . -wholename "*/loc1*semidense_points.csv.gz" -print`
-```
+The MPS Viewer can be used to visualize all the recordings, across multiple sessions and users that were recorded in the same location.
+
+Go to [Visualization of Multi-SLAM data](data_utilities/visualization/visualization_python.mdx#multi-slam) for more details.
 
 ![Visualization of aligned 3D data](/img/open_datasets/aria_everyday_activities_dataset/aea_mps_data_viewer.png)
 

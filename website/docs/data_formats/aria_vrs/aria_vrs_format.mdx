@@ -5,26 +5,26 @@ title: Format
 
 # Project Aria VRS Format
 
+This page provides information about how Aria data streams are identified in VRS, Aria sensor data configuration, followed by useful VRS tools for common use cases.
+
 Project Aria data is stored in [VRS](https://facebookresearch.github.io/vrs/), which is optimized to record and playback streams of multi-modal sensor data, such as images, audio, and other discrete sensors (IMU, temperature, etc.). Data is stored in per-device streams of time-stamped records.
 
 The most intuitive way to access Aria data is via our loaders and visualizers. Go to [Data Utilities](/data_utilities/data_utilities.mdx) for Python and C++ interfaces to easily access VRS data. You may also want to use [vrstools](https://facebookresearch.github.io/vrs/) to extract or inspect VRS data.
 
-This page provides information about how Aria data streams are identified in VRS, Aria sensor data configuration, followed by useful VRS tools for common use cases.
-
 ## Aria data streams
 
-In VRS, data is organized by streams. Each stream stores the data measured by a specific sensor[^1]. The streams are identified by their stream ID.  Each stream ID is composed of two parts, a recordable type ID to categorize the type of the sensor and a stream ID for identify the specific sensor instance. E.g. the first SLAM (aka Mono Scene) camera is identified as 1201-1 where 1201 is the numerical ID for SLAM camera data type, and 1 identifies the cameras as the first instance.
+In VRS, data is organized by streams. Each stream stores the data measured by a specific sensor, except for Eye Tracking (both camers share a single data stream) and microphones (up to 7 microphones share a single stream).
 
-[^1] Two exceptions are Aria Eye Tracking(ET) cameras and microphones. The two ET cameras share a single data stream. All seven microphones also share a single data stream.
+The streams are identified by their stream ID. Each stream ID is composed of two parts, a recordable type ID to categorize the type of the sensor and a stream ID for identify the specific sensor instance. E.g. the first SLAM (aka Mono Scene) camera is identified as 1201-1 where 1201 is the numerical ID for SLAM camera data type, and 1 identifies the cameras as the first instance.
 
-Alternatively, the streams are identified by a shorter form of label. Labels are used to identify sensors in calibration.
+Streams can also be identified by a short label. Labels are used to identify sensors in calibration.
 
-The following table lists the streamID and type ID as well as their label. Note GPS, Wi-Fi and Bluetooth are not calibrated but they do have a label. If you are using loaders in projectaria tools, you do not have to memorize this mapping. Projectaria tools has an API that converts between Stream ID and labels.
+The following table lists the Stream ID and Recordable Type ID, as well as their label. GPS, Wi-Fi and Bluetooth have labels, but are not calibrated. If you use projectaria tools loaders, you do not have to memorize this mapping as there is an API that converts between Stream ID and labels.
 
 **Table 1:** *IDs Used for Sensors*
 <table>
 <thead>
-<tr><th>        <b>Sensor</b>         </th><th>Stream ID  </th><th>Recordable type ID            </th><th>label           </th></tr>
+<tr><th>        <b>Sensor</b>         </th><th>Stream ID  </th><th>Recordable Type ID            </th><th>label           </th></tr>
 </thead>
 <tbody>
 <tr><td>ET camera        </td><td>211-1      </td><td>EyeCameraRecordableClass      </td><td>camera-et       </td></tr>
@@ -42,9 +42,9 @@ The following table lists the streamID and type ID as well as their label. Note 
 </tbody>
 </table>
 
-Each stream also contains a configuration blob that stores sensor-specific information such as image resolution, nominal frame rate, etc.
+Each stream also contains a configuration blob that stores sensor-specific information such as image resolution and nominal frame rate.
 
-All data in VRS is timestamped. Go to [Timestamps in Aria VRS](/docs/data_formats/aria_vrs/timestamps_in_aria_vrs) for more details.
+All data in VRS is timestamped. Go to [Timestamps in Aria VRS](/data_formats/aria_vrs/timestamps_in_aria_vrs.mdx) for more details.
 
 ## Aria sensor data and configuration
 Sensor data includes:
@@ -59,7 +59,7 @@ Most sensor data of a single stream and at a specific timestamp is stored as a s
 * Each camera stores a single image frame at a time, with the exception of the ET camera.
    * ET cameras pair share a single image frame by concatenating horizontally.
 * The image frame contains two parts, the image itself and the image record.
-    * The image record stores timestamps, frame id, and acquisition parameters such as exposure and gain. This avoids having to read image data to get the information in the record.
+    * The image record stores timestamps, frame id, and acquisition parameters, such as exposure and gain. This avoids having to read image data to get the information in the record.
 
 ### How data is stored for audio recordings
 
@@ -68,10 +68,11 @@ Most sensor data of a single stream and at a specific timestamp is stored as a s
 
 ### Sensor configuration blob
 
-The sensor configuration blob stores static information of a stream. Common sensor configuration stores information such as sensor model, sensor serial (if available) as well as frame rate.
-Stream-specific information, such as image resolution, are also stored in configurations.
+The sensor configuration blob stores the static information of a stream. Common sensor configuration stores information, such as sensor model, sensor serial (if available) as well as frame rate.
 
-See [source code](https://github.com/facebookresearch/projectaria_tools/blob/main/core/data_provider/players) for the detailed implementation of sensor data and configurations. See [here](/docs/data_utilities/advanced_code_snippets/plotting_sensor_data) for example sensor data and how to accessing our sensor data using our Python data utilities.
+Stream-specific information, such as image resolution, is also stored in configurations.
+
+Go to the [source code](https://github.com/facebookresearch/projectaria_tools/blob/main/core/data_provider/players) for the detailed implementation of sensor data and configurations. Go to the [Advanced Code Snippets](/data_utilities/advanced_code_snippets/plotting_sensor_data.mdx) for example sensor data and how to access sensor data using Python data utilities.
 
 
 
@@ -79,18 +80,18 @@ See [source code](https://github.com/facebookresearch/projectaria_tools/blob/mai
 
 The most intuitive way to access Aria data is via our [loaders and visualizers](data_utilities/getting_started.mdx). We provide Python and C++ interface to easily access VRS data.
 
-You may also want to use vrs tools to extract or inspect VRS data. Below we provide instruction for some most common use cases.
+You may also want to use VRS tools to extract or inspect VRS data. Here are a few common use cases:
 
 ### Check the VRS file’s validity and integrity
 
-The `check` command decodes every record in the VRS file and prints how many records were decoded successfully. It proves that the VRS file is correct at the VRS level. You can also compute a checksum to ensure you have valid VRS files. For more information see [VRS File Validation](https://facebookresearch.github.io/vrs/docs/VrsCliTool#file-validation).
+The `check` command decodes every record in the VRS file and prints how many records were decoded successfully. It proves that the VRS file is correct at the VRS level. You can also compute a checksum to ensure you have valid VRS files. For more information go to [VRS File Validation](https://facebookresearch.github.io/vrs/docs/VrsCliTool#file-validation).
 
 ```
 $ vrs check <file.vrs>
 $ vrs checksum <file.vrs>
 ```
 
-If the file is not valid, it is normally because there is missing data that could lead to invalid behavior with the tooling. All files in the [Aria Pilot Dataset](https://about.facebook.com/realitylabs/projectaria/datasets) are valid, so if you encounter that issue with this dataset, re-downloading the file should resolve this issue.
+If the file is not valid, it is normally because there is missing data that could lead to invalid behavior with the tooling. All files in our [open datasets](/open_datasets/open_datasets.mdx) are valid, so if you encounter issues with these, re-downloading the files should resolve the issue.
 
 ### Extract image or audio content to folders
 
@@ -115,7 +116,7 @@ This command lets you extract all images, audio, and metadata into files:
 vrs extract-all <file.vrs> --to <folder>
 ```
 
-The metadata is extracted into a single `.jsons` file that contains a succession of json messages, one per line. Each line corresponds to a single record, in timestamp order, so it is possible to parse it even if the number of records is huge. Saving all the data in a single file prevents saturating your disk with possibly millions of small files.
+The metadata is extracted into a single JSONS file that contains a succession of json messages, one per line. Each line corresponds to a single record, in timestamp order, so it is possible to parse it even if the number of records is huge. Saving all the data in a single file prevents saturating your disk with possibly millions of small files.
 Once extracted, your file will look like this:
 
 
@@ -135,7 +136,7 @@ Once extracted, your file will look like this:
       └── ReadMe.md
 ```
 
-For more information, see [VRS Data Extraction](https://facebookresearch.github.io/vrs/docs/VrsCliTool#data-extraction).
+For more information, go to [VRS Data Extraction](https://facebookresearch.github.io/vrs/docs/VrsCliTool#data-extraction).
 
 ### Inspect how many data recordings there are by type
 
@@ -158,10 +159,12 @@ Will get you a return like this:
 619 Magnetometer Data (SLAM) #1 - device/aria [1203-1] records.
 ```
 
-Each line reports how many data records are stored in each data stream as well as the stream ID, e.g.
+Each line reports how many data records are stored in each data stream as well as the stream ID. For example, in this line:
 
 ```
 623 Camera Data (SLAM) #2 - device/aria [1201-2] records.
 ```
 
-indicates the second slam camera recorded 623 frames. The stream name is `Camera Data (SLAM) #2` and identified by numerical ID [1201-2].
+We can see that:
+* The stream name is `Camera Data (SLAM) #2` (Mono Scene camera on the right) and identified by numerical ID [1201-2]
+* SLAM camera #2 has recorded 623 frames

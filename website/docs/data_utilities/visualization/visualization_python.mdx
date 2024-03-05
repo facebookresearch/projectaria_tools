@@ -6,7 +6,7 @@ title: Python Visualization
 # Project Aria Tools Python Visualization
 
 ## Overview
-This page introduces our core Python visualization tools, developed with [Rerun](#rerun), and available as part of Project Aria Tools.
+This page introduces our core Python visualization tools, developed with [Rerun](#rerun), that are part of Project Aria Tools.
 
 * [Aria Sensor Viewer](#viewer_aria_sensors): 3D visualization of Aria sensors
 * [MPS Viewer](#viewer_mps): renders MPS metadata (point cloud, device trajectory and wearer eye gaze)
@@ -29,6 +29,7 @@ This page introduces our core Python visualization tools, developed with [Rerun]
 ```bash
 viewer_aria_sensors --vrs $MPS_SAMPLE_PATH/sample.vrs
 ```
+
 ![Aria Sensors Viewer](/img/data_utilities/visualization/rerun-sensors.png)
 
 :::tip
@@ -54,12 +55,40 @@ viewer_mps --vrs $MPS_SAMPLE_PATH/sample.vrs \
 --eyegaze $MPS_SAMPLE_PATH/generalized_eye_gaze.csv
 ```
 ![MPS Visualizer](/img/data_utilities/visualization/rerun-mps.png)
+<div id="multi-slam"> </div>
 
 :::tip
 - Switching between device_time and timestamp timeline allows you to retrieve a specific timestamp for the VRS sequence or MPS annotation
 :::
 
-<div id="rerun"></div>
+
+### Visualization of Multi-SLAM data
+
+The MPS Viewer can also be used to visualize 3D data from multiple Project Aria devices, if the MPS data has been generated using [Multi-SLAM](/data_formats/mps/slam/mps_multi_slam.mdx) or is part of datasets that contain this type of data, such as [Aria Everyday Activities (AEA)](/open_datasets/aria_everyday_activities_dataset/aria_everyday_activities_dataset.mdx).
+
+#### AEA Example
+The example below uses Trajectory and Semi-Dense Point Cloud data from AEA. Go to [AEA Dataset Download](/open_datasets/aria_everyday_activities_dataset/aea_download_dataset.mdx) for how to download this data.
+
+```bash
+viewer_mps --trajectory `find -P ~/Documents/projectaria_tools_aea_data/loc1*/*/*/closed_loop_trajectory.csv -print` --points `find -P Documents/projectaria_tools_aea_data/loc1*/*/*/semidense_points.csv.gz -print`
+```
+
+![Visualization of aligned AEA 3D data](/img/open_datasets/aria_everyday_activities_dataset/aea_mps_data_viewer.png)
+
+#### MPS CLI Example
+
+The following visualization uses Multi-Slam data generated using MPS CLI sample data. The [MPS CLI](/ARK/mps/request_mps/mps_cli.mdx) is part of the [Aria Research Kit](https://www.projectaria.com/research-kit/).
+
+```bash
+viewer_mps --trajectory `find -P  ~/documents/multi_slam_output/*/*/closed_loop_trajectory.csv -print` --points `find -P ~/documents/multi_slam_output/*/*/semidense_points.csv.gz -print`
+```
+<div id="rerun"> </div>
+
+
+![Visualization of aligned 3D data](/img/data_utilities/visualization/mps_cli_multi-slam_visualization.png)
+
+
+
 
 ## An introduction to Rerun
 

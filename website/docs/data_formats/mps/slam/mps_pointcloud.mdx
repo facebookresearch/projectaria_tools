@@ -11,6 +11,9 @@ Semi-Dense Point Cloud MPS file outputs are:
 * `semidense_points.csv.gz`: Points in the world coordinate frame
 * `semidense_observations.csv.gz`: Point observations
 
+This data can be visualized using the MPS Viewer in [Python](/data_utilities/visualization/visualization_python.mdx) or [C++](/data_utilities/visualization/visualization_cpp.mdx).
+
+
 ## What are semi-dense points?
 
 Semi-dense points are the 3D points associated with tracks from our semi-dense tracking pipeline. Semi-dense tracks are continually created in pixel locations of input frames that lie in regions of high image gradient, and are then successively tracked in the following frames. Each track is associated with a 3D point, parameterized as an inverse distance along a ray originating from the track's first initial observation, as well as its uncertainty in inverse distance and distance. These points are transformed from their original camera coordinate spaces to the same coordinate frame associated with the closed loop trajectory of the sequence.

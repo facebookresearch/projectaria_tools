@@ -9,18 +9,20 @@ Online calibration is generated as part of SLAM (Location in the Desktop Compani
 
 * `online_calibration.jsonl` file
 
+The [Aria Sensor Viewer](/data_utilities/visualization/visualization_python.mdx#run-aria-sensor-viewer) displays the relative position and orientation of most Project Aria glasses sensors (cameras, IMUs, microphones, magnetometer & barometer) in a common reference.
+
 Static camera calibration may also be available in some datasets that include stationary cameras as well as moving Project Aria glasses.
 
-* Static camera calibration .csv file
+* The name of the static camera calibration .csv file may vary between projects
 
 
 ## Online calibration
 
-The JSONL file contains one json online calibration record per line. Each record is a json dict object that contains timestamp metadata and the result of online calibration for the cameras and IMUs. The calibration parameters contain [intrinsics](/tech_insights/camera_intrinsic_models.mdx) and [extrinsics](/data_formats/coordinate_convention/3d_coordinate_frame_convention.mdx) parameters for each sensor as well as a time offsets which best temporally align their data. For how to load and read online calibrations in Python and C++, please checkout the [code examples](/data_utilities/core_code_snippets/mps.mdx#online-calibration)
+The JSONL file contains one json online calibration record per line. Each record is a json dict object that contains timestamp metadata and the result of online calibration for the cameras and IMUs. The calibration parameters contain [intrinsics](/tech_insights/camera_intrinsic_models.mdx) and [extrinsics](/data_formats/coordinate_convention/3d_coordinate_frame_convention.mdx) parameters for each sensor as well as a time offsets which best temporally align their data. For how to load and read online calibrations in Python and C++, please check the [code example](/data_utilities/core_code_snippets/mps.mdx#online-calibration)
 
 ## Static camera calibration
 
-Some Aria data may contain the poses and intrinsic calibration of set stationary cameras. For the utility function to load the static cameras in Python and C++, please check the [code examples](/data_utilities/core_code_snippets/mps.mdx#static-camera-calibration)
+Some Aria data may contain the poses and intrinsic calibration of set stationary cameras. For the utility function to load the static cameras in Python and C++, please check the [code example](/data_utilities/core_code_snippets/mps.mdx#static-camera-calibration)
 
 |Column	|Type	|Description	|
 |---	|---	|---	|
