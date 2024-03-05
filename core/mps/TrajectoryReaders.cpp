@@ -103,7 +103,7 @@ OpenLoopTrajectory readOpenLoopTrajectory(const std::string& path) {
     }
     std::cout << "Loaded #open loop trajectory poses records: " << trajectory.size() << std::endl;
   } catch (std::exception& e) {
-    std::cerr << "Failed to parse closed loop trajectory file: " << e.what() << std::endl;
+    std::cerr << "Failed to parse open loop trajectory file: " << e.what() << std::endl;
   }
   return trajectory;
 }
