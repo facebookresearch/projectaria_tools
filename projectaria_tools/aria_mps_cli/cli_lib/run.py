@@ -110,9 +110,13 @@ def _parse_args() -> argparse.Namespace:
         "--features",
         help="List of MP feature(s) to generate",
         nargs="+",
-        choices=[MpsFeature.EYE_GAZE.value, MpsFeature.SLAM.value],
+        choices=[
+            MpsFeature.EYE_GAZE.value,
+            MpsFeature.SLAM.value,
+            MpsFeature.HAND_TRACKING.value,
+        ],
         type=MpsFeature,
-        default=[MpsFeature.EYE_GAZE, MpsFeature.SLAM],
+        default=[MpsFeature.EYE_GAZE, MpsFeature.SLAM, MpsFeature.HAND_TRACKING],
     )
     # Define the multi_sequence subcommand
     parser_multi = subparsers.add_parser(

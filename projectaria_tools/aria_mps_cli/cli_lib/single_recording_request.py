@@ -50,8 +50,12 @@ _MIN_REMAINING_TTL_SECS: int = 0  # 60 * 60  # 1hr
 
 ## Names of the output folder per feature
 OUTPUT_DIR_NAME: Dict[MpsFeature, str] = {
-    MpsFeature.SLAM: MpsFeature.SLAM.name.lower(),
-    MpsFeature.EYE_GAZE: MpsFeature.EYE_GAZE.name.lower(),
+    feature: feature.name.lower()
+    for feature in (
+        MpsFeature.SLAM,
+        MpsFeature.EYE_GAZE,
+        MpsFeature.HAND_TRACKING,
+    )
 }
 
 

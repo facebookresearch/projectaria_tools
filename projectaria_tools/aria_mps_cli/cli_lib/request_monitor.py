@@ -42,6 +42,7 @@ RESULT_TYPES_BY_FEATURE: Mapping[MpsFeature, List[MpsResultType]] = {
     MpsFeature.MULTI_SLAM: [MpsResultType.SLAM_ZIP],
     MpsFeature.SLAM: [MpsResultType.SLAM_ZIP],
     MpsFeature.EYE_GAZE: [MpsResultType.EYE_GAZE_ZIP],
+    MpsFeature.HAND_TRACKING: [MpsResultType.HAND_TRACKING_ZIP],
 }
 
 config = Config.get()

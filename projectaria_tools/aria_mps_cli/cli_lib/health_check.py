@@ -498,4 +498,9 @@ def is_eligible(feature: MpsFeature, rec: AriaRecording) -> bool:
         ## We only check that the recording contains ET stream
         with open(rec.health_check_path) as vhc:
             return "Eye Camera Class #1" in json.load(vhc)
+    elif feature is MpsFeature.HAND_TRACKING:
+        ## We only check that the recording contains SLAM streams
+        with open(rec.health_check_path) as vhc:
+            vhc_json = json.load(vhc)
+            return all(f"Camera Data (SLAM) #{i}" in vhc_json for i in (1, 2))
     raise NotImplementedError(f"Unknown feature type {feature}")

@@ -72,6 +72,7 @@ class MpsFeature(str, Enum):
     SLAM = auto()
     EYE_GAZE = auto()
     MULTI_SLAM = auto()
+    HAND_TRACKING = auto()
 
 
 @unique
@@ -97,9 +98,10 @@ class MpsResultType(str, Enum):
     def _generate_next_value_(name, start, count, last_values):
         return name.upper()
 
+    SUMMARY = auto()
     SLAM_ZIP = auto()
     EYE_GAZE_ZIP = auto()
-    SUMMARY = auto()
+    HAND_TRACKING_ZIP = auto()
 
 
 @dataclass
