@@ -55,7 +55,7 @@ def main():
         print("Couldn't create data provider from vrs file")
         exit(1)
 
-    device_calib = provider.get_device_calibration()
+    device_calibration = provider.get_device_calibration()
 
     # Spawn rerun and log things we want to see
     rr.init("Aria_Sensor_Viewer", spawn=(not args.rrd_output_path))
@@ -65,10 +65,10 @@ def main():
     # Aria coordinate system sets X down, Z in front, Y Left
     rr.log("device", rr.ViewCoordinates.RIGHT_HAND_X_DOWN, timeless=True)
 
-    cam_labels = device_calib.get_camera_labels()
+    cam_labels = device_calibration.get_camera_labels()
     print(f"Log {len(cam_labels)} Cameras")
     for cam in cam_labels:
-        camera_calibration = device_calib.get_camera_calib(cam)
+        camera_calibration = device_calibration.get_camera_calib(cam)
         T_device_sensor = camera_calibration.get_transform_device_camera()
         rr.log(f"device/camera/{cam}", ToTransform3D(T_device_sensor))
         rr.log(
@@ -82,34 +82,44 @@ def main():
             ),
         )
 
-    mic_labels = device_calib.get_microphone_labels()
+    mic_labels = device_calibration.get_microphone_labels()
     print(f"Log {len(mic_labels)} Microphones")
     for mic in mic_labels:  # Note: Only defined in CAD calibration
-        T_device_sensor = device_calib.get_transform_device_sensor(mic, True)
+        T_device_sensor = device_calibration.get_transform_device_sensor(mic, True)
         rr.log(f"device/mic/{mic}", ToTransform3D(T_device_sensor))
 
-    imu_labels = device_calib.get_imu_labels()
+    imu_labels = device_calibration.get_imu_labels()
     print(f"Log {len(imu_labels)} IMUs")
     for imu in imu_labels:
-        T_device_sensor = device_calib.get_transform_device_sensor(
+        T_device_sensor = device_calibration.get_transform_device_sensor(
             imu, args.use_cad_calib
         )
         rr.log(f"device/imu/{imu}", ToTransform3D(T_device_sensor))
 
-    magnetometer_labels = device_calib.get_magnetometer_labels()
+    magnetometer_labels = device_calibration.get_magnetometer_labels()
     print(f"Log {len(magnetometer_labels)} Magnetometer")
     for magnetometer in magnetometer_labels:  # Note: Only defined in CAD calibration
-        T_device_sensor = device_calib.get_transform_device_sensor(magnetometer, True)
+        T_device_sensor = device_calibration.get_transform_device_sensor(
+            magnetometer, True
+        )
         rr.log(f"device/{magnetometer}", ToTransform3D(T_device_sensor))
 
-    barometer_labels = device_calib.get_barometer_labels()
+    barometer_labels = device_calibration.get_barometer_labels()
     print(f"Log {len(barometer_labels)} Barometer")
     for barometer in barometer_labels:  # Note: Only defined in CAD calibration
-        T_device_sensor = device_calib.get_transform_device_sensor(barometer, True)
+        T_device_sensor = device_calibration.get_transform_device_sensor(
+            barometer, True
+        )
         rr.log(f"device/{barometer}", ToTransform3D(T_device_sensor))
 
+    # Plot CPF (Central Pupil Frame coordinate system)
+    T_device_CPF = device_calibration.get_transform_device_cpf()
+    rr.log("device/CPF_CentralPupilFrame", ToTransform3D(T_device_CPF))
+
     # Plot Project Aria Glasses outline (as lines)
-    aria_glasses_point_outline = AriaGlassesOutline(device_calib, args.use_cad_calib)
+    aria_glasses_point_outline = AriaGlassesOutline(
+        device_calibration, args.use_cad_calib
+    )
     rr.log("device/glasses_outline", rr.LineStrips3D([aria_glasses_point_outline]))
 
     ##
