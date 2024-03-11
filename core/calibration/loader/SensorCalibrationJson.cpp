@@ -22,6 +22,8 @@
 #define DEFAULT_LOG_CHANNEL "SensorCalibrationJson"
 #include <logging/Log.h>
 
+#include <stdexcept>
+
 namespace projectaria::tools::calibration {
 namespace {
 
@@ -108,7 +110,9 @@ CameraCalibration parseCameraCalibrationFromJson(const nlohmann::json& json) {
     height = 480;
     maxSolidAngle = kEtMaxSolidAngleRad;
   } else {
-    XR_FATAL_ERROR("Unrecognized camera label for Aria: {}", label);
+    const std::string error = fmt::format("Unrecognized camera label for Aria: {}", label);
+    XR_LOGE("{}", error);
+    throw std::runtime_error{error};
   }
 
   CameraCalibration camCalib(

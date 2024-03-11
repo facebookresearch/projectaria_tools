@@ -20,6 +20,8 @@
 #define DEFAULT_LOG_CHANNEL "DeviceCadExtrinsics"
 #include <logging/Log.h>
 
+#include <stdexcept>
+
 namespace projectaria::tools::calibration {
 
 namespace {
@@ -158,7 +160,9 @@ DeviceCadExtrinsics::DeviceCadExtrinsics(
     XR_LOGW("No CAD available for simulated device");
     return;
   } else {
-    XR_FATAL_ERROR("Does not recognize device subtype: {}", deviceSubType);
+    const std::string error = fmt::format("Does not recognize device subtype: {}", deviceSubType);
+    XR_LOGE("{}", error);
+    throw std::runtime_error{error};
   }
 
   T_Device_Cpf_ = labelToT_Cpf_Sensor_.at(originSensorLabel).inverse();

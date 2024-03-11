@@ -20,6 +20,8 @@
 #define DEFAULT_LOG_CHANNEL "AriaCalibRescaleAndCrop"
 #include <logging/Log.h>
 
+#include <stdexcept>
+
 namespace projectaria::tools::calibration {
 
 namespace {
@@ -77,7 +79,10 @@ void tryCropAndScaleCameraCalibration(
     } else if (label == "camera-et-left" || label == "camera-et-right") {
       camCalib = rescaleAriaEyetracking(camCalib, resolution);
     } else {
-      XR_FATAL_ERROR("camera {} does not support any resolution scaling!", label);
+      const std::string error =
+          fmt::format("camera {} does not support any resolution scaling!", label);
+      XR_LOGE("{}", error);
+      throw std::runtime_error{error};
     }
     deviceCalibration.setCameraCalibration(label, camCalib);
   }
