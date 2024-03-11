@@ -128,7 +128,7 @@ struct PixelVisitor {
     if (!image.inBounds(x, y)) {
       throw std::runtime_error("Pixel not in bound");
     }
-    return PixelValueVariant{image(x, y)};
+    return PixelValueVariant(image(x, y));
   }
 
   template <class T, int M, int D>
@@ -141,7 +141,7 @@ struct PixelVisitor {
     if (!image.inBounds(x, y)) {
       throw std::runtime_error("Pixel not in bound");
     }
-    return PixelValueVariant{image(x, y)(channel)};
+    return PixelValueVariant(image(x, y)(channel));
   }
 
  public:
@@ -155,23 +155,23 @@ inline PixelValueVariant at(const ImageVariant& imageVariant, int x, int y, int 
 }
 
 inline void* getDataPtr(const ImageVariant& imageVariant) {
-  return std::visit([](const auto& img) { return (void*)img.data(); }, imageVariant);
+  return std::visit([](const auto& img) { return static_cast<void*>(img.data()); }, imageVariant);
 }
 
 inline int getWidth(const ImageVariant& imageVariant) {
-  return std::visit([](const auto& img) { return img.width(); }, imageVariant);
+  return std::visit([](const auto& img) { return static_cast<int>(img.width()); }, imageVariant);
 }
 
 inline int getHeight(const ImageVariant& imageVariant) {
-  return std::visit([](const auto& img) { return img.height(); }, imageVariant);
+  return std::visit([](const auto& img) { return static_cast<int>(img.height()); }, imageVariant);
 }
 
 inline int getPitch(const ImageVariant& imageVariant) {
-  return std::visit([](const auto& img) { return img.pitch(); }, imageVariant);
+  return std::visit([](const auto& img) { return static_cast<int>(img.pitch()); }, imageVariant);
 }
 
 inline int getChannel(const ImageVariant& imageVariant) {
-  return std::visit([](const auto& img) { return img.channel(); }, imageVariant);
+  return std::visit([](const auto& img) { return static_cast<int>(img.channel()); }, imageVariant);
 }
 
 inline ImageVariant toImageVariant(const ManagedImageVariant& managedImageVariant) {
