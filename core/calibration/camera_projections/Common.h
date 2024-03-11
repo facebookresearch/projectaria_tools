@@ -25,8 +25,8 @@
 namespace projectaria::tools::calibration {
 namespace CameraNewtonsMethod {
 constexpr int kMaxIterations = 50;
-constexpr float kFloatTolerance = 1e-5;
-constexpr float kDoubleTolerance = 1e-7;
+constexpr float kFloatTolerance = 1e-5f;
+constexpr float kDoubleTolerance = 1e-7f;
 
 template <typename T>
 constexpr float getConvergenceTolerance() {
