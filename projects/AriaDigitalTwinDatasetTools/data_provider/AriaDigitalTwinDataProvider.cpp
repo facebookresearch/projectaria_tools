@@ -805,12 +805,10 @@ void AriaDigitalTwinDataProvider::loadInstance2dBoundingBoxes() {
     InstanceId objId = std::stoull(tokens.at(1));
     int64_t deviceTimeStampNs = std::stoll(tokens.at(2));
 
-    instance2dBoundingBoxes_[streamId][deviceTimeStampNs][objId] = BoundingBox2dData{
-        .boxRange = {
-            std::stof(tokens.at(3)),
-            std::stof(tokens.at(4)),
-            std::stof(tokens.at(5)),
-            std::stof(tokens.at(6))}};
+    instance2dBoundingBoxes_[streamId][deviceTimeStampNs][objId] = {};
+    instance2dBoundingBoxes_[streamId][deviceTimeStampNs][objId].boxRange
+        << std::stof(tokens.at(3)),
+        std::stof(tokens.at(4)), std::stof(tokens.at(5)), std::stof(tokens.at(6));
     instance2dBoundingBoxes_[streamId][deviceTimeStampNs][objId].visibilityRatio =
         std::stof(tokens.at(7));
   }

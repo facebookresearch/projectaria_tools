@@ -206,13 +206,13 @@ void Periodic::processTimestamp(const uint64_t captureTimestampUs) {
       }
       stats_.dropped += dropped;
       stats_.consecutiveDrops[dropped]++;
-      droppedFrames_.push_back(DroppedFrame{
-          .captureTimestampUs = captureTimestampUs,
-          .expectedTimestampUs = expectedTimeUs,
-          .deltaFromExpectedUs = captureTimestampUs - expectedTimeUs,
-          .deltaFromPreviousUs = captureTimestampUs - prevTimestampUs_,
-          .periodUs = periodUs_,
-          .dropped = dropped});
+      droppedFrames_.emplace_back();
+      droppedFrames_.back().captureTimestampUs = captureTimestampUs;
+      droppedFrames_.back().expectedTimestampUs = expectedTimeUs;
+      droppedFrames_.back().deltaFromExpectedUs = captureTimestampUs - expectedTimeUs;
+      droppedFrames_.back().deltaFromPreviousUs = captureTimestampUs - prevTimestampUs_;
+      droppedFrames_.back().periodUs = periodUs_;
+      droppedFrames_.back().dropped = dropped;
     } else {
       const double marginUs = 0.10 * periodUs_; // 10%
       if (captureTimestampUs < expectedTimeUs - marginUs ||
