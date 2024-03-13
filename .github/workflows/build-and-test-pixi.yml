@@ -1,0 +1,68 @@
+name: Build and Test - Pixi
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build projectaria_tools on ${{ matrix.os }} / ${{ matrix.cmakeOptions }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, macos-14] # macos-14 is macSilicon
+    steps:
+      - name : Setup repo
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name : Remove Mono framework
+        if: runner.os == 'macOS'
+        run:
+          sudo rm -rf /Library/Frameworks/Mono.framework
+          sudo pkgutil --forget com.xamarin.mono-MDK.pkg
+          sudo rm /etc/paths.d/mono-commands
+
+      - name : Setup pixi
+        uses: prefix-dev/setup-pixi@v0.5.1
+        with:
+          pixi-version: v0.13.0
+          cache: true
+
+      - name: C++ - Build and Test
+        shell: bash
+        run: pixi run run_c
+
+      - name: Python - Build and Test
+        shell: bash
+        run: pixi run run_python
+
+      - name: Test Python Notebooks
+        shell: pixi run bash {0}
+        run: |
+          cd core/examples
+          # Install dependencies used by the notebooks
+          pip3 install jupyter matplotlib tqdm pillow plotly
+          # Install additional required dependencies to download content
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get install -y curl unzip
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            brew install curl unzip
+          else
+            echo "$RUNNER_OS not supported"
+            exit 1
+          fi
+
+          # Running the notebooks
+          jupyter nbconvert --execute --inplace dataprovider_quickstart_tutorial.ipynb
+          jupyter nbconvert --execute --inplace mps_quickstart_tutorial.ipynb
+
+      - name : Test python viewers
+        shell: pixi run bash {0}
+        run: |
+          rerun analytics disable
+          viewer_aria_sensors --vrs ./data/mps_sample/sample.vrs --rrd_output_path viewer_aria_sensors.rrd
+          viewer_mps --vrs ./data/mps_sample/sample.vrs --mps_folder ./data/mps_sample/ --rrd_output_path viewer_mps.rrd

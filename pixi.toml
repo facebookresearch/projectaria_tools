@@ -1,0 +1,68 @@
+[project]
+name = "projectaria_tools"
+description = "projectaria_tools is an C++/Python open-source toolkit to interact with Project Aria data"
+homepage = "https://github.com/facebookresearch/projectaria_tools"
+license = "Apache-2.0"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "osx-64"]
+
+[tasks]
+#
+# Define a set of task to CLEAN, BUILD, TEST and PACKAGE projectaria_tools
+#
+
+#
+# CLEAN
+clean = "rm -rf ./build ./wheels .projectaria_tools.egg-info/"
+
+#
+# C++ - BUILD and TEST
+prepare = "cmake -GNinja -B build -S . -DBUILD_UNIT_TEST=ON"
+build = "cmake --build build --target all"
+test = "cd build; ctest -j"
+
+prepare_and_build = { depends_on = ["prepare", "build"] }
+build_and_test = { depends_on = ["prepare_and_build", "test"] }
+run_c = { depends_on = ["build_and_test"] }
+
+#
+# Python - BUILD and TEST
+build_python = "CMAKE_GENERATOR=Ninja python -m pip install ."
+test_python = """
+    export TEST_FOLDER="./data";
+    python3 -m unittest core/python/test/corePyBindTest.py;
+    python3 -m unittest core/python/test/mpsPyBindTest.py;
+    python3 -m unittest core/python/sophus/test/sophusPybindTest.py;"""
+
+run_python = { depends_on = ["build_python", "test_python"]}
+
+#
+# Python - PACKAGE
+build_python_wheel = "python -m pip wheel . -w wheels"
+
+[build-dependencies]
+cmake = "3.28.3"
+cxx-compiler = "1.6.0.*"
+ninja = "1.11.1"
+
+[dependencies]
+# Note: projectaria_tools gather its own dependencies using CMake Fetch, but
+#  - VRS dependency expects some libraries to be available
+#  - Unit testing is leveraging installed gtest
+
+# Install UNIT TEST dependencies
+gtest = "1.14.0"
+
+# Install VRS dependencies
+# - Note that some library are listed as '*' so pixi can pick the last compatible set of libraries versions
+boost = "1.84.0"
+fmt = "10.2.1"
+libjpeg-turbo = "*"
+libpng = "*"
+lz4 = "*"
+xxhash = "*"
+zlib = "*"
+
+# Install Python dependencies
+python = "3.11.*"
+pip = "*"

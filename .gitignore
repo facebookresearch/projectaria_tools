@@ -3,3 +3,7 @@ dist/**
 website/yarn.lock
 projectaria_tools.egg-info/**
 projectaria_tools_dev.egg-info/**
+.pixi/**
+wheels/**
+**/__pycache__/
+**.DS_Store
