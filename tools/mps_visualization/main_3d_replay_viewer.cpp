@@ -20,6 +20,7 @@
 #include <data_provider/VrsDataProvider.h>
 #include "EyeGazeReader.h"
 #include "GlobalPointCloudReader.h"
+#include "HandTrackingReader.h"
 #include "PointObservationReader.h"
 #include "StaticCameraCalibrationReader.h"
 #include "TrajectoryReaders.h"
@@ -71,6 +72,9 @@ int main(int argc, char* argv[]) {
   std::string calibratedEyeGazePath;
   app.add_option(
       "--calibrated-eye-gaze", calibratedEyeGazePath, "Path to calibrated eye gaze .csv file");
+  std::string wristAndPalmPosesPath;
+  app.add_option(
+      "--wrist-and-palm-poses", wristAndPalmPosesPath, "Path to wrist and palm poses .csv file");
   CLI11_PARSE(app, argc, argv);
 
   if (closedLoopTrajPaths.empty()) {
@@ -202,6 +206,11 @@ int main(int argc, char* argv[]) {
       "Loaded and cached eye gazes (calibrated) with size: {}",
       calibratedEyeGazeProvider.numEyeGazes());
 
+  // Get wrist and palm poses
+  const auto wristAndPalmPoses = readWristAndPalmPoses(wristAndPalmPosesPath);
+  WristAndPalmPosesProvider wristAndPalmPosesProvider(wristAndPalmPoses);
+  XR_LOGI("Loaded and cached wrist and palm poses: {}", wristAndPalmPosesProvider.size());
+
   XR_CHECK_LE(
       allWorldFrameUids.size(),
       1,
@@ -230,6 +239,10 @@ int main(int argc, char* argv[]) {
 
   gui3d.setUiPlotGeneralizedGaze(generalizedEyeGazeProvider.numEyeGazes() > 0);
   gui3d.setUiPlotCalibratedGaze(calibratedEyeGazeProvider.numEyeGazes() > 0);
+
+  const bool wristAndPalmPosesAreAvailable = wristAndPalmPosesProvider.size() > 0;
+  gui3d.setUiShowWristAndPalmPose(wristAndPalmPosesAreAvailable);
+
   // Declare per-frame variables to draw
   std::optional<projectaria::tools::data_provider::ImageData> slamLeftImageData, slamRightImageData,
       rgbImageData;
@@ -238,6 +251,7 @@ int main(int argc, char* argv[]) {
   std::vector<PointObservationPair> currRightPointObs;
   std::optional<EyeGaze> generalizedEyeGaze;
   std::optional<EyeGaze> calibratedEyeGaze;
+  std::optional<WristAndPalmPose> wristAndPalmPose;
 
   // Main viewer loop
   while (!pangolin::ShouldQuit()) {
@@ -330,6 +344,16 @@ int main(int argc, char* argv[]) {
           }
         }
 
+        if (wristAndPalmPosesAreAvailable && pose) {
+          const int64_t poseTimestampNs =
+              std::chrono::duration_cast<std::chrono::nanoseconds>(pose.value().trackingTimestamp)
+                  .count();
+          wristAndPalmPose = wristAndPalmPosesProvider.findWristAndPalmPose(poseTimestampNs);
+          if (!wristAndPalmPose) {
+            XR_LOGW("No wrist and palm pose data is available at this frame");
+          }
+        }
+
         // Update frame index to the next frame
         lastReplayFrame = replayFrame;
         ++replayFrame;
@@ -350,7 +374,8 @@ int main(int argc, char* argv[]) {
         currLeftPointObs,
         currRightPointObs,
         generalizedEyeGaze,
-        calibratedEyeGaze);
+        calibratedEyeGaze,
+        wristAndPalmPose);
 
     pangolin::FinishFrame();
   }

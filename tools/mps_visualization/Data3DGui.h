@@ -24,6 +24,7 @@
 #include "EyeGaze.h"
 #include "EyeGazeReader.h"
 #include "GlobalPointCloudReader.h"
+#include "HandTracking.h"
 #include "StaticCameraCalibration.h"
 
 #include <pangolin/display/image_view.h>
@@ -58,7 +59,8 @@ class Data3DGui {
       const std::vector<PointObservationPair>& leftPtObs,
       const std::vector<PointObservationPair>& rightPtObs,
       const std::optional<EyeGaze>& generalizedEyeGaze,
-      const std::optional<EyeGaze>& calibratedEyeGaze);
+      const std::optional<EyeGaze>& calibratedEyeGaze,
+      const std::optional<WristAndPalmPose>& wristAndPalmPose);
 
   // Clear history of last traj
   void clearLastTraj();
@@ -71,6 +73,8 @@ class Data3DGui {
 
   void setUiPlotGeneralizedGaze(bool value);
   void setUiPlotCalibratedGaze(bool value);
+
+  void setUiShowWristAndPalmPose(bool value);
 
  private:
   void drawRig(
@@ -169,6 +173,13 @@ class Data3DGui {
   pangolin::Var<bool> uiPlotCalibratedGaze{"ui3d.Calibrated Eye gaze", true, true};
   pangolin::Var<float> uiGazeRayLength{"ui3d.Eye gaze depth(m) ", 0.35, 0.1, 20};
 
+  // Wrist and Palm UI
+  pangolin::Var<std::string> uiDelimiterWristAndPalmRef_{
+      "ui3d.--------- Wrist and palm poses ----------",
+      "",
+      pangolin::META_FLAG_READONLY};
+  pangolin::Var<bool> uiShowWristAndPalm{"ui3d.show wrist and palm pose", true, true};
+
   pangolin::Var<std::string> uiDelimiterScaleRef_{
       "ui3d.-------------- Scale reference ---------------",
       "",
@@ -199,6 +210,21 @@ class Data3DGui {
   calibration::CameraCalibration camCalib_;
   std::optional<Eigen::Vector2d> generalizedEyeGazeProj_;
   std::optional<Eigen::Vector2d> calibratedEyeGazeProj_;
+
+  struct HandImageViewProjector {
+    using HandLandmarks = std::map<HANDEDNESS, std::vector<Eigen::Vector2f>>;
+    std::map<Data3DGui::ImageViewName, HandLandmarks> landmarksInImageView;
+
+    using LineSegment = std::pair<Eigen::Vector2d, Eigen::Vector2d>;
+    using HandSkeletons = std::map<HANDEDNESS, std::vector<LineSegment>>;
+    std::map<Data3DGui::ImageViewName, HandSkeletons> linksInImageView;
+
+    void drawLandmarksInImageView(Data3DGui::ImageViewName imageViewName);
+  };
+
+  HandImageViewProjector wristAndPalmImageViewProjector_;
+  static void setHandsGlColor(HANDEDNESS handedness);
+  static constexpr double MIN_CONFIDENCE_ = 0.5;
 };
 
 } // namespace projectaria::tools::mps

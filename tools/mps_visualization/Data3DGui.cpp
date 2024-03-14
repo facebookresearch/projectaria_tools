@@ -286,6 +286,10 @@ void Data3DGui::setUiPlotCalibratedGaze(bool value) {
   uiPlotCalibratedGaze = value;
 }
 
+void Data3DGui::setUiShowWristAndPalmPose(bool value) {
+  uiShowWristAndPalm = value;
+}
+
 void Data3DGui::draw(
     const std::vector<calibration::CameraCalibration>& camCalibs,
     const std::optional<calibration::DeviceCalibration>& deviceCalib,
@@ -296,7 +300,8 @@ void Data3DGui::draw(
     const std::vector<std::pair<Eigen::Vector2f, GlobalPointPosition>>& leftPtObs,
     const std::vector<std::pair<Eigen::Vector2f, GlobalPointPosition>>& rightPtObs,
     const std::optional<EyeGaze>& generalizedEyeGaze,
-    const std::optional<EyeGaze>& calibratedEyeGaze) {
+    const std::optional<EyeGaze>& calibratedEyeGaze,
+    const std::optional<WristAndPalmPose>& wristAndPalmPose) {
   // Plot fixed scene
   draw();
 
@@ -456,6 +461,93 @@ void Data3DGui::draw(
       drawEyeGaze(calibratedEyeGazePointCpf, T_World_Device.value(), Sophus::SE3d(), true);
     }
   }
+
+  // wrist and palm vis 3d
+  if (uiShowWristAndPalm && T_World_Device) {
+    for (HANDEDNESS handedness : {HANDEDNESS::LEFT, HANDEDNESS::RIGHT}) {
+      if (wristAndPalmPose) {
+        const auto& oneHandWristAndPalmPose = wristAndPalmPose.value()[handedness];
+        if (!oneHandWristAndPalmPose ||
+            oneHandWristAndPalmPose.value().confidence < MIN_CONFIDENCE_) {
+          continue;
+        }
+        const auto& wristPose = oneHandWristAndPalmPose.value().wristPosition_device;
+        const auto& palmPose = oneHandWristAndPalmPose.value().palmPosition_device;
+        const auto& wristPose_world = T_World_Device.value() * wristPose;
+        const auto& palmPose_world = T_World_Device.value() * palmPose;
+        const std::vector<Eigen::Vector3d> wristAndPalmPoses_world{wristPose_world, palmPose_world};
+        setHandsGlColor(handedness);
+        glPointSize(10);
+        pangolin::glDrawPoints(wristAndPalmPoses_world);
+        pangolin::glDrawLines(wristAndPalmPoses_world);
+      }
+    }
+  }
+
+  // wrist and palm vis 2d
+  for (Data3DGui::ImageViewName imageViewName :
+       {Data3DGui::ImageViewName::RGB_VIEW,
+        Data3DGui::ImageViewName::LEFT_SLAM_VIEW,
+        Data3DGui::ImageViewName::RIGHT_SLAM_VIEW}) {
+    for (HANDEDNESS handedness : {HANDEDNESS::LEFT, HANDEDNESS::RIGHT}) {
+      auto& wristAndPalmLandmarksInImageView =
+          wristAndPalmImageViewProjector_.landmarksInImageView[imageViewName][handedness];
+      auto& wristAndPalmConnectivityLinksInImageView =
+          wristAndPalmImageViewProjector_.linksInImageView[imageViewName][handedness];
+      wristAndPalmLandmarksInImageView.clear();
+      wristAndPalmConnectivityLinksInImageView.clear();
+      if (!wristAndPalmPose) {
+        continue;
+      }
+      const auto& oneHandWristAndPalmPose = wristAndPalmPose.value()[handedness];
+      if (uiShowWristAndPalm && deviceCalib && oneHandWristAndPalmPose &&
+          oneHandWristAndPalmPose.value().confidence >= MIN_CONFIDENCE_) {
+        std::string cameraLabel;
+        switch (imageViewName) {
+          case Data3DGui::ImageViewName::RGB_VIEW:
+            cameraLabel = "camera-rgb";
+            break;
+          case Data3DGui::ImageViewName::LEFT_SLAM_VIEW:
+            cameraLabel = "camera-slam-left";
+            break;
+          case Data3DGui::ImageViewName::RIGHT_SLAM_VIEW:
+            cameraLabel = "camera-slam-right";
+            break;
+          default:
+            XR_LOGE("Unsupported image view name.");
+            throw std::runtime_error("Unsupported image view name.");
+        }
+        const auto& cameraCalib = deviceCalib->getCameraCalib(cameraLabel);
+        if (!cameraCalib) {
+          continue;
+        }
+        for (const auto& landmark :
+             {oneHandWristAndPalmPose.value().wristPosition_device,
+              oneHandWristAndPalmPose.value().palmPosition_device}) {
+          const auto point = cameraCalib->project(
+              cameraCalib->getT_Device_Camera().inverse() * landmark.cast<double>());
+          if (point) {
+            wristAndPalmLandmarksInImageView.emplace_back(
+                cameraCalib->getImageSize()[1] - 1 - point.value()[1], point.value()[0]);
+          } else {
+            wristAndPalmLandmarksInImageView.emplace_back(-1, -1);
+          }
+        }
+        const auto& p0 = wristAndPalmLandmarksInImageView.at(0).cast<double>();
+        const auto& p1 = wristAndPalmLandmarksInImageView.at(1).cast<double>();
+        // Check visibility of link boundary points in rotated image
+        const auto& imageSize = cameraCalib->getImageSize();
+        if (p0[0] >= 0 && p0[0] < imageSize[1] && p0[1] >= 0 && p0[1] < imageSize[0] &&
+            p1[0] >= 0 && p1[0] < imageSize[1] && p1[1] >= 0 && p1[1] < imageSize[0]) {
+          wristAndPalmConnectivityLinksInImageView.emplace_back(p0, p1);
+        }
+      }
+    }
+
+    draw(imageViewName, [&, imageViewName](pangolin::View&) {
+      wristAndPalmImageViewProjector_.drawLandmarksInImageView(imageViewName);
+    });
+  }
 }
 
 void Data3DGui::updatePointCloud() {
@@ -514,6 +606,31 @@ void Data3DGui::drawEyeGazePoint() const {
         rgbHeight_ - 1 - (calibratedEyeGazeProj_->y() * scaleY),
         calibratedEyeGazeProj_->x() * scaleX,
         6);
+  }
+}
+
+void Data3DGui::HandImageViewProjector::drawLandmarksInImageView(
+    Data3DGui::ImageViewName imageViewName) {
+  for (HANDEDNESS handedness : {HANDEDNESS::LEFT, HANDEDNESS::RIGHT}) {
+    setHandsGlColor(handedness);
+    glLineWidth(2);
+    for (const auto& landmark : landmarksInImageView[imageViewName][handedness]) {
+      pangolin::glDrawCircle(landmark[0], landmark[1], 5);
+    }
+    for (const auto& link : linksInImageView[imageViewName][handedness]) {
+      pangolin::glDrawLine(link.first[0], link.first[1], link.second[0], link.second[1]);
+    }
+  }
+}
+
+void Data3DGui::setHandsGlColor(HANDEDNESS handedness) {
+  switch (handedness) {
+    case HANDEDNESS::LEFT:
+      glColor4f(1.0f, 0.5f, 0.0f, 1.0f);
+      break;
+    case HANDEDNESS::RIGHT:
+      glColor4f(0.0f, 0.5f, 1.0f, 1.0f);
+      break;
   }
 }
 
