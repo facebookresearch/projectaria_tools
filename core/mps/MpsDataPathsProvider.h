@@ -41,12 +41,18 @@ struct MpsSlamDataPaths {
   std::string summary; /**< path to slam summary json */
 };
 
+struct HandTrackingDataPaths {
+  std::string wristAndPalmPoses; /**< wrist and palm poses*/
+  std::string summary; /**< hand tracking summary */
+};
+
 /**
  * @brief A struct that includes the file paths of all MPS files associated with a sequence
  */
 struct MpsDataPaths {
   MpsSlamDataPaths slam; /**< SLAM data paths */
   MpsEyegazeDataPaths eyegaze; /**< EyeGaze data paths */
+  HandTrackingDataPaths handTracking; /**< Hand Tracking data paths */
   std::string root; /**< Root directory of the MPS data */
 };
 

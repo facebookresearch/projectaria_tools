@@ -19,6 +19,7 @@
 #include <data_provider/QueryMapByTimestamp.h>
 #include <mps/EyeGazeReader.h>
 #include <mps/GlobalPointCloudReader.h>
+#include <mps/HandTrackingReader.h>
 #include <mps/OnlineCalibrationsReader.h>
 #include <mps/PointObservationReader.h>
 #include <mps/TrajectoryReaders.h>
@@ -60,6 +61,10 @@ bool MpsDataProvider::hasSemidenseObservations() const {
   return !dataPaths_.slam.semidenseObservations.empty();
 }
 
+bool MpsDataProvider::hasWristAndPalmPoses() const {
+  return !dataPaths_.handTracking.wristAndPalmPoses.empty();
+}
+
 std::optional<EyeGaze> MpsDataProvider::getGeneralEyeGaze(
     int64_t deviceTimeStampNs,
     const TimeQueryOptions& timeQueryOptions) {
@@ -78,6 +83,26 @@ std::optional<EyeGaze> MpsDataProvider::getGeneralEyeGaze(
   auto iter = data_provider::queryMapByTimestamp<EyeGaze>(
       generalEyeGazes_, deviceTimeStampNs, timeQueryOptions);
   return iter == generalEyeGazes_.end() ? std::optional<EyeGaze>() : iter->second;
+}
+
+std::optional<WristAndPalmPose> MpsDataProvider::getWristAndPalmPose(
+    int64_t captureTimestampNs,
+    const TimeQueryOptions& timeQueryOptions) {
+  if (!hasWristAndPalmPoses()) {
+    std::string error = "Cannot query for wrist and palm pose since the data is not available";
+    XR_LOGE("{}", error);
+    throw std::runtime_error{error};
+  }
+  if (wristAndPalmPoses_.empty()) {
+    auto wristAndPalmPoses = readWristAndPalmPoses(dataPaths_.handTracking.wristAndPalmPoses);
+    for (const auto& wristAndPalmPose : wristAndPalmPoses) {
+      wristAndPalmPoses_.emplace(
+          wristAndPalmPose.trackingTimestamp.count() * kUsToNs, wristAndPalmPose);
+    }
+  }
+  auto iter = data_provider::queryMapByTimestamp<WristAndPalmPose>(
+      wristAndPalmPoses_, captureTimestampNs, timeQueryOptions);
+  return iter == wristAndPalmPoses_.end() ? std::optional<WristAndPalmPose>() : iter->second;
 }
 
 std::optional<EyeGaze> MpsDataProvider::getPersonalizedEyeGaze(

@@ -102,6 +102,19 @@ void MpsDataPathsProvider::loadDataPaths() {
   }
 
   loadFilePathIfExists(mpsEyegazePath, kMpsEyegazeSummaryFile, dataPaths_.eyegaze.summary);
+
+  std::string mpsWristAndPalmPath =
+      (fs::path(mpsRootPath_) / fs::path(kMpsHandTrackingFolder)).string();
+  if (!fs::exists(mpsWristAndPalmPath)) {
+    XR_LOGW(
+        "Hand tracking folder ({}) does not exist in MPS root folder, not loading wrist and palm poses.",
+        mpsWristAndPalmPath);
+  } else {
+    loadFilePathIfExists(
+        mpsWristAndPalmPath, kMpsWristAndPalmPosesFile, dataPaths_.handTracking.wristAndPalmPoses);
+    loadFilePathIfExists(
+        mpsWristAndPalmPath, kMpsHandTrackingSummaryFile, dataPaths_.handTracking.summary);
+  }
 }
 
 } // namespace projectaria::tools::mps

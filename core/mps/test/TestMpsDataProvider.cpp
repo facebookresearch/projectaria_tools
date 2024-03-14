@@ -44,6 +44,8 @@ TEST(AeaDataPathsProvider, PathsAPI) {
   EXPECT_TRUE(fs::exists(dataPaths.slam.semidenseObservations));
   EXPECT_TRUE(fs::exists(dataPaths.slam.onlineCalibration));
   EXPECT_TRUE(fs::exists(dataPaths.slam.summary));
+  EXPECT_TRUE(fs::exists(dataPaths.handTracking.wristAndPalmPoses));
+  EXPECT_TRUE(fs::exists(dataPaths.handTracking.summary));
 }
 
 TEST(AeaDataProvider, DataExists) {
@@ -58,6 +60,7 @@ TEST(AeaDataProvider, DataExists) {
   EXPECT_TRUE(dp.hasOnlineCalibrations());
   EXPECT_TRUE(dp.hasSemidensePointCloud());
   EXPECT_TRUE(dp.hasSemidenseObservations());
+  EXPECT_TRUE(dp.hasWristAndPalmPoses());
 }
 
 TEST(AeaDataProvider, DataQuerying) {
@@ -74,10 +77,12 @@ TEST(AeaDataProvider, DataQuerying) {
   auto maybeClosedLoopPose = dp.getClosedLoopPose(0);
   auto maybeEyeGaze = dp.getGeneralEyeGaze(0);
   auto maybeOnlineCalib = dp.getOnlineCalibration(0);
+  auto maybeWristAndPalmPose = dp.getWristAndPalmPose(0);
   EXPECT_TRUE(maybeOpenLoopPose.has_value());
   EXPECT_TRUE(maybeClosedLoopPose.has_value());
   EXPECT_TRUE(maybeEyeGaze.has_value());
   EXPECT_TRUE(maybeOnlineCalib.has_value());
+  EXPECT_TRUE(maybeWristAndPalmPose.has_value());
 
   // check that invalid queries throws an exception
   EXPECT_THROW(dp.getPersonalizedEyeGaze(0), std::runtime_error);

@@ -20,6 +20,7 @@
 
 #include "EyeGaze.h"
 #include "GlobalPointCloud.h"
+#include "HandTracking.h"
 #include "PointObservation.h"
 #include "Trajectory.h"
 
@@ -260,6 +261,43 @@ class EyeGazeProvider {
 
   // Quantized frame rate MUST be selected based on the time offset between SLAM and eye tracking
   const int64_t slamEyeTrackingOffsetNs_;
+};
+
+class WristAndPalmPosesProvider {
+ public:
+  explicit WristAndPalmPosesProvider(
+      const WristAndPalmPoses& wristAndPalmPoses,
+      const int64_t quantizedFrameRateNs = 1e8)
+      : quantizedFrameRateNs_(quantizedFrameRateNs) {
+    for (const auto& wristAndPalmPose : wristAndPalmPoses) {
+      const int64_t timestampNs =
+          std::chrono::duration_cast<std::chrono::nanoseconds>(wristAndPalmPose.trackingTimestamp)
+              .count();
+      const int64_t quantizedTimestampNs = timestampNs / quantizedFrameRateNs_;
+      wristAndPalmPoses_[quantizedTimestampNs] = wristAndPalmPose;
+    }
+  }
+
+  std::optional<WristAndPalmPose> findWristAndPalmPose(const int64_t queryTimestampNs) const {
+    const int64_t quantizedQueryTimestampNs = queryTimestampNs / quantizedFrameRateNs_;
+    for (int64_t t = quantizedQueryTimestampNs - 1; t <= quantizedQueryTimestampNs + 1; ++t) {
+      const auto iter = wristAndPalmPoses_.find(t);
+      if (iter != wristAndPalmPoses_.end()) {
+        return iter->second;
+      }
+    }
+    return {};
+  }
+
+  size_t size() const {
+    return wristAndPalmPoses_.size();
+  }
+
+ private:
+  std::unordered_map<int64_t, WristAndPalmPose> wristAndPalmPoses_;
+
+  // Quantized frame rate MUST be selected based on the SLAM stream frame rate.
+  const int64_t quantizedFrameRateNs_;
 };
 
 } // namespace projectaria::tools::mps

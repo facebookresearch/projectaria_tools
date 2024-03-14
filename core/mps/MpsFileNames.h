@@ -36,9 +36,14 @@ inline const std::string kMpsPersonalEyegazeFile = "personalized_eye_gaze.csv";
 inline const std::string kMpsPersonalEyegazeFileDeprecated = "calibrated_eye_gaze.csv";
 inline const std::string kMpsEyegazeSummaryFile = "summary.json";
 
+// HandTracking
+inline const std::string kMpsWristAndPalmPosesFile = "wrist_and_palm_poses.csv";
+inline const std::string kMpsHandTrackingSummaryFile = "summary.json";
+
 // Folders
 inline const std::string kMpsSlamFolder = "slam";
 inline const std::string kMpsSlamFolderDeprecated = "trajectory";
 inline const std::string kMpsEyegazeFolder = "eye_gaze";
+inline const std::string kMpsHandTrackingFolder = "hand_tracking";
 
 } // namespace projectaria::tools::mps
