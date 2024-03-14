@@ -47,6 +47,21 @@ namespace projectaria::tools::mps {
 void exportMps(py::module& m) {
   // For submodule documentation, see: projectaria_tools/projectaria_tools/core/mps.py
 
+  // gaze vergence fields
+  py::class_<EyeGazeVergence>(m, "EyeGazeVergence")
+      .def_readwrite("left_yaw", &EyeGazeVergence::left_yaw)
+      .def_readwrite("right_yaw", &EyeGazeVergence::right_yaw)
+      .def_readwrite("left_yaw_low", &EyeGazeVergence::left_yaw_low)
+      .def_readwrite("right_yaw_low", &EyeGazeVergence::right_yaw_low)
+      .def_readwrite("left_yaw_high", &EyeGazeVergence::left_yaw_high)
+      .def_readwrite("right_yaw_high", &EyeGazeVergence::right_yaw_high)
+      .def_readwrite("tx_left_eye", &EyeGazeVergence::tx_left_eye)
+      .def_readwrite("ty_left_eye", &EyeGazeVergence::ty_left_eye)
+      .def_readwrite("tz_left_eye", &EyeGazeVergence::tz_left_eye)
+      .def_readwrite("tx_right_eye", &EyeGazeVergence::tx_right_eye)
+      .def_readwrite("ty_right_eye", &EyeGazeVergence::ty_right_eye)
+      .def_readwrite("tz_right_eye", &EyeGazeVergence::tz_right_eye);
+
   // gaze
   py::class_<EyeGaze>(m, "EyeGaze", "An object representing single Eye gaze output.")
       .def_readwrite(
@@ -55,6 +70,10 @@ void exportMps(py::module& m) {
           "Timestamp of the eye tracking camera frame in device time domain.")
       .def_readwrite(
           "yaw", &EyeGaze::yaw, "Eye gaze yaw angle (horizontal) in radians in CPF frame.")
+      .def_readwrite(
+          "vergence",
+          &EyeGaze::vergence,
+          "Additional fields related to vergence (new model output).")
       .def_readwrite(
           "pitch", &EyeGaze::pitch, "Eye gaze pitch angle (vertical) in radians in CPF frame.")
       .def_readwrite(
@@ -105,6 +124,48 @@ void exportMps(py::module& m) {
   yaw_rads: Yaw angle in radians in CPF frame.
   pitch_rads: Pitch angle in radians in CPF frame.
   depth_m: Depth of the point in meters.
+  )docdelimiter");
+
+  m.def(
+      "get_gaze_intersection_point",
+      &getGazeIntersectionPoint,
+      py::arg("left_yaw_rads"),
+      py::arg("right_yaw_rads"),
+      py::arg("pitch_rads"),
+      R"docdelimiter( Given the left and right yaw angles and common pitch get the intersection point in 3D in CPF frame.
+  Parameters
+  __________
+  left_yaw_rads: Left Yaw angle in radians in CPF frame.
+  right_yaw_rads: Right Yaw angle in radians in CPF frame.
+  pitch_rads: Pitch angle in radians in CPF frame.
+  )docdelimiter");
+
+  m.def(
+      "compute_depth_and_combined_gaze_direction",
+      &computeDepthAndCombinedGazeDirection,
+      py::arg("left_yaw_rads"),
+      py::arg("right_yaw_rads"),
+      py::arg("pitch_rads"),
+      R"docdelimiter( Given the left and right yaw angles and common pitch get the combined gaze angles and depth in CPF frame.
+  Parameters
+  __________
+  left_yaw_rads: Left Yaw angle in radians in CPF frame.
+  right_yaw_rads: Right Yaw angle in radians in CPF frame.
+  pitch_rads: Pitch angle in radians in CPF frame.
+  )docdelimiter");
+
+  m.def(
+      "get_gaze_vectors",
+      &getGazeVectors,
+      py::arg("left_yaw_rads"),
+      py::arg("right_yaw_rads"),
+      py::arg("pitch_rads"),
+      R"docdelimiter( Given the left and right yaw angles and common pitch get the left and right gaze vectors from their respective origins in XYZ CPF frame.
+  Parameters
+  __________
+  left_yaw_rads: Left Yaw angle in radians in CPF frame.
+  right_yaw_rads: Right Yaw angle in radians in CPF frame.
+  pitch_rads: Pitch angle in radians in CPF frame.
   )docdelimiter");
 
   // trajectory

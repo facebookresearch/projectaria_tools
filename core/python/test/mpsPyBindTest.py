@@ -121,6 +121,7 @@ class MPSEyeGaze(unittest.TestCase):
         mps_eye_gazes = mps.read_eyegaze(eye_gaze_file)
         self.assertGreater(len(mps_eye_gazes), 0)
         self.assertEqual(mps_eye_gazes[0].session_uid, "")
+        self.assertEqual(mps_eye_gazes[0].vergence.left_yaw, 0.0)
 
     def test_eyegaze_valid_file_with_session_id(self) -> None:
         eye_gaze_file = os.path.join(
@@ -129,11 +130,68 @@ class MPSEyeGaze(unittest.TestCase):
         mps_eye_gazes = mps.read_eyegaze(eye_gaze_file)
         self.assertGreater(len(mps_eye_gazes), 0)
         self.assertNotEqual(mps_eye_gazes[0].session_uid, "")
+        self.assertEqual(mps_eye_gazes[0].vergence.left_yaw, 0.0)
+
+    def test_eyegaze_vergence_valid_file(self) -> None:
+        eye_gaze_file = os.path.join(
+            TEST_FOLDER, "mps_sample/eye_gaze_vergence/generalized_gaze.csv"
+        )
+        mps_eye_gazes = mps.read_eyegaze(eye_gaze_file)
+        self.assertGreater(len(mps_eye_gazes), 0)
+        self.assertNotEqual(mps_eye_gazes[0].session_uid, "")
+        self.assertAlmostEqual(mps_eye_gazes[0].vergence.tx_left_eye, 0.0315)
+        self.assertAlmostEqual(mps_eye_gazes[0].vergence.tx_right_eye, -0.0315)
 
     def test_eyegaze_invalid_file(self) -> None:
         eye_gaze_file = ""
         mps_eye_gazes = mps.read_eyegaze(eye_gaze_file)
         self.assertEqual(len(mps_eye_gazes), 0)
+
+    def test_get_eyegaze_point_at_depth(self) -> None:
+        gaze_x, gaze_y, gaze_z = mps.get_eyegaze_point_at_depth(
+            -0.102910490016660, -0.288851886987686, 1.179526637404006
+        )
+        self.assertAlmostEqual(gaze_x, -0.116201334110103)
+        self.assertAlmostEqual(gaze_y, -0.334355951558995)
+        self.assertAlmostEqual(gaze_z, 1.12516063)
+
+    def test_compute_depth_and_combined_gaze_direction(self) -> None:
+        depth, combined_yaw, combined_pitch = (
+            mps.compute_depth_and_combined_gaze_direction(
+                -0.1264797, -0.07706982, -0.26359045
+            )
+        )
+        self.assertAlmostEqual(depth, 1.31310134)
+        self.assertAlmostEqual(combined_yaw, -0.10183712)
+        self.assertAlmostEqual(combined_pitch, -0.26359045)
+
+    def test_get_gaze_intersection_point(self) -> None:
+        gaze_x, gaze_y, gaze_z = mps.get_gaze_intersection_point(
+            -0.1264797, -0.07706982, -0.26359045
+        )
+        self.assertAlmostEqual(gaze_x, -0.12892598)
+        self.assertAlmostEqual(gaze_y, -0.34047373)
+        self.assertAlmostEqual(gaze_z, 1.26162232)
+
+    def test_get_gaze_directions(self) -> None:
+        left_gaze, right_gaze = mps.get_gaze_vectors(
+            -0.1264797, -0.07706982, -0.26359045
+        )
+        self.assertAlmostEqual(left_gaze[0], -0.12185171)
+        self.assertAlmostEqual(left_gaze[1], -0.25860713)
+        self.assertAlmostEqual(left_gaze[2], 0.95826641)
+        self.assertAlmostEqual(right_gaze[0], -0.07434921)
+        self.assertAlmostEqual(right_gaze[1], -0.25982753)
+        self.assertAlmostEqual(right_gaze[2], 0.96278858)
+
+        """
+        (-0.12185171, leftDirection.x(), EYEGAZE_ERROR_TOLERANCE);
+  ASSERT_NEAR(-0.25860713, leftDirection.y(), EYEGAZE_ERROR_TOLERANCE);
+  ASSERT_NEAR(0.95826641, leftDirection.z(), EYEGAZE_ERROR_TOLERANCE);
+  ASSERT_NEAR(-0.07434921, rightDirection.x(), EYEGAZE_ERROR_TOLERANCE);
+  ASSERT_NEAR(-0.25982753, rightDirection.y(), EYEGAZE_ERROR_TOLERANCE);
+  ASSERT_NEAR(0.96278858
+        """
 
 
 mps_root_path = os.path.join(TEST_FOLDER, "mps_sample")
