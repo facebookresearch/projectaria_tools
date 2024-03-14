@@ -37,8 +37,84 @@ constexpr std::array<const char*, 9> kEyeGazeColumns = {
     "session_uid", // V2: Added for calibrated eye gaze sessions
 };
 
+constexpr std::array<const char*, 18> kEyeGazeVergenceColumns = {
+    "tracking_timestamp_us",
+    "left_yaw_rads_cpf",
+    "right_yaw_rads_cpf",
+    "pitch_rads_cpf",
+    "depth_m",
+    "left_yaw_low_rads_cpf",
+    "right_yaw_low_rads_cpf",
+    "pitch_low_rads_cpf",
+    "left_yaw_high_rads_cpf",
+    "right_yaw_high_rads_cpf",
+    "pitch_high_rads_cpf",
+    "tx_left_eye_cpf",
+    "ty_left_eye_cpf",
+    "tz_left_eye_cpf",
+    "tx_right_eye_cpf",
+    "ty_right_eye_cpf",
+    "tz_right_eye_cpf",
+    "session_uid",
+};
+
+EyeGazes readEyeGazeVergence(const std::string& path) {
+  EyeGazes eyeGazeVergences;
+  try {
+    io::CSVReader<kEyeGazeVergenceColumns.size()> csv(path);
+
+    // Read in the CSV header
+    const auto readHeader = [&](auto&&... args) {
+      csv.read_header(io::ignore_missing_column, args...);
+    };
+    std::apply(readHeader, kEyeGazeVergenceColumns);
+
+    EyeGaze eyeGazeVergence;
+    std::int64_t tracking_timestamp_us = 0;
+
+    while (csv.read_row(
+        tracking_timestamp_us,
+        eyeGazeVergence.vergence.left_yaw,
+        eyeGazeVergence.vergence.right_yaw,
+        eyeGazeVergence.pitch,
+        eyeGazeVergence.depth,
+        eyeGazeVergence.vergence.left_yaw_low,
+        eyeGazeVergence.vergence.right_yaw_low,
+        eyeGazeVergence.pitch_low,
+        eyeGazeVergence.vergence.left_yaw_high,
+        eyeGazeVergence.vergence.right_yaw_high,
+        eyeGazeVergence.pitch_high,
+        eyeGazeVergence.vergence.tx_left_eye,
+        eyeGazeVergence.vergence.ty_left_eye,
+        eyeGazeVergence.vergence.tz_left_eye,
+        eyeGazeVergence.vergence.tx_right_eye,
+        eyeGazeVergence.vergence.ty_right_eye,
+        eyeGazeVergence.vergence.tz_right_eye,
+        eyeGazeVergence.session_uid)) {
+      eyeGazeVergence.trackingTimestamp = std::chrono::microseconds(tracking_timestamp_us);
+      // populate yaw
+      float depthM = NAN, combinedYawRads = NAN, pitchRads = NAN;
+      std::tie(depthM, combinedYawRads, pitchRads) = computeDepthAndCombinedGazeDirection(
+          eyeGazeVergence.vergence.left_yaw,
+          eyeGazeVergence.vergence.right_yaw,
+          eyeGazeVergence.pitch);
+      eyeGazeVergence.yaw = combinedYawRads;
+      eyeGazeVergences.push_back(eyeGazeVergence);
+    }
+
+  } catch (std::exception& e) {
+    std::cerr << "Failed to parse eye gaze vergence file: " << e.what() << std::endl;
+  }
+  return eyeGazeVergences; // Can be empty if input file was invalid
+}
+
 EyeGazes readEyeGaze(const std::string& path) {
-  EyeGazes eyeGazes;
+  // First try to read eye gaze vergence file
+  EyeGazes eyeGazes = readEyeGazeVergence(path);
+  if (!eyeGazes.empty()) {
+    return eyeGazes;
+  }
+  // try to load legacy file format for backward compatibility
   try {
     io::CSVReader<kEyeGazeColumns.size()> csv(path);
 
@@ -62,7 +138,7 @@ EyeGazes readEyeGaze(const std::string& path) {
     }
 
     EyeGaze eyeGaze;
-    std::int64_t tracking_timestamp_us;
+    std::int64_t tracking_timestamp_us = 0;
 
     while (csv.read_row(
         tracking_timestamp_us,
@@ -86,4 +162,5 @@ EyeGazes readEyeGaze(const std::string& path) {
   }
   return eyeGazes; // Can be empty if input file was invalid
 }
+
 } // namespace projectaria::tools::mps
