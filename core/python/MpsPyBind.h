@@ -24,6 +24,7 @@
 
 #include "EyeGazeFormat.h"
 #include "GlobalPointCloudFormat.h"
+#include "HandTrackingFormat.h"
 #include "MpsDataPathsFormat.h"
 #include "OnlineCalibrationFormat.h"
 #include "PointObservationFormat.h"
@@ -32,6 +33,7 @@
 
 #include "EyeGazeReader.h"
 #include "GlobalPointCloudReader.h"
+#include "HandTrackingReader.h"
 #include "MpsDataPathsProvider.h"
 #include "MpsDataProvider.h"
 #include "OnlineCalibrationsReader.h"
@@ -459,6 +461,7 @@ void exportMps(py::module& m) {
       m, "MpsDataPaths", "A struct that includes the file paths of all MPS data for a sequence.")
       .def_readwrite("slam", &MpsDataPaths::slam, "MPS SLAM file paths")
       .def_readwrite("eyegaze", &MpsDataPaths::eyegaze, "MPS eyegaze file paths")
+      .def_readwrite("hand_tracking", &MpsDataPaths::handTracking, "MPS hand tracking file paths")
       .def_readwrite("root", &MpsDataPaths::root, "MPS root directory path")
       .def("__repr__", [](MpsDataPaths const& self) { return fmt::to_string(self); });
 
@@ -544,6 +547,10 @@ void exportMps(py::module& m) {
           &MpsDataProvider::hasSemidenseObservations,
           "Check if semidense observations are available in the MPS data paths")
       .def(
+          "has_wrist_and_palm_poses",
+          &MpsDataProvider::hasWristAndPalmPoses,
+          "Check if wrist and palm poses are available in the MPS data paths")
+      .def(
           "get_general_eyegaze",
           &MpsDataProvider::getGeneralEyeGaze,
           "Query MPS for general EyeGaze at a specific timestamp. This will throw an exception if "
@@ -594,7 +601,63 @@ void exportMps(py::module& m) {
           &MpsDataProvider::getSemidenseObservations,
           py::return_value_policy::reference_internal,
           "Get the MPS point observations. This will throw an exception if the observations are "
-          "not available. Check for data availability first using 'has_semidense_observations()'");
+          "not available. Check for data availability first using 'has_semidense_observations()'")
+      .def(
+          "get_wrist_and_palm_pose",
+          &MpsDataProvider::getWristAndPalmPose,
+          py::return_value_policy::reference_internal,
+          "Get the MPS wrist and palm pose. This will throw an exception if the wrist and palm "
+          "poses are not available. Check for data availability first using "
+          "'has_wrist_and_palm_poses()'");
+
+  py::module hand_tracking = m.def_submodule("hand_tracking");
+
+  py::class_<WristAndPalmPose>(
+      hand_tracking,
+      "WristAndPalmPose",
+      "An object representing WristAndPalmPose output at a single timestamp.")
+      .def_readwrite(
+          "tracking_timestamp",
+          &WristAndPalmPose::trackingTimestamp,
+          "The timestamp of the pose estimate in device time domain.")
+      .def_readwrite(
+          "left_hand",
+          &WristAndPalmPose::leftHand,
+          "Left hand pose estimate, or None if no valid pose was found.")
+      .def_readwrite(
+          "right_hand",
+          &WristAndPalmPose::rightHand,
+          "Right hand pose estimate, or None if no valid pose was found.")
+      .def("__repr__", [](WristAndPalmPose const& self) { return fmt::to_string(self); });
+
+  py::class_<WristAndPalmPose::OneSide>(
+      hand_tracking,
+      "WristAndPalmPose.OneSide",
+      "An object representing WristAndPalmPose output for one side of the body.")
+      .def_readwrite(
+          "confidence",
+          &WristAndPalmPose::OneSide::confidence,
+          "Tracking confidence score for this hand.")
+      .def_readwrite(
+          "wrist_position_device",
+          &WristAndPalmPose::OneSide::wristPosition_device,
+          "Position of the wrist joint in device frame.")
+      .def_readwrite(
+          "palm_position_device",
+          &WristAndPalmPose::OneSide::palmPosition_device,
+          "Position of the palm joint in device frame.")
+      .def("__repr__", [](WristAndPalmPose::OneSide const& self) { return fmt::to_string(self); });
+
+  hand_tracking.def(
+      "read_wrist_and_palm_poses",
+      &readWristAndPalmPoses,
+      "path"_a,
+      R"docdelimiter(Read Wrist and Palm poses from the hand tracking output generated via MPS.
+  Parameters
+  __________
+  path: Path to the wrist and palm poses csv file.
+
+  )docdelimiter");
 }
 
 } // namespace projectaria::tools::mps

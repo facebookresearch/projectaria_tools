@@ -21,6 +21,7 @@ from _core_pybinds.mps import (
     EyeGaze,
     get_eyegaze_point_at_depth,
     GlobalPointPosition,
+    hand_tracking,
 )
 
 
@@ -74,6 +75,21 @@ def get_nearest_pose(
     if bisection_index is None:
         return None
     return mps_trajectory[bisection_index]
+
+
+def get_nearest_wrist_and_palm_pose(
+    wirst_and_palm_poses: List[hand_tracking.WristAndPalmPose], query_timestamp_ns: int
+) -> hand_tracking.WristAndPalmPose:
+    """
+    Helper function to get nearest wrist and palm pose for a timestamp (ns)
+    Return the closest or equal timestamp wrist and palm pose that can be found, returns None if not found (out of time range)
+    """
+    bisection_index = bisection_timestamp_search(
+        wirst_and_palm_poses, query_timestamp_ns
+    )
+    if bisection_index is None:
+        return None
+    return wirst_and_palm_poses[bisection_index]
 
 
 def filter_points_from_confidence(

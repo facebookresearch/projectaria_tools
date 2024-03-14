@@ -111,6 +111,28 @@ class MPSOnlineCalibration(unittest.TestCase):
         assert len(mps_online_calibration) == 0
 
 
+class MPSHandTracking(unittest.TestCase):
+    """
+    Tests for reading hand tracking data from csv files
+    """
+
+    def test_wrist_and_palm_valid_file(self) -> None:
+        wrist_and_palm_file = os.path.join(
+            TEST_FOLDER, "mps_sample/hand_tracking/wrist_and_palm_poses.csv"
+        )
+        mps_wrist_and_palm_poses = mps.hand_tracking.read_wrist_and_palm_poses(
+            wrist_and_palm_file
+        )
+        self.assertGreater(len(mps_wrist_and_palm_poses), 0)
+
+    def test_wrist_and_palm_invalid_file(self) -> None:
+        wrist_and_palm_file = ""
+        mps_wrist_and_palm_poses = mps.hand_tracking.read_wrist_and_palm_poses(
+            wrist_and_palm_file
+        )
+        self.assertEqual(len(mps_wrist_and_palm_poses), 0)
+
+
 class MPSEyeGaze(unittest.TestCase):
     """
     Tests for reading eye gaze data from csv files
