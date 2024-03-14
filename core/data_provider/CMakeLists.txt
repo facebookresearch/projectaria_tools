@@ -55,9 +55,9 @@ add_library(streamid_label_mapper STATIC StreamIdLabelMapper.cpp StreamIdLabelMa
 target_include_directories(streamid_label_mapper PUBLIC "../")
 target_link_libraries(streamid_label_mapper PUBLIC vrslib)
 
-add_library(timecode_mapper STATIC TimeCodeMapper.cpp TimeCodeMapper.h)
-target_include_directories(timecode_mapper PUBLIC "../")
-target_link_libraries(timecode_mapper PUBLIC error_handler vrslib players)
+add_library(timesync_mapper STATIC TimeSyncMapper.cpp TimeSyncMapper.h)
+target_include_directories(timesync_mapper PUBLIC "../")
+target_link_libraries(timesync_mapper PUBLIC error_handler vrslib players)
 
 add_library(record_reader_interface STATIC RecordReaderInterface.cpp RecordReaderInterface.h)
 target_include_directories(record_reader_interface PUBLIC "../")
@@ -88,7 +88,7 @@ target_link_libraries(vrs_data_provider PUBLIC
         sensor_data
         streamid_configuration_mapper
         streamid_label_mapper
-        timecode_mapper
+        timesync_mapper
         timestamp_index_mapper
         aria_calib_rescale_and_crop
         device_calibration_json

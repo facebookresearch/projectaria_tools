@@ -27,13 +27,13 @@ namespace projectaria::tools::data_provider {
 VrsDataProvider::VrsDataProvider(
     const std::shared_ptr<RecordReaderInterface>& interface,
     const std::shared_ptr<StreamIdConfigurationMapper>& configMap,
-    const std::shared_ptr<TimeCodeMapper>& timeCodeMapper,
+    const std::shared_ptr<TimeSyncMapper>& timeSyncMapper,
     const std::shared_ptr<StreamIdLabelMapper>& streamIdLabelMapper,
     const std::optional<calibration::DeviceCalibration>& maybeDeviceCalib)
     : interface_(interface),
       configMap_(configMap),
       timeQuery_(std::make_shared<TimestampIndexMapper>(interface_)),
-      timeCodeMapper_(timeCodeMapper),
+      timeSyncMapper_(timeSyncMapper),
       streamIdLabelMapper_(streamIdLabelMapper),
       maybeDeviceCalib_(maybeDeviceCalib) {}
 
@@ -177,7 +177,7 @@ SensorData VrsDataProvider::getSensorDataByIndex(const vrs::StreamId& streamId, 
   if (interface_->readRecordByIndex(streamId, index)) {
     return interface_->getLastCachedSensorData(streamId);
   } else {
-    return SensorData(streamId, std::monostate{}, SensorDataType::NotValid, -1, -1);
+    return SensorData(streamId, std::monostate{}, SensorDataType::NotValid, -1, {});
   }
 }
 
@@ -381,6 +381,10 @@ int64_t VrsDataProvider::getFirstTimeNs(const vrs::StreamId& streamId, const Tim
     checkAndThrow(supportsTimeDomain(streamId, timeDomain));
     return convertFromDeviceTimeToTimeCodeNs(
         timeQuery_->getFirstTimeNs(streamId, TimeDomain::DeviceTime));
+  } else if (timeDomain == TimeDomain::TicSync) {
+    checkAndThrow(supportsTimeDomain(streamId, timeDomain));
+    return convertFromDeviceTimeToSyncTimeNs(
+        timeQuery_->getFirstTimeNs(streamId, TimeDomain::DeviceTime), TimeSyncMode::TIC_SYNC);
   }
   return timeQuery_->getFirstTimeNs(streamId, timeDomain);
 }
@@ -394,6 +398,10 @@ int64_t VrsDataProvider::getLastTimeNs(const vrs::StreamId& streamId, const Time
     checkAndThrow(supportsTimeDomain(streamId, timeDomain));
     return convertFromDeviceTimeToTimeCodeNs(
         timeQuery_->getLastTimeNs(streamId, TimeDomain::DeviceTime));
+  } else if (timeDomain == TimeDomain::TicSync) {
+    checkAndThrow(supportsTimeDomain(streamId, timeDomain));
+    return convertFromDeviceTimeToSyncTimeNs(
+        timeQuery_->getLastTimeNs(streamId, TimeDomain::DeviceTime), TimeSyncMode::TIC_SYNC);
   }
   return timeQuery_->getLastTimeNs(streamId, timeDomain);
 }
@@ -442,8 +450,10 @@ bool VrsDataProvider::supportsTimeDomain(
   } else if (timeDomain == TimeDomain::HostTime) {
     // some modality does not support host timestamp
     return supportsHostTimeDomain(getSensorDataType(streamId));
-  } else { // timeDomain == TimeDomain::TimeCode
-    return timeCodeMapper_->supportsTimeCodeDomain();
+  } else if (timeDomain == TimeDomain::TimeCode) {
+    return timeSyncMapper_->supportsMode(TimeSyncMode::TIMECODE);
+  } else { // timeDomain == TimeDomain::TicSync
+    return timeSyncMapper_->supportsMode(TimeSyncMode::TIC_SYNC);
   }
 }
 
@@ -462,17 +472,33 @@ int VrsDataProvider::getIndexByTimeNs(
   if (timeDomain == TimeDomain::TimeCode) {
     int64_t deviceTimeNs = convertFromTimeCodeToDeviceTimeNs(timeNsInTimeDomain);
     return getIndexByTimeNs(streamId, deviceTimeNs, TimeDomain::DeviceTime, timeQueryOptions);
+  } else if (timeDomain == TimeDomain::TicSync) {
+    int64_t deviceTimeNs =
+        convertFromSyncTimeToDeviceTimeNs(timeNsInTimeDomain, TimeSyncMode::TIC_SYNC);
+    return getIndexByTimeNs(streamId, deviceTimeNs, TimeDomain::DeviceTime, timeQueryOptions);
   } else {
     return timeQuery_->getIndexByTimeNs(streamId, timeNsInTimeDomain, timeDomain, timeQueryOptions);
   }
 }
 
 int64_t VrsDataProvider::convertFromTimeCodeToDeviceTimeNs(const int64_t timecodeTimeNs) const {
-  return timeCodeMapper_->convertFromTimeCodeToDeviceTimeNs(timecodeTimeNs);
+  return timeSyncMapper_->convertFromTimeCodeToDeviceTimeNs(timecodeTimeNs);
 }
 
 int64_t VrsDataProvider::convertFromDeviceTimeToTimeCodeNs(const int64_t deviceTimeNs) const {
-  return timeCodeMapper_->convertFromDeviceTimeToTimeCodeNs(deviceTimeNs);
+  return timeSyncMapper_->convertFromDeviceTimeToTimeCodeNs(deviceTimeNs);
+}
+
+int64_t VrsDataProvider::convertFromSyncTimeToDeviceTimeNs(
+    const int64_t syncTimeNs,
+    const TimeSyncMode mode) const {
+  return timeSyncMapper_->convertFromSyncTimeToDeviceTimeNs(syncTimeNs, mode);
+}
+
+int64_t VrsDataProvider::convertFromDeviceTimeToSyncTimeNs(
+    const int64_t deviceTimeNs,
+    const TimeSyncMode mode) const {
+  return timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(deviceTimeNs, mode);
 }
 
 /* validate streamId */

@@ -100,7 +100,7 @@ class VrsDataProviderFactory {
   std::map<vrs::StreamId, std::shared_ptr<BarometerPlayer>> barometerPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<BluetoothBeaconPlayer>> bluetoothPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<MotionSensorPlayer>> magnetometerPlayers_;
-  std::shared_ptr<TimeSyncPlayer> timesyncPlayer_;
+  std::map<TimeSyncMode, std::shared_ptr<TimeSyncPlayer>> timesyncPlayers_;
 
   std::shared_ptr<StreamIdLabelMapper> streamIdLabelMapper_;
   std::optional<calibration::DeviceCalibration> maybeDeviceCalib_;
@@ -257,12 +257,18 @@ void VrsDataProviderFactory::tryAddTimeSyncPlayer(const vrs::StreamId& streamId)
   auto timesyncPlayer = std::make_shared<TimeSyncPlayer>(streamId);
   reader_->readFirstConfigurationRecord(streamId, timesyncPlayer.get());
   const std::string mode = timesyncPlayer->getConfigRecord().mode;
-  if (mode == "TIMECODE") {
-    timesyncPlayer_ = timesyncPlayer;
-    reader_->setStreamPlayer(streamId, timesyncPlayer_.get());
+
+  if (mode == "TIC_SYNC") {
+    timesyncPlayers_[TimeSyncMode::TIC_SYNC] = std::move(timesyncPlayer);
+    reader_->setStreamPlayer(streamId, timesyncPlayers_[TimeSyncMode::TIC_SYNC].get());
+    XR_LOGI("TicSync stream found: {}", streamId.getNumericName());
+  } else if (mode == "TIMECODE") {
+    timesyncPlayers_[TimeSyncMode::TIMECODE] = std::move(timesyncPlayer);
+    reader_->setStreamPlayer(streamId, timesyncPlayers_[TimeSyncMode::TIMECODE].get());
     XR_LOGI("Timecode stream found: {}", streamId.getNumericName());
+  } else {
+    XR_LOGW("Unsupported TimeSync mode: {}, ignoring.", mode);
   }
-  // ignore streams where mode is not TIMECODE
 }
 
 std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
@@ -275,7 +281,7 @@ std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
   }
   checkAndThrow(hasStreamPlayer, "No stream activated, cannot create provider");
 
-  auto timeCodeMapper = std::make_shared<TimeCodeMapper>(reader_, timesyncPlayer_);
+  auto timeSyncMapper = std::make_shared<TimeSyncMapper>(reader_, timesyncPlayers_);
 
   auto interface = std::make_shared<RecordReaderInterface>(
       reader_,
@@ -287,7 +293,7 @@ std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
       barometerPlayers_,
       bluetoothPlayers_,
       magnetometerPlayers_,
-      timeCodeMapper);
+      timeSyncMapper);
 
   auto configMap = std::make_shared<StreamIdConfigurationMapper>(
       reader_,
@@ -301,7 +307,7 @@ std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
       magnetometerPlayers_);
 
   return std::make_shared<VrsDataProvider>(
-      interface, configMap, timeCodeMapper, streamIdLabelMapper_, maybeDeviceCalib_);
+      interface, configMap, timeSyncMapper, streamIdLabelMapper_, maybeDeviceCalib_);
 }
 } // namespace
 

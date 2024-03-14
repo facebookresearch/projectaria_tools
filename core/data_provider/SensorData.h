@@ -24,6 +24,7 @@
 #include <players/GpsPlayer.h>
 #include <players/ImageSensorPlayer.h>
 #include <players/MotionSensorPlayer.h>
+#include <players/TimeSyncPlayer.h>
 #include <players/WifiBeaconPlayer.h>
 
 #include <vrs/StreamId.h>
@@ -56,14 +57,15 @@ class SensorData {
    * @param dataVariant the sensor data itself
    * @param sensorDataType type of the sensor data
    * @param recordInfoTimeNs the timestamp of the data in the Record domain
-   * @param timeCodeTimeNs the timestamp of the data in the TimeCode domain
+   * @param timeSyncTimeNs the timestamp of the data in the different TimeSyncMode that includes
+   * TimeCode domain and TicSyncDomain
    */
   SensorData(
       const vrs::StreamId& streamId,
       const SensorDataVariant& dataVariant,
       const SensorDataType& sensorDataType,
       const int64_t recordInfoTimeNs,
-      const int64_t timeCodeTimeNs);
+      const std::map<TimeSyncMode, int64_t>& timeSyncTimeNs);
 
   /** @brief Returns the ID of the VRS Stream the data belongs to */
   vrs::StreamId streamId() const;
@@ -131,7 +133,7 @@ class SensorData {
   SensorDataVariant dataVariant_;
   SensorDataType sensorDataType_;
   int64_t recordInfoTimeNs_;
-  int64_t timeCodeTimeNs_;
+  std::map<TimeSyncMode, int64_t> timeSyncTimeNs_;
 
   // get timestamp in device or host time domain
   int64_t getDeviceTime() const;
