@@ -218,7 +218,7 @@ def log_camera_pose(
                 ToTransform3D(T_device_camera, False),
             )
             rr.log(
-                "world/wrist-and-palm",
+                "world/device/wrist-and-palm",
                 ToTransform3D(T_world_device, False),
             )
 
@@ -327,7 +327,7 @@ def log_hand_tracking(
         if wrist_points and palm_points:
             # Log wrist and palm 3D points
             rr.log(
-                "world/wrist-and-palm/points",
+                "world/device/wrist-and-palm/points",
                 rr.Points3D(
                     np.concatenate([wrist_points, palm_points]),
                     radii=0.01,
@@ -335,7 +335,7 @@ def log_hand_tracking(
                 ),
             )
             rr.log(
-                "world/wrist-and-palm/links",
+                "world/device/wrist-and-palm/links",
                 rr.LineStrips3D(
                     np.stack([wrist_points, palm_points], axis=1),
                     colors=[WRIST_PALM_COLOR],
@@ -391,7 +391,7 @@ def log_hand_tracking(
                 )
             logged_hand_tracking_2D = True
     if not logged_hand_tracking_3D:
-        rr.log("world/wrist-and-palm", rr.Clear(recursive=True))
+        rr.log("world/device/wrist-and-palm", rr.Clear(recursive=True))
     if not logged_hand_tracking_2D:
         rr.log(
             f"world/device/{rgb_stream_label}/wrist-and-palm_projection",
