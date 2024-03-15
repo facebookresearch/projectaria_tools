@@ -101,7 +101,7 @@ EyeGazes readEyeGazeVergence(const std::string& path) {
       eyeGazeVergence.yaw = combinedYawRads;
       eyeGazeVergences.push_back(eyeGazeVergence);
     }
-
+    std::cout << "Loaded #EyeGazes: " << eyeGazeVergences.size() << std::endl;
   } catch (std::exception& e) {
     std::cerr << "Failed to parse eye gaze vergence file: " << e.what() << std::endl;
   }
@@ -156,7 +156,7 @@ EyeGazes readEyeGaze(const std::string& path) {
       eyeGaze.trackingTimestamp = std::chrono::microseconds(tracking_timestamp_us);
       eyeGazes.push_back(eyeGaze);
     }
-
+    std::cout << "Loaded #EyeGazes: " << eyeGazes.size() << std::endl;
   } catch (std::exception& e) {
     std::cerr << "Failed to parse eye gaze file: " << e.what() << std::endl;
   }
