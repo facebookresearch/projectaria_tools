@@ -502,6 +502,15 @@ void exportMps(py::module& m) {
       .def_readwrite("summary", &MpsEyegazeDataPaths::summary, "Eyegaze summary")
       .def("__repr__", [](MpsEyegazeDataPaths const& self) { return fmt::to_string(self); });
 
+  py::class_<HandTrackingDataPaths>(
+      m,
+      "HandTrackingDataPaths",
+      "A struct that includes the file paths of all MPS Hand Tracking data for a VRS sequence processed by MPS.")
+      .def_readwrite(
+          "wrist_and_palm_poses", &HandTrackingDataPaths::wristAndPalmPoses, "Wrist and palm poses")
+      .def_readwrite("summary", &HandTrackingDataPaths::summary, "Hand Tracking summary")
+      .def("__repr__", [](HandTrackingDataPaths const& self) { return fmt::to_string(self); });
+
   py::class_<MpsDataPathsProvider>(
       m,
       "MpsDataPathsProvider",

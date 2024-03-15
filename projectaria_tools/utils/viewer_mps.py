@@ -217,10 +217,6 @@ def log_camera_pose(
                 f"world/device/{rgb_stream_label}",
                 ToTransform3D(T_device_camera, False),
             )
-            rr.log(
-                "world/device/wrist-and-palm",
-                ToTransform3D(T_world_device, False),
-            )
 
 
 def log_RGB_image(
@@ -435,7 +431,12 @@ def main():
             ):
                 args.eyegaze = mps_data_paths.eyegaze.general_eyegaze
 
-    mps_data_available = args.trajectory or args.points or args.eyegaze
+            if not args.hands and os.path.exists(
+                mps_data_paths.hand_tracking.wrist_and_palm_poses
+            ):
+                args.hands = mps_data_paths.hand_tracking.wrist_and_palm_poses
+
+    mps_data_available = args.trajectory or args.points or args.eyegaze or args.hands
 
     print(
         f"""
