@@ -290,9 +290,11 @@ def main():
             # Eye Gaze (vector and image reprojection)
             #
             if eyegaze_data:
-                depth_m = 1.0  # Select a fixed depth of 1m
+
                 eye_gaze = get_nearest_eye_gaze(eyegaze_data, device_time_ns)
                 if eye_gaze:
+                    # If depth available use it, else use a proxy (1 meter depth along the EyeGaze ray)
+                    depth_m = eye_gaze.depth if eye_gaze.depth != 0 else 1
                     gaze_vector_in_cpf = mps.get_eyegaze_point_at_depth(
                         eye_gaze.yaw, eye_gaze.pitch, depth_m
                     )
