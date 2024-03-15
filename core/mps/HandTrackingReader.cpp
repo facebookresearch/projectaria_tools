@@ -83,7 +83,7 @@ WristAndPalmPoses readWristAndPalmPoses(const std::string& filepath) {
       wristAndPalmPose.rightHand = rightWristAndPalmPose;
       wristAndPalmPoses.push_back(wristAndPalmPose);
     }
-    std::cout << "Loaded #WristAndPalmPose: " << wristAndPalmPoses.size();
+    std::cout << "Loaded #WristAndPalmPose: " << wristAndPalmPoses.size() << std::endl;
   } catch (std::exception& e) {
     std::cerr << "Failed to parse wrist and palm file: " << filepath << e.what() << std::endl;
   }
