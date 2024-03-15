@@ -27,6 +27,12 @@ struct AriaTimeSyncConfigRecord {
   std::string mode;
 };
 
+enum class TimeSyncMode : uint8_t {
+  TIMECODE, ///< Timecode timestamps
+  TIC_SYNC, ///< TicSync timestamps
+  COUNT ///< Count of values in this enum type.
+};
+
 struct TimeSyncData {
   int64_t monotonicTimestampNs;
   int64_t realTimestampNs;

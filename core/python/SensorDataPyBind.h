@@ -52,6 +52,10 @@ inline void declareTimeEnums(py::module& m) {
           "TIME_CODE",
           TimeDomain::TimeCode,
           "capture in TimeSync server's timedomain, accurate across devices in a <b>multi-device</b> data capture.")
+      .value(
+          "TIC_SYNC",
+          TimeDomain::TicSync,
+          "capture in TimeSync server's timedomain where the server can be an Aria device, accurate across devices in a <b>multi-device</b> data capture")
       .export_values();
 
   m.def(
@@ -66,6 +70,11 @@ inline void declareTimeEnums(py::module& m) {
           "CLOSEST",
           TimeQueryOptions::Closest,
           "the data whose `|timestamp - t_query|` is smallest")
+      .export_values();
+
+  py::enum_<TimeSyncMode>(m, "TimeSyncMode")
+      .value("TIME_CODE", TimeSyncMode::TIMECODE, "TIMECODE mode")
+      .value("TIC_SYNC", TimeSyncMode::TIC_SYNC, "TIC_SYNC mode")
       .export_values();
 }
 
@@ -453,7 +462,7 @@ inline void declareSensorData(py::module& m) {
            const SensorData::SensorDataVariant&,
            const SensorDataType&,
            const int64_t,
-           const int64_t>())
+           const std::map<TimeSyncMode, int64_t>&>())
       .def("stream_id", &SensorData::streamId)
       .def("sensor_data_type", &SensorData::sensorDataType)
       .def("image_data_and_record", &SensorData::imageDataAndRecord)

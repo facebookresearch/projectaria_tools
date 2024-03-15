@@ -31,7 +31,7 @@ RecordReaderInterface::RecordReaderInterface(
     std::map<vrs::StreamId, std::shared_ptr<BarometerPlayer>>& barometerPlayers,
     std::map<vrs::StreamId, std::shared_ptr<BluetoothBeaconPlayer>>& bluetoothPlayers,
     std::map<vrs::StreamId, std::shared_ptr<MotionSensorPlayer>>& magnetometerPlayers,
-    const std::shared_ptr<TimeCodeMapper>& timeCodeMapper)
+    const std::shared_ptr<TimeSyncMapper>& timeSyncMapper)
     : reader_(reader),
       imagePlayers_(imagePlayers),
       motionPlayers_(motionPlayers),
@@ -41,7 +41,7 @@ RecordReaderInterface::RecordReaderInterface(
       barometerPlayers_(barometerPlayers),
       bluetoothPlayers_(bluetoothPlayers),
       magnetometerPlayers_(magnetometerPlayers),
-      timeCodeMapper_(timeCodeMapper),
+      timeSyncMapper_(timeSyncMapper),
       readerMutex_(std::make_unique<std::mutex>()) {
   for (const auto& [streamId, _] : imagePlayers_) {
     streamIds_.insert(streamId);
@@ -172,60 +172,92 @@ SensorData RecordReaderInterface::getLastCachedSensorData(const vrs::StreamId& s
   switch (sensorDataType) {
     case SensorDataType::Image: {
       auto data = getLastCachedImageData(streamId);
-      const int64_t& timeCodeTime =
-          timeCodeMapper_->convertFromDeviceTimeToTimeCodeNs(data.second.captureTimestampNs);
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeCodeTime);
+      std::map<TimeSyncMode, int64_t> timeSyncData;
+      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
+        const int64_t& syncTimeNs = timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(
+            data.second.captureTimestampNs, mode);
+        timeSyncData.emplace(mode, syncTimeNs);
+      }
+      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
     }
     case SensorDataType::Imu: {
       auto data = getLastCachedImuData(streamId);
-      const int64_t& timeCodeTime =
-          timeCodeMapper_->convertFromDeviceTimeToTimeCodeNs(data.captureTimestampNs);
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeCodeTime);
+      std::map<TimeSyncMode, int64_t> timeSyncData;
+      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
+        const int64_t& syncTimeNs =
+            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(data.captureTimestampNs, mode);
+        timeSyncData.emplace(mode, syncTimeNs);
+      }
+      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
     }
     case SensorDataType::Audio: {
       auto data = getLastCachedAudioData(streamId);
-      const auto& deviceTime =
-          data.second.captureTimestampsNs.empty() ? -1 : data.second.captureTimestampsNs.back();
-      const int64_t& timeCodeTime = data.second.captureTimestampsNs.empty()
-          ? -1
-          : timeCodeMapper_->convertFromDeviceTimeToTimeCodeNs(deviceTime);
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeCodeTime);
+      if (data.second.captureTimestampsNs.empty()) {
+        return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, {});
+      }
+      std::map<TimeSyncMode, int64_t> timeSyncData;
+      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
+        const int64_t& syncTimeNs = timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(
+            data.second.captureTimestampsNs.back(), mode);
+        timeSyncData.emplace(mode, syncTimeNs);
+      }
+      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
     }
     case SensorDataType::Barometer: {
       auto data = getLastCachedBarometerData(streamId);
-      const int64_t timeCodeTime =
-          timeCodeMapper_->convertFromDeviceTimeToTimeCodeNs(data.captureTimestampNs);
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeCodeTime);
+      std::map<TimeSyncMode, int64_t> timeSyncData;
+      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
+        const int64_t& syncTimeNs =
+            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(data.captureTimestampNs, mode);
+        timeSyncData.emplace(mode, syncTimeNs);
+      }
+      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
     }
     case SensorDataType::Gps: {
       auto data = getLastCachedGpsData(streamId);
-      const int64_t timeCodeTime =
-          timeCodeMapper_->convertFromDeviceTimeToTimeCodeNs(data.captureTimestampNs);
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeCodeTime);
+      std::map<TimeSyncMode, int64_t> timeSyncData;
+      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
+        const int64_t& syncTimeNs =
+            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(data.captureTimestampNs, mode);
+        timeSyncData.emplace(mode, syncTimeNs);
+      }
+      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
     }
     case SensorDataType::Wps: {
       auto data = getLastCachedWpsData(streamId);
-      const int64_t timeCodeTime =
-          timeCodeMapper_->convertFromDeviceTimeToTimeCodeNs(data.boardTimestampNs);
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeCodeTime);
+      std::map<TimeSyncMode, int64_t> timeSyncData;
+      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
+        const int64_t& syncTimeNs =
+            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(data.boardTimestampNs, mode);
+        timeSyncData.emplace(mode, syncTimeNs);
+      }
+      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
     }
     case SensorDataType::Magnetometer: {
       auto data = getLastCachedMagnetometerData(streamId);
-      const int64_t timeCodeTime =
-          timeCodeMapper_->convertFromDeviceTimeToTimeCodeNs(data.captureTimestampNs);
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeCodeTime);
+      std::map<TimeSyncMode, int64_t> timeSyncData;
+      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
+        const int64_t& syncTimeNs =
+            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(data.captureTimestampNs, mode);
+        timeSyncData.emplace(mode, syncTimeNs);
+      }
+      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
     }
     case SensorDataType::Bluetooth: {
       auto data = getLastCachedBluetoothData(streamId);
-      const int64_t timeCodeTime =
-          timeCodeMapper_->convertFromDeviceTimeToTimeCodeNs(data.boardTimestampNs);
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeCodeTime);
+      std::map<TimeSyncMode, int64_t> timeSyncData;
+      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
+        const int64_t& syncTimeNs =
+            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(data.boardTimestampNs, mode);
+        timeSyncData.emplace(mode, syncTimeNs);
+      }
+      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
     }
     case SensorDataType::NotValid:
     default:
       break;
   }
-  return SensorData(streamId, std::monostate{}, SensorDataType::NotValid, -1, -1);
+  return SensorData(streamId, std::monostate{}, SensorDataType::NotValid, -1, {});
 }
 
 ImageDataAndRecord RecordReaderInterface::getLastCachedImageData(const vrs::StreamId& streamId) {

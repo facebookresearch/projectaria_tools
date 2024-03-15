@@ -22,7 +22,7 @@
 #include <set>
 
 #include <data_provider/SensorData.h>
-#include <data_provider/TimeCodeMapper.h>
+#include <data_provider/TimeSyncMapper.h>
 #include <vrs/MultiRecordFileReader.h>
 
 namespace projectaria::tools::data_provider {
@@ -42,7 +42,7 @@ class RecordReaderInterface {
       std::map<vrs::StreamId, std::shared_ptr<BarometerPlayer>>& barometerPlayers,
       std::map<vrs::StreamId, std::shared_ptr<BluetoothBeaconPlayer>>& bluetoothPlayers,
       std::map<vrs::StreamId, std::shared_ptr<MotionSensorPlayer>>& magnetometerPlayers,
-      const std::shared_ptr<TimeCodeMapper>& timeCodeMapper);
+      const std::shared_ptr<TimeSyncMapper>& timeSyncMapper);
 
   std::set<vrs::StreamId> getStreamIds() const;
   SensorDataType getSensorDataType(const vrs::StreamId& streamId) const;
@@ -87,7 +87,7 @@ class RecordReaderInterface {
   std::map<vrs::StreamId, std::shared_ptr<BarometerPlayer>> barometerPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<BluetoothBeaconPlayer>> bluetoothPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<MotionSensorPlayer>> magnetometerPlayers_;
-  std::shared_ptr<TimeCodeMapper> timeCodeMapper_;
+  std::shared_ptr<TimeSyncMapper> timeSyncMapper_;
 
   std::unique_ptr<std::mutex> readerMutex_;
   std::map<vrs::StreamId, std::unique_ptr<std::mutex>> streamIdToPlayerMutex_;

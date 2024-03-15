@@ -22,6 +22,7 @@ from projectaria_tools.core.sensor_data import (
     SensorDataType,
     TimeDomain,
     TimeQueryOptions,
+    TimeSyncMode,
 )
 
 vrs_filepath = os.path.join(
@@ -158,9 +159,19 @@ class CalibrationTests(unittest.TestCase):
             first_device_time = provider.convert_from_timecode_to_device_time_ns(
                 first_time
             )
+            first_device_time_compare = (
+                provider.convert_from_synctime_to_device_time_ns(
+                    first_time, TimeSyncMode.TIME_CODE
+                )
+            )
             last_device_time = provider.convert_from_timecode_to_device_time_ns(
                 last_time
             )
+            last_device_time_compare = provider.convert_from_synctime_to_device_time_ns(
+                last_time, TimeSyncMode.TIME_CODE
+            )
+            assert first_device_time == first_device_time_compare
+            assert last_device_time == last_device_time_compare
 
             assert first_time <= last_time
             assert first_device_time <= last_device_time

@@ -160,7 +160,7 @@ inline void declareVrsDataProvider(py::module& m) {
       .def(py::init<
            const std::shared_ptr<RecordReaderInterface>&,
            const std::shared_ptr<StreamIdConfigurationMapper>&,
-           const std::shared_ptr<TimeCodeMapper>&,
+           const std::shared_ptr<TimeSyncMapper>&,
            const std::shared_ptr<StreamIdLabelMapper>&,
            const std::optional<calibration::DeviceCalibration>&>())
       .def(
@@ -316,6 +316,18 @@ inline void declareVrsDataProvider(py::module& m) {
           &VrsDataProvider::convertFromDeviceTimeToTimeCodeNs,
           py::arg("device_time_ns"),
           "Convert DEVICE_TIME timestamp into TIME_CODE in nanoseconds.")
+      .def(
+          "convert_from_device_time_to_synctime_ns",
+          &VrsDataProvider::convertFromDeviceTimeToSyncTimeNs,
+          py::arg("device_time_ns"),
+          py::arg("mode"),
+          "Convert DeviceTime timestamp into synchronized timestamp in nanoseconds.")
+      .def(
+          "convert_from_synctime_to_device_time_ns",
+          &VrsDataProvider::convertFromSyncTimeToDeviceTimeNs,
+          py::arg("sync_time_ns"),
+          py::arg("mode"),
+          "Convert sync timestamp into synchronized timestamp in nanoseconds.")
 
       /* Get data configuration*/
       .def("get_image_configuration", &VrsDataProvider::getImageConfiguration, py::arg("stream_id"))

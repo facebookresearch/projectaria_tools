@@ -24,12 +24,12 @@ SensorData::SensorData(
     const SensorDataVariant& dataVariant,
     const SensorDataType& sensorDataType,
     const int64_t recordInfoTimeNs,
-    const int64_t timeCodeTimeNs)
+    const std::map<TimeSyncMode, int64_t>& timeSyncTimeNs)
     : streamId_(streamId),
       dataVariant_(dataVariant),
       sensorDataType_(sensorDataType),
       recordInfoTimeNs_(recordInfoTimeNs),
-      timeCodeTimeNs_(timeCodeTimeNs) {
+      timeSyncTimeNs_(timeSyncTimeNs) {
   if (dataVariant.index() == 0) { // monostate
     sensorDataType_ = SensorDataType::NotValid;
   }
@@ -136,7 +136,18 @@ int64_t SensorData::getTimeNs(TimeDomain timeDomain) const {
     case TimeDomain::HostTime:
       return getHostTime();
     case TimeDomain::TimeCode:
-      return timeCodeTimeNs_;
+      if (timeSyncTimeNs_.count(TimeSyncMode::TIMECODE) > 0) {
+        return timeSyncTimeNs_.at(TimeSyncMode::TIMECODE);
+      }
+      return -1; // maintain backward compatibility for -1 value when timecode not available
+    case TimeDomain::TicSync:
+      if (timeSyncTimeNs_.count(TimeSyncMode::TIC_SYNC) > 0) {
+        return timeSyncTimeNs_.at(TimeSyncMode::TIC_SYNC);
+      }
+      return -1;
+    case TimeDomain::Count:
+      checkAndThrow(false, "Invalid time domain {}TimeDomain::Count");
+      break;
   }
   return -1;
 }
