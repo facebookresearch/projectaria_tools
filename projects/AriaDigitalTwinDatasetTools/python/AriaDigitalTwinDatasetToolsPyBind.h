@@ -318,6 +318,7 @@ void exportAriaDigitalTwin(py::module& m) {
           "instances_filepath",
           &AriaDigitalTwinDataPaths::instancesFilePath,
           "instances file, a.k.a. object instance information file")
+      .def_readwrite("mps", &AriaDigitalTwinDataPaths::mps, "MPS data paths")
       .def("__str__", [](const AriaDigitalTwinDataPaths& d) { return d.toString(); });
 
   py::class_<AriaDigitalTwinDataPathsProvider>(
