@@ -17,9 +17,14 @@ import os
 
 from pathlib import Path
 
+from typing import List, Optional
+
+import numpy as np
+
 import rerun as rr
 
 from projectaria_tools.core import data_provider, mps
+from projectaria_tools.core.calibration import CameraCalibration, DeviceCalibration
 from projectaria_tools.core.mps import MpsDataPathsProvider
 from projectaria_tools.core.mps.utils import (
     filter_points_from_confidence,
@@ -27,12 +32,17 @@ from projectaria_tools.core.mps.utils import (
     get_gaze_vector_reprojection,
     get_nearest_eye_gaze,
     get_nearest_pose,
+    get_nearest_wrist_and_palm_pose,
 )
-from projectaria_tools.core.sensor_data import SensorDataType, TimeDomain
+from projectaria_tools.core.sensor_data import SensorData, SensorDataType, TimeDomain
+from projectaria_tools.core.sophus import SE3
 from projectaria_tools.core.stream_id import StreamId
-
 from projectaria_tools.utils.rerun_helpers import AriaGlassesOutline, ToTransform3D
 from tqdm import tqdm
+
+
+WRIST_PALM_TIME_DIFFERENCE_THRESHOLD_NS: int = 2e8
+WRIST_PALM_COLOR: List[int] = [255, 64, 0]
 
 
 def parse_args():
@@ -49,18 +59,23 @@ def parse_args():
         "--trajectory",
         nargs="+",
         type=str,
-        help="path(s) to MPS closed loop trajectory files",
+        help="path(s) to MPS closed-loop trajectory files",
     )
     parser.add_argument(
         "--points",
         nargs="+",
         type=str,
-        help="path(s) to the MPS global point file",
+        help="path(s) to the MPS global points file",
     )
     parser.add_argument(
         "--eyegaze",
         type=str,
         help="path to the MPS eye gaze file",
+    )
+    parser.add_argument(
+        "--hands",
+        type=str,
+        help="path to the MPS hand tracking file",
     )
     parser.add_argument(
         "--mps_folder",
@@ -80,6 +95,308 @@ def parse_args():
     )
 
     return parser.parse_args()
+
+
+def get_rgb_projection_from_device_point(
+    point: np.ndarray,
+    rgb_camera_calibration: CameraCalibration,
+    T_device_rgb: SE3,
+    down_sampling_factor: int,
+) -> Optional[np.ndarray]:
+    projected_point = rgb_camera_calibration.project(T_device_rgb.inverse() @ point)
+    if projected_point is not None:
+        return projected_point / down_sampling_factor
+    else:
+        return None
+
+
+def log_device_trajectory(trajectory_files: List[str]) -> None:
+    #
+    # Log device trajectory (reduce sample count for display)
+    #
+    print("Loading and logging trajectory(ies)...")
+    trajectory_list_size = len(trajectory_files)
+    i = 0
+    for trajectory_file in trajectory_files:
+        print(f"Loading: {trajectory_file}")
+        trajectory_data = mps.read_closed_loop_trajectory(trajectory_file)
+        device_trajectory = [
+            it.transform_world_device.translation()[0] for it in trajectory_data
+        ][0::80]
+        rr.log(
+            (
+                "world/device_trajectory"
+                if trajectory_list_size == 1
+                else f"world/device_trajectory_{i}"
+            ),
+            rr.LineStrips3D(device_trajectory, radii=0.008),
+            timeless=True,
+        )
+        i += 1
+
+
+def log_point_clouds(points_files: List[str]) -> None:
+    #
+    # Log Point Cloud(s) (reduce point count for display)
+    #
+    print("Loading and logging point cloud(s)...")
+    point_cloud_list_size = len(points_files)
+    i = 0
+    for points_file in points_files:
+        points_data = mps.read_global_point_cloud(points_file)
+        # Filter out low confidence points
+        points_data = filter_points_from_confidence(points_data)
+        # Down sample points
+        points_data_down_sampled = filter_points_from_count(
+            points_data, 500_000 if point_cloud_list_size == 1 else 20_000
+        )
+        # Retrieve point position
+        point_positions = [it.position_world for it in points_data_down_sampled]
+        rr.log(
+            "world/points" if point_cloud_list_size == 1 else f"world/points_{i}",
+            rr.Points3D(point_positions, radii=0.006),
+            timeless=True,
+        )
+        i += 1
+
+
+def log_RGB_camera_calibration(
+    rgb_camera_calibration: CameraCalibration,
+    rgb_stream_label: str,
+    down_sampling_factor: int,
+) -> None:
+    #
+    # Log RGB camera calibration
+    #
+    rr.log(
+        f"world/device/{rgb_stream_label}",
+        rr.Pinhole(
+            resolution=[
+                rgb_camera_calibration.get_image_size()[0] / down_sampling_factor,
+                rgb_camera_calibration.get_image_size()[1] / down_sampling_factor,
+            ],
+            focal_length=float(
+                rgb_camera_calibration.get_focal_lengths()[0] / down_sampling_factor
+            ),
+        ),
+        timeless=True,
+    )
+
+
+def log_Aria_glasses_outline(
+    device_calibration: DeviceCalibration,
+) -> None:
+    #
+    # Log Aria Glasses outline
+    #
+    aria_glasses_point_outline = AriaGlassesOutline(device_calibration)
+    rr.log(
+        "world/device/glasses_outline",
+        rr.LineStrips3D([aria_glasses_point_outline]),
+        timeless=True,
+    )
+
+
+def log_camera_pose(
+    trajectory_data: List[mps.ClosedLoopTrajectoryPose],
+    device_time_ns: int,
+    rgb_camera_calibration: CameraCalibration,
+    rgb_stream_label: str,
+) -> None:
+    # Camera pose
+    if trajectory_data:
+        pose_info = get_nearest_pose(trajectory_data, device_time_ns)
+        if pose_info:
+            T_world_device = pose_info.transform_world_device
+            T_device_camera = rgb_camera_calibration.get_transform_device_camera()
+            rr.log(
+                "world/device",
+                ToTransform3D(T_world_device, False),
+            )
+            rr.log(
+                f"world/device/{rgb_stream_label}",
+                ToTransform3D(T_device_camera, False),
+            )
+            rr.log(
+                "world/wrist-and-palm",
+                ToTransform3D(T_world_device, False),
+            )
+
+
+def log_RGB_image(
+    data: SensorData,
+    down_sampling_factor: int,
+    jpeg_quality: int,
+    rgb_stream_label: str,
+) -> None:
+    if data.sensor_data_type() == SensorDataType.IMAGE:
+        img = data.image_data_and_record()[0].to_numpy_array()
+        if down_sampling_factor > 1:
+            img = img[::down_sampling_factor, ::down_sampling_factor]
+        # Note: We configure the QUEUE to return only RGB image, so we are sure this image is corresponding to a RGB frame
+        rr.log(
+            f"world/device/{rgb_stream_label}",
+            rr.Image(img).compress(jpeg_quality=jpeg_quality),
+        )
+
+
+def log_eye_gaze(
+    eyegaze_data: List[mps.EyeGaze],
+    device_time_ns: int,
+    T_device_CPF: SE3,
+    rgb_stream_label: str,
+    device_calibration: DeviceCalibration,
+    rgb_camera_calibration: CameraCalibration,
+    down_sampling_factor: int,
+) -> None:
+    #
+    # Eye Gaze (vector and image reprojection)
+    #
+    logged_eyegaze: bool = False
+    if eyegaze_data:
+        eye_gaze = get_nearest_eye_gaze(eyegaze_data, device_time_ns)
+        if eye_gaze:
+            # If depth available use it, else use a proxy (1 meter depth along the EyeGaze ray)
+            depth_m = eye_gaze.depth or 1.0
+            gaze_vector_in_cpf = mps.get_eyegaze_point_at_depth(
+                eye_gaze.yaw, eye_gaze.pitch, depth_m
+            )
+            # Move EyeGaze vector to CPF coordinate system for visualization
+            rr.log(
+                "world/device/eye-gaze",
+                rr.Arrows3D(
+                    origins=[T_device_CPF @ [0, 0, 0]],
+                    vectors=[T_device_CPF @ gaze_vector_in_cpf],
+                    colors=[[255, 0, 255]],
+                ),
+            )
+            # Compute eye_gaze vector at depth_m reprojection in the image
+            gaze_projection = get_gaze_vector_reprojection(
+                eye_gaze,
+                rgb_stream_label,
+                device_calibration,
+                rgb_camera_calibration,
+                depth_m,
+            )
+            rr.log(
+                f"world/device/{rgb_stream_label}/eye-gaze_projection",
+                rr.Points2D(gaze_projection / down_sampling_factor, radii=4),
+            )
+            logged_eyegaze = True
+    if not logged_eyegaze:
+        rr.log("world/device/eye-gaze", rr.Clear(recursive=False))
+        rr.log(
+            f"world/device/{rgb_stream_label}/eye-gaze_projection",
+            rr.Clear(recursive=False),
+        )
+
+
+def log_hand_tracking(
+    wrist_and_palm_poses: List[mps.hand_tracking.WristAndPalmPose],
+    device_time_ns: int,
+    rgb_camera_calibration: CameraCalibration,
+    rgb_stream_label: str,
+    down_sampling_factor: int,
+) -> None:
+    #
+    # Hand Tracking (wrist and palm 3D pose and image projections)
+    #
+    logged_hand_tracking_2D: bool = False
+    logged_hand_tracking_3D: bool = False
+    if wrist_and_palm_poses:
+        wrist_and_palm_pose = get_nearest_wrist_and_palm_pose(
+            wrist_and_palm_poses, device_time_ns
+        )
+        wrist_points: List[np.array] = []
+        palm_points: List[np.array] = []
+        if (
+            wrist_and_palm_pose
+            and np.abs(
+                wrist_and_palm_pose.tracking_timestamp.total_seconds() * 1e9
+                - device_time_ns
+            )
+            < WRIST_PALM_TIME_DIFFERENCE_THRESHOLD_NS
+        ):
+            for one_side_pose in [
+                wrist_and_palm_pose.right_hand,
+                wrist_and_palm_pose.left_hand,
+            ]:
+                if one_side_pose and one_side_pose.confidence > 0:
+                    wrist_points.append(one_side_pose.wrist_position_device)
+                    palm_points.append(one_side_pose.palm_position_device)
+        if wrist_points and palm_points:
+            # Log wrist and palm 3D points
+            rr.log(
+                "world/wrist-and-palm/points",
+                rr.Points3D(
+                    np.concatenate([wrist_points, palm_points]),
+                    radii=0.01,
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+            rr.log(
+                "world/wrist-and-palm/links",
+                rr.LineStrips3D(
+                    np.stack([wrist_points, palm_points], axis=1),
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+            logged_hand_tracking_3D = True
+        # Log wrist and palm 3D point projections on the image
+        T_device_rgb = rgb_camera_calibration.get_transform_device_camera()
+
+        wrist_pixels = [
+            get_rgb_projection_from_device_point(
+                wrist_point,
+                rgb_camera_calibration,
+                T_device_rgb,
+                down_sampling_factor,
+            )
+            for wrist_point in wrist_points
+        ]
+        palm_pixels = [
+            get_rgb_projection_from_device_point(
+                palm_point,
+                rgb_camera_calibration,
+                T_device_rgb,
+                down_sampling_factor,
+            )
+            for palm_point in palm_points
+        ]
+        wrist_and_palm_points_2d = []
+        wrist_and_palm_line_strips_2d = []
+        for wrist_pixel, palm_pixel in zip(wrist_pixels, palm_pixels):
+            wrist_and_palm_points_2d += [
+                p for p in [wrist_pixel, palm_pixel] if p is not None
+            ]
+            if wrist_pixel is not None and palm_pixel is not None:
+                wrist_and_palm_line_strips_2d += [[wrist_pixel, palm_pixel]]
+
+        if wrist_and_palm_points_2d:
+            rr.log(
+                f"world/device/{rgb_stream_label}/wrist-and-palm_projection/points",
+                rr.Points2D(
+                    wrist_and_palm_points_2d,
+                    radii=4,
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+            if wrist_and_palm_line_strips_2d:
+                rr.log(
+                    f"world/device/{rgb_stream_label}/wrist-and-palm_projection/link",
+                    rr.LineStrips2D(
+                        wrist_and_palm_line_strips_2d,
+                        colors=[WRIST_PALM_COLOR],
+                    ),
+                )
+            logged_hand_tracking_2D = True
+    if not logged_hand_tracking_3D:
+        rr.log("world/wrist-and-palm", rr.Clear(recursive=True))
+    if not logged_hand_tracking_2D:
+        rr.log(
+            f"world/device/{rgb_stream_label}/wrist-and-palm_projection",
+            rr.Clear(recursive=True),
+        )
 
 
 def main():
@@ -127,6 +444,7 @@ def main():
     - trajectory/closed_loop_trajectory: {args.trajectory}
     - trajectory/point_cloud: {args.points}
     - eye_gaze/general_eye_gaze: {args.eyegaze}
+    - hand_tracking/wrist_and_palm_poses: {args.hands}
     """
     )
 
@@ -141,186 +459,95 @@ def main():
         rr.save(args.rrd_output_path)
     rr.log("world", rr.ViewCoordinates.RIGHT_HAND_Z_UP, timeless=True)
 
-    #
-    # Log device trajectory (reduce sample count for display)
-    #
     if args.trajectory:
-        print("Loading and logging trajectory(ies)...")
-        trajectory_list_size = len(args.trajectory)
-        i = 0
-        for trajectory_file in args.trajectory:
-            print(f"Loading: {trajectory_file}")
-            trajectory_data = mps.read_closed_loop_trajectory(trajectory_file)
-            device_trajectory = [
-                it.transform_world_device.translation()[0] for it in trajectory_data
-            ][0::80]
-            rr.log(
-                (
-                    "world/device_trajectory"
-                    if trajectory_list_size == 1
-                    else f"world/device_trajectory_{i}"
-                ),
-                rr.LineStrips3D(device_trajectory, radii=0.008),
-                timeless=True,
-            )
-            i += 1
+        log_device_trajectory(args.trajectory)
 
-    #
-    # Log Point Cloud(s) (reduce point count for display)
-    #
     if args.points:
-        print("Loading and logging point cloud(s)...")
-        point_cloud_list_size = len(args.points)
-        i = 0
-        for points_file in args.points:
-            points_data = mps.read_global_point_cloud(points_file)
-            # Filter out low confidence points
-            points_data = filter_points_from_confidence(points_data)
-            # Down sample points
-            points_data_down_sampled = filter_points_from_count(
-                points_data, 500_000 if point_cloud_list_size == 1 else 20_000
-            )
-            # Retrieve point position
-            point_positions = [it.position_world for it in points_data_down_sampled]
-            rr.log(
-                "world/points" if point_cloud_list_size == 1 else f"world/points_{i}",
-                rr.Points3D(point_positions, radii=0.006),
-                timeless=True,
-            )
-            i += 1
+        log_point_clouds(args.points)
 
     #
-    # If we have a VRS file go over RGB timestamps and
+    # If we we do not have a vrs file, we are done
+    #
+    if not args.vrs:
+        return
+
+    #
+    # Go over RGB timestamps and
     # - Plot camera pose
     # - Plot user eye gaze
+    # - Plot user wrist and palm pose
     #
 
-    if args.vrs:
-        provider = data_provider.create_vrs_data_provider(args.vrs)
-        rgb_stream_id = StreamId("214-1")
-        rgb_stream_label = provider.get_label_from_stream_id(rgb_stream_id)
-        device_calibration = provider.get_device_calibration()
-        T_device_CPF = device_calibration.get_transform_device_cpf()
-        rgb_camera_calibration = device_calibration.get_camera_calib(rgb_stream_label)
+    provider = data_provider.create_vrs_data_provider(args.vrs)
+    device_calibration = provider.get_device_calibration()
+    T_device_CPF = device_calibration.get_transform_device_cpf()
+    rgb_stream_id = StreamId("214-1")
+    rgb_stream_label = provider.get_label_from_stream_id(rgb_stream_id)
+    rgb_camera_calibration = device_calibration.get_camera_calib(rgb_stream_label)
 
-        # Load Trajectory and Eye Gaze data - corresponding to this specific VRS file
-        trajectory_data = (
-            mps.read_closed_loop_trajectory(str(args.trajectory[0]))
-            if args.trajectory
-            else None
+    # Load Trajectory, Eye Gaze, and Wrist and Palm Pose data - corresponding to this specific VRS file
+    trajectory_data = (
+        mps.read_closed_loop_trajectory(str(args.trajectory[0]))
+        if args.trajectory
+        else None
+    )
+    eyegaze_data = mps.read_eyegaze(args.eyegaze) if args.eyegaze else None
+    wrist_and_palm_poses = (
+        mps.hand_tracking.read_wrist_and_palm_poses(args.hands) if args.hands else None
+    )
+
+    # Log Aria Glasses outline
+    log_RGB_camera_calibration(
+        rgb_camera_calibration, rgb_stream_label, args.down_sampling_factor
+    )
+
+    log_Aria_glasses_outline(device_calibration)
+
+    # Configure the loop for data replay
+    deliver_option = provider.get_default_deliver_queued_options()
+    deliver_option.deactivate_stream_all()
+    deliver_option.activate_stream(rgb_stream_id)  # RGB Stream Id
+    rgb_frame_count = provider.get_num_data(rgb_stream_id)
+
+    progress_bar = tqdm(total=rgb_frame_count)
+    # Iterate over the data and LOG data as we see fit
+    for data in provider.deliver_queued_sensor_data(deliver_option):
+        device_time_ns = data.get_time_ns(TimeDomain.DEVICE_TIME)
+        rr.set_time_nanos("device_time", device_time_ns)
+        rr.set_time_sequence("timestamp", device_time_ns)
+        progress_bar.update(1)
+
+        log_camera_pose(
+            trajectory_data,
+            device_time_ns,
+            rgb_camera_calibration,
+            rgb_stream_label,
         )
-        eyegaze_data = mps.read_eyegaze(args.eyegaze) if args.eyegaze else None
 
-        #
-        # Log RGB camera calibration
-        #
-        if mps_data_available:
-            rr.log(
-                f"world/device/{rgb_stream_label}",
-                rr.Pinhole(
-                    resolution=[
-                        rgb_camera_calibration.get_image_size()[0]
-                        / args.down_sampling_factor,
-                        rgb_camera_calibration.get_image_size()[1]
-                        / args.down_sampling_factor,
-                    ],
-                    focal_length=float(
-                        rgb_camera_calibration.get_focal_lengths()[0]
-                        / args.down_sampling_factor
-                    ),
-                ),
-                timeless=True,
-            )
+        log_RGB_image(
+            data,
+            args.down_sampling_factor,
+            args.jpeg_quality,
+            rgb_stream_label,
+        )
 
-        #
-        # Log Aria Glasses outline
-        #
-        if mps_data_available:
-            aria_glasses_point_outline = AriaGlassesOutline(device_calibration)
-            rr.log(
-                "world/device/glasses_outline",
-                rr.LineStrips3D([aria_glasses_point_outline]),
-                timeless=True,
-            )
+        log_eye_gaze(
+            eyegaze_data,
+            device_time_ns,
+            T_device_CPF,
+            rgb_stream_label,
+            device_calibration,
+            rgb_camera_calibration,
+            args.down_sampling_factor,
+        )
 
-        # Configure the loop for data replay
-        deliver_option = provider.get_default_deliver_queued_options()
-        deliver_option.deactivate_stream_all()
-        deliver_option.activate_stream(rgb_stream_id)  # RGB Stream Id
-        rgb_frame_count = provider.get_num_data(rgb_stream_id)
-
-        progress_bar = tqdm(total=rgb_frame_count)
-        # Iterate over the data and LOG data as we see fit
-        for data in provider.deliver_queued_sensor_data(deliver_option):
-            device_time_ns = data.get_time_ns(TimeDomain.DEVICE_TIME)
-            rr.set_time_nanos("device_time", device_time_ns)
-            rr.set_time_sequence("timestamp", device_time_ns)
-            progress_bar.update(1)
-
-            # Camera pose
-            if trajectory_data:
-                pose_info = get_nearest_pose(trajectory_data, device_time_ns)
-                if pose_info:
-                    T_world_device = pose_info.transform_world_device
-                    T_device_camera = (
-                        rgb_camera_calibration.get_transform_device_camera()
-                    )
-                    rr.log(
-                        "world/device",
-                        ToTransform3D(T_world_device, False),
-                    )
-                    rr.log(
-                        f"world/device/{rgb_stream_label}",
-                        ToTransform3D(T_device_camera, False),
-                    )
-
-            if data.sensor_data_type() == SensorDataType.IMAGE:
-                img = data.image_data_and_record()[0].to_numpy_array()
-                if args.down_sampling_factor > 1:
-                    img = img[
-                        :: args.down_sampling_factor, :: args.down_sampling_factor
-                    ]
-                # Note: We configure the QUEUE to return only RGB image, so we are sure this image is corresponding to a RGB frame
-                rr.log(
-                    f"world/device/{rgb_stream_label}",
-                    rr.Image(img).compress(jpeg_quality=args.jpeg_quality),
-                )
-
-            #
-            # Eye Gaze (vector and image reprojection)
-            #
-            if eyegaze_data:
-
-                eye_gaze = get_nearest_eye_gaze(eyegaze_data, device_time_ns)
-                if eye_gaze:
-                    # If depth available use it, else use a proxy (1 meter depth along the EyeGaze ray)
-                    depth_m = eye_gaze.depth if eye_gaze.depth != 0 else 1
-                    gaze_vector_in_cpf = mps.get_eyegaze_point_at_depth(
-                        eye_gaze.yaw, eye_gaze.pitch, depth_m
-                    )
-                    # Move EyeGaze vector to CPF coordinate system for visualization
-                    rr.log(
-                        "world/device/eye-gaze",
-                        rr.Arrows3D(
-                            origins=[T_device_CPF @ [0, 0, 0]],
-                            vectors=[T_device_CPF @ gaze_vector_in_cpf],
-                            colors=[[255, 0, 255]],
-                        ),
-                    )
-                    # Compute eye_gaze vector at depth_m reprojection in the image
-                    gaze_projection = get_gaze_vector_reprojection(
-                        eye_gaze,
-                        rgb_stream_label,
-                        device_calibration,
-                        rgb_camera_calibration,
-                        depth_m,
-                    )
-                    rr.log(
-                        f"world/device/{rgb_stream_label}/eye-gaze_projection",
-                        rr.Points2D(
-                            gaze_projection / args.down_sampling_factor, radii=4
-                        ),
-                    )
+        log_hand_tracking(
+            wrist_and_palm_poses,
+            device_time_ns,
+            rgb_camera_calibration,
+            rgb_stream_label,
+            args.down_sampling_factor,
+        )
 
 
 if __name__ == "__main__":
