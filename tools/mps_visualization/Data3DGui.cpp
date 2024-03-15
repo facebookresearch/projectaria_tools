@@ -345,11 +345,14 @@ void Data3DGui::draw(
   }
 
   // Update cached eye gaze point for plot
-  const float depth = uiGazeRayLength;
+  float depth = uiGazeRayLength;
   const auto T_Cpf_Sensor = deviceCalib.value().getT_Cpf_Sensor("camera-rgb", true);
   Eigen::Vector3d generalizedEyeGazePointCpf;
   if (generalizedEyeGaze && uiPlotGeneralizedGaze && uiGazeRayLength > 0.0f) {
     // Find eye gaze point in the central pupil frame (CPF)
+    if (generalizedEyeGaze.value().depth > 0.0f) {
+      depth = generalizedEyeGaze.value().depth;
+    }
     generalizedEyeGazePointCpf = getEyeGazePointAtDepth(
         generalizedEyeGaze.value().yaw, generalizedEyeGaze.value().pitch, depth);
     // Project onto RGB image
@@ -369,6 +372,9 @@ void Data3DGui::draw(
   Eigen::Vector3d calibratedEyeGazePointCpf;
   if (calibratedEyeGaze && uiPlotCalibratedGaze && uiGazeRayLength > 0.0f) {
     // Find eye gaze point in the central pupil frame (CPF)
+    if (calibratedEyeGaze.value().depth > 0.0f) {
+      depth = calibratedEyeGaze.value().depth;
+    }
     calibratedEyeGazePointCpf = getEyeGazePointAtDepth(
         calibratedEyeGaze.value().yaw, calibratedEyeGaze.value().pitch, depth);
     // Project onto RGB image
