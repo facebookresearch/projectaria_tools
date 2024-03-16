@@ -444,6 +444,10 @@ void exportMps(py::module& m) {
           "end_frame_idx",
           &StaticCameraCalibration::endFrameIdx,
           "The end frame number from the video when the camera is stationary and camera pose result is applicable. Not available, when the pose is applicable to the whole video")
+      .def_readwrite(
+          "quality",
+          &StaticCameraCalibration::quality,
+          "Quality of the reloc. -1 means no quality information available, 1 means good quality, 0 means bad quality")
       .def("__repr__", [](const StaticCameraCalibration& self) { return fmt::to_string(self); });
 
   m.def(

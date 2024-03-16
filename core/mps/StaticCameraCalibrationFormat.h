@@ -31,7 +31,7 @@ struct fmt::formatter<projectaria::tools::mps::StaticCameraCalibration>
       const {
     return format_to(
         ctx.out(),
-        "StaticCameraCalibration( cameraUid: {}, graphUid: {}, T_world_cam: {}, width: {}, height: {}, intrinsicsType: {}, intrinsics: {}, startFrameIdx: {}, endFrameIdx: {} )",
+        "StaticCameraCalibration( cameraUid: {}, graphUid: {}, T_world_cam: {}, width: {}, height: {}, intrinsicsType: {}, intrinsics: {}, startFrameIdx: {}, endFrameIdx: {}, quality: {} )",
         calib.cameraUid,
         calib.graphUid,
         calib.T_world_cam,
@@ -42,6 +42,7 @@ struct fmt::formatter<projectaria::tools::mps::StaticCameraCalibration>
         // TODO: std::optional support in fmt is coming in fmt 10.0.0, until then we print -1
         // https://github.com/fmtlib/fmt/blob/10.0.0/include/fmt/std.h#9
         calib.startFrameIdx.value_or(-1),
-        calib.endFrameIdx.value_or(-1));
+        calib.endFrameIdx.value_or(-1),
+        calib.quality);
   }
 };

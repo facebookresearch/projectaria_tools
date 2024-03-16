@@ -27,12 +27,12 @@
 
 namespace projectaria::tools::mps {
 
-constexpr std::array<const char*, 22> kStaticCameraCalibrationHeader = {
+constexpr std::array<const char*, 23> kStaticCameraCalibrationHeader = {
     "cam_uid",         "graph_uid",       "tx_world_cam", "ty_world_cam", "tz_world_cam",
     "qx_world_cam",    "qy_world_cam",    "qz_world_cam", "qw_world_cam", "image_width",
     "image_height",    "intrinsics_type", "intrinsics_0", "intrinsics_1", "intrinsics_2",
     "intrinsics_3",    "intrinsics_4",    "intrinsics_5", "intrinsics_6", "intrinsics_7",
-    "start_frame_idx", "end_frame_idx",
+    "start_frame_idx", "end_frame_idx",   "quality",
 };
 
 StaticCameraCalibrations readStaticCameraCalibrations(const std::string& fileName) {
@@ -53,7 +53,7 @@ StaticCameraCalibrations readStaticCameraCalibrations(const std::string& fileNam
     std::string intrinsics_type;
     int width = 0, height = 0;
     Eigen::Matrix<float, 8, 1> intrinsics;
-    int start_frame_idx = 0, end_frame_idx = 0;
+    int start_frame_idx = 0, end_frame_idx = 0, quality = -1;
 
     while (csv.read_row(
         cam_uid,
@@ -77,7 +77,8 @@ StaticCameraCalibrations readStaticCameraCalibrations(const std::string& fileNam
         intrinsics[6],
         intrinsics[7],
         start_frame_idx,
-        end_frame_idx)) {
+        end_frame_idx,
+        quality)) {
       auto& pose = poses.emplace_back();
       pose.cameraUid = cam_uid;
       pose.graphUid = graph_uid;
@@ -99,6 +100,7 @@ StaticCameraCalibrations readStaticCameraCalibrations(const std::string& fileNam
       if (end_frame_idx >= 0) {
         pose.endFrameIdx = end_frame_idx;
       }
+      pose.quality = quality;
     }
 
     std::cout << "Loaded #StaticCameraCalibration data: " << poses.size() << std::endl;

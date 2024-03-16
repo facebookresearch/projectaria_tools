@@ -51,6 +51,9 @@ struct StaticCameraCalibration {
   // The start and end frame number from the video when the camera is stationary and camera pose
   // result is applicable. Not available, when the pose is applicable to the whole video
   std::optional<int> startFrameIdx, endFrameIdx;
+
+  // Quality 0 = bad, 1 = good, -1 = unknown
+  int quality = -1;
 };
 
 using StaticCameraCalibrations = std::vector<StaticCameraCalibration>;
