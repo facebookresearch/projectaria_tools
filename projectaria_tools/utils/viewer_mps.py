@@ -274,11 +274,13 @@ def log_eye_gaze(
                 rgb_camera_calibration,
                 depth_m,
             )
-            rr.log(
-                f"world/device/{rgb_stream_label}/eye-gaze_projection",
-                rr.Points2D(gaze_projection / down_sampling_factor, radii=4),
-            )
-            logged_eyegaze = True
+            if gaze_projection is not None:
+                rr.log(
+                    f"world/device/{rgb_stream_label}/eye-gaze_projection",
+                    rr.Points2D(gaze_projection / down_sampling_factor, radii=4),
+                )
+                logged_eyegaze = True
+            # Else (eye gaze projection is outside the image or behind the image plane)
     if not logged_eyegaze:
         rr.log("world/device/eye-gaze", rr.Clear(recursive=False))
         rr.log(
