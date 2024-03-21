@@ -71,68 +71,13 @@ The sample sequence is representative of a typical single-user sequence, which g
 The AEA dataset contains 143 sequences and the total size of the dataset is about 353GB. The dataset is split into main data and MPS outputs, eye gaze and Multi-SLAM (SLAM outputs created in shared coordinate frame) results. Go to [Project Aria Machine Perception Services](/ARK/mps/mps.mdx) for more information about MPS data. The MPS data is also broken into chunks that can be included or excluded at download time.
 
 
-<table>
-  <tr>
-   <td>Data type
-   </td>
-   <td><strong>What's included</strong>
-   </td>
-   <td><strong>Per sequence size</strong>
-   </td>
-   <td><strong>Total size for all sequences</strong>
-   </td>
-  </tr>
-  <tr>
-   <td>main
-   </td>
-   <td>Aria raw data, speech to text, metadata json
-   </td>
-   <td>2 - 4 GB
-   </td>
-   <td>~309 GB
-   </td>
-  </tr>
-  <tr>
-   <td>MPS eyegaze
-   </td>
-   <td>Eyegaze, summary file
-   </td>
-   <td>&lt; 1 MB
-   </td>
-   <td>~31 MB
-   </td>
-  </tr>
-  <tr>
-   <td>MPS SLAM points
-   </td>
-   <td>Semi-dense points and observations
-   </td>
-   <td>200 - 500 MB
-   </td>
-   <td>~31 GB
-   </td>
-  </tr>
-  <tr>
-   <td>MPS SLAM trajectories
-   </td>
-   <td>Open and closed loop trajectories
-   </td>
-   <td>100 - 200 MB
-   </td>
-   <td>12 GB
-   </td>
-  </tr>
-  <tr>
-   <td>MPS SLAM online calibration
-   </td>
-   <td>Online calibrations
-   </td>
-   <td> &lt; 20 MB
-   </td>
-   <td> 1.2 GB
-   </td>
-  </tr>
-</table>
+| Data type  | What's included  | Per sequence size    | Total size for all sequences    |
+|---|---|---|---|
+| main    | Aria raw data, speech to text, metadata json    | 2 - 4 GB    | ~309 GB    |
+| MPS eyegaze    | Eyegaze, summary file    | < 1 MB    | ~31 MB    |
+| MPS SLAM points    | Semi-dense points and observations    | 200 - 500 MB    | ~31 GB    |
+| MPS SLAM trajectories    | Open and closed loop trajectories    | 100 - 200 MB    | 12 GB    |
+| MPS SLAM online calibration    | Online calibrations    |  < 20 MB    |  1.2 GB    |
 
 
 
@@ -149,73 +94,15 @@ The `aea_dataset_downloader` checks the previous download status of the sequence
 #### Detailed arguments
 
 
-<table>
-  <tr>
-   <td>Arguments
-   </td>
-   <td><strong>Type</strong>
-   </td>
-   <td><strong>Description</strong>
-   </td>
-  </tr>
-  <tr>
-   <td>--cdn_file
-   </td>
-   <td>str
-   </td>
-   <td>The download-urls file you downloaded from the AEA website page after signing up
-   </td>
-  </tr>
-  <tr>
-   <td>--output_folder
-   </td>
-   <td>str
-   </td>
-   <td>A local path where the downloaded files and metadata will be stored
-   </td>
-  </tr>
-  <tr>
-   <td>--metadata_only
-   </td>
-   <td>flag
-   </td>
-   <td>Only download the metadata file for the dataset
-   </td>
-  </tr>
-  <tr>
-   <td>--data_types
-   </td>
-   <td>list of int
-   </td>
-   <td>0→main, 1→MPS eyegaze, 2→MPS trajectories, 3→MPS semidense pointclouds and observations, 3→MPS online calibrations
-   </td>
-  </tr>
-  <tr>
-   <td>--example_only
-   </td>
-   <td>flag
-   </td>
-   <td>Only download example data
-   </td>
-  </tr>
-  <tr>
-   <td>--overwrite
-   </td>
-   <td>flag
-   </td>
-   <td>Disable resumable download. Force download and overwrite existing data
-   </td>
-  </tr>
-  <tr>
-   <td>--sequence_names
-   </td>
-   <td>list of str
-   </td>
-   <td>list of sequence names. If not specified, download all sequences
-   </td>
-  </tr>
-</table>
-
+| Arguments    | Type    | Description    |
+|---|---|---|
+| --cdn_file    | str    | The download-urls file you downloaded from the AEA website page after signing up    |
+| --output_folder    | str    | A local path where the downloaded files and metadata will be stored    |
+| --metadata_only    | flag    | Only download the metadata file for the dataset    |
+| --data_types    | list of int    | 0→main, 1→MPS eyegaze, 2→MPS trajectories, 3→MPS semidense pointclouds and observations, 3→MPS online calibrations    |
+| --example_only    | flag    | Only download example data    |
+| --overwrite    | flag    | Disable resumable download. Force download and overwrite existing data    |
+| --sequence_names    | list of str    | list of sequence names. If not specified, download all sequences    |
 
 
 ### Download Examples
@@ -256,15 +143,10 @@ aea_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUT
 aea_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 --sequence_names loc1_script1_seq1_rec1 loc2_script1_seq1_rec1
 ```
 
-
-
 #### Download main data for all sequences and overwrite
 ```
 aea_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 --overwrite
 ```
-
-
-
 
 ## Troubleshooting
 Go to [troubleshooting](data_utilities/installation/troubleshooting.mdx) if you experience issues using this guide.

@@ -64,7 +64,7 @@ For more information on the content in the other sequences, see the Data Content
 ## Download the Aria Digital Twin (ADT) benchmark dataset
 ### Data size
 
-Aria Digital Twin dataset consists of 217 sequences in total. The total size of the dataset is about 3.5TB. The dataset is split into 4 data types that can be downloaded individually. The size of each data type is below.
+THe Aria Digital Twin dataset consists of 217 sequences in total. The dataset is split into 4 data types that can be downloaded individually, plus MPS data. Go to [Project Aria Machine Perception Services](/ARK/mps/mps.mdx) for more information about MPS data. The MPS data is also broken into chunks that can be included or excluded at download time. The size of each data type is shown below. Just the ADT data without MPS equates to approximately 3.5TB.
 
 | **Data type** | What's included | Per sequence size | Total size for all sequences |
 | --- | --- | --- | --- |
@@ -72,6 +72,10 @@ Aria Digital Twin dataset consists of 217 sequences in total. The total size of 
 | segmentation | Instance segmentation data | 2 - 4 GB | ~750 GB |
 | depth | Depth map data | 4 - 8 GB | ~1.5 TB |
 | synthetic | Synthetic rendering data | 2 - 4 GB | 500 GB |
+| MPS eyegaze    | Eyegaze, summary file    | < 1 MB    | ~31 MB    |
+| MPS SLAM points    | Semi-dense points and observations    | 200 - 500 MB    | ~31 GB    |
+| MPS SLAM trajectories    | Open and closed loop trajectories    | 100 - 200 MB    | 12 GB    |
+| MPS SLAM online calibration    | Online calibrations    |  < 20 MB    |  1.2 GB    |
 
 
 
