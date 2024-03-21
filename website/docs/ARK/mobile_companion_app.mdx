@@ -28,14 +28,14 @@ These instructions are only useful if you have access to Aria glasses. Go to [pr
 * [In-session Eye Gaze Calibration](mps/eye_gaze_calibration.mdx)
 * Accept, store and delete security certificates to enable the [Client SDK and CLI](sdk/sdk.mdx)
 
-# Getting Started (Update Your Glasses)
+## Getting Started (Update Your Glasses)
 
-## Download and Install
+### Download and Install
 
 Follow the instructions in the [ARK SW Downloads and Updates page](ark_downloads.mdx) to download and install the app (this is where you'll download updates as well).
 
 
-## Sign in and pairing
+### Sign in and pair
 
 1. Plug your Project Aria glasses into their charger
     * This will automatically turn your glasses
@@ -53,17 +53,27 @@ Follow the instructions in the [ARK SW Downloads and Updates page](ark_downloads
 10. Once connected to Wi-Fi, the glasses will look for updates and update your glasses' OS
 11. Once you have completed setup, you’ll see the Companion App Dashboard Page
 
-## Set Default Recording Profile
+### Set Default Recording Profile
 
 The default recording profile determines determines which recording profile the New Recordings page starts with, as well as the profile used when initiating recording via the capture button or Desktop app.
 
 You can set the default recording profile via Mobile or Desktop Companion App.
 
-In the Mobile Companion App, you can change the Default Recording Profile at any time via Device Settings (select the settings/gear icon next to your glasses on the dashboard).
+In the Mobile Companion App, you can change the Default Recording Profile at any time via Device Settings
 
-![Image of how to find Project Aria glasses' Device Settings page from the Dashboard](/img/ARK/mobile_app_device_settings.png)
+### To view Device Settings
+#### v155 onwards - tap the paired glasses info card.
+<div style={{textAlign: 'center'}}>
+<img width="80%" src={useBaseUrl('/img/ARK/mobile_app_device_settings.png')} alt="Device Settings page from the Dashboard"/>
+</div>
 
-## OS Update
+#### Pre-v155 - tap the gear icon in the paired glasses info card.
+<div style={{textAlign: 'center'}}>
+<img width="80%" src={useBaseUrl('/img/ARK/mobile_app_device_settings_old.png')} alt="Pre V.155 Device Settings page from the Dashboard"/>
+</div>
+
+
+### Update OS
 
 Your Aria glasses's OS will also automatically update when plugged into power and connected to Wi-Fi with an internet connection.
 
@@ -74,7 +84,7 @@ To manually update Aria glasses OS:
 3. Select **Check for Updates**
 4. Once your glasses have finished updating, they will reboot and the update will be complete.
 
-# Pairing additional glasses
+## Pairing additional glasses
 
 Each pair of Aria glasses can only be paired with a single account. Multiple glasses can be paired with the one account, however.
 
@@ -86,14 +96,14 @@ Each pair of Aria glasses can only be paired with a single account. Multiple gla
 4. Follow steps 7-12 in Sign in and Pairing
 5. Set the default recording profile for your glasses
 
-## Terminology
+### Terminology
 
-### Pairing/Unpairing
+#### Pairing/Unpairing
 
 * Pair(ed): connecting Aria glasses to the Companion App for the first time.
 * Unpair(ed): the process of unpairing Aria glasses from your Companion App. This will delete all data stored locally on the glasses.
 
-### Connecting/Disconnecting
+#### Connecting/Disconnecting
 
 * Connect(ed): is when the Companion App has active control over the glasses.
 * Disconnect(ed): is when the Companion App no longer has active control over the glasses.
@@ -144,9 +154,18 @@ The Aria Dashboard has several interactive elements:
 
 ### Aria Device Settings
 
-On the main Aria Dashboard in the Mobile app, select the settings (gear) icon next to your Aria glasses to view your Aria glasses' settings.
+Device Settings can be accessed via the main dashboard:
 
-![Image of how to find Project Aria glasses' Device Settings page from the Dashboard](/img/ARK/mobile_app_device_settings.png)
+#### v155 onwards - tap the paired glasses info card.
+<div style={{textAlign: 'center'}}>
+<img width="80%" src={useBaseUrl('/img/ARK/mobile_app_device_settings.png')} alt="Device Settings page from the Dashboard"/>
+</div>
+
+#### Pre Mobile Companion App v155 - tap the gear icon in the paired glasses info card.
+<div style={{textAlign: 'center'}}>
+<img width="80%" src={useBaseUrl('/img/ARK/mobile_app_device_settings_old.png')} alt="Pre V.155 Device Settings page from the Dashboard"/>
+</div>
+
 
 The Device Settings page includes:
 
@@ -179,8 +198,8 @@ To name or edit the name of a VRS recording on your glasses:
 3. Select **Edit** on the top right corner
 
 
-### Settings menu
+### Profile menu
 
-The Settings menu shows the settings for the Aria app, not your Aria glasses. You'll be able to see the App version, but not the Aria glasses version.
+The Profile menu shows the settings and profile information for the Aria app, not your Aria glasses. You'll be able to see the App version, but not the Aria glasses version.
 
-In the Advanced Settings menu there is the option to Clear Local Data, which can be helpful if you encounter issues that restarting your Mobile App does not resolve. Aria recordings are stored on the glasses, not on the phone, so it will not delete any of your recordings.
+The Advanced Settings menu includes Clear Local Data. This can be helpful if you encounter issues that restarting your Mobile App does not resolve. Aria recordings are stored on the glasses, not on the phone, so it will not delete any of your recordings.

@@ -11,12 +11,12 @@ The Project Aria MPS CLI Guide provides detailed information about how to use th
     * Go to [MPS Data Lifecycle](/ARK/mps/mps_processing.mdx) for more details about how sequences are processed on the server
 * [MPS CLI Settings](#settings)
 * [MPS CLI Command Line Reference](#clr)
-* [Troubleshooting and Error Codes](#troubleshooting)
 
-Go to [Getting Started With the MPS CLI](mps_cli_getting_started.mdx) for a quick tutorial showing basic commands using sample data.
+<div id="about"> </div>
 
-
-<div id="about"> &nbsp; </div>
+### Further resources:
+* [Getting Started With the MPS CLI](mps_cli_getting_started.mdx) for a quick tutorial showing basic commands using sample data.
+* [MPS Troubleshooting and Error Codes](../mps_troubleshooting.mdx)
 
 ## About
 
@@ -33,10 +33,9 @@ The MPS CLI has two modes:
     * Process multiple recordings to generate multi-sequence SLAM data
     * User must provide a directory for the outputs
 
-Go to [MPS CLI Overview](mps_cli.mdx) for a full breakdown of all the features available.
-
-
 <div id="how"> <br/></div>
+
+Go to [MPS CLI Overview](mps_cli.mdx) for a full breakdown of all the available features.
 
 ## How the MPS CLI works
 The MPS CLI enables you to upload VRS files from your computer to the Meta servers for processing. The outputs are then saved to your local directory. The MPS CLI will try to process multiple recordings concurrently. The concurrency for various stages can be controlled via [Settings](#settings).
@@ -467,45 +466,3 @@ Or
 ```
 --output OUTPUT_DIR
 ```
-
-<div id="troubleshooting"><br/></div>
-
-## Troubleshooting
-
-
-### Authentication issue on macOS
-
-If you encounter a permissions error while trying to sign in to the MPS CLI, try:
-
-```
-ln -s /etc/ssl/* /Library/Frameworks/Python.framework/Versions/3.9/etc/openssl
-```
-
-### Terminal display issues in macOS
-
-Some users have reported that the MPS CLI UI has display issues in Terminal. Using a different terminal app may help. [Why doesn't Textual look good on macOS](https://textual.textualize.io/FAQ/#why-doesnt-textual-look-good-on-macos) provides further details about this issue.
-
-
-### Error codes
-
-
-| **Error Code** | Description |
-|--------|-------------------------------------------|
-| | *All 1xx codes are local client errors* |
-| 100 | Multi-Recording processing error. Another recording in the group had a failure, so the processing was halted. We need the full group of recordings to successfully process and generate multi-slam MPS output. The recording that fails will show its own error code, processing then stops and and sets the other recordings to this error code. |
-| 101 | Something failed on your computer. When you see this error, we suggest inspecting the local log for this run. If you need to reach out to support, please include this log file. |
-| 102 | There were health check failures during processing. Check the vrs_health_check.json and vrs_health_check_slam.json for more information about what went wrong. |
-| 103 | Multi-Recording processing error. Duplicate file detected. Duplicate recordings are not allowed for multi-SLAM processing. |
-| 104 | MPS CLI failed to encrypt the file. Check error logs for more information. |
-| 105 | Input-output mismatch error. This error happens when you try to run multi-SLAM processing but pass an output directory that already contains output or intermediate artifacts from a different multi-SLAM job. |
-| 106 | The output directory used for multi-SLAM processing is not empty. Non-empty output directory is only allowed if the output directory contains output or artifacts from a previous run of the same group of recordings. |
-| 108 | The server failed to query the status of the request. Retrying should usually fix this issue. |
-| 109 | Error during computing the hash id of the file. Check error logs for more information. |
-| 110 | Error when checking existing outputs on the disk. Check error logs for more information. |
-| 111 | Error when checking previously submitted MPS requests for a file. Check error logs for more information. |
-| 112 | Error when checking if the recording was previously uploaded. Check error logs for more information. |
-| 113 | Error uploading the VRS file. Check error logs for more information. |
-| 114 | Error submitting MPS request to the server. Check error logs for more information. Retrying should fix the issue. |
-| 115 | Error when checking the processing status of the MPS request. Check error logs for more information. |
-| 116 | Error when downloading the MPS results. Check error logs for more information. |
-| All other error codes | Server side failure. Reach out to support with the error code and log file. |

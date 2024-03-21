@@ -2,12 +2,211 @@
 sidebar_position: 90
 title: ARK Release Notes
 ---
+import useBaseUrl from '@docusaurus/useBaseUrl'
 
 # Project Aria Research Kit Release Notes
 
 These SW Release notes are for the Aria Research Kit (ARK), and are for Meta SW that supports Academic Research Partners using Project Aria glasses. To find out how to become a research partner, go to [projectaria.com](https://projectaria.com).
 
 Our Open Source Project Aria Tools SW Release notes are posted to [Project Aria Tools GitHub repository](https://github.com/facebookresearch/projectaria_tools), using Tags > Releases.
+
+
+## **Announcing New MPS, Recording Profiles, and Updates to the Companion Apps**
+March 20 2024
+
+Dear Academic Partners,
+
+This release includes new Machine Perception Services (MPS) capabilities, Wrist and Palm Tracking data and a revised Eye Gaze model that provides depth estimations, as well as four new recording profiles, and an Automatic Speech Recognition speech to text code sample.
+
+### How to access the new features
+
+* MPS
+    * NEW SERVICE: Hand Tracking
+        * Request Hand Tracking via the MPS CLI or Desktop app to get Wrist and Palm Tracking data!
+    * UPDATED SERVICE: The new Eye Gaze model includes depth estimations
+        * Backwards compatibility with Project Aria Tools will be maintained for data generated using the old model
+    * Use the MPS CLI to do bulk requests on existing data
+        * Raw uploaded data will now be stored for 30 days for MPS processing and reprocessing
+* Desktop app v38 [MacOS and Windows]
+    * Download the latest version of the app for the ability to request Hand Tracking MPS via Desktop app, and to get bug fixes
+* Project Aria Tools v1.5
+    * New code sample that generates speech to text outputs from VRS files
+    * Install via Pip to be able to request Hand Tracking data using the MPS CLI
+* Aria glasses OS **4968297.250.70**
+    * Update to the latest OS for four new recording profiles and essential bug fixes
+    * Please make sure your glasses have been updated in the last two months
+* Aria Mobile Companion App v155
+    * Download the latest version of the app to enjoy the updated look and bug fixes
+* Documentation
+    * the latest documentation updates including:
+        * New [MPS Troubleshooting](/ARK/mps/mps_troubleshooting.mdx) page.
+        * New [Collaborative Tools Page](/collaborative_tools.mdx), did you know you can use Aria data with Nerfstudio? We’ve collaborated with Nerfstudio to enable Gaussian Splatting with their tools.
+        * Updated MPS [Google Colab tutorials](/data_utilities/getting_started.mdx#running--jupyter-notebooks-on-google-colab).
+
+
+### MPS Updates
+
+Once you upload data using the MPS CLI, it will be stored for 30 days for additional processing/reprocessing, instead of 24 hours.
+
+
+#### New Hand Tracking MPS, Wrist and Palm Tracking
+
+For this new service, we use Aria's SLAM camera images to estimate the hand movements of the wearer. The wrist and palm poses are given in the device frame in meters. These outputs are automatically generated when doing the default MPS CLI request (or request hand_tracking mode) and are listed as Hand Tracking in the Desktop App.
+
+Install Project Aria Tools vs 1.5 using Pip or install Desktop App v38 to be able to request this new service.
+
+* [Hand Tracking Data Format](/data_formats/mps/hand_tracking/hand_tracking.mdx)
+* [MPS CLI](/ARK/mps/request_mps/mps_cli.mdx)
+* [Install/Update Project Aria Tools Using Pip](/data_utilities/installation/installation_python.mdx)
+* [Download Desktop app](/ARK/ark_downloads.mdx#desktop-companion-app)
+
+
+#### Update to Eye Gaze outputs - depth estimations
+
+We have introduced a new model for computing eye gaze, which produces left and right eye gaze directions along with the depth at which these gaze directions intersect.
+
+This new model’s output schema adds to `general_eye_gaze.csv` and `personalized_eye_gaze.csv` in a way that ensures backward compatibility with Project Aria Tools.
+
+* [Eye Gaze Data Formats page](/data_formats/mps/mps_eye_gaze.mdx) - schema has been updated
+* [Eye Gaze Code Snippets](/data_utilities/core_code_snippets/eye_gaze_code.mdx) - new page
+
+
+#### Known Issues
+
+* The new Eye Gaze model does not generate `yaw_rads_cpf` outputs
+    * This value can be computed using [helper functions](/data_utilities/core_code_snippets/eye_gaze_code.mdx#helper) and is automatically read when parsed with our data utilities.
+
+
+#### Bug Fixes
+
+Minor bug fixes
+
+### Desktop Companion App v38
+
+Download v38 on Windows or MacOS to request Hand Tracking MPS and to get bug fixes.
+
+MPS requests using the Desktop app have been slightly restructured, you no longer need to request Point Cloud data as an additional service. The request options are:
+
+* SLAM (6DoF Trajectory, Semi-Dense Point Cloud, Online Sensor Calibration)
+* Eye Gaze (General, plus personalized if the VRS file contains In-Session Eye Gaze Calibration)
+* Hand Tracking (Wrist and Palm Tracking)
+
+The Streaming button in the dashboard has been renamed to Preview, to better reflect the capability provided by the Desktop app. Use the [Client SDK with CLI](/ARK/sdk/sdk.mdx) to stream data.
+
+Desktop app logs are now stored in ~/.aria/logs/aria_desktop_app_{date}_{time}.log
+
+* Please note, the streaming preview available through the Desktop app is optimized for Profile 12.
+
+
+#### Known Issues
+
+* If you encounter the file too small error when requesting MPS, it may be because the Desktop app is in a bad state. Restarting the app should resolve this issue
+* Selecting Cancel does not work when downloading MPS is in progress
+* [MacOS] When the app is launched with logging enabled, the Aria icon might not appear in the taskbar, but functions should not be impacted
+* [Windows] The Aria icon does not render correctly when pinned to the taskbar
+
+
+#### Bug Fixes
+
+* If starting recording/streaming fails the UI will now refresh
+* Issue where you can’t request MPS unless you interact with tick boxes has been resolved
+* Issue where the Desktop app did not quit completely on MacOS has been resolved
+
+
+### Project Aria Tools v1.5
+
+Project Aria Tools provides open tooling for anyone wanting to work with Aria data. For this release it enables users to request Hand Tracking data using the MPS CLI and provides a new ASR Python code sample.
+
+Update Project Aria Tools:
+
+* Python users: [Update projectaria_tools python package](/data_utilities/installation/installation_python.mdx)
+    * Install via Pip to be able to request Hand Tracking data using the MPS CLI
+* C++ users: [Update projectaria_tools git repository](/data_utilities/installation/download_codebase.mdx)
+
+Go to [https://github.com/facebookresearch/projectaria_tools/releases/tag/1.5.0](https://github.com/facebookresearch/projectaria_tools/releases/tag/1.5.0) for the full release log.
+
+
+#### Speech to Text Code Sample (Python)
+
+This new ASR Python code sample shows how to use [Faster Whisper](https://github.com/SYSTRAN/faster-whisper) to run Whisper Speech Recognition on an Aria audio stream. The ASR outputs are time aligned with [Aria Device Time](/data_formats/aria_vrs/timestamps_in_aria_vrs.mdx#vrs-timestamps-single-device).
+
+Go to the [Automated Speech Recognition Readme](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/samples/python/automated_speech_recognition/Readme.md) for how to get started.
+
+![Speech to Text outputs](/img/data_utilities/asr_speech_to_text.png)
+
+
+### Aria Glasses OS
+
+The latest Project Aria OS build **4968297.250.70** was released on March 11, 2024.
+
+
+#### New recording profiles
+
+We’ve released the following experimental recording profiles. If you use a new profile, we’d love to hear about how it works for you.
+
+**Recording Profile 26:** Minimal sensors, low RGB frame rate for extended recording times. The aim is 5+ recording hours while having RGB camera data at a low frame rate (unlike Recording Profile 20, which has IMU, but no RGB data).
+
+**Recording Profile 27**: Designed for streaming over USB.
+
+**Recording Profile 28: **Very high Eye Tracking camera frame rate.
+
+**Recording Profile 29:** Low RGB frame rate, JPEG with decimation. This recording profile is the same as Profile 26, however 9 out of every 10 JPEG frames are skipped (decimation/sub-sampling). This is our first recording profile that uses decimation. The data from the RGB data stream is saved at a rate that archives a frame rate of 0.1FPS. The aim of this profile is to be able to record for 15+ hours.
+
+Update to the latest version of the OS to access these profiles. Your glasses’ OS should automatically update when connected to Wi-Fi and power. Go to [Updating OS](/ARK/troubleshooting/update_glasses_os.mdx) to manually trigger an update.
+
+You can see more details about recording profiles in the Mobile Companion app:
+
+1. Open the Mobile Companion App and select **New Recording Session**
+2. Select the existing recording profile (or Choose Profile if you have not set a default recording profile)
+3. Tap **More Info** in the top right corner
+    * The More info link may be difficult to see, this will be fixed in a future version of the Mobile Companion app
+
+Or go to [Recording Profiles](/tech_spec/recording_profiles.mdx) documentation in Project Aria Tools.
+
+
+#### Known Issues
+
+* The new recording profiles are experimental and may be tuned further in the future.
+
+
+#### Bug Fixes
+
+* Make sure your glasses’ OS is less than 2 months old, to make sure you have a fix for an issue that may cause sluggish behavior in your Aria glasses, difficulties updating the OS, streaming data and reduced upload times.
+    * [Updating OS](/ARK/troubleshooting/update_glasses_os.mdx) includes troubleshooting steps if you have difficulties updating the OS.
+
+
+### Mobile Companion App v155
+
+Please keep in mind, you can’t initiate recordings through the Mobile app if your glasses’ OS is more than 2 months old. Please make sure you update your [glasses’ OS](/ARK/troubleshooting/update_glasses_os.mdx).
+
+
+#### Updated look and feel of the Mobile app
+
+The Mobile Companion app has a fresh new look! As part of this:
+
+* The Settings tab has been renamed Profile
+* Device Settings can be opened by tapping the glasses icon under Paired Glasses
+
+<div style={{textAlign: 'center'}}>
+<img width="80%" src={useBaseUrl('/img/ARK/mobile_app_device_settings.png')} alt="Device Settings page from the Dashboard"/>
+</div>
+
+
+#### Known Issues
+
+* The **More info** link on the top right of the Recording Profiles page may be difficult to see.
+
+
+#### Bug Fixes
+
+Minor bug fixes
+
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+Go to our [Support page](/support.mdx) for ways to get in touch.
+
+<br/>
 
 
 ## **Announcing Project Aria MPS CLI Availability and New MPS Feature**
@@ -17,7 +216,7 @@ Dear Academic Partners,
 
 We are pleased to announce Project Aria MPS CLI and new MPS capability multi-trajectory map alignment! As part of our ongoing commitment to empowering researchers, the Aria MPS CLI allows you to submit jobs to Machine Perception Services programmatically. This will hopefully bring a new level of efficiency and flexibility to your workflow.
 
-### **⭐️Key features for MPS CLI**
+### ⭐️Key features for MPS CLI
 
 * Request the following MPS services
     * Single and multi-sequence SLAM
@@ -38,18 +237,18 @@ We are pleased to announce Project Aria MPS CLI and new MPS capability multi-tra
     * Run MPS CLI as part of a script of other workflow to run MPS on recordings via automation
 
 
-### **How to get started with CLI**
+### How to get started with CLI
 
 To experience the power of Aria MPS CLI, go to the [Project Aria MPS CLI page](/ARK/mps/request_mps/mps_cli.mdx) for how to use it.
 
 Videos of this feature are available in the [Project Aria Academic Partner Announcements, Feedback & Support workplace group](/ARK/workplacegroup.mdx)
 
 
-### **⭐️MPS: MULTI-SLAM/MULTI-SEQUENCE MAP ALIGNMENT**
+###  ⭐️MPS: MULTI-SLAM/MULTI-SEQUENCE MAP ALIGNMENT
 
 This addition brings the ability to generate SLAM output in a common frame of reference and support for multi-sequence SLAM outputs in a common frame of reference. Please go to [Multi-SLAM page](/data_formats/mps/slam/mps_multi_slam.mdx) for more information about the feature and go to the [MPS CLI page](/ARK/mps/request_mps/mps_cli.mdx) for how to access it.
 
-### **⭐️Feedback and Support**
+###  ⭐️Feedback and Support
 
 If you encounter any problems using Aria MPS CLI, there are several ways to get user support:
 

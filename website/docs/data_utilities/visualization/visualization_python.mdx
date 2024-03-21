@@ -46,14 +46,18 @@ As you are playing or moving along the timeline, you can see the position of the
 ```bash
 
 viewer_mps --vrs $MPS_SAMPLE_PATH/sample.vrs
+```
 
 or to specify each MPS file
 
-viewer_mps --vrs $MPS_SAMPLE_PATH/sample.vrs \
---trajectory $MPS_SAMPLE_PATH/closed_loop_trajectory.csv \
---points $MPS_SAMPLE_PATH/global_points.csv.gz \
---eyegaze $MPS_SAMPLE_PATH/generalized_eye_gaze.csv
 ```
+viewer_mps --vrs $MPS_SAMPLE_PATH/sample.vrs \
+--trajectory $MPS_SAMPLE_PATH/trajectory/closed_loop_trajectory.csv \
+--points $MPS_SAMPLE_PATH/trajectory/global_points.csv.gz \
+--eyegaze $MPS_SAMPLE_PATH/eye_gaze/personalized_eye_gaze.csv \
+--hands $MPS_SAMPLE_PATH/hand_tracking/wrist_and_palm_poses.csv
+```
+
 ![MPS Visualizer](/img/data_utilities/visualization/rerun-mps.png)
 <div id="multi-slam"> </div>
 
@@ -64,7 +68,7 @@ viewer_mps --vrs $MPS_SAMPLE_PATH/sample.vrs \
 
 ### Visualization of Multi-SLAM data
 
-The MPS Viewer can also be used to visualize 3D data from multiple Project Aria devices, if the MPS data has been generated using [Multi-SLAM](/data_formats/mps/slam/mps_multi_slam.mdx) or is part of datasets that contain this type of data, such as [Aria Everyday Activities (AEA)](/open_datasets/aria_everyday_activities_dataset/aria_everyday_activities_dataset.mdx).
+The MPS Viewer can also be used to visualize 3D data derived from multiple Project Aria device recordings, if the MPS data has been generated using [Multi-SLAM](/data_formats/mps/slam/mps_multi_slam.mdx) or is part of datasets that contain this type of data, such as [Aria Everyday Activities (AEA)](/open_datasets/aria_everyday_activities_dataset/aria_everyday_activities_dataset.mdx).
 
 #### AEA Example
 The example below uses Trajectory and Semi-Dense Point Cloud data from AEA. Go to [AEA Dataset Download](/open_datasets/aria_everyday_activities_dataset/aea_download_dataset.mdx) for how to download this data.

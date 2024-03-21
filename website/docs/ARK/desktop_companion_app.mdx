@@ -28,6 +28,19 @@ Before using the Desktop app, you must use the Aria Mobile Companion App to upda
 
 Follow the instructions in the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) to download and install the app (this is where you'll download updates as well).
 
+You can launch the Desktop App via GUI or command line
+
+#### Windows
+
+```
+C:\Program Files\Aria\v3\AriaHub.exe
+```
+
+#### MacOS
+```
+/Applications/Aria.app/Contents/MacOS/AriaHub
+```
+
 ## Login
 
 1. Read the Project Aria Research Community Guidelines and select **Accept**
@@ -55,33 +68,6 @@ To request MPS:
 3. Select **Request MPS** in the Recordings toolbar
 
 Go to [Request MPS](mps/request_mps/desktop_mps.mdx) for more information.
-
-
-## Use Desktop App as CLI
-
-The Desktop App can be run directly from the command line without needing a GUI. It can be found under `C:\Program Files\Aria\v3\AriaHub.exe` on Windows and `/Applications/Aria.app/Contents/MacOS/AriaHub` on Mac.
-You may print the app's help using the `AriaHub --help` command.
-
-### health
-
-- Usage :
-
-```
-AriaHub health vrsFilePath.vrs
-```
-
-Use this to run validity checks on an Aria recording (VRS file). These checks are also run on the VRS file automatically, before the file gets uploaded for MPS processing.
-The results of those checks can be found under your home directory under  `./aria/logs`
-
-### vrs
-
-- Usage :
-
-```
-AriaHub vrs vrsFilePath.vrs
-```
-
-Use it as a Swiss army knife utility to manipulate VRS files in different ways. Go to the [VRS official documentation](https://facebookresearch.github.io/vrs/docs/VrsCliTool/) for a full list of commands.
 
 
 ## Download your data
@@ -161,8 +147,8 @@ Playback can be directly controlled from the keyboard:
 
 When using the arrow keys, all frames are guaranteed to be read. Use this feature if you want to be sure to view every frame of your file.
 
-## Stream a basic visualization
-You can use the Desktop app to visualize sensor data from your Aria glasses stream data over Wi-Fi. This visualization does not have the capabilities of the [Client SDK](/docs/ARK/sdk/sdk.mdx) and you can't subscribe to the data. When using the Desktop app, we recommend only using Profiles 12 and 18, which are optimized for streaming.
+## Preview a basic visualization
+You can use the Desktop app to preview sensor data from your Aria glasses stream data over Wi-Fi. This visualization does not have the capabilities of the [Client SDK](/docs/ARK/sdk/sdk.mdx) and you can't subscribe to the data. When using the Desktop app, we recommend only using Profiles 12 and 18, which are optimized for streaming.
 
 To stream data, your Aria glasses need to be on the same network as your computer.
 
@@ -192,23 +178,19 @@ To connect the Aria glasses to a Wi-Fi network
 3. Select **Connect** to confirm your selected network
 
 
-### Start Streaming
+### Start Preview
 
-To start streaming, select **Streaming** on the Dashboard device toolbar under My Device.
-The streaming session will then start
+To start the preview, select **Preview** on the Dashboard device toolbar under My Device.
 
-### Streaming Visualization
+The Preview window will pop up showing a data stream from your selected profile. We recommend only using Profiles 12 and 18, which are optimized for streaming.
 
-The Aria stream window will pop up showing Aria's sensor live data. The nature of the visualized data will be determined by the chosen recording profile. We recommend only using Profiles 12 and 18, which are optimized for streaming.
+### Stop Preview
 
-### Stop Streaming
+To stop the streaming preview, select **Stop** on the same device toolbar
 
-To stop streaming, select **Stop** on the same device toolbar
-
-:::info Closing the Aria Stream window will not stop the stream.
-You will need to effectively click on the Stop button for the stream to stop.
+:::info Closing the Aria Preview window will not stop the data stream.
+You will need to effectively click on the Stop button for the data streaming to stop.
 :::
-
 
 
 # Appendix A - Recording using the Desktop app

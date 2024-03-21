@@ -12,7 +12,7 @@ All Machine Perception Services (MPS) are offered as post-processing of VRS file
 ## Current MPS offerings
 The following MPS can be requested, as long as the data has been recorded with a compatible Recording Profile. The [Recording Profile Guide](/ARK/glasses_manual/profile_guide.mdx) provides a quick list of compatible sensor profile,s or go to [Recording Profiles](/tech_spec/recording_profiles.mdx) in Technical Specifications for more granular information about each profile.
 
-MPS offerings are grouped into SLAM services (called Trajectory in the Desktop app) and Eye Gaze services.
+MPS offerings are grouped into SLAM, Eye Gaze and Hand Tracking services.
 
 ## SLAM services
 
@@ -27,7 +27,6 @@ MPS provides two types of high frequency (1kHz) trajectories:
 
 [Semi-dense point cloud](/data_formats/mps/slam/mps_pointcloud.mdx) data supports researchers who need static scene 3D reconstructions, reliable 2D images tracks or a representative visualization of the environment.
 
-
 ### Online sensor calibration
 The [time-varying intrinsic and extrinsic calibrations](/data_formats/mps/slam/mps_calibration.mdx) of cameras and IMUs are estimated at the frequency of the SLAM (mono scene) cameras by our multi-sensor state estimation pipeline.
 
@@ -37,14 +36,21 @@ The [time-varying intrinsic and extrinsic calibrations](/data_formats/mps/slam/m
 
 Multi-SLAM can only be requested using the [MPS CLI SDK](request_mps/mps_cli.mdx).
 
+## Eye Gaze services
 
-## Eye Gaze data
+[Eye Gaze data](/data_formats/mps/mps_eye_gaze.mdx) is generated using Aria's Eye Tracking (ET) camera images to estimate the direction the user is looking. These outputs can be generated for any recording that had [ET cameras enabled](/tech_spec/recording_profiles.mdx).
 
-Eye gaze is one of the most important indicators of human attention, [eye gaze direction](/data_formats/mps/mps_eye_gaze.mdx) estimation with uncertainty is provided by MPS. Eye gaze estimation uses the data from the Eye Tracking (ET) cameras.
-
-These outputs can be generated for any recording that had [ET cameras enabled](/tech_spec/recording_profiles.mdx).
+In March 2024, we updated our eye gaze model to support depth estimation. We do this by providing left and right eye gaze directions (yaw values) along with the depth at which these gaze directions intersect (translation values).
 
 If you have made a recording with [In-Session Eye Gaze Calibration](eye_gaze_calibration.mdx), you will receive a second .csv file with calibrated eye gaze outputs.
+
+
+## Hand Tracking
+To compute hand tracking outputs, the [recording profile](/tech_spec/recording_profiles.mdx) must have SLAM cameras enabled.
+
+### Wrist and Palm Tracking
+
+[Wrist and Palm Tracking data](/data_formats/mps/hand_tracking/hand_tracking.mdx) is created by using SLAM camera images to estimate the hand movement of the wearer. The wrist and palm poses are given in the device frame in meters.
 
 
 ## About MPS Data Loader APIs

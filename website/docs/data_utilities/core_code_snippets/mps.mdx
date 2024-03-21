@@ -1,23 +1,24 @@
 ---
 sidebar_position: 40
-title: MPS
+title: MPS - General
 ---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 # MPS Code Snippets
 
-[Project Aria Machine Perception Services (MPS)](/docs/ARK/mps) enables Aria users with access to the [Aria Research Kit](https://www.projectaria.com/research-kit/) to request derived data on Aria VRS files.
+[Project Aria Machine Perception Services (MPS)](/ARK/mps/mps.mdx) enables Aria users with access to the [Aria Research Kit](https://www.projectaria.com/research-kit/) to request derived data on Aria VRS files.
 
-Some [Open Datasets](/docs/open_datasets) also contain [MPS outputs](/docs/data_formats/mps/mps_summary).
-* [Aria Synthetic Environments (ASE) Dataset](/docs/open_datasets/aria_synthetic_environments_dataset/ase_getting_started) includes semi-dense point cloud and observations, but they provide their own [loading interface](/docs/open_datasets/aria_synthetic_environments_dataset/ase_data_tools)
+[Open Datasets](/open_datasets/open_datasets.mdx) also contain [MPS outputs](/data_formats/mps/mps_summary.mdx) and may have specific tools to use and visualize their data.
 
 This page covers how to consume standard MPS outputs.
 
 ## Load MPS output
-The loaders for MPS output ([projectaria_tools/main/core/mps](https://github.com/facebookresearch/projectaria_tools/blob/main/core/mps)) provide a convenient way to quickly load the MPS output in a few lines of code into data structures that can then be used downstream.
+The loaders for MPS outputs ([projectaria_tools/main/core/mps](https://github.com/facebookresearch/projectaria_tools/blob/main/core/mps)) make it easer to use the data downstream. As part of this, the loaders put the outputs into data structures that are easier for other tools to consume.
 
-Please refer to the [MPS data schema wiki page](/docs/data_formats/mps/mps_summary) to learn more about the specifics of what each MPS output consists of. Here, we will focus only on the loading APIs in Python and C++.
+[MPS Data Formats](/data_formats/mps/mps_summary.mdx) provides details about output schemas and the specifics of each MPS output. This page focuses loading APIs in Python and C++, where there isn't a standalone code samples page:
+* [Eye Gaze Code Samples](eye_gaze_code)
+
 
 ### Open loop/Closed loop trajectory
 
@@ -34,7 +35,7 @@ open_loop_traj = mps.read_open_loop_trajectory(open_loop_path)
 closed_loop_path = "/path/to/mps/output/trajectory/closed_loop_trajectory.csv"
 closed_loop_traj = mps.read_closed_loop_trajectory(closed_loop_path)
 
-# example: get transformation from this device to world coordinate frame
+# example: get transformation from this device to a world coordinate frame
 for closed_loop_pose in closed_loop_traj:
     transform_world_device = closed_loop_pose.transform_world_device
 
@@ -107,7 +108,7 @@ from projectaria_tools.core.mps.utils import filter_points_from_confidence
 global_points_path = "/path/to/mps/output/trajectory/semidense_points.csv.gz"
 points = mps.read_global_point_cloud(global_points_path)
 
-# filter the point cloud by inverse depth and depth
+# filter the point cloud using thersholds on the  inverse depth and distance standard deviation.
 const float inverse_distance_std_threshold = 0.001;
 const float distance_std_threshold = 0.15;
 
@@ -139,7 +140,7 @@ const float inverseDistanceStdThreshold = 0.001;
 const float distanceStdThreshold = 0.15;
 GlobalPointCloud filteredPoints = filterPointsFromConfidence(points, inverseDistanceStdThreshold, distanceStdThreshold);
 
-// example: get position of this point in the world coordinate frame
+// example: get the position of this point in the world coordinate frame
 for (const GlobalPointPosition& point : filteredPoints) {
     const Eigen::Vector3d& position_world = point.position_world;
 }
@@ -206,66 +207,65 @@ for (const OnlineCalibration& calib : onlineCalibs) {
 </Tabs>
 ```
 
-### Eye gaze
+
+### Hand Tracking
+
 ```mdx-code-block
 <Tabs groupId="programming-language">
 <TabItem value="python" label="Python">
 ```
 ```python
 import projectaria_tools.core.mps as mps
+from projectaria_tools.core.mps.utils import get_nearest_wrist_and_palm_pose
 
-gaze_path = "/path/to/mps/output/eye_gaze/general_eye_gaze.csv"
-gaze_cpf = mps.read_eyegaze(eye_gaze_path)
 
-# project the 3D gaze point assume depth is 1.0 meter
-depth_m = 1.0
-gaze_point_cpf = mps.get_eyegaze_point_at_depth(gaze_cpf[1].yaw, gaze_cpf[1].pitch, depth_m)
-
-# example: query to find the closest Timestamp eye gaze data
-from projectaria_tools.core import data_provider
-from projectaria_tools.core.stream_id import StreamId
-from projectaria_tools.core.mps.utils import (
-    get_gaze_vector_reprojection,
-    get_nearest_eye_gaze
+## Load wrist and palm pose data
+wrist_and_palm_poses_path = "/path/to/mps/output/hand_tracking/wrist_and_palm_poses.csv"
+wrist_and_palm_poses = mps.hand_tracking.read_wrist_and_palm_poses(
+   wrist_and_palm_poses_path
 )
 
-query_timestamp_ns = int(gaze_cpf[1].tracking_timestamp.total_seconds() * 1e9)  # to be updated with your VRS timestamps
 
-eye_gaze_info = get_nearest_eye_gaze(gaze_cpf, query_timestamp_ns)
+# Example query: find the nearest hand tracking data outputs in relation to a specific timestamp
+wrist_and_palm_pose = get_nearest_wrist_and_palm_pose(
+   wrist_and_palm_poses, query_timestamp_ns
+)
 
-if eye_gaze_info:
-    # Re project the eye gaze point in the RGB camera
-    vrs_file = "example.vrs"
-    vrs_data_provider = data_provider.create_vrs_data_provider(vrs_file)
 
-    rgb_stream_id = StreamId("214-1")
-    rgb_stream_label = vrs_data_provider.get_label_from_stream_id(rgb_stream_id)
-    device_calibration = vrs_data_provider.get_device_calibration()
-    rgb_camera_calibration = device_calibration.get_camera_calib(rgb_stream_label)
-
-    gaze_projection = get_gaze_vector_reprojection(
-                    eye_gaze_info,
-                    rgb_stream_label,
-                    device_calibration,
-                    rgb_camera_calibration,
-                    depth_m,
-                )
-    print(gaze_projection)
+# Get left- and right-hand confidences and wrist and palm positions in the device frame
+# Left-hand side
+left_pose_confidence = wrist_and_palm_pose.left_hand.confidence
+left_wrist_position_device = wrist_and_palm_pose.left_hand.wrist_position_device
+left_palm_position_device = wrist_and_palm_pose.left_hand.palm_position_device
+# Right-hand side
+right_pose_confidence = wrist_and_palm_pose.right_hand.confidence
+right_wrist_position_device = wrist_and_palm_pose.right_hand.wrist_position_device
+right_palm_position_device = wrist_and_palm_pose.right_hand.palm_position_device
 ```
 ```mdx-code-block
 </TabItem>
 <TabItem value="cpp" label="C++">
 ```
 ```cpp
-#include <EyeGazeReader.h>
+#include <mps/HandTrackingReader.h>
+
 using namespace projectaria::tools::mps;
 
-std::string gazePath = "/path/to/mps/output/eye_gaze/eyegaze.csv";
-EyeGazes gazeCpf = readEyeGaze(gazePath);
+const auto wristAndPalmPoses = readWristAndPalmPoses("/path/to/mps/output/hand_tracking/wrist_and_palm_poses.csv");
 
-// project the 3D gaze point assume depth is 1.0 meter
-float depthM = 1.0f;
-Eigen::Vector3d gazePointCpf = getEyeGazePointAtDepth(gazeCpf[0].yaw, gazeCpf[0].pitch, depthM);
+for (const auto& wristAndPalmPose: wristAndPalmPoses) {
+  for (HANDEDNESS handedness : {HANDEDNESS::LEFT, HANDEDNESS::RIGHT}) {
+    const auto& oneHandWristAndPalmPose = wristAndPalmPose.value()[handedness];
+    if (!oneHandWristAndPalmPose ||
+        oneHandWristAndPalmPose.value().confidence < MIN_CONFIDENCE_) {
+      continue;
+    }
+    const auto& wristPose = oneHandWristAndPalmPose.value().wristPosition_device;
+    const auto& palmPose = oneHandWristAndPalmPose.value().palmPosition_device;
+    const auto& wristPose_world = T_World_Device.value() * wristPose;
+    const auto& palmPose_world = T_World_Device.value() * palmPose;
+  }
+}
 ```
 ```mdx-code-block
 </TabItem>

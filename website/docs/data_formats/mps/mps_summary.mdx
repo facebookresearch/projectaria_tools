@@ -27,6 +27,9 @@ MPS outputs use the following structure, in this example recording1.vrs was used
         │   │   ├── semidense_observations.csv.gz
         │   │   ├── semidense_points.csv.gz
         │   │   └── summary.json
+        │   ├── hand_tracking
+        │   │   ├── wrist_and_palm_poses.csv
+        │   │   └── summary.json
         │   ├── vrs_health_check.json
         │   └── vrs_health_check_slam.json
         └── recording1.vrs
@@ -76,14 +79,15 @@ In `tracking_timestamp_us`
 
 ## Operator summary
 
-The operator summary includes individual operator’s status (except for eye tracking that does not have a summary today), whether the operation is successful. There is three possible status flag:
+The operator summary includes individual operator’s status and whether the operation was successful. There are three possible status flags:
 
-* **SUCCESS**: the operator is successfully finished without known issues.
-* **WARN**: the operator is finished, but internally it detects problem(s) which may affect results quality. The operator still outputs the results, but we don’t have enough confidence in the quality of the results, so consume the results with caution.
-* **ERROR**: the operator is not finished, or finished with major error, or the quality of the results are too bad to be consumed. Results may or may not be generated, and should not be consumed even if there are results.
+* **SUCCESS**: the operator successfully finished, without known issues.
+* **WARNING**: The operator finished, but internally it detected problem(s) that may affect results quality. The operator still outputs the results, but we don’t have confidence in the quality of the results, so consume the results with caution.
+* **ERROR**: the operator did not finish, finished with major error, or the quality of the results are too bad to be consumed. Results may or may not be generated, and any results should not be consumed.
 
-Other than the status flag, extra information (or warning/error reasons if known) messages are included as part of the summary.
-Here’s an example summary JSON output:
+The summary also provides information about processes as well as any warning or error messages available
+
+Summary JSON output example:
 
 ```json
 

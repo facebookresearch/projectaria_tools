@@ -10,27 +10,19 @@ This page provides troubleshooting information for issues you may encounter whil
 It covers:
   - [Device and Recording Issues](#device-and-recording-issues)
   - [Desktop App Issues](#desktop-app-issues)
-  - [Desktop App Machine Perception Services Issues and Error Messages](#machine-perception-services-mps)
 
-Go to the [Glasses Manual](/ARK/glasses_manual/glasses_user_manual.mdx) for information about LED States, button configuration, how to factory reset and power cycle your device.
+
+#### Further resources
+* [Glasses Manual](/ARK/glasses_manual/glasses_user_manual.mdx)
+  * Information about LED States, button configuration, how to factory reset and power cycle your device.
+* [MPS Troubleshooting and Error Codes](/ARK/mps/mps_troubleshooting.mdx)
+  * For MPS CLI and Desktop Companion app.
+* [Client SDK & CLI Troubleshooting & Known Issues](/ARK/sdk/sdk_troubleshooting.mdx)
 
 If you need further support, have feedback or feature requests, go to our [Support page](/support.mdx).
 
 
 ## Device and Recording Issues
-
-### I haven't received my Project Aria glasses
-
-Once your Aria glasses request has been approved, please contact [_AriaOps@meta.com_](mailto:AriaOps@meta.com) if you project hasn't received the requested devices in:
-
-* 7 days when shipping to continental USA
-* 14 days when shipping internationally
-
-
-### I can't pair/detect my glasses with the Mobile Companion App!
-
-Make sure your Aria glasses are plugged into power and that the privacy switch is not turned on (the switch should be pushed forwards (towards the lenses of your device) to be able to pair.
-
 
 ### I can't start recording
 
@@ -46,88 +38,33 @@ It is possible you may have accidentally discarded your recording.  Do not use t
 The longer a device records for, the longer it takes for a recording to stop. This is because the larger the VRS file, the longer it takes a recording to finish indexing. This can be particularly apparent in the Desktop App, as you can press the Stop button and it looks like nothing has happened.
 
 :::note
-
 Recording has not fully stopped until the Recording LEDs have turned off
-
 :::
 
 ## Desktop App Issues
 
 ### Aria device flickers on and off in the Desktop app
 
-You most likely need to update your Aria device's OS. Pair your device with the mobile companion app. Your device should update automatically once paired. If the issue continues to occur:
+You most likely need to [update your Aria glasses' OS](/ARK/troubleshooting/update_glasses_os.mdx). If the issue continues to occur:
 
-
-1. In the Aria Mobile Companion App, select the settings icon next to your Paired Glasses
+1. In the Aria Mobile Companion App, go to [Device Settings](/docs/ARK/mobile_companion_app#aria-device-settings)
 2. Scroll down to Device Mode
-3. If you have the correct device, the device mode should say “Partner”
-    * If your device mode says anything else, please contact Aria User Support to get a replacement device
+3. If you have the correct glasses, the device mode should say “Partner”
+    * The device mode should say “Partner”
 4. If the device mode correctly shows “Partner”, scroll up to Glasses OS and select **Check for Updates**
 
 
 ### Copying files locally takes a long time!
 
-We recommend copying data from your Aria device using ADB or MTP (Windows automatic files transfer) rather than the Desktop App, for a faster experience.
-
-On a Windows machine, your Aria device will be automatically detected as a USB drive when plugged in and the Windows File Explorer will automatically open a new window showing Aria and its internal device storage.
+We recommend copying data from your Aria glasses using ADB or MTP (Windows automatic files transfer) rather than the Desktop App, for a faster experience.
 
 Go to the [Quickstart Guide](/ARK/ARK_quickstart.mdx) for ADB commands and MTP instructions.
 
 
 ### Desktop app/computer can't detect my Aria device
 
-It may be that your Aria device's battery is drained, make sure it is correctly charging (there should be a blue LED on the right arm) and wait ten minutes.
+It may be that your Aria glasses' battery is drained. Make sure it is correctly charging (there should be a blue LED on the right arm) and wait ten minutes. You may also wish to try a different port in your computer.
 
-On Linux, this also may be due to USB driver issues.
+On Linux, this may be due to USB driver issues:
 
 * [Fix USB Driver Issues in Linux](linux_usb_driver.mdx)
-
-
-## Machine Perception Services (MPS)
-
-### How do I find out what recording profile was used?
-
-There are several ways to check what recording profile was used.
-
-#### Method 1: Check the vrs.json file
-
-Every VRS recording comes with a .vrs.json file that contains metadata about that recording. Open the file with any text editor and check the `recording_profile`  value.
-
-#### Method 2: Use the Desktop app to get metadata from the VRS file
-
-1. Go to Recordings in the Desktop App
-2. Select Tools
-3. Select More > VRS Data Layout > JSON Metadata
-4. Select a VRS recording from your directory
-5. Search the opened .vrs-description.txt file for “profile”
-
-### Can’t upload data to MPS/Upload keeps failing
-If you cannot upload your data to MPS it could be that your VRS file is timing out during upload. Finding a faster internet connection may help or you can reduce your VRS file’s size. You may also wish to try the [MPS CLI](/ARK/mps/request_mps/mps_cli.mdx)
-* [How to reduce VRS file size](reduce_vrs_file_size.mdx)
-
-
-## Desktop App MPS Error Messages
-### Unsupported Format
-You may encounter this error message when trying to unzip a downloaded MPS output file, especially large trajectory files. “Unsupported Format” occurs when the zip file has not fully downloaded. Please wait and try again later.
-
-### Unsupported MPS Profile
-_This recording profile does not support trajectory generation._ <br/>
-_This recording profile does not support eye gaze generation._
-
-Trajectory and Eye Gaze derived data can only be generated if they have the necessary sensor data. Go to the [Recording Profiles page](/ARK/glasses_manual/profile_guide.mdx) for information about supported profiles.
-
-### Recording duration not supported
-
-_This recording duration is not supported by trajectory generation._
-
-If you experience this error message, it is because the recording is either too long or too short. Recordings need to be longer than 5 seconds and shorter than one hour.
-
-### Health checks failed (trajectory)
-
-The health checks for this recording failed.
-
-When trajectory data is derived, it goes through a series of health checks that are recorded in the summary.json file that's included with in every trajectory output. If your trajectory data fails, you can download a zip file that contains the summary.json file with further information.
-
-Go to Recordings > Uploads to download the summary.json file.
-
-If you need to reach out to [Support](/support.mdx), please include the Transaction ID (found in the Tools tab, MPS Uploads) as well as the summary.json file.

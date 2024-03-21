@@ -1,0 +1,58 @@
+---
+sidebar_position: 50
+title: Hand Tracking
+---
+# MPS Outputs - Hand Tracking
+
+Project Aria's [Machine Perception Services (MPS)](/ARK/mps/mps.mdx) uses Project Aria's SLAM (mono scene) camera images to estimate the hand movement of the wearer. Hand Tracking outputs are available for all recordings made with SLAM cameras and can be requested using the MPS CLI or Desktop Companion app.
+
+
+Go to [MPS Code Snippets](/data_utilities/core_code_snippets/mps.mdx) for how to:
+* Load the wrist and palm positions
+* Transform them to the world coordinate frame
+* Project them onto the SLAM or RGB images
+
+Hand Tracking data can be visualized in [Python](/data_utilities/visualization/visualization_python.mdx) or [C++](/data_utilities/visualization/visualization_cpp.mdx).
+
+## Hand Tracking Outputs
+
+We currently provide Wrist and Palm Tracking data. The file outputs are:
+
+* `wrist_and_palm_poses.csv` - the coordinates of the wrist and palm positions in the device frame
+* `summary.json` - high-level report on MPS wrist and palm tracking
+
+### wrist_and_palm_poses.csv
+
+`wrist_and_palm_poses.csv` contains the following fields:
+
+| **Column** | **Type** | **Description**   |
+|---|---|---|
+| tracking_timestamp_us | int    | Timestamp, in microseconds, of the SLAM camera frame in device time domain. This is the same time domain in which the MPS [trajectory outputs](/data_formats/mps/slam/mps_trajectory.mdx#open-loop-trajectory) are reported, so these timestamps can be directly used to infer the device pose from the MPS trajectory output. |
+|  left_tracking_confidence  | float    | A value between 0.0 and 1.0 indicating the confidence in the reported left wrist and palm positions. A value of -1.0 indicates that the left wrist and palm tracking data is missing for the frame, and the coordinates left_wrist_device_* and left_palm_device_* should not be used.    |
+|  tx_left_wrist_device  | float    | X-coordinate of the left wrist position given in the device frame in meters.    |
+|  ty_left_wrist_device  | float   | Y-coordinate of the left wrist position given in the device frame in meters.    |
+|  tz_left_wrist_device  | float    | Z-coordinate of the left wrist position given in the device frame in meters.    |
+|  tx_left_palm_device  | float    | X-coordinate of the left palm position given in the device frame in meters.    |
+|  ty_left_palm_device  | float    | Y-coordinate of the left palm position given in the device frame in meters.    |
+|  tz_left_palm_device  | float    | Z-coordinate of the left palm position given in the device frame in meters.    |
+|  right_tracking_confidence     | float | A value between 0.0 and 1.0 indicating the confidence in the reported right wrist and palm positions. A value of -1.0 indicates that the right wrist and palm tracking data is missing for the frame, and the coordinates right_wrist_device_* and right_palm_device_* should not be used.    |
+|  tx_right_wrist_device     | float    | X-coordinate of the right wrist position given in the device frame in meters.    |
+|  ty_right_wrist_device     | float    | Y-coordinate of the right wrist position given in the device frame in meters.    |
+|  tz_right_wrist_device     | float    | Z-coordinate of the right wrist position given in the device frame in meters.    |
+|  tx_right_palm_device     | float    | X-coordinate of the right palm position given in the device frame in meters.    |
+|  ty_right_palm_device     | float    | Y-coordinate of the right palm position given in the device frame in meters.    |
+|  tz_right_palm_device     | float    | Z-coordinate of the right palm position given in the device frame in meters.    |
+
+The wrist and palm poses are given in the device frame in meters.
+
+
+## summary.json
+
+`summary.json` contains the [Operator Summary](/data_formats/mps/mps_summary.mdx#operator-summary), listed in MPS Basics, as well as the following fields:
+
+
+| Field    | Type    | Description    |
+|---|---|---|
+| mean_confidence    | float    | Average `left_tracking_confidence` and `right_tracking_confidence` value for frames with valid results   |
+| total_frames    | int    | Total number of frames    |
+| valid_frame_fraction    | float    | Fraction of frames that have reported a valid tracking result    |
