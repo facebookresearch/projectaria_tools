@@ -66,6 +66,8 @@ class CameraCalibration {
   std::string getSerialNumber() const;
   Sophus::SE3d getT_Device_Camera() const;
   Eigen::Vector2i getImageSize() const;
+  double getMaxSolidAngle() const;
+  std::optional<double> getValidRadius() const;
   /**
    * @brief Function to check whether a pixel is within the valid area of the sensor plane.
    */

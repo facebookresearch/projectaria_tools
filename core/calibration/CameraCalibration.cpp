@@ -54,6 +54,14 @@ Eigen::Vector2i CameraCalibration::getImageSize() const {
   return Eigen::Vector2i(imageWidth_, imageHeight_);
 }
 
+double CameraCalibration::getMaxSolidAngle() const {
+  return maxSolidAngle_;
+}
+
+std::optional<double> CameraCalibration::getValidRadius() const {
+  return maybeValidRadius_;
+}
+
 namespace {
 // A helper function to determine if a pixel is within valid mask in a camera
 inline bool checkPixelValidInMask(

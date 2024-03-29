@@ -133,6 +133,8 @@ inline void declareCameraCalibration(py::module& m) {
       .def("get_serial_number", &CameraCalibration::getSerialNumber)
       .def("get_transform_device_camera", &CameraCalibration::getT_Device_Camera)
       .def("get_image_size", &CameraCalibration::getImageSize)
+      .def("get_max_solid_angle", &CameraCalibration::getMaxSolidAngle)
+      .def("get_valid_radius", &CameraCalibration::getValidRadius)
       .def(
           "is_visible",
           &CameraCalibration::isVisible,
