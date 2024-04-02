@@ -271,31 +271,3 @@ for (const auto& wristAndPalmPose: wristAndPalmPoses) {
 </TabItem>
 </Tabs>
 ```
-
-### **Static camera calibration**
-
-```mdx-code-block
-<Tabs groupId="programming-language">
-<TabItem value="python" label="Python">
-```
-```python
-import projectaria_tools.core.mps as mps
-
-static_cameras_path = "/path/to/mps/output/trajectory/static_cam_calibs.csv"
-static_cameras = mps.read_static_camera_calibrations(static_cameras_path)
-```
-```mdx-code-block
-</TabItem>
-<TabItem value="cpp" label="C++">
-```
-```cpp
-#include <StaticCameraCalibrationReader.h>
-using namespace projectaria::tools::mps;
-
-std::string staticCamerasPath = "/path/to/mps/output/trajectory/static_cam_calibs.csv";
-StaticCameraCalibrations staticCameras = readStaticCameraCalibrations(staticCamerasPath);
-```
-```mdx-code-block
-</TabItem>
-</Tabs>
-```
