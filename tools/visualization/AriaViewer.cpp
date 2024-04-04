@@ -339,7 +339,7 @@ void AriaViewer::updateImages() {
 void AriaViewer::updateSensors() {
   if (ariaVisData_->isDataChanged(kMagnetometerStreamId)) {
     for (const auto& data : ariaVisData_->magMicroTesla_.at(kMagnetometerStreamId)) {
-      streamIdToDataLog_.at(kMagnetometerStreamId)->Log(data);
+      streamIdToDataLog_.at(kMagnetometerStreamId)->Log({data.begin(), data.end()});
     }
     ariaVisData_->clearData(kMagnetometerStreamId);
     ariaVisData_->setDataChanged(false, kMagnetometerStreamId);
@@ -347,11 +347,11 @@ void AriaViewer::updateSensors() {
 
   if (ariaVisData_->isDataChanged(kImuRightStreamId)) {
     for (const auto& data : ariaVisData_->accMSec2Map_.at(kImuRightStreamId)) {
-      streamIdToMultiDataLog_.at(kImuRightStreamId).at(0)->Log(data);
+      streamIdToMultiDataLog_.at(kImuRightStreamId).at(0)->Log({data.begin(), data.end()});
     }
 
     for (const auto& data : ariaVisData_->gyroRadSecMap_.at(kImuRightStreamId)) {
-      streamIdToMultiDataLog_.at(kImuRightStreamId).at(1)->Log(data);
+      streamIdToMultiDataLog_.at(kImuRightStreamId).at(1)->Log({data.begin(), data.end()});
     }
 
     ariaVisData_->clearData(kImuRightStreamId);
@@ -360,11 +360,11 @@ void AriaViewer::updateSensors() {
 
   if (ariaVisData_->isDataChanged(kImuLeftStreamId)) {
     for (const auto& data : ariaVisData_->accMSec2Map_.at(kImuLeftStreamId)) {
-      streamIdToMultiDataLog_.at(kImuLeftStreamId).at(0)->Log(data);
+      streamIdToMultiDataLog_.at(kImuLeftStreamId).at(0)->Log({data.begin(), data.end()});
     }
 
     for (const auto& data : ariaVisData_->gyroRadSecMap_.at(kImuLeftStreamId)) {
-      streamIdToMultiDataLog_.at(kImuLeftStreamId).at(1)->Log(data);
+      streamIdToMultiDataLog_.at(kImuLeftStreamId).at(1)->Log({data.begin(), data.end()});
     }
     ariaVisData_->clearData(kImuLeftStreamId);
     ariaVisData_->setDataChanged(false, kImuLeftStreamId);

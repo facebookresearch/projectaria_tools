@@ -49,9 +49,9 @@ bool MotionSensorPlayer::onDataLayoutRead(
     dataRecord_.temperature = data.temperature.get();
     dataRecord_.captureTimestampNs = data.captureTimestampNs.get();
     dataRecord_.arrivalTimestampNs = data.arrivalTimestampNs.get();
-    data.accelMSec2.get(dataRecord_.accelMSec2);
-    data.gyroRadSec.get(dataRecord_.gyroRadSec);
-    data.magTesla.get(dataRecord_.magTesla);
+    data.accelMSec2.get(dataRecord_.accelMSec2.data(), 3);
+    data.gyroRadSec.get(dataRecord_.gyroRadSec.data(), 3);
+    data.magTesla.get(dataRecord_.magTesla.data(), 3);
     nextTimestampSec_ = std::nextafter(r.timestamp, std::numeric_limits<double>::max());
     callback_(dataRecord_, configRecord_, verbose_);
   }

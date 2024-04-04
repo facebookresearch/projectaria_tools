@@ -72,7 +72,7 @@ struct AriaVisualizationData {
   std::map<vrs::StreamId, projectaria::tools::data_provider::ImageData> cameraImageBufferMap_;
 
   // - current Array data accMSec2, gyroRadSec, magnetometer chunks
-  std::map<vrs::StreamId, std::vector<std::vector<float>>> accMSec2Map_, gyroRadSecMap_,
+  std::map<vrs::StreamId, std::vector<std::array<float, 3>>> accMSec2Map_, gyroRadSecMap_,
       magMicroTesla_;
 
   // - current audio chunks

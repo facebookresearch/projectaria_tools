@@ -151,13 +151,6 @@ bool Motion::getResult() {
   return true;
 }
 
-namespace {
-bool checkEqualVector3(const std::vector<float>& first, const std::vector<float>& second) {
-  return (first.size() == 3 && second.size() == 3) &&
-      std::equal(first.begin(), first.end(), second.begin(), second.end());
-}
-} // namespace
-
 void Motion::processData(const data_provider::MotionData& data) {
   std::lock_guard lock{mutex_};
   bool currentSampleIsBad = false;
@@ -227,9 +220,9 @@ void Motion::processData(const data_provider::MotionData& data) {
     prevGyroTimeStampNs = data.captureTimestampNs;
   }
   if (data.magValid) {
-    if (checkEqualVector3(data.magTesla, {0.0, 0.0, 0.0})) {
+    if (data.magTesla == std::array<float, 3>{0.f}) {
       motionStats_.zeroMag++;
-    } else if (checkEqualVector3(data.magTesla, prevMag_)) {
+    } else if (data.magTesla == prevMag_) {
       motionStats_.repeatMag++;
     } else {
       prevMag_ = data.magTesla;

@@ -52,9 +52,9 @@ struct MotionData {
   double temperature; ///< @brief temperature in celsius degrees
   int64_t captureTimestampNs; ///< @brief capture time in device time domain
   int64_t arrivalTimestampNs; ///< @brief arrival time in host time domain
-  std::vector<float> accelMSec2; ///< @brief accelerometer data in m/sec2
-  std::vector<float> gyroRadSec; ///< @brief gyroscope data in rad/sec2
-  std::vector<float> magTesla; ///<@brief magnetometer data in Tesla
+  std::array<float, 3> accelMSec2; ///< @brief accelerometer data in m/sec2
+  std::array<float, 3> gyroRadSec; ///< @brief gyroscope data in rad/sec2
+  std::array<float, 3> magTesla; ///<@brief magnetometer data in Tesla
 };
 
 using MotionCallback =

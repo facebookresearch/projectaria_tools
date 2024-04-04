@@ -66,10 +66,10 @@ class Motion : public Periodic {
   std::unique_ptr<data_provider::MotionSensorPlayer> motionSensorPlayer_;
   MotionStats motionStats_;
   MotionConfig motionConfig_;
-  std::vector<float> prevAccel_{3, 0};
-  std::vector<float> prevGyro_{3, 0};
+  std::array<float, 3> prevAccel_{0.f};
+  std::array<float, 3> prevGyro_{0.f};
   std::optional<int64_t> prevGyroTimeStampNs;
-  std::vector<float> prevMag_{3, 0};
+  std::array<float, 3> prevMag_{0.f};
   uint64_t contRepeatAccel_ = 0;
   uint64_t contRepeatGyro_ = 0;
   const float defaultPeriodUs_; // Default period to use if not specified in the stream
