@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <array>
+
 #include <data_layout/MotionSensorMetadata.h>
 #include <vrs/RecordFormatStreamPlayer.h>
 
