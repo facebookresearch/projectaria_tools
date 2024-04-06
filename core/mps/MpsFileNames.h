@@ -27,7 +27,7 @@ inline const std::string kMpsSlamSemidensePointsFile = "semidense_points.csv.gz"
 inline const std::string kMpsSlamSemidensePointsFileDeprecated = "global_points.csv.gz";
 inline const std::string kMpsSlamSemidenseObservationsFile = "semidense_observations.csv.gz";
 inline const std::string MpsSlamOnlineCalibrationFile = "online_calibration.jsonl";
-inline const std::string kMpsSlamSummaryFile = "online_calibration.jsonl";
+inline const std::string kMpsSlamSummaryFile = "summary.json";
 
 // EyeGaze
 inline const std::string kMpsGeneralEyegazeFile = "general_eye_gaze.csv";
