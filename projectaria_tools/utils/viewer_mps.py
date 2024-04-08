@@ -23,7 +23,7 @@ import numpy as np
 
 import rerun as rr
 
-from projectaria_tools.core import data_provider, mps
+from projectaria_tools.core import calibration, data_provider, mps
 from projectaria_tools.core.calibration import CameraCalibration, DeviceCalibration
 from projectaria_tools.core.mps import MpsDataPathsProvider
 from projectaria_tools.core.mps.utils import (
@@ -94,20 +94,20 @@ def parse_args():
         "--rrd_output_path", type=str, default="", help=argparse.SUPPRESS
     )
 
+    parser.add_argument(
+        "--rotate_image",
+        action="store_true",
+        help="If set, rotate the RGB image by 90 degrees such that it is upright",
+    )
+
     return parser.parse_args()
 
 
-def get_rgb_projection_from_device_point(
-    point: np.ndarray,
-    rgb_camera_calibration: CameraCalibration,
-    T_device_rgb: SE3,
-    down_sampling_factor: int,
+def get_camera_projection_from_device_point(
+    point: np.ndarray, camera_calibration: CameraCalibration
 ) -> Optional[np.ndarray]:
-    projected_point = rgb_camera_calibration.project(T_device_rgb.inverse() @ point)
-    if projected_point is not None:
-        return projected_point / down_sampling_factor
-    else:
-        return None
+    T_device_camera = camera_calibration.get_transform_device_camera()
+    return camera_calibration.project(T_device_camera.inverse() @ point)
 
 
 def log_device_trajectory(trajectory_files: List[str]) -> None:
@@ -224,11 +224,14 @@ def log_RGB_image(
     down_sampling_factor: int,
     jpeg_quality: int,
     rgb_stream_label: str,
+    rotate_image: bool = False,
 ) -> None:
     if data.sensor_data_type() == SensorDataType.IMAGE:
         img = data.image_data_and_record()[0].to_numpy_array()
         if down_sampling_factor > 1:
             img = img[::down_sampling_factor, ::down_sampling_factor]
+        if rotate_image:
+            img = np.rot90(img, -1)
         # Note: We configure the QUEUE to return only RGB image, so we are sure this image is corresponding to a RGB frame
         rr.log(
             f"world/device/{rgb_stream_label}",
@@ -341,34 +344,26 @@ def log_hand_tracking(
             )
             logged_hand_tracking_3D = True
         # Log wrist and palm 3D point projections on the image
-        T_device_rgb = rgb_camera_calibration.get_transform_device_camera()
-
         wrist_pixels = [
-            get_rgb_projection_from_device_point(
-                wrist_point,
-                rgb_camera_calibration,
-                T_device_rgb,
-                down_sampling_factor,
-            )
+            get_camera_projection_from_device_point(wrist_point, rgb_camera_calibration)
             for wrist_point in wrist_points
         ]
         palm_pixels = [
-            get_rgb_projection_from_device_point(
-                palm_point,
-                rgb_camera_calibration,
-                T_device_rgb,
-                down_sampling_factor,
-            )
+            get_camera_projection_from_device_point(palm_point, rgb_camera_calibration)
             for palm_point in palm_points
         ]
         wrist_and_palm_points_2d = []
         wrist_and_palm_line_strips_2d = []
         for wrist_pixel, palm_pixel in zip(wrist_pixels, palm_pixels):
             wrist_and_palm_points_2d += [
-                p for p in [wrist_pixel, palm_pixel] if p is not None
+                p / down_sampling_factor
+                for p in [wrist_pixel, palm_pixel]
+                if p is not None
             ]
             if wrist_pixel is not None and palm_pixel is not None:
-                wrist_and_palm_line_strips_2d += [[wrist_pixel, palm_pixel]]
+                wrist_and_palm_line_strips_2d += [
+                    [p / down_sampling_factor for p in [wrist_pixel, palm_pixel]]
+                ]
 
         if wrist_and_palm_points_2d:
             rr.log(
@@ -488,6 +483,18 @@ def main():
     rgb_stream_label = provider.get_label_from_stream_id(rgb_stream_id)
     rgb_camera_calibration = device_calibration.get_camera_calib(rgb_stream_label)
 
+    if args.rotate_image:
+        rgb_linear_camera_calibration = calibration.get_linear_camera_calibration(
+            int(rgb_camera_calibration.get_image_size()[0]),
+            int(rgb_camera_calibration.get_image_size()[1]),
+            rgb_camera_calibration.get_focal_lengths()[0],
+            "pinhole",
+            rgb_camera_calibration.get_transform_device_camera(),
+        )
+        rgb_camera_calibration = calibration.rotate_camera_calib_cw90deg(
+            rgb_linear_camera_calibration
+        )
+
     # Load Trajectory, Eye Gaze, and Wrist and Palm Pose data - corresponding to this specific VRS file
     trajectory_data = (
         mps.read_closed_loop_trajectory(str(args.trajectory[0]))
@@ -532,6 +539,7 @@ def main():
             args.down_sampling_factor,
             args.jpeg_quality,
             rgb_stream_label,
+            args.rotate_image,
         )
 
         log_eye_gaze(

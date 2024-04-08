@@ -140,7 +140,9 @@ def get_gaze_vector_reprojection(
     gaze_center_in_cpf = get_eyegaze_point_at_depth(
         eye_gaze.yaw, eye_gaze.pitch, depth_m
     )
-    transform_cpf_sensor = device_calibration.get_transform_cpf_sensor(stream_id_label)
-    gaze_center_in_camera = transform_cpf_sensor.inverse() @ gaze_center_in_cpf
+    transform_device_cpf = device_calibration.get_transform_device_cpf()
+    transform_device_camera = camera_calibration.get_transform_device_camera()
+    transform_camera_cpf = transform_device_camera.inverse() @ transform_device_cpf
+    gaze_center_in_camera = transform_camera_cpf @ gaze_center_in_cpf
     gaze_center_in_pixels = camera_calibration.project(gaze_center_in_camera)
     return gaze_center_in_pixels
