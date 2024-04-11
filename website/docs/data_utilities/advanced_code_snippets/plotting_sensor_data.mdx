@@ -14,11 +14,11 @@ This tutorial shows how to plot Project Aria sensor data using Python. This exam
 
 We start by opening a VRS file:
 ```python
-from projectaria_tools.core import dataprovider, image
-from projectaria_tools.core.stream_id import stream_id
+from projectaria_tools.core import data_provider, image
+from projectaria_tools.core.stream_id import StreamId
 
 vrsfile = "example.vrs"
-provider = dataprovider.create_vrs_data_provider(vrsfile)
+provider = data_provider.create_vrs_data_provider(vrsfile)
 ```
 
 ### Save Images as PNGs
@@ -32,6 +32,7 @@ stream_mappings = {
     "camera-eyetracking": StreamId("211-1"),
 }
 
+index = 1 # sample index (as an example)
 for [stream_name, stream_id] in stream_mappings.items():
     image = provider.get_image_data_by_index(stream_id, index)
     Image.fromarray(image[0].to_numpy_array()).save(f'{stream_name}.png')
