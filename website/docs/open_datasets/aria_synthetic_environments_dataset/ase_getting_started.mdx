@@ -10,7 +10,9 @@ This section will cover everything you need to know to get up and running using 
 * The install instructions specific to ASE
 * A quick tutorial which runs through a couple of Jupyter notebook for loading and visualizing sample data.
 
-[**Jupyter notebook error**](/docs/data_utilities/installation/troubleshooting#jupyter-notebook-error): If you have problems using Jupyter examples, please [upgrade python3](https://www.python.org/downloads/) to the latest version.
+:::tip [Jupyter notebook error](/data_utilities/installation/troubleshooting.mdx#jupyter-notebook-error)
+If you have problems using Jupyter examples, please [upgrade python3](https://www.python.org/downloads/) to the latest version.
+:::
 
 ## Quickstart Tutorial - Python
 
@@ -32,7 +34,7 @@ python3 -m venv $HOME/projectaria_tools_python_env
 source $HOME/projectaria_tools_python_env/bin/activate
 ```
 
-### Step 3 : Install projectaria_tools from pypi
+### Step 3 : Install projectaria_tools from PyPi
 
 ```bash
 pip3 install --upgrade pip
@@ -40,7 +42,7 @@ pip3 install --upgrade pip
 pip3 install projectaria-tools'[all]'
 ```
 
-The ASE python tooling for projection of 3D points to RGB images is included in the projectaria_tools package, so no further steps are needed. The following packages used in this tutorial are standard python packages that are also included in project_aria_tools build.
+The ASE Python tooling for projection of 3D points to RGB images is included in the projectaria_tools package, so no further steps are needed. The following packages used in this tutorial are standard python packages that are also included in project_aria_tools build:
 
 * `plotly`
 * `numpy`
@@ -75,3 +77,6 @@ python3 projects/AriaSyntheticEnvironment/aria_synthetic_environments_downloader
 ```
 jupyter notebook projects/AriaSyntheticEnvironment/tutorial/ase_tutorial_notebook.ipynb
 ```
+
+## Troubleshooting
+Go to [Data Utilities Troubleshooting](/data_utilities/installation/troubleshooting.mdx) if you experience issues implementing this guide.
