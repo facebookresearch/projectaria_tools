@@ -50,8 +50,7 @@ inline bool exportToPly(
           << "property uchar red" << '\n'
           << "property uchar green" << '\n'
           << "property uchar blue" << '\n'
-          << "end_header"
-          << "\n";
+          << "end_header" << "\n";
 
   outfile << std::fixed << std::setprecision(std::numeric_limits<double>::digits10 + 1);
 
@@ -93,8 +92,7 @@ inline bool exportToPly(
           << "property uchar red" << '\n'
           << "property uchar green" << '\n'
           << "property uchar blue" << '\n'
-          << "end_header"
-          << "\n";
+          << "end_header" << "\n";
 
   outfile << std::fixed << std::setprecision(std::numeric_limits<double>::digits10 + 1);
 

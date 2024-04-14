@@ -22,16 +22,16 @@ when --disable-logging is added
 #include <iostream>
 
 #undef XR_LOGI
-#define XR_LOGI(...)                                   \
-  std::cout << "[" << DEFAULT_LOG_CHANNEL << "][INFO]" \
-            << ": " << fmt::format(__VA_ARGS__) << std::endl;
+#define XR_LOGI(...)                                                                       \
+  std::cout << "[" << DEFAULT_LOG_CHANNEL << "][INFO]" << ": " << fmt::format(__VA_ARGS__) \
+            << std::endl;
 
 #undef XR_LOGE
-#define XR_LOGE(...)                                    \
-  std::cout << "[" << DEFAULT_LOG_CHANNEL << "][ERROR]" \
-            << ": " << fmt::format(__VA_ARGS__) << std::endl;
+#define XR_LOGE(...)                                                                        \
+  std::cout << "[" << DEFAULT_LOG_CHANNEL << "][ERROR]" << ": " << fmt::format(__VA_ARGS__) \
+            << std::endl;
 
 #undef XR_LOGW
-#define XR_LOGW(...)                                      \
-  std::cout << "[" << DEFAULT_LOG_CHANNEL << "][WARNING]" \
-            << ": " << fmt::format(__VA_ARGS__) << std::endl;
+#define XR_LOGW(...)                                                                          \
+  std::cout << "[" << DEFAULT_LOG_CHANNEL << "][WARNING]" << ": " << fmt::format(__VA_ARGS__) \
+            << std::endl;
