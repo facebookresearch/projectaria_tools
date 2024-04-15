@@ -134,8 +134,8 @@ $$
 $$
 u_r, v_r, t_x, t_y are defined as in the Fisheye62 model, while $tp_x$ and $tp_y$ are defined as:
 $$
-   tp_x(u_r, v_r) = s_0 r(\theta)^2 + s_1  r(\theta)^4
-   tp_x(u_r, v_r) = s_2 r(\theta)^2 + s_3  r(\theta)^4
+   tp_x(u_r, v_r) = s_0 r(\theta)^2 + s_1  r(\theta)^4, \\
+   tp_y(u_r, v_r) = s_2 r(\theta)^2 + s_3  r(\theta)^4.
 $$
 
 To unproject from camera pixel $(u, v)$ to the world point $(\theta, \varphi)$, we first use Newton method to compute $u_r$ and $v_r$ from $(u - c_x)/f_x$ and $(v - cy)/f_y$, and then compute $(\theta, \varphi)$ using the above KB3 unproject method.
