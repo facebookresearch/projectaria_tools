@@ -17,7 +17,7 @@ import os
 
 from pathlib import Path
 
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 import numpy as np
 
@@ -95,9 +95,15 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--rotate_image",
+        "--no_rotate_image_upright",
         action="store_true",
-        help="If set, rotate the RGB image by 90 degrees such that it is upright",
+        help="If set, the RGB images are shown in their original orientation, which is rotated 90 degrees ccw from upright.",
+    )
+
+    parser.add_argument(
+        "--no_rectify_image",
+        action="store_true",
+        help="If set, the raw fisheye RGB images are shown without being undistorted.",
     )
 
     return parser.parse_args()
@@ -224,14 +230,14 @@ def log_RGB_image(
     down_sampling_factor: int,
     jpeg_quality: int,
     rgb_stream_label: str,
-    rotate_image: bool = False,
+    postprocess_image: Callable[np.ndarray, np.ndarray] = lambda img: img,
 ) -> None:
     if data.sensor_data_type() == SensorDataType.IMAGE:
         img = data.image_data_and_record()[0].to_numpy_array()
+        img = postprocess_image(img)
         if down_sampling_factor > 1:
             img = img[::down_sampling_factor, ::down_sampling_factor]
-        if rotate_image:
-            img = np.rot90(img, -1)
+
         # Note: We configure the QUEUE to return only RGB image, so we are sure this image is corresponding to a RGB frame
         rr.log(
             f"world/device/{rgb_stream_label}",
@@ -280,15 +286,18 @@ def log_eye_gaze(
             if gaze_projection is not None:
                 rr.log(
                     f"world/device/{rgb_stream_label}/eye-gaze_projection",
-                    rr.Points2D(gaze_projection / down_sampling_factor, radii=4),
+                    rr.Points2D(
+                        gaze_projection / down_sampling_factor,
+                        radii=4,
+                    ),
                 )
                 logged_eyegaze = True
             # Else (eye gaze projection is outside the image or behind the image plane)
     if not logged_eyegaze:
-        rr.log("world/device/eye-gaze", rr.Clear(recursive=False))
+        rr.log("world/device/eye-gaze", rr.Clear.flat())
         rr.log(
             f"world/device/{rgb_stream_label}/eye-gaze_projection",
-            rr.Clear(recursive=False),
+            rr.Clear.flat(),
         )
 
 
@@ -302,7 +311,8 @@ def log_hand_tracking(
     #
     # Hand Tracking (wrist and palm 3D pose and image projections)
     #
-    logged_hand_tracking_2D: bool = False
+    logged_hand_tracking_2D_points: bool = False
+    logged_hand_tracking_2D_links: bool = False
     logged_hand_tracking_3D: bool = False
     if wrist_and_palm_poses:
         wrist_and_palm_pose = get_nearest_wrist_and_palm_pose(
@@ -374,21 +384,32 @@ def log_hand_tracking(
                     colors=[WRIST_PALM_COLOR],
                 ),
             )
-            if wrist_and_palm_line_strips_2d:
-                rr.log(
-                    f"world/device/{rgb_stream_label}/wrist-and-palm_projection/link",
-                    rr.LineStrips2D(
-                        wrist_and_palm_line_strips_2d,
-                        colors=[WRIST_PALM_COLOR],
-                    ),
-                )
-            logged_hand_tracking_2D = True
+            logged_hand_tracking_2D_points = True
+
+        if wrist_and_palm_line_strips_2d:
+            rr.log(
+                f"world/device/{rgb_stream_label}/wrist-and-palm_projection/link",
+                rr.LineStrips2D(
+                    wrist_and_palm_line_strips_2d,
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+            logged_hand_tracking_2D_links = True
+
     if not logged_hand_tracking_3D:
-        rr.log("world/device/wrist-and-palm", rr.Clear(recursive=True))
-    if not logged_hand_tracking_2D:
+        rr.log("world/device/wrist-and-palm", rr.Clear.recursive())
+
+    if not logged_hand_tracking_2D_points:
+        # If no points were found, recursively clear the 2D projections
         rr.log(
             f"world/device/{rgb_stream_label}/wrist-and-palm_projection",
-            rr.Clear(recursive=True),
+            rr.Clear.recursive(),
+        )
+    elif not logged_hand_tracking_2D_links:
+        # If only the links are missing, clear the links
+        rr.log(
+            f"world/device/{rgb_stream_label}/wrist-and-palm_projection/link",
+            rr.Clear.flat(),
         )
 
 
@@ -483,7 +504,7 @@ def main():
     rgb_stream_label = provider.get_label_from_stream_id(rgb_stream_id)
     rgb_camera_calibration = device_calibration.get_camera_calib(rgb_stream_label)
 
-    if args.rotate_image:
+    if not args.no_rectify_image:
         rgb_linear_camera_calibration = calibration.get_linear_camera_calibration(
             int(rgb_camera_calibration.get_image_size()[0]),
             int(rgb_camera_calibration.get_image_size()[1]),
@@ -491,9 +512,32 @@ def main():
             "pinhole",
             rgb_camera_calibration.get_transform_device_camera(),
         )
-        rgb_camera_calibration = calibration.rotate_camera_calib_cw90deg(
-            rgb_linear_camera_calibration
-        )
+        if not args.no_rotate_image_upright:
+            rgb_rotated_linear_camera_calibration = (
+                calibration.rotate_camera_calib_cw90deg(rgb_linear_camera_calibration)
+            )
+            camera_calibration = rgb_rotated_linear_camera_calibration
+        else:
+            camera_calibration = rgb_linear_camera_calibration
+    else:  # No rectification
+        if args.no_rotate_image_upright:
+            camera_calibration = rgb_camera_calibration
+        else:
+            raise NotImplementedError(
+                "Showing upright-rotated image without rectification is not currently supported.\n"
+                "Please use --no-rotate-image-upright and --no-rectify-image together."
+            )
+
+    def post_process_image(img):
+        if not args.no_rectify_image:
+            img = calibration.distort_by_calibration(
+                img,
+                rgb_linear_camera_calibration,
+                rgb_camera_calibration,
+            )
+            if not args.no_rotate_image_upright:
+                img = np.rot90(img, k=3)
+        return img
 
     # Load Trajectory, Eye Gaze, and Wrist and Palm Pose data - corresponding to this specific VRS file
     trajectory_data = (
@@ -530,7 +574,7 @@ def main():
         log_camera_pose(
             trajectory_data,
             device_time_ns,
-            rgb_camera_calibration,
+            camera_calibration,
             rgb_stream_label,
         )
 
@@ -539,7 +583,7 @@ def main():
             args.down_sampling_factor,
             args.jpeg_quality,
             rgb_stream_label,
-            args.rotate_image,
+            postprocess_image=post_process_image,
         )
 
         log_eye_gaze(
@@ -548,14 +592,14 @@ def main():
             T_device_CPF,
             rgb_stream_label,
             device_calibration,
-            rgb_camera_calibration,
+            camera_calibration,
             args.down_sampling_factor,
         )
 
         log_hand_tracking(
             wrist_and_palm_poses,
             device_time_ns,
-            rgb_camera_calibration,
+            camera_calibration,
             rgb_stream_label,
             args.down_sampling_factor,
         )
