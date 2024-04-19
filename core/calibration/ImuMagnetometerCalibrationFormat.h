@@ -29,7 +29,7 @@ struct fmt::formatter<projectaria::tools::calibration::ImuCalibration>
   template <typename FormatContext>
   auto format(const projectaria::tools::calibration::ImuCalibration& imuCalib, FormatContext& ctx)
       const {
-    return format_to(
+    return fmt::format_to(
         ctx.out(),
         "ImuCalibration(label: {}, T_Device_Imu: {})",
         imuCalib.getLabel(),

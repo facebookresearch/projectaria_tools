@@ -31,7 +31,7 @@ struct fmt::formatter<projectaria::tools::mps::EyeGazeVergence> : fmt::formatter
       const {
     constexpr double kRadsToDegs = 180.0 / M_PI;
 
-    return format_to(
+    return fmt::format_to(
         ctx.out(),
         "EyeGazeVergence(left_yaw: {:.2f} degs, right_yaw: {:.2f} degs, left_yaw_low: {:.2f} degs, right_yaw_low: {:.2f} degs, left_yaw_high: {:.2f} degs, right_yaw_high: {:.2f} degs, tx_left_eye: {} m, ty_left_eye: {} m, tz_left_eye: {} m, tx_right_eye: {} m, ty_right_eye: {} m, tz_right_eye: {} m)",
         gazeVergence.left_yaw * kRadsToDegs,
@@ -58,7 +58,7 @@ struct fmt::formatter<projectaria::tools::mps::EyeGaze> : fmt::formatter<std::st
   template <typename FormatContext>
   auto format(const projectaria::tools::mps::EyeGaze& gaze, FormatContext& ctx) const {
     constexpr double kRadsToDegs = 180.0 / M_PI;
-    return format_to(
+    return fmt::format_to(
         ctx.out(),
         "EyeGaze(tracking_timestamp: {}, yaw: {:.2f} degs, pitch: {:.2f} degs, depth: {} m, yaw_low: {:.2f} degs, yaw_high: {:.2f} degs, pitch_low: {:.2f} degs, pitch_high: {:.2f} degs, vergence: {}, session_uid: {})",
         gaze.trackingTimestamp,

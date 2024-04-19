@@ -31,7 +31,7 @@ struct fmt::formatter<projectaria::tools::mps::OpenLoopTrajectoryPose>
   template <typename FormatContext>
   auto format(const projectaria::tools::mps::OpenLoopTrajectoryPose& pose, FormatContext& ctx)
       const {
-    return format_to(
+    return fmt::format_to(
         ctx.out(),
         "OpenLoopTrajectory(tracking_timestamp: {}, utc_timestamp: {}, quality_score: {:.4f}, sessionUid: {}, T_odometry_device: {}, deviceLinearVelocity_odometry: {}, angularVelocity_device: {}, gravity_odometry: {})",
         pose.trackingTimestamp,
@@ -55,7 +55,7 @@ struct fmt::formatter<projectaria::tools::mps::ClosedLoopTrajectoryPose>
   template <typename FormatContext>
   auto format(const projectaria::tools::mps::ClosedLoopTrajectoryPose& pose, FormatContext& ctx)
       const {
-    return format_to(
+    return fmt::format_to(
         ctx.out(),
         "ClosedLoopTrajectory(tracking_timestamp: {}, utc_timestamp: {}, quality_score: {:.4f}, graphUid: {}, T_world_device: {}, deviceLinearVelocity_device: {}, angularVelocity_device: {}, gravity_world: {})",
         pose.trackingTimestamp,

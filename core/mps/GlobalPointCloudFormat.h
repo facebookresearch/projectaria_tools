@@ -28,7 +28,7 @@ struct fmt::formatter<projectaria::tools::mps::GlobalPointPosition>
   // Format the Point object
   template <typename FormatContext>
   auto format(const projectaria::tools::mps::GlobalPointPosition& point, FormatContext& ctx) const {
-    return format_to(
+    return fmt::format_to(
         ctx.out(),
         "GlobalPointPosition(uid = {}, graphUid = {}, position_world = {}, inverseDistanceStd = {:.4f}, distanceStd = {:.4f})",
         point.uid,

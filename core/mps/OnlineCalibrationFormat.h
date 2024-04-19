@@ -39,7 +39,7 @@ struct fmt::formatter<projectaria::tools::mps::OnlineCalibration>
     for (const auto& imuCalib : calib.imuCalibs) {
       imuCalibsStr << fmt::to_string(imuCalib) << ", ";
     }
-    return format_to(
+    return fmt::format_to(
         ctx.out(),
         "OnlineCalibration(tracking_timestamp: {}, utc_timestamp: {}, cam_calibs: [{}], imu_calibs: [{}])",
         calib.trackingTimestamp,

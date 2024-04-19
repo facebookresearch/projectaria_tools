@@ -30,7 +30,7 @@ struct fmt::formatter<projectaria::tools::mps::PointObservation>
   // Format the PointObservation object
   template <typename FormatContext>
   auto format(const projectaria::tools::mps::PointObservation& obs, FormatContext& ctx) const {
-    return format_to(
+    return fmt::format_to(
         ctx.out(),
         "PointObservation(pointUid: {}, frameCaptureTimestamp: {}, cameraSerial: {}, uv: {})",
         obs.pointUid,

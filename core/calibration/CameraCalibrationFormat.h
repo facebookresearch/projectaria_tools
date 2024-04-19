@@ -31,7 +31,7 @@ struct fmt::formatter<projectaria::tools::calibration::CameraCalibration>
   auto format(
       const projectaria::tools::calibration::CameraCalibration& camCalib,
       FormatContext& ctx) const {
-    return format_to(
+    return fmt::format_to(
         ctx.out(),
         "CameraCalibration(label: {}, model name: {}, principal point: {}, focal length: {}, projection params: {}, image size (w,h): {}, T_Device_Camera:{}, serialNumber:{})",
         camCalib.getLabel(),

@@ -29,7 +29,7 @@ struct fmt::formatter<projectaria::tools::mps::StaticCameraCalibration>
   template <typename FormatContext>
   auto format(const projectaria::tools::mps::StaticCameraCalibration& calib, FormatContext& ctx)
       const {
-    return format_to(
+    return fmt::format_to(
         ctx.out(),
         "StaticCameraCalibration( cameraUid: {}, graphUid: {}, T_world_cam: {}, width: {}, height: {}, intrinsicsType: {}, intrinsics: {}, startFrameIdx: {}, endFrameIdx: {}, quality: {} )",
         calib.cameraUid,

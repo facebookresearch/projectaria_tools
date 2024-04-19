@@ -32,7 +32,7 @@ struct fmt::formatter<projectaria::tools::mps::WristAndPalmPose::OneSide>
   auto format(
       const projectaria::tools::mps::WristAndPalmPose::OneSide& oneSideWristAndPalmPose,
       FormatContext& ctx) const {
-    return format_to(
+    return fmt::format_to(
         ctx.out(),
         "WristAndPalmPose::OneSide(confidence: {}, wrist: {}, palm: {})",
         oneSideWristAndPalmPose.confidence,
@@ -57,7 +57,7 @@ struct fmt::formatter<projectaria::tools::mps::WristAndPalmPose>
     const auto& rightHandString = wristAndPalmPose.rightHand.has_value()
         ? fmt::to_string(wristAndPalmPose.rightHand.value())
         : "NONE";
-    return format_to(
+    return fmt::format_to(
         ctx.out(),
         "WristAndPalmPose(tracking_timestamp: {}, left: {}, right: {})",
         wristAndPalmPose.trackingTimestamp,

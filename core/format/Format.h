@@ -36,7 +36,7 @@ struct fmt::formatter<Eigen::Matrix<SCALAR, ROWS, COLS, Options, MaxRows, MaxCol
       ss << mat.format(kMatrixFormat);
     }
 
-    return format_to(ctx.out(), "{}", ss.str());
+    return fmt::format_to(ctx.out(), "{}", ss.str());
   }
 
   const Eigen::IOFormat kMatrixFormat = Eigen::IOFormat(
@@ -69,7 +69,7 @@ struct fmt::formatter<Sophus::SE3<SCALAR>> : fmt::formatter<std::string_view> {
   // Format the Sophus::SE3 object
   template <typename FormatContext>
   auto format(const Sophus::SE3<SCALAR>& se3, FormatContext& ctx) const {
-    return format_to(
+    return fmt::format_to(
         ctx.out(),
         "(translation:{}, quaternion(x,y,z,w):{})",
         se3.translation(),
