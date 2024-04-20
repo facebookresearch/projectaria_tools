@@ -32,7 +32,7 @@ struct fmt::formatter<projectaria::dataset::aea::AriaEverydayActivitiesDataPaths
   auto format(
       const projectaria::dataset::aea::AriaEverydayActivitiesDataPaths& paths,
       FormatContext& ctx) const {
-    return format_to(
+    return fmt::format_to(
         ctx.out(),
         "AEA Data Paths\n--ariaVrs: {}\n--speech: {}\n--metadata: {}\n{}",
         paths.ariaVrs,
