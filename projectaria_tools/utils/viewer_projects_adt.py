@@ -19,9 +19,9 @@ from typing import Dict, Set
 
 import numpy as np
 import rerun as rr
+from projectaria_tools.core import calibration
 
 from projectaria_tools.core.mps.utils import get_gaze_vector_reprojection
-
 from projectaria_tools.core.sophus import SE3
 
 from projectaria_tools.core.stream_id import StreamId
@@ -51,12 +51,17 @@ def parse_args():
         default=0,
         help="Device_number you want to visualize, default is 0",
     )
+    parser.add_argument(
+        "--no_rotate_image_upright",
+        action="store_true",
+        help="If set, the RGB images are shown in their original orientation, which is rotated 90 degrees ccw from upright.",
+    )
+
     # Add options that does not show by default, but still accessible for debugging purpose
     parser.add_argument(
         "--down_sampling_factor", type=int, default=4, help=argparse.SUPPRESS
     )
     parser.add_argument("--jpeg_quality", type=int, default=75, help=argparse.SUPPRESS)
-
     # If this path is set, we will save the rerun (.rrd) file to the given path
     parser.add_argument(
         "--rrd_output_path", type=str, default="", help=argparse.SUPPRESS
@@ -117,6 +122,23 @@ def main():
 
     # Log RGB camera calibration
     rgb_camera_calibration = gt_provider.get_aria_camera_calibration(rgb_stream_id)
+
+    # rectify & rotate image (unless otherwise specified)
+    rgb_linear_camera_calibration = calibration.get_linear_camera_calibration(
+        int(rgb_camera_calibration.get_image_size()[0]),
+        int(rgb_camera_calibration.get_image_size()[1]),
+        rgb_camera_calibration.get_focal_lengths()[0],
+        "pinhole",
+        rgb_camera_calibration.get_transform_device_camera(),
+    )
+    if not args.no_rotate_image_upright:
+        rgb_rotated_linear_camera_calibration = calibration.rotate_camera_calib_cw90deg(
+            rgb_linear_camera_calibration
+        )
+        rgb_camera_calibration_transformed = rgb_rotated_linear_camera_calibration
+    else:
+        rgb_camera_calibration_transformed = rgb_linear_camera_calibration
+
     rr.log(
         "world/device/rgb",
         rr.Pinhole(
@@ -160,6 +182,8 @@ def main():
                 :: args.down_sampling_factor, :: args.down_sampling_factor
             ]
             # Note: We configure the QUEUE to return only RGB image, so we are sure this image is corresponding to a RGB frame
+            if not args.no_rotate_image_upright:
+                img = np.rot90(img, k=3)
             rr.log(
                 "world/device/rgb",
                 rr.Image(img).compress(jpeg_quality=args.jpeg_quality),
@@ -194,13 +218,15 @@ def main():
 
         if aria_3d_pose_with_dt.is_valid():
             aria_3d_pose = aria_3d_pose_with_dt.data()
-            device_to_rgb = gt_provider.get_aria_transform_device_camera(rgb_stream_id)
+            T_device_rgb = (
+                rgb_camera_calibration_transformed.get_transform_device_camera()
+            )
 
             rr.log(
                 "world/device",
                 ToTransform3D(aria_3d_pose.transform_scene_device, False),
             )
-            rr.log("world/device/rgb", ToTransform3D(device_to_rgb.inverse(), True))
+            rr.log("world/device/rgb", ToTransform3D(T_device_rgb.inverse(), True))
 
             # Log device location
             rr.log(
@@ -236,7 +262,7 @@ def main():
                     eye_gaze,
                     rgb_camera_calibration.get_label(),
                     device_calibration,
-                    rgb_camera_calibration,
+                    rgb_camera_calibration_transformed,
                     eye_gaze.depth,
                 )
                 rr.log(
