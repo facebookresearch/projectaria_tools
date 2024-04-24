@@ -169,42 +169,6 @@ CameraCalibration CameraCalibration::rescale(
   return camCalib;
 }
 
-CameraCalibration rotateCameraCalibCW90Deg(const CameraCalibration& camCalib) {
-  if (camCalib.modelName() != CameraProjection::ModelType::Linear) {
-    throw ::std::runtime_error("Only support CameraProjection::ModelType::Linear");
-  }
-  // create clock-wise 90 degree rotation matrix
-  Sophus::SE3d T_camera_cameraCW90 = Sophus::SE3d::rotZ(M_PI / -2.0);
-
-  // update extrinsics
-  Sophus::SE3d T_Device_CameraCW90 = camCalib.getT_Device_Camera() * T_camera_cameraCW90;
-
-  // update image width and height
-  auto oldImageSize = camCalib.getImageSize();
-  int newImageWidth = oldImageSize[1];
-  int newImageHeight = oldImageSize[0];
-
-  // update intrinsics
-  Eigen::VectorXd oldProjectionParams = camCalib.projectionParams();
-  Eigen::VectorXd newProjectionParams(4);
-  newProjectionParams << camCalib.projectionParams()[LinearProjection::kFocalYIdx],
-      camCalib.projectionParams()[LinearProjection::kFocalXIdx],
-      newImageWidth - camCalib.projectionParams()[LinearProjection::kPrincipalPointRowIdx] - 1,
-      camCalib.projectionParams()[LinearProjection::kPrincipalPointColIdx];
-
-  // updated camera calibration
-  return CameraCalibration{
-      camCalib.getLabel(),
-      camCalib.modelName(),
-      newProjectionParams,
-      T_Device_CameraCW90,
-      newImageWidth,
-      newImageHeight,
-      std::nullopt,
-      M_PI,
-      camCalib.getSerialNumber()};
-}
-
 CameraCalibration getLinearCameraCalibration(
     const int imageWidth,
     const int imageHeight,
@@ -247,6 +211,85 @@ CameraCalibration getSphericalCameraCalibration(
       std::nullopt,
       M_PI,
       "SphericalCameraCalibration");
+}
+
+namespace {
+// Helper functions to "rotate" camera calibration's intrinsics by 90 degrees CW, for specific
+// camera models
+Eigen::VectorXd rotateLinearProjectionParamsCW90Deg(
+    const Eigen::VectorXd& oldProjectionParams,
+    const Eigen::Vector2i& oldResolution) {
+  Eigen::VectorXd newProjectionParams(4);
+
+  // Linear projection params, [fu, fv, cu, cv] -> [fv, fu, oldHeight - 1 - cv, cu].
+  newProjectionParams << oldProjectionParams[LinearProjection::kFocalYIdx],
+      oldProjectionParams[LinearProjection::kFocalXIdx],
+      oldResolution[1] - oldProjectionParams[LinearProjection::kPrincipalPointRowIdx] - 1,
+      oldProjectionParams[LinearProjection::kPrincipalPointColIdx];
+
+  return newProjectionParams;
+}
+
+Eigen::VectorXd rotateFisheye624ProjectionParamsCW90Deg(
+    const Eigen::VectorXd& oldProjectionParams,
+    const Eigen::Vector2i& oldResolution) {
+  Eigen::VectorXd newProjectionParams(Fisheye624::kNumParams);
+
+  // Fisheye Rad Tan Thin Prism params: f,cu,cv,k0,k1,k2,k3,k5,k5,p0,p1,s0,s1,s2,s3
+  // Rotation of clockwise 90 deg: f, height - 1 - cv, cu, k0~k3, k5, k5, -p1, p0, -s2, -s3, s0, s1
+  newProjectionParams << oldProjectionParams[0], oldResolution[1] - oldProjectionParams[2] - 1,
+      oldProjectionParams[1], oldProjectionParams.template segment<6>(3), -oldProjectionParams[10],
+      oldProjectionParams[9], -oldProjectionParams[13], -oldProjectionParams[14],
+      oldProjectionParams[11], oldProjectionParams[12];
+
+  return newProjectionParams;
+}
+
+} // namespace
+
+CameraCalibration rotateCameraCalibCW90Deg(const CameraCalibration& camCalib) {
+  if (camCalib.modelName() != CameraProjection::ModelType::Linear &&
+      camCalib.modelName() != CameraProjection::ModelType::Fisheye624) {
+    throw ::std::runtime_error("Only support CameraProjection::ModelType::{Linear, Fisheye624}");
+  }
+  // create clock-wise 90 degree rotation matrix
+  Sophus::SE3d T_camera_cameraCW90 = Sophus::SE3d::rotZ(M_PI / -2.0);
+
+  // update extrinsics
+  Sophus::SE3d T_Device_CameraCW90 = camCalib.getT_Device_Camera() * T_camera_cameraCW90;
+
+  // update image width and height
+  auto oldImageSize = camCalib.getImageSize();
+  int newImageWidth = oldImageSize[1];
+  int newImageHeight = oldImageSize[0];
+
+  // update intrinsics
+  Eigen::VectorXd newProjectionParams;
+  switch (camCalib.modelName()) {
+    case CameraProjection::ModelType::Linear:
+      newProjectionParams =
+          rotateLinearProjectionParamsCW90Deg(camCalib.projectionParams(), oldImageSize);
+      break;
+    case CameraProjection::ModelType::Fisheye624:
+      newProjectionParams =
+          rotateFisheye624ProjectionParamsCW90Deg(camCalib.projectionParams(), oldImageSize);
+      break;
+    default:
+        // Shouldn't run till here because check is performed before. But just in case.
+        ;
+  }
+
+  // updated camera calibration
+  return CameraCalibration{
+      camCalib.getLabel(),
+      camCalib.modelName(),
+      newProjectionParams,
+      T_Device_CameraCW90,
+      newImageWidth,
+      newImageHeight,
+      camCalib.getValidRadius(),
+      camCalib.getMaxSolidAngle(),
+      camCalib.getSerialNumber()};
 }
 
 } // namespace projectaria::tools::calibration
