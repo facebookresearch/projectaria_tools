@@ -35,6 +35,33 @@ timecode_vrs_filepath = os.path.join(
 
 
 class CalibrationTests(unittest.TestCase):
+    def _check_cam_rotation_by_pixel_unprojection(self, test_pixel, cam_calib) -> bool:
+        """
+        A helper function to check the rotation of camera calibration unprojects same pixels to same rays
+        """
+        # rotate camera
+        cam_calib_cw90 = calibration.rotate_camera_calib_cw90deg(cam_calib)
+        original_image_size = cam_calib.get_image_size()
+
+        # Ray in device frame
+        original_ray = (
+            cam_calib.get_transform_device_camera()
+            @ cam_calib.unproject_no_checks(test_pixel)
+        )
+        # Pixels are effectively rotated too!
+        cw_90_ray = (
+            cam_calib_cw90.get_transform_device_camera()
+            @ cam_calib_cw90.unproject_no_checks(
+                [original_image_size[1] - test_pixel[1] - 1, test_pixel[0]]
+            )
+        )
+
+        # ray needs to be normalized for comparison
+        original_ray /= original_ray[2]
+        cw_90_ray /= cw_90_ray[2]
+
+        return np.allclose(original_ray, cw_90_ray, rtol=1e-5)
+
     def test_imu_calibration_getter(self) -> None:
         provider = data_provider.create_vrs_data_provider(vrs_filepath)
 
@@ -196,26 +223,25 @@ class CalibrationTests(unittest.TestCase):
         # input: retrieve image calibration
         src_calib = provider.get_device_calibration().get_camera_calib(sensor_name)
 
+        # 1. test for linear camera
         image_size = [300, 400]
-        dst_calib = calibration.get_linear_camera_calibration(
+        test_pixel = [10.4, 23.1]
+        linear_calib = calibration.get_linear_camera_calibration(
             image_size[0],
             image_size[1],
             150,
             sensor_name,
             src_calib.get_transform_device_camera(),
         )
-        # Get rotated image calibration
-        dst_calib_cw90 = calibration.rotate_camera_calib_cw90deg(dst_calib)
-
-        test_pixel = [10.4, 23.1]
-        ray_dst = (
-            dst_calib.get_transform_device_camera()
-            @ dst_calib.unproject_no_checks(test_pixel)
-        )
-        ray_dst_cw90 = (
-            dst_calib_cw90.get_transform_device_camera()
-            @ dst_calib_cw90.unproject_no_checks(
-                [image_size[1] - test_pixel[1] - 1, test_pixel[0]]
+        self.assertTrue(
+            self._check_cam_rotation_by_pixel_unprojection(
+                test_pixel=test_pixel, cam_calib=linear_calib
             )
         )
-        np.testing.assert_array_almost_equal(ray_dst, ray_dst_cw90)
+
+        # 2. Test for Fisheye624 camera
+        self.assertTrue(
+            self._check_cam_rotation_by_pixel_unprojection(
+                test_pixel=test_pixel, cam_calib=src_calib
+            )
+        )
