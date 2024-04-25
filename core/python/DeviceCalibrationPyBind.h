@@ -168,6 +168,15 @@ inline void declareCameraCalibration(py::module& m) {
           py::arg("camera_pixel"),
           "Function to unproject a 2d pixel location to a 3d ray, in camera frame, with a number of"
           " validity checks to ensure the unprojection is valid.")
+      .def(
+          "rescale",
+          &CameraCalibration::rescale,
+          py::arg("new_resolution"),
+          py::arg("scale"),
+          py::arg("origin_offset") = Eigen::Vector2d{0, 0},
+          "Obtain a new camera calibration after translation and scaling transform from the original "
+          "camera calibration. <br> transform is done in the order of (1) shift -> (2) scaling:"
+          " new_resolution = (old_resolution - origin_offset*2) * scale")
       .def("__repr__", [](const CameraCalibration& self) { return fmt::to_string(self); });
 
   m.def(

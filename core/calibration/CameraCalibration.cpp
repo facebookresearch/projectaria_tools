@@ -18,6 +18,8 @@
 
 #include <calibration/CameraCalibration.h>
 
+static constexpr double kTolerance = 1e-5;
+
 namespace projectaria::tools::calibration {
 CameraCalibration::CameraCalibration(
     const std::string& label,
@@ -143,6 +145,14 @@ CameraCalibration CameraCalibration::rescale(
     const double scale, // scaling factor
     const Eigen::Vector2d& originOffset) const {
   CameraCalibration camCalib(*this);
+
+  // Check if the new resolution is consistent with the origin offset and scaling,
+  // where offset is assumed to be a symmetric cropping on both ends, hence the 2.0 factor.
+  if (std::abs((imageWidth_ - originOffset[0] * 2.0) * scale - newResolution[0]) > kTolerance ||
+      std::abs((imageHeight_ - originOffset[1] * 2.0) * scale - newResolution[1]) > kTolerance) {
+    throw std::runtime_error(
+        "new resolution does not agree with scale + origin offset. Expected newRes = (oldRes - originOffset * 2) * scale");
+  }
 
   // Rescale camera model, currently only supporting isometric scaling on X and Y
   camCalib.projectionModel_.subtractFromOrigin(originOffset.x(), originOffset.y());

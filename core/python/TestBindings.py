@@ -24,7 +24,8 @@ from projectaria_tools.core.stream_id import RecordableTypeId
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "vrs_path",
+        "--vrs",
+        dest="vrs_path",
         type=str,
         help="path to vrs file",
     )
@@ -78,6 +79,16 @@ def print_sample_calibration(provider):
     imu_calib = device_calib.get_imu_calib("imu-left")
     print(imu_calib.get_label())
     print(imu_calib.get_transform_device_imu())
+
+    # obtain a rescaled camera calibration
+    rescaled_calib = rgb_calib.rescale(new_resolution=(704, 704), scale=0.5)
+    print("testing for camera calibration downscaling (factor = 0.5)")
+    print(
+        f"resolution for original camera is {rgb_calib.get_image_size()}, intrinsics params are: {rgb_calib.projection_params}, valid_radius is {rgb_calib.get_valid_radius()}"
+    )
+    print(
+        f"resolution for new camera is {rescaled_calib.get_image_size()}, intrinsics params are: {rescaled_calib.projection_params}, valid_radius is {rescaled_calib.get_valid_radius()}"
+    )
 
 
 def print_distort_image(provider):
