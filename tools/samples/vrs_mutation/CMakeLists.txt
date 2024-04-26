@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-message("--- Compiling samples.")
-add_subdirectory(pointcloud_colorization)
+find_package(fmt REQUIRED)
 
-add_subdirectory(vrs_mutation)
+add_executable(vrs_mutation main.cpp ImageMutationFilterCopier.h)
+target_link_libraries(vrs_mutation PRIVATE vrs_utils CLI11::CLI11 fmt::fmt)
+target_include_directories(vrs_mutation PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
