@@ -70,12 +70,14 @@ def get_calibs(
     """
 
     device_calib = provider.get_device_calibration()
-    transform_cpf_sensor = device_calib.get_transform_cpf_sensor(label)
-    transform_sensor_cpf = transform_cpf_sensor.inverse()
-    transform_sensor_cpf = transform_sensor_cpf.to_matrix()
+    transform_cpf_sensor_cad = device_calib.get_transform_cpf_sensor(
+        label, get_cad_value=True
+    )
+    transform_sensor_cpf_cad = transform_cpf_sensor_cad.inverse()
+    transform_sensor_cpf_cad = transform_sensor_cpf_cad.to_matrix()
     # returns None if the calibration label does not exist
     cam_calib = device_calib.get_camera_calib(label)
-    return cam_calib, transform_sensor_cpf
+    return cam_calib, transform_sensor_cpf_cad
 
 
 def get_image_projections(

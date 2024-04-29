@@ -344,7 +344,7 @@ void AriaDigitalTwinViewer::drawRawImage(
             tan(eyeGaze.yaw) * eyeGaze.depth, tan(eyeGaze.pitch) * eyeGaze.depth, eyeGaze.depth);
         const auto maybeT_Cpf_Camera =
             adtDataProvider_->rawDataProviderPtr()->getDeviceCalibration()->getT_Cpf_Sensor(
-                camModel.getLabel());
+                camModel.getLabel(), true);
 
         if (!maybeT_Cpf_Camera.has_value()) {
           fmt::print("WARNING: T_Cpf_camera not found for {}\n", camModel.getLabel());

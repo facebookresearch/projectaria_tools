@@ -22,6 +22,7 @@ from projectaria_tools.core import calibration, mps
 from projectaria_tools.core.mps.utils import (
     filter_points_from_confidence,
     filter_points_from_count,
+    get_gaze_vector_reprojection,
 )
 from projectaria_tools.core.sensor_data import TimeDomain, TimeQueryOptions
 from projectaria_tools.core.sophus import SE3
@@ -233,16 +234,22 @@ def logInstanceData(
         )
         if eye_gaze:
             # Compute eye_gaze vector at depth_m reprojection in the image
+            depth_m = eye_gaze.depth or depth_m
             gaze_vector_in_cpf = mps.get_eyegaze_point_at_depth(
                 eye_gaze.yaw, eye_gaze.pitch, depth_m
             )
+
             T_device_CPF = device_calibration.get_transform_device_cpf()
-            gaze_center_in_camera = (
-                updated_camera_calibration.get_transform_device_camera().inverse()
-                @ T_device_CPF
-                @ gaze_vector_in_cpf
+
+            # use recommended function for computing gaze projection
+            gaze_projection = get_gaze_vector_reprojection(
+                eye_gaze,
+                rgb_stream_label,
+                device_calibration,
+                updated_camera_calibration,
+                depth_m,
+                rotate_image,
             )
-            gaze_projection = updated_camera_calibration.project(gaze_center_in_camera)
             if undistort is False and rotate_image is False:
                 gaze_projection = gaze_projection / down_sampling_factor
             rr.log(

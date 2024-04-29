@@ -264,6 +264,7 @@ def main():
                     device_calibration,
                     rgb_camera_calibration_transformed,
                     eye_gaze.depth,
+                    not args.no_rotate_image_upright,
                 )
                 rr.log(
                     "world/device/rgb/eye-gaze_projection",

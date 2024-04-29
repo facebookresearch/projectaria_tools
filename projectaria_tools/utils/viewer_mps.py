@@ -253,6 +253,7 @@ def log_eye_gaze(
     device_calibration: DeviceCalibration,
     rgb_camera_calibration: CameraCalibration,
     down_sampling_factor: int,
+    make_upright: bool = False,
 ) -> None:
     #
     # Eye Gaze (vector and image reprojection)
@@ -275,13 +276,13 @@ def log_eye_gaze(
                     colors=[[255, 0, 255]],
                 ),
             )
-            # Compute eye_gaze vector at depth_m reprojection in the image
             gaze_projection = get_gaze_vector_reprojection(
-                eye_gaze,
-                rgb_stream_label,
-                device_calibration,
-                rgb_camera_calibration,
-                depth_m,
+                eye_gaze=eye_gaze,
+                stream_id_label=rgb_stream_label,
+                device_calibration=device_calibration,
+                camera_calibration=rgb_camera_calibration,
+                depth_m=depth_m,
+                make_upright=make_upright,
             )
             if gaze_projection is not None:
                 rr.log(
@@ -499,7 +500,9 @@ def main():
 
     provider = data_provider.create_vrs_data_provider(args.vrs)
     device_calibration = provider.get_device_calibration()
-    T_device_CPF = device_calibration.get_transform_device_cpf()
+    T_device_CPF = (
+        device_calibration.get_transform_device_cpf()
+    )  # this is always CAD value
     rgb_stream_id = StreamId("214-1")
     rgb_stream_label = provider.get_label_from_stream_id(rgb_stream_id)
     rgb_camera_calibration = device_calibration.get_camera_calib(rgb_stream_label)
@@ -594,6 +597,7 @@ def main():
             device_calibration,
             camera_calibration,
             args.down_sampling_factor,
+            not args.no_rotate_image_upright,
         )
 
         log_hand_tracking(
