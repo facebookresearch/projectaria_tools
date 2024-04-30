@@ -66,18 +66,6 @@ Go to the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) for more 
 
 ## Other requirements (optional software)
 
-### Desktop Companion App
-To be able to request Machine Perception Services or stream data, you will need to use the [Desktop Companion App](/docs/ARK/desktop_companion_app).
-
-Go to the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) to get this software.
-
-* Desktop Companion App runs on the following platforms:
-    * MacOS Big Sur 11.3+, both Intel and Apple Silicon
-    * Windows 10 x86_64 with DirectX (or OpenGL but the latest drivers should be installed)
-    * Windows 11 may work, but is not actively supported at this time
-    * Linux, debian package for Ubuntu, 22.04 LTS version. The app was only tested for that specific version under Gnome 42.5 and X11 (X Server) as well as Wayland. Any other debian distribution (Ubuntu 22.04 fork such as Kubuntu, Mint etc.) or environment may or may not work.
-        * V36 only, please use the [MPS CLI to](/ARK/mps/request_mps/mps_cli.mdx) request Hand Tracking MPS
-
 ### Project Aria Tools
 Project Aria Tools is open source tooling for working with Aria data, go to [Data Utilities](/docs/data_utilities) for more details.
 
@@ -88,6 +76,10 @@ Project Aria Tools and [VRS tooling](https://github.com/facebookresearch/vrs) ar
   - Ubuntu focal (20.04 LTS) and jammy (22.04 LTS)
 - Mac Intel or Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
 
+### MPS CLI
+
+The [MPS CLI](/ARK/mps/request_mps/mps_cli.mdx) is the preferred way to request [Machine Perception Services](/ARK/mps/mps.mdx) on your data. Install Project Aria Tools via [virtual environment](/data_utilities/installation/installation_python.mdx) to be able to use the MPS CLI.
+
 
 ### Project Aria Client SDK and CLI
 Through the Client SDK and CLI you can directly interact with Aria glasses and stream data from the glasses to a computer. The codebase is supported on the following platforms:
@@ -96,3 +88,15 @@ Through the Client SDK and CLI you can directly interact with Aria glasses and s
   - Fedora 36 or newer
   - Ubuntu jammy (22.04) or newer
 - Mac Intel or Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
+
+### Desktop Companion App
+The [Desktop Companion App](/docs/ARK/desktop_companion_app) is a way to download data and request MPS. Go to the [Aria Glasses Quickstart](/ARK/ARK_quickstart.mdx) to see other ways of downloading data.
+
+Go to the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) to get this software.
+
+* Desktop Companion App runs on the following platforms:
+    * MacOS Big Sur 11.3+, both Intel and Apple Silicon
+    * Windows 10 x86_64 with DirectX (or OpenGL but the latest drivers should be installed)
+    * Windows 11 may work, but is not actively supported at this time
+    * Linux, debian package for Ubuntu, 22.04 LTS version. The app was only tested for that specific version under Gnome 42.5 and X11 (X Server) as well as Wayland. Any other debian distribution (Ubuntu 22.04 fork such as Kubuntu, Mint etc.) or environment may or may not work.
+        * V36 only, please use the [MPS CLI to](/ARK/mps/request_mps/mps_cli.mdx) request Hand Tracking MPS

@@ -11,6 +11,55 @@ These SW Release notes are for the Aria Research Kit (ARK), and are for Meta SW 
 Our Open Source Project Aria Tools SW Release notes are posted to [Project Aria Tools GitHub repository](https://github.com/facebookresearch/projectaria_tools), using Tags > Releases.
 
 
+
+## **Announcing: New Custom Recording Profile Capabilities**
+
+We’re pleased to announce that Aria Mobile Companion app v160 contains the ability to configure individual sensors when creating custom recordings using the Mobile Companion app.
+
+**How to access the update**
+
+You’ll be prompted to update the app when you open it, and you can also [manually download it](/ARK/ark_downloads.mdx).
+
+You’ll need Aria OS version 4968999.0.70 (April 25th, 2024) or later to be able to set custom recording profiles.
+
+
+* [How to manually update the OS](/ARK/troubleshooting/update_glasses_os.mdx)
+
+
+### Custom Recording Profile
+
+To keep the new Custom Recording Profile feature approachable, and to reduce our testing matrix, we are launching this feature with a limited set of parameters. If people find the feature useful, we are open to unblocking research needs by providing the ability to include additional parameters. Please use one of our [support channels](/support.mdx) to make feature requests.
+
+To start a recording with a custom recording profile:
+
+1. In the Aria app Dashboard, select **New Recording Session**
+2. Select **Recording Profile**
+3. The first recording profile in the list will be Custom Profile
+    * You may need to scroll up to see this option
+4. Select the Custom Profile
+5. Select **Edit parameters**
+6. Adjust sensor settings
+    2. Certain combinations, such as RGB Cameras at 2880 x 2880 at 15 or more fps will trigger warnings as they cause elevated thermal loads and reduced battery life
+    3. Tap **More info** on the Recording Profiles Tab to see more details, such as auto exposure
+
+
+### Bug Fixes
+
+* An issue where the **More info** link on the top right of the Recording Profiles page was difficult to see has been resolved.
+
+
+### Known issues
+
+* Custom Recordings is a new feature! If you encounter data quality issues, please help us track down the issue by emailing the repro steps (including sensor configuration) to AriaOps@meta.com.
+
+
+## QUESTIONS, CONCERNS, FEEDBACK?
+
+Go to our [Support page](/support.mdx) for ways to get in touch.
+
+<br />
+
+
 ## **Announcing New MPS, Recording Profiles, and Updates to the Companion Apps**
 March 21 2024
 

@@ -76,24 +76,28 @@ Tap the Paired Glasses info card.
 
 ## Set your Default Recording Profile
 
-You can set the default recording profile via Mobile or Desktop Companion App. Once set, this is the default profile used when recording or streaming data by any means.
+You can set the default recording profile via Mobile or Desktop Companion App. Once set, this is the default profile used when recording or streaming data.
 
-When you select **New Recording** in the Mobile Companion app, you'll initially see the default recording profile. Select the recording profile to view sensor settings or to select a different recording profile.
+When you select **New Recording** in the Mobile Companion app, tap Recording profile to view sensor settings or to select a different recording profile. Recording profile options include a custom profile where you can alter which sensors are used and how.
 
-In the Mobile Companion App, you can change the Default Recording Profile at any time via Device Settings.
+You can change the Default Recording Profile when selecting recording profiles or from Device Settings.
 
 
-## Install the Desktop app (Optional)
+## Install Project Aria Tools (optional)
 
-You need the Desktop app to request Machine Perception Services, but you don't need the  app to make recordings or download data. The app provides a visualization of streaming data over Wi-Fi, but it doesn't have the capabilities of the Client SDK and you can't subscribe to the data. Go to the [Desktop app page](desktop_companion_app.mdx) for more information.
-
-Follow the instructions in the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) to download and install the app (this is where you'll download updates as well).
+The [MPS CLI](/ARK/mps/request_mps/mps_cli.mdx) is the preferred way to request [Machine Perception Services](/ARK/mps/mps.mdx) on your data. Install Project Aria Tools via [virtual environment](/data_utilities/installation/installation_python.mdx) to be able to use the MPS CLI. You can only request Multi-SLAM MPS via the CLI.
 
 ## Install Client SDK and CLI (optional)
 
 Once you've set up your glasses with the Mobile Companion app, researchers can use the Client SDK or CLI to directly interact with Aria glasses. This is particularly helpful for streaming and subscribing to sensor data.
 
 Go to the [Client SDK and CLI section](/docs/ARK/sdk) for how to install the SDK and explore code samples.
+
+## Install the Desktop app (optional)
+
+The Desktop app is an alternative way to request Machine Perception Services or download data. The app provides a visualization of streaming data over Wi-Fi, but it doesn't have the capabilities of the Client SDK and you can't subscribe to the data. Go to the [Desktop app page](desktop_companion_app.mdx) for more information.
+
+Follow the instructions in the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) to download and install the app (this is where you'll download updates as well).
 
 ## Record Data
 
@@ -195,9 +199,9 @@ adb pull /sdcard/recording/myVrsFile.json /home/unixname/MyVRSFolder/
 
 ## Streaming
 
-Install the [CLient SDK](/docs/ARK/sdk/sdk.mdx) to stream Aria data.
+Install the [Client SDK](/docs/ARK/sdk/sdk.mdx) to stream Aria data.
 
 ### Access basic visualization
-Through the Desktop app, you can view streaming data, however it does not have the capabilities of the Client SDK and you can't subscribe to the data. When using the Desktop app, we recommend only using Profiles 12 and 18, which are optimized for streaming.
+Through the Desktop app, you can view streaming data, however it does not have the capabilities of the Client SDK and you can't subscribe to the data. When streaming data, we recommend only using Profiles 12 and 18, which are optimized for streaming.
 
 Go to the [Desktop app page](/docs/ARK/desktop_companion_app.mdx#streaming) for detailed instructions.

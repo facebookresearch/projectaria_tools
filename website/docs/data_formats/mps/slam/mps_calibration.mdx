@@ -3,7 +3,7 @@ sidebar_position: 50
 title: Calibration Data
 ---
 
-# MPS output - Calibration
+# MPS Output - Calibration
 
 Online calibration is generated as part of SLAM (Location in the Desktop Companion app) [MPS requests](/ARK/mps/mps.mdx).
 
@@ -11,11 +11,11 @@ Online calibration is generated as part of SLAM (Location in the Desktop Compani
 
 The [Aria Sensor Viewer](/data_utilities/visualization/visualization_python.mdx#run-aria-sensor-viewer) displays the relative position and orientation of most Project Aria glasses sensors (cameras, IMUs, microphones, magnetometer & barometer) in a common reference.
 
-Static camera calibration may also be available in some datasets that include stationary cameras as well as moving Project Aria glasses.
-
-* The name of the static camera calibration .csv file may vary between projects
-
 
 ## Online calibration
 
-The JSONL file contains one json online calibration record per line. Each record is a json dict object that contains timestamp metadata and the result of online calibration for the cameras and IMUs. The calibration parameters contain [intrinsics](/tech_insights/camera_intrinsic_models.mdx) and [extrinsics](/data_formats/coordinate_convention/3d_coordinate_frame_convention.mdx) parameters for each sensor as well as a time offsets which best temporally align their data. For how to load and read online calibrations in Python and C++, please check the [code example](/data_utilities/core_code_snippets/mps.mdx#online-calibration)
+`online_calibration.jsonl` contains one json online calibration record per line. Each record is a json dict object that contains timestamp metadata and the result of online calibration for the cameras and IMUs.
+
+The calibration parameters contain [intrinsics](/tech_insights/camera_intrinsic_models.mdx) and [extrinsics](/data_formats/coordinate_convention/3d_coordinate_frame_convention.mdx) parameters for each sensor as well as a time offsets which best temporally align their data.
+
+For how to load and read online calibrations in Python and C++, please check the [code example](/data_utilities/core_code_snippets/mps.mdx#online-calibration)
