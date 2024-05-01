@@ -4,11 +4,13 @@ title: Eye Gaze
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl'
 
-# MPS output - Eye gaze
+# MPS Output - Eye Gaze
 
 ## Eye Gaze Data Format
 
-Project Aria's [Machine Perception Services (MPS)](/ARK/mps/mps.mdx) uses Aria's Eye Tracking (ET) camera images to estimate the direction the user is looking. This eye gaze estimation is in [Central Pupil Frame](/data_formats/coordinate_convention/3d_coordinate_frame_convention.mdx#the-nominal-central-pupil-frame-cpf).
+Project Aria's [Machine Perception Services (MPS)](/ARK/mps/mps.mdx) uses Aria's Eye Tracking (ET) camera images to estimate the direction the user is looking. This eye gaze estimation is in [Central Pupil Frame](/data_formats/coordinate_convention/3d_coordinate_frame_convention.mdx#the-nominal-central-pupil-frame-cpf). Eye Gaze outputs may be part of Open Dataset Releases or Project Aria Partners can request MPS services on their own data.
+
+Eye Gaze outputs are available for all recordings made with Eye Tracking cameras enabled. Partner data is not made available to Meta researchers or Meta’s affiliates. Go to [MPS Data Lifecycle](/ARK/mps/mps_processing.mdx) for more details about how partner data is processed and stored.
 
 In March 2024, we updated our eye gaze model to support depth estimation. We do this by providing left and right eye gaze directions (yaw values) along with the depth at which these gaze directions intersect (translation values).
 
