@@ -28,6 +28,10 @@ from projectaria_tools.core.sensor_data import TimeDomain, TimeQueryOptions
 from projectaria_tools.core.sophus import SE3
 from projectaria_tools.core.stream_id import StreamId
 from projectaria_tools.projects.aea import AriaEverydayActivitiesDataProvider
+from projectaria_tools.utils.calibration_utils import (
+    rotate_upright_image_and_calibration,
+    undistort_image_and_calibration,
+)
 from projectaria_tools.utils.rerun_helpers import AriaGlassesOutline, ToTransform3D
 from tqdm import tqdm
 
@@ -155,20 +159,6 @@ def logInstanceData(
     rgb_stream_label = aea_data_provider.vrs.get_label_from_stream_id(RGB_STREAM_ID)
     device_calibration = aea_data_provider.vrs.get_device_calibration()
     rgb_camera_calibration = device_calibration.get_camera_calib(rgb_stream_label)
-    pinhole = calibration.get_linear_camera_calibration(
-        int(rgb_camera_calibration.get_image_size()[0] / down_sampling_factor),
-        int(rgb_camera_calibration.get_image_size()[1] / down_sampling_factor),
-        rgb_camera_calibration.get_focal_lengths()[0] / down_sampling_factor,
-        "pinhole",
-        rgb_camera_calibration.get_transform_device_camera(),
-    )
-    if undistort:
-        updated_camera_calibration = pinhole
-    else:
-        updated_camera_calibration = rgb_camera_calibration
-
-    if rotate_image:
-        updated_camera_calibration = calibration.rotate_camera_calib_cw90deg(pinhole)
 
     image = aea_data_provider.vrs.get_image_data_by_time_ns(
         RGB_STREAM_ID, device_time_ns, TimeDomain.DEVICE_TIME, TimeQueryOptions.BEFORE
@@ -177,19 +167,27 @@ def logInstanceData(
         return
 
     image_display = image[0].to_numpy_array()
+    updated_camera_calibration = rgb_camera_calibration
+    new_resolution = updated_camera_calibration.get_image_size() / down_sampling_factor
+    new_resolution = new_resolution.astype(int)
+    updated_camera_calibration = updated_camera_calibration.rescale(
+        new_resolution, 1.0 / down_sampling_factor
+    )
+    image_display = Image.fromarray(image_display)
+    image_display = image_display.resize(new_resolution)
+    image_display = np.array(image_display)
+
+    if undistort:
+        image_display, updated_camera_calibration = undistort_image_and_calibration(
+            image_display,
+            updated_camera_calibration,
+        )
+
     if rotate_image:
-        image_display = calibration.distort_by_calibration(
-            image_display, updated_camera_calibration, rgb_camera_calibration
-        )
-        image_display = np.rot90(image_display, k=3)
-    elif undistort:
-        image_display = calibration.distort_by_calibration(
-            image_display, updated_camera_calibration, rgb_camera_calibration
-        )
-    else:
-        image_display = Image.fromarray(image_display)
-        image_display = image_display.resize(
-            (rgb_camera_calibration.get_image_size() / down_sampling_factor).astype(int)
+        image_display, updated_camera_calibration = (
+            rotate_upright_image_and_calibration(
+                image_display, updated_camera_calibration
+            )
         )
 
     rr.log(
@@ -250,8 +248,6 @@ def logInstanceData(
                 depth_m,
                 rotate_image,
             )
-            if undistort is False and rotate_image is False:
-                gaze_projection = gaze_projection / down_sampling_factor
             rr.log(
                 f"world/device_{index}/{rgb_stream_label}/image/eye-gaze-projection",
                 rr.Points2D(

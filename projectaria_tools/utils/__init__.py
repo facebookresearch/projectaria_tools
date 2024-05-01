@@ -18,4 +18,4 @@
 projectaria_tools utils
 """
 
-from . import rerun_helpers, viewer_aria_sensors, viewer_projects_aea  # noqa
+from . import calibration_utils, rerun_helpers  # noqa
