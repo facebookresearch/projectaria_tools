@@ -463,6 +463,7 @@ void exportMps(py::module& m) {
   // MPS data paths provider
   py::class_<MpsDataPaths>(
       m, "MpsDataPaths", "A struct that includes the file paths of all MPS data for a sequence.")
+      .def(py::init<>())
       .def_readwrite("slam", &MpsDataPaths::slam, "MPS SLAM file paths")
       .def_readwrite("eyegaze", &MpsDataPaths::eyegaze, "MPS eyegaze file paths")
       .def_readwrite("hand_tracking", &MpsDataPaths::handTracking, "MPS hand tracking file paths")

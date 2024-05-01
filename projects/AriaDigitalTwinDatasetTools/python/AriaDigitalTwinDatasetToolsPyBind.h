@@ -269,6 +269,7 @@ void exportAriaDigitalTwin(py::module& m) {
       m,
       "AriaDigitalTwinDataPaths",
       "A struct that includes the file paths of all ADT data files for one sequence of one device.")
+      .def(py::init<>())
       .def_readwrite(
           "sequence_name",
           &AriaDigitalTwinDataPaths::sequenceName,
