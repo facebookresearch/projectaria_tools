@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-find_package(fmt REQUIRED)
+add_library(vrs_image_mutation_interface INTERFACE)
+target_sources(vrs_image_mutation_interface INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/ImageMutationFilterCopier.h)
+target_link_libraries(vrs_image_mutation_interface INTERFACE vrs_utils)
+target_include_directories(vrs_image_mutation_interface INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
-add_executable(vrs_mutation main.cpp ImageMutationFilterCopier.h)
-target_link_libraries(vrs_mutation PRIVATE vrs_utils CLI11::CLI11 fmt::fmt)
+
+find_package(fmt REQUIRED)
+add_executable(vrs_mutation main.cpp)
+target_link_libraries(vrs_mutation PRIVATE vrs_image_mutation_interface CLI11::CLI11 fmt::fmt)
 target_include_directories(vrs_mutation PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
