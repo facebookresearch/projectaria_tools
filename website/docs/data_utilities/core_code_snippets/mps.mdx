@@ -108,9 +108,9 @@ from projectaria_tools.core.mps.utils import filter_points_from_confidence
 global_points_path = "/path/to/mps/output/trajectory/semidense_points.csv.gz"
 points = mps.read_global_point_cloud(global_points_path)
 
-# filter the point cloud using thersholds on the  inverse depth and distance standard deviation.
-const float inverse_distance_std_threshold = 0.001;
-const float distance_std_threshold = 0.15;
+# filter the point cloud using thresholds on the inverse depth and distance standard deviation
+inverse_distance_std_threshold = 0.001
+distance_std_threshold = 0.15
 
 filtered_points = filter_points_from_confidence(points, inverse_distance_std_threshold, distance_std_threshold)
 
