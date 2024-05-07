@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest,  macOS-latest]
+        os: [ubuntu-latest, macos-13, macos-14]  # macos-14 is macSilicon
         project: [
           PROJECTARIA_TOOLS_BUILD_PROJECTS_ADT,
           PROJECTARIA_TOOLS_BUILD_TOOLS]
