@@ -318,7 +318,7 @@ class VrsDataProvider {
       const;
 
   /**
-   * @brief Convert DeviceTime timestamp into synchornized timestamp in nanoseconds.
+   * @brief Convert DeviceTime timestamp into synchronized timestamp in nanoseconds.
    * @param syncTimeNs Synchronized timestamp w.r.t. server timestamp in nanoseconds.
    * @param mode The TimeSyncMode which supports TicSync and TimeCode features
    * @return Timestamp in nanosecond from synchronized timestamp.
