@@ -29,7 +29,7 @@ namespace py = pybind11;
 namespace {
 inline void declareStreamId(py::module& m) {
   // RecordableType Id for aria only
-  py::class_<vrs::StreamId>(m, "StreamId", py::module_local())
+  py::class_<vrs::StreamId>(m, "StreamId")
       .def(py::init([](uint16_t recordableTypeId, uint16_t instanceId) {
         return vrs::StreamId(static_cast<vrs::RecordableTypeId>(recordableTypeId), instanceId);
       }))
@@ -54,7 +54,7 @@ inline void declareStreamId(py::module& m) {
 inline void declareRecordableTypeId(py::module& m) {
   // RecordableType Id for aria only
   py::enum_<vrs::RecordableTypeId>(
-      m, "RecordableTypeId", py::module_local(), "Recordable Type Id, e.g. SLAM_CAMERA_DATA")
+      m, "RecordableTypeId", "Recordable Type Id, e.g. SLAM_CAMERA_DATA")
       // image type
       .value("SLAM_CAMERA_DATA", vrs::RecordableTypeId::SlamCameraData)
       .value("EYE_CAMERA_RECORDABLE_CLASS", vrs::RecordableTypeId::EyeCameraRecordableClass)

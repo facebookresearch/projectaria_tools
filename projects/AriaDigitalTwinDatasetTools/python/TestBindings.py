@@ -98,6 +98,7 @@ if __name__ == "__main__":
         )
 
         # test has functions
+        print(f"All aria streams: {gt_provider.get_aria_all_streams()}")
         print("has_aria_3d_poses? ", gt_provider.has_aria_3d_poses())
         print(
             "has_object_3d_boundingboxes? ", gt_provider.has_object_3d_boundingboxes()
