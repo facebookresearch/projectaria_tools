@@ -485,14 +485,6 @@ void exportAriaDigitalTwin(py::module& m) {
       "`AriaDigitalTwinDataProvider` instance for each device.")
       .def(py::init<const AriaDigitalTwinDataPaths&>())
       .def(
-          "get_aria_all_streams",
-          [](const AriaDigitalTwinDataProvider& self) {
-            auto streams = self.getAriaAllStreams();
-            return std::vector<vrs::StreamId>{streams.begin(), streams.end()};
-          },
-          "Get a list of all VRS stream ids from the Aria recording. StreamId is the unique"
-          "identifier to query different sensor data in ADT DataProvider.")
-      .def(
           "get_aria_device_capture_timestamps_ns",
           &AriaDigitalTwinDataProvider::getAriaDeviceCaptureTimestampsNs,
           "Get all timestamps (in ns) of all observations of an Aria sensor, in"
