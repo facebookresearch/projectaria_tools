@@ -30,7 +30,7 @@ jobs:
       - name: Upgrade pip and python packages
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install cibuildwheel pybind11-stubgen==1.1
+          python3 -m pip install cibuildwheel==2.17.0 pybind11-stubgen==1.1
       - name: Install dependencies
         shell: bash
         run: |
@@ -119,7 +119,7 @@ jobs:
       - name: Upgrade pip and python packages
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install cibuildwheel
+          python3 -m pip install cibuildwheel==2.17.0
       - name: Build wheels for CPython
         if: matrix.os == 'macos-latest-xlarge'
         shell: bash
