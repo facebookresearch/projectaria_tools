@@ -384,7 +384,10 @@ class AriaEverydayActivitiesDatasetDownloader:
         return is_success, status_code
 
     def __get_all_sequences(self) -> List[str]:
-        return list(self.metadata.keys())
+        sequences_list = list(self.metadata.keys())
+        if self.__KEY_METADATA in sequences_list:
+            sequences_list.remove(self.__KEY_METADATA)
+        return sequences_list
 
 
 def parse_args():
