@@ -28,14 +28,18 @@ from .types import GraphQLError, MpsFeatureRequest, MpsRequest
 logger = logging.getLogger(__name__)
 
 ## Doc ids for various graphql queries and mutations
-_DOC_ID_SUBMIT_MPS_REQUEST: Final[int] = 7824581760907058
+_DOC_ID_SUBMIT_MPS_REQUEST: Final[int] = 7600943133300278
 _DOC_ID_QUERY_MPS_REQUESTED_FEATURE_BY_FILE_HASH: Final[int] = 7587879547939670
 _DOC_ID_QUERY_MPS_REQUESTED_FEATURE_BY_FILE_HASH_SET: Final[int] = 25450657081245347
 _DOC_ID_QUERY_FEATURE_REQUEST: Final[int] = 7490684447654027
 _DOC_ID_GET_HORIZON_PROFILE_TOKEN: Final[int] = 24299011599746673
 _DOC_ID_QUERY_RECORDING_BY_FILE_HASH: Final[int] = 6818108551598913
 _DOC_ID_QUERY_ME: Final[int] = 7092145450831175
+_DOC_ID_QUERY_MPS_REQUEST: Final[int] = 8119818841375479
+_DOC_ID_QUERY_MPS_REQUESTS: Final[int] = 6790018381101141
 _DOC_ID_QUERY_PUBLIC_ENCRYPTION_KEY: Final[int] = 7360371104027087
+# hard, server-side limit for the number of requests to be returned in a single response is 10 000
+_QUERY_DEFAULT_PAGE_SIZE: Final[int] = 1000
 
 _GQL_URL: Final[str] = os.environ.get("GQL_URL", "https://graph.oculus.com/graphql")
 _AUTHORIZATION: Final[str] = "Authorization"
@@ -214,7 +218,44 @@ class HttpHelper:
             variables={"request_id": requested_feature_id},
         )
         return ResponseParser.parse_mps_feature_request(response["data"]["node"])
-        return None
+
+    async def query_mps_request(self, request_id: int) -> MpsRequest:
+        """
+        Query the status of the given MPS request
+        """
+        response = await self.query_graph(
+            doc_id=_DOC_ID_QUERY_MPS_REQUEST,
+            variables={"id": request_id},
+        )
+        return ResponseParser.parse_mps_request(response["data"]["node"])
+
+    async def query_all_mps_requests(
+        self,
+    ) -> List[MpsRequest]:
+        """Query all MPS requests by the user"""
+        logger.debug("Querying all mps requests")
+        requests: List[MpsRequest] = []
+        has_next: bool = True
+        cursor: Optional[str] = None
+
+        while has_next:
+            response = await self.query_graph(
+                doc_id=_DOC_ID_QUERY_MPS_REQUESTS,
+                variables={
+                    "page_size": 1000,
+                    "cursor": cursor,
+                },
+            )
+            for r in response["data"]["requests"]["nodes"]:
+                request = ResponseParser.parse_mps_request(r)
+                # We currently don't need recording fbids in the response
+                request.recordings_fbids = None
+                requests.append(request)
+
+            page_info = response["data"]["requests"]["page_info"]
+            has_next = page_info["has_next_page"]
+            cursor = page_info["end_cursor"]
+        return requests
 
     @retry(
         error_codes=HTTP_RETRY_CODES,

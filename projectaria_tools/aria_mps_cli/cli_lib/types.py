@@ -142,6 +142,7 @@ class MpsRequest:
 
     fbid: int
     name: str
+    creation_time: int
     features: Dict[MpsFeature, MpsFeatureRequest]
     recordings_fbids: List[int]
 

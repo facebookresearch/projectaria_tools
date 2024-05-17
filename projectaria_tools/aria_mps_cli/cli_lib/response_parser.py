@@ -35,10 +35,13 @@ class ResponseParser:
         if not response:
             return None
         features = response["features"]["nodes"]
-        recordings = response["recordings"]["nodes"]
+        # We have a mix of graphql queries. Some include recordings and some don't so we
+        # need to check for that
+        recordings = response.get("recordings", {}).get("nodes", [])
         mps_request: MpsRequest = MpsRequest(
             fbid=response["id"],
             name=response["name"],
+            creation_time=response["creation_time"],
             recordings_fbids=[r["id"] for r in recordings],
             features={
                 MpsFeature(f["feature"]): ResponseParser.parse_mps_feature_request(f)
@@ -49,15 +52,20 @@ class ResponseParser:
 
     @staticmethod
     def parse_mps_feature_request(response: Mapping[str, Any]) -> MpsFeatureRequest:
-        """Parse the given response into an MpsFeatureRequest object."""
+        """
+        Parse the given response into an MpsFeatureRequest object.
+        The response may not contain results if they were not queried
+        """
         return MpsFeatureRequest(
             fbid=response["id"],
             status=Status(response["status"]),
-            status_message=response["status_message"],
             feature=MpsFeature(response["feature"]),
             error_code=response["error_code"],
+            status_message=response.get("status_message"),
             creation_time=response["creation_time"],
-            results=ResponseParser.parse_results(response["mps_results"]["nodes"]),
+            results=ResponseParser.parse_results(
+                response.get("mps_results", {}).get("nodes", {})
+            ),
         )
 
     @staticmethod
