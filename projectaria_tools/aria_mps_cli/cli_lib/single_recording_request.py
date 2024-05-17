@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse
 import asyncio
 import glob
 import logging
@@ -105,12 +104,10 @@ class SingleRecordingRequest(BaseStateMachine):
         self,
         monitor: RequestMonitor,
         http_helper: HttpHelper,
-        cmd_args: argparse.Namespace,
         **kwargs,
     ):
         self._monitor: RequestMonitor = monitor
         self._http_helper: HttpHelper = http_helper
-        self._cmd_args: argparse.Namespace = cmd_args
         super().__init__(
             states=self.States,
             transitions=self.TRANSITIONS,
@@ -118,18 +115,25 @@ class SingleRecordingRequest(BaseStateMachine):
             **kwargs,
         )
 
-    async def add_new_recording(self, recording: Path) -> None:
+    async def add_new_recording(
+        self,
+        recording: Path,
+        features: List[MpsFeature],
+        force: bool,
+        retry_failed: bool,
+        suffix: Optional[str] = None,
+    ) -> None:
         """
         Add new recording to the state machine
         """
         model = SingleRecordingModel(
             recording=recording,
-            features=set(self._cmd_args.features),
+            features=set(features),
             request_monitor=self._monitor,
             http_helper=self._http_helper,
-            force=self._cmd_args.force,
-            suffix=self._cmd_args.suffix,
-            retry_failed=self._cmd_args.retry_failed,
+            force=force,
+            suffix=suffix,
+            retry_failed=retry_failed,
             encryption_key=self._encryption_key,
             key_id=self._key_id,
         )
@@ -143,7 +147,14 @@ class SingleRecordingRequest(BaseStateMachine):
 
         logger.debug("Done adding model")
 
-    async def add_new_recordings(self, input_paths: List[Path]) -> None:
+    async def add_new_recordings(
+        self,
+        input_paths: List[Path],
+        features: List[MpsFeature],
+        force: bool,
+        retry_failed: bool,
+        suffix: Optional[str] = None,
+    ) -> None:
         """
         Search for all aria recordings recursively in all the input paths and add them
         to the state machine
@@ -157,10 +168,22 @@ class SingleRecordingRequest(BaseStateMachine):
             if input_path.is_file():
                 if input_path.suffix != ".vrs":
                     raise ValueError(f"Only .vrs file supported: {input_path}")
-                await self.add_new_recording(input_path)
+                await self.add_new_recording(
+                    recording=input_path,
+                    features=features,
+                    force=force,
+                    retry_failed=retry_failed,
+                    suffix=suffix,
+                )
             elif input_path.is_dir():
                 for rec in glob.glob(f"{input_path}/**/*.vrs", recursive=True):
-                    await self.add_new_recording(Path(rec))
+                    await self.add_new_recording(
+                        Path(rec),
+                        features=features,
+                        force=force,
+                        retry_failed=retry_failed,
+                        suffix=suffix,
+                    )
             else:
                 raise ValueError(f"Invalid input path: {input_path}")
 
@@ -171,7 +194,7 @@ class SingleRecordingRequest(BaseStateMachine):
         Get the current state of each model
         """
         return {
-            model.recording: {f: model.get_status(f) for f in self._cmd_args.features}
+            model.recording: model.get_status_for_all_features()
             for model in self.models
         }
 
@@ -195,6 +218,9 @@ class SingleRecordingModel:
     ) -> None:
         self._recording: AriaRecording = AriaRecording.create(recording)
         self._features: Set[MpsFeature] = features
+        # We modify the features set to remove the ones that are not eligible or already
+        # processed. So we cache the features originally requested
+        self._all_requested_features: Set[MpsFeature] = self._features.copy()
         self._past_processed_features: Set[MpsFeature] = set()
         self._ineligible_features: Set[MpsFeature] = set()
         self._request_monitor: RequestMonitor = request_monitor
@@ -221,6 +247,12 @@ class SingleRecordingModel:
         Get recording path
         """
         return self._recording.path
+
+    def get_status_for_all_features(self) -> Dict[MpsFeature, ModelState]:
+        """
+        Get status of the request submission for each feature.
+        """
+        return {f: self.get_status(f) for f in self._all_requested_features}
 
     def get_status(self, feature: MpsFeature) -> ModelState:
         """

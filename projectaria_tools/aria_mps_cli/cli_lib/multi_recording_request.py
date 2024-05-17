@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse
 import asyncio
 import functools
 import glob
@@ -94,12 +93,10 @@ class MultiRecordingRequest(BaseStateMachine):
         self,
         monitor: RequestMonitor,
         http_helper: HttpHelper,
-        cmd_args: argparse.Namespace,
         **kwargs,
     ):
         self._monitor: RequestMonitor = monitor
         self._http_helper: HttpHelper = http_helper
-        self._cmd_args: argparse.Namespace = cmd_args
         super().__init__(
             states=self.States,
             transitions=self.TRANSITIONS,
@@ -107,7 +104,14 @@ class MultiRecordingRequest(BaseStateMachine):
             **kwargs,
         )
 
-    async def add_new_recordings(self, input_paths: List[Path]) -> None:
+    async def add_new_recordings(
+        self,
+        input_paths: List[Path],
+        output_dir: Path,
+        force: bool,
+        retry_failed: bool,
+        suffix: Optional[str] = None,
+    ) -> None:
         """
         Search for all aria recordings recursively in all the input paths and add them
         to the state machine
@@ -132,10 +136,10 @@ class MultiRecordingRequest(BaseStateMachine):
             recordings=recordings,
             request_monitor=self._monitor,
             http_helper=self._http_helper,
-            force=self._cmd_args.force,
-            suffix=self._cmd_args.suffix,
-            retry_failed=self._cmd_args.retry_failed,
-            output_dir=self._cmd_args.output_dir,
+            force=force,
+            suffix=suffix,
+            retry_failed=retry_failed,
+            output_dir=output_dir,
             encryption_key=encryption_key,
             key_id=key_id,
         )

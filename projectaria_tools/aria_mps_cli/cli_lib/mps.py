@@ -57,19 +57,30 @@ class Mps:
             self._requestor: MultiRecordingRequest = MultiRecordingRequest(
                 monitor=self._request_monitor,
                 http_helper=self._http_helper,
-                cmd_args=args,
+            )
+            # Add new VRS files to be processed
+            await self._requestor.add_new_recordings(
+                input_paths=args.input,
+                output_dir=args.output_dir,
+                force=args.force,
+                retry_failed=args.retry_failed,
+                suffix=args.suffix,
             )
         elif args.mode == _SINGLE_COMMAND:
             self._requestor: SingleRecordingRequest = SingleRecordingRequest(
                 monitor=self._request_monitor,
                 http_helper=self._http_helper,
-                cmd_args=args,
+            )
+            # Add new VRS files to be processed
+            await self._requestor.add_new_recordings(
+                input_paths=args.input,
+                features=args.features,
+                force=args.force,
+                retry_failed=args.retry_failed,
+                suffix=args.suffix,
             )
         else:
             raise ValueError(f"Unknown mode {args.mode}")
-
-        # Add new VRS files to be processed
-        await self._requestor.add_new_recordings(args.input)
 
         # Wait for all the requests to be submitted
         await asyncio.gather(*self._requestor.tasks)
