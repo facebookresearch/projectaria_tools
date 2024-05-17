@@ -124,6 +124,13 @@ def _parse_args() -> argparse.Namespace:
         help="Multi sequence MPS. MPS will process the group of VRS files together to produce a trajectories in a common frame of reference.",
     )
     _add_common_args(parser_multi)
+
+    parser_multi.add_argument(
+        "-n",
+        "--name",
+        help="Name of the multi MPS request",
+        type=str,
+    )
     parser_multi.add_argument(
         "-o",
         "--output",

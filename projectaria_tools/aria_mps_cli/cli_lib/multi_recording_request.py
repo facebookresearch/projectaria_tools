@@ -110,6 +110,7 @@ class MultiRecordingRequest(BaseStateMachine):
         output_dir: Path,
         force: bool,
         retry_failed: bool,
+        name: Optional[str] = None,
         suffix: Optional[str] = None,
     ) -> None:
         """
@@ -142,6 +143,7 @@ class MultiRecordingRequest(BaseStateMachine):
             output_dir=output_dir,
             encryption_key=encryption_key,
             key_id=key_id,
+            name=name,
         )
 
         self.add_model(model)
@@ -186,6 +188,7 @@ class MultiRecordingModel:
         output_dir: Optional[Path],
         encryption_key: str,
         key_id: int,
+        name: Optional[str] = None,
     ) -> None:
         self._feature: MpsFeature = MpsFeature.MULTI_SLAM
         self._request_monitor: RequestMonitor = request_monitor
@@ -197,6 +200,7 @@ class MultiRecordingModel:
         self._output_dir: Path = output_dir
         self._output_dir.mkdir(parents=True, exist_ok=True)
         self._recordings: List[AriaRecording] = []
+        self._name: Optional[str] = name
 
         self._encryption_key: str = encryption_key
         self._key_id: int = key_id
@@ -257,6 +261,10 @@ class MultiRecordingModel:
             with open(self._output_dir / _VRS_TO_MULTI_SLAM_JSON, "w") as fp:
                 json.dump({str(k): v for k, v in output_mapping.items()}, fp, indent=2)
         return output_mapping
+
+    @property
+    def name(self) -> Optional[str]:
+        return self._name
 
     @property
     def recordings(self) -> Sequence[AriaRecording]:
@@ -490,7 +498,7 @@ class MultiRecordingModel:
         logger.debug(event)
         assert all(rec.fbid for rec in self._recordings)
         mps_request: MpsRequest = await self._http_helper.submit_request(
-            name=f"{self._feature.value} request",
+            name=self._name or f"{self._feature.value} request",
             recording_ids=[rec.fbid for rec in self._recordings],
             features=[self._feature.value],  # TODO: match names with server side
         )

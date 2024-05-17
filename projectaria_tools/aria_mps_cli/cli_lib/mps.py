@@ -64,6 +64,7 @@ class Mps:
                 output_dir=args.output_dir,
                 force=args.force,
                 retry_failed=args.retry_failed,
+                name=args.name,
                 suffix=args.suffix,
             )
         elif args.mode == _SINGLE_COMMAND:
