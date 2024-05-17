@@ -144,7 +144,7 @@ class SingleRecordingRequest(BaseStateMachine):
         self.add_model(model)
         logger = logging.getLogger(__name__)
         logger.debug(
-            f"Adding {model.recording.name} to state machine {self.__class__.__name__}"
+            f"Adding {model.recording.path.name} to state machine {self.__class__.__name__}"
         )
         self._tasks.append(asyncio.create_task(model.start()))
 
@@ -197,7 +197,7 @@ class SingleRecordingRequest(BaseStateMachine):
         Get the current state of each model
         """
         return {
-            model.recording: model.get_status_for_all_features()
+            model.recording.path: model.get_status_for_all_features()
             for model in self.models
         }
 
@@ -250,11 +250,11 @@ class SingleRecordingModel:
         Path.mkdir(self._recording.output_path, parents=True, exist_ok=True)
 
     @property
-    def recording(self) -> Path:
+    def recording(self) -> AriaRecording:
         """
-        Get recording path
+        Get recording
         """
-        return self._recording.path
+        return self._recording
 
     @property
     def features(self) -> Set[MpsFeature]:

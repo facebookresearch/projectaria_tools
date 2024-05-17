@@ -106,6 +106,7 @@ class RequestMonitor(BaseStateMachine):
         current_states = {}
         for model in self.models:
             for r in model.recordings:
+                r = r.path
                 if r not in current_states:
                     current_states[r] = {}
                 current_states[r][model.feature] = model.get_status(r)
@@ -139,11 +140,11 @@ class RequestMonitorModel:
         return self._feature_request.feature
 
     @property
-    def recordings(self) -> Sequence[Path]:
+    def recordings(self) -> Sequence[AriaRecording]:
         """
         All the recordings associated with this feature request
         """
-        return [r.path for r in self._recordings]
+        return self._recordings
 
     @property
     def request(self) -> MpsFeatureRequest:

@@ -163,6 +163,7 @@ class MultiRecordingRequest(BaseStateMachine):
         current_states = {}
         for model in self.models:
             for r in model.recordings:
+                r = r.path
                 if r not in current_states:
                     current_states[r] = {}
                 current_states[r][MpsFeature.MULTI_SLAM] = model.get_status(r)
@@ -258,11 +259,11 @@ class MultiRecordingModel:
         return output_mapping
 
     @property
-    def recordings(self) -> Sequence[Path]:
+    def recordings(self) -> Sequence[AriaRecording]:
         """
         All the recordings associated with this feature request
         """
-        return [r.path for r in self._recordings]
+        return self._recordings
 
     def get_status(self, recording: Path) -> str:
         """
