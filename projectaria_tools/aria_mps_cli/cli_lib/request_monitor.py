@@ -145,6 +145,13 @@ class RequestMonitorModel:
         """
         return [r.path for r in self._recordings]
 
+    @property
+    def request(self) -> MpsFeatureRequest:
+        """
+        The feature request that was submitted to the server
+        """
+        return self._feature_request
+
     def get_status(self, recording: Path) -> str:
         """
         The current status of the request.

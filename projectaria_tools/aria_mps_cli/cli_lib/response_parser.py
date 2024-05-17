@@ -56,6 +56,7 @@ class ResponseParser:
             status_message=response["status_message"],
             feature=MpsFeature(response["feature"]),
             error_code=response["error_code"],
+            creation_time=response["creation_time"],
             results=ResponseParser.parse_results(response["mps_results"]["nodes"]),
         )
 

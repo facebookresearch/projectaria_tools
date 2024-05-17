@@ -126,6 +126,7 @@ class MpsFeatureRequest:
     feature: MpsFeature
     status: Status
     results: List[MpsResult]
+    creation_time: int
     status_message: Optional[str] = None
     error_code: Optional[int] = None
 
