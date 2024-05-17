@@ -14,6 +14,24 @@
 
 from typing import Any, List, Mapping, Optional, Tuple
 
+from .constants import (
+    KEY_CDN_URL,
+    KEY_CREATION_TIME,
+    KEY_ERROR_CODE,
+    KEY_FEATURE,
+    KEY_FEATURES,
+    KEY_FILE_HASH,
+    KEY_ID,
+    KEY_MPS_RESULTS,
+    KEY_NAME,
+    KEY_NODES,
+    KEY_RECORDINGS,
+    KEY_REMAINING_TTL,
+    KEY_RESULT_TYPE,
+    KEY_STATUS,
+    KEY_STATUS_MESSAGE,
+)
+
 from .types import (
     MpsFeature,
     MpsFeatureRequest,
@@ -34,17 +52,17 @@ class ResponseParser:
         """Parse the given response into an MpsRequest object."""
         if not response:
             return None
-        features = response["features"]["nodes"]
+        features = response[KEY_FEATURES][KEY_NODES]
         # We have a mix of graphql queries. Some include recordings and some don't so we
         # need to check for that
-        recordings = response.get("recordings", {}).get("nodes", [])
+        recordings = response.get(KEY_RECORDINGS, {}).get(KEY_NODES, [])
         mps_request: MpsRequest = MpsRequest(
-            fbid=response["id"],
-            name=response["name"],
-            creation_time=response["creation_time"],
-            recordings_fbids=[r["id"] for r in recordings],
+            fbid=response[KEY_ID],
+            name=response[KEY_NAME],
+            creation_time=response[KEY_CREATION_TIME],
+            recordings_fbids=[r[KEY_ID] for r in recordings],
             features={
-                MpsFeature(f["feature"]): ResponseParser.parse_mps_feature_request(f)
+                MpsFeature(f[KEY_FEATURE]): ResponseParser.parse_mps_feature_request(f)
                 for f in features
             },
         )
@@ -57,14 +75,14 @@ class ResponseParser:
         The response may not contain results if they were not queried
         """
         return MpsFeatureRequest(
-            fbid=response["id"],
-            status=Status(response["status"]),
-            feature=MpsFeature(response["feature"]),
-            error_code=response["error_code"],
-            status_message=response.get("status_message"),
-            creation_time=response["creation_time"],
+            fbid=response[KEY_ID],
+            status=Status(response[KEY_STATUS]),
+            feature=MpsFeature(response[KEY_FEATURE]),
+            error_code=response[KEY_ERROR_CODE],
+            status_message=response.get(KEY_STATUS_MESSAGE),
+            creation_time=response[KEY_CREATION_TIME],
             results=ResponseParser.parse_results(
-                response.get("mps_results", {}).get("nodes", {})
+                response.get(KEY_MPS_RESULTS, {}).get(KEY_NODES, {})
             ),
         )
 
@@ -76,9 +94,9 @@ class ResponseParser:
             mps_results.append(
                 MpsResult(
                     fbid=resp["id"],
-                    result_type=MpsResultType(resp["result_type"]),
-                    cdn_url=resp["cdn_url"],
-                    file_hash=resp["file_hash"],
+                    result_type=MpsResultType(resp[KEY_RESULT_TYPE]),
+                    cdn_url=resp[KEY_CDN_URL],
+                    file_hash=resp[KEY_FILE_HASH],
                 )
             )
         return mps_results
@@ -90,5 +108,5 @@ class ResponseParser:
         """Parse the given response into an recording fbid and remaining ttl tuple"""
         recording = response["recording"]
         if recording:
-            return int(recording["id"]), int(recording["remaining_ttl"])
+            return int(recording[KEY_ID]), int(recording[KEY_REMAINING_TTL])
         return None
