@@ -39,6 +39,7 @@ from .types import (
     Status,
 )
 from .uploader import check_if_already_uploaded, Uploader
+from .waiter_aware_lock import WaiterAwareLock
 
 config = Config.get()
 
@@ -68,6 +69,7 @@ class SingleRecordingRequest(BaseStateMachine):
         CREATED = auto()
         EXISTING_OUTPUTS_CHECK = auto()
         HASH_COMPUTATION = auto()
+        WAIT = auto()
         EXISTING_REQUESTS_CHECK = auto()
         VALIDATION = auto()
         EXISTING_RECORDING_CHECK = auto()
@@ -82,7 +84,8 @@ class SingleRecordingRequest(BaseStateMachine):
         ["start", States.CREATED, States.EXISTING_OUTPUTS_CHECK],
         ["next", "*", States.FAILURE, "has_error"],
         ["next", States.EXISTING_OUTPUTS_CHECK, States.HASH_COMPUTATION],
-        ["next", States.HASH_COMPUTATION, States.EXISTING_REQUESTS_CHECK],
+        ["next", States.HASH_COMPUTATION, States.WAIT],
+        ["next", States.WAIT, States.EXISTING_REQUESTS_CHECK],
         ["next", States.EXISTING_REQUESTS_CHECK, States.VALIDATION],
         ["next", States.VALIDATION, States.EXISTING_RECORDING_CHECK],
         ["next", States.EXISTING_RECORDING_CHECK, States.ENCRYPT],
@@ -204,6 +207,10 @@ class SingleRecordingModel:
     MPS Request model per aria recording
     """
 
+    # In order to prevent race conditions, we use a lock per recording. This is to prevent
+    # multiple requests for the same recording to be processed at the same time
+    locks_: Mapping[str, WaiterAwareLock] = {}
+
     def __init__(
         self,
         recording: Path,
@@ -232,6 +239,7 @@ class SingleRecordingModel:
         self._encryption_key: str = encryption_key
         self._key_id: int = key_id
         self._error_code: Optional[int] = None
+        self._lock_taken: bool = False
 
         self._encryptor: Optional[VrsEncryptor] = None
         self._uploader: Optional[Uploader] = None
@@ -247,6 +255,13 @@ class SingleRecordingModel:
         Get recording path
         """
         return self._recording.path
+
+    @property
+    def features(self) -> Set[MpsFeature]:
+        """
+        Get features to be processed for this recording.
+        """
+        return self._all_requested_features
 
     def get_status_for_all_features(self) -> Dict[MpsFeature, ModelState]:
         """
@@ -270,6 +285,8 @@ class SingleRecordingModel:
         elif self.is_HASH_COMPUTATION():
             progress = self._hash_calculator.progress if self._hash_calculator else 0
             return ModelState(status=DisplayStatus.HASHING, progress=progress)
+        elif self.is_WAIT():
+            return ModelState(status=DisplayStatus.WAITING)
         elif (
             self.is_EXISTING_REQUESTS_CHECK()
             or self.is_EXISTING_RECORDING_CHECK()
@@ -303,6 +320,22 @@ class SingleRecordingModel:
         self._logger.debug(f"has_error : {self._error_code}")
         return self._error_code is not None
 
+    async def _release_and_clear_lock(self):
+        """
+        Release the lock and delete it if there are no more waiters
+        """
+        if self._lock_taken:
+            r_path: str = str(self._recording.path)
+            if r_path and r_path in self.locks_:
+                self.locks_[r_path].release()
+                if not self.locks_[r_path].has_waiters():
+                    self._logger.debug(f"Releasing lock for {r_path}")
+                    self.locks_.pop(r_path)
+                else:
+                    self._logger.debug(
+                        f"Not releasing lock for {r_path}. Waiter count: {self.locks_[r_path].waiters_count}"
+                    )
+
     async def on_enter_HASH_COMPUTATION(self, event: EventData) -> None:
         self._logger.debug(event)
         self._hash_calculator = HashCalculator(self._recording.path, self._suffix)
@@ -311,6 +344,19 @@ class SingleRecordingModel:
         await self.next()
         # TODO: move this to after callback
         self._hash_calculator = None
+
+    async def on_enter_WAIT(self, event: EventData) -> None:
+        """
+        If there is any other request for the same recording, we need to wait
+        for it to finish before we can proceed.
+        """
+        self._logger.debug(event)
+        if self._recording.path not in self.locks_:
+            self._logger.debug(f"Creating lock for {self._recording.path}")
+            self.locks_[self._recording.path] = WaiterAwareLock()
+        await self.locks_[self._recording.path].acquire()
+        self._lock_taken = True
+        await self.next()
 
     async def on_enter_EXISTING_OUTPUTS_CHECK(self, event: EventData) -> None:
         self._logger.debug(event)
@@ -462,9 +508,11 @@ class SingleRecordingModel:
     async def on_enter_SUCCESS(self, event: EventData) -> None:
         self._logger.debug(event)
         self._logger.info("Finished processing")
+        await self._release_and_clear_lock()
 
     async def on_enter_FAILURE(self, event: EventData) -> None:
         self._logger.critical(event)
+        await self._release_and_clear_lock()
 
     async def on_exception(self, event: EventData) -> None:
         """

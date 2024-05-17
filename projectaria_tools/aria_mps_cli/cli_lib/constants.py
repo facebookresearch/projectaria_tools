@@ -78,6 +78,7 @@ class DisplayStatus:
 
     CREATED = "Created"
     HASHING = "Hashing"
+    WAITING = "Waiting"
     CHECKING = "Checking"
     DOWNLOADING = "Downloading"
     HEALTHCHECK = "HealthCheck"
