@@ -125,7 +125,7 @@ class SingleRecordingRequest(BaseStateMachine):
         force: bool,
         retry_failed: bool,
         suffix: Optional[str] = None,
-    ) -> None:
+    ) -> "SingleRecordingModel":
         """
         Add new recording to the state machine
         """
@@ -149,6 +149,7 @@ class SingleRecordingRequest(BaseStateMachine):
         self._tasks.append(asyncio.create_task(model.start()))
 
         logger.debug("Done adding model")
+        return model
 
     async def add_new_recordings(
         self,
@@ -157,7 +158,7 @@ class SingleRecordingRequest(BaseStateMachine):
         force: bool,
         retry_failed: bool,
         suffix: Optional[str] = None,
-    ) -> None:
+    ) -> List["SingleRecordingModel"]:
         """
         Search for all aria recordings recursively in all the input paths and add them
         to the state machine
@@ -167,28 +168,34 @@ class SingleRecordingRequest(BaseStateMachine):
             self._key_id,
         ) = await self._http_helper.query_encryption_key()
 
+        models: List["SingleRecordingModel"] = []
         for input_path in input_paths:
             if input_path.is_file():
                 if input_path.suffix != ".vrs":
                     raise ValueError(f"Only .vrs file supported: {input_path}")
-                await self.add_new_recording(
-                    recording=input_path,
-                    features=features,
-                    force=force,
-                    retry_failed=retry_failed,
-                    suffix=suffix,
-                )
-            elif input_path.is_dir():
-                for rec in glob.glob(f"{input_path}/**/*.vrs", recursive=True):
+                models.append(
                     await self.add_new_recording(
-                        Path(rec),
+                        recording=input_path,
                         features=features,
                         force=force,
                         retry_failed=retry_failed,
                         suffix=suffix,
                     )
+                )
+            elif input_path.is_dir():
+                for rec in glob.glob(f"{input_path}/**/*.vrs", recursive=True):
+                    models.append(
+                        await self.add_new_recording(
+                            recording=Path(rec),
+                            features=features,
+                            force=force,
+                            retry_failed=retry_failed,
+                            suffix=suffix,
+                        )
+                    )
             else:
                 raise ValueError(f"Invalid input path: {input_path}")
+        return models
 
     def fetch_current_model_states(
         self,

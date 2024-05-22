@@ -112,6 +112,14 @@ class RequestMonitor(BaseStateMachine):
                 current_states[r][model.feature] = model.get_status(r)
         return current_states
 
+    def get_model_by_request_id(self, request_fbid: int) -> "RequestMonitorModel":
+        """
+        Get the model associated with a given feature request fbid.
+        """
+        return next(
+            (m for m in self.models if m._feature_request.fbid == request_fbid), None
+        )
+
 
 class RequestMonitorModel:
     """

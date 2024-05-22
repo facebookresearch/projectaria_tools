@@ -112,7 +112,7 @@ class MultiRecordingRequest(BaseStateMachine):
         retry_failed: bool,
         name: Optional[str] = None,
         suffix: Optional[str] = None,
-    ) -> None:
+    ) -> "MultiRecordingModel":
         """
         Search for all aria recordings recursively in all the input paths and add them
         to the state machine
@@ -153,6 +153,7 @@ class MultiRecordingRequest(BaseStateMachine):
         self._tasks.append(asyncio.create_task(model.start()))
 
         logger.debug("Done adding model")
+        return model
 
     def fetch_current_model_states(
         self,
@@ -205,6 +206,7 @@ class MultiRecordingModel:
         self._encryption_key: str = encryption_key
         self._key_id: int = key_id
         self._error_codes: Dict[Path, int] = {}
+        self._feature_request: Optional[MpsFeatureRequest] = None
 
         output_mapping: Mapping[Path, str] = self._load_or_create_output_mapping(
             recordings
@@ -272,6 +274,13 @@ class MultiRecordingModel:
         All the recordings associated with this feature request
         """
         return self._recordings
+
+    @property
+    def request(self) -> Optional[MpsFeatureRequest]:
+        """
+        The feature request associated with this model.
+        """
+        return self._feature_request
 
     def get_status(self, recording: Path) -> str:
         """
@@ -392,6 +401,7 @@ class MultiRecordingModel:
                 logger.info(
                     "Found an existing feature request with the same file hash. Skipping submission."
                 )
+                self._feature_request = mps_feature_request
                 self._request_monitor.track_feature_request(
                     recordings=self._recordings,
                     feature_request=mps_feature_request,
@@ -502,6 +512,7 @@ class MultiRecordingModel:
             recording_ids=[rec.fbid for rec in self._recordings],
             features=[self._feature.value],  # TODO: match names with server side
         )
+        self._feature_request = mps_request
         self._request_monitor.track_feature_request(
             recordings=self._recordings,
             feature_request=mps_request.features[self._feature],
