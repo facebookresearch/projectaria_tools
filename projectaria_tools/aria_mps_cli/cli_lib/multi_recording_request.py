@@ -151,6 +151,7 @@ class MultiRecordingRequest(BaseStateMachine):
             f"Adding {model._recordings} to state machine {self.__class__.__name__}"
         )
         self._tasks.append(asyncio.create_task(model.start()))
+        model._task = self._tasks[-1]
 
         logger.debug("Done adding model")
         return model
@@ -207,6 +208,7 @@ class MultiRecordingModel:
         self._key_id: int = key_id
         self._error_codes: Dict[Path, int] = {}
         self._feature_request: Optional[MpsFeatureRequest] = None
+        self._task: Optional[asyncio.Task] = None
 
         output_mapping: Mapping[Path, str] = self._load_or_create_output_mapping(
             recordings
@@ -281,6 +283,13 @@ class MultiRecordingModel:
         The feature request associated with this model.
         """
         return self._feature_request
+
+    @property
+    def task(self) -> Optional[asyncio.Task]:
+        """
+        The task associated with this model, if any
+        """
+        return self._task
 
     def get_status(self, recording: Path) -> str:
         """

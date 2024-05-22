@@ -92,6 +92,7 @@ class RequestMonitor(BaseStateMachine):
             f"Adding {[r.path.name for r in model._recordings]} to state machine {self.__class__.__name__}"
         )
         self._tasks.append(asyncio.create_task(model.start()))
+        model._task = self._tasks[-1]
 
         logger.debug("Done adding model")
 
@@ -139,6 +140,7 @@ class RequestMonitorModel:
         self._progress: float = 0.0
         self._error_code: Optional[int] = None
         self._downloaders: Dict[Path, Downloader] = {}
+        self._task: Optional[asyncio.Task] = None
 
     @property
     def feature(self) -> MpsFeature:
@@ -160,6 +162,13 @@ class RequestMonitorModel:
         The feature request that was submitted to the server
         """
         return self._feature_request
+
+    @property
+    def task(self) -> Optional[asyncio.Task]:
+        """
+        The task associated with this model, if any
+        """
+        return self._task
 
     def get_status(self, recording: Path) -> str:
         """
