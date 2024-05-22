@@ -157,7 +157,7 @@ class RequestMonitorModel:
         return self._recordings
 
     @property
-    def request(self) -> MpsFeatureRequest:
+    def feature_request(self) -> MpsFeatureRequest:
         """
         The feature request that was submitted to the server
         """

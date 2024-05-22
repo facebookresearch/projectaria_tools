@@ -278,7 +278,7 @@ class MultiRecordingModel:
         return self._recordings
 
     @property
-    def request(self) -> Optional[MpsFeatureRequest]:
+    def feature_request(self) -> Optional[MpsFeatureRequest]:
         """
         The feature request associated with this model.
         """
@@ -521,7 +521,7 @@ class MultiRecordingModel:
             recording_ids=[rec.fbid for rec in self._recordings],
             features=[self._feature.value],  # TODO: match names with server side
         )
-        self._feature_request = mps_request
+        self._feature_request = mps_request.features[self._feature]
         self._request_monitor.track_feature_request(
             recordings=self._recordings,
             feature_request=mps_request.features[self._feature],

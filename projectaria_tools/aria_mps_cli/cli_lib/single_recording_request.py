@@ -147,6 +147,7 @@ class SingleRecordingRequest(BaseStateMachine):
             f"Adding {model.recording.path.name} to state machine {self.__class__.__name__}"
         )
         self._tasks.append(asyncio.create_task(model.start()))
+        model._task = self._tasks[-1]
 
         logger.debug("Done adding model")
         return model
@@ -247,6 +248,8 @@ class SingleRecordingModel:
         self._key_id: int = key_id
         self._error_code: Optional[int] = None
         self._lock_taken: bool = False
+        self._feature_requests: List[MpsFeatureRequest] = []
+        self._task: asyncio.Task = None
 
         self._encryptor: Optional[VrsEncryptor] = None
         self._uploader: Optional[Uploader] = None
@@ -264,11 +267,25 @@ class SingleRecordingModel:
         return self._recording
 
     @property
+    def feature_requests(self) -> List[MpsFeatureRequest]:
+        """
+        The feature request associated with this model. This is used to submit the MPS job
+        """
+        return self._feature_requests
+
+    @property
     def features(self) -> Set[MpsFeature]:
         """
         Get features to be processed for this recording.
         """
         return self._all_requested_features
+
+    @property
+    def task(self) -> Optional[asyncio.Task]:
+        """
+        The task associated with this model, if any
+        """
+        return self._task
 
     def get_status_for_all_features(self) -> Dict[MpsFeature, ModelState]:
         """
@@ -414,6 +431,7 @@ class SingleRecordingModel:
             self._features = self._features.difference(
                 {r.feature for r in prev_requested_features}
             )
+            self._feature_requests.extend(prev_requested_features)
         if self._features:
             await self.next()
         else:
@@ -510,6 +528,7 @@ class SingleRecordingModel:
                 feature_request=mps_request.features[f],
             )
 
+        self._feature_requests.extend(list(mps_request.features.values()))
         await self.finish()
 
     async def on_enter_SUCCESS(self, event: EventData) -> None:
