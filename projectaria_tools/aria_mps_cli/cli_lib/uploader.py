@@ -16,7 +16,7 @@ import asyncio
 import io
 import logging
 import time
-from asyncio import Lock, Semaphore
+from asyncio import Semaphore
 from pathlib import Path
 from statistics import median
 from typing import Any, Dict, final, Final, List, Optional, Tuple
@@ -29,7 +29,6 @@ from .common import Config, CustomAdapter, get_pretty_size, retry
 from .constants import ConfigKey, ConfigSection, HTTP_RETRY_CODES
 from .http_helper import HttpHelper
 from .runner_with_progress import RunnerWithProgress
-from .waiter_aware_lock import WaiterAwareLock
 
 _OFFSET: Final[str] = "offset"
 _URL_UPLOAD: Final[str] = "https://rupload.facebook.com/mps_recording_upload"
