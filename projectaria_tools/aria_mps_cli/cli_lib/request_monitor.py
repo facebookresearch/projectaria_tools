@@ -84,7 +84,11 @@ class RequestMonitor(BaseStateMachine):
         )
         self._http_helper = http_helper
 
-    def track_feature_request(self, *args, **kwargs) -> None:
+    def track_feature_request(self, *args, **kwargs) -> "RequestMonitorModel":
+        """
+        Track the status of a feature request by adding a new model to the state machine
+        """
+
         model = RequestMonitorModel(*args, **kwargs, http_helper=self._http_helper)
 
         self.add_model(model)
@@ -95,6 +99,7 @@ class RequestMonitor(BaseStateMachine):
         model._task = self._tasks[-1]
 
         logger.debug("Done adding model")
+        return model
 
     def fetch_current_model_states(
         self,

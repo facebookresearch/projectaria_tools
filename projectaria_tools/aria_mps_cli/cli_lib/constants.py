@@ -115,7 +115,6 @@ class DisplayStatus:
 
     CREATED = "Created"
     HASHING = "Hashing"
-    WAITING = "Waiting"
     CHECKING = "Checking"
     DOWNLOADING = "Downloading"
     HEALTHCHECK = "HealthCheck"
@@ -151,12 +150,12 @@ class ErrorCode:
     GRAPHQL_FAILURE: int = 108
     # Hash computation failed
     HASH_COMPUTATION_FAILURE: int = 109
-    # Existing outputs check failed
-    EXISTING_OUTPUTS_CHECK_FAILURE: int = 110
-    # Existing requests check failed
-    EXISTING_REQUESTS_CHECK_FAILURE: int = 111
-    # Existing recording check failed
-    EXISTING_RECORDING_CHECK_FAILURE: int = 112
+    # Past outputs check failed
+    PAST_OUTPUT_CHECK_FAILURE: int = 110
+    # Past requests check failed
+    PAST_REQUEST_CHECK_FAILURE: int = 111
+    # Past recording check failed
+    PAST_RECORDING_CHECK_FAILURE: int = 112
     # Upload failed
     UPLOAD_FAILURE: int = 113
     # Submit failed

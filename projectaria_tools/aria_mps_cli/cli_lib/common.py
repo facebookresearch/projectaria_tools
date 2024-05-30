@@ -152,6 +152,32 @@ def retry(
     return decorator
 
 
+def log_exceptions(func):
+    """Decorator to log exceptions and re-raise them"""
+
+    @functools.wraps(func)
+    def sync_wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            logger.exception(f"Exception occurred in {func.__name__} \n {e}")
+            raise
+
+    @functools.wraps(func)
+    async def async_wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except Exception as e:
+            logger.exception(f"Exception occurred in {func.__name__} \n {e}")
+            raise
+
+    # Check if the function is a coroutine (async)
+    if asyncio.iscoroutinefunction(func):
+        return async_wrapper
+    else:
+        return sync_wrapper
+
+
 def get_pretty_size(num_bytes: int, suffix="B"):
     """
     Returns a human readable size string
