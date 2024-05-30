@@ -151,7 +151,6 @@ class SingleRecordingMps:
                             [model.recording], model.past_feature_request
                         )
                     )
-                    self._requestor.remove_model(model)
                 elif model.is_SUCCESS_NEW_REQUEST():
                     # The feature request was identified as a new request and needs to be
                     # submitted
@@ -232,9 +231,6 @@ class SingleRecordingMps:
             return self._finish_status[feature]
 
         # If not found, check the model map
-        if not self._running:
-            return ModelState(status=DisplayStatus.CREATED)
-
         model = self._model_by_feature[feature]
         if isinstance(model, RequestMonitorModel):
             return model.get_status(self._recording)
