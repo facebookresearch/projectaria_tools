@@ -45,11 +45,19 @@ class HashCalculator(RunnerWithProgress):
             logging.getLogger(__name__), {"vrs": input_path}
         )
 
+    @classmethod
     @final
-    async def run(self) -> str:
+    def get_key(cls, input_path: Path, debug_suffix: Optional[str]) -> str:
+        """Get a unique key for this Runner instance"""
+        # ignore the debug prefix
+        return str(input_path)
+
+    @final
+    async def _run(self) -> str:
         """
         Calculate hash of the input file
         """
+        self._logger.debug(f"Starting hash calculation for {self._input_path}")
         async with HashCalculator.semaphore_:
             x = xxhash.xxh64()
             chunk_size: int = config.getint(ConfigSection.HASH, ConfigKey.CHUNK_SIZE)

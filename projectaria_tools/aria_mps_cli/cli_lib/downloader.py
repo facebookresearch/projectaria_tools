@@ -52,13 +52,26 @@ class Downloader(RunnerWithProgress):
         self._download_filename: str = download_filename
         self._unzip: bool = unzip
 
+    @classmethod
+    @final
+    def get_key(
+        cls,
+        url: str,
+        download_dir: Path,
+        http_helper: HttpHelper,
+        download_filename: Optional[str] = None,
+        unzip: bool = False,
+    ) -> str:
+        """Get a unique key for this Runner instance"""
+        return f"{url}_{download_dir}"
+
     @final
     @retry(
         error_codes=HTTP_RETRY_CODES,
         interval=config.getfloat(ConfigSection.DOWNLOAD, ConfigKey.INTERVAL),
         backoff=config.getfloat(ConfigSection.DOWNLOAD, ConfigKey.BACKOFF),
     )
-    async def run(self) -> None:
+    async def _run(self) -> None:
         self._processed = 0
         self._total = 0
         async with self.semaphore_:

@@ -12,18 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
 import json
 import logging
 import traceback
 from asyncio import Semaphore
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, final, List, Optional, Union
 
 from projectaria_tools.core import vrs_health_check as vhc
 
 from .common import Config, CustomAdapter, to_proc
 from .constants import ConfigKey, ConfigSection
+from .runner_with_progress import RunnerWithProgress
 from .types import AriaRecording, MpsFeature
 
 logger = logging.getLogger(__name__)
@@ -451,35 +453,48 @@ def _check_leq_ratio(
         logger_.info(f"   Pass: {message}")
 
 
-def _vhc_run(path: Path, jsonOutFilename: Path):
+def _vhc_run(vrs_path: Path, json_out: Path):
     """
     Helper function to run the health check on a given vrs file. This needs to be in a
     separate function to keep ProcessPoolExecutor happy
     """
-    logger.debug(f"Running health check on {path}")
+    logger.debug(f"Running health check on {vrs_path}")
     vhc.run(
-        path=str(path),
-        json_out_filename=str(jsonOutFilename),
+        path=str(vrs_path),
+        json_out_filename=str(json_out),
         disable_logging=True,
     )
-    logger.debug(f"Health check output written to {jsonOutFilename}")
+    logger.debug(f"Health check output written to {json_out}")
 
 
-async def run_health_check(vrs_file: Path, json_out: Path) -> None:
+class HealthCheckRunner(RunnerWithProgress):
     """
     Run health check on a given vrs file.
-    Args:
-        vrs_file (Path): Path to the vrs file
     """
-    if not hasattr(run_health_check, "semaphore_"):
-        run_health_check.semaphore_: Semaphore = Semaphore(
-            value=config.getint(
-                ConfigSection.HEALTH_CHECK, ConfigKey.CONCURRENT_HEALTH_CHECKS
-            )
-        )
 
-    async with run_health_check.semaphore_:
-        await to_proc(_vhc_run, path=str(vrs_file), jsonOutFilename=str(json_out))
+    semaphore_: Semaphore = Semaphore(
+        value=config.getint(
+            ConfigSection.HEALTH_CHECK, ConfigKey.CONCURRENT_HEALTH_CHECKS
+        )
+    )
+
+    def __init__(self, vrs_path: Path, json_out: Path) -> None:
+        self._vrs_file: Path = vrs_path
+        self._json_out: Path = json_out
+        self._task: Optional[asyncio.Task] = None
+
+    @classmethod
+    @final
+    def get_key(cls, vrs_path: Path, json_out: Path) -> str:
+        """Get a unique key for this Runner instance"""
+        return f"{vrs_path}_{json_out}"
+
+    @final
+    async def _run(self) -> None:
+        """Run the health check on this vrs file.
+        Repeatedly calling run will await on the same task
+        """
+        return await to_proc(_vhc_run, vrs_path=self._vrs_file, json_out=self._json_out)
 
 
 def is_eligible(feature: MpsFeature, rec: AriaRecording) -> bool:

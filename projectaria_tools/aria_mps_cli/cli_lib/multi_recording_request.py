@@ -28,7 +28,7 @@ from .common import Config
 from .constants import ConfigKey, ConfigSection, DisplayStatus, ErrorCode
 from .encryption import VrsEncryptor
 from .hash_calculator import HashCalculator
-from .health_check import is_eligible, run_health_check
+from .health_check import HealthCheckRunner, is_eligible
 from .http_helper import HttpHelper
 from .request_monitor import RequestMonitor
 from .types import (
@@ -426,7 +426,11 @@ class MultiRecordingModel:
                     f"Health check output already exists at {rec.health_check_path}, skipping VrsHealthCheck"
                 )
             else:
-                await run_health_check(rec.path, rec.health_check_path)
+                vhc_runner: HealthCheckRunner = await HealthCheckRunner.get(
+                    vrs_path=rec.path,
+                    json_out=rec.health_check_path,
+                )
+                await vhc_runner.run()
             if not rec.health_check_path.is_file():
                 logger.error("Failed to run VrsHealthCheck for {rec.path}")
                 self._error_codes[rec.path] = ErrorCode.HEALTH_CHECK_FAILURE

@@ -31,6 +31,7 @@ from .common import Config, CustomAdapter, to_proc
 from .constants import ConfigKey, ConfigSection
 from .runner_with_progress import RunnerWithProgress
 
+logger = logging.getLogger(__name__)
 config = Config.get()
 
 
@@ -55,8 +56,16 @@ class VrsEncryptor(RunnerWithProgress):
             logging.getLogger(__name__), {"vrs": str(src_path)}
         )
 
+    @classmethod
     @final
-    async def run(self) -> str:
+    def get_key(
+        cls, src_path: Path, dest_path: Path, encryption_key: str, key_id: int
+    ) -> str:
+        """Get a unique key for this Runner instance"""
+        return f"{src_path}_{dest_path}_{encryption_key}_{key_id}"
+
+    @final
+    async def _run(self) -> str:
         """
         Encrypt the source file and write it to destination
         Encryption is a CPU intensive operation, so in order to avoid blocking the event

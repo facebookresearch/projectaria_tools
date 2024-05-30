@@ -25,7 +25,7 @@ from .common import Config, CustomAdapter
 from .constants import ConfigKey, ConfigSection, DisplayStatus, ErrorCode
 from .encryption import VrsEncryptor
 from .hash_calculator import HashCalculator
-from .health_check import is_eligible, run_health_check
+from .health_check import HealthCheckRunner, is_eligible
 from .http_helper import HttpHelper
 from .types import (
     AriaRecording,
@@ -263,7 +263,9 @@ class SingleRecordingModel:
 
     async def on_enter_HASH_COMPUTATION(self, event: EventData) -> None:
         self._logger.debug(event)
-        self._hash_calculator = HashCalculator(self._recording.path, self._suffix)
+        self._hash_calculator = await HashCalculator.get(
+            self._recording.path, self._suffix
+        )
         self._recording.file_hash = await self._hash_calculator.run()
         self._logger.debug(f"File hash {self._recording.file_hash}")
         await self.next()
@@ -289,13 +291,14 @@ class SingleRecordingModel:
 
     async def on_enter_PAST_REQUEST_CHECK(self, event: EventData) -> None:
         self._logger.debug(event)
+        finish: bool = False
         if self._force:
-            self._logger.info(
+            self._logger.debug(
                 "Force flag is enabled, skipping pre-existing requests check"
             )
-            await self.next()
         else:
             # check if there are any existing requests with this file hash
+            # Once T190464177 lands, we can filter by file hash and feature
             past_requested_features: List[MpsFeatureRequest] = (
                 await self._http_helper.query_mps_requested_features_by_file_hash(
                     self._recording.file_hash
@@ -314,17 +317,11 @@ class SingleRecordingModel:
                 self._logger.info(
                     f"Found existing feature request {self._past_feature_request}"
                 )
-                if (
-                    self._retry_failed
-                    and self._past_feature_request.status == Status.FAILED
-                ):
-                    self._logger.info("Retrying failed feature request")
-                    await self.next()
-                else:
-                    self._logger.info(
-                        f"Skipping feature {self._feature} because it has been requested before with status: {self._past_feature_request.status}"
-                    )
-                    await self.finish()
+                finish = (
+                    not self._retry_failed
+                    or self._past_feature_request.status != Status.FAILED
+                )
+        await self.finish() if finish else await self.next()
 
     async def on_enter_VALIDATION(self, event: EventData) -> None:
         self._logger.debug(event)
@@ -333,9 +330,11 @@ class SingleRecordingModel:
                 f"Health check output already exists at {self._recording.health_check_path}, skipping VrsHealthCheck"
             )
         else:
-            await run_health_check(
-                self._recording.path, self._recording.health_check_path
+            vhc_runner: HealthCheckRunner = await HealthCheckRunner.get(
+                vrs_path=self._recording.path,
+                json_out=self._recording.health_check_path,
             )
+            await vhc_runner.run()
             if not self._recording.health_check_path.exists():
                 self._logger.error(
                     f"Failed to run VrsHealthCheck for {self._recording.path}"
@@ -369,7 +368,7 @@ class SingleRecordingModel:
                 f"Encrypted file already exists at {self._recording.encrypted_path}, skipping encryption"
             )
         else:
-            self._encryptor = VrsEncryptor(
+            self._encryptor = await VrsEncryptor.get(
                 self._recording.path,
                 self._recording.encrypted_path,
                 self._encryption_key,
@@ -380,7 +379,7 @@ class SingleRecordingModel:
 
     async def on_enter_UPLOAD(self, event: EventData) -> None:
         self._logger.debug(event)
-        self._uploader: Uploader = Uploader(
+        self._uploader: Uploader = await Uploader.get(
             input_path=self._recording.encrypted_path,
             input_hash=self._recording.file_hash,
             http_helper=self._http_helper,
@@ -394,8 +393,8 @@ class SingleRecordingModel:
             self._logger.info(
                 f"Deleting encrypted file {self._recording.encrypted_path}"
             )
-            self._recording.encrypted_path.unlink()
-        await self.next()
+            self._recording.encrypted_path.unlink(missing_ok=True)
+        await self.finish()
 
     async def on_enter_SUCCESS_NEW_REQUEST(self, event: EventData) -> None:
         self._logger.debug(event)

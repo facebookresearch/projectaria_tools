@@ -66,10 +66,6 @@ class Uploader(RunnerWithProgress):
     semaphore_: Semaphore = Semaphore(
         value=config.getint(ConfigSection.UPLOAD, ConfigKey.CONCURRENT_UPLOADS)
     )
-    # Locks to prevent multiple uploads of the same file from happening.
-    # This is needed because the upload service does not allow multiple concurrent
-    # uploads with the same handle.
-    locks_: Dict[str, WaiterAwareLock] = {}
 
     def __init__(
         self,
@@ -85,6 +81,13 @@ class Uploader(RunnerWithProgress):
             logging.getLogger(__name__), {"vrs": str(input_path)}
         )
 
+    @classmethod
+    @final
+    def get_key(cls, input_path: Path, input_hash: str, http_helper) -> str:
+        """Get a unique key for this Runner instance"""
+        # We only need the file hash
+        return input_hash
+
     @final
     @retry(
         exceptions=[
@@ -97,103 +100,99 @@ class Uploader(RunnerWithProgress):
         interval=config.getfloat(ConfigSection.UPLOAD, ConfigKey.INTERVAL),
         backoff=config.getfloat(ConfigSection.UPLOAD, ConfigKey.BACKOFF),
     )
-    async def run(self) -> int:
+    async def _run(self) -> int:
         """
         Upload the file to the MPS server
         """
         # Limit the number of concurrent uploads per file
-        if self._input_hash not in self.locks_:
-            self.locks_[self._input_hash] = Lock()
 
-        async with self.locks_[self._input_hash]:
-            async with Uploader.semaphore_:
-                return await self._upload()
+        async with Uploader.semaphore_:
+            rec_fbid: int = await check_if_already_uploaded(
+                self._input_hash, self._http_helper
+            )
+            self._total: Final[int] = (await aiofiles.os.stat(self._input_path)).st_size
+            if rec_fbid:
+                self._logger.info("Recording already uploaded")
+                self._processed = self._total
+                return rec_fbid
 
-        if not self.locks_[self._input_hash].has_waiters():
-            self.locks_.pop(self._input_hash)
+            path_hash = xxhash.xxh64(self._input_path.name).hexdigest()
+            upload_url: Final[str] = f"{_URL_UPLOAD}/{self._input_hash}_{path_hash}"
+            self._logger.info(f"Uploading to {upload_url}")
+
+            # Get the offset
+            offset: int = await self._fetch_offset(upload_url)
+            self._logger.info(f"Offset: {offset}, File size: {self._total}")
+
+            if offset > self._total:
+                raise ValueError(
+                    f"Offset ({offset}) cannot be greater than file size ({self._total})"
+                )
+            if offset >= self._total:
+                # If we reach here, that means that the file has been fully uploaded but the
+                # previous request timed out before the response was received from the
+                # server.
+                raise UploadPending("Upload timed out")
+            self._processed = offset
+            # Start the upload
+            headers = {
+                "Content-Type": "application/x-www-form-urlencoded",
+                # This is the total size of the original file
+                "X-Entity-Length": f"{self._total}",
+                "X-Entity-Type": "bin_file",
+                "X-custom-is-anonymized": "False",
+                "X-custom-file-hash": self._input_hash,
+                "X-entity-Name": self._input_path.name,
+            }
+            response: Dict[str, Any] = {}
+            min_chunk_size: int = config.getint(
+                ConfigSection.UPLOAD, ConfigKey.MIN_CHUNK_SIZE
+            )
+            max_chunk_size: int = config.getint(
+                ConfigSection.UPLOAD, ConfigKey.MAX_CHUNK_SIZE
+            )
+            smoothing_window_size: int = config.getint(
+                ConfigSection.UPLOAD, ConfigKey.SMOOTHING_WINDOW_SIZE
+            )
+            target_chunk_upload_secs: int = config.getint(
+                ConfigSection.UPLOAD, ConfigKey.TARGET_CHUNK_UPLOAD_SECS
+            )
+            chunk_sizes: List[int] = [min_chunk_size] * smoothing_window_size
+            chunk_size = min_chunk_size
+            async with aiofiles.open(self._input_path, "rb") as f:
+                await f.seek(self._processed)
+                while chunk := await f.read(chunk_size):
+                    headers[_OFFSET] = str(self._processed)
+                    # This is length of the content we plan to send in this attempt
+                    # It can be less than the total file size because this could be a resumption
+                    # of a previous upload
+                    headers["Content-Length"] = str(len(chunk))
+                    start_time: float = time.time()
+                    response = await self._http_helper.post(
+                        url=upload_url, data=io.BytesIO(chunk), headers=headers
+                    )
+                    time_taken: float = time.time() - start_time
+                    chunk_sizes.append(
+                        target_chunk_upload_secs * len(chunk) / time_taken
+                    )
+                    chunk_sizes.pop(0)
+                    # Chunk size is calculated based on the smoothed speed of the last few chunks
+                    # The chunk size is capped between min_chunk_size and max_chunk_size
+                    chunk_size = min(
+                        max_chunk_size,
+                        max(min_chunk_size, int(median(chunk_sizes))),
+                    )
+                    self._processed += len(chunk)
+                    self._logger.info(
+                        f"Uploading with chunk_size {get_pretty_size(chunk_size)} | {self.progress:.2f}% complete",
+                    )
+            self._logger.info("Finished uploading")
+            return int(response["id"])
 
     async def _upload(self) -> int:
         """
         Actual upload implementation
         """
-        rec_fbid: int = await check_if_already_uploaded(
-            self._input_hash, self._http_helper
-        )
-        self._total: Final[int] = (await aiofiles.os.stat(self._input_path)).st_size
-        if rec_fbid:
-            self._logger.info("Recording already uploaded")
-            self._processed = self._total
-            return rec_fbid
-
-        path_hash = xxhash.xxh64(self._input_path.name).hexdigest()
-        upload_url: Final[str] = f"{_URL_UPLOAD}/{self._input_hash}_{path_hash}"
-        self._logger.info(f"Uploading to {upload_url}")
-
-        # Get the offset
-        offset: int = await self._fetch_offset(upload_url)
-        self._logger.info(f"Offset: {offset}, File size: {self._total}")
-
-        if offset > self._total:
-            raise ValueError(
-                f"Offset ({offset}) cannot be greater than file size ({self._total})"
-            )
-        if offset >= self._total:
-            # If we reach here, that means that the file has been fully uploaded but the
-            # previous request timed out before the response was received from the
-            # server.
-            raise UploadPending("Upload timed out")
-        self._processed = offset
-        # Start the upload
-        headers = {
-            "Content-Type": "application/x-www-form-urlencoded",
-            # This is the total size of the original file
-            "X-Entity-Length": f"{self._total}",
-            "X-Entity-Type": "bin_file",
-            "X-custom-is-anonymized": "False",
-            "X-custom-file-hash": self._input_hash,
-            "X-entity-Name": self._input_path.name,
-        }
-        response: Dict[str, Any] = {}
-        min_chunk_size: int = config.getint(
-            ConfigSection.UPLOAD, ConfigKey.MIN_CHUNK_SIZE
-        )
-        max_chunk_size: int = config.getint(
-            ConfigSection.UPLOAD, ConfigKey.MAX_CHUNK_SIZE
-        )
-        smoothing_window_size: int = config.getint(
-            ConfigSection.UPLOAD, ConfigKey.SMOOTHING_WINDOW_SIZE
-        )
-        target_chunk_upload_secs: int = config.getint(
-            ConfigSection.UPLOAD, ConfigKey.TARGET_CHUNK_UPLOAD_SECS
-        )
-        chunk_sizes: List[int] = [min_chunk_size] * smoothing_window_size
-        chunk_size = min_chunk_size
-        async with aiofiles.open(self._input_path, "rb") as f:
-            await f.seek(self._processed)
-            while chunk := await f.read(chunk_size):
-                headers[_OFFSET] = str(self._processed)
-                # This is length of the content we plan to send in this attempt
-                # It can be less than the total file size because this could be a resumption
-                # of a previous upload
-                headers["Content-Length"] = str(len(chunk))
-                start_time: float = time.time()
-                response = await self._http_helper.post(
-                    url=upload_url, data=io.BytesIO(chunk), headers=headers
-                )
-                time_taken: float = time.time() - start_time
-                chunk_sizes.append(target_chunk_upload_secs * len(chunk) / time_taken)
-                chunk_sizes.pop(0)
-                # Chunk size is calculated based on the smoothed speed of the last few chunks
-                # The chunk size is capped between min_chunk_size and max_chunk_size
-                chunk_size = min(
-                    max_chunk_size, max(min_chunk_size, int(median(chunk_sizes)))
-                )
-                self._processed += len(chunk)
-                self._logger.info(
-                    f"Uploading with chunk_size {get_pretty_size(chunk_size)} | {self.progress:.2f}% complete",
-                )
-        self._logger.info("Finished uploading")
-        return int(response["id"])
 
     async def _fetch_offset(self, upload_url: str):
         """
