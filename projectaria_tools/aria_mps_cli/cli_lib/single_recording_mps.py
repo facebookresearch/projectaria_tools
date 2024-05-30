@@ -129,12 +129,17 @@ class SingleRecordingMps:
             m.task for m in self._model_by_feature.values()
         ]
         logger.debug(f"Requestor tasks: {requestor_tasks}")
+        removed_models: Set[SingleRecordingModel] = set()
         while requestor_tasks:
             done, pending = await asyncio.wait(
                 requestor_tasks, return_when=asyncio.FIRST_COMPLETED
             )
             requestor_tasks = pending
             for t in done:
+                model = model_by_task[t]
+                if model not in removed_models:
+                    self._requestor.remove_model(model)
+                    removed_models.add(model)
                 if model.is_SUCCESS_PAST_OUTPUT() or model.is_FAILURE():
                     # Set the state to SUCCESS or FAILURE
                     self._finish_status[model.feature] = model.get_status()
