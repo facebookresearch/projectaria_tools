@@ -170,7 +170,7 @@ def _configure_logging(verbose: bool) -> Path:
     return log_file
 
 
-async def _run_async(args: argparse.Namespace, log_path: Path) -> None:
+async def _run_async(args: argparse.Namespace) -> None:
     """Asynchronous entry point for the CLI"""
     asyncio.current_task().set_name("main")
     async with HttpHelper() as http_helper:
@@ -196,7 +196,7 @@ async def _run_async(args: argparse.Namespace, log_path: Path) -> None:
 
             http_helper.set_auth_token(authenticator.auth_token)
             mps: Mps = Mps(http_helper)
-            await mps.run(args, log_path)
+            await mps.run(args)
 
             if args.username and args.password and not args.save_token:
                 await authenticator.logout()
@@ -207,7 +207,7 @@ def run():
     args = _parse_args()
     if args.mode == _LOGOUT_COMMAND or not args.show_ui:
         log_path: Path = _configure_logging(True)
-        asyncio.get_event_loop().run_until_complete(_run_async(args, log_path))
+        asyncio.get_event_loop().run_until_complete(_run_async(args))
     else:
         # show UI here
         if not args.save_token:

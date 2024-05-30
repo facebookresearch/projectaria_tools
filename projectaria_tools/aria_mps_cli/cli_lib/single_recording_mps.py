@@ -106,6 +106,7 @@ class SingleRecordingMps:
                 retry_failed=self._retry_failed,
                 suffix=self._suffix,
             )
+            logger.debug(f"Done adding recording {self._recording} {feature}")
             self._model_by_feature[feature] = model
             model_by_task[model.task] = model
             await self._on_state_changed(model)

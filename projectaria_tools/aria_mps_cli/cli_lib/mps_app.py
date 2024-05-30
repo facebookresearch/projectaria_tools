@@ -311,7 +311,7 @@ class MpsApp(App):
             f"[b] MPS REQUESTS - {self._args.mode.upper()}",
         )
         self.query_one("#elapsed_time", ElapsedTime).reset()
-        await self._mps.run(self._args, self._log_path)
+        await self._mps.run(self._args)
 
     async def action_request_quit(self) -> bool:
         """An action to quit the application."""

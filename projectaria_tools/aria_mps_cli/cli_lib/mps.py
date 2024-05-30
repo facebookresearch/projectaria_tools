@@ -107,10 +107,12 @@ class Mps:
         else:
             raise ValueError(f"Unknown mode {args.mode}")
 
+        logger.debug(f"Waiting for {len(self._requests)} requests to finish")
         # Wait for all requests to finish
-        asyncio.gather(
+        await asyncio.gather(
             *[asyncio.create_task(request.run()) for request in self._requests]
         )
+        logger.debug("All MPS requests finished")
 
     def get_status(self) -> Mapping[Path, Dict[MpsFeature, ModelState]]:
         """
