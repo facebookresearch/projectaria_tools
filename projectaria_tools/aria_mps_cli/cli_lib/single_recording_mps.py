@@ -15,7 +15,7 @@
 import asyncio
 import logging
 from pathlib import Path
-from typing import List, Mapping, Optional, Set, Union
+from typing import Awaitable, Callable, List, Mapping, Optional, Set, Union
 
 from .common import log_exceptions
 from .constants import DisplayStatus, ErrorCode
@@ -43,6 +43,9 @@ class SingleRecordingMps:
         requestor: SingleRecordingRequest,
         request_monitor: RequestMonitor,
         suffix: Optional[str] = None,
+        on_state_changed: Optional[
+            Callable[[SingleRecordingModel, RequestMonitorModel], Awaitable[None]]
+        ] = None,
     ):
         self._recording: Path = recording
         self._features: Set[MpsFeature] = features
@@ -52,6 +55,13 @@ class SingleRecordingMps:
         self._requestor: SingleRecordingRequest = requestor
         self._request_monitor: RequestMonitor = request_monitor
         self._suffix: Optional[str] = suffix
+
+        async def __noop(*args, **kwargs):
+            pass
+
+        self._on_state_changed: Callable[
+            [SingleRecordingModel, RequestMonitorModel], Awaitable[None]
+        ] = (on_state_changed or __noop)
 
         self._model_by_feature: Mapping[
             MpsFeature, Union[SingleRecordingModel, RequestMonitorModel]
@@ -98,6 +108,7 @@ class SingleRecordingMps:
             )
             self._model_by_feature[feature] = model
             model_by_task[model.task] = model
+            await self._on_state_changed(model)
             logger.debug(f"{model}")
             logger.debug(f"{model.task}")
 
@@ -144,6 +155,7 @@ class SingleRecordingMps:
                     raise RuntimeError(
                         f"Unexpected state for model {model.state} recording {model.recording} feature {model.feature}"
                     )
+                await self._on_state_changed(model)
         return models_to_submit
 
     async def _submit_request_and_add_to_monitor(
@@ -171,6 +183,7 @@ class SingleRecordingMps:
                             [model.recording], request
                         )
                     )
+                    await self._on_state_changed(self._model_by_feature[feature])
             except Exception as e:
                 # Set the status to error and eat the exception so that other models
                 # can still be processed
@@ -201,6 +214,7 @@ class SingleRecordingMps:
                 self._finish_status[model.feature] = model.get_status(self._recording)
                 self._request_monitor.remove_model(model)
                 self._model_by_feature.pop(model.feature)
+                await self._on_state_changed(model)
 
     @log_exceptions
     def get_status(self, feature: MpsFeature) -> ModelState:

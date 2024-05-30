@@ -218,6 +218,16 @@ class SingleRecordingModel:
         """
         return self._task
 
+    @property
+    def is_force(self) -> bool:
+        """Get force flag."""
+        return self._force
+
+    @property
+    def is_retry_failed(self) -> bool:
+        """Get retry failed flag."""
+        return self._retry_failed
+
     def get_status(self) -> ModelState:
         """
         Get status of the request submission. We append the progress where applicable
