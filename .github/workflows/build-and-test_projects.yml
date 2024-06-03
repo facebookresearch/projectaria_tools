@@ -75,6 +75,7 @@ jobs:
 
           # Build and install Pangolin (optional)
           cd /tmp; git clone https://github.com/stevenlovegrove/Pangolin.git \
+            && cd Pangolin && git checkout d25ec009bd5cd9ac4b4a2b6750fec5093c46d601 && cd .. \
             && mkdir Pangolin_Build && cd Pangolin_Build \
             && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TOOLS=OFF -DBUILD_PANGOLIN_PYTHON=OFF -DBUILD_EXAMPLES=OFF ../Pangolin/ \
             && sudo make -j$thread install;
