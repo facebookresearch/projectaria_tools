@@ -52,6 +52,12 @@ class VrsDataProvider {
   const std::set<vrs::StreamId> getAllStreams() const;
 
   /**
+   * @brief Get the tags map for all the underlying files. Does not include any stream tags.
+   * @return The tags map for all underlying files.
+   */
+  std::map<std::string, std::string> getFileTags() const;
+
+  /**
    * @brief Get SensorDataType from streamId.
    * @param streamId The ID of a sensor's stream.
    * @return An entry of SensorDataType assigned for streamId, if stream with this ID exists in vrs,

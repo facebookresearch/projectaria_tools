@@ -88,10 +88,15 @@ RecordReaderInterface::RecordReaderInterface(
     streamIdToCondition_.emplace(streamId, std::make_unique<std::condition_variable>());
     streamIdToLastReadRecord_.emplace(streamId, nullptr);
   }
+  fileTags_ = reader_->getTags();
 }
 
 std::set<vrs::StreamId> RecordReaderInterface::getStreamIds() const {
   return streamIds_;
+}
+
+std::map<std::string, std::string> RecordReaderInterface::getFileTags() const {
+  return fileTags_;
 }
 
 SensorDataType RecordReaderInterface::getSensorDataType(const vrs::StreamId& streamId) const {

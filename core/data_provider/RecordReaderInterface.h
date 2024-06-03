@@ -45,6 +45,7 @@ class RecordReaderInterface {
       const std::shared_ptr<TimeSyncMapper>& timeSyncMapper);
 
   std::set<vrs::StreamId> getStreamIds() const;
+  [[nodiscard]] std::map<std::string, std::string> getFileTags() const;
   SensorDataType getSensorDataType(const vrs::StreamId& streamId) const;
 
   size_t getNumData(const vrs::StreamId& streamId) const;
@@ -78,6 +79,7 @@ class RecordReaderInterface {
 
   std::set<vrs::StreamId> streamIds_;
   std::map<vrs::StreamId, SensorDataType> streamIdToSensorDataType_;
+  std::map<std::string, std::string> fileTags_;
 
   std::map<vrs::StreamId, std::shared_ptr<ImageSensorPlayer>> imagePlayers_;
   std::map<vrs::StreamId, std::shared_ptr<MotionSensorPlayer>> motionPlayers_;
