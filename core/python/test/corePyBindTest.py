@@ -245,3 +245,8 @@ class CalibrationTests(unittest.TestCase):
                 test_pixel=test_pixel, cam_calib=src_calib
             )
         )
+
+    def test_vrs_file_tags(self) -> None:
+        provider = data_provider.create_vrs_data_provider(vrs_filepath)
+        file_tags = provider.get_file_tags()
+        assert len(file_tags) == 25

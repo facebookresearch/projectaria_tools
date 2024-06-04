@@ -171,6 +171,10 @@ inline void declareVrsDataProvider(py::module& m) {
           },
           "Get all available streams from the vrs file.")
       .def(
+          "get_file_tags",
+          [](const VrsDataProvider& self) { return self.getFileTags(); },
+          "Get the tags map from the vrs file.")
+      .def(
           "get_sensor_data_type",
           &VrsDataProvider::getSensorDataType,
           py::arg("stream_id"),
