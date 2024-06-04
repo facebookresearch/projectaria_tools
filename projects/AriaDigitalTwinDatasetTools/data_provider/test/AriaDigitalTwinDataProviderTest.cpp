@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 #include <sophus/average.hpp>
 
+#include "AriaDigitalTwinDataPathsProvider.h"
 #include "AriaDigitalTwinDataProvider.h"
 #include "AriaStreamIds.h"
 
@@ -215,7 +216,7 @@ void InterpolationFunctionTester::run() {
 TEST(AdtDataProvider, AriaQueryAPI) {
   // Construct a ADT data provider from the test data path
   const auto dataPathsProvider = AriaDigitalTwinDataPathsProvider(adtTestDataPath);
-  const auto maybeDataPaths = dataPathsProvider.getDataPathsByDeviceNum(0, true);
+  const auto maybeDataPaths = dataPathsProvider.getDataPaths(true);
   EXPECT_TRUE(maybeDataPaths.has_value());
 
   std::shared_ptr<AriaDigitalTwinDataProvider> provider =
@@ -233,7 +234,7 @@ TEST(AdtDataProvider, AriaQueryAPI) {
 TEST(AdtDataProvider, DataProviderPtrAndFlagApi) {
   // Construct a ADT data provider from the test data path
   const auto dataPathsProvider = AriaDigitalTwinDataPathsProvider(adtTestDataPath);
-  const auto maybeDataPaths = dataPathsProvider.getDataPathsByDeviceNum(0, true);
+  const auto maybeDataPaths = dataPathsProvider.getDataPaths(true);
   EXPECT_TRUE(maybeDataPaths.has_value());
 
   std::shared_ptr<AriaDigitalTwinDataProvider> provider =
@@ -258,7 +259,7 @@ TEST(AdtDataProvider, DataProviderPtrAndFlagApi) {
 TEST(AdtDataProvider, InstanceQueryAPI) {
   // Construct a ADT data provider from the test data path
   const auto dataPathsProvider = AriaDigitalTwinDataPathsProvider(adtTestDataPath);
-  const auto maybeDataPaths = dataPathsProvider.getDataPathsByDeviceNum(0, true);
+  const auto maybeDataPaths = dataPathsProvider.getDataPaths(true);
   EXPECT_TRUE(maybeDataPaths.has_value());
 
   std::shared_ptr<AriaDigitalTwinDataProvider> provider =
@@ -280,7 +281,7 @@ TEST(AdtDataProvider, InstanceQueryAPI) {
 TEST(AdtDataProvider, InterpolationTest) {
   // Construct a ADT data provider from the test data path
   const auto dataPathsProvider = AriaDigitalTwinDataPathsProvider(adtTestDataPath);
-  const auto maybeDataPaths = dataPathsProvider.getDataPathsByDeviceNum(0);
+  const auto maybeDataPaths = dataPathsProvider.getDataPaths();
   EXPECT_TRUE(maybeDataPaths.has_value());
 
   std::shared_ptr<AriaDigitalTwinDataProvider> provider =
@@ -294,7 +295,7 @@ TEST(AdtDataProvider, InterpolationTest) {
 TEST(AdtDataProvider, Mps) {
   // Construct a ADT data provider from the test data path
   const auto dataPathsProvider = AriaDigitalTwinDataPathsProvider(adtTestDataPath);
-  const auto maybeDataPaths = dataPathsProvider.getDataPathsByDeviceNum(0);
+  const auto maybeDataPaths = dataPathsProvider.getDataPaths();
   EXPECT_TRUE(maybeDataPaths.has_value());
 
   auto adtProvider = std::make_shared<AriaDigitalTwinDataProvider>(maybeDataPaths.value());

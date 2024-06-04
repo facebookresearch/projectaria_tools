@@ -142,10 +142,6 @@ const std::set<vrs::StreamId> VrsDataProvider::getAllStreams() const {
   return interface_->getStreamIds();
 }
 
-std::map<std::string, std::string> VrsDataProvider::getFileTags() const {
-  return interface_->getFileTags();
-}
-
 size_t VrsDataProvider::getNumData(const vrs::StreamId& streamId) const {
   return interface_->getNumData(streamId);
 }

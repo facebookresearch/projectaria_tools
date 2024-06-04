@@ -1,0 +1,31 @@
+load(
+    "//arvr/tools/build_defs:oxx_python.bzl",
+    "oxx_python_binary",
+    "oxx_python_library",
+)
+
+oncall("projectaria_tools")
+
+oxx_python_library(
+    name = "dataset_downloader_lib",
+    srcs = [
+        "dataset_download_status_manager.py",
+        "dataset_downloader.py",
+        "dataset_downloader_main.py",
+        "dataset_downloader_utils.py",
+    ],
+    visibility = ["PUBLIC"],
+    deps = [
+        "fbsource//arvr/projects/ariane/aria_research_kit/projectaria_tools/projectaria_tools:projectaria_tools_package",
+        "//third-party/pypi/requests:requests",
+        "//third-party/pypi/tqdm:tqdm",
+    ],
+)
+
+oxx_python_binary(
+    name = "dataset_downloader_base",
+    main_module = "arvr.projects.ariane.aria_research_kit.projectaria_tools.projectaria_tools.utils.datasets.dataset_downloader_main",
+    deps = [
+        ":dataset_downloader_lib",
+    ],
+)

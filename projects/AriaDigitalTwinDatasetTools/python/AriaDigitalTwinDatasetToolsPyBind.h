@@ -325,48 +325,92 @@ void exportAriaDigitalTwin(py::module& m) {
   py::class_<AriaDigitalTwinDataPathsProvider>(
       m,
       "AriaDigitalTwinDataPathsProvider",
-      "This class is to load all data file paths from ADT data structure given a sequence path. "
-      "Each ADT collection sequence may contain more than one Aria device wearers. The data associated"
-      "with each Aria device is called a subsequence: \n"
-      "├── sequencePath\n"
-      "│   ├── subsequence1_Name\n"
-      "│   │   ├── 2d_bounding_box.csv\n"
-      "│   │   ├── 2d_bounding_box_with_skeleton.csv\n"
-      "│   │   ├── 3d_bounding_box.csv\n"
-      "│   │   ├── Skeleton_C.json\n"
-      "│   │   ├── skeleton_aria_association.json\n"
-      "│   │   ├── aria_trajectory.csv\n"
-      "│   │   ├── depth_images.vrs\n"
-      "│   │   ├── depth_images_with_skeleton.vrs\n"
-      "│   │   ├── eyegaze.csv\n"
-      "│   │   ├── instances.csv\n"
-      "│   │   ├── scene_objects.csv\n"
-      "│   │   ├── segmentations.vrs\n"
-      "│   │   ├── segmentations_with_skeleton.vrs\n"
-      "│   │   └── video.vrs\n"
-      "│   ├── subsequence2_Name\n"
-      "│   │   ├── 2d_bounding_box.csv\n"
-      "│   │   ├── ...\n"
-      "│   └── metadata.json\n"
-      "This class allows you use dataset root path and sequence name to query all Aria devices in a "
-      "sequence and to query all data associated with an Aria device.")
+      " This class is to load all data file paths from ADT data structure given a sequence path. "
+      " This class supports both v1.X dataset versions as well as v2.X dataset versions (and beyond) "
+      " which have different formats: "
+      " v1.X: Each ADT collection sequence may contain more than one Aria device wearers. The data "
+      " associated with each Aria device is called a subsequence: "
+      " ├── sequencePath        "
+      " │   ├── subsequence1_Name "
+      " │   │   ├── 2d_bounding_box.csv "
+      " │   │   ├── 2d_bounding_box_with_skeleton.csv "
+      " │   │   ├── 3d_bounding_box.csv "
+      " │   │   ├── Skeleton_C.json "
+      " │   │   ├── skeleton_aria_association.json "
+      " │   │   ├── aria_trajectory.csv "
+      " │   │   ├── depth_images.vrs "
+      " │   │   ├── depth_images_with_skeleton.vrs "
+      " │   │   ├── eyegaze.csv "
+      " │   │   ├── instances.csv "
+      " │   │   ├── scene_objects.csv "
+      " │   │   ├── segmentations.vrs "
+      " │   │   ├── segmentations_with_skeleton.vrs "
+      " │   │   └── video.vrs "
+      " │   ├── subsequence2_Name "
+      " │   │   ├── 2d_bounding_box.csv "
+      " │   │   ├── ... "
+      " │   └── metadata.json "
+      " v2.X and beyond: We have removed the concept of subsequence. Each sequence can only contain one "
+      " Aria recording, and concurrent recordings can be fetched by looking the field in the metadata "
+      " file. This means we have the following file structure: "
+      " ├── sequencePath        "
+      " │   ├── 2d_bounding_box.csv "
+      " │   ├── 2d_bounding_box_with_skeleton.csv "
+      " │   ├── 3d_bounding_box.csv "
+      " │   ├── Skeleton_C.json "
+      " │   ├── skeleton_aria_association.json "
+      " │   ├── aria_trajectory.csv "
+      " │   ├── depth_images.vrs "
+      " │   ├── depth_images_with_skeleton.vrs "
+      " │   ├── eyegaze.csv "
+      " │   ├── instances.csv "
+      " │   ├── scene_objects.csv "
+      " │   ├── segmentations.vrs "
+      " │   ├── segmentations_with_skeleton.vrs "
+      " │   └── video.vrs "
+      " │   └── metadata.json ")
       .def(py::init<const std::string&>())
+      .def(
+          "get_datapaths",
+          &AriaDigitalTwinDataPathsProvider::getDataPaths,
+          "retrieve the DataPaths for this sequene. "
+          "If loading a sequence that has version < 2.0 and has multiple subsequences, this will return "
+          "the data paths associated with the first device serial",
+          py::arg("skeleton_flag") = false)
       .def(
           "get_datapaths_by_device_num",
           &AriaDigitalTwinDataPathsProvider::getDataPathsByDeviceNum,
-          "retrieve the DataPaths from a device based on its index",
+          "retrieve the DataPaths from a device based on its index. "
+          "DEPRECATION NOTE: With dataset versions 2.0 and beyond, "
+          "this function has been deprecated since there is only one device per sequence. "
+          "If you are using this on older data, it will still work.If using on new data, "
+          "it will only work if deviceNum is 0. ",
           py::arg("device_num"),
           py::arg("skeleton_flag") = false)
       .def(
           "get_datapaths_by_device_serial",
           &AriaDigitalTwinDataPathsProvider::getDataPathsByDeviceSerial,
-          "retrieve the DataPaths from a device based on its serial number",
+          "retrieve the DataPaths from a device based on its serial number. "
+          "DEPRECATION NOTE: With dataset versions 2.0 and beyond, this function has been "
+          "deprecated since there is only one device per sequence. This function will still "
+          "work with old or newer data as long as you are querying with the correct serial "
+          "associated with this sequence.",
           py::arg("device_serial"),
           py::arg("skeleton_flag") = false)
       .def(
+          "get_device_serial_number",
+          &AriaDigitalTwinDataPathsProvider::getDeviceSerialNumber,
+          "get the device serial number for this sequence. "
+          "If loading a sequence that has version < 2.0 and has multiple subsequences, "
+          "this will return the first device serial")
+      .def(
           "get_device_serial_numbers",
           &AriaDigitalTwinDataPathsProvider::getDeviceSerialNumbers,
-          "get all device serial numbers in the recording sequence")
+          "get all device serial numbers in the recording sequence."
+          "DEPRECATION NOTE: With dataset versions 2.0 and beyond, this function has been "
+          "deprecated since there is only one device per sequence. This function will still "
+          "work with old or newer data, however, we recommend using getDeviceSerialNumber "
+          "instead for newer data & @return a const reference to a vector of string")
       .def(
           "get_scene_name",
           &AriaDigitalTwinDataPathsProvider::getSceneName,
@@ -378,7 +422,11 @@ void exportAriaDigitalTwin(py::module& m) {
       .def(
           "is_multi_person",
           &AriaDigitalTwinDataPathsProvider::isMultiPerson,
-          "check if the sequence is a multi-person sequence");
+          "check if the sequence is a multi-person sequence")
+      .def(
+          "get_concurrent_sequence_name",
+          &AriaDigitalTwinDataPathsProvider::getConcurrentSequenceName,
+          "return string with name of sequence collected at the same time (if multi-sequence), return null otherwise");
 
   // Bind AriaDigitalTwinDataProvider
   // Bind instance info
