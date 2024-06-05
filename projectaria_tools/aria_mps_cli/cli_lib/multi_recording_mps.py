@@ -149,6 +149,7 @@ class MultiRecordingMps:
         # Now wait for the request monitor to finish if there is a request to track
         #
         if self._model:
+            await self._on_state_changed(self._model)
             logger.debug(f"Waiting for {self._model}")
             await self._model.task
             self._finish_status = {
