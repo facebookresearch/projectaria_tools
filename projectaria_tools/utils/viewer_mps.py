@@ -105,7 +105,6 @@ def parse_args():
         action="store_true",
         help="If set, the raw fisheye RGB images are shown without being undistorted.",
     )
-
     return parser.parse_args()
 
 
@@ -230,7 +229,7 @@ def log_RGB_image(
     down_sampling_factor: int,
     jpeg_quality: int,
     rgb_stream_label: str,
-    postprocess_image: Callable[np.ndarray, np.ndarray] = lambda img: img,
+    postprocess_image: Callable[[np.ndarray], np.ndarray] = lambda img: img,
 ) -> None:
     if data.sensor_data_type() == SensorDataType.IMAGE:
         img = data.image_data_and_record()[0].to_numpy_array()
