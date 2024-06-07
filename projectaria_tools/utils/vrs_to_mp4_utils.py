@@ -16,7 +16,10 @@ import csv
 import json
 import os
 import shutil
+import subprocess
 import tempfile
+
+import ffmpeg
 
 import numpy as np
 from moviepy.audio.AudioClip import AudioClip
@@ -31,6 +34,52 @@ from projectaria_tools.core.stream_id import StreamId
 
 def max_signed_value_for_bytes(n):
     return (1 << (8 * n - 1)) - 1
+
+
+# Get the vrs_device_time_ns array from mp4 'description' tag using ffprobe command
+def get_timestamp_from_mp4(file_path) -> np.ndarray:
+    ffprobe_binary = "ffprobe"
+    try:
+        result = subprocess.run(
+            [
+                ffprobe_binary,
+                "-v",
+                "quiet",
+                "-print_format",
+                "json",
+                "-show_format",
+                "-show_entries",
+                "format_tags",
+                file_path,
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        metadata = json.loads(result.stdout)
+        description = metadata.get("format", {}).get("tags", {})["description"]
+        description = description.replace("[", "")
+        description = description.replace("]", "")
+
+        vrs_device_timestamps_ns = list(map(int, description.split(",")))
+        return np.array(vrs_device_timestamps_ns)
+    except subprocess.CalledProcessError:
+        raise ValueError(
+            f"Binary {ffprobe_binary} does not exist. Please install {ffprobe_binary} before running the code"
+        )
+
+
+# Save the timestamp_array into 'description' tag and generate new output_video_file
+def save_timestamp_to_mp4(input_video_file, output_video_file, timestamp_array):
+    mp4_metadata = {"description": timestamp_array}
+    ffmpeg_input = ffmpeg.input(input_video_file)
+    ffmpeg_output = ffmpeg.output(
+        ffmpeg_input,
+        output_video_file,
+        **{"metadata": " ".join([f"{k}={v}" for k, v in mp4_metadata.items()])},
+        codec="copy",
+    )
+    ffmpeg_output.run(overwrite_output=True)
 
 
 def convert_vrs_to_mp4(
@@ -51,8 +100,11 @@ def convert_vrs_to_mp4(
     duration_in_second = duration_ns * 1e-9
     video_writer_clip = VideoClip(converter.make_frame, duration=duration_in_second)
 
+    temp_video_file = os.path.join(log_folder, "video.mp4")
+    temp_audio_file = os.path.join(log_folder, "audio.mp3")
     # extract audio from vrs file
     if converter.contain_audio():
+
         audio_writer_clip = AudioClip(
             converter.make_audio_data,
             duration=duration_in_second,
@@ -60,25 +112,47 @@ def convert_vrs_to_mp4(
         )
         audio_writer_clip.nchannels = converter.audio_config.num_channels
         audio_writer_clip.write_audiofile(
-            os.path.join(log_folder, "audio.mp3"),
+            temp_audio_file,
             fps=converter.audio_config.sample_rate,
             buffersize=converter.audio_buffersize(),
         )
         audio_clip = AudioFileClip(
-            os.path.join(log_folder, "audio.mp3"),
+            temp_audio_file,
         )
         video_writer_clip = video_writer_clip.set_audio(audio_clip)
         audio_writer_clip.close()
 
-    video_writer_clip.write_videofile(output_video, fps=converter.video_fps())
+    video_writer_clip.write_videofile(temp_video_file, fps=converter.video_fps())
     video_writer_clip.close()
 
-    converter.write_mp4_to_vrs_time_ns(log_folder)
+    vrs_device_time_ns_array = converter.write_mp4_to_vrs_time_ns(log_folder)
     converter.write_log(log_folder)
+
+    # add vrs_device_time_ns_array to file tag
+    os.makedirs(os.path.dirname(output_video), exist_ok=True)
+    save_timestamp_to_mp4(temp_video_file, output_video, vrs_device_time_ns_array)
+
+    # check if saved timestamp is the same
+    metadata_timestamps = get_timestamp_from_mp4(output_video)
+    correct_metadata = True
+    for _, (metadata_time, vrs_time) in enumerate(
+        zip(metadata_timestamps, vrs_device_time_ns_array)
+    ):
+        if metadata_time != vrs_time:
+            correct_metadata = False
+
+    if correct_metadata is False:
+        print("Error: Timestamp saved to mp4 is not the same as VRS timestamp")
 
     # remove log folder if it is a temporary folder
     if use_temp_folder:
         shutil.rmtree(log_folder)
+    else:
+        # remove the temp audio and video file if log_folder is provided
+        if os.path.exists(temp_video_file):
+            os.remove(temp_video_file)
+        if os.path.exists(temp_audio_file):
+            os.remove(temp_audio_file)
 
 
 class Vrs2Mp4Converter:
@@ -153,16 +227,23 @@ class Vrs2Mp4Converter:
         self.skipped_frames_ = np.array([])
         self.duplicated_frames_ = np.array([])
 
-    # write mp4 timestamp to vrs device timestamp in csv file
-    def write_mp4_to_vrs_time_ns(self, log_path: str):
+    # write mp4 timestamp to vrs device timestamp in csv file and return array of vrs_device_time_ns
+    def write_mp4_to_vrs_time_ns(self, log_path: str) -> np.ndarray:
         output_file = os.path.join(log_path, "mp4_to_vrs_time_ns.csv")
+        vrs_device_time_ns_array = []
         with open(output_file, "w") as csv_file:
             writer = csv.writer(csv_file)
-            writer.writerow(
-                ["mp4_time_ns", "relative_vrs_device_time_ns", "vrs_device_time_ns"]
-            )
+            title_string = [
+                "mp4_time_ns",
+                "relative_vrs_device_time_ns",
+                "vrs_device_time_ns",
+            ]
+            writer.writerow(title_string)
             for key, value in self.mp4_to_vrs_timestamp_ns_.items():
                 writer.writerow([key, value - self.start_timestamp_ns_, value])
+                # add vrs_device_time_ns to array
+                vrs_device_time_ns_array.append(value)
+        return vrs_device_time_ns_array
 
     def contain_audio(self) -> bool:
         return self.contain_audio_
