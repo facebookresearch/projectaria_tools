@@ -527,7 +527,7 @@ def main():
         else:
             raise NotImplementedError(
                 "Showing upright-rotated image without rectification is not currently supported.\n"
-                "Please use --no-rotate-image-upright and --no-rectify-image together."
+                "Please use --no_rotate_image_upright and --no_rectify_image together."
             )
 
     def post_process_image(img):
