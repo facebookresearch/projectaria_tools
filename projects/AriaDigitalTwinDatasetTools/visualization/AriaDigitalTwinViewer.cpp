@@ -23,8 +23,8 @@
 
 namespace projectaria::dataset::adt {
 
-constexpr int kWindowSizeX{1280};
-constexpr int kWindowSizeY{800};
+constexpr int kWindowSizeX{1100};
+constexpr int kWindowSizeY{1280};
 constexpr double kJointsPointSize{3.0};
 constexpr int kRenderEveryNFrames{3}; // setting this to 3 means we are rendering at 10fps
 
