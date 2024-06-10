@@ -13,17 +13,15 @@
 # limitations under the License.
 
 import argparse
-
 from math import tan
 from typing import Dict, Set
 
 import numpy as np
 import rerun as rr
-from projectaria_tools.core import calibration
+from PIL import Image
 
 from projectaria_tools.core.mps.utils import get_gaze_vector_reprojection
 from projectaria_tools.core.sophus import SE3
-
 from projectaria_tools.core.stream_id import StreamId
 from projectaria_tools.projects.adt import (
     AriaDigitalTwinDataPathsProvider,
@@ -32,6 +30,10 @@ from projectaria_tools.projects.adt import (
     bbox3d_to_line_coordinates,
     DYNAMIC,
     STATIC,
+)
+from projectaria_tools.utils.calibration_utils import (
+    rotate_upright_image_and_calibration,
+    undistort_image_and_calibration,
 )
 from projectaria_tools.utils.rerun_helpers import AriaGlassesOutline, ToTransform3D
 from tqdm import tqdm
@@ -55,6 +57,11 @@ def parse_args():
         "--no_rotate_image_upright",
         action="store_true",
         help="If set, the RGB images are shown in their original orientation, which is rotated 90 degrees ccw from upright.",
+    )
+    parser.add_argument(
+        "--no_undistort_image",
+        action="store_true",
+        help="If set, the RGB images will not be undistorted.",
     )
 
     # Add options that does not show by default, but still accessible for debugging purpose
@@ -122,29 +129,18 @@ def main():
 
     # Log RGB camera calibration
     rgb_camera_calibration = gt_provider.get_aria_camera_calibration(rgb_stream_id)
-
-    # rectify & rotate image (unless otherwise specified)
-    rgb_linear_camera_calibration = calibration.get_linear_camera_calibration(
-        int(rgb_camera_calibration.get_image_size()[0]),
-        int(rgb_camera_calibration.get_image_size()[1]),
-        rgb_camera_calibration.get_focal_lengths()[0],
-        "pinhole",
-        rgb_camera_calibration.get_transform_device_camera(),
-    )
-    if not args.no_rotate_image_upright:
-        rgb_rotated_linear_camera_calibration = calibration.rotate_camera_calib_cw90deg(
-            rgb_linear_camera_calibration
-        )
-        rgb_camera_calibration_transformed = rgb_rotated_linear_camera_calibration
-    else:
-        rgb_camera_calibration_transformed = rgb_linear_camera_calibration
-
     rr.log(
         "world/device/rgb",
         rr.Pinhole(
             resolution=[
-                rgb_camera_calibration.get_image_size()[0] / args.down_sampling_factor,
-                rgb_camera_calibration.get_image_size()[1] / args.down_sampling_factor,
+                int(
+                    rgb_camera_calibration.get_image_size()[0]
+                    / args.down_sampling_factor
+                ),
+                int(
+                    rgb_camera_calibration.get_image_size()[1]
+                    / args.down_sampling_factor
+                ),
             ],
             focal_length=float(
                 rgb_camera_calibration.get_focal_lengths()[0]
@@ -153,6 +149,7 @@ def main():
         ),
         timeless=True,
     )
+
     # Log Aria Glasses outline
     raw_data_provider_ptr = gt_provider.raw_data_provider_ptr()
     device_calibration = raw_data_provider_ptr.get_device_calibration()
@@ -177,17 +174,37 @@ def main():
             timestamp_ns, rgb_stream_id
         )
 
-        if args.down_sampling_factor > 1:
-            img = image_with_dt.data().to_numpy_array()[
-                :: args.down_sampling_factor, :: args.down_sampling_factor
-            ]
-            # Note: We configure the QUEUE to return only RGB image, so we are sure this image is corresponding to a RGB frame
-            if not args.no_rotate_image_upright:
-                img = np.rot90(img, k=3)
-            rr.log(
-                "world/device/rgb",
-                rr.Image(img).compress(jpeg_quality=args.jpeg_quality),
+        # rescale image
+        image_display = Image.fromarray(image_with_dt.data().to_numpy_array())
+        new_resolution = (
+            rgb_camera_calibration.get_image_size() / args.down_sampling_factor
+        )
+        new_resolution = new_resolution.astype(int)
+        updated_camera_calibration = rgb_camera_calibration.rescale(
+            new_resolution, 1.0 / args.down_sampling_factor
+        )
+        image_display = image_display.resize(new_resolution)
+        image_display = np.array(image_display)
+
+        # rectify image (unless otherwise specified)
+        if not args.no_undistort_image:
+            image_display, updated_camera_calibration = undistort_image_and_calibration(
+                image_display,
+                updated_camera_calibration,
             )
+
+        # rotate image (unless otherwise specified)
+        if not args.no_rotate_image_upright:
+            image_display, updated_camera_calibration = (
+                rotate_upright_image_and_calibration(
+                    image_display, updated_camera_calibration
+                )
+            )
+
+        rr.log(
+            "world/device/rgb/image",
+            rr.Image(image_display).compress(jpeg_quality=args.jpeg_quality),
+        )
 
         # Log skeleton(s)
         for skeleton_id in skeleton_ids:
@@ -218,9 +235,7 @@ def main():
 
         if aria_3d_pose_with_dt.is_valid():
             aria_3d_pose = aria_3d_pose_with_dt.data()
-            T_device_rgb = (
-                rgb_camera_calibration_transformed.get_transform_device_camera()
-            )
+            T_device_rgb = updated_camera_calibration.get_transform_device_camera()
 
             rr.log(
                 "world/device",
@@ -262,13 +277,13 @@ def main():
                     eye_gaze,
                     rgb_camera_calibration.get_label(),
                     device_calibration,
-                    rgb_camera_calibration_transformed,
+                    updated_camera_calibration,
                     eye_gaze.depth,
                     not args.no_rotate_image_upright,
                 )
                 rr.log(
                     "world/device/rgb/eye-gaze_projection",
-                    rr.Points2D(gaze_projection / args.down_sampling_factor, radii=4),
+                    rr.Points2D(gaze_projection, radii=4),
                 )
 
         # Log object Bounding Boxes
