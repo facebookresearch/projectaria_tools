@@ -250,3 +250,23 @@ class CalibrationTests(unittest.TestCase):
         provider = data_provider.create_vrs_data_provider(vrs_filepath)
         file_tags = provider.get_file_tags()
         assert len(file_tags) == 25
+
+
+class DataProviderTests(unittest.TestCase):
+    def test_vrs_file_metadata(self) -> None:
+        provider = data_provider.create_vrs_data_provider(vrs_filepath)
+        file_metadata = provider.get_metadata()
+        assert file_metadata.device_serial == "1WM093701M1276"
+        assert file_metadata.recording_profile == "profile9"
+        assert file_metadata.shared_session_id == ""
+        assert file_metadata.filename == "d3c61c3a-18ec-460e-a35c-cec9579494ca.vrs"
+        assert (
+            file_metadata.time_sync_mode
+            == data_provider.MetadataTimeSyncMode.NotEnabled
+        )
+        assert (
+            provider.get_time_sync_mode()
+            == data_provider.MetadataTimeSyncMode.NotEnabled
+        )
+        assert file_metadata.device_id == "35ec1d5b-689d-4531-a0c9-1c8ff42d2e89"
+        assert file_metadata.start_time_epoch_sec == 1649265055

@@ -23,6 +23,7 @@
 
 #include <data_provider/SensorData.h>
 #include <data_provider/TimeSyncMapper.h>
+#include <data_provider/VrsMetadata.h>
 #include <vrs/MultiRecordFileReader.h>
 
 namespace projectaria::tools::data_provider {
@@ -46,6 +47,7 @@ class RecordReaderInterface {
 
   std::set<vrs::StreamId> getStreamIds() const;
   [[nodiscard]] std::map<std::string, std::string> getFileTags() const;
+  [[nodiscard]] std::optional<VrsMetadata> getMetadata() const;
   SensorDataType getSensorDataType(const vrs::StreamId& streamId) const;
 
   size_t getNumData(const vrs::StreamId& streamId) const;
@@ -74,12 +76,15 @@ class RecordReaderInterface {
 
   void setReadImageContent(vrs::StreamId streamId, bool readContent);
 
+  [[nodiscard]] std::optional<MetadataTimeSyncMode> getTimeSyncMode() const;
+
  private:
   std::shared_ptr<vrs::MultiRecordFileReader> reader_;
 
   std::set<vrs::StreamId> streamIds_;
   std::map<vrs::StreamId, SensorDataType> streamIdToSensorDataType_;
   std::map<std::string, std::string> fileTags_;
+  std::optional<VrsMetadata> vrsMetadata_;
 
   std::map<vrs::StreamId, std::shared_ptr<ImageSensorPlayer>> imagePlayers_;
   std::map<vrs::StreamId, std::shared_ptr<MotionSensorPlayer>> motionPlayers_;

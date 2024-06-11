@@ -153,6 +153,23 @@ inline void declareDeliverQueued(py::module& m) {
 }
 
 inline void declareVrsDataProvider(py::module& m) {
+  py::enum_<MetadataTimeSyncMode>(m, "MetadataTimeSyncMode")
+      .value("NotEnabled", MetadataTimeSyncMode::NotEnabled)
+      .value("Timecode", MetadataTimeSyncMode::Timecode)
+      .value("Ntp", MetadataTimeSyncMode::Ntp)
+      .value("TicSyncClient", MetadataTimeSyncMode::TicSyncClient)
+      .value("TicSyncServer", MetadataTimeSyncMode::TicSyncServer);
+  py::class_<VrsMetadata>(m, "VrsMetadata")
+      .def(py::init<>())
+      .def_readonly("device_serial", &VrsMetadata::deviceSerial)
+      .def_readonly("shared_session_id", &VrsMetadata::sharedSessionId)
+      .def_readonly("recording_profile", &VrsMetadata::recordingProfile)
+      .def_readonly("time_sync_mode", &VrsMetadata::timeSyncMode)
+      .def_readonly("device_id", &VrsMetadata::deviceId)
+      .def_readonly("filename", &VrsMetadata::filename)
+      .def_readonly("start_time_epoch_sec", &VrsMetadata::startTimeEpochSec)
+      .def_readonly("end_time_epoch_sec", &VrsMetadata::endTimeEpochSec)
+      .def_readonly("duration_sec", &VrsMetadata::durationSec);
   py::class_<VrsDataProvider, std::shared_ptr<VrsDataProvider>>(
       m,
       "VrsDataProvider",
@@ -174,6 +191,14 @@ inline void declareVrsDataProvider(py::module& m) {
           "get_file_tags",
           [](const VrsDataProvider& self) { return self.getFileTags(); },
           "Get the tags map from the vrs file.")
+      .def(
+          "get_metadata",
+          &VrsDataProvider::getMetadata,
+          "Get metadata if the loaded file is a VRS file.")
+      .def(
+          "get_time_sync_mode",
+          &VrsDataProvider::getTimeSyncMode,
+          "Get time-sync mode if the loaded file is a VRS file.")
       .def(
           "get_sensor_data_type",
           &VrsDataProvider::getSensorDataType,

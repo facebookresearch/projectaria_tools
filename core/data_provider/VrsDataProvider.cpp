@@ -146,6 +146,14 @@ std::map<std::string, std::string> VrsDataProvider::getFileTags() const {
   return interface_->getFileTags();
 }
 
+std::optional<VrsMetadata> VrsDataProvider::getMetadata() const {
+  return interface_->getMetadata();
+}
+
+std::optional<MetadataTimeSyncMode> VrsDataProvider::getTimeSyncMode() const {
+  return interface_->getTimeSyncMode();
+}
+
 size_t VrsDataProvider::getNumData(const vrs::StreamId& streamId) const {
   return interface_->getNumData(streamId);
 }
