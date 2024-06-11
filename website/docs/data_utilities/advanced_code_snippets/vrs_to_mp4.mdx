@@ -2,13 +2,15 @@
 sidebar_position: 30
 title: Export VRS to MP4 (Python)
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # Export a VRS file to MP4
 
 The `vrs_to_mp4` script enables you to create an MP4 video from a Project Aria VRS recording.
 By default, it uses RGB as well as audio streams (if present).
-The MP4 video will have the same framerate as the RGB stream in the VRS file and use H264 and MP3 stereo encoding for video and audio.
-If a dropped frame is present in the VRS recording (some frame could be missing at a given expected timestamp), the last valid frame will be copied over until the next valid frame.
+The MP4 video will have the same framerate as the RGB stream in the VRS file and use H264 and MP3 7 (or 2) channel encoding for video and audio.
+If a dropped frame is present in the VRS recording (a frame could be missing at a given expected timestamp), the closest valid frame will be copied over until the next valid frame.
 
 :::info vrs_to_mp4 generates a recording preview
 
@@ -22,7 +24,48 @@ pip install projectaria_tools moviepy
 ```
 
 ## Usage
+`vrs_to_mp4` tool is available via command line or through Python as a library.
 
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+from projectaria_tools.utils.vrs_to_mp4_utils import convert_vrs_to_mp4
+convert_vrs_to_mp4(input_vrs, output_video, log_folder, down_sample_factor)
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="bash" label="Bash">
+```
 ```bash
 vrs_to_mp4 --vrs "projectaria_tools/data/mps_sample/sample.vrs" --output_video "sample.mp4"
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+## MISC
+### Extract VRS timestamps from MP4
+Historically, when VRS files were converted to MP4, accurate timestamp information was lost.
+To maintain compatibility with the rest of our tooling, this tool now logs a VRS timestamp for each MP4 frame. VRS timestamps are saved to the MP4's metadata and are measured in nanoseconds.
+Now for every MP4 extracted using `vrs_to_mp4` tools, this timestamp is conveniently saved as a metadata.
+
+To extract the vrs timestamps, use the `get_timestamp_from_mp4` function.
+The resulting timestamp is in `TimeDomain.DEVICE_TIME`
+```Python
+from projectaria_tools.core.utils.vrs_to_mp4_utils import get_timestamp_from_mp4
+vrs_device_timestamps_nanoseconds = get_timestamp_from_mp4(mp4_file)
+```
+
+### Calibration for upright RGB
+The output RGB frames in the MP4 file are rotated upright (clockwise 90 degrees).
+The camera calibration will be changed after such rotation and can be obtained using the following interface.
+
+```Python
+from projectaria_tools.utils.calibration_utils import (
+    rotate_upright_image_and_calibration,
+)
+upright_image, upright_calibration = rotate_upright_image_and_calibratio(original_rgb_image, rgb_camera_calibration)
 ```
