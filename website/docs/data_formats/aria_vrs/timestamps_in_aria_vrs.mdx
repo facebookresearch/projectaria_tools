@@ -46,6 +46,10 @@ When working with Aria data you might encounter timestamps for different time ev
         * Note: this timestamp does not represent the timestamp when the sensor data is captured. Please use TimeDomain.DEVICE_TIME to access the capture timestamp
     * Should not be needed for any purpose
 
+### Audio timestamp
+For audio data, each record contains 2048 samples that ranges 42ms (or 4096 samples that ranges 84ms). Given a record (a chunk) of audio data,
+the record timestamp is the first timestamp in the record and the device timestamp is the last timestamp in the record.
+Therefore, device timestamp - record timestamp for the same record is 42ms for 2048 samples (and 84ms for 4096 samples).
 
 ## VRS Timestamps (Multiple Devices)
 
