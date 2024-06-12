@@ -58,6 +58,21 @@ class VrsDataProvider {
   std::map<std::string, std::string> getFileTags() const;
 
   /**
+   * @brief Get a pointer to an instance of VrsMetadata for an underlying VRS file,
+   * if the metadata exists in the file.
+   * The constructor of RecordReaderInterface populates a struct from
+   * file tags.
+   * @return Metadata for the underlying VRS file in an instance of VrsMetadata.
+   */
+  std::optional<VrsMetadata> getMetadata() const;
+
+  /**
+   * @brief The time-sync mode of the recording, if it exists in the file.
+   * @return The time-sync-mode enum value for the recording.
+   */
+  std::optional<MetadataTimeSyncMode> getTimeSyncMode() const;
+
+  /**
    * @brief Get SensorDataType from streamId.
    * @param streamId The ID of a sensor's stream.
    * @return An entry of SensorDataType assigned for streamId, if stream with this ID exists in vrs,

@@ -98,3 +98,15 @@ add_test(NAME vrs_data_provider_get_data_by_index_test WORKING_DIRECTORY ${CMAKE
              COMMAND $<TARGET_FILE:vrs_data_provider_get_data_by_index_test>)
 target_compile_definitions(vrs_data_provider_get_data_by_index_test
     PRIVATE -DTEST_FOLDER=${CMAKE_CURRENT_SOURCE_DIR}/../../../data/)
+
+add_executable(vrs_data_provider_file_access_test VrsDataProviderFileAccessTest.cpp)
+target_link_libraries(vrs_data_provider_file_access_test
+    PUBLIC
+        vrs_data_provider
+        GTest::Main
+)
+gtest_discover_tests(vrs_data_provider_file_access_test)
+add_test(NAME vrs_data_provider_file_access_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+             COMMAND $<TARGET_FILE:vrs_data_provider_file_access_test>)
+target_compile_definitions(vrs_data_provider_file_access_test
+    PRIVATE -DTEST_FOLDER=${CMAKE_CURRENT_SOURCE_DIR}/../../../data/)
