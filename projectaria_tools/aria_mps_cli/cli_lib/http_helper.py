@@ -51,10 +51,11 @@ from .constants import (
     KEY_REQUEST_ID,
     KEY_REQUESTS,
     KEY_RESPONSE,
+    KEY_SOURCE,
     KEY_VARIABLES,
 )
 from .response_parser import ResponseParser
-from .types import GraphQLError, MpsFeatureRequest, MpsRequest
+from .types import GraphQLError, MpsFeatureRequest, MpsRequest, MpsRequestSource
 
 logger = logging.getLogger(__name__)
 
@@ -135,7 +136,11 @@ class HttpHelper:
         return await self._run_method("get", **kwargs)
 
     async def submit_request(
-        self, name: str, recording_ids: List[int], features: Set[str]
+        self,
+        name: str,
+        recording_ids: List[int],
+        features: Set[str],
+        source: MpsRequestSource,
     ) -> MpsRequest:
         """
         Submit a request to the MPS service to process the given recording id.
@@ -147,6 +152,7 @@ class HttpHelper:
             KEY_NAME: name,
             KEY_RECORDINGS: recording_ids,
             KEY_FEATURES: list(features),
+            KEY_SOURCE: source.value,
         }
         if extra_input := os.environ.get("MPS_EXTRA_INPUT"):
             input = {**input, **json.loads(extra_input)}

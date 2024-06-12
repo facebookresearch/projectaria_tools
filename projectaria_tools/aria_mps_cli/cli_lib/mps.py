@@ -26,7 +26,7 @@ from .multi_recording_request import MultiRecordingRequest
 from .request_monitor import RequestMonitor
 from .single_recording_mps import SingleRecordingMps
 from .single_recording_request import SingleRecordingRequest
-from .types import ModelState, MpsFeature
+from .types import ModelState, MpsFeature, MpsRequestSource
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +82,7 @@ class Mps:
                     requestor=self._requestor,
                     request_monitor=self._request_monitor,
                     name=args.name,
+                    source=MpsRequestSource.MPS_CLI,
                     **common_args,
                 )
             }
@@ -96,6 +97,7 @@ class Mps:
                     features=args.features,
                     requestor=self._requestor,
                     request_monitor=self._request_monitor,
+                    source=MpsRequestSource.MPS_CLI,
                     **common_args,
                 )
                 for rec in recordings

@@ -22,7 +22,7 @@ from .constants import DisplayStatus, ErrorCode
 from .http_helper import HttpHelper
 from .request_monitor import RequestMonitor, RequestMonitorModel
 from .single_recording_request import SingleRecordingModel, SingleRecordingRequest
-from .types import ModelState, MpsFeature, MpsRequest
+from .types import ModelState, MpsFeature, MpsRequest, MpsRequestSource
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +42,7 @@ class SingleRecordingMps:
         http_helper: HttpHelper,
         requestor: SingleRecordingRequest,
         request_monitor: RequestMonitor,
+        source: MpsRequestSource,
         suffix: Optional[str] = None,
         on_state_changed: Optional[
             Callable[[SingleRecordingModel, RequestMonitorModel], Awaitable[None]]
@@ -54,6 +55,7 @@ class SingleRecordingMps:
         self._http_helper: HttpHelper = http_helper
         self._requestor: SingleRecordingRequest = requestor
         self._request_monitor: RequestMonitor = request_monitor
+        self._source: MpsRequestSource = source
         self._suffix: Optional[str] = suffix
 
         async def __noop(*args, **kwargs):
@@ -181,6 +183,7 @@ class SingleRecordingMps:
                     name=self._recording.name,
                     recording_ids=[model.recording.fbid],
                     features=[m.feature for m in models_to_submit],
+                    source=self._source,
                 )
                 for feature, request in mps_request.features.items():
                     self._model_by_feature[feature] = (

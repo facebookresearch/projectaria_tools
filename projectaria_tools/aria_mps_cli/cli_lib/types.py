@@ -159,6 +159,18 @@ class ModelState:
     progress: Optional[float] = None
 
 
+class MpsRequestSource(str, Enum):
+    """
+    Source of the MPS request.
+    """
+
+    def _generate_next_value_(name, start, count, last_values):
+        return name.upper()
+
+    MPS_CLI = auto()
+    ARIA_STUDIO = auto()
+
+
 class EncryptionError(Exception):
     """
     Raised when encryption fails for multi-trajectory

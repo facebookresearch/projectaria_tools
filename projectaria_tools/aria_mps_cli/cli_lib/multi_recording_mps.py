@@ -21,7 +21,7 @@ from .constants import DisplayStatus, ErrorCode
 from .http_helper import HttpHelper
 from .multi_recording_request import MultiRecordingModel, MultiRecordingRequest
 from .request_monitor import RequestMonitor, RequestMonitorModel
-from .types import ModelState, MpsFeature, MpsRequest
+from .types import ModelState, MpsFeature, MpsRequest, MpsRequestSource
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +40,7 @@ class MultiRecordingMps:
         http_helper: HttpHelper,
         requestor: MultiRecordingRequest,
         request_monitor: RequestMonitor,
+        source: MpsRequestSource,
         name: Optional[str] = None,
         suffix: Optional[str] = None,
         on_state_changed: Optional[
@@ -53,6 +54,7 @@ class MultiRecordingMps:
         self._http_helper: HttpHelper = http_helper
         self._requestor: MultiRecordingRequest = requestor
         self._request_monitor: RequestMonitor = request_monitor
+        self._source: MpsRequestSource = source
         self._name: Optional[str] = name
         self._suffix: Optional[str] = suffix
 
@@ -130,6 +132,7 @@ class MultiRecordingMps:
                     name=self._name or f"{MpsFeature.MULTI_SLAM.name} request",
                     recording_ids=[rec.fbid for rec in self._model.recordings],
                     features=[MpsFeature.MULTI_SLAM],
+                    source=self._source,
                 )
                 self._model = self._request_monitor.track_feature_request(
                     recordings=self._model.recordings,
