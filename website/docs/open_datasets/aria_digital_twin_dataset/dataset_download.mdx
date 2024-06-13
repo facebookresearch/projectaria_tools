@@ -18,17 +18,28 @@ By downloading the datasets you agree that you have read and accepted the terms 
 
 Follow Step 0 to Step 3 in [Getting Started](/docs/open_datasets/aria_digital_twin_dataset/getting_started).
 
-### Step 1 : Visit [ADT website](https://www.projectaria.com/datasets/adt/) sign up.
+### Step 1 : Signup and get the download links file
+
+To use the downloader CLI, you need to download a file which contains all data URLs plus some metadata for the downloader script.
+We currently offer two ways of getting this file:
+
+Option 1 - Aria Dataset Explorer:
+
+Go to the [Aria Dataset Explorer](https://explorer.projectaria.com/) website.
+Here you can subselet sequences according to some filter options, or get the links to all sequences.
+
+
+Option 2 - ADT Website:
+
+Visit [ADT website](https://www.projectaria.com/datasets/adt/) and sign up.
 
 Scroll down to the bottom of the page. Enter you email and select **Access the Datasets**.
 
 ![Screenshot from website showing download dataset](/img/open_datasets/aria_digital_twin_dataset/download_page.png)
 
-### Step 2 : Download the download-links file
 Once you've selected **Access the Datasets** you'll be taken back to the top of the ADT page.
 
 Scroll down the page to select **Aria Digital Twin Download Links** and download the file to the folder $HOME/Downloads.
-
 
 <div style={{textAlign: 'center'}}>
 
@@ -40,7 +51,8 @@ Scroll down the page to select **Aria Digital Twin Download Links** and download
 You can redownload the download links whenever they expire
 :::
 
-### Step 3 : Set up a folder for ADT data
+
+### Step 2 : Set up a folder for ADT data
 
 ```bash
 mkdir -p $HOME/Documents/projectaria_tools_adt_data
@@ -48,14 +60,15 @@ mkdir -p $HOME/Documents/projectaria_tools_adt_data
 mv $HOME/Downloads/aria_digital_twin_dataset_download_urls.json $HOME/Documents/projectaria_tools_adt_data/
 ```
 
-### Step 4 : Download the sample sequence (~500MB) via CLI:
+### Step 3 : Download the sample sequence (~500MB) via CLI:
 
 From your Python virtual environment, run:
 
 ```bash
 adt_benchmark_dataset_downloader -c $HOME/Documents/projectaria_tools_adt_data/aria_digital_twin_dataset_download_urls.json \
 -o $HOME/Documents/projectaria_tools_adt_data/ \
--d 0 1 2 3 -e
+-l Apartment_release_golden_skeleton_seq100_10s_sample_M1292 \
+-d 0 1 2 3 4 5 6 7 8 9
 ```
 
 The sample dataset is a single-user dataset with body pose in the Apartment. This is a pretty representative example to give an idea of the dataset.
@@ -64,7 +77,7 @@ For more information on the content in the other sequences, see the Data Content
 ## Download the Aria Digital Twin (ADT) benchmark dataset
 ### Data size
 
-THe Aria Digital Twin dataset consists of 217 sequences in total. The dataset is split into 4 data types that can be downloaded individually, plus MPS data. Go to [Project Aria Machine Perception Services](/ARK/mps/mps.mdx) for more information about MPS data. The MPS data is also broken into chunks that can be included or excluded at download time. The size of each data type is shown below. Just the ADT data without MPS equates to approximately 3.5TB.
+The Aria Digital Twin dataset consists of 217 sequences. It is split into 4 data types that can be downloaded individually, plus MPS data. Go to [Project Aria Machine Perception Services](/ARK/mps/mps.mdx) for more information about MPS data. The MPS data is also broken into chunks that can be included or excluded at download time. The size of each data type is shown below. ADT data without MPS is approximately 3.5TB.
 
 | **Data type** | What's included | Per sequence size | Total size for all sequences |
 | --- | --- | --- | --- |
@@ -81,72 +94,64 @@ THe Aria Digital Twin dataset consists of 217 sequences in total. The dataset is
 
 ### Download via CLI
 
-Follow the [ADT Getting Started Guide](/docs/open_datasets/aria_digital_twin_dataset/getting_started) to download the example data. This section will introduce how to download the dataset using the `adt_benchmark_dataset_downloader`.
+ADT uses the general Aria dataset downloader, which is available in the [`projectaria_tools` PyPi (pip install) package](/data_utilities/installation/installation_python.mdx).
 
-#### Resumable download
+To use the downloader, use the following commands in the vitual environment where you've installed `projectaria_tools`:
 
-The `adt_benchmark_dataset_downloader` checks the previous download status of the sequences in the --output_folder. If the downloading breaks in the middle, relaunch the CLI and it will continue the downloading.
-
-#### Detailed arguments
-
-| **Arguments** | Type | Description |
-| --- | --- | --- |
-| --cdn_file | str | The download-urls file you downloaded from the ADT website page after signing up |
-| --output_folder | str | A local path where the downloaded files and metadata will be stored |
-| --metadata_only | flag | Only download the metadata |
-| --data_types | list of int | 0→main, 1→segmentation, 2→depth, 3→synthetic |
-| --example_only | flag | Only download example data |
-| --overwrite | flag | Disable resumable download. Force download and overwrite existing data |
-| --sequence_names | list of str | list of sequence names. If not specified, download all sequences |
-
-### Download Examples
-
-Note that all these commands must be run from your Python virtual environment that has the projectaria-tools package and dependencies installed.
-
-#### Download metadata for ADT datasets
-
-```
-adt_benchmark_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --metadata_only
+```bash
+aria_dataset_downloader
 ```
 
-#### Download main data for all sequences
+To get a description of the arguments that the script needs, run:
 
+```bash
+aria_dataset_downloader --help
 ```
-adt_benchmark_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0
+
+The following are some example use cases:
+
+
+#### Download VRS for all sequences
+
+```bash
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0
 ```
+
+#### Download VRS + main ground truth data for all sequences
+
+```bash
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 6
+```
+
 
 #### Download all data for all sequences
 
-```
-adt_benchmark_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 1 2 3
-```
-
-#### Download main data for 2 specific sequences
-
-```
-adt_benchmark_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 --sequence_names Lite_release_recognition_BambooPlate_seq031 Lite_release_recognition_BirdHouseToy_seq030
+```bash
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 1 2 3 4 5 6 7 8 9
 ```
 
-#### Download main data for all sequences and overwrite
+#### Download VRS for 2 specific sequences
 
+```bash
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 --sequence_names Apartment_release_clean_seq131_M1292 Apartment_release_clean_seq133_M1292
 ```
-adt_benchmark_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 --overwrite
+
+#### Download VRS for all sequences and overwrite
+
+```bash
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 --overwrite
 ```
 
-### Select specific sequences
+## Deprecation Notes
 
-The dataset metadata JSON “aria_digital_twin_benchmark_metadata.json”, which can be downloaded using `adt_benchmark_dataset_downloader`, contains metadata for each ADT sequence.
+### Dataset Metadata
 
-The metadata fields of each sequence are:
+We previously provided a dataset metadata JSON “aria_digital_twin_benchmark_metadata.json”, which was downloadable with the old `adt_benchmark_dataset_downloader`. The goal of this file was to allow users to filter sequences by data fields provided in each sequence metadata. The [Aria Dataset Explorer](https://explorer.projectaria.com/) has replaced this old method for filtering sequences.
 
-| **Field Name** | Description |
-| --- | --- |
-| scenes | The scene that a sequence is captured at, Apartment or LiteOffice, in the current ADT release, there will only be one element in the list |
-| is_multi_person | Whether the sequence is a single person activity or a multiperson activity |
-| num_skeleton | number of persons whose body skeleton is tracked |
+### Challenge Data
 
-`aria_digital_twin_dataset_searcher.py` is an example Python script for filtering sequences via different criteria.
+We will be removing access to the [ADT challenge](https://eval.ai/web/challenges/challenge-page/2093/overview) data now that the challenge has concluded. The challenge downloader will be available until the end of 2024. You can find instructions for using this downloader on the [ADT Challenge Website](https://eval.ai/web/challenges/challenge-page/2093/phases). To use this downloader, however, you will need the deprecated CDN links file. Please email us at ariaoperations@meta.com before December 31 2024 to get access to this metadata file.
 
 ## Troubleshooting
 
-Check the [troubleshooting](/docs/data_utilities/installation/troubleshooting) if you are having issues in this guide.
+Check [Project Aria Tools troubleshooting](/docs/data_utilities/installation/troubleshooting) if you are having issues using this guide.
