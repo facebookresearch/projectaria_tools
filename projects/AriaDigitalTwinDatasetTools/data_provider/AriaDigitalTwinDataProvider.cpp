@@ -23,6 +23,7 @@
 #include <fstream>
 #include <iterator>
 #include <stdexcept>
+#include <string>
 #include <valarray>
 
 #define RAPIDJSON_NAMESPACE rapidjson
@@ -913,41 +914,22 @@ void AriaDigitalTwinDataProvider::validateDatasetVersion() const {
     throw std::runtime_error{"invalid dataset name"};
   }
 
-  std::string latestVersionStr = kLatestDatasetVersions.at(datasetName_);
-  if (datasetVersion_ == latestVersionStr) {
-    return;
-  }
-
-  // check format
-  auto pos = datasetVersion_.find('.');
-  if (pos == std::string::npos) {
-    const std::string errMsg = fmt::format(
-        "invalid metadata file. version: '{}' is of invalid type, required: XX.XX",
-        datasetVersion_);
-    XR_LOGE("{}", errMsg);
-    throw std::runtime_error{errMsg};
-  }
-
-  // get dataset version release
-  double datasetVersion = std::stod(datasetVersion_);
-
-  // get latest data version
-  double latestVersion = std::stod(latestVersionStr);
+  std::string latestVersion = kLatestDatasetVersions.at(datasetName_);
 
   // check versions
-  if (datasetVersion < latestVersion) {
+  if (datasetVersion_.compare(latestVersion) < 0) {
     XR_LOGW(
         "dataset version read ({}) is not up to date with latest ({}), we recommend you redownload your ADT dataset."
         " For a full version update history, please see the ADT wiki",
         datasetVersion_,
-        latestVersionStr);
+        latestVersion);
     return;
   }
-  if (datasetVersion > latestVersion) {
+  if (datasetVersion_.compare(latestVersion) > 0) {
     XR_LOGE(
         "data loader version ({}) is behind dataset version read ({}), please update projectaria_tools from github.",
         datasetVersion_,
-        latestVersionStr);
+        latestVersion);
     throw std::runtime_error{
         "data loader version is behind dataset version, projectaria_tools needs to be updated"};
   }
@@ -1040,7 +1022,8 @@ void AriaDigitalTwinDataProvider::loadSkeletonInfo() {
 
     // find InstanceInfo for this skeleton
     if (instancesInfo_.find(id) == instancesInfo_.end()) {
-      std::string errMsg = "skeleton ID from metadata file not found in instances file";
+      std::string errMsg =
+          "skeleton ID (" + std::to_string(id) + ") from metadata file not found in instances file";
       XR_LOGE("{}", errMsg);
       throw std::runtime_error{errMsg};
     }

@@ -18,56 +18,26 @@
 
 #include <optional>
 #include <set>
-#include <string>
-#include <unordered_map>
 #include <vector>
+
+#include <rapidjson/document.h>
 
 #include <mps/MpsDataPathsProvider.h>
 #include <vrs/StreamId.h>
 
+#include "AriaDigitalTwinDataPaths.h"
+
 namespace projectaria::dataset::adt {
 
 /**
- * @brief Customized Hash function for vrs::StreamId, needed for any `unordered_map<StreamId, T>`
- */
-struct StreamIdHash {
-  size_t operator()(const vrs::StreamId& streamId) const {
-    return std::hash<std::string>{}(streamId.getNumericName());
-  }
-};
-
-/**
- * @brief A struct that includes the file paths of all ADT data files for one sequence of one
- * device.
- */
-struct AriaDigitalTwinDataPaths {
-  std::string sequenceName; /**< name of the sequence loaded */
-  std::string ariaVrsFilePath; /**< Aria vrs */
-  std::string ariaTrajectoryFilePath; /**< Aria 6DoF pose trajectory */
-  std::string objectTrajectoriesFilePath; /**< object 6Dof pose trajectory */
-  std::string objectBoundingBox3dFilePath; /**< axis-aligned bounding box (AABB) of objects in its
-                                              local coordinate frame */
-  std::string boundingBoxes2dFilePath =
-      ""; /**< 2D object bounding boxes for all cameras, stored as <cameraId, filePath> */
-  std::string segmentationsFilePath; /**< 2D segmentation maps */
-  std::string depthImagesFilePath; /**< depth maps */
-  std::string syntheticVrsFilePath; /**< synthetic file */
-  std::string eyeGazesFilePath; /**< eye gaze file */
-  std::unordered_map<uint64_t, std::string>
-      skeletonsFilePaths; /**< skeleton files: skeletonId -> filepath */
-  std::string skeletonMetaDataFilePath; /**< skeleton metadata file */
-  std::string metaDataFilePath; /**< data collection metadata file */
-  std::string instancesFilePath; /**< instances file, a.k.a. object instance information file */
-
-  tools::mps::MpsDataPaths mps;
-
-  std::string toString() const;
-};
-
-/**
  * @brief This class is to load all data file paths from ADT data structure given a sequence path.
- * Each ADT collection sequence may contain more than one Aria device wearers. The data associated
- * with each Aria device is called a subsequence: <br>
+ * This class supports both v1.X dataset versions as well as v2.X dataset versions (and beyond)
+ * which have different formats:
+ *
+ *
+ * v1.X: Each ADT collection sequence may contain more than one Aria device wearers. The data
+ * associated with each Aria device is called a subsequence: <br>
+ *
  * ├── sequencePath        <br>
  * │   ├── subsequence1_Name <br>
  * │   │   ├── 2d_bounding_box.csv <br>
@@ -88,42 +58,86 @@ struct AriaDigitalTwinDataPaths {
  * │   │   ├── 2d_bounding_box.csv <br>
  * │   │   ├── ... <br>
  * │   └── metadata.json <br>
- * This class allows you use dataset root path and sequence name to
- * query all Aria devices in a sequence and to query all data associated with an Aria device.
+ *
+ * v2.X and beyond: We have removed the concept of subsequence. Each sequence can only contain one
+ * Aria recording, and concurrent recordings can be fetched by looking the field in the metadata
+ * file. This means we have the following file structure:
+ *
+ * ├── sequencePath        <br>
+ * │   ├── 2d_bounding_box.csv <br>
+ * │   ├── 2d_bounding_box_with_skeleton.csv <br>
+ * │   ├── 3d_bounding_box.csv <br>
+ * │   ├── Skeleton_C.json <br>
+ * │   ├── skeleton_aria_association.json <br>
+ * │   ├── aria_trajectory.csv <br>
+ * │   ├── depth_images.vrs <br>
+ * │   ├── depth_images_with_skeleton.vrs <br>
+ * │   ├── eyegaze.csv <br>
+ * │   ├── instances.csv <br>
+ * │   ├── scene_objects.csv <br>
+ * │   ├── segmentations.vrs <br>
+ * │   ├── segmentations_with_skeleton.vrs <br>
+ * │   └── video.vrs <br>
+ * │   └── metadata.json <br>
  */
 class AriaDigitalTwinDataPathsProvider {
  public:
   AriaDigitalTwinDataPathsProvider(const std::string& sequencePath);
 
   /**
+   * @brief retrieve the DataPaths for this sequence. If loading a sequence that has version < 2.0
+   * and has multiple subsequences, this will return the data paths associated with the first device
+   * serial.
+   * @param skeletonFlag a flag to indicate if load skeleton data or not. <b>By default this is set
+   * to false</b>
+   * @return A `AriaDigitalTwinDataPaths` object, `nullopt` if the function fails.
+   */
+  std::optional<AriaDigitalTwinDataPaths> getDataPaths(bool skeletonFlag = false) const;
+
+  /**
    * @brief retrieve the DataPaths from a device based on its index
+   * DEPRECATION NOTE: With dataset versions 2.0 and beyond, this function has been deprecated since
+   * there is only one device per sequence. If you are using this on older data, it will still work.
+   * If using on new data, it will only work if deviceNum is 0.
    * @param deviceNum the index of the device
    * @param skeletonFlag a flag to indicate if load skeleton data or not. <b>By default this is set
    * to false</b>
    * @return A `AriaDigitalTwinDataPaths` object, `nullopt` if the function fails.
    */
-  std::optional<AriaDigitalTwinDataPaths> getDataPathsByDeviceNum(
+  [[deprecated]] std::optional<AriaDigitalTwinDataPaths> getDataPathsByDeviceNum(
       int deviceNum,
       bool skeletonFlag = false) const;
 
   /**
    * @brief retrieve the DataPaths from a device based on its serial number
+   * DEPRECATION NOTE: With dataset versions 2.0 and beyond, this function has been deprecated since
+   * there is only one device per sequence. This function will still work with old or newer data as
+   * long as you are querying with the correct serial associated with this sequence.
    * @param deviceSerial the serial number of the device
    * @param skeletonFlag a flag to indicate if load skeleton data or not. <b>By default this is set
    * to false</b>
    * @return A `AriaDigitalTwinDataPaths` object, `nullopt` if the function fails.
    */
-  std::optional<AriaDigitalTwinDataPaths> getDataPathsByDeviceSerial(
+  [[deprecated]] std::optional<AriaDigitalTwinDataPaths> getDataPathsByDeviceSerial(
       const std::string& deviceSerial,
       bool skeletonFlag = false) const;
 
   /**
    * @brief get all device serial numbers in the recording sequence
-   & @return a const reference to a vector of string
+   * DEPRECATION NOTE: With dataset versions 2.0 and beyond, this function has been deprecated since
+   * there is only one device per sequence. This function will still work with old or newer data,
+   * however, we recommend using getDeviceSerialNumber instead for newer data & @return a const
+   * reference to a vector of string
    */
-  const std::vector<std::string>& getDeviceSerialNumbers() const {
+  [[deprecated]] const std::vector<std::string>& getDeviceSerialNumbers() const {
     return deviceSerialNumbers_;
   }
+
+  /**
+   * @brief get the device serial number. If loading a sequence that has version < 2.0 and has
+   * multiple subsequences, this will return the first device serial.
+   */
+  const std::string& getDeviceSerialNumber() const;
 
   /**
    * @brief get the scene name of the recording sequence
@@ -147,21 +161,36 @@ class AriaDigitalTwinDataPathsProvider {
     return numSkeletons_;
   }
 
+  /**
+   * @brief get the name of the sequence that was recorded at the same time as this sequence
+   * @return concurrent sequence name if it exists, otherwise 'nullopt'
+   */
+  std::optional<std::string> getConcurrentSequenceName() const;
+
  protected:
   static std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingSubtourName(
       const std::string& sequencePath,
       const std::string& subtourName,
+      const std::string& fileMetadata,
+      bool skeletonFlag);
+
+  static std::optional<AriaDigitalTwinDataPaths> getDataPathsUsingMainDataPath(
+      const std::string& mainDataPath,
+      const std::string& fileMetadata,
       bool skeletonFlag);
 
  private:
   // returns map from serial -> subsequence name
   void loadDeviceSerialToSubtourName();
   void loadSequenceMetaData();
+  void loadV1Metadata(const rapidjson::Document& jdocConst);
   std::string sequencePath_;
   std::string fileMetadata_;
   std::unordered_map<std::string, std::string> serialToSubtourName_;
   std::vector<std::string> deviceSerialNumbers_;
   std::string sceneName_;
+  std::string concurrentSequenceName_;
+  std::string datasetVersion_;
   bool isMultiPerson_;
   int numSkeletons_;
 };

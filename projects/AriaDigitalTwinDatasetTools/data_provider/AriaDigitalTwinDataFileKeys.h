@@ -22,12 +22,11 @@
 namespace projectaria::dataset::adt {
 
 // sequence metadata keys
-inline const std::string kSubtoursKey = "subtours";
-inline const std::string kSubtourNameKey = "subtour_name";
-inline const std::string kDeviceSerialKey = "device_serial";
+inline const std::string kDeviceSerialKey = "serial";
 inline const std::string kSceneKey = "scene";
 inline const std::string kIsMultiPersonKey = "is_multi_person";
 inline const std::string kNumSkeletonKey = "num_skeletons";
+inline const std::string kConcurrentSequenceNameKey = "concurrent_sequence";
 
 // instance keys
 inline const std::string kInstanceIdKey = "instance_id";
@@ -72,7 +71,7 @@ inline const std::string kDatasetVersionDefault = "1.0";
 inline const std::string kDatasetVersionUnknown = "Unknown";
 inline const std::string kDatasetNameKey = "dataset_name";
 inline const std::unordered_map<std::string, std::string> kLatestDatasetVersions{
-    {"ADT_2023", "1.2"}};
+    {"ADT_2023", "2.0"}};
 inline const std::unordered_map<std::string, std::string> kCorruptDatasets{
     {"Apartment_release_multiuser_party_seq145", "IMU data corrupted"},
     {"Apartment_release_multiuser_clean_seq115", "IMU data corrupted"},
@@ -82,5 +81,10 @@ inline const std::unordered_map<std::string, std::string> kCorruptDatasets{
 
 // data values
 constexpr int64_t kInvalidDeviceTimestampNs = -1;
+
+// DEPRECATED
+inline const std::string kSubtoursKey = "subtours";
+inline const std::string kSubtourNameKey = "subtour_name";
+inline const std::string kDeviceSerialKeyDeprecated = "device_serial";
 
 } // namespace projectaria::dataset::adt

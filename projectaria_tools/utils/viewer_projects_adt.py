@@ -48,12 +48,6 @@ def parse_args():
         help="path to the ADT sequence",
     )
     parser.add_argument(
-        "--device_number",
-        type=int,
-        default=0,
-        help="Device_number you want to visualize, default is 0",
-    )
-    parser.add_argument(
         "--no_rotate_image_upright",
         action="store_true",
         help="If set, the RGB images are shown in their original orientation, which is rotated 90 degrees ccw from upright.",
@@ -82,7 +76,7 @@ def main():
     print("sequence_path: ", args.sequence_path)
     try:
         paths_provider = AriaDigitalTwinDataPathsProvider(args.sequence_path)
-        data_paths = paths_provider.get_datapaths_by_device_num(args.device_number)
+        data_paths = paths_provider.get_datapaths()
         gt_provider = AriaDigitalTwinDataProvider(data_paths)
     except Exception as e:
         print("Error: ", str(e))
@@ -104,15 +98,10 @@ def main():
 
     # get all available skeletons in a sequence
     skeleton_ids = gt_provider.get_skeleton_ids()
-    device_serial_numbers = paths_provider.get_device_serial_numbers()
     for skeleton_id in skeleton_ids:
         skeleton_info = gt_provider.get_instance_info_by_id(skeleton_id)
-        is_skeleton_displayed = (
-            skeleton_info.associated_device_serial
-            == device_serial_numbers[args.device_number]
-        )
         print(
-            f"skeleton (id: {skeleton_id} name: {skeleton_info.name}) wears {skeleton_info.associated_device_serial} - Wearing glasses: {is_skeleton_displayed}"
+            f"skeleton (id: {skeleton_id} name: {skeleton_info.name}) wears {skeleton_info.associated_device_serial}"
         )
 
     # Initializing Rerun viewer

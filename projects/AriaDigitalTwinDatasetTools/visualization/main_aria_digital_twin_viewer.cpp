@@ -16,6 +16,7 @@
 
 #include <CLI/CLI.hpp>
 
+#include "AriaDigitalTwinDataPathsProvider.h"
 #include "AriaDigitalTwinDataTypes.h"
 #include "AriaDigitalTwinViewer.h"
 
@@ -27,7 +28,6 @@ using namespace projectaria::dataset::adt;
 int main(int argc, const char* argv[]) {
   std::string sequencePath;
   std::string renderPath;
-  int deviceNum = -1;
   bool skeletonFlag = false;
 
   CLI::App app{"Aria Digital Twin Viewer"};
@@ -38,12 +38,6 @@ int main(int argc, const char* argv[]) {
          "Path to the recording sequence containing all digital twin datasets. "
          "This should contain per-device folders, which further contains the actual data files")
       ->required();
-  app.add_option(
-         "--device-num",
-         deviceNum,
-         "Number of the device you want to display, e.g., 0, 1, 2. "
-         "If not entered, sequence information be printed.")
-      ->default_val(-1);
   app.add_option(
          "--skeleton-flag",
          skeletonFlag,
@@ -69,28 +63,17 @@ int main(int argc, const char* argv[]) {
 
   AriaDigitalTwinDataPathsProvider dataPathsProvider(sequencePath);
 
-  const auto& allDevices = dataPathsProvider.getDeviceSerialNumbers();
-
   fmt::print("--------------------Sequence Information----------------------\n");
   fmt::print("Data sequence path: {}\n", sequencePath);
-  fmt::print("{}  devices used in this sequence\n", allDevices.size());
-  for (size_t i = 0; i < allDevices.size(); ++i) {
-    fmt::print("  -- Device number {}: {}\n", i, allDevices[i]);
-  }
+  fmt::print("Aria serial: {}\n", dataPathsProvider.getDeviceSerialNumber());
   fmt::print("scene: {}\n", dataPathsProvider.getSceneName());
   fmt::print("multi-person sequence? {}\n", dataPathsProvider.isMultiPerson());
   fmt::print("has skeleton gt? {} skeletons\n", dataPathsProvider.getNumSkeletons());
   fmt::print("--------------------------------------------------------------\n");
 
-  if (deviceNum == -1) {
-    fmt::print("Please select a device from the list about using the device number\n");
-    return EXIT_FAILURE;
-  }
-
   fmt::print("Set SkeletonFlag to {}\n", skeletonFlag);
 
-  std::optional<AriaDigitalTwinDataPaths> dataPaths =
-      dataPathsProvider.getDataPathsByDeviceNum(deviceNum, skeletonFlag);
+  std::optional<AriaDigitalTwinDataPaths> dataPaths = dataPathsProvider.getDataPaths(skeletonFlag);
   if (!dataPaths.has_value()) {
     std::cerr << "unable to get datapaths, check your inputs" << std::endl;
     return EXIT_FAILURE;

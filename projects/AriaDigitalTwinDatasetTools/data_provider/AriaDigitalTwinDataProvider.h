@@ -20,7 +20,7 @@
 #include <cstdint>
 #include <optional>
 
-#include "AriaDigitalTwinDataPathsProvider.h"
+#include "AriaDigitalTwinDataPaths.h"
 #include "AriaDigitalTwinDataTypes.h"
 #include "AriaDigitalTwinSkeletonProvider.h"
 #include "AriaDigitalTwinUtils.h"
@@ -29,6 +29,15 @@
 #include "data_provider/players/ImageSensorPlayer.h"
 
 namespace projectaria::dataset::adt {
+
+/**
+ * @brief Customized Hash function for vrs::StreamId, needed for any `unordered_map<StreamId, T>`
+ */
+struct StreamIdHash {
+  size_t operator()(const vrs::StreamId& streamId) const {
+    return std::hash<std::string>{}(streamId.getNumericName());
+  }
+};
 
 /**
  * @brief This is the core data loader that should provide all the data access you will need for
