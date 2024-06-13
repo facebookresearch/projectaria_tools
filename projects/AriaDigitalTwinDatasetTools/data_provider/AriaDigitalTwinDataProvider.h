@@ -339,9 +339,9 @@ class AriaDigitalTwinDataProvider {
   void loadSkeletons();
   void loadEyeGaze();
   void loadMps();
-
   void loadObjectAABBbboxes();
   void loadInstancesInfo();
+  void checkQueryTimestampBounds(int64_t deviceTimeStampNs) const;
 
   // data paths that are used to load all ground truth data
   AriaDigitalTwinDataPaths dataPaths_;

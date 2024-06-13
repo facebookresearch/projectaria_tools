@@ -255,6 +255,8 @@ AriaImageDataWithDt AriaDigitalTwinDataProvider::getAriaImageByTimestampNs(
     return AriaImageDataWithDt();
   }
 
+  checkQueryTimestampBounds(deviceTimeStampNs);
+
   // Get image at timestamp
   ImageDataAndRecord imageData = dataProvider_->getImageDataByTimeNs(
       streamId, deviceTimeStampNs, TimeDomain::DeviceTime, timeQueryOptions);
@@ -328,6 +330,8 @@ Aria3dPoseDataWithDt AriaDigitalTwinDataProvider::getAria3dPoseByTimestampNs(
     return Aria3dPoseDataWithDt();
   }
 
+  checkQueryTimestampBounds(deviceTimeStampNs);
+
   auto queryPoseIter =
       queryMapByTimestamp<Aria3dPose>(aria3dPoses_, deviceTimeStampNs, timeQueryOptions);
 
@@ -345,6 +349,8 @@ BoundingBox3dDataWithDt AriaDigitalTwinDataProvider::getObject3dBoundingBoxesByT
     XR_LOGW("Object 3D poses is empty\n");
     return BoundingBox3dDataWithDt();
   }
+
+  checkQueryTimestampBounds(deviceTimeStampNs);
 
   TypeBoundingBox3dMap object3dBoundingBoxMap;
   // first get all static objects regardless
@@ -386,6 +392,8 @@ BoundingBox2dDataWithDt AriaDigitalTwinDataProvider::getObject2dBoundingBoxesByT
     return BoundingBox2dDataWithDt();
   }
 
+  checkQueryTimestampBounds(deviceTimeStampNs);
+
   auto iter =
       queryMapByTimestamp<TypeBoundingBox2dMap>(cameraBoxes, deviceTimeStampNs, timeQueryOptions);
   if (iter == cameraBoxes.end()) {
@@ -423,6 +431,8 @@ BoundingBox2dDataWithDt AriaDigitalTwinDataProvider::getSkeleton2dBoundingBoxesB
     return BoundingBox2dDataWithDt();
   }
 
+  checkQueryTimestampBounds(deviceTimeStampNs);
+
   auto iter =
       queryMapByTimestamp<TypeBoundingBox2dMap>(cameraBoxes, deviceTimeStampNs, timeQueryOptions);
   if (iter == cameraBoxes.end()) {
@@ -452,6 +462,8 @@ EyeGazeWithDt AriaDigitalTwinDataProvider::getEyeGazeByTimestampNs(
     return EyeGazeWithDt();
   }
 
+  checkQueryTimestampBounds(deviceTimeStampNs);
+
   auto iter = queryMapByTimestamp<EyeGaze>(eyeGazes_, deviceTimeStampNs, timeQueryOptions);
   if (iter == eyeGazes_.end()) {
     XR_LOGW(
@@ -472,6 +484,8 @@ SegmentationDataWithDt AriaDigitalTwinDataProvider::getSegmentationImageByTimest
     XR_LOGW("Segmentations is not available \n");
     return SegmentationDataWithDt();
   }
+
+  checkQueryTimestampBounds(deviceTimeStampNs);
 
   SegmentationData segmentationData;
   int64_t gtTNs = 0;
@@ -506,6 +520,8 @@ DepthDataWithDt AriaDigitalTwinDataProvider::getDepthImageByTimestampNs(
     return DepthDataWithDt();
   }
 
+  checkQueryTimestampBounds(deviceTimeStampNs);
+
   // Depth VRS stream ids are mapped to video VRS using its ImageConfig's Description.
   DepthData depthData;
   int64_t gtTNs = 0;
@@ -537,6 +553,8 @@ SyntheticDataWithDt AriaDigitalTwinDataProvider::getSyntheticImageByTimestampNs(
     XR_LOGW("Synthetic data is empty\n");
     return SyntheticDataWithDt();
   }
+
+  checkQueryTimestampBounds(deviceTimeStampNs);
 
   // Synthetic VRS stream ids should be the same as the video VRS
   SyntheticData syntheticData;
@@ -1071,6 +1089,9 @@ SkeletonFrameWithDt AriaDigitalTwinDataProvider::getSkeletonByTimestampNs(
     XR_LOGW("no skeleton with instance id: {}", instanceId);
     return {};
   }
+
+  checkQueryTimestampBounds(deviceTimeStampNs);
+
   return iter->second.getSkeletonByTimestampNs(deviceTimeStampNs, timeQueryOptions);
 }
 
@@ -1123,6 +1144,18 @@ const AriaDigitalTwinSkeletonProvider& AriaDigitalTwinDataProvider::getSkeletonP
 
 void AriaDigitalTwinDataProvider::loadMps() {
   mps_ = std::make_shared<projectaria::tools::mps::MpsDataProvider>(dataPaths_.mps);
+}
+
+void AriaDigitalTwinDataProvider::checkQueryTimestampBounds(int64_t deviceTimeStampNs) const {
+  int64_t startTimestampNs = getStartTimeNs();
+  int64_t endTimestampNs = getEndTimeNs();
+  if (deviceTimeStampNs < startTimestampNs || deviceTimeStampNs > endTimestampNs) {
+    XR_LOGW(
+        "Query timestamp {} Ns is out of the ground truth data bounds [{}, {}] Ns, be sure to check bounds using the functions getStartTimeNs and getEndTimeNs (c++) or get_start_time_ns and get_end_time_ns (python)",
+        deviceTimeStampNs,
+        startTimestampNs,
+        endTimestampNs);
+  }
 }
 
 Aria3dPoseDataWithDt getInterpolatedAria3dPoseAtTimestampNs(
