@@ -151,6 +151,7 @@ def main():
         },
         entry_points={
             "console_scripts": [
+                "aria_dataset_downloader = projectaria_tools.utils.datasets.dataset_downloader_main:main",
                 "adt_benchmark_dataset_downloader = projectaria_tools.projects.adt.adt_benchmark_dataset_downloader:main",
                 "adt_challenge_dataset_downloader = projectaria_tools.projects.adt.adt_challenge_dataset_downloader:main",
                 "adt_challenge_prepare_submission = projectaria_tools.projects.adt.adt_challenge_prepare_submission:main",
