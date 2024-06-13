@@ -113,6 +113,12 @@ def parse_args():
 
 
 def main():
+    print(
+        "\n\n[WARNING]: adt_challenge_dataset_downloader is being deprecated and will be removed in 2025.\n"
+        "If you need access to the challenge data prior to 2025, see instructions to get access to CDN file in ADT Documentation: \n"
+        "https://facebookresearch.github.io/projectaria_tools/docs/open_datasets/aria_digital_twin_dataset/dataset_download) \n\n"
+    )
+
     args = parse_args()
 
     data_category = None
