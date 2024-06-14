@@ -19,8 +19,6 @@ import shutil
 import subprocess
 import tempfile
 
-import ffmpeg
-
 import numpy as np
 from moviepy.audio.AudioClip import AudioClip
 from moviepy.editor import AudioFileClip
@@ -71,15 +69,47 @@ def get_timestamp_from_mp4(file_path) -> np.ndarray:
 
 # Save the timestamp_array into 'description' tag and generate new output_video_file
 def save_timestamp_to_mp4(input_video_file, output_video_file, timestamp_array):
-    mp4_metadata = {"description": timestamp_array}
-    ffmpeg_input = ffmpeg.input(input_video_file)
-    ffmpeg_output = ffmpeg.output(
-        ffmpeg_input,
-        output_video_file,
-        **{"metadata": " ".join([f"{k}={v}" for k, v in mp4_metadata.items()])},
-        codec="copy",
-    )
-    ffmpeg_output.run(overwrite_output=True)
+    ffmpeg_binary = "ffmpeg"
+    with tempfile.TemporaryDirectory() as temp_dir:
+        _description_metadata_filepath = os.path.join(
+            temp_dir, "description-metadata.txt"
+        )
+        with open(_description_metadata_filepath, "w") as f:
+            f.write(";FFMETADATA1\n")
+            f.write(f"description={timestamp_array}")
+        cmd = [
+            ffmpeg_binary,
+            "-i",
+            input_video_file,
+            "-i",
+            _description_metadata_filepath,
+            "-map",
+            "0",
+            "-map_metadata",
+            "1",
+            "-codec",
+            "copy",
+            output_video_file,
+            "-y",
+        ]
+        print(f"Running: `{' '.join(cmd)}`")
+        try:
+            result = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            if result.returncode != 0:
+                raise ValueError(
+                    f"ffmpeg failed with error code {result.returncode} and stderr: \n{result.stderr}"
+                )
+            print(f"ffmpeg output: \n{result.stdout}")
+            print(f"ffmpeg stderr: \n{result.stderr}")
+        except subprocess.CalledProcessError:
+            raise ValueError(
+                f"Binary {ffmpeg_binary} does not exist. Please install {ffmpeg_binary} before running the code"
+            )
 
 
 def convert_vrs_to_mp4(
