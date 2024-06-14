@@ -24,9 +24,9 @@ const katex = require('rehype-katex');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Project Aria Tools',
+  title: 'Project Aria Docs',
   tagline:
-    'Open tooling to support researchers expand the horizons of Augmented Reality, Machine Perception and Artificial Intelligence',
+    'Documentation and tooling to support researchers expand the horizons of Augmented Reality, Machine Perception and Artificial Intelligence',
   favicon: 'img/aria_logo.png',
 
   url: 'https://facebookresearch.github.io',
@@ -80,7 +80,7 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     {
       navbar: {
-        title: 'Project Aria Tools',
+        title: 'Project Aria Docs',
         logo: {
           alt: 'aria-research-kit-sdk Logo',
           src: 'img/aria_logo.png',

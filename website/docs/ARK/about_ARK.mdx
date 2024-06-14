@@ -2,101 +2,43 @@
 sidebar_position: 10
 title: About the Aria Research Kit
 ---
-import useBaseUrl from '@docusaurus/useBaseUrl';
-import ThemedImage from '@theme/ThemedImage';
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 
 # Aria Research Kit
 
-The Aria Research Kit (ARK) provides Aria glasses, services and tools to enable researchers to gather and process their own Aria data. Go to [Aria Research Kit intro page](https://www.projectaria.com/research-kit/) at [projectaria.com](https://www.projectaria.com/) to find out more, or to apply to become a research partner.
+The Aria Research Kit (ARK) provides Project Aria glasses, services and tools to enable researchers to gather and process their own Aria data. Go to [Aria Research Kit intro page](https://www.projectaria.com/research-kit/) at [projectaria.com](https://www.projectaria.com/) to find out more, or to apply to become a research partner.
 
-The instructions in this section will only be useful if you have access to the ARK.
+The ARK provides a very flexible system capable of a variety of configurations. You may only need several of the components offered in the kit, or you may need the entire kit, depending on your research.
 
+If your main objective is dataset development, you might require several sets of Aria glasses for collection, the Mobile Companion App for management of the device, and Machine Perception Services (MPS) for processing of the data. [Project Aria Tools](/data_utilities/data_utilities.mdx), part of our OSI offering, provides helpful data utilities and APIs for consuming and visualizing the data.
 
-![Project Aria glasses and Mobile Companion app](/img/ARK/aria_app_glasses.png)
+If your main objective is prototyping a streaming application, you may need Aria glasses, the Mobile Companion App for management of the device, and the Client SDK to stream and subscribe to data on your local machine.
 
-Through the ARK, researchers can:
-* Use Aria glasses to record and stream egocentric data
-* Generate derived data through [Machine Perception Services](/docs/ARK/mps)
-* Use our [Client SDK and CLI](/docs/ARK/sdk) to directly interface with Aria glasses
+If you encounter any issues, have feedback or questions, go to our [Support page](/support.mdx) for multiple ways to get in touch!
 
 
-## If you just received your Aria glasses
-We suggest the following steps:
-* Go to the [Quickstart guide](/docs/ARK/ARK_quickstart) to get set up
-* [Join the Academic Partners Workplace Group](/docs/ARK/workplacegroup)
-* Join the Project Aria Discord
-* If you have any difficulties getting set up, please contact ariaops@meta.com or check out our [Support page](/support.mdx)
+## Just received Project Aria glasses?
+
+* The [Quickstart Guide](/ARK/ARK_quickstart.mdx) shows how to set up your glasses and make recordings
+* The [Glasses User Manual](/ARK/glasses_manual/glasses_user_manual.mdx) provides a range of information, including how to factory reset your glasses
 
 
-## Mobile Companion App requirements
+## Need to record data?
 
-To be able to use Aria glasses you will need to use the [Aria Mobile Companion app](/docs/ARK/mobile_companion_app).
+Follow the steps in the [Quickstart Guide](/ARK/ARK_quickstart.mdx) to set up your glasses, make and download recordings.
 
+### Additional recording capabilities
 
-```mdx-code-block
-<Tabs>
-  <TabItem value="android" label="Android" default>
-```
+* If you wish to get personalized Eye Gaze MPS outputs, perform [In-Session Eye Gaze Calibration](/ARK/mps/eye_gaze_calibration.mdx) at the start of each recording
+* If you wish to create time synchronized recordings between multiple Aria glasses, use the [Client SDK to enable TICSync recordings](/ARK/sdk/ticsync.mdx)
 
-If you're using Android, your mobile device will need:
-- Android OS version 10 or above installed
-- ARM64 processor preferred
-- (Optional) ARCore Depth API (https://developers.google.com/ar/devices) support needed for [eye-tracking calibration](mps/eye_gaze_calibration.mdx)
-- 64-bit is preferred, although 32-bit is supported
+### Processing and using the data
 
-Go to the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) to get this software.
+* Use [Aria Studio](aria_studio.mdx), the [MPS CLI](mps/request_mps/mps_cli.mdx) or the [Desktop Companion app](mps/request_mps/desktop_mps.mdx) to request MPS derived data outputs
+* Use [Project Aria Tools](/data_utilities/data_utilities.mdx) to:
+    * Make VRS data easier to consume by downstream applications without needing to convert to another file format
+    * Visualize the data
+    * Export VRS files to MP4, to facilitate reviews
 
-```mdx-code-block
-  </TabItem>
-    <TabItem value="ios" label="iOS">
-```
-If you're using iOS:
-- OS version must be iOS 14 or above
-- (Optional) TrueDepth camera (iPhone X or later) needed for [eye-tracking calibration](mps/eye_gaze_calibration.mdx)
-- On your phone, [follow this invitation link](https://testflight.apple.com/join/G9sm51a8) to download the app from TestFlight
+## Need to stream data?
 
-Go to the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) for more information about downloading or updating software.
-
-```mdx-code-block
-  </TabItem>
-</Tabs>
-```
-
-## Other requirements (optional software)
-
-### Project Aria Tools
-Project Aria Tools is open source tooling for working with Aria data, go to [Data Utilities](/docs/data_utilities) for more details.
-
-Project Aria Tools and [VRS tooling](https://github.com/facebookresearch/vrs) are not available on Windows at this time. The codebase is supported on the following platforms:
-
-- x64 Linux distributions of:
-  - Fedora 36, 37, 38
-  - Ubuntu focal (20.04 LTS) and jammy (22.04 LTS)
-- Mac Intel or Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
-
-### MPS CLI
-
-The [MPS CLI](/ARK/mps/request_mps/mps_cli.mdx) is the preferred way to request [Machine Perception Services](/ARK/mps/mps.mdx) on your data. Install Project Aria Tools via [virtual environment](/data_utilities/installation/installation_python.mdx) to be able to use the MPS CLI.
-
-
-### Project Aria Client SDK and CLI
-Through the Client SDK and CLI you can directly interact with Aria glasses and stream data from the glasses to a computer. The codebase is supported on the following platforms:
-
-- x64 Linux distributions of:
-  - Fedora 36 or newer
-  - Ubuntu jammy (22.04) or newer
-- Mac Intel or Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
-
-### Desktop Companion App
-The [Desktop Companion App](/docs/ARK/desktop_companion_app) is a way to download data and request MPS. Go to the [Aria Glasses Quickstart](/ARK/ARK_quickstart.mdx) to see other ways of downloading data.
-
-Go to the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) to get this software.
-
-* Desktop Companion App runs on the following platforms:
-    * MacOS Big Sur 11.3+, both Intel and Apple Silicon
-    * Windows 10 x86_64 with DirectX (or OpenGL but the latest drivers should be installed)
-    * Windows 11 may work, but is not actively supported at this time
-    * Linux, debian package for Ubuntu, 22.04 LTS version. The app was only tested for that specific version under Gnome 42.5 and X11 (X Server) as well as Wayland. Any other debian distribution (Ubuntu 22.04 fork such as Kubuntu, Mint etc.) or environment may or may not work.
-        * V36 only, please use the [MPS CLI to](/ARK/mps/request_mps/mps_cli.mdx) request Hand Tracking MPS
+Set up your glasses as outlined in the [Quickstart Guide](/ARK/ARK_quickstart.mdx) and then install the [Client SDK](/ARK/sdk/setup.mdx).

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 45
+sidebar_position: 70
 title: Mobile Companion App
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl'
@@ -24,6 +24,7 @@ These instructions are only useful if you have access to Aria glasses. Go to [pr
 * Update Aria glasses to the latest OS build
 * Select a recording profile and start recording directly from the mobile app
 * Set default recording profile
+* Create a custom recording profile
 * [Data quality signals](sw_release_notes.mdx#sensor-data-quality-signals) while recording
 * [In-session Eye Gaze Calibration](mps/eye_gaze_calibration.mdx)
 * Accept, store and delete security certificates to enable the [Client SDK and CLI](sdk/sdk.mdx)
@@ -51,7 +52,9 @@ Follow the instructions in the [ARK SW Downloads and Updates page](ark_downloads
 8. Once pairing completes, the app will ask to name your Aria glasses.
 9. Join a Wi-Fi network, your glasses must be plugged into a charger to complete the setup process.
 10. Once connected to Wi-Fi, the glasses will look for updates and update your glasses' OS
-11. Once you have completed setup, you’ll see the Companion App Dashboard Page
+11. Once you have completed setup, you’ll see the Mobile Companion App Dashboard page
+
+Go to [Pair Additional Devices and Pairing Troubleshooting](/ARK/glasses_manual/pair_glasses.mdx) for more information about pairing your glasses.
 
 ### Set Default Recording Profile
 
@@ -79,34 +82,7 @@ To manually update Aria glasses OS:
 3. Select **Check for Updates**
 4. Once your glasses have finished updating, they will reboot and the update will be complete.
 
-## Pairing additional glasses
-
-Each pair of Aria glasses can only be paired with a single account. Multiple glasses can be paired with the one account, however.
-
-1. Plug your Project Aria glasses into their charger
-    * This will automatically turn your glasses
-2. Make sure the Privacy Switch is not engaged
-    *  The Privacy Switch should be pushed forwards, towards the lenses
-3. Select the **Add Glasses** on the Aria dashboard. The app will then start looking for nearby Aria glasses.
-4. Follow steps 7-12 in Sign in and Pairing
-5. Set the default recording profile for your glasses
-
-### Terminology
-
-#### Pairing/Unpairing
-
-* Pair(ed): connecting Aria glasses to the Companion App for the first time.
-* Unpair(ed): the process of unpairing Aria glasses from your Companion App. This will delete all data stored locally on the glasses.
-
-#### Connecting/Disconnecting
-
-* Connect(ed): is when the Companion App has active control over the glasses.
-* Disconnect(ed): is when the Companion App no longer has active control over the glasses.
-
-
-
 ## Recording
-
 ### To start recording
 
 1. Select **New Recording Session** on the Aria Dashboard.
@@ -154,8 +130,6 @@ Device Settings can be accessed by tapping the Paired Glasses info card on the m
 <div style={{textAlign: 'center'}}>
 <img width="80%" src={useBaseUrl('/img/ARK/mobile_app_device_settings.png')} alt="Device Settings page from the Dashboard"/>
 </div>
-
-
 
 The Device Settings page includes:
 
