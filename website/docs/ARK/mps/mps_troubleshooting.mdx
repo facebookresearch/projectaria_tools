@@ -9,7 +9,7 @@ This page provides troubleshooting support for issues relating to Project Aria's
 This page covers:
 
 * General MPS questions
-* MPS CLI specific troubleshooting and error codes
+* MPS CLI and Aria Studio specific troubleshooting and error codes
 * Desktop app specific troubleshooting and error codes
 
 :::tip
@@ -27,14 +27,17 @@ The [MPS Data Formats section](/data_formats/mps/mps_summary.mdx) of the wiki pr
 Recording profile information is stored in the .vrs.json file that contains metadata about that recording. Open the file with any text editor and search for the `recording_profile` value.
 
 
-## MPS CLI specific issues
+## MPS CLI and Aria Studio specific issues
 ### How do I request support?
 
 When requesting [support](/support.mdx), please include:
 
-* Log file from the CLI
-    * File path is shown on the bottom left side of the MPS CLI UI
-    * Stored in /tmp/logs/projectaria/mps/ by default
+* Log file
+    * MPS CLI logs
+        * File path is shown on the bottom left side of the MPS CLI UI
+        * Stored in /tmp/logs/projectaria/mps/ by default
+    * Aria Studio logs
+        * Stored in /tmp/logs/projectaria/aria_studio.log by default
 * Supplemental debugging files, if available. These will be stored in output folders:
     * Files that include vrs_health_check, such as:
         * `vrs_health_check.json`
@@ -60,7 +63,7 @@ ln -s /etc/ssl/* /Library/Frameworks/Python.framework/Versions/3.9/etc/openssl
 Some users have reported that the MPS CLI UI has display issues in Terminal. Using a different terminal app may help. [Why doesn't Textual look good on macOS](https://textual.textualize.io/FAQ/#why-doesnt-textual-look-good-on-macos) provides further information about this issue.
 
 
-### MPS CLI Error codes
+### MPS CLI and Aria Studio error codes
 
 ### **Error codes**
 
