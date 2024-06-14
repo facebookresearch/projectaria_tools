@@ -17,14 +17,12 @@ After connecting your Project Aria glasses and PC via USB or WiFi, you will be a
 - Start and stop recording
 - Configure, start and stop streaming from the glasses
 - Subscribe to streaming data from the glasses
+- Create time synchronized recordings between multiple devices using TICSync
 
 ### Project Aria CLI
 
 In addition to APIs and code samples, the SDK also provides [Aria CLI](/docs/ARK/sdk/cli) which allows you to control an Project Aria glasses and to stream its data without touching any code.
 
-:::info
-The current SDK supports one pair of Aria glasses connected to one computer.
-:::
 
 ### This documentation covers:
 
@@ -34,16 +32,18 @@ The current SDK supports one pair of Aria glasses connected to one computer.
     * Pair your Aria glasses to the computer
     * Extract SDK samples
 * Code samples to demonstrate using the SDK to control Project Aria glasses and build you own real-time applications.
-    * [Connection](/docs/ARK/sdk/samples/device_connection): connect an Aria device to a computer, fetch the device information and status.
-    * [Recording](/docs/ARK/sdk/samples/device_recording): start and stop a recording via USB and Wi-Fi.
-    * [Streaming Subscription](/docs/ARK/sdk/samples/streaming_subscribe): subscribe to and unsubscribe from a streaming device
-    * [Streaming and Visualizing All Live Sensor Data](/docs/ARK/sdk/samples/device_stream): programmatically start and stop a streaming session, add callbacks to visualize and manipulate the streamed data
-    * [Streaming Undistorted RGB Image Using Calibration](/docs/ARK/sdk/samples/undistort_rgb_image): programmatically start and stop a streaming session, access sensor calibration and undistort an RGB live stream
+    * [Connection](/ARK/sdk/samples/device_connection.mdx): connect an Aria device to a computer, fetch the device information and status.
+    * [Recording](/ARK/sdk/samples/device_recording.mdx): start and stop a recording via USB and Wi-Fi.
+    * [Streaming Subscription](/ARK/sdk/samples/streaming_subscribe.mdx): subscribe to and unsubscribe from a streaming device
+    * [Streaming and Visualizing All Live Sensor Data](/ARK/sdk/samples/device_stream.mdx): programmatically start and stop a streaming session, add callbacks to visualize and manipulate the streamed data
+    * [Streaming Undistorted RGB Image Using Calibration](/ARK/sdk/samples/undistort_rgb_image.mdx): programmatically start and stop a streaming session, access sensor calibration and undistort an RGB live stream
+    * [TICSync Time Synchronization](ARK/sdk/samples/ticsync_sample.mdx)
 * Core Concepts
-    * [Sensor Profiles](/docs/ARK/sdk/concepts/sdk_sensor_profiles): access information about Aria recording profiles via the CLI or SDK
-    * [Streaming Internals](/docs/ARK/sdk/concepts/streaming_internals): deeper dives into how data is streamed
-* [API References](/docs/ARK/sdk/api_reference)
-* [CLI documentation](/docs/ARK/sdk/cli/cli.mdx)
-* [SDK Troubleshooting](/docs/ARK/sdk/sdk_troubleshooting)
+    * [Sensor Profiles](/ARK/sdk/concepts/sdk_sensor_profiles.mdx): access information about Aria recording profiles via the CLI or SDK
+    * [Streaming Internals](/ARK/sdk/concepts/streaming_internals.mdx): deeper dives into how data is streamed
+    * [About TICSync](/ARK/sdk/concepts/about_ticsync.mdx)
+* [API References](/ARK/sdk/api_reference.mdx)
+* [CLI documentation](/ARK/sdk/cli/cli.mdx)
+* [SDK Troubleshooting](/ARK/sdk/sdk_troubleshooting.mdx)
 
-If you run into any issues, please check out the [Troubleshooting page](/docs/ARK/sdk/sdk_troubleshooting), post to [Academic Partners Feedback and Support](/docs/ARK/workplacegroup), post to our Academic Partners Discord group or email to AriaOps@meta.com.
+If you run into any issues, please check out the [Troubleshooting page](/ARK/sdk/sdk_troubleshooting.mdx) or contact us through one of our [Support channels](/support.mdx).
