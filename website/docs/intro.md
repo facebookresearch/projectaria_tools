@@ -9,32 +9,35 @@ title: Introduction to Project Aria Docs
 
 Project Aria’s offering to the external community is organized into two major pillars:
 
-* **Open Science Initiatives **are a collection of open-sourced egocentric datasets, models for egocentric AI applications, and tooling for working with the datasets that you can download and start experimenting with right now. We also have a set of challenges that we pose to the research community for solving AI problems.
-* The **Aria Research Kit** is a specialized toolkit for egocentric data collection. The kit comes with the Aria glasses for multimodal egocentric data capture, a mobile companion app for operating the glasses, a desktop application for dataset management and review, a command-line interface for programmatically operating the glasses, Machine Perception Services (MPS) for post-processing collected data, and a Client SDK for the development of custom applications and integrations. Qualified academic and commercial research partners can apply to obtain the [Aria Research Kit](https://www.projectaria.com/research-kit/).
+* **Open Science Initiatives** are a collection of open-sourced egocentric datasets, models for egocentric AI applications, and tooling for working with the datasets that you can download and start experimenting with right now. We also have a set of challenges that we pose to the research community for solving AI problems.
+* The **Aria Research Kit** is a specialized toolkit for egocentric data collection. The kit comes with the Aria glasses for multimodal egocentric data capture, a mobile companion app for operating the glasses, applications for dataset management and review, a command-line interface for programmatically operating the glasses, Machine Perception Services (MPS) for post-processing collected data, and a Client SDK for the development of custom applications and integrations. Qualified academic and commercial research partners can apply to obtain the [Aria Research Kit](https://www.projectaria.com/research-kit/).
 
 ![About Project Aria, showing services provided, simliar to what is in the FAQ](/img/intro.png)
 
 ## New to Project Aria?
 
 * Go to [projectaria.com](http://projectaria.com) to get an overview of the program
-* Go to [Aria Dataset Explorer](/open_datasets/dataset_explorer/dataset_explorer.mdx) to search and preview some of Aria’s open data
+* Go to [Aria Dataset Explorer](https://explorer.projectaria.com/) to search and preview some of Aria’s open data
 * Go to the [Project Aria FAQ](faq.mdx) for an overview of our current service offerings, capabilities and software ecosystem
 
-## Want to get involved with Open Science Initiatives?
+## Want to get involved with Open Science Initiatives (OSI)?
 
 We believe that open source accelerates the pace of innovation in the world. We’re excited to share our code, models and data and collaborate together on Open Science that can help shape the future.
 
 Open datasets powered by Project Aria data include:
 
-* [Aria Everyday Activities (AEA)](/open_datasets/aria_everyday_activities_dataset/aria_everyday_activities_dataset.mdx)
-* [Aria Digital Twin (ADT)](https://www.projectaria.com/datasets/adt/)
-* [Aria Synthetic Environments (ASE)](https://www.projectaria.com/datasets/ase/)
+* [Aria Everyday Activities (AEA)](/open_datasets/aria_everyday_activities_dataset/aria_everyday_activities_dataset.mdx) - a re-release of Aria’s first Pilot Dataset, updated with new tooling and location data, to accelerate the state of machine perception and AI.
+* [Aria Digital Twin (ADT)](https://www.projectaria.com/datasets/adt/) - a real-world dataset, with hyper-accurate digital counterpart & comprehensive ground-truth annotation
+* [Aria Synthetic Environments (ASE)](https://www.projectaria.com/datasets/ase/) - a procedurally-generated synthetic Aria dataset for large-scale ML research
+* [HOT3D](https://www.projectaria.com/datasets/hot3d/) - a new benchmark dataset for vision-based understanding of 3D hand-object interactions
+* [Nymeria](https://www.projectaria.com/datasets/nymeria/) - a large-scale multimodal egocentric dataset for full-body motion understanding
+
 
 Research challenges, using our open datasets, are posted to [projectaria.com](https://www.projectaria.com/challenges/).
 
 Models created using Aria data include:
-* [EgoBlur](https://www.projectaria.com/tools/egoblur/), an open source AI model from Meta to preserve privacy by detecting and blurring PII from images. Designed to work with egocentric data (such as Aria data) and non-egocentric data.
-* [Project Aria Eye Tracking](https://github.com/facebookresearch/projectaria_eyetracking), an open source inference code for the [Pre March 2024 Eye Gaze Model](/data_formats/mps/mps_eye_gaze.mdx) used by Machine Perception Services (MPS)
+* [EgoBlur](https://www.projectaria.com/tools/egoblur/) - an open source AI model from Meta to preserve privacy by detecting and blurring PII from images. Designed to work with egocentric data (such as Aria data) and non-egocentric data.
+* [Project Aria Eye Tracking](https://github.com/facebookresearch/projectaria_eyetracking) - an open source inference code for the [Pre March 2024 Eye Gaze Model](/data_formats/mps/mps_eye_gaze.mdx) used by Machine Perception Services (MPS)
 
 Aria data is recorded using [VRS](/data_formats/aria_vrs/aria_vrs.mdx), an open source file format. Our open source code, [Project Aria Tools](/data_utilities/data_utilities.mdx), provides a C++ and Python interface that helps people incorporate VRS data into a wide range of downstream applications.
 

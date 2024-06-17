@@ -12,8 +12,7 @@ These code samples show how to use the Client SDK to create time synchronized re
 * `ticsync_recording.py` - create TICSync time synchronized recordings with the option to set:
     * Which device is server, which are clients
     * What recording profile each device uses
-    * The recordings to stop and the glasses return to their normal recording state after a specific period of time
-* `ticsync_cleanup.py` - `Return glasses to their normal recording state once recording is complete
+* `ticsync_cleanup.py` - Stop recording (if necessary) and return glasses to their normal recording state
 * `ticsync_file_manager.py` - list and download recordings made with shared session ids
 
 This page goes through examples using each of the scripts, followed by a `ticsync_recording.py` code walkthrough.
@@ -22,7 +21,7 @@ This page goes through examples using each of the scripts, followed by a `ticsyn
 
 ### Example 1: Create TICSync time synchronized recordings, download them and visualize the data
 
-For an end to end guide from how to create TICSync recordings to how to consume the data, go to [Time Synchronized Recordings with Multiple Aria Glasses](/ARK/sdk/ticsync.mdx). This guide uses `ticsync_recording.py’ in its simplest form, where the user does not need to set the server/client details or individual recording profiles.
+For an end to end guide from how to create TICSync recordings to how to consume the data, go to [Time Synchronized Recordings with Multiple Aria Glasses](/ARK/sdk/ticsync.mdx). This guide uses `ticsync_recording.py` in its simplest form, where the user does not need to set the server/client details or individual recording profiles.
 
 
 ### Example 2: Create TICSync time synchronized recordings with granular control over details.
@@ -57,11 +56,11 @@ Recording profiles 0, 2, 10, 19, 25 and 27 have wifiScanModeActive enabled, so t
         * You should also have visual confirmation from the recording LED on each of the glasses
     3. Script prompting that it is waiting for devices to be ready for time synchronized data collection.
     4. Script prompting that devices are ready for time synchronized data collection.
-1. Unplug the glasses (if you wish) and record your activity
-    5. It may take ~40 seconds for the ticsync algorithm to reach stabilization between all devices. [The TICSync Jupyter notebook tutorial](/ARK/sdk/ticsync.mdx#tutorial) includes how to assess how long it takes for your specific setup and recording profile.
-2. Stop recording:
-    6. Press the Capture button on the top right of the Aria glasses and then return glasses to their normal state by plugging them in and using ‘ticsync_cleanup’
-    7. Plug the glasses back into your computer and use `ticsync_cleanup`
+5. Unplug the glasses (if you wish) and record your activity
+    * It may take ~40 seconds for the ticsync algorithm to reach stabilization between all devices. [The TICSync Jupyter notebook tutorial](/ARK/sdk/ticsync.mdx#tutorial) includes how to assess how long it takes for your specific setup and recording profile.
+6. Stop recording:
+    * Press the Capture button on the top right of the Aria glasses and then return glasses to their normal state by plugging them in and using ‘ticsync_cleanup’
+    * Plug the glasses back into your computer and use `ticsync_cleanup`
 
 Run cleanup based on number of devices plugged in:
 

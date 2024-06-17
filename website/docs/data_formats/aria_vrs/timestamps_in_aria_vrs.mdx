@@ -7,19 +7,20 @@ title: Timestamp Definitions
 
 This page provides information about how Project Aria timestamp data is formatted in VRS.
 
-The sensors in Project Aria glasses are temporally aligned to a shared device time domain. Multiple devices (either multiple Aria glasses or Aria glasses plus other devices) can also be temporally aligned using a shared clock.
+The sensors in Project Aria glasses are temporally aligned to a shared, device-time domain. Multiple devices (either multiple Aria glasses or Aria glasses plus other devices) can also be temporally aligned using a shared clock.
 
-Open datasets that contain temporally aligned data from multiple devices are:
-
+Open datasets that contain temporally aligned data from multiple devices that use TimeDomain.TIME_CODE​ are:
 
 * [Aria Everyday Activities (AEA)](/open_datasets/aria_everyday_activities_dataset/aria_everyday_activities_dataset.mdx) - recordings with 1-2 Aria glasses in a shared location
 * [Aria Digital Twin (ADT)](/open_datasets/aria_digital_twin_dataset/aria_digital_twin_dataset.mdx) - recordings with 1-2 Aria glasses in a shared location
+
+Aria research partners can use TICSync to make [time synchronized recordings between multiple devices](/ARK/sdk/ticsync.mdx).
 
 **Further resources:**
 
 * [Project Aria Device Timestamping](/tech_insights/device_timestamping.mdx) - how the hardware is configured
 * [Temporal Alignment of Aria Sensor Data](/tech_insights/temporal_alignment_of_sensor_data.mdx) - how the data is temporally aligned and how to finely align IMU, barometer and magnetometer data
-
+* [About TICSync](/ARK/sdk/concepts/about_ticsync.mdx) - how TICSync protocols work
 
 ## VRS Timestamps (Single Device)
 
@@ -53,10 +54,18 @@ Therefore, device timestamp - record timestamp for the same record is 42ms for 2
 
 ## VRS Timestamps (Multiple Devices)
 
-Accurate time synchronization is essential when co-ordinating data collection or analyzing data between multiple devices (real world or synthetic). Without synchronization, any device’s built-in recording of time will naturally drift and go out of sync (like when your microwave slowly loses time over a year). Multiple devices (either multiple Aria glasses or Aria glasses plus other devices) that are temporally aligned using a shared clock will include the TimeDomain.TIME_CODE datastream in the VRS file.
+Accurate time synchronization is essential when co-ordinating data collection or analyzing data between multiple devices (real world or synthetic). Without synchronization, any device’s built-in recording of time will naturally drift and go out of sync (like how your microwave slowly loses time over a year).
 
 ### TimeDomain.TIME_CODE
+
+Multiple devices (either multiple Aria glasses or Aria glasses plus other devices) that are temporally aligned using an external shared clock will include the TimeDomain.TIME_CODE datastream in the VRS file.
 
 We use time sync servers to record pairs of timestamps between the server’s local timestamp and the Aria glasses’ device timestamp. This generates a mapping between the Aria’s device time and the server’s local time. The server’s local time serves as a unified time domain shared by the multiple devices.
 
 Timecode time refers to the same “capture” event as device time, but differs by the clock assigning the timestamps. Thus we can convert between timecode time and device time by looking up values in the time mapping table.
+
+### TimeDomain.TICSync
+
+TICSync is an extremely efficient algorithm for learning the mapping between distributed clocks, which typically achieves better than millisecond accuracy within just a few seconds. It works by estimating clock offset and skew between itself (the host/client) and a device (Aria leader or server).
+
+In a TICSync recording, all devices mark video frames with a timestamp in a conceptual TICSync time domain. During the recording, the TICSync algorithm constructs, on-the-fly, the mapping between the conceptual TICSync time domain and the concrete DEVICE_TIME time domains of the glasses. Under the current implementation, the unique server device uses its DEVICE_TIME as the conceptual TICSync time, while all clients use their concrete TIC_SYNC time domains.
