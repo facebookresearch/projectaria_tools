@@ -7,179 +7,294 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 # Aria Client SDK API Reference
 
 ## Overview
-This page provides a list of Project Aria Client SDK's APIs.
+
+This page provides a list of Project Aria Client SDK's Python APIs. There is one global function in this API. Classes appear next in alphabetical order, then enums in alphabetical order.
 
 ## Global Functions & Methods
 
-| Function                    | Type | Description                    |
-| --------------------------- | ---- | ------------------------------ |
-| set_log_level(level: Level) | None | Sets the SDK logging verbosity |
+See `Level` in the `Enums` section.
+
+| Function                    | Type | Description                     |
+|-----------------------------|------|---------------------------------|
+| set_log_level(level: Level) | None | Sets the SDK logging verbosity. |
 
 ## Classes
 
-### aria.sdk.Error
+Generally, classes in the API maintain state about configurations and processes like streaming and recording. Concerns about security, networking, synchronization, and physical connections are all managed through classes described in this section.
 
-| Property | Type | Description                  |
-| -------- | ---- | ---------------------------- |
-| code     | int  | Error code                   |
-| message  | str  | Human readable error message |
-
-### aria.sdk.RecordingConfig
-
-| Property     | Type | Description                        |
-| ------------ | ---- | ---------------------------------- |
-| profile_name | str  | Sensors profile name for recording |
-
-### aria.sdk.StreamingSecurityOptions
-
-| Property              | Type | Description                                                  |
-| --------------------- | ---- | ------------------------------------------------------------ |
-| use_ephemeral_certs   | bool | Use ephemeral certs instead of persistent ones               |
-| local_certs_root_path | str  | Local directory path where streaming certificates are stored |
-
-### aria.sdk.StreamingConfig
-
-| Property            | Type                     | Description                                                      |
-| ------------------- | ------------------------ | ---------------------------------------------------------------- |
-| security_options    | StreamingSecurityOptions | Security options used to start streaming                         |
-| topic_prefix        | str                      | Use this as a unique string to prefix all streamed data messages |
-| profile_name        | str                      | Sensors profile name used to start streaming                     |
-| streaming_interface | StreamingInterface       | Network interface used to start streaming                        |
-
-### aria.sdk.StreamingSubscriptionConfig
-
-| Property                | Type                     | Description                                                                                                                                       |
-| ----------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| security_options        | StreamingSecurityOptions | Security options used to subscribe to an existing live secure stream                                                                              |
-| subscriber_data_type    | StreamingDataType        | Data types to subscribe to                                                                                                                        |
-| message_queue_size      | int                      | Size for the message queue. A shorter queue size may be useful if the processing callback is always slow and you wish to process more recent data |
-| subscriber_name         | str                      | Retrieve the subscriber name                                                                                                                      |
-| subscriber_topic_prefix | str                      | Retrieve the topic used to prefix the existing live stream                                                                                        |
-
-### aria.sdk.DeviceInfo
-
-| Property     | Type | Description        |
-| ------------ | ---- | ------------------ |
-| board        | str  | Device board name  |
-| bootloader   | str  | Bootloader version |
-| brand        | str  | Device brand name  |
-| manufacturer | str  | Manufacturer name   |
-| model        | str  | Model name         |
-| product      | str  | Product name       |
-| serial       | str  | Serial number      |
-| time         | int  | OS build timestamp |
-
-### aria.sdk.DeviceStatus
-
-| Property                     | Type       | Description                                                           |
-| ---------------------------- | ---------- | --------------------------------------------------------------------- |
-| battery_level                | int        | Battery level                                                         |
-| charger_connected            | bool       | USB charger cable state                                               |
-| charging                     | bool       | Charging state                                                        |
-| wifi_enabled                 | bool       | WiFi activation state                                                 |
-| wifi_configured              | bool       | WiFi configuration state                                              |
-| wifi_connected               | bool       | WiFi connection state                                                 |
-| wifi_ip_address              | str        | WiFi IP address                                                       |
-| wifi_device_name             | str        | WiFi device name                                                      |
-| wifi_ssid                    | str        | WiFi SSID name                                                        |
-| logged_in                    | bool       | Companion App user login state                                        |
-| developer_mode               | bool       | Developer mode state                                                  |
-| adb_enabled                  | bool       | ADB state                                                             |
-| thermal_mitigation_triggered | bool       | Indicate max level temperature has been reached triggering throttling |
-| skin_temp_celsius            | float      | Device temperature                                                    |
-| default_recording_profile    | str        | Default recording profile used when pressing the top right HW button  |
-| is_recording_allowed         | bool       | Recording capability state                                            |
-| device_mode                  | DeviceMode | Device mode                                                           |
-
-### aria.sdk.DeviceClientConfig
-
-| Property              | Type | Description                                                                                                         |
-| --------------------- | ---- | ------------------------------------------------------------------------------------------------------------------- |
-| ip_v4_address         | str  | IP v4 address to use for connecting to the device via Wi-Fi                                                         |
-| device_serial         | str  | Device serial number used when connecting to the device via USB (only necessary if multiple devices are plugged in) |
-| adb_path              | str  | Specify your own custom ADB version                                                                                 |
-| reconnection_attempts | int  | Number of reconnection attempts before time out. Defaults to 2                                                      |
-
-### aria.sdk.DeviceClient
-
-| Method                             | Type         | Description                                                                                                                                    |
-| ---------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| create(config: DeviceClientConfig) | DeviceClient | Create DeviceClient instance                                                                                                                   |
-| authenticate()                     | None         | Authenticate your client using the specified config                                                                                            |
-| connect()                          | Device       | Connect to device via Wifi or via USB using the specified config. Setting both ip address and adb path will lead to the adb path being ignored |
-| disconnect(device: Device)         | None         | Disconnect `Device` instance                                                                                                                   |
-
-### aria.sdk.Device
-
-| Method                     | Type             | Description                                                          |
-| -------------------------- | ---------------- | -------------------------------------------------------------------- |
-| recording_manager()        | RecordingManager | Access recording capabilities                                        |
-| streaming_manager()        | StreamingManager | Access streaming capabilities                                        |
-| info()                     | DeviceInfo       | Retrieve device information such as device name and serial number    |
-| status()                   | DeviceStatus     | Retrieve device status such as battery level and device temperature |
-| factory_calibration_json() | str              | Retrieve device factory calibration as JSON string                   |
-
-### aria.sdk.RecordingManager
-
-| Method                | Type | Description                                                                      |
-| --------------------- | ---- | -------------------------------------------------------------------------------- |
-| start_recording()     | None | Start recording                                                                  |
-| stop_recording()      | None | Stop recording                                                                   |
-| sensors_calibration() | str  | Retrieve the device calibration computed from the sensors profile used to record |
-
-| Property           | Type            | Description                                                        |
-| ------------------ | --------------- | ------------------------------------------------------------------ |
-| recording_config   | RecordingConfig | Used to configure recording parameters such as the sensors profile |
-| recording_state    | RecordingState  | Determine current recording state                                  |
-| recording_profiles | List[str]       | Returns a list of existing profile names to use to start recording |
-
-### aria.sdk.StreamingManager
-
-| Method                | Type | Description                                                                      |
-| --------------------- | ---- | -------------------------------------------------------------------------------- |
-| start_streaming()     | None | Start streaming                                                                  |
-| stop_streaming()      | None | Stop streaming                                                                   |
-| sensors_calibration() | str  | Retrieve the device calibration computed from the sensors profile used to stream |
-
-| Property           | Type            | Description                                                                                        |
-| ------------------ | --------------- | -------------------------------------------------------------------------------------------------- |
-| streaming_config   | StreamingConfig | Used to configure streaming parameters related to network interface, security, and sensors profile |
-| streaming_state    | StreamingState  | Determine current streaming state                                                                  |
-| streaming_profiles | List[str]       | Returns a list of existing profile names to use to start streaming                                 |
+Some classes have properties and methods, some classes have only properties. Properties can be read-only or read-write. Methods are primarily for side-effect, with return type `None`, with a few exceptions.
 
 ### aria.sdk.BaseStreamingClientObserver
 
-| Method                                                                                          | Type | Description                                                                               |
-| ----------------------------------------------------------------------------------------------- | ---- | ----------------------------------------------------------------------------------------- |
-| on_streaming_client_failure(reason: ErrorCode, message: str)                                    | None | Retrieve streaming failure                                                                |
-| on_image_received(image_and_record: projectaria_tools.core.sensor_data.ImageDataAndRecord)      | None | Retrieve image data streamed from rgb, slam1, slam2 or eye tracking camera sensors        |
-| on_audio_received(audio_and_record: projectaria_tools.core.sensor_data.AudioDataAndRecord)      | None | Retrieve audio data streamed from microphone sensors                                      |
-| on_imu_received(motion_data: List[projectaria_tools.core.sensor_data.MotionData], imu_idx: int) | None | Retrieve imu data streamed from IMU1 and IMU2 sensors. Use `imu_idx` to determine the IMU |
-| on_magneto_received(magneto_data: projectaria_tools.core.sensor_data.MotionData)                | None | Retrieve magnetometer data streamed from magnetometer sensor                              |
-| on_baro_received(baro_data: projectaria_tools.core.sensor_data.BarometerData)                   | None | Retrieve barometer data streamed from barometer sensor                                    |
+| Method                                                                                          | Type | Description                                                                                |
+|-------------------------------------------------------------------------------------------------|------|--------------------------------------------------------------------------------------------|
+| on_streaming_client_failure(reason: ErrorCode, message: str)                                    | None | Retrieve streaming failure.                                                                |
+| on_image_received(image_and_record: projectaria_tools.core.sensor_data.ImageDataAndRecord)      | None | Retrieve image data streamed from rgb, slam1, slam2 or eye-tracking camera sensors.        |
+| on_audio_received(audio_and_record: projectaria_tools.core.sensor_data.AudioDataAndRecord)      | None | Retrieve audio data streamed from microphone sensors.                                      |
+| on_magneto_received(magneto_data: projectaria_tools.core.sensor_data.MotionData)                | None | Retrieve magnetometer data streamed from magnetometer sensor.                              |
+| on_baro_received(baro_data: projectaria_tools.core.sensor_data.BarometerData)                   | None | Retrieve barometer data streamed from barometer sensor.                                    |
+| on_imu_received(motion_data: List[projectaria_tools.core.sensor_data.MotionData], imu_idx: int) | None | Retrieve imu data streamed from IMU1 and IMU2 sensors. Use `imu_idx` to determine the IMU. |
+
+### aria.sdk.DdsRpcEnabledStatus
+
+| Property | Type            | Description                                                                      |
+|----------|-----------------|----------------------------------------------------------------------------------|
+| state    | DdsRpcState     | (read-only) State information about DDS RPC (https://www.omg.org/spec/DDS-RPC/)  |
+| str      | SharedSessionId | (read-only) Shared Session uuid for synchronized recordings (see `TimeSyncMode`) |
+
+### aria.sdk.Device
+
+#### Methods
+
+| Method                                                            | Type | Description                                          |
+|-------------------------------------------------------------------|------|------------------------------------------------------|
+| set_dds_rpc_enabled(enabled: bool, interface: StreamingInterface) | None | Enable or Disable a `StreamingInterface` to DDS RPC. |
+| dds_rpc_new_session_id()                                          | str  | Return a new session uuid for DDS RPC                |
+
+#### Properties
+
+| Property                 | Type                | Description                                                            |
+|--------------------------|---------------------|------------------------------------------------------------------------|
+| recording_manager        | RecordingManager    | (read-only) Recording capabilities                                     |
+| streaming_manager        | StreamingManager    | (read-only) Streaming capabilities                                     |
+| info                     | DeviceInfo          | (read-only) Device information such as device name and serial number   |
+| status                   | DeviceStatus        | (read-only) Device status such as battery level and device temperature |
+| factory_calibration_json | str                 | (read-only) Device factory calibration as JSON string                  |
+| wifi_manager             | WifiManager         | (read-only) Aria Wi-Fi capabilities                                    |
+| dds_rpc_enabled_status   | DdsRpcEnabledStatus | (read-only) Status of DDS RPC for the device                           |
+
+### aria.sdk.DeviceClient
+
+#### Methods
+
+| Method                                        | Type         | Description                                                                                                                     |
+|-----------------------------------------------|--------------|---------------------------------------------------------------------------------------------------------------------------------|
+| create()                                      | DeviceClient | Create `DeviceClient` instance.                                                                                                 |
+| authenticate()                                | None         | Authenticate your client using the specified config.                                                                            |
+| connect()                                     | Device       | Connect to device via Wifi or via USB using the specified config. If setting both IP address and ADB path, ADB path is ignored. |
+| disconnect(device: Device)                    | None         | Disconnect `Device` instance from this client.                                                                                  |
+| is_connected(device: Device)                  | bool         | Checks whether connection with device is established.                                                                           |
+| set_client_config(config: DeviceClientConfig) | None         | Sets the config used to authenticate and connect this device as a client.                                                       |
+
+#### Properties
+
+| Property           | Type                  | Description                                         |
+|--------------------|-----------------------|-----------------------------------------------------|
+| usb_devices        | List[Tuple[str, str]] | (read-only) List of currently connected USB devices |
+| active_connections | List[Device]          | (read-only) Current active connected devices        |
+
+### aria.sdk.DeviceClientConfig
+
+| Property              | Type | Description                                                                                                                      |
+|-----------------------|------|----------------------------------------------------------------------------------------------------------------------------------|
+| ip_v4_address         | str  | (read-write) IP v4 address to use for connecting to the device via Wi-Fi                                                         |
+| device_serial         | str  | (read-write) Device serial number used when connecting to the device via USB (only necessary if multiple devices are plugged in) |
+| adb_path              | str  | (read-write) Specify your own custom version of ADB.                                                                             |
+| reconnection_attempts | int  | (read-write) Number of reconnection attempts before time out; defaults to 2                                                      |
+
+### aria.sdk.DeviceInfo
+
+| Property     | Type | Description                                     |
+|--------------|------|-------------------------------------------------|
+| board        | str  | (read-only) Device board name                   |
+| bootloader   | str  | (read-only) Bootloader version                  |
+| brand        | str  | (read-only) Device brand name                   |
+| device       | str  | (read-only) Manufacturer's name for the device  |
+| host         | str  | (read-only) Id string for the host              |
+| id           | str  | (read-only) Id string for the device            |
+| manufacturer | str  | (read-only) Manufacturer name                   |
+| model        | str  | (read-only) Model name                          |
+| product      | str  | (read-only) Product name                        |
+| serial       | str  | (read-only) Serial number                       |
+| time         | int  | (read-only) OS build timestamp                  |
+| type         | str  | (read-only) Type of the device                  |
+| user         | str  | (read-only) User name registered for the device |
+
+### aria.sdk.DeviceStatus
+
+| Property                     | Type       | Description                                                                       |
+|------------------------------|------------|-----------------------------------------------------------------------------------|
+| battery_level                | int        | (read-only) Battery level                                                         |
+| charger_connected            | bool       | (read-only) USB charger cable state                                               |
+| charging                     | bool       | (read-only) Charging state                                                        |
+| wifi_enabled                 | bool       | (read-only) WiFi activation state                                                 |
+| wifi_configured              | bool       | (read-only) WiFi configuration state                                              |
+| wifi_connected               | bool       | (read-only) WiFi connection state                                                 |
+| wifi_ip_address              | str        | (read-only) WiFi IP address                                                       |
+| wifi_device_name             | str        | (read-only) WiFi device name                                                      |
+| wifi_ssid                    | str        | (read-only) WiFi SSID name                                                        |
+| logged_in                    | bool       | (read-only) Companion App user login state                                        |
+| developer_mode               | bool       | (read-only) Developer mode state                                                  |
+| adb_enabled                  | bool       | (read-only) ADB state                                                             |
+| thermal_mitigation_triggered | bool       | (read-only) Indicate max level temperature has been reached triggering throttling |
+| skin_temp_celsius            | float      | (read-only) Device temperature                                                    |
+| default_recording_profile    | str        | (read-only) Default recording profile used when pressing the top right HW button  |
+| is_recording_allowed         | bool       | (read-only) Recording capability state                                            |
+| device_mode                  | DeviceMode | (read-only) Device mode                                                           |
+
+### aria.sdk.Error
+
+| Property | Type | Description                                       |
+|----------|------|---------------------------------------------------|
+| code     | int  | (read-only) Error code (not the `ErrorCode` enum) |
+| message  | str  | (read-only) Human-readable error message          |
+
+### aria.sdk.RecordingConfig
+
+| Property         | Type         | Description                                                        |
+|------------------|--------------|--------------------------------------------------------------------|
+| profile_name     | str          | (read-write) Sensor's profile name for recording                   |
+| time_sync_mode   | TimeSyncMode | (read-write) Timesync mode for recording                           |
+| timecode_trigger | bool         | (read-write) True if this device triggers timecode synchronization |
+
+### aria.sdk.RecordingManager
+
+#### Methods
+
+| Method                | Type | Description                                                                      |
+|-----------------------|------|----------------------------------------------------------------------------------|
+| start_recording()     | None | Start recording.                                                                 |
+| stop_recording()      | None | Stop recording.                                                                  |
+| sensors_calibration() | str  | Retrieve the device calibration computed from the sensor profile used to record. |
+
+#### Properties
+
+| Property           | Type            | Description                                                                   |
+|--------------------|-----------------|-------------------------------------------------------------------------------|
+| recording_state    | RecordingState  | (read-only) Fetch the current recording state.                                |
+| recording_config   | RecordingConfig | (read-write) Fetch or set recording parameters such as the sensor's profile.  |
+| recording_profiles | List[str]       | (read-only) Fetch a list of profile names that can be applied to a recording. |
+| ticsync_status     | TicSyncStatus   | (read-only) Fetch TICSync status for this recording session.                  |
 
 ### aria.sdk.StreamingClient
 
-| Method                                                           | Type            | Description                                                   |
-| ---------------------------------------------------------------- | --------------- | ------------------------------------------------------------- |
-| create()                                                         | StreamingClient | Create StreamingClient instance                               |
-| subscribe()                                                      | None            | Subscribe to data streamed from Aria                          |
-| unsubscribe()                                                    | None            | Unsubscribe to data streamed from Aria                        |
-| set_streaming_client_observer(observer: StreamingClientObserver) | None            | Sets the observer to subscribe to the data streamed from Aria |
-| is_subscribed()                                                  | bool            | Returns streaming subscription state                          |
+#### Methods
+
+| Method                                                           | Type            | Description                                                          |
+|------------------------------------------------------------------|-----------------|----------------------------------------------------------------------|
+| create()                                                         | StreamingClient | Create StreamingClient instance.                                     |
+| subscribe(StreamingClient)                                       | None            | Subscribe the specified streaming client to data streamed from Aria. |
+| unsubscribe()                                                    | None            | Unsubscribe from data streamed from Aria.                            |
+| is_subscribed()                                                  | bool            | Return True if the client is subscribed to data streamed from Aria.  |
+| set_streaming_client_observer(observer: StreamingClientObserver) | None            | Set the observer to subscribe to the data streamed from Aria.        |
+
+#### Property
+
+| Property            | Type                        | Description                                                                       |
+|---------------------|-----------------------------|-----------------------------------------------------------------------------------|
+| subscription_config | StreamingSubscriptionConfig | (read-write) Access the streaming subscription config for this streaming session. |
+
+### aria.sdk.StreamingConfig
+
+| Property            | Type                     | Description                                                        |
+|---------------------|--------------------------|--------------------------------------------------------------------|
+| security_options    | StreamingSecurityOptions | (read-write) Security options used to start streaming              |
+| topic_prefix        | str                      | (read-write) A unique string to prefix all streamed data messages  |
+| profile_name        | str                      | (read-write) Sensors' profile name used to start streaming         |
+| streaming_interface | StreamingInterface       | (read-write) Network interface used to start streaming             |
+| time_sync_mode      | TimeSyncMode             | (read-write) The timesync mode for this streaming session          |
+| timecode_trigger    | bool                     | (read-write) True if this device triggers timecode synchronization |
+
+### aria.sdk.StreamingManager
+
+#### Methods
+
+| Method                | Type | Description                                                                       |
+|-----------------------|------|-----------------------------------------------------------------------------------|
+| start_streaming()     | None | Start streaming.                                                                  |
+| stop_streaming()      | None | Stop streaming.                                                                   |
+| sensors_calibration() | str  | Retrieve the device calibration computed from the sensors profile used to stream. |
+
+#### Properties
+
+| Property         | Type            | Description                                                                                                       |
+|------------------|-----------------|-------------------------------------------------------------------------------------------------------------------|
+| streaming_config | StreamingConfig | (read-write) Used to configure streaming parameters related to network interface, security, and sensor's profile. |
+| streaming_state  | StreamingState  | (read-only) Determine current streaming state.                                                                    |
+| ticsync_status   | TicSyncStatus   | (read-only) TICSync status for this streaming session                                                             |
+| streaming_client | StreamingClient | (read-only) Return the StreamingClient object for this streaming session.                                         |
+
+### aria.sdk.StreamingSecurityOptions
+
+| Property              | Type | Description                                                               |
+|-----------------------|------|---------------------------------------------------------------------------|
+| use_ephemeral_certs   | bool | (read-write) Use ephemeral certs instead of persistent ones.              |
+| local_certs_root_path | str  | (read-write) Local directory path where streaming certificates are stored |
+
+### aria.sdk.StreamingSubscriptionConfig
+
+| Property                | Type                     | Description                                                                                                                                                     |
+|-------------------------|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| security_options        | StreamingSecurityOptions | (read-write) Security options used to subscribe to an existing live secure stream                                                                               |
+| subscriber_data_type    | StreamingDataType        | (read-write) Data types to subscribe to                                                                                                                         |
+| message_queue_size      | int                      | (read-write) Size for the message queue; A shorter queue size may be useful if the processing callback is always slow and you wish to process more recent data. |
+| subscriber_name         | str                      | (read-write) Subscriber name                                                                                                                                    |
+| subscriber_topic_prefix | str                      | (read-write) The topic used to prefix the existing live stream                                                                                                  |
+|                         |                          |                                                                                                                                                                 |
+
+### aria.sdk.TicSyncStatus
+
+| Property                  | Type                     | Description                                                            |
+|---------------------------|--------------------------|------------------------------------------------------------------------|
+| server_id                 | str                      | (read-write) The uuid for the device if the device is a TICSync server |
+| client_id                 | str                      | (read-write) The uuid for the device if the device is a TICSync client |
+| connection_quality        | ConnectionQuality        | (read-write) The connection quality for this TICSync session           |
+| synchronization_stability | SynchronizationStability | (read-write) The synchronization stability for this TICSync session    |
+
+### aria.sdk.WifiHotSpotStatus
+
+| Property   | Type | Description                                                   |
+|------------|------|---------------------------------------------------------------|
+| enabled    | bool | (read_write) whether the device has enabled its Wi-Fi hotspot |
+| ssid       | str  | (read_write) the `ssid` of the hotspot for connecting devices |
+| passphrase | str  | (read_write) the passphrase for connecting devices            |
+
+### aria.sdk.WifiManager
+
+#### Methods
+
+| Method                                                                                                                                                 | Type | Description                                                                    |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------|------|--------------------------------------------------------------------------------|
+| scan_wifi()                                                                                                                                            | None | Scan Wi-Fi networks nearby.                                                    |
+| connect_wifi(ssid: str, password: str, auth: WifiAuthentication, hidden: bool, username: str, disable_other_networks: bool, skip_internet_check: bool) | None | Connect to Wi-Fi network with the given `ssid`, credentials, and options.      |
+| forget_wifi(ssid: str)                                                                                                                                 | None | Forget the Wi-Fi network with the given `ssid`.                                |
+| set_device_hotspot_status(enabled: bool, band5GHz: bool = False, country_code: str = "US")                                                             | None | Turn on or off the Wi-Fi hotspot, defaulting to 2.4 GHz and country code "US". |
+| keep_wifi_on(keep_on: bool)                                                                                                                            | None | Turn on or off the `keep_on` attribute of the Wi-Fi manager.                   |
+
+#### Properties
+
+| Property              | Type              | Description                                                |
+|-----------------------|-------------------|------------------------------------------------------------|
+| device_hotspot_status | WifiHotSpotStatus | (read-only) An `enabled` flag, an `ssid`, and a passphrase |
+| wifi_status           | WifiStatus        | (read-only) Information about available Wi-Fi networks     |
+
+### aria.sdk.WifiNetwork
+
+| Property | Type                     | Description                                                      |
+|----------|--------------------------|------------------------------------------------------------------|
+| ssid     | str                      | (read-write) the `ssid` of the Wi-Fi network                     |
+| auth     | List[WifiAuthentication] | (read-write) authentication methods offered by the Wi-Fi network |
+| signal   | Optional[int]            | (read-write) signal strength in dBm (usually -30 to -100)        |
+
+### aria.sdk.WifiScanResult
+
+| Property           | Type              | Description                                               |
+|--------------------|-------------------|-----------------------------------------------------------|
+| networks           | List[WifiNetwork] | (read-write) Networks in range                            |
+| device_mac_address | str               | (read-write) This device's MAC address in standard format |
+
+### aria.sdk.WifiStatus
+
+| Property       | Type                         | Description                                                      |
+|----------------|------------------------------|------------------------------------------------------------------|
+| enabled        | bool                         | (read-write) Whether the device has enabled Wi-Fi networking     |
+| network        | WifiNetwork                  | (read-write) Information about the Wi-Fi network                 |
+| reachability   | Optional[ReachabilityStatus] | (read-write) Reachability information about the Wi-Fi connection |
+| known_networks | List[WifiNetwork]            | (read-write) Known Wi-Fi networks within range of this device    |
 
 ## Enums
 
-### aria.sdk.Level
-
-| Name     | Description                                  |
-| -------- | -------------------------------------------- |
-| Disabled | Disable all logs                             |
-| Error    | Print only error logs                        |
-| Warning  | Print warning and error logs                 |
-| Info     | Print info, warning and error logs (default) |
-| Debug    | Print debug, info, warning and error logs    |
-| Trace    | Print all logs                               |
+Enums specify choices or outcomes for various properties and methods in the classes such as modes, states, statuses, and types.
 
 ### aria.sdk.CameraId
 
@@ -191,36 +306,127 @@ This page provides a list of Project Aria Client SDK's APIs.
 | EyeTrack | Eye tracking camera sensors |
 | Invalid  | Unknown camera sensor       |
 
+### aria.sdk.ConnectionQuality
+
+| Name    | Description                                                              |
+|---------|--------------------------------------------------------------------------|
+| Unknown | No connection-quality information ia available for this TICSync session. |
+| Good    | The connection quality is good for this TICSync session.                 |
+| Medium  | The connection quality is acceptable for this TICSync session.           |
+| Bad     | The connection quality is bad for this TICSync session.                  |
+
+### aria.sdk.DdsRpcState
+
+| Name | Description                               |
+|------|-------------------------------------------|
+| On   | DDS RPC is on for the current connection  |
+| Off  | DDS RPC is off for the current connection |
+
+### aria.sdk.ErrorCode
+
+| Name                          | Description                                                         |
+|-------------------------------|---------------------------------------------------------------------|
+| ConnectionLost                | Connection has been lost.                                           |
+| Adb                           | An error occurred in the interface to Android.                      |
+| UnknownError                  | An unknown error occurred.                                          |
+| BadRequest                    | A bad request was made.                                             |
+| UnsupportedMethod             | An unsupported method was called.                                   |
+| BatteryTooLow                 | Device battery is too low to continue.                              |
+| BadArgument                   | An invalid argument was passed to a method in the API.              |
+| AuthenticationFailure         | Authentication failed for a device.                                 |
+| TimedOut                      | A request timed out waiting for a response.                         |
+| AlreadyInProgress             | The requested operation is already in progress.                     |
+| InternalError                 | An internal error was encountered.                                  |
+| WifiNoNetwork                 | No Wi-Fi network can be found in range of the device.               |
+| WifiInvalidAuth               | Authentication failed on the Wi-Fi network.                         |
+| BadAccessToken                | A bad access token was passed.                                      |
+| DeviceWifiError               | The device encountered a Wi-Fi error.                               |
+| DeviceBleError                | An error occurred with BLE (Bluetooth Low Energy).                  |
+| WifiNoInternet                | No Internet connection is available on this Wi-Fi connection.       |
+| WifiAuthTimeout               | Wi-Fi authentication or authorization failed.                       |
+| WifiIpConfigFail              | IP configuration for Wi-Fi failed.                                  |
+| OperationNotAllowed           | The requested operation is not allowed.                             |
+| FailedToStartRecording        | The recording failed to start.                                      |
+| FailedToStopRecording         | The recording failed to stop.                                       |
+| RecordingInProgress           | Recording is already in progress.                                   |
+| NoRecordingInProgress         | Recording is not in progress.                                       |
+| InvalidRecordingProfile       | The recording profile is invalid.                                   |
+| FailedToListRecordings        | Stored recordings could not be listed.                              |
+| FwUpdateInProgress            | Port-forwarding update is in progress.                              |
+| PrivacySwitchOn               | The hardware privacy switch is in the ON position on the device.    |
+| RecordingNotFound             | The requested recording could not be found.                         |
+| GpsRfcalInvalid               | GPS RF calibration is invalid.                                      |
+| InvalidDeviceCalibration      | The device calibration is invalid.                                  |
+| LowBatteryLevel               | The device's battery level is critically low (warning).             |
+| LowDiskSpace                  | The device's storage space is low (warning).                        |
+| FailedToStartStreaming        | Streaming from or to the device failed to start.                    |
+| FailedToStopStreaming         | Streaming from or to the device failed to stop.                     |
+| UploadAlreadyStarted          | Uploading to the device has already started.                        |
+| UploadEmptyRecording          | An attempt was made to upload an empty recording.                   |
+| UploadEmptyMetadata           | An attempt was made to upload empty metadata.                       |
+| UploadInvalidMetadata         | An attempt was made to upload invalid metadata.                     |
+| WifiConnectionFailed          | Wi-Fi connection attempt failed.                                    |
+| TimecodeNotReceived           | An expected timecode synchronization message was not received.      |
+| NtpTimeSyncFailed             | Synchronization by NTP failed.                                      |
+| TicSyncWifiConfigFailed       | TICSync Wi-Fi configuration failed.                                 |
+| TicSyncStatusFailed           | TICSync status check failed.                                        |
+| InvalidStreamingInterface     | An invalid StreamingInterface enum was specified.                   |
+| UsbRndisConnectionFailed      | The RNDIS specification failed for a USB connection.                |
+| UsbNcmConnectionFailed        | The NCM specification failed for a USB connection.                  |
+| PhoneGpsUpdateFailed          | The device failed to update GPS.                                    |
+| DdsDiscoveryFailed            | DDS Discovery failed.                                               |
+| SharedSessionIdNotReceived    | The shared session id for synchronized recordings was not received. |
+| ThumbnailNotFound             | No thumbnail was found for the specified recording.                 |
+| DefaultRecordingProfileNotSet | No default recording profile has been set.                          |
+| StreamingCertsInstallFailed   | Failed to install certificates for streaming.                       |
+| StreamingCertsUninstallFailed | Failed to un-install certificates for streaming.                    |
+| StreamingCertsNotFound        | Streaming certificates were not found.                              |
+| DdsRpcSetEnabledFailed        | Failed to set DDS RPC.                                              |
+| DdsRpcGetSessionIdFailed      | Failed to fetch a session id for DDS RPC.                           |
+| DdsRpcUpdateSessionIdFailed   | Failed o update the session id for DDS RPC.                         |
+| WifiScanConfigFailed          | The Wi-Fi scanning configuration failed.                            |
+| StreamingNotAllowed           | Streaming is not allowed.                                           |
+| StreamingSetupFailed          | Streaming setup failed.                                             |
+| NewFilenameExists             | A file with the specified name already exists on the device.        |
+| FileNotFound                  | A file with the specified name could not be found on the device.    |
+| InvalidFilename               | The specified filename is invalid on the device.                    |
+| TlsClientCertsError           | The TLS certificate on the device is invalid.                       |
+
+### aria.sdk.Level
+
+| Name     | Description                                    |
+|----------|------------------------------------------------|
+| Disabled | Disable all logs.                              |
+| Error    | Print only error logs.                         |
+| Warning  | Print warning and error logs.                  |
+| Info     | Print info, warning, and error logs (default). |
+| Debug    | Print debug, info, warning, and error logs.    |
+| Trace    | Print all logs.                                |
+
+### aria.sdk.ReachabilityStatus
+
+| Name                    | Description                                                  |
+|-------------------------|--------------------------------------------------------------|
+| Ok                      | The Wi-Fi network has full reachability.                     |
+| OculusServerUnreachable | The Oculus server is unreachable through this Wi-Fi network. |
+| InternetUnreachable     | The internet is unreachable through this Wi-Fi network.      |
+| RouterUnreachable       | The router is unreachable for this Wi-Fi network.            |
+
 ### aria.sdk.RecordingState
 
-| Name       | Description           |
-| ---------- | --------------------- |
-| NotStarted | Recording not started |
-| Started    | Recording stopped     |
-| Streaming  | Recording in progress |
-| Stopped    | Recording stopped     |
-
-### aria.sdk.StreamingState
-
-| Name       | Description           |
-| ---------- | --------------------- |
-| NotStarted | Streaming not started |
-| Started    | Streaming stopped     |
-| Streaming  | Streaming in progress |
-| Stopped    | Streaming stopped     |
-
-### aria.sdk.StreamingInterface
-
-| Name        | Description                |
-| ----------- | -------------------------- |
-| WifiStation | Stream through WiFi router |
-| Usb         | Stream through USB cable   |
+| Name       | Description               |
+|------------|---------------------------|
+| Unknown    | Recording state not known |
+| NotStarted | Recording not started     |
+| Started    | Recording stopped         |
+| Streaming  | Recording in progress     |
+| Stopped    | Recording stopped         |
 
 ### aria.sdk.StreamingDataType
 
 | Name     | Description                  |
-| -------- | ---------------------------- |
-| Unknown  |
+|----------|------------------------------|
+| Unknown  | Unknown streaming data type  |
 | Rgb      | Rgb sensor data              |
 | Slam     | Slam1 and Slam2 sensors data |
 | EyeTrack | Eye tracking sensors data    |
@@ -228,11 +434,47 @@ This page provides a list of Project Aria Client SDK's APIs.
 | Imu      | Imu sensors data             |
 | Magneto  | Magnetometer sensor data     |
 | Baro     | Barometer sensor data        |
+| TimeSync | Timesync data topic          |
 
-### aria.sdk.DeviceMode
+### aria.sdk.StreamingInterface
 
-| Name      | Description    |
-| --------- | -------------- |
-| Research  | Research mode  |
-| Partner   | Partner mode   |
-| Prototype | Prototype mode |
+| Name        | Description                 |
+|-------------|-----------------------------|
+| WifiStation | Stream through Wi-Fi router |
+| Usb         | Stream through USB cable    |
+
+### aria.sdk.StreamingStability
+
+| Name      | Description                  |
+|-----------|------------------------------|
+| WarmingUp | TICSync is still warming up. |
+| Stable    | TICSync has stabilized.      |
+
+### aria.sdk.StreamingState
+
+| Name       | Description             |
+|------------|-------------------------|
+| Unknown    | Streaming state unknown |
+| NotStarted | Streaming not started   |
+| Started    | Streaming started       |
+| Streaming  | Streaming in progress   |
+| Stopped    | Streaming stopped       |
+
+### aria.sdk.TimeSyncMode
+
+| Name          | Description                                                                |
+|---------------|----------------------------------------------------------------------------|
+| NotEnabled    | Timesync is not enabled for this recording.                                |
+| Timecode      | Timecode timesync is enabled for this recording.                           |
+| Ntp           | NTP timesync is enable for this recording.                                 |
+| TicSyncClient | TICSync is enabled for this recording and this device is a TICSync client. |
+| TicSyncServer | TICSync is enabled for this recording and this device is a TICSync server. |
+
+### aria.sdk.WifiAuthentication
+
+| Name | Description        |
+|------|--------------------|
+| None | No authentication  |
+| Eap  | EAP authentication |
+| Wpa  | WPA authentication |
+| Wep  | WEP authentication |
