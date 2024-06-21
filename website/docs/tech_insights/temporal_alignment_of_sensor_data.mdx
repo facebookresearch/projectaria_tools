@@ -8,6 +8,10 @@ This page provides an overview of how Project Aria data is temporally aligned an
 
 Go to [Timestamps in Aria VRS](/docs/data_formats/aria_vrs/timestamps_in_aria_vrs) for how Aria data is formatted. Go to [Project Aria Device Timestamping](/docs/tech_insights/device_timestamping) for how the hardware is configured.
 
+:::tip
+We recommend using [Trajectory MPS outputs](/data_formats/mps/slam/mps_trajectory.mdx) instead of raw IMU data wherever possible. Go to [MPS Code Snippets](/data_utilities/core_code_snippets/mps.mdx) for how to load open loop or closed loop trajectory data.
+:::
+
 ## Temporal Alignment
 
 Although each sensor data pieces are timestamped in the same time domain, there might be an offset between the instant represented by their timestamps and the actual instant for which the enclosed measurement is valid. For proper sensor fusion where precise temporal alignment of the data is required, we must take this offset into account. We need an estimate of this offset for each sensor.

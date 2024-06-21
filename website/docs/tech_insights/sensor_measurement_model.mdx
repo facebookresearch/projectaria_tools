@@ -28,6 +28,10 @@ When the read-out signal exceeds a threshold, the signal saturates. Saturation l
 |--|--|--|--|--|
 |saturation|4g|8g|5000|1000|
 
+:::tip
+We recommend using [Trajectory MPS outputs](/data_formats/mps/slam/mps_trajectory.mdx) instead of raw IMU data wherever possible. Go to [MPS Code Snippets](/data_utilities/core_code_snippets/mps.mdx) for how to load open loop or closed loop trajectory data.
+:::
+
 ## Magnetometer, barometer and audio
 
 Similar to the IMU rectification model, the sensor readouts for magnetometer, barometer, and audio data are modeled as linear to the real $r$ (magnetic field, air pressure and sound intensity).
