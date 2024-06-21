@@ -204,17 +204,24 @@ Because of Aria’s unique data structure, we recommend using Project Aria Tools
 
 ### How do I use the IMU data?
 
+<div id="calibration"></div>
+
+<!-----
+the calibration id div is placed here so that the anchor tag will work effectively for the content below
+----->
+
 We recommend using [Trajectory MPS outputs](/data_formats/mps/slam/mps_trajectory.mdx) instead of raw IMU data wherever possible. Go to [MPS Code Snippets](/data_utilities/core_code_snippets/mps.mdx) for how to load open loop or closed loop trajectory data.
 
 
 ### What calibration information is available?
 #### General calibration concepts
 
-* [2D Image Coordinate System Conventions](/data_formats/coordinate_convention/2d_image_coordinate_system_convention.mdx)
-* [3D Coordinate Frame Conventions](/data_formats/coordinate_convention/3d_coordinate_frame_convention.mdx)
+* [2D Image Coordinate System Conventions](/data_formats/coordinate_convention/2d_image_coordinate_system_convention.mdx) (intrinsics)
+* [3D Coordinate Frame Conventions](/data_formats/coordinate_convention/3d_coordinate_frame_convention.mdx) (extrinsics, non-visual sensor coordinate systems and CPF)
 * [Calibration Code Snippets](/data_utilities/core_code_snippets/calibration.mdx)
-* [Tech Insights](/tech_insights/tech_insights.mdx)
-    * Technical deeper dives on domain-specific topics
+* [Tech Insights](/tech_insights/tech_insights.mdx) - technical deeper dives on domain-specific topics, such as how we model sensors mathematically in calibration:
+    * [Camera intrinsic models](/tech_insights/camera_intrinsic_models.mdx)
+    * [Sensor measurement model](/tech_insights/sensor_measurement_model.mdx)
 
 
 #### SLAM MPS Calibration data

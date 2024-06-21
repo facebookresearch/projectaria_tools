@@ -13,10 +13,13 @@ This page provides an overview of 3D Coordinate Frame Conventions used for Proje
 * Non-visual sensor coordinate systems
 * Central Pupil Frame (CPF)
 
+Go to the [Project Aria FAQ](/faq.mdx#calibration) for more calibration information and resources.
+
 ## SE(3) Lie groups
-The 6-DoF poses are represented by SE(3) Lie group. The quaternion part of SE(3) uses Hamilton convention following the [Eigen library](https://eigen.tuxfamily.org/), in which the exact formula to convert a quaternion to a rotation matrix of the SE(3) can be found [in the Eigen code repository](https://gitlab.com/libeigen/eigen/-/blob/master/Eigen/src/Geometry/Quaternion.h#L821-859).
+Extrinsics in calibration refer to the 6-DoF pose among the sensors. These 6-DoF poses are represented by SE(3) Lie group. The quaternion part of SE(3) uses Hamilton convention following the [Eigen library](https://eigen.tuxfamily.org/), in which the exact formula to convert a quaternion to a rotation matrix of the SE(3) can be found [in the Eigen code repository](https://gitlab.com/libeigen/eigen/-/blob/master/Eigen/src/Geometry/Quaternion.h#L821-859).
 
 We use the SE3d class in the [Sophus Library](https://github.com/strasdat/Sophus) to represent SE(3) Lie groups, and provide a minimal pybind for the class.
+
 
 ### A note on sensor naming and motivation
 T\_sensor1\_sensor2 represents a relative SE(3) transformation from sensor2 frame to sensor1 frame. An easy mnemonic is the chaining principle is: T\_<span style={{color: 'blue'}}>sensor1</span>_<span style={{color: 'green'}}>sensor2</span> * T_<span style={{color: 'green'}}>sensor2</span>_<span style={{color: 'orange'}}>sensor3</span> * p_<span style={{color: 'orange'}}>sensor3</span> = p_<span style={{color: 'blue'}}>sensor1</span> (where p_sensor is a 3D point measured from sensor)
