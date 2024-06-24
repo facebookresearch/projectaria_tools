@@ -17,9 +17,11 @@ Project Aria glasses have multiple recording profiles that enable users to choos
 The table below provides a detailed spec of each profile we currently support. We add new profiles when necessary.
 
 This page covers:
-* Recording profile specs
-* General guidance if you're making recordings
-* How to make custom recordings with the Mobile Companion app
+* [Recording profile specs](#specs)
+* [General guidance if you're making recordings](#general)
+* [How to make custom recordings with the Mobile Companion app](#custom)
+
+<div id="specs"></div>
 
 ## Recording Profile Specs
 
@@ -80,6 +82,8 @@ There are several ways you can view recording profile information if you have ac
 3. Select **More Info** in the top right corner
     * The More Info page will show all recording profiles as well as the current settings for the Custom Profile
 
+<div id="general"></div>
+
 #### Project Aria Client SDK
 If you've set up your glasses with the [Client SDK](/ARK/sdk/setup.mdx) you can [export recording profiles to a JSON file](/ARK/sdk/concepts/sdk_sensor_profiles.mdx).
 
@@ -113,6 +117,8 @@ In situations where you want to use RAW videos and skip the Image Sensor Process
 Please note, because Profile7 delivers RAW image files, not JPEGs the data is 8x more costly to store. This profile also uses more energy while recording and may heat up faster than others.
 
 ### Long duration recordings
+
+<div id="custom"></div>
 
 Profiles 20 and 26 are optimized for 5+ recording hours. Profile 29 is optimized for recording times over 15 hours and uses JPEG decimation to provide 0.1FPS RGB data.
 

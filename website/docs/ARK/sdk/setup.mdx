@@ -46,8 +46,8 @@ The codebase is supported on the following platforms:
 - Mac Intel or Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
 
 ### Software
-* Python 3 with versions >= 3.8.10 and <= 3.11
-  * Python 3.9+ if you want to use the `device_stream` code sample due to the `fastplotlib` dependency
+* Python 3 with versions 3.8.10+
+  * Python 3.9+ if you want to use the `device_stream` code sample due to the `fastplotlib` dependency or if you want to use Jupyter notebooks
   * [Python 3 download page](https://www.python.org/downloads/)
   * To check which version of Python 3 you have, use `python3 --version`
 * [ADB](https://developer.android.com/studio/command-line/adb) (optional)
@@ -141,6 +141,8 @@ cd ~/projectaria_client_sdk_samples
 ```bash
 pip install -r requirements.txt
 ```
+
+All code samples can be run from `cd ~/projectaria_client_sdk_samples`, with the exception of the Time Synchronization TICSync code samples. To use TICSync, go to `cd ~/projectaria_client_sdk_samples/ticsync`.
 
 Go to [Code Samples](/ARK/sdk/samples/samples.mdx) to explore Aria Client SDK features.
 

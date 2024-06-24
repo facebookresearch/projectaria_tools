@@ -42,8 +42,15 @@ For more details, go to:
 
 ### Make the recording
 
+
 1. Plug all glasses into your computer
-2. Use  `ticsync_recording.py` to start recording
+2. Go to the TICSync sample code directory
+
+```
+cd ~/projectaria_client_sdk_samples/ticsync
+```
+
+3. Use  `ticsync_recording.py` to start recording
 
 In this example all the glasses will start recording with recording profile 4
 
@@ -57,19 +64,17 @@ The instructions above automatically chose the device with the lowest serial num
 Recording profiles 0, 2, 10, 19, 25 and 27 have wifiScanModeActive enabled, so they can't be used to create TICSync recordings.
 :::
 
-
-3. In the command line you should then see:
+4. In the command line you should then see:
     1. Confirmation that all glasses have started recording
         * You’ll also see the recording LED to start on each of the glasses
     2. Confirmation the glasses are ready for time synchronized data collection
 
-
 ```
     "-------- All devices are ready for data collection. You can safely unplug all your glasses from USB ---------"
 ```
-4. Unplug the glasses (if you wish) and record your activity
+5. Unplug the glasses (if you wish) and record your activity
     * It may take ~45 seconds for the ticsync algorithm to reach stabilization between all devices. The ticsync_tutorial below includes how to assess how long it takes for your specific setup and recording profile.
-5. Stop recording:
+6. Stop recording:
     * Press the Capture button on the top right of the Aria glasses
     * Plug the glasses back into your computer and use `ticsync_cleanup`
 
@@ -113,7 +118,7 @@ DDS RPC enabled, disabling it
 2. View what files with TICSync data are available
 
 ```
-ticsync_file_manager -- --list
+python -m ticsync_file_manager --list
 ```
 
 The Shared Session ID outputs will be listed for each recording session, with a list of devices that were in each session.
@@ -137,7 +142,7 @@ Making a copy of the details of each recording associated with a Shared Session 
 Use a Shared Session ID to copy all files from a recording session to a specific folder. In this example all the recordings from session 7dfe4d16-6f54-47bf-859e-6ee4043234d3 will saved to the new folder recording_session_2
 
 ```
-ticsync_file_manager -- --download 7dfe4d16-6f54-47bf-859e-6ee4043234d3 --output_dir recording_session_2
+python -m ticsync_file_manager --download 7dfe4d16-6f54-47bf-859e-6ee4043234d3 --output_dir recording_session_2
 ```
 
 The folder will contain a VRS for each recording with all sensor data, including timestamps from the shared reference clock.
@@ -153,7 +158,12 @@ The `ticsync_tutorial.ipynb` Jupyter notebook will take you through how to:
 * Assess the accuracy of the time synchronization
 
 
-### To build and run the Jupyter Notebook
+### Run Jupyter Notebook on Google Colab
+Use the following link to run the Python notebook in an installation free playground:
+
+* [Project Aria TICSync Tutorial](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/core/examples/ticsync_tutorial.ipynb)
+
+### Build and run the Jupyter Notebook locally
 
 1. [Download and install the Python version of Project Aria Tools](/data_utilities/installation/installation_python.mdx)
 2. Run the notebook

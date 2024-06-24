@@ -8,6 +8,21 @@ title: Code Samples
 
 This section provides code samples and walkthroughs for using the Aria Client SDK to interact with the Project Aria glasses.
 
+Make sure you have finished the [Setup Guide](/ARK/sdk/setup.mdx) before progressing to code samples. If you follow the guide, code samples are run from `~/projectaria_client_sdk_samples`:
+
+```
+cd ~/projectaria_client_sdk_samples
+```
+
+Except for Time Synchronization TICSync code samples, which are run from `~/projectaria_client_sdk_samples/ticsync`.
+
+```
+cd ~/projectaria_client_sdk_samples/ticsync
+```
+
+We recommend starting with [device_connect.py](/ARK/sdk/samples/device_connection.mdx) to validate that your Aria glasses have connected successfully.
+
+
 * [Connection](/ARK/sdk/samples/device_connection.mdx)
     * Connect to the Aria glasses using USB and Wi-Fi
     * Fetch device information, such as the device serial number
@@ -27,7 +42,3 @@ This section provides code samples and walkthroughs for using the Aria Client SD
 * [TICSync Time Synchronization](/ARK/sdk/samples/ticsync_sample.mdx)
     * Requires at least two Project Aria glasses
     * Deeper dive and more granular control of features than commands provided in [How to Create Time Synchronized Recordings with Multiple Aria Glasses](/ARK/sdk/ticsync.mdx)
-
-Make sure you have finished the [Setup Guide](/ARK/sdk/setup.mdx).
-
-We recommend starting with [device_connect.py](/ARK/sdk/samples/device_connection.mdx) to validate that your Aria glasses have connected successfully.

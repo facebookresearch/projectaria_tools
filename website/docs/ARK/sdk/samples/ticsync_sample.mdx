@@ -32,8 +32,14 @@ For TICSync to work, all devices need to be on the one Wi-Fi network and a leade
 #### Make the recording
 
 1. Plug all glasses into your computer
-2. Get the serial number for all connected devices by running `aria device --list`
-3. Use the Client SDK to run `ticsync.py` to:
+2. Go to the TICSync sample code directory
+
+```
+cd ~/projectaria_client_sdk_samples/ticsync
+```
+
+3. Get the serial number for all connected devices by running `aria device --list`
+4. Use the Client SDK to run `ticsync.py` to:
     1. Set one pair of glasses to be the server (Wi-Fi hotspot and using Fast DDS to be the leader device)
     2. Set the other glasses to be client devices connecting to the server
     3. Set what recording profiles will be used
@@ -49,16 +55,15 @@ python -m ticsync_recording --server <server_serial> profile4 --client <client1_
 Recording profiles 0, 2, 10, 19, 25 and 27 have wifiScanModeActive enabled, so they can't be used to create TICSync recordings.
 :::
 
-
-4. In the command line you’ll see:
+5. In the command line you’ll see:
     1. Server device has started a Wi-Fi hotspot and Client devices have joined the hotspot
     2. All devices have started recording
         * You should also have visual confirmation from the recording LED on each of the glasses
     3. Script prompting that it is waiting for devices to be ready for time synchronized data collection.
     4. Script prompting that devices are ready for time synchronized data collection.
-5. Unplug the glasses (if you wish) and record your activity
+6. Unplug the glasses (if you wish) and record your activity
     * It may take ~40 seconds for the ticsync algorithm to reach stabilization between all devices. [The TICSync Jupyter notebook tutorial](/ARK/sdk/ticsync.mdx#tutorial) includes how to assess how long it takes for your specific setup and recording profile.
-6. Stop recording:
+7. Stop recording:
     * Press the Capture button on the top right of the Aria glasses and then return glasses to their normal state by plugging them in and using ‘ticsync_cleanup’
     * Plug the glasses back into your computer and use `ticsync_cleanup`
 
@@ -73,7 +78,6 @@ Run clean up by specifying devices:
 ```
 python -m ticsync_cleanup --server <server_serial> --clients <client_serial1> <client_serial2>
 ```
-
 
 Example output:
 
