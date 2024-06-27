@@ -23,6 +23,11 @@
 #include <pybind11/stl.h>
 #include "SensorDataSequence.h"
 
+#define DEFAULT_LOG_CHANNEL "VrsDataProvider"
+#include <logging/Log.h>
+
+#include <sstream>
+
 namespace projectaria::tools::data_provider {
 
 namespace py = pybind11;
@@ -152,6 +157,31 @@ inline void declareDeliverQueued(py::module& m) {
       .def(py::init<VrsDataProvider*, const DeliverQueuedOptions&>());
 }
 
+inline std::string timeSyncModeStr(const MetadataTimeSyncMode& timeSyncMode) {
+  std::string timeSyncModeStr;
+  switch (timeSyncMode) {
+    case MetadataTimeSyncMode::NotEnabled:
+      timeSyncModeStr = "NotEnabled";
+      break;
+    case MetadataTimeSyncMode::Timecode:
+      timeSyncModeStr = "Timecode";
+      break;
+    case MetadataTimeSyncMode::Ntp:
+      timeSyncModeStr = "Ntp";
+      break;
+    case MetadataTimeSyncMode::TicSyncClient:
+      timeSyncModeStr = "TicSyncClient";
+      break;
+    case MetadataTimeSyncMode::TicSyncServer:
+      timeSyncModeStr = "TicSyncServer";
+      break;
+    default:
+      XR_LOGE("Unknown time sync mode: {}", int(timeSyncMode));
+      break;
+  }
+  return timeSyncModeStr;
+}
+
 inline void declareVrsDataProvider(py::module& m) {
   py::enum_<MetadataTimeSyncMode>(m, "MetadataTimeSyncMode")
       .value("NotEnabled", MetadataTimeSyncMode::NotEnabled)
@@ -161,6 +191,20 @@ inline void declareVrsDataProvider(py::module& m) {
       .value("TicSyncServer", MetadataTimeSyncMode::TicSyncServer);
   py::class_<VrsMetadata>(m, "VrsMetadata")
       .def(py::init<>())
+      .def(
+          "__repr__",
+          [](const VrsMetadata& self) {
+            std::ostringstream result;
+            result << "{device_serial: \"" << self.deviceSerial << "\", shared_session_id: \""
+                   << self.sharedSessionId << "\", recording_profile: \"" << self.recordingProfile
+                   << "\", time_sync_mode: " << "MetadataTimeSyncMode."
+                   << timeSyncModeStr(self.timeSyncMode) << ", device_id: \"" << self.deviceId
+                   << "\", filename: \"" << self.filename
+                   << "\", start_time_epoch_sec: " << self.startTimeEpochSec
+                   << ", end_time_epoch_sec: " << self.endTimeEpochSec
+                   << ", duration_sec: " << self.durationSec << "}";
+            return result.str();
+          })
       .def_readonly("device_serial", &VrsMetadata::deviceSerial)
       .def_readonly("shared_session_id", &VrsMetadata::sharedSessionId)
       .def_readonly("recording_profile", &VrsMetadata::recordingProfile)
