@@ -89,6 +89,18 @@ Check the [Project Aria Tools release log for the latest updates](https://github
 
 The [vrs_to_mp4](/data_utilities/advanced_code_snippets/vrs_to_mp4.mdx) script exports a VRS file to MP4 and was created to help researchers send files for review more easily. Please note, MP4 files will not contain the full sensor suite or the time stamps necessary to align with other recordings.
 
+#### Code samples
+* [VRS Mutation (C++)](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/samples/vrs_mutation/Readme.md)
+    * Create a copy of a VRS file that contains on the fly custom image modification (either from images in memory, or previously exported to disk):
+        * Export VRS Frames
+        * Modify the image frame
+            * Such as blur/annotate objects manually or with a script
+        * Create copy of the VRS file that includes the modifications
+* [Speech to Text (Python)](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/samples/python/automated_speech_recognition/Readme.md)
+    * Use [Faster Whisper](https://github.com/SYSTRAN/faster-whisper) to run Whisper Speech Recognition on an Aria audio stream. The ASR outputs are time aligned with Aria Device Time.
+* [Run EfficientSAM with Eye Gaze image reprojection as prompt (Python)](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/samples/python/SAM_eye_gaze_prompt/Readme.md)
+    * Use EfficientSAM to create image masks, based on eye gaze inference
+
 
 #### Aria Research Kit (ARK)
 
