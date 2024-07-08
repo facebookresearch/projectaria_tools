@@ -1130,6 +1130,11 @@ void AriaDigitalTwinDataProvider::loadMps() {
 }
 
 void AriaDigitalTwinDataProvider::checkQueryTimestampBounds(int64_t deviceTimeStampNs) const {
+  // Skip the check if 3D poses do not exist
+  if (!hasAria3dPoses()) {
+    return;
+  }
+
   int64_t startTimestampNs = getStartTimeNs();
   int64_t endTimestampNs = getEndTimeNs();
   if (deviceTimeStampNs < startTimestampNs || deviceTimeStampNs > endTimestampNs) {
