@@ -11,6 +11,80 @@ These SW Release notes are for the Aria Research Kit (ARK), and are for Meta SW 
 Our Open Source Project Aria Tools SW Release notes are posted to [Project Aria Tools GitHub repository](https://github.com/facebookresearch/projectaria_tools), using Tags > Releases.
 
 
+
+
+## Mobile Companion App v170 and Time Synchronized Recordings Between Multiple Project Aria Devices now available
+
+Dear Academic Partners,
+
+Mobile Companion app V170 and Aria OS **4970205.890.70** are now available. With the release of Aria OS 4970205.890.70, you can now create time synchronized recordings between multiple devices via the Client SDK.
+
+* Recent documentation improvements include:
+    * **Renamed** The Project Aria Tools documentation site has been renamed to reflect its broader scope, it’s now called Project Aria Docs. The Data Utilities section has been renamed to Project Aria Tools.
+    * **Updated** [Intro page](/intro.md) and [About ARK](/ARK/about_ARK.mdx)
+    * **New** [Project Aria FAQ](/faq.mdx)
+
+### Aria Client SDK (TICSync support and general improvements)
+
+Users can now use the Aria Client SDK to capture time-synchronized data between multiple Project Aria glasses (and potentially other devices) on the one Wi-Fi network via TICSync. Using the Aria hotspot feature, one pair of glasses (server) acts as a Wi-Fi access point that forms a network between all glasses. Time requests from all other glasses go to the server/leader device, creating a synchronized time reference.
+
+* [How to Create Time Synchronized Recordings with Multiple Aria Glasses](/ARK/sdk/ticsync.mdx)
+* [TICSync Code Snippet](/ARK/sdk/samples/ticsync_sample.mdx)
+* [TICSync Technical Details](/ARK/sdk/concepts/about_ticsync.mdx)
+
+To use TICSync you’ll need to:
+
+* Update to the Aria glasses OS 4970205.750.70, June 28 release
+    * Project Aria glasses OS should automatically update when plugged into power and connected to Wi-Fi. Go to [How to Update Your Aria Glasses’ OS](/ARK/troubleshooting/update_glasses_os.mdx) if you want to manually update your glasses.
+* Update to Aria Client SDK V1.1
+    * [Project Aria Client SDK and CLI Setup Guide](/ARK/sdk/setup.mdx)
+    * [Update to the latest version via PyPi](https://pypi.org/project/projectaria-client-sdk/)
+
+In addition:
+
+* The Aria Client SDK is now supported on Python 3.12
+* Wi-Fi connections to Aria glasses have been made more reliable by enabling sticky connection
+
+
+#### Known Issues
+
+* The Client SDK is a software developer kit. While we have created code samples to enable a range of features, we have not created fully fledged applications. We encourage people to make this code their own, and to use the code samples as a starting point.
+
+
+#### Bug Fixes
+
+* Information in error messages has been improved
+* Reliability of multiple Project Aria devices connected over USB has been improved
+
+
+### Mobile Companion app
+
+The Aria Mobile App v170 is now available. Follow the in-app prompt or go to the [Downloads page](https://facebookresearch.github.io/projectaria_tools/docs/ARK/ark_downloads) to get the latest version for Android. For iOS, select **Update** in the TestFlight app. Please update the app to access the latest bug fixes and finalized retheming of all app pages.
+
+
+### PROJECT ARIA LATEST OS
+
+The latest Project Aria OS build **4970205.890.70** (June 28, 2024).
+
+Project Aria glasses OS should automatically update when plugged into power and connected to Wi-Fi. Go to [How to Update Your Aria Glasses’ OS](https://facebookresearch.github.io/projectaria_tools/docs/ARK/troubleshooting/update_glasses_os) if you want to manually update your glasses.
+
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+If you encounter any problems using Project Aria support, please contact us. There are several ways for getting user support.
+
+We encourage you to post issues to GitHub, so that they can be tracked.
+
+
+* Post to [Project Aria Tools issues on GitHub](https://github.com/facebookresearch/projectaria_tools/issues)
+
+If you are a Research Partner with access to the Aria Research Kit there are several other support options available, although GitHub is ideal for bug reports and feature requests.
+
+* Post to [Academic Partners Feedback and Support workplace group](/ARK/workplacegroup.mdx) - discussion, feedback or user support
+* Post to Project Aria Discord - best for discussion, feedback or user support
+* Email AriaOps@meta.com - for feedback or user support
+
+
 ## Announcing Aria Research Kit v1.8 - Aria Studio (in beta today), TICSync (coming soon), improved vrs2mp4 conversion (available today)
 
 Dear Academic Partners: We’re excited to introduce Aria Research Kit V1.8, featuring Aria Studio (in beta today) and TICSync (coming soon). Aria Studio is a brand new browser-based application for managing your devices, recordings, and MPS jobs available today for Mac and Linux via pip install. TICSync will enable multiple Aria devices to be easily time synchronized and will be made available via pip install towards the end of June along with the next device OS update. We've also released improvements in the VRS_to_MP4 converter in Project Aria Tools to solve for audio and video synchronization issues.
