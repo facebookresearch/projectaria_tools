@@ -11,6 +11,47 @@ These SW Release notes are for the Aria Research Kit (ARK), and are for Meta SW 
 Our Open Source Project Aria Tools SW Release notes are posted to [Project Aria Tools GitHub repository](https://github.com/facebookresearch/projectaria_tools), using Tags > Releases.
 
 
+## Announcing Aria Research Kit v1.8 - Aria Studio (in beta today), TICSync (coming soon), improved vrs2mp4 conversion (available today)
+
+Dear Academic Partners: We’re excited to introduce Aria Research Kit V1.8, featuring Aria Studio (in beta today) and TICSync (coming soon). Aria Studio is a brand new browser-based application for managing your devices, recordings, and MPS jobs available today for Mac and Linux via pip install. TICSync will enable multiple Aria devices to be easily time synchronized and will be made available via pip install towards the end of June along with the next device OS update. We've also released improvements in the VRS_to_MP4 converter in Project Aria Tools to solve for audio and video synchronization issues.
+
+
+### Aria Studio (BETA)
+
+* Aria Studio is a new browser-based application we are releasing in beta for managing devices, recordings, and machine perception services jobs, designed for cross-platform support, easy update installation, stability, and a smooth user flow for MPS job submission.
+* Aria Studio offers an easy way to visualize both your recordings transferred to your machine and processed MPS results.
+* Aria Studio is based on the existing MPS CLI tool and everything possible in the MPS CLI tool will also be possible via Aria Studio.
+* Aria Studio is currently available on certain distributions of x64 Linux and Mac.
+* Go to the [Aria Studio documentation page](/ARK/aria_studio.mdx) for installation details.
+
+
+### Aria TICSync Support
+
+* Aria TICSync allows you to run millisecond-scale-accurate time-synchronized recordings for multi-view computer vision applications.
+* You can start time-synchronized recordings for multiple Aria devices via simple CLI commands with devices connected to a host machine
+* You can disconnect the Aria devices from the host machine and enable WiFi-based synchronization with one Aria device operating as a hotspot.
+* Aria TICSync functionality will be included with Aria SDK v1.1.0 available towards the end of June. Keep an eye out for another post when the installer is ready.
+* A Jupyter Notebook is available today with example code for how to work with and visualize time synchronized recordings for your learning and experimentation.
+* Go to the [TICSync documentation page](/ARK/sdk/ticsync.mdx) for details.
+
+
+### Project Aria Tools VRS to MP4 improvements
+
+* We've improved timing accuracy during export for audio and video syncing.
+* We updated the translator to include frame timestamps in the metadata.
+* Go to [Project Aria Tools 1.5.2 release notes](https://github.com/facebookresearch/projectaria_tools/releases) for details.
+
+
+### Feedback and Support
+
+If you encounter any problems using ARK v1.8, please contact us. There are several ways for getting user support.
+
+* Post to Academic Partners Feedback and Support workplace group
+* Post to Project Aria Discord
+* Email AriaOps@meta.com
+* You can always request a meeting through our ops team if you need more in-depth discussions requiring higher bandwidth.
+
+
 ## **Aria Mobile App v165 is now available**
 
 Dear Academic Partners,
