@@ -57,8 +57,9 @@ class Authenticator:
 
     """
 
-    def __init__(self, http_helper: HttpHelper):
+    def __init__(self, http_helper: HttpHelper, client_token: str = _CLIENT_TOKEN):
         self._http_helper: HttpHelper = http_helper
+        self._client_token: str = client_token
         self._auth_token: Optional[str] = None
         self._user_alias: Optional[str] = None
 
@@ -116,7 +117,7 @@ class Authenticator:
         # 1.1 Get public key
         response = await self._http_helper.post(
             url=_URL_ENCRYPTION_KEY,
-            auth_token=_CLIENT_TOKEN,
+            auth_token=self._client_token,
         )
         if "key_id" not in response or "public_key" not in response:
             raise AuthenticationError(
@@ -134,7 +135,7 @@ class Authenticator:
         try:
             response = await self._http_helper.post(
                 url=_URL_ACCOUNTS_LOGIN,
-                auth_token=_CLIENT_TOKEN,
+                auth_token=self._client_token,
                 json={
                     "contact_point": _get_email(username),
                     "password": encrypted_password,
