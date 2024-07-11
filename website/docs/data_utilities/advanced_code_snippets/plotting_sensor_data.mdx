@@ -8,11 +8,23 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 This tutorial shows how to plot Project Aria sensor data using Python. This example covers how to:
 
-* Save images as PNGs
-* Plot raw sensor data from a VRS file and store the plots in PDF files
-   * Data is plotted with `matplotlib`
+* [Save images as PNGs](#png)
+* Plot raw sensor data from a VRS file and store the plots in PDF files (data is plotted with [Matplotlib](https://matplotlib.org/))
+  * [Audio data](#audio)
+  * [IMU data](#imu)
+  * [Magnetometer](#magnetometer)
+  * [Barometer](#barometer)
+  * [GPS](#gps)
+  * [Wi-Fi beacon](#wi-fi-beacon)
+  * [Bluetooth beacon](#bluetooth-beacon)
 
-We start by opening a VRS file:
+:::tip Where are the sensors on the glasses?
+Use the [Aria Sensor Viewer](/data_utilities/visualization/visualization_python.mdx#run-aria-sensor-viewer) to get the relative position and orientation of most sensors
+:::
+
+## Getting started
+Use the `data_provider` to open the VRS file you want to work with.
+
 ```python
 from projectaria_tools.core import data_provider, image
 from projectaria_tools.core.stream_id import StreamId
@@ -21,8 +33,11 @@ vrsfile = "example.vrs"
 provider = data_provider.create_vrs_data_provider(vrsfile)
 ```
 
-### Save Images as PNGs
-Because we support converting image data to numpy arrays, images can be converted to PIL images and saved as PNG files.
+<div id="png"></div>
+
+## Save Images as PNGs
+Project Aria glasses store images in JPEG or RAW format. Project Aria Tools supports converting image data to numpy arrays. These images can then be converted to PIL images and saved as PNG files.
+
 ```python
 from PIL import Image
 stream_mappings = {
@@ -38,7 +53,7 @@ for [stream_name, stream_id] in stream_mappings.items():
     Image.fromarray(image[0].to_numpy_array()).save(f'{stream_name}.png')
 ```
 
-The above snippets will save the following images to the local folder:
+These snippets will save the following images to the local folder:
 <table>
         <tr>
             <td>SLAM images</td>
@@ -55,10 +70,48 @@ The above snippets will save the following images to the local folder:
         </tr>
 </table>
 
+## Plot raw sensor data
+### Audio
+Audio data can vary, depending on whether 7 or 2 spatial microphones were recording. Most recording profiles use 7 microphones.
+* 7 microphones 7x4096 data chunks
+* 2 microphones 2x2048 data chunks
 
-### Plotting IMU
+1. Load the audio data
+```python
+stream_id = provider.get_stream_id_from_label("mic")
+timestamps = []
+audio = [[] for c in range(0, 7)]
+for index in range(0, 2):
+  audio_data_i = provider.get_audio_data_by_index(stream_id, index)
+  audio_signal_block = audio_data_i[0].data
+  timestamps_block = [t * 1e-9 for t in audio_data_i[1].capture_timestamps_ns];
+  timestamps += timestamps_block
+  for c in range(0, 7):
+    audio[c] += audio_signal_block[c::7]
+```
+2. Plot the data with `matplotlib`
+```python
+plt.figure()
+fig, axes = plt.subplots(1, 1, figsize=(12, 5))
+fig.suptitle(f"Microphone signal")
+for c in range(0, 7):
+  plt.plot(timestamps, audio[c], '-', label = f"channel {c}")
+axes.legend(loc='upper left')
+axes.grid('on')
+axes.set_xlabel('timestamps (s)')
+axes.set_ylabel('audio readout')
+plt.savefig("audio.pdf", format="pdf", bbox_inches="tight")
+```
+
+![Image](/img//data_utilities/advanced_guide/audio.png)
+
+### IMU
 
 We recommend using [Trajectory MPS outputs](/data_formats/mps/slam/mps_trajectory.mdx) instead of raw IMU data wherever possible. There may be instances, however, when you need to work directly with the IMU data.
+
+Project Aria glasses have two IMUs. They operate at different rates, so that any errors do not align.
+* IMU (1kHz) - `imu-right`
+* IMU (800Hz) - `imu-left`
 
 1. Organize the data into 6 lists. Each list stores one axis of a specific IMU.
 
@@ -145,38 +198,6 @@ plt.savefig("mag.pdf", format="pdf", bbox_inches="tight")
 ```
 
 ![Image](/img//data_utilities/advanced_guide/mag.png)
-
-### Audio
-Audio data is interesting since each data is in fact a 7x4096 chunk
-
-1. Load the audio data
-```python
-stream_id = provider.get_stream_id_from_label("mic")
-timestamps = []
-audio = [[] for c in range(0, 7)]
-for index in range(0, 2):
-  audio_data_i = provider.get_audio_data_by_index(stream_id, index)
-  audio_signal_block = audio_data_i[0].data
-  timestamps_block = [t * 1e-9 for t in audio_data_i[1].capture_timestamps_ns];
-  timestamps += timestamps_block
-  for c in range(0, 7):
-    audio[c] += audio_signal_block[c::7]
-```
-2. Plot the data with `matplotlib`
-```python
-plt.figure()
-fig, axes = plt.subplots(1, 1, figsize=(12, 5))
-fig.suptitle(f"Microphone signal")
-for c in range(0, 7):
-  plt.plot(timestamps, audio[c], '-', label = f"channel {c}")
-axes.legend(loc='upper left')
-axes.grid('on')
-axes.set_xlabel('timestamps (s)')
-axes.set_ylabel('audio readout')
-plt.savefig("audio.pdf", format="pdf", bbox_inches="tight")
-```
-
-![Image](/img//data_utilities/advanced_guide/audio.png)
 
 ### Barometer
 
