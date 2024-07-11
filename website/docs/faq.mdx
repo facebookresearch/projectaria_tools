@@ -51,7 +51,7 @@ While some tools run on other platforms, when developing desktop tools we primar
 
 * x64 Linux distributions of:
     * Fedora 36, 37, 38
-    * Ubuntu jammy (22.04 LTS) and focal (20.04 LTS)
+    * Ubuntu Jammy (22.04 LTS) and Focal (20.04 LTS)
 * Mac Intel or Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
 
 To use the Python version of our tools, you'll generally need Python 3.9+ (3.10+ if you are on [Apple Silicon](https://support.apple.com/en-us/116943)). [Venv](https://docs.python.org/3/library/venv.html) virtual environments are used and tested for most applications, in most instances Conda should also work, with the exception of the Project Aria Client SDK.
@@ -87,7 +87,7 @@ Check the [Project Aria Tools release log for the latest updates](https://github
 
 #### Data Review
 
-The [vrs_to_mp4](/data_utilities/advanced_code_snippets/vrs_to_mp4.mdx) script exports a VRS file to MP4 and was created to help researchers send files for review more easily. Please note, MP4 files will not contain the full sensor suite or the time stamps necessary to align with other recordings.
+The [vrs_to_mp4](/data_utilities/advanced_code_snippets/vrs_to_mp4.mdx) script exports a VRS file to MP4 and was created to help researchers send files for review more easily. Please note, MP4 files will not contain the full sensor suite.
 
 #### Code samples
 * [VRS Mutation (C++)](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/samples/vrs_mutation/Readme.md)
@@ -136,7 +136,7 @@ If you're using iOS:
 
 #### Project Aria Client SDK with CLI
 
-Through the Client SDK with CLI, you can directly interact with Aria glasses and stream data from the glasses to a computer. Not supported on Ubuntu focal.
+Through the Client SDK with CLI, you can directly interact with Aria glasses and stream data from the glasses to a computer. Not supported on Ubuntu Focal (20.04 LTS).
 
 After connecting the Project Aria glasses and PC via USB or WiFi, the SDK enables users to:
 
@@ -152,7 +152,7 @@ You will need to install the Client SDK with CLI using a venv virtual environmen
 
 #### MPS CLI
 
-Accessed via the PyPi installation of Project Aria Tools, the [Project Aria MPS Command Line Interface (MPS CLI)](/ARK/mps/request_mps/mps_cli.mdx) provides a streamlined way to request [Machine Perception Services (MPS)](/ARK/mps/mps.mdx):
+Accessed via the PyPI installation of Project Aria Tools, the [Project Aria MPS Command Line Interface (MPS CLI)](/ARK/mps/request_mps/mps_cli.mdx) provides a streamlined way to request [Machine Perception Services (MPS)](/ARK/mps/mps.mdx):
 
 * Request [SLAM](/data_formats/mps/slam/slam.mdx), [Eye Gaze](/data_formats/mps/mps_eye_gaze.mdx) and [Hand Tracking](/data_formats/mps/hand_tracking/hand_tracking.mdx) data
 * Request [Multi-Sequence SLAM data](/data_formats/mps/slam/mps_multi_slam.mdx)

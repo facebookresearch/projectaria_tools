@@ -6,7 +6,8 @@ title: Python Package Installation
 # How to Install the Python Package for Project Aria Tools
 
 This page provides information about how to install the Python utilities using a virtual environment or from source. We recommend that only advanced users install from source.
-For details on the python type hinting, please refer to [python type hinting page](/docs/data_utilities/installation/type_hinting)
+
+Go to the [Python Type Annotation page](/docs/data_utilities/installation/type_hinting) for how to enable type hinting.
 
 ## Install via virtual environment
 ### Step 1 : Install Python
@@ -28,9 +29,9 @@ source $HOME/projectaria_tools_python_env/bin/activate
 ###  Step 3 : Install the required Python packages
 
 ```bash
-pip3 install --upgrade pip
+python3 -m pip --upgrade pip
 
-pip3 install projectaria-tools'[all]'
+python3 -m pip install projectaria-tools'[all]'
 ```
 ### Step 4 : Use Project Aria Tools
 A few resources are:
@@ -51,9 +52,9 @@ You'll need to install C++ dependencies to build Python bindings from source.
 ```bash
 cd $HOME/Documents/projectaria_sandbox/projectaria_tools
 
-pip3 install --upgrade pip
+python3 -m pip install --upgrade pip
 
-pip3 install .
+python3 -m pip install .
 ```
 
 :::info
@@ -61,18 +62,18 @@ For multithread build use the following:
 - `CMAKE_BUILD_PARALLEL_LEVEL=4 pip3 install .`
 
 If you encounter error during the build process like `ERROR: No matching distribution found for library X`:
-- Double check that you are using the right pip, or python version and then use `python -m pip install .` or `python3 -m pip install .`
+- Double check that you are using the right pip, or Python version and then use `python -m pip install .` or `python3 -m pip install .`
 :::
 
 ## Generate and install type hinting from source (advanced user)
 1. Install pybind11-stubgen to generate the stub files
-2. Generate python type hinting with generate_stubs.py script once projectaria_tools package is installed
+2. Generate Python type hinting with generate_stubs.py script once projectaria_tools package is installed
 3. Install type hinting package for projectaria_tools
 ```bash
-pip3 install pybind11-stubgen==1.1
+python3 -m pip install pybind11-stubgen==1.1
 
 cd $HOME/Documents/projectaria_sandbox/projectaria_tools
 python3 generate_stubs.py
 cp -r projectaria_tools-stubs/projectaria_tools .
-pip3 install .
+python3 -m pip install .
 ```
