@@ -25,10 +25,24 @@ using namespace projectaria::tools::mps;
 
 static const std::string testDataFolder = XSTRING(TEST_FOLDER);
 
-TEST(mps_wrist_and_palm_valid_file, reader) {
+TEST(mps_wrist_and_palm_valid_legacy_file, reader) {
   const auto wristAndPalmPoses =
       readWristAndPalmPoses(testDataFolder + "mps_sample/hand_tracking/wrist_and_palm_poses.csv");
   EXPECT_GT(wristAndPalmPoses.size(), 0);
+  EXPECT_TRUE(wristAndPalmPoses.at(0).leftHand.has_value());
+  EXPECT_FALSE(wristAndPalmPoses.at(0).leftHand.value().wristAndPalmNormal_device.has_value());
+  EXPECT_TRUE(wristAndPalmPoses.at(0).rightHand.has_value());
+  EXPECT_FALSE(wristAndPalmPoses.at(0).rightHand.value().wristAndPalmNormal_device.has_value());
+}
+
+TEST(mps_wrist_and_palm_valid_v2_file, reader) {
+  const auto wristAndPalmPoses = readWristAndPalmPoses(
+      testDataFolder + "mps_sample/hand_tracking/wrist_and_palm_poses_v2.csv");
+  EXPECT_GT(wristAndPalmPoses.size(), 0);
+  EXPECT_TRUE(wristAndPalmPoses.at(0).leftHand.has_value());
+  EXPECT_TRUE(wristAndPalmPoses.at(0).leftHand.value().wristAndPalmNormal_device.has_value());
+  EXPECT_TRUE(wristAndPalmPoses.at(0).rightHand.has_value());
+  EXPECT_TRUE(wristAndPalmPoses.at(0).rightHand.value().wristAndPalmNormal_device.has_value());
 }
 
 TEST(mps_wrist_and_palm_tracking_invalid_file, loader) {

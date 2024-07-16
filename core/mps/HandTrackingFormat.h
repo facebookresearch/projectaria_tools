@@ -32,12 +32,22 @@ struct fmt::formatter<projectaria::tools::mps::WristAndPalmPose::OneSide>
   auto format(
       const projectaria::tools::mps::WristAndPalmPose::OneSide& oneSideWristAndPalmPose,
       FormatContext& ctx) const {
-    return fmt::format_to(
-        ctx.out(),
-        "WristAndPalmPose::OneSide(confidence: {}, wrist: {}, palm: {})",
+    // Start the message with basic info that's guaranteed to be there
+    std::string msg = fmt::format(
+        "WristAndPalmPose::OneSide(confidence: {}, wrist: {}, palm: {}",
         oneSideWristAndPalmPose.confidence,
         oneSideWristAndPalmPose.wristPosition_device,
         oneSideWristAndPalmPose.palmPosition_device);
+    // Add optional palm normal field
+    if (oneSideWristAndPalmPose.wristAndPalmNormal_device.has_value()) {
+      msg = fmt::format(
+          "{}, palmNormal: {}, wristNormal: {}",
+          msg,
+          oneSideWristAndPalmPose.wristAndPalmNormal_device.value().palmNormal_device,
+          oneSideWristAndPalmPose.wristAndPalmNormal_device.value().wristNormal_device);
+    }
+    // Finally close up the bracket
+    return fmt::format_to(ctx.out(), "{})", msg);
   }
 };
 

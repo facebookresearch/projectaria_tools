@@ -37,6 +37,11 @@ struct WristAndPalmPose {
     double confidence;
     Eigen::Vector3d wristPosition_device;
     Eigen::Vector3d palmPosition_device;
+    struct WristAndPalmNormals {
+      Eigen::Vector3d palmNormal_device;
+      Eigen::Vector3d wristNormal_device;
+    };
+    std::optional<WristAndPalmNormals> wristAndPalmNormal_device;
   };
   std::chrono::microseconds trackingTimestamp; /**< The timestamp of the wrist and palm tracking
                                                   measurement in device time domain */
