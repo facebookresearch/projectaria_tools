@@ -24,6 +24,8 @@
 #include <mps/PointObservationReader.h>
 #include <mps/TrajectoryReaders.h>
 
+#include <sophus/interpolate.hpp>
+
 #define DEFAULT_LOG_CHANNEL "MpsDataProvider"
 #include <logging/Log.h>
 
@@ -164,6 +166,68 @@ std::optional<ClosedLoopTrajectoryPose> MpsDataProvider::getClosedLoopPose(
   auto iter = data_provider::queryMapByTimestamp<ClosedLoopTrajectoryPose>(
       closedLoopPoses_, deviceTimeStampNs, timeQueryOptions);
   return iter == closedLoopPoses_.end() ? std::optional<ClosedLoopTrajectoryPose>() : iter->second;
+}
+
+std::optional<ClosedLoopTrajectoryPose> MpsDataProvider::getInterpolatedClosedLoopPose(
+    int64_t deviceTimeStampNs) {
+  // Query for the pose before and after the query timestamp
+  auto poseBefore = getClosedLoopPose(deviceTimeStampNs, TimeQueryOptions::Before);
+  auto poseAfter = getClosedLoopPose(deviceTimeStampNs, TimeQueryOptions::After);
+
+  // Check for before and after pose availability
+  if (!poseBefore.has_value() && !poseAfter.has_value()) {
+    std::string error = fmt::format(
+        "Query before and after timestamp {} returns empty results, data is likely corrupted",
+        deviceTimeStampNs);
+    XR_LOGE("{}", error);
+    throw std::runtime_error{error};
+  }
+
+  if (!poseBefore.has_value() || !poseAfter.has_value()) {
+    // query before the beginning of traj or after the end
+    return {};
+  } else if (poseBefore->trackingTimestamp == poseAfter->trackingTimestamp) {
+    // Exact match
+    return poseBefore.value();
+  } else {
+    // needs interpolation
+    // where alpha = (deviceTimeStampNs - beforeTime) / (AfterTime - BeforeTime)
+    int64_t beforeTimeNs =
+        std::chrono::duration_cast<std::chrono::nanoseconds>(poseBefore->trackingTimestamp).count();
+    int64_t afterTimeNs =
+        std::chrono::duration_cast<std::chrono::nanoseconds>(poseAfter->trackingTimestamp).count();
+    double alpha = static_cast<double>(deviceTimeStampNs - beforeTimeNs) /
+        static_cast<double>(afterTimeNs - beforeTimeNs);
+
+    ClosedLoopTrajectoryPose resultPose;
+    resultPose.trackingTimestamp = std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::nanoseconds(deviceTimeStampNs));
+    resultPose.graphUid = poseBefore->graphUid;
+
+    // Interpolate pose
+    resultPose.T_world_device =
+        Sophus::interpolate(poseBefore->T_world_device, poseAfter->T_world_device, alpha);
+
+    // Interpolate utc timestamp
+    int64_t utcTimeBefore = poseBefore->utcTimestamp.count();
+    int64_t utcTimeAfter = poseAfter->utcTimestamp.count();
+    int64_t interpolatedUtcTime =
+        static_cast<int64_t>(utcTimeBefore + alpha * (utcTimeAfter - utcTimeBefore));
+    resultPose.utcTimestamp = std::chrono::nanoseconds(interpolatedUtcTime);
+
+    // Quality score is taken as the lower of the two
+    resultPose.qualityScore = std::min(poseBefore->qualityScore, poseAfter->qualityScore);
+
+    // Interpolate all other vectors
+    resultPose.angularVelocity_device = poseBefore->angularVelocity_device +
+        alpha * (poseAfter->angularVelocity_device - poseBefore->angularVelocity_device);
+    resultPose.deviceLinearVelocity_device = poseBefore->deviceLinearVelocity_device +
+        alpha * (poseAfter->deviceLinearVelocity_device - poseBefore->deviceLinearVelocity_device);
+    resultPose.gravity_world =
+        poseBefore->gravity_world + alpha * (poseAfter->gravity_world - poseBefore->gravity_world);
+
+    return resultPose;
+  }
 }
 
 std::optional<OnlineCalibration> MpsDataProvider::getOnlineCalibration(

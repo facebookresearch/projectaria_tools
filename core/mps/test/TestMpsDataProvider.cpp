@@ -97,3 +97,27 @@ TEST(AeaDataProvider, DataQuerying) {
   EXPECT_FALSE(maybeEyeGaze.has_value());
   EXPECT_FALSE(maybeOnlineCalib.has_value());
 }
+
+TEST(AeaDataProvider, InterpolatedPoseQuerying) {
+  const auto dataPathsProvider = MpsDataPathsProvider(mpsRootFolder);
+  const auto dataPaths = dataPathsProvider.getDataPaths();
+  auto dp = MpsDataProvider(dataPaths);
+  EXPECT_TRUE(dp.hasClosedLoopPoses());
+
+  // Test for case where query before the first timestamp
+  auto maybeOpenLoopPose = dp.getInterpolatedClosedLoopPose(0);
+  EXPECT_FALSE(maybeOpenLoopPose.has_value());
+
+  // Test for case where query after the last timestamp
+  maybeOpenLoopPose = dp.getInterpolatedClosedLoopPose(9999999999 * 1e3);
+  EXPECT_FALSE(maybeOpenLoopPose.has_value());
+
+  // Test for case where query is exactly at one timestamp
+  maybeOpenLoopPose = dp.getInterpolatedClosedLoopPose(149202610 * 1e3);
+  EXPECT_TRUE(maybeOpenLoopPose.has_value());
+  EXPECT_EQ(maybeOpenLoopPose->trackingTimestamp.count(), 149202610);
+  EXPECT_TRUE(maybeOpenLoopPose->deviceLinearVelocity_device.isApprox(
+      Eigen::Vector3d(0.038913, -0.322935, 0.242351), 1e-4));
+
+  // TODO: Test for cases of interpolation between 149203459 ad 149204459
+}

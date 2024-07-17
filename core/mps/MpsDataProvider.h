@@ -140,6 +140,15 @@ class MpsDataProvider {
       const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Closest);
 
   /**
+   * @brief Query MPS for ClosedLoopTrajectoryPose at a specific timestamp, and return interpolated
+   * pose.
+   * @param deviceTimeStampNs The query timestamp in `TimeDomain::DeviceTime`.
+   * @return optional ClosedLoopTrajectoryPose, will return invalid if the query is
+   * out of bound
+   */
+  std::optional<ClosedLoopTrajectoryPose> getInterpolatedClosedLoopPose(int64_t deviceTimeStampNs);
+
+  /**
    * @brief Query MPS for OnlineCalibration at a specific timestamp. This will throw an exception if
    * online calibration data is not available. Check for data availability first using
    * `hasOnlineCalibrations()`

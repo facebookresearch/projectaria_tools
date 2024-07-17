@@ -596,6 +596,7 @@ void exportMps(py::module& m) {
           "first using `has_closed_loop_poses()`",
           py::arg("device_timestamp_ns"),
           py::arg("time_query_options") = TimeQueryOptions::Closest)
+      // TODO: add get_interpolated_closed_loop_pose
       .def(
           "get_online_calibration",
           &MpsDataProvider::getOnlineCalibration,
