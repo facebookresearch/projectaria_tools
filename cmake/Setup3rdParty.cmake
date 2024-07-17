@@ -17,13 +17,13 @@ include(FetchContent) # once in the project to include the module
 FetchContent_Declare(
   Dispenso
   GIT_REPOSITORY      https://github.com/facebookincubator/dispenso.git
-  GIT_TAG             9360e1e214a4a295e44174d7703676a94d9ebfce # v1.1.0
+  GIT_TAG             d56d92ed814d44f727812434142959a5d0e6db79 # v1.3.0
 )
 
 FetchContent_Declare(
   vrs
   GIT_REPOSITORY  https://github.com/facebookresearch/vrs.git
-  GIT_TAG        e8ef307247d4c4ee7f736672b7419f6fd5340396 # master Aug 4, 2023. V 1.1.0
+  GIT_TAG        85ad9ed537fe8c3eb1c7e5e1dedb20d68715d972 # master July 15, 2024.
 )
 # Override config for vrs
 option(UNIT_TESTS OFF)
@@ -52,7 +52,7 @@ add_definitions("-DSOPHUS_DISABLE_ENSURES")
 FetchContent_Declare(
   cli11
   GIT_REPOSITORY https://github.com/CLIUtils/CLI11
-  GIT_TAG        v2.3.2
+  GIT_TAG        v2.4.2
 )
 
 
