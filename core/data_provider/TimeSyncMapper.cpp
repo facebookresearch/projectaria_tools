@@ -20,6 +20,8 @@
 #define DEFAULT_LOG_CHANNEL "TimeSyncMapper"
 #include <logging/Log.h>
 
+#include <algorithm>
+
 namespace projectaria::tools::data_provider {
 
 TimeSyncMapper::TimeSyncMapper(
