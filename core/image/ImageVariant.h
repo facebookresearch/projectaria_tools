@@ -65,7 +65,7 @@ using ManagedImageVariant = std::variant<
     ManagedImage4F32,
     ManagedImageU64>;
 
-using PixelValueVariant = std::variant<uint8_t, float, uint16_t, uint64_t, Eigen::half>;
+using PixelValueVariant = std::variant<float, uint8_t, uint16_t, uint64_t, Eigen::half>;
 /**
  * @brief Returns the pixel at specified coordinate in an image
  * @param imageVariant the input image
@@ -133,7 +133,7 @@ struct PixelVisitor {
 
   template <class T, int M, int D>
   PixelValueVariant operator()(
-      const projectaria::tools::image::Image<Eigen::Matrix<T, D, 1>, M>& image) const {
+      const projectaria::tools::image::Image<Eigen::Matrix<T, D, 1, 0, D, 1>, M>& image) const {
     if (channel < 0 || channel >= D) {
       throw std::runtime_error("Channel value out of range");
     }
