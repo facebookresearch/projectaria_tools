@@ -32,7 +32,7 @@ static const std::string testDataFolder = XSTRING(TEST_FOLDER);
 static const std::string mpsRootFolder = testDataFolder + "mps_sample";
 static const std::string vrsPath = testDataFolder + "sample.vrs";
 
-TEST(AeaDataPathsProvider, PathsAPI) {
+TEST(MpsDataPathsProvider, PathsAPI) {
   const auto dataPathsProvider = MpsDataPathsProvider(mpsRootFolder);
   const auto dataPaths = dataPathsProvider.getDataPaths();
 
@@ -48,7 +48,7 @@ TEST(AeaDataPathsProvider, PathsAPI) {
   EXPECT_TRUE(fs::exists(dataPaths.handTracking.summary));
 }
 
-TEST(AeaDataProvider, DataExists) {
+TEST(MpsDataProvider, DataExists) {
   const auto dataPathsProvider = MpsDataPathsProvider(mpsRootFolder);
   const auto dataPaths = dataPathsProvider.getDataPaths();
   const auto dp = MpsDataProvider(dataPaths);
@@ -63,7 +63,7 @@ TEST(AeaDataProvider, DataExists) {
   EXPECT_TRUE(dp.hasWristAndPalmPoses());
 }
 
-TEST(AeaDataProvider, DataQuerying) {
+TEST(MpsDataProvider, DataQuerying) {
   const auto dataPathsProvider = MpsDataPathsProvider(mpsRootFolder);
   const auto dataPaths = dataPathsProvider.getDataPaths();
   auto dp = MpsDataProvider(dataPaths);
@@ -98,7 +98,7 @@ TEST(AeaDataProvider, DataQuerying) {
   EXPECT_FALSE(maybeOnlineCalib.has_value());
 }
 
-TEST(AeaDataProvider, InterpolatedPoseQuerying) {
+TEST(MpsDataProvider, InterpolatedPoseQuerying) {
   const auto dataPathsProvider = MpsDataPathsProvider(mpsRootFolder);
   const auto dataPaths = dataPathsProvider.getDataPaths();
   auto dp = MpsDataProvider(dataPaths);
@@ -119,5 +119,5 @@ TEST(AeaDataProvider, InterpolatedPoseQuerying) {
   EXPECT_TRUE(maybeOpenLoopPose->deviceLinearVelocity_device.isApprox(
       Eigen::Vector3d(0.038913, -0.322935, 0.242351), 1e-4));
 
-  // TODO: Test for cases of interpolation between 149203459 ad 149204459
+  // TODO: Test for cases of interpolation between 149203459 and 149204459
 }
