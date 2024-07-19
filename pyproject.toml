@@ -14,6 +14,10 @@ build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel.linux]
 before-build='''
+# Update the mirror list for Centos mirror deprecation
+sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+
 # Install system deps
 # Toolchains
 yum install -y cmake git gtest-devel \
