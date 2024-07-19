@@ -113,7 +113,8 @@ class MpsResult:
     fbid: int
     cdn_url: str
     result_type: str
-    file_hash: str
+    recording_hash: str
+    recording_name: Optional[str] = None
 
 
 @dataclass

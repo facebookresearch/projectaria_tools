@@ -25,6 +25,8 @@ from .constants import (
     KEY_MPS_RESULTS,
     KEY_NAME,
     KEY_NODES,
+    KEY_RECORDING_HASH,
+    KEY_RECORDING_NAME,
     KEY_RECORDINGS,
     KEY_REMAINING_TTL,
     KEY_RESULT_TYPE,
@@ -96,7 +98,13 @@ class ResponseParser:
                     fbid=resp["id"],
                     result_type=MpsResultType(resp[KEY_RESULT_TYPE]),
                     cdn_url=resp[KEY_CDN_URL],
-                    file_hash=resp[KEY_FILE_HASH],
+                    recording_hash=(
+                        resp[KEY_RECORDING_HASH]
+                        if KEY_RECORDING_HASH in resp
+                        # try to use deprecated value as a fallback
+                        else resp[KEY_FILE_HASH]
+                    ),
+                    recording_name=resp.get(KEY_RECORDING_NAME),
                 )
             )
         return mps_results

@@ -229,7 +229,7 @@ class RequestMonitorModel:
             results = [
                 r
                 for r in self._feature_request.results
-                if r.file_hash == rec.file_hash
+                if r.recording_hash == rec.file_hash
                 and r.result_type in RESULT_TYPES_BY_FEATURE[feature]
             ]
             if len(results) != 1:
@@ -296,7 +296,7 @@ class RequestMonitorModel:
                     r
                     for r in self._feature_request.results
                     if r.result_type == MpsResultType.SUMMARY
-                    and r.file_hash == str(self._feature_request.fbid)
+                    and r.recording_hash == str(self._feature_request.fbid)
                 ),
                 None,
             )
