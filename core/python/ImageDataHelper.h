@@ -26,8 +26,8 @@ namespace projectaria::tools::image {
 namespace py = pybind11;
 
 using PyArrayVariant = std::variant<
-    py::array_t<uint8_t>,
     py::array_t<float>,
+    py::array_t<uint8_t>,
     py::array_t<uint16_t>,
     py::array_t<uint64_t>,
     py::array_t<Eigen::half>>;
@@ -44,16 +44,16 @@ struct PyArrayVariantVisitor {
     size_t width = image.width();
     size_t height = image.height();
     size_t stride = image.pitch();
-    return PyArrayVariant{py::array_t<T>({height, width}, {stride, sizeof(T)}, (T*)(image.data()))};
+    return {py::array_t<T>({height, width}, {stride, sizeof(T)}, (T*)(image.data()))};
   }
   template <class T, int M, int D>
   PyArrayVariant operator()(
-      const projectaria::tools::image::Image<Eigen::Matrix<T, D, 1>, M>& image) const {
+      const projectaria::tools::image::Image<Eigen::Matrix<T, D, 1, 0, D, 1>, M>& image) const {
     size_t width = image.width();
     size_t height = image.height();
     size_t stride = image.pitch();
     size_t channel = D;
-    return PyArrayVariant{py::array_t<T>(
+    return {py::array_t<T>(
         {height, width, channel}, {stride, channel * sizeof(T), sizeof(T)}, (T*)(image.data()))};
   }
 };
