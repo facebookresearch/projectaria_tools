@@ -24,6 +24,7 @@ from .base_state_machine import BaseStateMachine
 from .common import Config
 from .constants import ConfigKey, ConfigSection, DisplayStatus, ErrorCode
 from .downloader import Downloader
+from .graphql_query import GraphQLQueryExecutor
 from .http_helper import HttpHelper
 from .types import (
     AriaRecording,
@@ -142,6 +143,7 @@ class RequestMonitorModel:
         self._recordings: Sequence[AriaRecording] = recordings
         self._feature_request: MpsFeatureRequest = feature_request
         self._http_helper: HttpHelper = http_helper
+        self._query_exec: GraphQLQueryExecutor = GraphQLQueryExecutor(http_helper)
         self._progress: float = 0.0
         self._error_code: Optional[int] = None
         self._downloaders: Dict[Path, Downloader] = {}
@@ -212,7 +214,7 @@ class RequestMonitorModel:
         )
         while self._feature_request.is_pending():
             await asyncio.sleep(status_check_interval)
-            self._feature_request = await self._http_helper.query_feature_request(
+            self._feature_request = await self._query_exec.query_feature_request(
                 self._feature_request.fbid
             )
 

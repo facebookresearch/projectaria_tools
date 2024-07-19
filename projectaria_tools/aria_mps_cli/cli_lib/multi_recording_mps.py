@@ -18,6 +18,7 @@ from typing import Awaitable, Callable, List, Mapping, Optional, Union
 
 from .common import log_exceptions
 from .constants import DisplayStatus, ErrorCode
+from .graphql_query import GraphQLQueryExecutor
 from .http_helper import HttpHelper
 from .multi_recording_request import MultiRecordingModel, MultiRecordingRequest
 from .request_monitor import RequestMonitor, RequestMonitorModel
@@ -51,7 +52,7 @@ class MultiRecordingMps:
         self._output_dir: Path = output_dir
         self._force: bool = force
         self._retry_failed: bool = retry_failed
-        self._http_helper: HttpHelper = http_helper
+        self._query_exec: GraphQLQueryExecutor = GraphQLQueryExecutor(http_helper)
         self._requestor: MultiRecordingRequest = requestor
         self._request_monitor: RequestMonitor = request_monitor
         self._source: MpsRequestSource = source
@@ -128,7 +129,7 @@ class MultiRecordingMps:
             # The feature request was identified as a new request and needs to be
             # submitted
             try:
-                request: MpsRequest = await self._http_helper.submit_request(
+                request: MpsRequest = await self._query_exec.submit_request(
                     name=self._name or f"{MpsFeature.MULTI_SLAM.name} request",
                     recording_ids=[rec.fbid for rec in self._model.recordings],
                     features=[MpsFeature.MULTI_SLAM],

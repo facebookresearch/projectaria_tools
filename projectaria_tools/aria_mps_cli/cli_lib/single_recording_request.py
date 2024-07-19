@@ -24,6 +24,7 @@ from .base_state_machine import BaseStateMachine
 from .common import Config, CustomAdapter
 from .constants import ConfigKey, ConfigSection, DisplayStatus, ErrorCode
 from .encryption import VrsEncryptor
+from .graphql_query import GraphQLQueryExecutor
 from .hash_calculator import HashCalculator
 from .health_check import HealthCheckRunner, is_eligible
 from .http_helper import HttpHelper
@@ -93,6 +94,7 @@ class SingleRecordingRequest(BaseStateMachine):
 
     def __init__(self, http_helper: HttpHelper, **kwargs):
         self._http_helper: HttpHelper = http_helper
+        self._query_exec: GraphQLQueryExecutor = GraphQLQueryExecutor(http_helper)
         self._encryption_key: str = None
         self._key_id: str = None
         super().__init__(
@@ -114,7 +116,7 @@ class SingleRecordingRequest(BaseStateMachine):
         Add new recording to the state machine
         """
         if not self._encryption_key and not self._key_id:
-            key, id = await self._http_helper.query_encryption_key()
+            key, id = await self._query_exec.query_encryption_key()
             self._encryption_key, self._key_id = key, id
 
         model = SingleRecordingModel(
@@ -171,6 +173,7 @@ class SingleRecordingModel:
         # We modify the features set to remove the ones that are not eligible or already
         # processed. So we cache the features originally requested
         self._http_helper: HttpHelper = http_helper
+        self._query_exec: GraphQLQueryExecutor = GraphQLQueryExecutor(http_helper)
         self._force: bool = force
         self._suffix: Optional[str] = suffix
         self._retry_failed: bool = retry_failed
@@ -310,7 +313,7 @@ class SingleRecordingModel:
             # check if there are any existing requests with this file hash
             # Once T190464177 lands, we can filter by file hash and feature
             past_requested_features: List[MpsFeatureRequest] = (
-                await self._http_helper.query_mps_requested_features_by_file_hash(
+                await self._query_exec.query_mps_requested_features_by_file_hash(
                     self._recording.file_hash
                 )
             )
@@ -360,7 +363,7 @@ class SingleRecordingModel:
     async def on_enter_PAST_RECORDING_CHECK(self, event: EventData) -> None:
         self._logger.debug(event)
         recording_fbid: Optional[int] = await check_if_already_uploaded(
-            self._recording.file_hash, self._http_helper
+            file_hash=self._recording.file_hash, query_exec=self._query_exec
         )
         if recording_fbid:
             self._logger.info(f"Found an existing recording with id {recording_fbid}")

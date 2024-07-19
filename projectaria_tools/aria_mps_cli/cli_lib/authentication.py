@@ -25,6 +25,7 @@ from Crypto.Random import get_random_bytes
 
 from .common import retry
 from .constants import AUTH_TOKEN_FILE
+from .graphql_query import GraphQLQueryExecutor
 from .http_helper import HttpHelper
 
 logger = logging.getLogger(__name__)
@@ -59,6 +60,7 @@ class Authenticator:
 
     def __init__(self, http_helper: HttpHelper, client_token: str = _CLIENT_TOKEN):
         self._http_helper: HttpHelper = http_helper
+        self._query_exec: GraphQLQueryExecutor = GraphQLQueryExecutor(http_helper)
         self._client_token: str = client_token
         self._auth_token: Optional[str] = None
         self._user_alias: Optional[str] = None
@@ -250,7 +252,7 @@ class Authenticator:
         """
         try:
             ## This will throw if the token is invalid
-            return await self._http_helper.query_me(auth_token=self._auth_token)
+            return await self._query_exec.query_me(auth_token=self._auth_token)
         except Exception:
             logger.warning("Token is invalid.")
             return None

@@ -19,6 +19,7 @@ from typing import Awaitable, Callable, List, Mapping, Optional, Set, Union
 
 from .common import log_exceptions
 from .constants import DisplayStatus, ErrorCode
+from .graphql_query import GraphQLQueryExecutor
 from .http_helper import HttpHelper
 from .request_monitor import RequestMonitor, RequestMonitorModel
 from .single_recording_request import SingleRecordingModel, SingleRecordingRequest
@@ -52,7 +53,7 @@ class SingleRecordingMps:
         self._features: Set[MpsFeature] = features
         self._force: bool = force
         self._retry_failed: bool = retry_failed
-        self._http_helper: HttpHelper = http_helper
+        self._query_exec: GraphQLQueryExecutor = GraphQLQueryExecutor(http_helper)
         self._requestor: SingleRecordingRequest = requestor
         self._request_monitor: RequestMonitor = request_monitor
         self._source: MpsRequestSource = source
@@ -179,7 +180,7 @@ class SingleRecordingMps:
             # Submit the request
             try:
                 model = next(iter(models_to_submit))
-                mps_request: MpsRequest = await self._http_helper.submit_request(
+                mps_request: MpsRequest = await self._query_exec.submit_request(
                     name=self._recording.name,
                     recording_ids=[model.recording.fbid],
                     features=[m.feature for m in models_to_submit],

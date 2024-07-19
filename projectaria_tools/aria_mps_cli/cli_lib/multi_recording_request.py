@@ -14,7 +14,6 @@
 
 import asyncio
 import functools
-import glob
 import json
 import logging
 from enum import auto, Enum, unique
@@ -27,6 +26,7 @@ from .base_state_machine import BaseStateMachine
 from .common import Config
 from .constants import ConfigKey, ConfigSection, DisplayStatus, ErrorCode
 from .encryption import VrsEncryptor
+from .graphql_query import GraphQLQueryExecutor
 from .hash_calculator import HashCalculator
 from .health_check import HealthCheckRunner, is_eligible
 from .http_helper import HttpHelper
@@ -88,6 +88,7 @@ class MultiRecordingRequest(BaseStateMachine):
         **kwargs,
     ):
         self._http_helper: HttpHelper = http_helper
+        self._query_exec: GraphQLQueryExecutor = GraphQLQueryExecutor(http_helper)
         super().__init__(
             states=self.States,
             transitions=self.TRANSITIONS,
@@ -111,7 +112,7 @@ class MultiRecordingRequest(BaseStateMachine):
         (
             encryption_key,
             key_id,
-        ) = await self._http_helper.query_encryption_key()
+        ) = await self._query_exec.query_encryption_key()
 
         model = MultiRecordingModel(
             recordings=recordings,
@@ -172,6 +173,7 @@ class MultiRecordingModel:
     ) -> None:
         self._feature: MpsFeature = MpsFeature.MULTI_SLAM
         self._http_helper: HttpHelper = http_helper
+        self._query_exec: GraphQLQueryExecutor = GraphQLQueryExecutor(http_helper)
         self._force: bool = force
         self._suffix: Optional[str] = suffix
         self._retry_failed: bool = retry_failed
@@ -393,7 +395,7 @@ class MultiRecordingModel:
             await self.next()
         else:
             mps_feature_request: Optional[MpsFeatureRequest] = (
-                await self._http_helper.query_mps_requested_feature_by_file_hash_set(
+                await self._query_exec.query_mps_requested_feature_by_file_hash_set(
                     list({r.file_hash for r in self._recordings})
                 )
             )
@@ -455,7 +457,7 @@ class MultiRecordingModel:
             With this, a file upload will start immediately after encryption has finished.
             """
             recording_fbid: Optional[int] = await check_if_already_uploaded(
-                rec.file_hash, self._http_helper
+                file_hash=self._recording.file_hash, query_exec=self._query_exec
             )
             if recording_fbid:
                 rec.fbid = recording_fbid

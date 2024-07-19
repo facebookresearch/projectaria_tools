@@ -27,6 +27,7 @@ import xxhash
 
 from .common import Config, CustomAdapter, get_pretty_size, retry
 from .constants import ConfigKey, ConfigSection, HTTP_RETRY_CODES
+from .graphql_query import GraphQLQueryExecutor
 from .http_helper import HttpHelper
 from .runner_with_progress import RunnerWithProgress
 
@@ -105,9 +106,10 @@ class Uploader(RunnerWithProgress):
         """
         # Limit the number of concurrent uploads per file
 
+        query_exec: GraphQLQueryExecutor = GraphQLQueryExecutor(self._http_helper)
         async with Uploader.semaphore_:
             rec_fbid: int = await check_if_already_uploaded(
-                self._input_hash, self._http_helper
+                file_hash=self._input_hash, query_exec=query_exec
             )
             self._total: Final[int] = (await aiofiles.os.stat(self._input_path)).st_size
             if rec_fbid:
@@ -204,13 +206,13 @@ class Uploader(RunnerWithProgress):
 
 
 async def check_if_already_uploaded(
-    file_hash: str, http_helper: HttpHelper
+    file_hash: str, query_exec: GraphQLQueryExecutor
 ) -> Optional[int]:
     """
     Checks if a file with the given hash has already been successfully uploaded.
     """
     recording_info: Optional[Tuple[int, int]] = (
-        await http_helper.query_recording_by_file_hash(file_hash)
+        await query_exec.query_recording_by_file_hash(file_hash)
     )
     if recording_info is not None and recording_info[1] > _MIN_REMAINING_TTL_SECS:
         return recording_info[0]
