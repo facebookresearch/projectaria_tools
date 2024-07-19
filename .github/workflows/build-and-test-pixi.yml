@@ -8,11 +8,11 @@ on:
 
 jobs:
   build:
-    name: Build projectaria_tools on ${{ matrix.os }} / ${{ matrix.cmakeOptions }}
+    name: Build projectaria_tools on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-13, macos-14] # macos-14 is macSilicon
+        os: [ubuntu-latest, macos-13, macos-14, windows-2019] # macos-14 is macSilicon
     steps:
       - name : Setup repo
         uses: actions/checkout@v4
@@ -27,9 +27,9 @@ jobs:
           sudo rm /etc/paths.d/mono-commands
 
       - name : Setup pixi
-        uses: prefix-dev/setup-pixi@v0.6.0
+        uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          pixi-version: v0.20.1
+          pixi-version: v0.25.0
           cache: true
 
       - name: C++ - Build and Test
@@ -46,15 +46,6 @@ jobs:
           cd core/examples
           # Install dependencies used by the notebooks
           pip3 install jupyter matplotlib tqdm pillow plotly
-          # Install additional required dependencies to download content
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt-get install -y curl unzip
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            brew install curl unzip
-          else
-            echo "$RUNNER_OS not supported"
-            exit 1
-          fi
 
           # Running the notebooks
           jupyter nbconvert --execute --inplace dataprovider_quickstart_tutorial.ipynb

@@ -4,7 +4,8 @@ description = "projectaria_tools is an C++/Python open-source toolkit to interac
 homepage = "https://github.com/facebookresearch/projectaria_tools"
 license = "Apache-2.0"
 channels = ["conda-forge"]
-platforms = ["linux-64", "osx-arm64", "osx-64"]
+platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
+version = "1.5.2"
 
 [tasks]
 #
@@ -13,7 +14,7 @@ platforms = ["linux-64", "osx-arm64", "osx-64"]
 
 #
 # CLEAN
-clean = "rm -rf ./build ./wheels .projectaria_tools.egg-info/"
+clean = "rm -rf ./build ./wheels ./projectaria_tools.egg-info/"
 
 #
 # C++ - BUILD and TEST
@@ -30,15 +31,29 @@ run_c = { depends_on = ["build_and_test"] }
 build_python = "CMAKE_GENERATOR=Ninja python -m pip install ."
 test_python = """
     export TEST_FOLDER="./data";
-    python3 -m unittest core/python/test/corePyBindTest.py;
-    python3 -m unittest core/python/test/mpsPyBindTest.py;
-    python3 -m unittest core/python/sophus/test/sophusPybindTest.py;"""
+    python -m unittest core/python/test/corePyBindTest.py;
+    python -m unittest core/python/test/mpsPyBindTest.py;
+    python -m unittest core/python/sophus/test/sophusPybindTest.py;"""
 
 run_python = { depends_on = ["build_python", "test_python"]}
 
 #
 # Python - PACKAGE
 build_python_wheel = "python -m pip wheel . -w wheels"
+
+[target.win-64.tasks]
+#
+# Deal with windows specifics (prepare and build)
+# - Config must be specified for all command lines
+#
+#
+cmake-generator = "cmake --help"
+prepare = "cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TEST=ON"
+build = "cmake --build build --config Release -- /nologo /verbosity:minimal /maxcpucount"
+# --parallel 4 -- /m
+test = "cd build; ctest -C Release -j"
+
+build_python = "python -m pip install ."
 
 [build-dependencies]
 cmake = "3.28.3"
