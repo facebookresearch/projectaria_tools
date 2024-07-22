@@ -521,7 +521,6 @@ inline void declareDeviceCalibration(py::module& m) {
 
 template <typename T>
 void declareDistortByCalibration(py::module& m) {
-  constexpr int MaxVal = image::DefaultImageValTraits<T>::maxValue;
   m.def(
       "distort_by_calibration",
       [](py::array_t<T> arraySrc,
@@ -533,6 +532,8 @@ void declareDistortByCalibration(py::module& m) {
         size_t imageWidth = arraySrc.shape()[1];
         size_t imageHeight = arraySrc.shape()[0];
         bool isRgb = arraySrc.ndim() == 3 && arraySrc.shape()[2] == 3;
+        constexpr int MaxVal = image::DefaultImageValTraits<T>::maxValue;
+
         if (!isRgb) {
           image::Image<T, MaxVal> imageSrc((T*)info.ptr, imageWidth, imageHeight);
           return image::toPyArrayVariant(
@@ -563,6 +564,8 @@ void declareDistortByCalibration(py::module& m) {
         size_t imageWidth = arraySrc.shape()[1];
         size_t imageHeight = arraySrc.shape()[0];
         bool isThreeChannel = arraySrc.ndim() == 3 && arraySrc.shape()[2] == 3;
+        constexpr int MaxVal = image::DefaultImageValTraits<T>::maxValue;
+
         if (!isThreeChannel) {
           image::Image<T, MaxVal> imageSrc((T*)info.ptr, imageWidth, imageHeight);
           return image::toPyArrayVariant(
@@ -583,6 +586,8 @@ void declareDistortByCalibration(py::module& m) {
         size_t imageWidth = arraySrc.shape()[1];
         size_t imageHeight = arraySrc.shape()[0];
         bool isThreeChannel = arraySrc.ndim() == 3 && arraySrc.shape()[2] == 3;
+        constexpr int MaxVal = image::DefaultImageValTraits<T>::maxValue;
+
         if (!isThreeChannel) {
           image::Image<T, MaxVal> imageSrc((T*)info.ptr, imageWidth, imageHeight);
           return image::toPyArrayVariant(
