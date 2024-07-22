@@ -17,18 +17,12 @@ import re
 import subprocess
 import sys
 
+from platform import system
+
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Convert distutils Windows platform specifiers to CMake -A arguments
-PLAT_TO_CMAKE = {
-    "win32": "Win32",
-    "win-amd64": "x64",
-    "win-arm32": "ARM",
-    "win-arm64": "ARM64",
-}
 
 
 def _get_version():
@@ -89,6 +83,8 @@ class CMakeBuild(build_ext):
         if self.compiler.compiler_type != "msvc":
             if "Ninja" in cmake_generator:
                 cmake_args += ["-GNinja"]
+        else:
+            build_args += ["--config=Release", "--parallel 4"]
 
         if sys.platform.startswith("darwin"):
             # Cross-compile support for macOS - respect ARCHFLAGS if set
@@ -106,17 +102,28 @@ class CMakeBuild(build_ext):
             ["cmake", "--build", "."] + build_args, cwd=self.build_temp
         )
 
-        subprocess.run(
-            "mkdir -p projectaria_tools-stubs/projectaria_tools/",
-            shell=True,
-            check=True,
-        )
+        # MSVC is putting pyd files in a subfolder
+        # We are here setting them aside of the projectaria_tools build folder
+        if system() == "Windows":
 
-        subprocess.run(
-            f"cp -r projectaria_tools-stubs/projectaria_tools {self.build_lib}/",
-            shell=True,
-            check=True,
-        )
+            from glob import glob
+
+            file_list = glob(f"{self.build_lib}/**/*.pyd", recursive=True)
+            for file in file_list:
+                source = file
+                destination = os.path.join(
+                    os.path.dirname(os.path.dirname(file)), os.path.basename(file)
+                )
+                if os.path.exists(destination):
+                    os.remove(destination)
+                os.rename(source, destination)
+
+        # If python-stubs exists, move it to the right folder for being packaged
+        stub_folder = "projectaria_tools-stubs/projectaria_tools/"
+        if os.path.exists(stub_folder):
+            import shutil
+
+            shutil.copytree(stub_folder, os.path.join(self.build_lib, stub_folder))
 
 
 def main():
