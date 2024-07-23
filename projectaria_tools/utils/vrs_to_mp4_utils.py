@@ -18,6 +18,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+from typing import List
 
 import numpy as np
 from moviepy.audio.AudioClip import AudioClip
@@ -35,7 +36,7 @@ def max_signed_value_for_bytes(n):
 
 
 # Get the vrs_device_time_ns array from mp4 'description' tag using ffprobe command
-def get_timestamp_from_mp4(file_path) -> np.ndarray:
+def get_timestamp_from_mp4(file_path: str) -> np.ndarray:
     ffprobe_binary = "ffprobe"
     try:
         result = subprocess.run(
@@ -68,7 +69,9 @@ def get_timestamp_from_mp4(file_path) -> np.ndarray:
 
 
 # Save the timestamp_array into 'description' tag and generate new output_video_file
-def save_timestamp_to_mp4(input_video_file, output_video_file, timestamp_array):
+def save_timestamp_to_mp4(
+    input_video_file: str, output_video_file: str, timestamp_array: List[int]
+):
     ffmpeg_binary = "ffmpeg"
     with tempfile.TemporaryDirectory() as temp_dir:
         _description_metadata_filepath = os.path.join(
@@ -113,7 +116,10 @@ def save_timestamp_to_mp4(input_video_file, output_video_file, timestamp_array):
 
 
 def convert_vrs_to_mp4(
-    vrs_file: str, output_video: str, log_folder=None, down_sample_factor=1
+    vrs_file: str,
+    output_video: str,
+    log_folder: str = None,
+    down_sample_factor: int = 1,
 ):
     """Convert a VRS file to MP4 video."""
     use_temp_folder = False
@@ -159,7 +165,8 @@ def convert_vrs_to_mp4(
     converter.write_log(log_folder)
 
     # add vrs_device_time_ns_array to file tag
-    os.makedirs(os.path.dirname(output_video), exist_ok=True)
+    if len(os.path.dirname(output_video)) > 0:
+        os.makedirs(os.path.dirname(output_video), exist_ok=True)
     save_timestamp_to_mp4(temp_video_file, output_video, vrs_device_time_ns_array)
 
     # check if saved timestamp is the same
