@@ -119,5 +119,20 @@ TEST(MpsDataProvider, InterpolatedPoseQuerying) {
   EXPECT_TRUE(maybeOpenLoopPose->deviceLinearVelocity_device.isApprox(
       Eigen::Vector3d(0.038913, -0.322935, 0.242351), 1e-4));
 
-  // TODO: Test for cases of interpolation between 149203459 and 149204459
+  // Test for cases of interpolation between 149203459 and 149204459
+  const auto resultPose = dp.getInterpolatedClosedLoopPose(149203959000);
+  EXPECT_TRUE(resultPose.has_value());
+  EXPECT_EQ(resultPose->graphUid, "ea7288b8-b6a0-012d-8156-257aba6bd796");
+  EXPECT_EQ(resultPose->qualityScore, 0.5);
+  EXPECT_TRUE(resultPose->T_world_device.translation().isApprox(
+      Sophus::Vector3d(-0.0001245, -0.006745, 0.0004035), 1e-4));
+
+  int64_t result_utcTimestamp = resultPose->utcTimestamp.count();
+  EXPECT_EQ(result_utcTimestamp, 1686767222002923694);
+
+  EXPECT_TRUE(resultPose->gravity_world.isApprox(Eigen::Vector3d(0, 0, -9.81), 1e-4));
+  EXPECT_TRUE(resultPose->angularVelocity_device.isApprox(
+      Eigen::Vector3d(-0.051098, 0.056527, -0.0694205), 1e-4));
+  EXPECT_TRUE(resultPose->deviceLinearVelocity_device.isApprox(
+      Eigen::Vector3d(0.040185, -0.3245015, 0.2434535), 1e-4));
 }

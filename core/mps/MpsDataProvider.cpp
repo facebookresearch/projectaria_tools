@@ -211,8 +211,8 @@ std::optional<ClosedLoopTrajectoryPose> MpsDataProvider::getInterpolatedClosedLo
     // Interpolate utc timestamp
     int64_t utcTimeBefore = poseBefore->utcTimestamp.count();
     int64_t utcTimeAfter = poseAfter->utcTimestamp.count();
-    int64_t interpolatedUtcTime =
-        static_cast<int64_t>(utcTimeBefore + alpha * (utcTimeAfter - utcTimeBefore));
+    int64_t utcTimeDifference = utcTimeAfter - utcTimeBefore;
+    int64_t interpolatedUtcTime = utcTimeBefore + static_cast<int64_t>(alpha * utcTimeDifference);
     resultPose.utcTimestamp = std::chrono::nanoseconds(interpolatedUtcTime);
 
     // Quality score is taken as the lower of the two
