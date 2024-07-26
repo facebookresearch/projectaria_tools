@@ -150,6 +150,7 @@ jobs:
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_*  *x86_64*"
           CIBW_ARCHS: "aarch64"
+          CIBW_MANYLINUX_X86_64_IMAGE: "quay.io/pypa/manylinux2014_aarch64"
       - uses: actions/upload-artifact@v2
         with:
           name: python-package-distributions
