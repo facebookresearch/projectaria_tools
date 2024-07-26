@@ -232,15 +232,19 @@ wrist_and_palm_pose = get_nearest_wrist_and_palm_pose(
 )
 
 
-# Get left- and right-hand confidences and wrist and palm positions in the device frame
+# Get left and right-hand confidences and wrist and palm positions and normals in the device frame
 # Left-hand side
 left_pose_confidence = wrist_and_palm_pose.left_hand.confidence
 left_wrist_position_device = wrist_and_palm_pose.left_hand.wrist_position_device
 left_palm_position_device = wrist_and_palm_pose.left_hand.palm_position_device
+left_wrist_normal_device = wrist_and_palm_pose.left_hand.wrist_and_palm_normal_device.wrist_normal_device
+left_palm_normal_device = wrist_and_palm_pose.left_hand.wrist_and_palm_normal_device.palm_normal_device
 # Right-hand side
 right_pose_confidence = wrist_and_palm_pose.right_hand.confidence
 right_wrist_position_device = wrist_and_palm_pose.right_hand.wrist_position_device
 right_palm_position_device = wrist_and_palm_pose.right_hand.palm_position_device
+right_wrist_normal_device = wrist_and_palm_pose.right_hand.wrist_and_palm_normal_device.wrist_normal_device
+right_palm_normal_device = wrist_and_palm_pose.right_hand.wrist_and_palm_normal_device.palm_normal_device
 ```
 ```mdx-code-block
 </TabItem>
@@ -264,6 +268,13 @@ for (const auto& wristAndPalmPose: wristAndPalmPoses) {
     const auto& palmPose = oneHandWristAndPalmPose.value().palmPosition_device;
     const auto& wristPose_world = T_World_Device.value() * wristPose;
     const auto& palmPose_world = T_World_Device.value() * palmPose;
+
+    if (oneHandWristAndPalmPose.wristAndPalmNormal_device.has_value()) {
+        const auto& wristNormal_device = oneSideWristAndPalmPose.wristAndPalmNormal_device.value().wristNormal_device;
+        const auto& palmNormal_device = oneSideWristAndPalmPose.wristAndPalmNormal_device.value().palmNormal_device;
+        const auto wristNormal_world = T_World_Device.value().so3() * wristNormal_device;
+        const auto palmNormal_world = T_World_Device.value().so3() * palmNormal_device;
+    }
   }
 }
 ```

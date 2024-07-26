@@ -10,7 +10,7 @@ Hand Tracking outputs are available for all recordings made with SLAM cameras an
 
 
 Go to [MPS Code Snippets](/data_utilities/core_code_snippets/mps.mdx) for how to:
-* Load the wrist and palm positions
+* Load the wrist and palm positions and normals
 * Transform them to the world coordinate frame
 * Project them onto the SLAM or RGB images
 
@@ -20,7 +20,7 @@ Hand Tracking data can be visualized in [Python](/data_utilities/visualization/v
 
 We currently provide Wrist and Palm Tracking data. The file outputs are:
 
-* `wrist_and_palm_poses.csv` - the coordinates of the wrist and palm positions in the device frame
+* `wrist_and_palm_poses.csv` - the coordinates of the wrist and palm positions, and normal vectors indicating orientation, in the device frame
 * `summary.json` - high-level report on MPS wrist and palm tracking
 
 ### wrist_and_palm_poses.csv
@@ -44,8 +44,20 @@ We currently provide Wrist and Palm Tracking data. The file outputs are:
 |  tx_right_palm_device     | float    | X-coordinate of the right palm position given in the device frame in meters.    |
 |  ty_right_palm_device     | float    | Y-coordinate of the right palm position given in the device frame in meters.    |
 |  tz_right_palm_device     | float    | Z-coordinate of the right palm position given in the device frame in meters.    |
+|  nx_left_palm_device     | float    | X-coordinate of the left palm normal given in the device frame in meters.    |
+|  ny_left_palm_device     | float    | Y-coordinate of the left palm normal given in the device frame in meters.    |
+|  nz_left_palm_device     | float    | Z-coordinate of the left palm normal given in the device frame in meters.    |
+|  nx_left_wrist_device     | float    | X-coordinate of the left wrist normal given in the device frame in meters.    |
+|  ny_left_wrist_device     | float    | Y-coordinate of the left wrist normal given in the device frame in meters.    |
+|  nz_left_wrist_device     | float    | Z-coordinate of the left wrist normal given in the device frame in meters.    |
+|  nx_right_palm_device     | float    | X-coordinate of the right palm normal given in the device frame in meters.    |
+|  ny_right_palm_device     | float    | Y-coordinate of the right palm normal given in the device frame in meters.    |
+|  nz_right_palm_device     | float    | Z-coordinate of the right palm normal given in the device frame in meters.    |
+|  nx_right_wrist_device     | float    | X-coordinate of the right wrist normal given in the device frame in meters.    |
+|  ny_right_wrist_device     | float    | Y-coordinate of the right wrist normal given in the device frame in meters.    |
+|  nz_right_wrist_device     | float    | Z-coordinate of the right wrist normal given in the device frame in meters.    |
 
-The wrist and palm poses are given in the device frame in meters.
+The wrist and palm poses and normal vectors are given in the device frame in meters.
 
 
 ## summary.json
