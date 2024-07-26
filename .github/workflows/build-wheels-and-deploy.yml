@@ -89,18 +89,18 @@ jobs:
           - python-version: "3.12"
             cibw_build: "cp312-*"
           # Add matrix entries: Python ["3.8", "3.9"] to [macos-13, ubuntu-latest]
-          - os: ubuntu-latest
-            python-version: "3.8"
-            cibw_build: "cp38-*"
-          - os: ubuntu-latest
-            python-version: "3.9"
-            cibw_build: "cp39-*"
-          - os: macos-13
-            python-version: "3.8"
-            cibw_build: "cp38-*"
-          - os: macos-13
-            python-version: "3.9"
-            cibw_build: "cp39-*"
+          # - os: ubuntu-latest
+          #   python-version: "3.8"
+          #   cibw_build: "cp38-*"
+          # - os: ubuntu-latest
+          #   python-version: "3.9"
+          #   cibw_build: "cp39-*"
+          # - os: macos-13
+          #   python-version: "3.8"
+          #   cibw_build: "cp38-*"
+          # - os: macos-13
+          #   python-version: "3.9"
+          #   cibw_build: "cp39-*"
 
     steps:
       - name: Checkout repo
