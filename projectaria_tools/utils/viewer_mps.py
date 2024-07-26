@@ -17,7 +17,7 @@ import os
 
 from pathlib import Path
 
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Tuple
 
 import numpy as np
 
@@ -43,6 +43,8 @@ from tqdm import tqdm
 
 WRIST_PALM_TIME_DIFFERENCE_THRESHOLD_NS: int = 2e8
 WRIST_PALM_COLOR: List[int] = [255, 64, 0]
+NORMAL_VIS_LEN = 0.03  # in meters
+NORMAL_VIS_LEN_2D = 30.0  # in pixels
 
 
 def parse_args():
@@ -314,12 +316,15 @@ def log_hand_tracking(
     logged_hand_tracking_2D_points: bool = False
     logged_hand_tracking_2D_links: bool = False
     logged_hand_tracking_3D: bool = False
+    logged_hand_tracking_2D_normal_links: bool = False
     if wrist_and_palm_poses:
         wrist_and_palm_pose = get_nearest_wrist_and_palm_pose(
             wrist_and_palm_poses, device_time_ns
         )
         wrist_points: List[np.array] = []
         palm_points: List[np.array] = []
+        wrist_normals: List[np.array] = []
+        palm_normals: List[np.array] = []
         if (
             wrist_and_palm_pose
             and np.abs(
@@ -335,6 +340,15 @@ def log_hand_tracking(
                 if one_side_pose and one_side_pose.confidence > 0:
                     wrist_points.append(one_side_pose.wrist_position_device)
                     palm_points.append(one_side_pose.palm_position_device)
+
+                    # Then collect optional wrist and palm normals
+                    if one_side_pose.wrist_and_palm_normal_device is not None:
+                        wrist_normals.append(
+                            one_side_pose.wrist_and_palm_normal_device.wrist_normal_device
+                        )
+                        palm_normals.append(
+                            one_side_pose.wrist_and_palm_normal_device.palm_normal_device
+                        )
         if wrist_points and palm_points:
             # Log wrist and palm 3D points
             rr.log(
@@ -353,6 +367,27 @@ def log_hand_tracking(
                 ),
             )
             logged_hand_tracking_3D = True
+
+        if wrist_normals:
+            # Log wrist 3D normals
+            rr.log(
+                "world/device/wrist-and-palm/wrist_normals",
+                rr.Arrows3D(
+                    origins=wrist_points,
+                    vectors=np.asarray(wrist_normals) * NORMAL_VIS_LEN,
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+        if palm_normals:
+            # Log palm 3D normals
+            rr.log(
+                "world/device/wrist-and-palm/palm_normals",
+                rr.Arrows3D(
+                    origins=palm_points,
+                    vectors=np.asarray(palm_normals) * NORMAL_VIS_LEN,
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
         # Log wrist and palm 3D point projections on the image
         wrist_pixels = [
             get_camera_projection_from_device_point(wrist_point, rgb_camera_calibration)
@@ -396,6 +431,53 @@ def log_hand_tracking(
             )
             logged_hand_tracking_2D_links = True
 
+        # Log wrist and palm 3D normals projections on the image
+        if len(wrist_normals) > 0 and len(palm_normals) > 0:
+            wrist_normal_tip_pixels = [
+                get_camera_projection_from_device_point(
+                    wrist_point + wrist_normal * NORMAL_VIS_LEN, rgb_camera_calibration
+                )
+                for wrist_point, wrist_normal in zip(wrist_points, wrist_normals)
+            ]
+            palm_normal_tip_pixels = [
+                get_camera_projection_from_device_point(
+                    palm_point + palm_normal * NORMAL_VIS_LEN, rgb_camera_calibration
+                )
+                for palm_point, palm_normal in zip(palm_points, palm_normals)
+            ]
+            wrist_and_palm_normal_arrows_2d = []
+            for hand_i, (wrist_pixel, palm_pixel) in enumerate(
+                zip(wrist_pixels, palm_pixels)
+            ):
+                # normal tip vector projected to image can be used as arrow direction for the vis
+                if wrist_pixel is not None:
+                    wrist_normal_in_2d = wrist_normal_tip_pixels[hand_i] - wrist_pixel
+                    if wrist_normal_in_2d is None:
+                        wrist_normal_in_2d = np.zeros((2,))
+                    else:
+                        wrist_normal_in_2d /= np.linalg.norm(wrist_normal_in_2d)
+                        wrist_normal_in_2d *= NORMAL_VIS_LEN_2D
+                    wrist_and_palm_normal_arrows_2d.append(wrist_normal_in_2d)
+                if palm_pixel is not None:
+                    palm_normal_in_2d = palm_normal_tip_pixels[hand_i] - palm_pixel
+                    if palm_normal_in_2d is None:
+                        palm_normal_in_2d = np.zeros((2,))
+                    else:
+                        palm_normal_in_2d /= np.linalg.norm(palm_normal_in_2d)
+                        palm_normal_in_2d *= NORMAL_VIS_LEN_2D
+                    wrist_and_palm_normal_arrows_2d.append(palm_normal_in_2d)
+
+            if wrist_and_palm_normal_arrows_2d:
+                rr.log(
+                    f"world/device/{rgb_stream_label}/wrist-and-palm_projection/normals",
+                    rr.Arrows2D(
+                        origins=wrist_and_palm_points_2d,
+                        vectors=wrist_and_palm_normal_arrows_2d,
+                        colors=[WRIST_PALM_COLOR],
+                    ),
+                )
+                logged_hand_tracking_2D_normal_links = True
+
     if not logged_hand_tracking_3D:
         rr.log("world/device/wrist-and-palm", rr.Clear.recursive())
 
@@ -405,12 +487,19 @@ def log_hand_tracking(
             f"world/device/{rgb_stream_label}/wrist-and-palm_projection",
             rr.Clear.recursive(),
         )
-    elif not logged_hand_tracking_2D_links:
-        # If only the links are missing, clear the links
-        rr.log(
-            f"world/device/{rgb_stream_label}/wrist-and-palm_projection/link",
-            rr.Clear.flat(),
-        )
+    else:
+        if not logged_hand_tracking_2D_links:
+            # If only the points links are missing, clear the links
+            rr.log(
+                f"world/device/{rgb_stream_label}/wrist-and-palm_projection/link",
+                rr.Clear.recursive(),
+            )
+        if not logged_hand_tracking_2D_normal_links:
+            # If only the normal links are missing, clear the links
+            rr.log(
+                f"world/device/{rgb_stream_label}/wrist-and-palm_projection/normals",
+                rr.Clear.recursive(),
+            )
 
 
 def main():

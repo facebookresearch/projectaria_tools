@@ -667,7 +667,27 @@ void exportMps(py::module& m) {
           "palm_position_device",
           &WristAndPalmPose::OneSide::palmPosition_device,
           "Position of the palm joint in device frame.")
+      .def_readwrite(
+          "wrist_and_palm_normal_device",
+          &WristAndPalmPose::OneSide::wristAndPalmNormal_device,
+          "Normal for each of the wrist and palm joint in device frame.")
       .def("__repr__", [](WristAndPalmPose::OneSide const& self) { return fmt::to_string(self); });
+
+  py::class_<WristAndPalmPose::OneSide::WristAndPalmNormals>(
+      hand_tracking,
+      "WristAndPalmPose.OneSide.WristAndPalmNormals",
+      "An object representing WristAndPalmNormals output for one side of the body.")
+      .def_readwrite(
+          "wrist_normal_device",
+          &WristAndPalmPose::OneSide::WristAndPalmNormals::wristNormal_device,
+          "Normal for wrist joint in device frame.")
+      .def_readwrite(
+          "palm_normal_device",
+          &WristAndPalmPose::OneSide::WristAndPalmNormals::palmNormal_device,
+          "Normal for palm joint in device frame.")
+      .def("__repr__", [](WristAndPalmPose::OneSide::WristAndPalmNormals const& self) {
+        return fmt::to_string(self);
+      });
 
   hand_tracking.def(
       "read_wrist_and_palm_poses",

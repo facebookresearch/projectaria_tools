@@ -134,6 +134,14 @@ class MPSHandTracking(unittest.TestCase):
         )
         self.assertGreater(len(mps_wrist_and_palm_poses), 0)
 
+        wrist_and_palm_pose: mps.hand_tracking.WristAndPalmPose = (
+            mps_wrist_and_palm_poses[0]
+        )
+        self.assertTrue(wrist_and_palm_pose.left_hand is not None)
+        self.assertTrue(
+            wrist_and_palm_pose.left_hand.wrist_and_palm_normal_device is not None
+        )
+
     def test_wrist_and_palm_invalid_file(self) -> None:
         wrist_and_palm_file = ""
         mps_wrist_and_palm_poses = mps.hand_tracking.read_wrist_and_palm_poses(

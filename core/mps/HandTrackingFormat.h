@@ -22,6 +22,27 @@
 #include "format/Format.h"
 
 /*
+ * fmt::format() specialization for WristAndPalmPose::OneSide::WristAndPalmNormals
+ */
+template <>
+struct fmt::formatter<projectaria::tools::mps::WristAndPalmPose::OneSide::WristAndPalmNormals>
+    : fmt::formatter<std::string_view> {
+  // Format the WristAndPalmPose object
+  template <typename FormatContext>
+  auto format(
+      const projectaria::tools::mps::WristAndPalmPose::OneSide::WristAndPalmNormals&
+          wristAndPalmNormals,
+      FormatContext& ctx) const {
+    // Start the message with basic info that's guaranteed to be there
+    return fmt::format_to(
+        ctx.out(),
+        "WristAndPalmPose::OneSide::wristAndPalmNormals(wrist: {}, palm: {}",
+        wristAndPalmNormals.wristNormal_device,
+        wristAndPalmNormals.palmNormal_device);
+  }
+};
+
+/*
  * fmt::format() specialization for WristAndPalmPose::OneSide
  */
 template <>
