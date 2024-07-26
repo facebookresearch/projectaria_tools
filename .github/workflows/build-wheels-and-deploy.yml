@@ -77,7 +77,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-13, macos-latest-xlarge, 2-core-ubuntu-arm]
+        os: [2-core-ubuntu-arm] #[ubuntu-latest, macos-13, macos-latest-xlarge, 2-core-ubuntu-arm]
         python-version: ["3.10", "3.11", "3.12"]
         # Default consider only Python >=3.10 since actions/setup-python supports only python<3.10 and mac-silicon
         # Other Python versions are added below as matrix entries
