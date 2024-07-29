@@ -42,6 +42,9 @@ const std::vector<Eigen::Vector3f> kTrajColors{
 constexpr float kGeneralizedGazeColor[] = {0.0f, 1.0f, 1.0f};
 constexpr float kCalibratedGazeColor[] = {1.0f, 0.0f, 1.0f};
 
+// In meters
+constexpr float kNormalVisLen = 0.05;
+
 extern const unsigned char AnonymousPro_ttf[];
 static pangolin::GlFont kGlFont(AnonymousPro_ttf, 20);
 
@@ -486,6 +489,25 @@ void Data3DGui::draw(
         glPointSize(10);
         pangolin::glDrawPoints(wristAndPalmPoses_world);
         pangolin::glDrawLines(wristAndPalmPoses_world);
+
+        // draw wrist and palm normal
+        if (!oneHandWristAndPalmPose.value().wristAndPalmNormal_device) {
+          continue;
+        }
+
+        const auto& wristAndPalmNormal_device =
+            oneHandWristAndPalmPose.value().wristAndPalmNormal_device.value();
+        const auto& wristNormal_world =
+            T_World_Device.value().so3() * wristAndPalmNormal_device.wristNormal_device;
+        const auto& palmNormal_world =
+            T_World_Device.value().so3() * wristAndPalmNormal_device.palmNormal_device;
+        const std::vector<Eigen::Vector3d> wristAndPalmNormalLines{
+            wristPose_world,
+            wristPose_world + wristNormal_world * kNormalVisLen,
+            palmPose_world,
+            palmPose_world + palmNormal_world * kNormalVisLen};
+        setHandsGlColor(handedness);
+        pangolin::glDrawLines(wristAndPalmNormalLines);
       }
     }
   }
@@ -506,41 +528,70 @@ void Data3DGui::draw(
         continue;
       }
       const auto& oneHandWristAndPalmPose = wristAndPalmPose.value()[handedness];
-      if (uiShowWristAndPalm && deviceCalib && oneHandWristAndPalmPose &&
-          oneHandWristAndPalmPose.value().confidence >= MIN_CONFIDENCE_) {
-        std::string cameraLabel;
-        switch (imageViewName) {
-          case Data3DGui::ImageViewName::RGB_VIEW:
-            cameraLabel = "camera-rgb";
-            break;
-          case Data3DGui::ImageViewName::LEFT_SLAM_VIEW:
-            cameraLabel = "camera-slam-left";
-            break;
-          case Data3DGui::ImageViewName::RIGHT_SLAM_VIEW:
-            cameraLabel = "camera-slam-right";
-            break;
-          default:
-            XR_LOGE("Unsupported image view name.");
-            throw std::runtime_error("Unsupported image view name.");
+      if (!uiShowWristAndPalm || !deviceCalib || !oneHandWristAndPalmPose ||
+          oneHandWristAndPalmPose.value().confidence < MIN_CONFIDENCE_) {
+        continue;
+      }
+
+      std::string cameraLabel;
+      switch (imageViewName) {
+        case Data3DGui::ImageViewName::RGB_VIEW:
+          cameraLabel = "camera-rgb";
+          break;
+        case Data3DGui::ImageViewName::LEFT_SLAM_VIEW:
+          cameraLabel = "camera-slam-left";
+          break;
+        case Data3DGui::ImageViewName::RIGHT_SLAM_VIEW:
+          cameraLabel = "camera-slam-right";
+          break;
+        default:
+          XR_LOGE("Unsupported image view name.");
+          throw std::runtime_error("Unsupported image view name.");
+      }
+      const auto& cameraCalib = deviceCalib->getCameraCalib(cameraLabel);
+      if (!cameraCalib) {
+        continue;
+      }
+
+      // Collect all lines as pair of points
+      std::vector<Eigen::Vector3d> lines = {
+          oneHandWristAndPalmPose.value().wristPosition_device,
+          oneHandWristAndPalmPose.value().palmPosition_device};
+      if (oneHandWristAndPalmPose.value().wristAndPalmNormal_device) {
+        const auto& wristAndPalmNormal_device =
+            oneHandWristAndPalmPose.value().wristAndPalmNormal_device.value();
+        // wrist normal line
+        lines.emplace_back(oneHandWristAndPalmPose.value().wristPosition_device);
+        lines.emplace_back(
+            oneHandWristAndPalmPose.value().wristPosition_device +
+            wristAndPalmNormal_device.wristNormal_device * kNormalVisLen);
+        // palm normal line
+        lines.emplace_back(oneHandWristAndPalmPose.value().palmPosition_device);
+        lines.emplace_back(
+            oneHandWristAndPalmPose.value().palmPosition_device +
+            wristAndPalmNormal_device.palmNormal_device * kNormalVisLen);
+      }
+      // Must be multiple of 2 points
+      if (lines.size() % 2 != 0) {
+        const auto err = fmt::format(
+            "Lines to be visualized must have multiple of 2 points, but got {}!", lines.size());
+        throw std::runtime_error(err);
+      }
+      // Project each point to image and add to projector points list
+      for (const auto& landmark : lines) {
+        const auto point = cameraCalib->project(
+            cameraCalib->getT_Device_Camera().inverse() * landmark.cast<double>());
+        if (point) {
+          wristAndPalmLandmarksInImageView.emplace_back(
+              cameraCalib->getImageSize()[1] - 1 - point.value()[1], point.value()[0]);
+        } else {
+          wristAndPalmLandmarksInImageView.emplace_back(-1, -1);
         }
-        const auto& cameraCalib = deviceCalib->getCameraCalib(cameraLabel);
-        if (!cameraCalib) {
-          continue;
-        }
-        for (const auto& landmark :
-             {oneHandWristAndPalmPose.value().wristPosition_device,
-              oneHandWristAndPalmPose.value().palmPosition_device}) {
-          const auto point = cameraCalib->project(
-              cameraCalib->getT_Device_Camera().inverse() * landmark.cast<double>());
-          if (point) {
-            wristAndPalmLandmarksInImageView.emplace_back(
-                cameraCalib->getImageSize()[1] - 1 - point.value()[1], point.value()[0]);
-          } else {
-            wristAndPalmLandmarksInImageView.emplace_back(-1, -1);
-          }
-        }
-        const auto& p0 = wristAndPalmLandmarksInImageView.at(0).cast<double>();
-        const auto& p1 = wristAndPalmLandmarksInImageView.at(1).cast<double>();
+      }
+      // Add each line to projector line list
+      for (int i = 0; i < lines.size(); i += 2) {
+        const auto& p0 = wristAndPalmLandmarksInImageView.at(i).cast<double>();
+        const auto& p1 = wristAndPalmLandmarksInImageView.at(i + 1).cast<double>();
         // Check visibility of link boundary points in rotated image
         const auto& imageSize = cameraCalib->getImageSize();
         if (p0[0] >= 0 && p0[0] < imageSize[1] && p0[1] >= 0 && p0[1] < imageSize[0] &&
