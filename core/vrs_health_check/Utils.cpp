@@ -239,7 +239,7 @@ int Utils::runVrsHealthCheck(int argc, char* argv[]) {
 
   try {
     app.parse(argc, argv);
-  } catch (const CLI::CallForHelp& e) {
+  } catch (const CLI::CallForHelp&) {
     std::cout << app.help("", CLI::AppFormatMode::All);
     exit(-EINVAL);
   }
