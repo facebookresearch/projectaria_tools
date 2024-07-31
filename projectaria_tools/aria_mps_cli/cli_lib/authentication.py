@@ -24,19 +24,36 @@ from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 
 from .common import retry
-from .constants import AUTH_TOKEN_FILE
+from .constants import (
+    AUTH_TOKEN_FILE,
+    KEY_ACCESS_TOKEN,
+    KEY_APP_ID,
+    KEY_CONTACT_POINT,
+    KEY_CREATE_TOKEN,
+    KEY_DATA,
+    KEY_DOC_ID,
+    KEY_KEY_ID,
+    KEY_PASSWORD,
+    KEY_PROFILE_TOKENS,
+    KEY_PUBLIC_KEY,
+    KEY_VARIABLES,
+)
 from .graphql_query import GraphQLQueryExecutor
 from .http_helper import HttpHelper
 
 logger = logging.getLogger(__name__)
 
-# OAuth FRL|App ID| Client Token
+# OAuth FRL|FRL App ID| Client Token
 _CLIENT_TOKEN: Final[str] = "FRL|844405224048903|ed1d75011c9a461b1f6c83c91f1fecb9"
-_DOC_ID_GET_HORIZON_PROFILE_TOKEN: int = 24299011599746673
-_URL_ACCOUNTS_LOGIN: str = "https://meta.graph.meta.com/accounts_login"
-_URL_ACCOUNTS_LOGOUT: str = "https://graph.oculus.com/logout"
-_URL_META_GQL: str = "https://meta.graph.meta.com/graphql"
-_URL_ENCRYPTION_KEY: str = "https://meta.graph.meta.com/passwords_encryption?version=2"
+# OC App ID
+_CLIENT_APPLICATION: Final[int] = 6715036791927135
+_DOC_ID_GET_HORIZON_PROFILE_TOKEN: Final[int] = 7806394482748426
+_URL_ACCOUNTS_LOGIN: Final[str] = "https://meta.graph.meta.com/accounts_login"
+_URL_ACCOUNTS_LOGOUT: Final[str] = "https://graph.oculus.com/logout"
+_URL_META_GQL: Final[str] = "https://meta.graph.meta.com/graphql"
+_URL_ENCRYPTION_KEY: Final[str] = (
+    "https://meta.graph.meta.com/passwords_encryption?version=2"
+)
 
 
 class AuthenticationError(RuntimeError):
@@ -58,10 +75,16 @@ class Authenticator:
 
     """
 
-    def __init__(self, http_helper: HttpHelper, client_token: str = _CLIENT_TOKEN):
+    def __init__(
+        self,
+        http_helper: HttpHelper,
+        client_token: str = _CLIENT_TOKEN,
+        client_app: int = _CLIENT_APPLICATION,
+    ):
         self._http_helper: HttpHelper = http_helper
         self._query_exec: GraphQLQueryExecutor = GraphQLQueryExecutor(http_helper)
         self._client_token: str = client_token
+        self._client_app: int = client_app
         self._auth_token: Optional[str] = None
         self._user_alias: Optional[str] = None
 
@@ -121,15 +144,15 @@ class Authenticator:
             url=_URL_ENCRYPTION_KEY,
             auth_token=self._client_token,
         )
-        if "key_id" not in response or "public_key" not in response:
+        if KEY_KEY_ID not in response or KEY_PUBLIC_KEY not in response:
             raise AuthenticationError(
                 f"Getting public key failed with response '{json.dumps(response, indent=2)}'"
             )
 
         # 1.2 Encrypt password
         encrypted_password: bytearray = self._encrypt_password(
-            key_id=response["key_id"],
-            pub_key=response["public_key"],
+            key_id=response[KEY_KEY_ID],
+            pub_key=response[KEY_PUBLIC_KEY],
             raw_password=password,
         )
 
@@ -139,30 +162,33 @@ class Authenticator:
                 url=_URL_ACCOUNTS_LOGIN,
                 auth_token=self._client_token,
                 json={
-                    "contact_point": _get_email(username),
-                    "password": encrypted_password,
+                    KEY_CONTACT_POINT: _get_email(username),
+                    KEY_PASSWORD: encrypted_password,
                 },
             )
         except Exception as e:
             raise AuthenticationError(f"Login failed with exception {e}")
-        if "access_token" not in response:
+        if KEY_ACCESS_TOKEN not in response:
             raise AuthenticationError(
                 f"Login failed with response '{json.dumps(response, indent=2)}"
             )
         logger.debug("Got meta account access token")
-        user_access_token = response["access_token"]
+        user_access_token = response[KEY_ACCESS_TOKEN]
 
         # Step 2 : Get Horizon profile scoped access token
         response = await self._http_helper.post(
             url=_URL_META_GQL,
-            json={"doc_id": _DOC_ID_GET_HORIZON_PROFILE_TOKEN},
+            json={
+                KEY_DOC_ID: _DOC_ID_GET_HORIZON_PROFILE_TOKEN,
+                KEY_VARIABLES: {KEY_APP_ID: self._client_app},
+            },
             auth_token=user_access_token,
         )
 
         try:
-            self._auth_token = response["data"]["xfr_create_profile_token"][
-                "profile_tokens"
-            ][0]["access_token"]
+            self._auth_token = response[KEY_DATA][KEY_CREATE_TOKEN][KEY_PROFILE_TOKENS][
+                0
+            ][KEY_ACCESS_TOKEN]
             if save_token:
                 self._cache_token()
         except KeyError as e:
