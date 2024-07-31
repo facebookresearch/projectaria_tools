@@ -130,15 +130,18 @@ def log_device_trajectory(trajectory_files: List[str]) -> None:
         device_trajectory = [
             it.transform_world_device.translation()[0] for it in trajectory_data
         ][0::80]
+
+        entity_path = (
+            "world/device_trajectory"
+            if trajectory_list_size == 1
+            else f"world/device_trajectory_{i}"
+        )
         rr.log(
-            (
-                "world/device_trajectory"
-                if trajectory_list_size == 1
-                else f"world/device_trajectory_{i}"
-            ),
+            entity_path,
             rr.LineStrips3D(device_trajectory, radii=0.008),
             timeless=True,
         )
+        print(f"Showing: {trajectory_file} as {entity_path}")
         i += 1
 
 
@@ -159,11 +162,16 @@ def log_point_clouds(points_files: List[str]) -> None:
         )
         # Retrieve point position
         point_positions = [it.position_world for it in points_data_down_sampled]
+
+        entity_path = (
+            "world/points" if point_cloud_list_size == 1 else f"world/points_{i}"
+        )
         rr.log(
-            "world/points" if point_cloud_list_size == 1 else f"world/points_{i}",
+            entity_path,
             rr.Points3D(point_positions, radii=0.006),
             timeless=True,
         )
+        print(f"Showing: {points_file} as {entity_path}")
         i += 1
 
 
