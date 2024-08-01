@@ -29,7 +29,7 @@ image::ManagedImageVariant distortByCalibration(
     Eigen::Vector3d rayDir = dstCalib.unprojectNoChecks(dstPixel.template cast<double>());
     std::optional<Eigen::Vector2d> maybeSrcPixel = srcCalib.project(rayDir);
     if (!maybeSrcPixel) {
-      return std::nullopt;
+      return {};
     } else {
       return maybeSrcPixel->template cast<float>();
     }
