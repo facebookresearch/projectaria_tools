@@ -38,7 +38,6 @@ from .constants import (
     KEY_PUBLIC_KEY,
     KEY_VARIABLES,
 )
-from .graphql_query import GraphQLQueryExecutor
 from .http_helper import HttpHelper
 
 logger = logging.getLogger(__name__)
@@ -82,7 +81,6 @@ class Authenticator:
         client_app: int = _CLIENT_APPLICATION,
     ):
         self._http_helper: HttpHelper = http_helper
-        self._query_exec: GraphQLQueryExecutor = GraphQLQueryExecutor(http_helper)
         self._client_token: str = client_token
         self._client_app: int = client_app
         self._auth_token: Optional[str] = None
@@ -278,7 +276,7 @@ class Authenticator:
         """
         try:
             ## This will throw if the token is invalid
-            return await self._query_exec.query_me(auth_token=self._auth_token)
+            return await self._http_helper.query_me(auth_token=self._auth_token)
         except Exception:
             logger.warning("Token is invalid.")
             return None
