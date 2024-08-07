@@ -48,17 +48,29 @@ void patchSyntheticHomeCalib(nlohmann::json& json) {
     }
   }
 }
+
 // calibration accessor for Aria device
 std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& calibJsonStr) {
   auto json = nlohmann::json::parse(calibJsonStr.c_str());
   patchSyntheticHomeCalib(json);
+
+  std::string deviceSubtype;
+  if (json.contains("DeviceClassInfo")) {
+    deviceSubtype = json["DeviceClassInfo"]["BuildVersion"];
+  }
+
+  // Check if dataset is ASE simulated
+  bool aseSimulated = false;
+  if (json.contains("AlgorithmName") && json["AlgorithmName"] == "UnrealSim") {
+    aseSimulated = true;
+  }
 
   std::map<std::string, CameraCalibration> cameraCalibs;
   std::map<std::string, ImuCalibration> imuCalibs;
   {
     if (json.contains("CameraCalibrations")) {
       for (const auto& camJson : json["CameraCalibrations"]) {
-        CameraCalibration camCalib = parseCameraCalibrationFromJson(camJson);
+        CameraCalibration camCalib = parseCameraCalibrationFromJson(camJson, aseSimulated);
         auto label = camCalib.getLabel();
         cameraCalibs.emplace(label, std::move(camCalib));
       }
@@ -72,13 +84,10 @@ std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& ca
     }
   }
 
-  std::string deviceSubtype;
   std::map<std::string, MagnetometerCalibration> magnetometerCalibs;
   std::map<std::string, BarometerCalibration> barometerCalibs;
   std::map<std::string, MicrophoneCalibration> microphoneCalibs;
-  if (json.contains("DeviceClassInfo")) {
-    deviceSubtype = json["DeviceClassInfo"]["BuildVersion"];
-  }
+
   if (json.contains("MagCalibrations")) {
     for (const auto& magnetometerJson : json["MagCalibrations"]) {
       MagnetometerCalibration magnetometerCalib =
