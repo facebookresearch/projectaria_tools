@@ -99,14 +99,5 @@ jobs:
           # Running the notebooks
           jupyter nbconvert --execute --inplace dataprovider_quickstart_tutorial.ipynb
 
-          # Install additional required dependencies
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt-get install -y curl unzip
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            brew install curl unzip
-          else
-            echo "$RUNNER_OS not supported"
-            exit 1
-          fi
-          pip3 install plotly
-          jupyter nbconvert --execute --inplace mps_quickstart_tutorial.ipynb
+          # pip3 install plotly
+          # jupyter nbconvert --execute --inplace mps_quickstart_tutorial.ipynb

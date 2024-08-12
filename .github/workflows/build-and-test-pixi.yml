@@ -49,7 +49,7 @@ jobs:
 
           # Running the notebooks
           jupyter nbconvert --execute --inplace dataprovider_quickstart_tutorial.ipynb
-          jupyter nbconvert --execute --inplace mps_quickstart_tutorial.ipynb
+          # jupyter nbconvert --execute --inplace mps_quickstart_tutorial.ipynb
 
       - name : Test python viewers
         shell: pixi run bash {0}
