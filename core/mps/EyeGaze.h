@@ -54,8 +54,8 @@ struct EyeGazeVergence {
   float tz_left_eye{}; /**< Translation along Z for left eye origin in CPF frame. */
 
   float tx_right_eye{}; /**< Translation along X for right eye origin in CPF frame. */
-  float ty_right_eye{}; /**< Translation along X for right eye origin in CPF frame. */
-  float tz_right_eye{}; /**< Translation along X for right eye origin in CPF frame. */
+  float ty_right_eye{}; /**< Translation along Y for right eye origin in CPF frame. */
+  float tz_right_eye{}; /**< Translation along Z for right eye origin in CPF frame. */
 };
 
 /**
