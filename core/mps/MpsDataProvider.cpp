@@ -276,4 +276,56 @@ const PointObservations& MpsDataProvider::getSemidenseObservations() {
   return pointObservations_;
 }
 
+std::optional<int64_t> MpsDataProvider::getRgbCorrectedTimestampNs(
+    int64_t captureTimestampNs,
+    const TimeQueryOptions& timeQueryOptions) {
+  // Query the online calibration at the capture timestamp.
+  std::optional<OnlineCalibration> onlineCalib =
+      getOnlineCalibration(captureTimestampNs, timeQueryOptions);
+
+  if (!onlineCalib.has_value()) {
+    // No rgb camera.
+    return {};
+  }
+  std::optional<calibration::CameraCalibration> rgbCalib =
+      onlineCalib->getCameraCalib("camera-rgb");
+  if (!rgbCalib.has_value()) {
+    return {};
+  }
+
+  int64_t correctedCaptureTimeStampNs = captureTimestampNs -
+      static_cast<int64_t>(round(1e9 * rgbCalib->getTimeOffsetSecDeviceCamera()));
+  return correctedCaptureTimeStampNs;
+}
+
+std::optional<Sophus::SE3d> MpsDataProvider::getRgbCorrectedClosedLoopPose(
+    int64_t captureTimestampNs,
+    const TimeQueryOptions& timeQueryOptions) {
+  // Query the online calibration at the capture timestamp.
+  std::optional<OnlineCalibration> onlineCalib =
+      getOnlineCalibration(captureTimestampNs, timeQueryOptions);
+
+  if (!onlineCalib.has_value()) {
+    // No rgb camera.
+    return {};
+  }
+  std::optional<calibration::CameraCalibration> rgbCalib =
+      onlineCalib->getCameraCalib("camera-rgb");
+  if (!rgbCalib.has_value()) {
+    return {};
+  }
+
+  int64_t correctedCaptureTimeStampNs = captureTimestampNs -
+      static_cast<int64_t>(round(1e9 * rgbCalib->getTimeOffsetSecDeviceCamera()));
+
+  std::optional<ClosedLoopTrajectoryPose> closedLoopPose =
+      getClosedLoopPose(correctedCaptureTimeStampNs, timeQueryOptions);
+
+  if (!closedLoopPose.has_value()) {
+    return {};
+  }
+
+  return closedLoopPose->T_world_device * rgbCalib->getT_Device_Camera();
+}
+
 } // namespace projectaria::tools::mps

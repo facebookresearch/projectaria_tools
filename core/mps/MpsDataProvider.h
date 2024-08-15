@@ -194,6 +194,29 @@ class MpsDataProvider {
    */
   bool hasWristAndPalmPoses() const;
 
+  /**
+   * @brief Get the RGB frame closed loop pose relative to world at a specific timestamp. This will
+   * query the rgb frame, and apply the online calibration correction if available.
+   * @param deviceTimeStampNs The query timestamp in `TimeDomain::DeviceTime`.
+   * @param timeQueryOptions The options for TimeQuery, one of {BEFORE, AFTER, CLOSEST}. Defaults to
+   * CLOSEST.
+   * @return optional T_world_rgb, will return invalid if the query time is invalid
+   */
+  std::optional<Sophus::SE3d> getRgbCorrectedClosedLoopPose(
+      int64_t captureTimestampNs,
+      const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Closest);
+
+  /**
+   * @brief Get the corrected rgb frame timestamp based on the online calibration.
+   * @param deviceTimeStampNs The query timestamp in `TimeDomain::DeviceTime`.
+   * @param timeQueryOptions The options for TimeQuery, one of {BEFORE, AFTER, CLOSEST}. Defaults to
+   * CLOSEST.
+   * @return optional corrected time stamp for rgb frame in Nanoseconds
+   */
+  std::optional<int64_t> getRgbCorrectedTimestampNs(
+      int64_t captureTimestampNs,
+      const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Closest);
+
  private:
   MpsDataPaths dataPaths_;
   std::map<int64_t, EyeGaze> generalEyeGazes_;

@@ -36,6 +36,17 @@ struct OnlineCalibration {
 
   // Online estimated IMU calibrations
   std::vector<calibration::ImuCalibration> imuCalibs;
+
+  // Helper function to get the camera calibration of a specific camera label
+  [[nodiscard]] std::optional<calibration::CameraCalibration> getCameraCalib(
+      const std::string& label) const {
+    for (const auto& camCalib : cameraCalibs) {
+      if (camCalib.getLabel() == label) {
+        return camCalib;
+      }
+    }
+    return std::nullopt;
+  }
 };
 
 using OnlineCalibrations = std::vector<OnlineCalibration>;

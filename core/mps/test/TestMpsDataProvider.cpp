@@ -78,11 +78,15 @@ TEST(MpsDataProvider, DataQuerying) {
   auto maybeEyeGaze = dp.getGeneralEyeGaze(0);
   auto maybeOnlineCalib = dp.getOnlineCalibration(0);
   auto maybeWristAndPalmPose = dp.getWristAndPalmPose(0);
+  auto maybeRgbPose = dp.getRgbCorrectedClosedLoopPose(0);
+  auto maybeRgbTs = dp.getRgbCorrectedTimestampNs(0);
   EXPECT_TRUE(maybeOpenLoopPose.has_value());
   EXPECT_TRUE(maybeClosedLoopPose.has_value());
   EXPECT_TRUE(maybeEyeGaze.has_value());
   EXPECT_TRUE(maybeOnlineCalib.has_value());
   EXPECT_TRUE(maybeWristAndPalmPose.has_value());
+  EXPECT_TRUE(maybeRgbPose.has_value());
+  EXPECT_TRUE(maybeRgbTs.has_value());
 
   // check that invalid queries throws an exception
   EXPECT_THROW(dp.getPersonalizedEyeGaze(0), std::runtime_error);
@@ -92,10 +96,14 @@ TEST(MpsDataProvider, DataQuerying) {
   maybeClosedLoopPose = dp.getClosedLoopPose(0, TimeQueryOptions::Before);
   maybeEyeGaze = dp.getGeneralEyeGaze(0, TimeQueryOptions::Before);
   maybeOnlineCalib = dp.getOnlineCalibration(0, TimeQueryOptions::Before);
+  maybeRgbPose = dp.getRgbCorrectedClosedLoopPose(0, TimeQueryOptions::Before);
+  maybeRgbTs = dp.getRgbCorrectedTimestampNs(0, TimeQueryOptions::Before);
   EXPECT_FALSE(maybeOpenLoopPose.has_value());
   EXPECT_FALSE(maybeClosedLoopPose.has_value());
   EXPECT_FALSE(maybeEyeGaze.has_value());
   EXPECT_FALSE(maybeOnlineCalib.has_value());
+  EXPECT_FALSE(maybeRgbPose.has_value());
+  EXPECT_FALSE(maybeRgbTs.has_value());
 }
 
 TEST(MpsDataProvider, InterpolatedPoseQuerying) {

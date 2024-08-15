@@ -298,7 +298,12 @@ void exportMps(py::module& m) {
           "camera_calibs", &OnlineCalibration::cameraCalibs, "Online estimated camera calibrations")
       .def_readwrite(
           "imu_calibs", &OnlineCalibration::imuCalibs, "Online estimated IMU calibrations")
-      .def("__repr__", [](OnlineCalibration const& self) { return fmt::to_string(self); });
+      .def("__repr__", [](OnlineCalibration const& self) { return fmt::to_string(self); })
+      .def(
+          "get_camera_calib",
+          &OnlineCalibration::getCameraCalib,
+          "Helper function to get the camera calibration of a specific camera label",
+          py::arg("label"));
 
   m.def(
       "read_online_calibration",
@@ -609,6 +614,20 @@ void exportMps(py::module& m) {
           "Query MPS for OnlineCalibration at a specific timestamp. This will throw an exception "
           "if online calibration data is not available. Check for data availability first "
           "using `has_online_calibrations()`",
+          py::arg("device_timestamp_ns"),
+          py::arg("time_query_options") = TimeQueryOptions::Closest)
+      .def(
+          "get_rgb_corrected_closed_loop_pose",
+          &MpsDataProvider::getRgbCorrectedClosedLoopPose,
+          py::return_value_policy::reference_internal,
+          "Get the corrected rgb frame pose based on the online calibration.",
+          py::arg("device_timestamp_ns"),
+          py::arg("time_query_options") = TimeQueryOptions::Closest)
+      .def(
+          "get_rgb_corrected_timestamp_ns",
+          &MpsDataProvider::getRgbCorrectedTimestampNs,
+          py::return_value_policy::reference_internal,
+          "Get the corrected rgb frame timestamp based on the online calibration.",
           py::arg("device_timestamp_ns"),
           py::arg("time_query_options") = TimeQueryOptions::Closest)
       .def(

@@ -30,7 +30,8 @@ CameraCalibration::CameraCalibration(
     const int imageHeight,
     const std::optional<double> maybeValidRadius,
     const double maxSolidAngle,
-    const std::string& serialNumber)
+    const std::string& serialNumber,
+    const double timeOffsetSecDeviceCamera)
     : label_(label),
       projectionModel_(projectionModelType, projectionParams),
       T_Device_Camera_(T_Device_Camera),
@@ -38,7 +39,8 @@ CameraCalibration::CameraCalibration(
       imageHeight_(imageHeight),
       maybeValidRadius_(maybeValidRadius),
       maxSolidAngle_(maxSolidAngle),
-      serialNumber_(serialNumber) {}
+      serialNumber_(serialNumber),
+      timeOffsetSecDeviceCamera_(timeOffsetSecDeviceCamera) {}
 
 std::string CameraCalibration::getLabel() const {
   return label_;
@@ -62,6 +64,10 @@ double CameraCalibration::getMaxSolidAngle() const {
 
 std::optional<double> CameraCalibration::getValidRadius() const {
   return maybeValidRadius_;
+}
+
+double CameraCalibration::getTimeOffsetSecDeviceCamera() const {
+  return timeOffsetSecDeviceCamera_;
 }
 
 namespace {
@@ -174,7 +180,8 @@ CameraCalibration getLinearCameraCalibration(
     const int imageHeight,
     const double focalLength,
     const std::string& label,
-    const Sophus::SE3d& T_Device_Camera) {
+    const Sophus::SE3d& T_Device_Camera,
+    const double timeOffsetSecDeviceCamera) {
   CameraProjection::ModelType type = CameraProjection::ModelType::Linear;
   Eigen::VectorXd projectionParams(4);
   projectionParams << focalLength, focalLength, double(imageWidth - 1) / 2.0,
@@ -188,7 +195,8 @@ CameraCalibration getLinearCameraCalibration(
       imageHeight,
       std::nullopt,
       M_PI,
-      "LinearCameraCalibration");
+      "LinearCameraCalibration",
+      timeOffsetSecDeviceCamera);
 }
 
 CameraCalibration getSphericalCameraCalibration(
@@ -196,7 +204,8 @@ CameraCalibration getSphericalCameraCalibration(
     const int imageHeight,
     const double focalLength,
     const std::string& label,
-    const Sophus::SE3d& T_Device_Camera) {
+    const Sophus::SE3d& T_Device_Camera,
+    const double timeOffsetSecDeviceCamera) {
   CameraProjection::ModelType type = CameraProjection::ModelType::Spherical;
   Eigen::VectorXd projectionParams(4);
   projectionParams << focalLength, focalLength, double(imageWidth - 1) / 2.0,
@@ -210,7 +219,8 @@ CameraCalibration getSphericalCameraCalibration(
       imageHeight,
       std::nullopt,
       M_PI,
-      "SphericalCameraCalibration");
+      "SphericalCameraCalibration",
+      timeOffsetSecDeviceCamera);
 }
 
 namespace {
@@ -289,7 +299,8 @@ CameraCalibration rotateCameraCalibCW90Deg(const CameraCalibration& camCalib) {
       newImageHeight,
       camCalib.getValidRadius(),
       camCalib.getMaxSolidAngle(),
-      camCalib.getSerialNumber()};
+      camCalib.getSerialNumber(),
+      camCalib.getTimeOffsetSecDeviceCamera()};
 }
 
 } // namespace projectaria::tools::calibration

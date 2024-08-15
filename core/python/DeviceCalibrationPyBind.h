@@ -129,12 +129,37 @@ inline void declareCameraCalibration(py::module& m) {
             this to None means the entire sensor plane is valid.
     max_solid_angle an angle theta representing the FOV cone of the camera. Rays out of
             [-theta, +theta] will be rejected during projection.)pbdoc")
+      .def(
+          py::init<
+              const std::string&,
+              const CameraProjection::ModelType&,
+              const Eigen::VectorXd&,
+              const Sophus::SE3d&,
+              const int,
+              const int,
+              const std::optional<double>,
+              const double,
+              const std::string&,
+              const double>(),
+          R"pbdoc(Constructor with a list of parameters for CameraCalibration.
+  Args:
+    label: The label of the camera, e.g. "camera-slam-left".
+    projection_model_type The type of camera projection model, e.g. ModelType::Linear
+    T_Device_Camera: The extrinsics of camera in Device frame.
+    image_width: Width of camera image.
+    image_height: Height of camera image.
+    maybe_valid_radius: [optional] radius of a circular mask that represents the valid area on
+            the camera's sensor plane. Pixels out of this circular region are considered invalid. Setting
+            this to None means the entire sensor plane is valid.
+    max_solid_angle an angle theta representing the FOV cone of the camera. Rays out of
+            [-theta, +theta] will be rejected during projection.)pbdoc")
       .def("get_label", &CameraCalibration::getLabel)
       .def("get_serial_number", &CameraCalibration::getSerialNumber)
       .def("get_transform_device_camera", &CameraCalibration::getT_Device_Camera)
       .def("get_image_size", &CameraCalibration::getImageSize)
       .def("get_max_solid_angle", &CameraCalibration::getMaxSolidAngle)
       .def("get_valid_radius", &CameraCalibration::getValidRadius)
+      .def("get_time_offset_sec_device_camera", &CameraCalibration::getTimeOffsetSecDeviceCamera)
       .def(
           "is_visible",
           &CameraCalibration::isVisible,
@@ -187,7 +212,8 @@ inline void declareCameraCalibration(py::module& m) {
       py::arg("image_height"),
       py::arg("focal_length"),
       py::arg("label") = "",
-      py::arg("T_Device_Camera") = Sophus::SE3d{});
+      py::arg("T_Device_Camera") = Sophus::SE3d{},
+      py::arg("time_offset_sec_device_camera") = 0.0);
 
   m.def(
       "get_spherical_camera_calibration",
@@ -197,7 +223,8 @@ inline void declareCameraCalibration(py::module& m) {
       py::arg("image_height"),
       py::arg("focal_length"),
       py::arg("label") = "",
-      py::arg("T_Device_Camera") = Sophus::SE3d{});
+      py::arg("T_Device_Camera") = Sophus::SE3d{},
+      py::arg("time_offset_sec_device_camera") = 0.0);
 
   m.def(
       "rotate_camera_calib_cw90deg",

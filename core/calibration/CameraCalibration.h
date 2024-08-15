@@ -49,7 +49,11 @@ class CameraCalibration {
    * this to nullopt means the entire sensor plane is valid.
    * @param maxSolidAngle an angle theta representing the FOV cone of the camera. Rays out of
    * [-theta, +theta] will be rejected during projection.
+   * @param timeOffsetSecDeviceCamera time offset between device and camera. Online calibration may
+   * estimate this value.
    * @param serialNumber The serial number of the camera
+   * @param timeOffsetSecDeviceCamera time offset between device and camera. Online calibration may
+   * estimate this value. correctedCaptureTime = captureTimestampNs - TimeOffsetSecDeviceCamera
    */
   CameraCalibration(
       const std::string& label,
@@ -60,7 +64,8 @@ class CameraCalibration {
       const int imageHeight,
       const std::optional<double> maybeValidRadius,
       const double maxSolidAngle,
-      const std::string& serialNumber = "");
+      const std::string& serialNumber = "",
+      const double timeOffsetSecDeviceCamera = 0.0);
 
   std::string getLabel() const;
   std::string getSerialNumber() const;
@@ -68,6 +73,7 @@ class CameraCalibration {
   Eigen::Vector2i getImageSize() const;
   double getMaxSolidAngle() const;
   std::optional<double> getValidRadius() const;
+  double getTimeOffsetSecDeviceCamera() const;
   /**
    * @brief Function to check whether a pixel is within the valid area of the sensor plane.
    */
@@ -135,6 +141,7 @@ class CameraCalibration {
   std::optional<double> maybeValidRadius_;
   double maxSolidAngle_;
   std::string serialNumber_;
+  double timeOffsetSecDeviceCamera_ = 0.0;
 };
 
 /**
@@ -145,13 +152,16 @@ class CameraCalibration {
  * @param label Label of the camera, Default value is empty string.
  * @param T_Device_Camera Pose of the Camera Calibration (Should be the same as the original
  * camera's pose before undistortion).
+ * @param timeOffsetSecDeviceCamera time offset between device and camera. Online calibration may
+ * estimate this value. correctedCaptureTime = captureTimestampNs - TimeOffsetSecDeviceCamera
  */
 CameraCalibration getLinearCameraCalibration(
     const int imageWidth,
     const int imageHeight,
     const double focalLength,
     const std::string& label = "",
-    const Sophus::SE3d& T_Device_Camera = Sophus::SE3d{});
+    const Sophus::SE3d& T_Device_Camera = Sophus::SE3d{},
+    const double timeOffsetSecDeviceCamera = 0.0);
 /**
  * @brief Function to create a simple Spherical camera calibration object from some parameters.
  * @param imageWidth Width of the camera in pixels.
@@ -160,13 +170,16 @@ CameraCalibration getLinearCameraCalibration(
  * @param label Label of the camera, Default value is empty string.
  * @param T_Device_Camera Pose of the Camera Calibration (Should be the same as the original
  * camera's pose before undistortion).
+ * @param timeOffsetSecDeviceCamera time offset between device and camera. Online calibration may
+ * estimate this value. correctedCaptureTime = captureTimestampNs - TimeOffsetSecDeviceCamera
  */
 CameraCalibration getSphericalCameraCalibration(
     const int imageWidth,
     const int imageHeight,
     const double focalLength,
     const std::string& label = "",
-    const Sophus::SE3d& T_Device_Camera = Sophus::SE3d{});
+    const Sophus::SE3d& T_Device_Camera = Sophus::SE3d{},
+    const double timeOffsetSecDeviceCamera = 0.0);
 
 CameraCalibration rotateCameraCalibCW90Deg(const CameraCalibration& camCalib);
 } // namespace projectaria::tools::calibration

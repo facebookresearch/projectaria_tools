@@ -89,6 +89,9 @@ CameraCalibration parseCameraCalibrationFromJson(const nlohmann::json& json) {
   const std::string label = json["Label"];
   const std::string serialNumber = json["SerialNumber"];
   const auto T_Device_Camera = parseSe3dFromJson(json["T_Device_Camera"]);
+  const double timeOffsetSecDeviceCamera = json.contains("TimeOffsetSec_Device_Camera")
+      ? static_cast<double>(json["TimeOffsetSec_Device_Camera"])
+      : 0.0;
 
   std::optional<double> validRadius;
   int width;
@@ -124,7 +127,8 @@ CameraCalibration parseCameraCalibrationFromJson(const nlohmann::json& json) {
       height,
       validRadius,
       maxSolidAngle,
-      serialNumber);
+      serialNumber,
+      timeOffsetSecDeviceCamera);
   return camCalib;
 }
 
