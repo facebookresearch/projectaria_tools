@@ -147,6 +147,26 @@ std::unordered_map<std::string, Sophus::SE3d> constructCadForDvtLarge() {
 
   return cadMapT_Device_Sensor;
 }
+
+// A helper function for constructing CAD extrinsics for DVT-MARIA
+std::unordered_map<std::string, Sophus::SE3d> constructCadForDvtmAria() {
+  std::unordered_map<std::string, Sophus::SE3d> cadMapT_Device_Sensor;
+
+  const std::vector<std::string> cadCsvLines = {
+      "camera-slam-left, 0.034514, 0.018218, 0.031484, 0.706941, -0.000074, -0.707273, 0.579394, 0.573576, 0.579062",
+      "camera-slam-right, -0.034514, 0.018218, 0.031484, 0.706941, 0.000074, 0.707273, -0.579394, 0.573576, 0.579062",
+      "camera-rgb, 0.0000, 0.021863, 0.033201, 1.000000, 0.000000, 0.000000, 0.000000, 0.573576, 0.819152",
+      "imu-left, 0.021263 ,0.014650, 0.033979, 0, -1, 0, 0, 0, 1",
+      "imu-right, -0.023299, 0.016315, 0.034099, 1, 0, 0, 0, 0, 1"};
+  for (const auto& line : cadCsvLines) {
+    const auto maybeLabelAndPose = readSingleCsvLine(line);
+    XR_CHECK(maybeLabelAndPose.has_value(), "Reading csv line has failed: {}", line);
+    cadMapT_Device_Sensor.emplace(
+        maybeLabelAndPose.value().first, maybeLabelAndPose.value().second);
+  }
+
+  return cadMapT_Device_Sensor;
+}
 } // namespace
 
 DeviceCadExtrinsics::DeviceCadExtrinsics(
@@ -157,8 +177,7 @@ DeviceCadExtrinsics::DeviceCadExtrinsics(
   } else if (deviceSubType == "DVT-L") {
     labelToT_Cpf_Sensor_ = constructCadForDvtLarge();
   } else if (deviceSubType == "DVT-MARIA") {
-    XR_LOGW("No CAD available for mAria device");
-    return;
+    labelToT_Cpf_Sensor_ = constructCadForDvtmAria();
   } else if (deviceSubType == "SimulatedDevice") {
     XR_LOGW("No CAD available for simulated device");
     return;
@@ -177,7 +196,7 @@ std::optional<Sophus::SE3d> DeviceCadExtrinsics::getT_Device_Sensor(
   if (maybePose != labelToT_Cpf_Sensor_.end()) {
     return T_Device_Cpf_ * maybePose->second;
   } else {
-    return std::nullopt;
+    return {};
   }
 }
 
