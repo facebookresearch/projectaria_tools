@@ -22,9 +22,7 @@ jobs:
           PROJECTARIA_TOOLS_BUILD_TOOLS]
     steps:
       - name : Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: 'true'
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         shell: bash

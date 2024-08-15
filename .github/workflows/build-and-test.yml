@@ -19,9 +19,7 @@ jobs:
         os: [ubuntu-latest,  macos-13, macos-14] # macos-14 is macSilicon
     steps:
       - name : Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: 'true'
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         shell: bash
