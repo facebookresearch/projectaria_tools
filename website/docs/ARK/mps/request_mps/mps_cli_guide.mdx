@@ -79,240 +79,155 @@ Project Aria MPS CLI settings can be customized via the mps.ini file. This file 
 
 <table>
  <tr>
- <td><strong>Setting</strong>
- </td>
- <td><strong>Description</strong>
- </td>
- <td><strong>Default Value</strong>
- </td>
+ <td><strong>Setting</strong></td>
+ <td><strong>Description</strong></td>
+ <td><strong>Default Value</strong></td>
  </tr>
  <tr>
- <td colspan="3" ><strong>General settings</strong>
- </td>
+ <td colspan="3" ><strong>General settings</strong></td>
  </tr>
  <tr>
- <td><code>log_dir</code>
- </td>
- <td>Where log files are saved for each run. The filename is the timestamp from when the request tool started running.
- </td>
- <td><code>/tmp/logs/projectaria/mps/</code>
- </td>
+ <td><code>log_dir</code></td>
+ <td>Where log files are saved for each run. The filename is the timestamp from when the request tool started running.</td>
+ <td><code>/tmp/logs/projectaria/mps/</code></td>
  </tr>
  <tr>
- <td><code>status_check_interval</code>
- </td>
- <td>How long the MPS CLI waits to check the status of data during the Processing stage.
- </td>
- <td>30 secs
- </td>
+ <td><code>status_check_interval</code></td>
+ <td>How long the MPS CLI waits to check the status of data during the Processing stage.</td>
+ <td>30 secs</td>
  </tr>
  <tr>
- <td colspan="3" > <strong>HASH</strong>
- </td>
+ <td colspan="3" > <strong>HASH</strong></td>
  </tr>
  <tr>
- <td><code>concurrent_hashes</code>
- </td>
- <td>Maximum number of files that can be concurrently hashed
- </td>
- <td>4
- </td>
+ <td><code>concurrent_hashes</code></td>
+ <td>Maximum number of files that can be concurrently hashed</td>
+ <td>4</td>
  </tr>
  <tr>
- <td><code>chunk_size</code>
- </td>
- <td>Chunk size to use for hashing
- </td>
- <td>10MB
- </td>
+ <td><code>chunk_size</code></td>
+ <td>Chunk size to use for hashing</td>
+ <td>10MB</td>
  </tr>
  <tr>
- <td colspan="3" ><strong>Encryption</strong>
- </td>
+ <td colspan="3" ><strong>Encryption</strong></td>
  </tr>
  <tr>
- <td><code>chunk_size</code>
- </td>
- <td>Chunk size to use for encryption
- </td>
- <td>50MB
- </td>
+ <td><code>chunk_size</code></td>
+ <td>Chunk size to use for encryption</td>
+ <td>50MB</td>
  </tr>
  <tr>
- <td><code>concurrent_encryptions</code>
- </td>
- <td>Maximum number of files that can be concurrently encrypted
- </td>
- <td>4
- </td>
+ <td><code>concurrent_encryptions</code></td>
+ <td>Maximum number of files that can be concurrently encrypted</td>
+ <td>4</td>
  </tr>
  <tr>
- <td><code>delete_encrypted_files</code>
- </td>
- <td>Whether to delete the encrypted files after upload is done. If you set this to false local disk usage will double, due to an encrypted copy of each file.
- </td>
- <td>True.
- </td>
+ <td><code>delete_encrypted_files</code></td>
+ <td>Whether to delete the encrypted files after upload is done. If you set this to false local disk usage will double, due to an encrypted copy of each file.</td>
+ <td>True.</td>
  </tr>
  <tr>
- <td colspan="3" ><strong>Health Check</strong>
- </td>
+ <td colspan="3" ><strong>Health Check</strong></td>
  </tr>
  <tr>
- <td><code>concurrent_health_checks</code>
- </td>
- <td>Maximum number of VRS file healthchecks that can be run concurrently
- </td>
- <td>2
- </td>
+ <td><code>concurrent_health_checks</code></td>
+ <td>Maximum number of VRS file healthchecks that can be run concurrently</td>
+ <td>2</td>
  </tr>
  <tr>
- <td colspan="3" ><strong>Uploads</strong>
- </td>
+ <td colspan="3" ><strong>Uploads</strong></td>
  </tr>
  <tr>
- <td><code>backoff</code>
- </td>
- <td>The exponential back off factor for retries during failed uploads. The wait time between successive retries will increase with this factor.
- </td>
- <td>1.5
- </td>
+ <td><code>backoff</code></td>
+ <td>The exponential back off factor for retries during failed uploads. The wait time between successive retries will increase with this factor.</td>
+ <td>1.5</td>
  </tr>
  <tr>
- <td><code>interval</code>
- </td>
- <td>Base delay between retries.
- </td>
- <td>20 secs
- </td>
+ <td><code>interval</code></td>
+ <td>Base delay between retries.</td>
+ <td>20 secs</td>
  </tr>
  <tr>
- <td><code>retries</code>
- </td>
- <td>Maximum number of retries before giving up.
- </td>
- <td>10
- </td>
+ <td><code>retries</code></td>
+ <td>Maximum number of retries before giving up.</td>
+ <td>10</td>
  </tr>
  <tr>
- <td><code>concurrent_uploads</code>
- </td>
- <td>Maximum number of concurrent uploads.
- </td>
- <td>4
- </td>
+ <td><code>concurrent_uploads</code></td>
+ <td>Maximum number of concurrent uploads.</td>
+ <td>4</td>
  </tr>
  <tr>
- <td><code>max_chunk_size</code>
- </td>
- <td>Maximum chunk size that can be used during uploads.
- </td>
- <td>100 MB
- </td>
+ <td><code>max_chunk_size</code></td>
+ <td>Maximum chunk size that can be used during uploads.</td>
+ <td>100 MB</td>
  </tr>
  <tr>
- <td><code>min_chunk_size</code>
- </td>
- <td>The minimum upload chunk size.
- </td>
- <td>5 MB
- </td>
+ <td><code>min_chunk_size</code></td>
+ <td>The minimum upload chunk size.</td>
+ <td>5 MB</td>
  </tr>
  <tr>
- <td><code>smoothing_window_size</code>
- </td>
- <td>Size of the smoothing window to adjust the chunk size. This value defines the number of uploaded chunks that will be used to determine the next chunk size.
- </td>
- <td>10
- </td>
+ <td><code>smoothing_window_size</code></td>
+ <td>Size of the smoothing window to adjust the chunk size. This value defines the number of uploaded chunks that will be used to determine the next chunk size.</td>
+ <td>10</td>
  </tr>
  <tr>
- <td><code>target_chunk_upload_secs</code>
- </td>
- <td>Target time to upload a single chunk. If the chunks in a smoothing window take longer, we reduce the chunk size. If it takes less time, we increase the chunk size.
- </td>
- <td>3 secs
- </td>
+ <td><code>target_chunk_upload_secs</code></td>
+ <td>Target time to upload a single chunk. If the chunks in a smoothing window take longer, we reduce the chunk size. If it takes less time, we increase the chunk size.</td>
+ <td>3 secs</td>
  </tr>
  <tr>
- <td colspan="3" ><strong>GraphQL (Query the MPS backend for MPS Status)</strong>
- </td>
+ <td colspan="3" ><strong>GraphQL (Query the MPS backend for MPS Status)</strong></td>
  </tr>
  <tr>
- <td><code>backoff</code>
- </td>
- <td>This the exponential back off factor for retries for failed queries. The wait time between successive retries will increase with this factor
- </td>
- <td>1.5
- </td>
+ <td><code>backoff</code></td>
+ <td>This the exponential back off factor for retries for failed queries. The wait time between successive retries will increase with this factor</td>
+ <td>1.5</td>
  </tr>
  <tr>
- <td><code>interval</code>
- </td>
- <td>Base delay between retries
- </td>
- <td>4 secs
- </td>
+ <td><code>interval</code></td>
+ <td>Base delay between retries</td>
+ <td>4 secs</td>
  </tr>
  <tr>
- <td><code>retries</code>
- </td>
- <td>Maximum number of retries before giving up
- </td>
- <td>3
- </td>
+ <td><code>retries</code></td>
+ <td>Maximum number of retries before giving up</td>
+ <td>3</td>
  </tr>
  <tr>
- <td colspan="3" ><strong>Download</strong>
- </td>
+ <td colspan="3" ><strong>Download</strong></td>
  </tr>
  <tr>
- <td><code>backoff</code>
- </td>
- <td>This the exponential back off factor for retries during failed downloads. The wait time between successive retries will increase with this factor.
- </td>
- <td>1.5
- </td>
+ <td><code>backoff</code></td>
+ <td>This the exponential back off factor for retries during failed downloads. The wait time between successive retries will increase with this factor.</td>
+ <td>1.5</td>
  </tr>
  <tr>
- <td><code>interval</code>
- </td>
- <td>Base delay between retries
- </td>
- <td>20 secs
- </td>
+ <td><code>interval</code></td>
+ <td>Base delay between retries</td>
+ <td>20 secs</td>
  </tr>
  <tr>
- <td><code>retries</code>
- </td>
- <td>Maximum number of retries before giving up
- </td>
- <td>10
- </td>
+ <td><code>retries</code></td>
+ <td>Maximum number of retries before giving up</td>
+ <td>10</td>
  </tr>
  <tr>
- <td><code>chunk_size</code>
- </td>
- <td>The chunk size to use for downloads
- </td>
- <td>10MB
- </td>
+ <td><code>chunk_size</code></td>
+ <td>The chunk size to use for downloads</td>
+ <td>10MB</td>
  </tr>
  <tr>
- <td><code>concurrent_downloads</code>
- </td>
- <td>Number of concurrent downloads
- </td>
- <td>10
- </td>
+ <td><code>concurrent_downloads</code></td>
+ <td>Number of concurrent downloads</td>
+ <td>10</td>
  </tr>
  <tr>
- <td><code>delete_zip</code>
- </td>
- <td>The server will send the results in a zip file. This flag controls whether to delete the zip file after extraction or not
- </td>
- <td>True
- </td>
+ <td><code>delete_zip</code></td>
+ <td>The server will send the results in a zip file. This flag controls whether to delete the zip file after extraction or not</td>
+ <td>True</td>
  </tr>
 </table>
 

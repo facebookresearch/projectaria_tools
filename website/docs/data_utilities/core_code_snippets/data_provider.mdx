@@ -111,9 +111,9 @@ Project Aria data has four kinds of TimeDomain entries. We strongly recommend al
 * TimeDomain.TIME_CODE - for multiple devices
 
 You can also search using three different time query options:
-* TimeQueryOptions.BEFORE (default): last data with t <= t_query
-* TimeQueryOptions.AFTER : first data with t >= t_query
-* TimeQueryOptions.CLOSEST : the data where |t - t_query| is smallest
+* TimeQueryOptions.BEFORE (default): last data with `t <= t_query`
+* TimeQueryOptions.AFTER : first data with `t >= t_query`
+* TimeQueryOptions.CLOSEST : the data where `|t - t_query|` is smallest
 
 ```python
 for stream_id in provider.get_all_streams():
@@ -133,9 +133,9 @@ for stream_id in provider.get_all_streams():
 * TimeDomain::TimeCode - for multiple devices
 
 You can also search using three different time query options:
-* TimeQueryOptions::Before : last data with t <= t_query
-* TimeQueryOptions::After : first data with t >= t_query
-* TimeQueryOptions::Closest : the data where |t - t_query| is smallest
+* TimeQueryOptions::Before : last data with `t <= t_query`
+* TimeQueryOptions::After : first data with `t >= t_query`
+* TimeQueryOptions::Closest : the data where `|t - t_query|` is smallest
 
 ```cpp
 for (const auto& streamId : provider.getAllStreams()) {
