@@ -110,10 +110,10 @@ def main():
         print(f"Saving .rrd file to {args.rrd_output_path}")
         rr.save(args.rrd_output_path)
 
-    rr.log("world", rr.ViewCoordinates.RIGHT_HAND_Y_UP, timeless=True)
+    rr.log("world", rr.ViewCoordinates.RIGHT_HAND_Y_UP, static=True)
 
     #
-    # Log timeless information
+    # Log static information
     #
 
     # Log RGB camera calibration
@@ -136,7 +136,7 @@ def main():
                 / args.down_sampling_factor
             ),
         ),
-        timeless=True,
+        static=True,
     )
 
     # Log Aria Glasses outline
@@ -146,7 +146,7 @@ def main():
     rr.log(
         "world/device/glasses_outline",
         rr.LineStrips3D([aria_glasses_point_outline]),
-        timeless=True,
+        static=True,
     )
 
     # For all selected timestamp (log data we want to see)
@@ -347,7 +347,7 @@ def main():
                 rr.log(
                     f"world/objects/static/{instance_info.name}",
                     rr.LineStrips3D([obb]),
-                    timeless=True,
+                    static=True,
                 )
     print(f"Loaded scene: {args.sequence_path}")
     print("Scene characteristics:")

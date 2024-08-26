@@ -132,7 +132,7 @@ def main():
             ],
             labels=boxes_labels,
         ),
-        timeless=True,
+        static=True,
     )
 
     #
@@ -145,7 +145,7 @@ def main():
     rr.log(
         "world/device_trajectory",
         rr.LineStrips3D([device_positions], colors=[PLOTTING_COLORS["trajectory"]]),
-        timeless=True,
+        static=True,
     )
 
     #
@@ -189,7 +189,7 @@ def main():
     rr.log(
         "world/points",
         rr.Points3D(points, colors=PLOTTING_COLORS["points"], radii=0.005),
-        timeless=True,
+        static=True,
     )
 
     #
@@ -230,7 +230,7 @@ def main():
 
     # Log the camera pose
     rr.log(
-        f"world/frame/{frame_idx}", ToTransform3D(T_world_camera, False), timeless=True
+        f"world/frame/{frame_idx}", ToTransform3D(T_world_camera, False), static=True
     )
     # Log the pinhole camera model
     rr.log(
@@ -239,12 +239,12 @@ def main():
             resolution=[pinhole.get_image_size()[0], pinhole.get_image_size()[1]],
             focal_length=float(pinhole.get_focal_lengths()[0]),
         ),
-        timeless=True,
+        static=True,
     )
     # Log the RGB image (undistorted so we have pixel perfect reprojection in Rerun UI)
     rgb = Image.open(rgb_path)
     undistorted_rgb = calibration.distort_by_calibration(rgb, pinhole, device)
-    rr.log(f"world/frame/{frame_idx}", rr.Image(undistorted_rgb), timeless=True)
+    rr.log(f"world/frame/{frame_idx}", rr.Image(undistorted_rgb), static=True)
 
 
 if __name__ == "__main__":

@@ -139,7 +139,7 @@ def log_device_trajectory(trajectory_files: List[str]) -> None:
         rr.log(
             entity_path,
             rr.LineStrips3D(device_trajectory, radii=0.008),
-            timeless=True,
+            static=True,
         )
         print(f"Showing: {trajectory_file} as {entity_path}")
         i += 1
@@ -169,7 +169,7 @@ def log_point_clouds(points_files: List[str]) -> None:
         rr.log(
             entity_path,
             rr.Points3D(point_positions, radii=0.006),
-            timeless=True,
+            static=True,
         )
         print(f"Showing: {points_file} as {entity_path}")
         i += 1
@@ -194,7 +194,7 @@ def log_RGB_camera_calibration(
                 rgb_camera_calibration.get_focal_lengths()[0] / down_sampling_factor
             ),
         ),
-        timeless=True,
+        static=True,
     )
 
 
@@ -208,7 +208,7 @@ def log_Aria_glasses_outline(
     rr.log(
         "world/device/glasses_outline",
         rr.LineStrips3D([aria_glasses_point_outline]),
-        timeless=True,
+        static=True,
     )
 
 
@@ -573,7 +573,7 @@ def main():
     if args.rrd_output_path:
         print(f"Saving .rrd file to {args.rrd_output_path}")
         rr.save(args.rrd_output_path)
-    rr.log("world", rr.ViewCoordinates.RIGHT_HAND_Z_UP, timeless=True)
+    rr.log("world", rr.ViewCoordinates.RIGHT_HAND_Z_UP, static=True)
 
     if args.trajectory:
         log_device_trajectory(args.trajectory)

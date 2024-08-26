@@ -72,7 +72,7 @@ def logStaticData(
         rr.log(
             f"world/points_{index}",
             rr.Points3D(point_positions, colors=POINT_COLOR, radii=0.002),
-            timeless=True,
+            static=True,
         )
 
     # Log device trajectory (reduce sample count for display)
@@ -101,7 +101,7 @@ def logStaticData(
             rr.LineStrips3D(
                 device_trajectory, colors=TRAJECTORY_COLORS[index], radii=0.01
             ),
-            timeless=True,
+            static=True,
         )
     if (
         aea_data_provider.has_mps_data()
@@ -124,14 +124,14 @@ def logStaticData(
                     rgb_camera_calibration.get_focal_lengths()[0] / down_sampling_factor
                 ),
             ),
-            timeless=True,
+            static=True,
         )
     # Log Aria Glasses Outline
     aria_glasses_point_outline = AriaGlassesOutline(device_calibration)
     rr.log(
         f"world/device_{index}/glasses_outline",
         rr.LineStrips3D([aria_glasses_point_outline]),
-        timeless=True,
+        static=True,
     )
 
 

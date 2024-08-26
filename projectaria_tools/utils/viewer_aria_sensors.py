@@ -63,7 +63,7 @@ def main():
         print(f"Saving .rrd file to {args.rrd_output_path}")
         rr.save(args.rrd_output_path)
     # Aria coordinate system sets X down, Z in front, Y Left
-    rr.log("device", rr.ViewCoordinates.RIGHT_HAND_X_DOWN, timeless=True)
+    rr.log("device", rr.ViewCoordinates.RIGHT_HAND_X_DOWN, static=True)
 
     cam_labels = device_calibration.get_camera_labels()
     print(f"Log {len(cam_labels)} Cameras")
