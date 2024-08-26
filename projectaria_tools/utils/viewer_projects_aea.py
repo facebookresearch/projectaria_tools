@@ -174,7 +174,7 @@ def logInstanceData(
         new_resolution, 1.0 / down_sampling_factor
     )
     image_display = Image.fromarray(image_display)
-    image_display = image_display.resize(new_resolution)
+    image_display = image_display.resize((new_resolution[0], new_resolution[1]))
     image_display = np.array(image_display)
 
     if undistort:
