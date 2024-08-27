@@ -22,8 +22,10 @@ namespace projectaria::tools::calibration {
 /**
  * @brief A utility function to crop and rescale an Aria camera calibration. This function exactly
  * replicates the process of the camera firmware. Therefore it only supports a fixed number of
- * operations, otherwise it will throw.
- * - Aria RGB camera from [2880, 2880] -> [1408, 1408].
+ * operations, otherwise it will throw. We also support a case where the RGB images are 704x704
+ * which is not possible by the Aria firmware. This is to account for the case of Aria simulation
+ * data which is often at that lower resolution
+ * - Aria RGB camera from [2880, 2880] -> [1408, 1408] or [704, 704].
  * - Aria ET camera from [640, 480] -> [320, 240].
  * @param deviceCalibration The device calibration to rescale and crop. This function will modify
  * the calibration in-place.

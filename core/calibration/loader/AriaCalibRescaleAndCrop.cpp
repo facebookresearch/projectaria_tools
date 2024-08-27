@@ -25,7 +25,7 @@
 namespace projectaria::tools::calibration {
 
 namespace {
-// we only support 2880x2880 or 1408x1408 RGB sizes
+// we only support 2880x2880, 1408x1408 or 704x704 RGB sizes
 CameraCalibration rescaleAriaRgb(
     const CameraCalibration& camCalib,
     const Eigen::Vector2i& newImageSize) {
@@ -36,11 +36,12 @@ CameraCalibration rescaleAriaRgb(
       calibImageSize.x(),
       calibImageSize.y());
   XR_CHECK(
-      newImageSize == Eigen::Vector2i(1408, 1408),
-      "Supported downscaled image size are assumed to be (1408, 1408) for Aria RGB images. Detected size: ({}, {})",
+      newImageSize == Eigen::Vector2i(1408, 1408) || newImageSize == Eigen::Vector2i(704, 704),
+      "Supported downscaled image size are assumed to be (1408, 1408) or (704, 704) for Aria RGB images. Detected size: ({}, {})",
       newImageSize.x(),
       newImageSize.y());
-  return camCalib.rescale(newImageSize, 0.5, {32.0, 32.0});
+  double rescaleFactor = newImageSize == Eigen::Vector2i(1408, 1408) ? 0.5 : 0.25;
+  return camCalib.rescale(newImageSize, rescaleFactor, {32.0, 32.0});
 }
 
 // we only support 640x480 or 320x240 ET sizes
