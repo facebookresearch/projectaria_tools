@@ -48,12 +48,10 @@ jobs:
               libfmt-dev \
               libturbojpeg-dev libpng-dev \
               liblz4-dev libzstd-dev libxxhash-dev \
-              libboost-chrono-dev \
               libboost-date-time-dev \
               libboost-filesystem-dev \
               libboost-iostreams-dev \
-              libboost-system-dev \
-              libboost-thread-dev
+              libboost-system-dev
             # Clean APT cache
             sudo apt-get clean
       - name: Install projectaria_tools

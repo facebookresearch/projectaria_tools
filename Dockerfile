@@ -35,12 +35,10 @@ RUN sudo apt-get install -y libpython3-dev python3-pip;
 # Install VRS dependencies and compile/install VRS
 
 RUN sudo apt-get install -y \
-    libboost-chrono-dev \
     libboost-date-time-dev \
     libboost-filesystem-dev \
     libboost-iostreams-dev \
     libboost-system-dev \
-    libboost-thread-dev \
     libfmt-dev \
     libgmock-dev libgtest-dev \
     liblz4-dev \
