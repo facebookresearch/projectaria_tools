@@ -37,6 +37,19 @@ if(BUILD_UNIT_TEST)
     enable_testing()
 endif(BUILD_UNIT_TEST)
 
+# Configure MSVC compiler to correctly link libraries
+if(MSVC AND BUILD_PYTHON_BINDINGS)
+  set(CMAKE_EXE_LINKER_FLAGS
+      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:\"LIBCMT\"")
+      set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
+      add_compile_options(
+        $<$<CONFIG:>:/MT> #---------|
+        $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
+        $<$<CONFIG:Release>:/MT> #--|
+    )
+endif()
+
 # Additional CMake configuration to setup 3rd party libraries
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(${CMAKE_MODULE_PATH}/Setup3rdParty.cmake)

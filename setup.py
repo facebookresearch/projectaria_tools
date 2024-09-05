@@ -79,12 +79,28 @@ class CMakeBuild(build_ext):
             # Therefore, we delete the PYTHONPATH variable.
             del os.environ["PYTHONPATH"]
 
+        #
+        # Setup platform specifics (compiler settings)
+        #
         cmake_generator = os.environ.get("CMAKE_GENERATOR", "")
         if self.compiler.compiler_type != "msvc":
             if "Ninja" in cmake_generator:
                 cmake_args += ["-GNinja"]
         else:
             build_args += ["--config=Release", "--parallel 4"]
+            if "Visual Studio" in cmake_generator:
+                cmake_args += [f"-G {cmake_generator}"]
+            if os.path.exists("vcpkg"):
+                # Note: VCPKG can be used to build static libraries & build a portable pypi compatible wheel
+                # We are using vcpkg to compile dependencies
+                # i.e configure the build to use CMAKE_TOOLCHAIN_FILE and VCPKG_TARGET_TRIPLET
+                cmake_args += ["-DVCPKG_TARGET_TRIPLET=x64-windows-static"]
+                vcpkg_toolchain_relative_filepath = (
+                    "vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
+                )
+                cmake_args += [
+                    f"-DCMAKE_TOOLCHAIN_FILE={os.path.abspath(vcpkg_toolchain_relative_filepath)}"
+                ]
 
         if sys.platform.startswith("darwin"):
             # Cross-compile support for macOS - respect ARCHFLAGS if set

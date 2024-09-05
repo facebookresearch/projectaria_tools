@@ -3,7 +3,8 @@
 #    python3 -m cibuildwheel --output-dir dist --platform linux .
 # To generate wheels locally for mac x86_64 run
 #    python3 -m cibuildwheel --output-dir dist --platform macos --arch x86_64 .
-#
+# To generate wheels locally for windows AMD64
+#    python3 -m cibuildwheel --output-dir dist --platform windows --arch AMD64 .
 
 [build-system]
 requires = [
@@ -45,3 +46,35 @@ cd /tmp && git clone --recursive https://github.com/boostorg/boost.git -b boost-
 [tool.cibuildwheel.macos]
 before-build="brew install boost cmake fmt glog jpeg-turbo libpng lz4 xxhash zstd"
 environment = {"CMAKE_ARGS"="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"}
+
+##
+# Specifics for Windows platform
+##
+# VCPKG is used to retrieve and compile static libraries
+# To ensure we have a fast build we:
+# - are editing x64-windows-static.cmake to build RELEASE only artifacts
+# - build only the required boost dependencies (building all boost is slow)
+##
+[tool.cibuildwheel.windows]
+environment = {"CMAKE_GENERATOR"="Visual Studio 17 2022"}
+before-build = [
+"if not exist \"vcpkg\" git clone --branch 2024.08.23 https://github.com/microsoft/vcpkg.git",
+"cd vcpkg",
+"findstr /c:\"set(VCPKG_BUILD_TYPE release)\" triplets\\x64-windows-static.cmake || echo set(VCPKG_BUILD_TYPE release) >> triplets\\x64-windows-static.cmake",
+"bootstrap-vcpkg.bat -disableMetrics",
+"vcpkg update",
+"vcpkg integrate install",
+"vcpkg integrate remove",
+"vcpkg install lz4:x64-windows-static",
+"vcpkg install zstd:x64-windows-static",
+"vcpkg install xxhash:x64-windows-static",
+"vcpkg install libpng:x64-windows-static",
+"vcpkg install libjpeg-turbo:x64-windows-static",
+"vcpkg install fmt:x64-windows-static",
+"vcpkg install boost-date-time:x64-windows-static",
+"vcpkg install boost-filesystem:x64-windows-static",
+"vcpkg install boost-iostreams:x64-windows-static",
+"vcpkg install boost-system:x64-windows-static",
+"vcpkg install boost-uuid:x64-windows-static",
+"vcpkg install boost-interprocess:x64-windows-static",
+]

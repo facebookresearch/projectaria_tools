@@ -63,7 +63,7 @@ jobs:
         run: |
           python3 generate_stubs.py
           cp -r projectaria_tools-stubs/projectaria_tools .
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: projectaria_tools_stubs
           path: projectaria_tools
@@ -75,7 +75,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-13, ubuntu-latest, macos-latest-xlarge]
+        os: [macos-13, ubuntu-latest, macos-latest-xlarge, windows-2022]
         python-version: ["3.10", "3.11", "3.12"]
         # Default consider only Python >=3.10 since actions/setup-python supports only python<3.10 and mac-silicon
         # Other Python versions are added below as matrix entries
@@ -106,7 +106,7 @@ jobs:
         with:
           submodules: recursive
       - name: Download the pre-computed python stubs
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: projectaria_tools_stubs
           path: projectaria_tools
@@ -129,7 +129,7 @@ jobs:
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_* *x86_64*"
           CIBW_ARCHS: "arm64"
       - name: Build wheels for CPython
-        if: matrix.os != 'macos-latest-xlarge'
+        if: ${{ (matrix.os == 'macos-13') || (matrix.os == 'ubuntu-latest') }}
         shell: bash
         run: |
           CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist
@@ -138,9 +138,20 @@ jobs:
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_*"
           CIBW_ARCHS: "x86_64"
-      - uses: actions/upload-artifact@v2
+      - name: Build wheels for CPython
+        if: matrix.os == 'windows-2022'
+        shell: bash
+        run: |
+          python3 -m cibuildwheel --output-dir dist
+        env:
+          CIBW_BUILD_VERBOSITY: 3
+          CIBW_BUILD: ${{ matrix.cibw_build }}
+          CIBW_SKIP: "*-manylinux_i686 *-musllinux_* *-win32"
+          CIBW_ARCHS: "AMD64"
+          CIBW_PLATFORM: "windows"
+      - uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions
+          name: python-package-distributions-${{ matrix.os }}-${{ matrix.python-version }}
           path: dist
       - name: Test wheel
         shell: bash
@@ -160,9 +171,10 @@ jobs:
     steps:
     - name: Download wheels from previous jobs
       # by default this will download all artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
-        name: python-package-distributions
+        pattern: python-package-distributions-*
+        merge-multiple: true
         # PyPI publish action uploads everything under dist/* by default
         path: dist
 
