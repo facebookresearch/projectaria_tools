@@ -458,21 +458,21 @@ def log_hand_tracking(
                 zip(wrist_pixels, palm_pixels)
             ):
                 # normal tip vector projected to image can be used as arrow direction for the vis
-                if wrist_pixel is not None:
+                if (
+                    wrist_normal_tip_pixels[hand_i] is not None
+                    and wrist_pixel is not None
+                ):
                     wrist_normal_in_2d = wrist_normal_tip_pixels[hand_i] - wrist_pixel
-                    if wrist_normal_in_2d is None:
-                        wrist_normal_in_2d = np.zeros((2,))
-                    else:
-                        wrist_normal_in_2d /= np.linalg.norm(wrist_normal_in_2d)
-                        wrist_normal_in_2d *= NORMAL_VIS_LEN_2D
+                    wrist_normal_in_2d /= np.linalg.norm(wrist_normal_in_2d)
+                    wrist_normal_in_2d *= NORMAL_VIS_LEN_2D
                     wrist_and_palm_normal_arrows_2d.append(wrist_normal_in_2d)
-                if palm_pixel is not None:
+                if (
+                    palm_normal_tip_pixels[hand_i] is not None
+                    and palm_pixel is not None
+                ):
                     palm_normal_in_2d = palm_normal_tip_pixels[hand_i] - palm_pixel
-                    if palm_normal_in_2d is None:
-                        palm_normal_in_2d = np.zeros((2,))
-                    else:
-                        palm_normal_in_2d /= np.linalg.norm(palm_normal_in_2d)
-                        palm_normal_in_2d *= NORMAL_VIS_LEN_2D
+                    palm_normal_in_2d /= np.linalg.norm(palm_normal_in_2d)
+                    palm_normal_in_2d *= NORMAL_VIS_LEN_2D
                     wrist_and_palm_normal_arrows_2d.append(palm_normal_in_2d)
 
             if wrist_and_palm_normal_arrows_2d:
