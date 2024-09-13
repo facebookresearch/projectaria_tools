@@ -19,6 +19,7 @@
 #include <calibration/SensorCalibration.h>
 
 #include <logging/Checks.h>
+#include <string>
 #define DEFAULT_LOG_CHANNEL "SensorCalibrationJson"
 #include <logging/Log.h>
 
@@ -73,9 +74,41 @@ Sophus::SE3d parseSe3dFromJson(const nlohmann::json& json) {
   Eigen::Quaterniond rotation(qReal, qImag.x(), qImag.y(), qImag.z());
   return {rotation, translation};
 }
+
+// helper function that returns <width, height, validRadius, maxSolidAngleInRad> camera config for
+// full resolution
+std::tuple<int, int, std::optional<double>, double> constructCameraConfigForFactoryCalib(
+    const std::string& cameraLabel) {
+  if (cameraLabel == "camera-rgb") {
+    return {2880, 2880, kRgbValidRadius, kRgbMaxSolidAngleRad};
+  } else if (cameraLabel == "camera-slam-left" || cameraLabel == "camera-slam-right") {
+    return {640, 480, kSlamValidRadius, kSlamMaxSolidAngleRad};
+  } else if (cameraLabel == "camera-et-left" || cameraLabel == "camera-et-right") {
+    return {640, 480, std::nullopt, kEtMaxSolidAngleRad};
+  } else {
+    throw std::runtime_error(fmt::format("Unrecognized camera label for Aria: {}", cameraLabel));
+  }
+}
+
+// helper function that returns <width, height, validRadius, maxSolidAngleInRad> camera config for
+// ASE simulated datasets, where its RGB camera is scaled to 704x704, along with its calibration
+// content stored in VRS file.
+std::tuple<int, int, std::optional<double>, double> constructCameraConfigForAseSimulation(
+    const std::string& cameraLabel) {
+  if (cameraLabel == "camera-rgb") {
+    return {704, 704, kRgbValidRadius * 0.25, kRgbMaxSolidAngleRad};
+  } else if (cameraLabel == "camera-slam-left" || cameraLabel == "camera-slam-right") {
+    return {640, 480, kSlamValidRadius, kSlamMaxSolidAngleRad};
+  } else if (cameraLabel == "camera-et-left" || cameraLabel == "camera-et-right") {
+    return {640, 480, std::nullopt, kEtMaxSolidAngleRad};
+  } else {
+    throw std::runtime_error(fmt::format("Unrecognized camera label for Aria: {}", cameraLabel));
+  }
+}
+
 } // namespace
 
-CameraCalibration parseCameraCalibrationFromJson(const nlohmann::json& json) {
+CameraCalibration parseCameraCalibrationFromJson(const nlohmann::json& json, bool aseSimulated) {
   // Parse projection params
   const std::string projectionModelName = json["Projection"]["Name"];
   CameraProjection::ModelType modelName;
@@ -93,29 +126,19 @@ CameraCalibration parseCameraCalibrationFromJson(const nlohmann::json& json) {
       ? static_cast<double>(json["TimeOffsetSec_Device_Camera"])
       : 0.0;
 
-  std::optional<double> validRadius;
   int width;
   int height;
+  std::optional<double> validRadius;
   double maxSolidAngle;
-  // Handle sensor valid radius and camera resolution (full res during calibration)
-  if (label == "camera-rgb") {
-    validRadius = kRgbValidRadius;
-    width = 2880;
-    height = 2880;
-    maxSolidAngle = kRgbMaxSolidAngleRad;
-  } else if (label == "camera-slam-left" || label == "camera-slam-right") {
-    validRadius = kSlamValidRadius;
-    width = 640;
-    height = 480;
-    maxSolidAngle = kSlamMaxSolidAngleRad;
-  } else if (label == "camera-et-left" || label == "camera-et-right") {
-    width = 640;
-    height = 480;
-    maxSolidAngle = kEtMaxSolidAngleRad;
+
+  // Handle camera resolution and other configs for ASE simulated datasets
+  if (aseSimulated) {
+    std::tie(width, height, validRadius, maxSolidAngle) =
+        constructCameraConfigForAseSimulation(label);
   } else {
-    const std::string error = fmt::format("Unrecognized camera label for Aria: {}", label);
-    XR_LOGE("{}", error);
-    throw std::runtime_error{error};
+    // factory calibration config uses full resolution
+    std::tie(width, height, validRadius, maxSolidAngle) =
+        constructCameraConfigForFactoryCalib(label);
   }
 
   CameraCalibration camCalib(

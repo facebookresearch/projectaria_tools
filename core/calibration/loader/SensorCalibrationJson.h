@@ -21,7 +21,9 @@
 
 namespace projectaria::tools::calibration {
 
-CameraCalibration parseCameraCalibrationFromJson(const nlohmann::json& json);
+CameraCalibration parseCameraCalibrationFromJson(
+    const nlohmann::json& json,
+    bool aseSimulated = false);
 ImuCalibration parseImuCalibrationFromJson(const nlohmann::json& json);
 MagnetometerCalibration parseMagnetometerCalibrationFromJson(const nlohmann::json& json);
 BarometerCalibration parseBarometerCalibrationFromJson(const nlohmann::json& json);
