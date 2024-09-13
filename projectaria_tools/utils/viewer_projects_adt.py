@@ -13,8 +13,9 @@
 # limitations under the License.
 
 import argparse
+import os
 from math import tan
-from typing import Dict, Set
+from typing import Dict, Final, List, Set
 
 import numpy as np
 import rerun as rr
@@ -38,6 +39,8 @@ from projectaria_tools.utils.calibration_utils import (
 from projectaria_tools.utils.rerun_helpers import AriaGlassesOutline, ToTransform3D
 from tqdm import tqdm
 
+GLB_FILENAME: Final[str] = "3d-asset.glb"
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -45,7 +48,20 @@ def parse_args():
         "--sequence_path",
         type=str,
         required=True,
-        help="path to the ADT sequence",
+        help="Path to the ADT sequence",
+    )
+    parser.add_argument(
+        "--object_library_path",
+        type=str,
+        required=False,
+        help="Path to the ADT object library",
+    )
+    parser.add_argument(
+        "--display_objects",
+        type=str,
+        required=False,
+        nargs="*",
+        help="Space separated list of object names. Each object's glb model will be loaded from object_library_path and rendered.",
     )
     parser.add_argument(
         "--no_rotate_image_upright",
@@ -68,6 +84,64 @@ def parse_args():
         "--rrd_output_path", type=str, default="", help=argparse.SUPPRESS
     )
     return parser.parse_args()
+
+
+#
+def add(self):
+    """returns a dict with dynamic object names to display as keys and their instance ids as values"""
+
+
+def log_glbs(
+    object_names: List[str],
+    object_library_path: str,
+    adt_data_provider: AriaDigitalTwinDataProvider,
+) -> Dict[str, int]:
+    if object_names is None or len(object_names) == 0:
+        return {}
+
+    if not object_library_path:
+        raise Exception("object_library_path is required")
+
+    # load instance name to instance info
+    instance_name_to_info = {}
+    for instance_id in adt_data_provider.get_instance_ids():
+        instance_info = adt_data_provider.get_instance_info_by_id(instance_id)
+        instance_name_to_info[instance_info.name] = instance_info
+
+    bboxes_3d_initial = adt_data_provider.get_object_3d_boundingboxes_by_timestamp_ns(
+        adt_data_provider.get_start_time_ns()
+    )
+    assert bboxes_3d_initial.is_valid(), "3D bounding box is not available"
+
+    obj_meshes_to_log = []
+    for object_name in object_names:
+        glb_path = os.path.join(object_library_path, object_name, GLB_FILENAME)
+        if not os.path.exists(glb_path):
+            raise Exception(f"glb file {glb_path} does not exist")
+
+        # Get first pose. For dynamic objects, we will update it as we iterate through the timestamps.
+        instance_info = instance_name_to_info[object_name]
+        instance_id = instance_info.id
+        assert (
+            instance_id in bboxes_3d_initial.data()
+        ), f"object {object_name} is not available in ADT sequence"
+        bbox_3d = bboxes_3d_initial.data()[instance_id]
+        T_scene_object = bbox_3d.transform_scene_object
+        is_static = instance_info.motion_type == STATIC
+        if is_static:
+            entity_path = f"world/objects/static/{object_name}/model"
+        else:
+            entity_path = f"world/objects/dynamic/{object_name}/model"
+        rr.log(
+            entity_path,
+            rr.Asset3D(path=glb_path),
+            static=True,
+        )
+        rr.log(entity_path, ToTransform3D(T_scene_object))
+        if not is_static:
+            obj_meshes_to_log.append(instance_id)
+
+    return obj_meshes_to_log
 
 
 def main():
@@ -147,6 +221,11 @@ def main():
         "world/device/glasses_outline",
         rr.LineStrips3D([aria_glasses_point_outline]),
         static=True,
+    )
+
+    # Log GLB files
+    obj_meshes_to_log = log_glbs(
+        args.display_objects, args.object_library_path, gt_provider
     )
 
     # For all selected timestamp (log data we want to see)
@@ -327,9 +406,16 @@ def main():
                         )[0:3]
                         obb[i] = obb_pt
                     rr.log(
-                        f"world/objects/dynamic/{instance_info.name}",
+                        f"world/objects/dynamic/{instance_info.name}/bbox",
                         rr.LineStrips3D([obb]),
                     )
+
+                if obj_id in obj_meshes_to_log:
+                    rr.log(
+                        f"world/objects/dynamic/{instance_info.name}/model",
+                        ToTransform3D(bbox_3d.transform_scene_object),
+                    )
+
             # Static
             elif instance_info.motion_type == STATIC and obj_id not in static_obj_ids:
                 static_obj_ids.add(obj_id)
@@ -345,10 +431,11 @@ def main():
                     )[0:3]
                     obb[i] = obb_pt
                 rr.log(
-                    f"world/objects/static/{instance_info.name}",
+                    f"world/objects/static/{instance_info.name}/bbox",
                     rr.LineStrips3D([obb]),
                     static=True,
                 )
+
     print(f"Loaded scene: {args.sequence_path}")
     print("Scene characteristics:")
     print(f"\t Aria RGB frames count: {len(img_timestamps_ns)}")
