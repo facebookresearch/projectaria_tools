@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <unordered_set>
+
 #include <calibration/DeviceCadExtrinsics.h>
 
 #include <logging/Checks.h>
@@ -172,17 +174,20 @@ std::unordered_map<std::string, Sophus::SE3d> constructCadForDvtmAria() {
 DeviceCadExtrinsics::DeviceCadExtrinsics(
     const std::string& deviceSubType,
     const std::string& originSensorLabel) {
+  const std::unordered_set<std::string> simulatedDeviceSubtypes = {
+      "SimulatedDevice", "DtcSimulatedDevice_DVT-S"};
+
   if (deviceSubType == "DVT-S") {
     labelToT_Cpf_Sensor_ = constructCadForDvtSmall();
   } else if (deviceSubType == "DVT-L") {
     labelToT_Cpf_Sensor_ = constructCadForDvtLarge();
   } else if (deviceSubType == "DVT-MARIA") {
     labelToT_Cpf_Sensor_ = constructCadForDvtmAria();
-  } else if (deviceSubType == "SimulatedDevice") {
+  } else if (simulatedDeviceSubtypes.find(deviceSubType) != simulatedDeviceSubtypes.end()) {
     XR_LOGW("No CAD available for simulated device");
     return;
   } else {
-    const std::string error = fmt::format("Does not recognize device subtype: {}", deviceSubType);
+    const std::string error = fmt::format("Unrecognized device subtype: {}", deviceSubType);
     XR_LOGE("{}", error);
     throw std::runtime_error{error};
   }

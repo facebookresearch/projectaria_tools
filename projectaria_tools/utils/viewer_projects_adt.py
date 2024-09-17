@@ -216,12 +216,16 @@ def main():
     # Log Aria Glasses outline
     raw_data_provider_ptr = gt_provider.raw_data_provider_ptr()
     device_calibration = raw_data_provider_ptr.get_device_calibration()
-    aria_glasses_point_outline = AriaGlassesOutline(device_calibration)
-    rr.log(
-        "world/device/glasses_outline",
-        rr.LineStrips3D([aria_glasses_point_outline]),
-        static=True,
-    )
+    # Log Aria Glasses outline only if CAD calibration is available. For simulated data, CAD calibration is not available
+    if device_calibration.get_transform_device_sensor("camera-slam-left", True):
+        aria_glasses_point_outline = AriaGlassesOutline(device_calibration)
+        rr.log(
+            "world/device/glasses_outline",
+            rr.LineStrips3D([aria_glasses_point_outline]),
+            static=True,
+        )
+    else:
+        print("CAD calibration not available, not logging Aria Glasses outline")
 
     # Log GLB files
     obj_meshes_to_log = log_glbs(
