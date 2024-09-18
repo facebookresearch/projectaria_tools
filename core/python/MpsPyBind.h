@@ -42,7 +42,6 @@
 #include "TrajectoryReaders.h"
 
 namespace py = pybind11;
-using namespace pybind11::literals;
 
 namespace projectaria::tools::mps {
 
@@ -107,7 +106,7 @@ void exportMps(py::module& m) {
   m.def(
       "read_eyegaze",
       &readEyeGaze,
-      "path"_a,
+      py::arg("path"),
       R"docdelimiter(Read Eye Gaze from the eye gaze output generated via MPS.
   Parameters
   __________
@@ -267,7 +266,7 @@ void exportMps(py::module& m) {
   m.def(
       "read_open_loop_trajectory",
       &readOpenLoopTrajectory,
-      "path"_a,
+      py::arg("path"),
       R"docdelimiter(Read Open loop trajectory.
   Parameters
   __________
@@ -277,7 +276,7 @@ void exportMps(py::module& m) {
   m.def(
       "read_closed_loop_trajectory",
       &readClosedLoopTrajectory,
-      "path"_a,
+      py::arg("path"),
       R"docdelimiter(Read Closed loop trajectory.
   Parameters
   __________
@@ -308,7 +307,7 @@ void exportMps(py::module& m) {
   m.def(
       "read_online_calibration",
       &readOnlineCalibration,
-      "path"_a,
+      py::arg("path"),
       R"docdelimiter(Read estimated online calibrations.
   Parameters
   __________
@@ -351,8 +350,8 @@ void exportMps(py::module& m) {
 
         return readGlobalPointCloud(path);
       },
-      "path"_a,
-      "compression"_a,
+      py::arg("path"),
+      py::arg("compression"),
       R"docdelimiter(Read global point cloud.
   Parameters
   __________
@@ -363,7 +362,7 @@ void exportMps(py::module& m) {
   m.def(
       "read_global_point_cloud",
       [](const std::string& path) -> GlobalPointCloud { return readGlobalPointCloud(path); },
-      "path"_a,
+      py::arg("path"),
       R"docdelimiter(Read global point cloud.
   Parameters
   __________
@@ -399,8 +398,8 @@ void exportMps(py::module& m) {
 
         return readPointObservations(path);
       },
-      "path"_a,
-      "compression"_a,
+      py::arg("path"),
+      py::arg("compression"),
       R"docdelimiter(Read point observations.
   Parameters
   __________
@@ -411,7 +410,7 @@ void exportMps(py::module& m) {
   m.def(
       "read_point_observations",
       [](const std::string& path) -> PointObservations { return readPointObservations(path); },
-      "path"_a,
+      py::arg("path"),
       R"docdelimiter(Read point observations.
   Parameters
   __________
@@ -458,7 +457,7 @@ void exportMps(py::module& m) {
   m.def(
       "read_static_camera_calibrations",
       &readStaticCameraCalibrations,
-      "path"_a,
+      py::arg("path"),
       R"docdelimiter(Read static camera calibrations.
   Parameters
   __________
@@ -711,7 +710,7 @@ void exportMps(py::module& m) {
   hand_tracking.def(
       "read_wrist_and_palm_poses",
       &readWristAndPalmPoses,
-      "path"_a,
+      py::arg("path"),
       R"docdelimiter(Read Wrist and Palm poses from the hand tracking output generated via MPS.
   Parameters
   __________
