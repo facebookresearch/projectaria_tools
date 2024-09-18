@@ -48,6 +48,7 @@ add_library(mps
     StaticCameraCalibration.h
     StaticCameraCalibrationFormat.h
     StaticCameraCalibrationReader.h StaticCameraCalibrationReader.cpp
+    VersionReader.h VersionReader.cpp
 )
 target_link_libraries(mps
     PUBLIC
