@@ -28,9 +28,6 @@
 
 namespace py = pybind11;
 
-using namespace projectaria::tools::data_provider;
-using namespace projectaria::dataset::adt;
-
 namespace projectaria::dataset::adt {
 
 void exportAriaDigitalTwin(py::module& m) {
