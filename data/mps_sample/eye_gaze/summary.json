@@ -2,5 +2,6 @@
   "GazeInference": {
     "status": "SUCCESS",
     "message": ""
-  }
+  },
+  "version": "1.2.3"
 }

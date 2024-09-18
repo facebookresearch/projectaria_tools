@@ -40,6 +40,7 @@
 #include "PointObservationReader.h"
 #include "StaticCameraCalibrationReader.h"
 #include "TrajectoryReaders.h"
+#include "VersionReader.h"
 
 namespace py = pybind11;
 
@@ -647,7 +648,16 @@ void exportMps(py::module& m) {
           py::return_value_policy::reference_internal,
           "Get the MPS wrist and palm pose. This will throw an exception if the wrist and palm "
           "poses are not available. Check for data availability first using "
-          "'has_wrist_and_palm_poses()'");
+          "'has_wrist_and_palm_poses()'")
+      .def("get_slam_version", &MpsDataProvider::getSlamVersion, "Get the MPS SLAM version.")
+      .def(
+          "get_eyegaze_version",
+          &MpsDataProvider::getEyeGazeVersion,
+          "Get the MPS eye gaze version.")
+      .def(
+          "get_hand_tracking_version",
+          &MpsDataProvider::getHandTrackingVersion,
+          "Get the MPS hand tracking version.");
 
   py::module hand_tracking = m.def_submodule("hand_tracking");
 

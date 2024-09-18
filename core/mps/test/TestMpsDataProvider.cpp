@@ -104,6 +104,11 @@ TEST(MpsDataProvider, DataQuerying) {
   EXPECT_FALSE(maybeOnlineCalib.has_value());
   EXPECT_FALSE(maybeRgbPose.has_value());
   EXPECT_FALSE(maybeRgbTs.has_value());
+
+  const std::string expected_version("1.2.3");
+  EXPECT_EQ(dp.getSlamVersion(), expected_version);
+  EXPECT_EQ(dp.getHandTrackingVersion(), expected_version);
+  EXPECT_EQ(dp.getEyeGazeVersion(), expected_version);
 }
 
 TEST(MpsDataProvider, InterpolatedPoseQuerying) {
@@ -143,4 +148,26 @@ TEST(MpsDataProvider, InterpolatedPoseQuerying) {
       Eigen::Vector3d(-0.051098, 0.056527, -0.0694205), 1e-4));
   EXPECT_TRUE(resultPose->deviceLinearVelocity_device.isApprox(
       Eigen::Vector3d(0.040185, -0.3245015, 0.2434535), 1e-4));
+}
+
+TEST(MpsDataProvider, HandleMissingData) {
+  const std::string fakeFolderPath = "/path/to/fake/folder";
+  const auto dataPathsProvider = MpsDataPathsProvider(fakeFolderPath);
+  const auto dataPaths = dataPathsProvider.getDataPaths();
+  auto dp = MpsDataProvider(dataPaths);
+
+  EXPECT_FALSE(fs::exists(dataPaths.eyegaze.generalEyegaze));
+  EXPECT_FALSE(fs::exists(dataPaths.eyegaze.summary));
+  EXPECT_FALSE(fs::exists(dataPaths.slam.closedLoopTrajectory));
+  EXPECT_FALSE(fs::exists(dataPaths.slam.openLoopTrajectory));
+  EXPECT_FALSE(fs::exists(dataPaths.slam.semidensePoints));
+  EXPECT_FALSE(fs::exists(dataPaths.slam.semidenseObservations));
+  EXPECT_FALSE(fs::exists(dataPaths.slam.onlineCalibration));
+  EXPECT_FALSE(fs::exists(dataPaths.slam.summary));
+  EXPECT_FALSE(fs::exists(dataPaths.handTracking.wristAndPalmPoses));
+  EXPECT_FALSE(fs::exists(dataPaths.handTracking.summary));
+
+  EXPECT_EQ(dp.getSlamVersion(), std::nullopt);
+  EXPECT_EQ(dp.getHandTrackingVersion(), std::nullopt);
+  EXPECT_EQ(dp.getEyeGazeVersion(), std::nullopt);
 }

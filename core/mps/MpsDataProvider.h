@@ -217,6 +217,24 @@ class MpsDataProvider {
       int64_t captureTimestampNs,
       const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Closest);
 
+  /**
+   * @brief Get the SLAM version.
+   * @return optional string, None if the file is missing, invalid, or does not contain a version
+   */
+  std::optional<std::string> getSlamVersion();
+
+  /**
+   * @brief Get the Eye Gaze version.
+   * @return optional string, None if the file is missing, invalid, or does not contain a version
+   */
+  std::optional<std::string> getEyeGazeVersion();
+
+  /**
+   * @brief Get the Hand Tracking version.
+   * @return optional string, None if the file is missing, invalid, or does not contain a version
+   */
+  std::optional<std::string> getHandTrackingVersion();
+
  private:
   MpsDataPaths dataPaths_;
   std::map<int64_t, EyeGaze> generalEyeGazes_;
@@ -227,6 +245,9 @@ class MpsDataProvider {
   std::map<int64_t, WristAndPalmPose> wristAndPalmPoses_;
   GlobalPointCloud globalPointCloud_;
   PointObservations pointObservations_;
+  std::optional<std::string> slamVersion_;
+  std::optional<std::string> eyeGazeVersion_;
+  std::optional<std::string> handTrackingVersion_;
 };
 
 } // namespace projectaria::tools::mps

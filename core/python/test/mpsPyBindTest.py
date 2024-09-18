@@ -254,6 +254,9 @@ class MPSDataProvider(unittest.TestCase):
         assert os.path.exists(data_paths.slam.summary)
 
     def test_data_provider(self) -> None:
+        """
+        Test loading and querying data with MpsDataProvider
+        """
         data_paths_provider = mps.MpsDataPathsProvider(mps_root_path)
         data_paths = data_paths_provider.get_data_paths()
         dp = mps.MpsDataProvider(data_paths)
@@ -273,3 +276,28 @@ class MPSDataProvider(unittest.TestCase):
         assert dp.get_closed_loop_pose(0)
         assert dp.get_general_eyegaze(0)
         assert dp.get_online_calibration(0)
+
+        TEST_VERSION = "1.2.3"
+        assert dp.get_slam_version() == TEST_VERSION
+        assert dp.get_eyegaze_version() == TEST_VERSION
+        assert dp.get_hand_tracking_version() == TEST_VERSION
+
+    def test_data_provider_missing_path(self) -> None:
+        """
+        Test loading and querying data with MpsDataProvider when a path is missing
+        """
+        data_paths_provider = mps.MpsDataPathsProvider("/path/to/missing/data")
+        data_paths = data_paths_provider.get_data_paths()
+        dp = mps.MpsDataProvider(data_paths)
+
+        assert not dp.has_general_eyegaze()
+        assert not dp.has_personalized_eyegaze()
+        assert not dp.has_open_loop_poses()
+        assert not dp.has_closed_loop_poses()
+        assert not dp.has_online_calibrations()
+        assert not dp.has_semidense_point_cloud()
+        assert not dp.has_semidense_observations()
+
+        assert dp.get_slam_version() is None
+        assert dp.get_eyegaze_version() is None
+        assert dp.get_hand_tracking_version() is None

@@ -23,6 +23,7 @@
 #include <mps/OnlineCalibrationsReader.h>
 #include <mps/PointObservationReader.h>
 #include <mps/TrajectoryReaders.h>
+#include <mps/VersionReader.h>
 
 #include <sophus/interpolate.hpp>
 
@@ -326,6 +327,26 @@ std::optional<Sophus::SE3d> MpsDataProvider::getRgbCorrectedClosedLoopPose(
   }
 
   return closedLoopPose->T_world_device * rgbCalib->getT_Device_Camera();
+}
+
+std::optional<std::string> MpsDataProvider::getSlamVersion() {
+  if (!slamVersion_.has_value() && !dataPaths_.slam.summary.empty()) {
+    slamVersion_ = readVersion(dataPaths_.slam.summary);
+  }
+  return slamVersion_;
+}
+
+std::optional<std::string> MpsDataProvider::getEyeGazeVersion() {
+  if (!eyeGazeVersion_.has_value() && !dataPaths_.eyegaze.summary.empty()) {
+    eyeGazeVersion_ = readVersion(dataPaths_.eyegaze.summary);
+  }
+  return eyeGazeVersion_;
+}
+std::optional<std::string> MpsDataProvider::getHandTrackingVersion() {
+  if (!handTrackingVersion_.has_value() && !dataPaths_.handTracking.summary.empty()) {
+    handTrackingVersion_ = readVersion(dataPaths_.handTracking.summary);
+  }
+  return handTrackingVersion_;
 }
 
 } // namespace projectaria::tools::mps
