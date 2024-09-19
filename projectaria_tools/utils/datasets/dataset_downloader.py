@@ -160,17 +160,18 @@ class DatasetDownloader:
             # log download status for each data_type
             status_manager.set_download_status(data_type, data_type_download_is_success)
 
-        # Rename main recording according to sequence config
-        main_vrs_filename = self.sequences_data[sequence]["main_vrs"][
-            self.__KEY_FILENAME
-        ]
-        src = os.path.join(output_folder_seq, main_vrs_filename)
-        if os.path.exists(src):
-            dst = os.path.join(
-                output_folder_seq, self.sequence_config["main"]["recording"]
-            )
-            print(f"Renaming main vrs from {src} to {dst}")
-            shutil.move(src, dst)
+        if "main_vrs" in self.sequences_data[sequence]:
+            # Rename main recording according to sequence config
+            main_vrs_filename = self.sequences_data[sequence]["main_vrs"][
+                self.__KEY_FILENAME
+            ]
+            src = os.path.join(output_folder_seq, main_vrs_filename)
+            if os.path.exists(src):
+                dst = os.path.join(
+                    output_folder_seq, self.sequence_config["main"]["recording"]
+                )
+                print(f"Renaming main vrs from {src} to {dst}")
+                shutil.move(src, dst)
 
         # Rename main mps according to sequence config
         mps_path_src = os.path.join(output_folder_seq, "mps")

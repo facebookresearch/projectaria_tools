@@ -87,14 +87,26 @@ def main():
     all_data_groups_list = list(all_data_groups.keys())
 
     # remove slam summary since this gets downloaded automatically if any slam data is requested
-    all_data_groups_list.remove("mps_slam_summary")
+    if "mps_slam_summary" in all_data_groups_list:
+        all_data_groups_list.remove("mps_slam_summary")
 
     if len(args.data_types) == 0 and len(all_data_groups_list) > 1:
-        print("-d(, --data_types) must be specified")
+        print("-d(, --data_types) not specified")
         print("Available data types include:")
-        for i in range(len(all_data_groups_list)):
-            print(f"{i}: {all_data_groups_list[i]}")
-        exit(1)
+        for i, data_group in enumerate(all_data_groups_list):
+            print(f"{i}: {data_group}")
+        download_all_data_types = (
+            input(
+                """
+                Do you want to download all data_types? [y/n]
+                """
+            ).lower()
+            == "y"
+        )
+        if download_all_data_types:
+            args.data_types = list(range(len(all_data_groups_list)))
+        else:
+            exit(1)
     elif len(all_data_groups_list) == 1:
         args.data_types = [0]  # Download the only existing data type available
 

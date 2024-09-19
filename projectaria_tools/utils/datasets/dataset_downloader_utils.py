@@ -109,9 +109,8 @@ def load_data_groups_from_cdn(cdn_file: str) -> Dict[str, List[str]]:
     main_data = sequence_config["main"]
     if "recording" not in main_data:
         raise Exception("invalid cdn_file, missing key: sequence_config/main/recording")
-    data_groups["main_vrs"] = main_data["recording"]
 
-    # Only add "recording" and "mps" data groups iff defined as not "None"
+    # Only add "recording" and "mps" data groups if defined as not "None"
     if main_data["recording"] != "None":
         data_groups["main_vrs"] = main_data["recording"]
     if main_data["mps"] != "None":
