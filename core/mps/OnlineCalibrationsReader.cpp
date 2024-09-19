@@ -30,8 +30,46 @@ OnlineCalibration readSingleOnlineCalibFromJson(const nlohmann::json& doc) {
   OnlineCalibration calib;
   calib.trackingTimestamp = std::chrono::microseconds(doc["tracking_timestamp_us"]);
   calib.utcTimestamp = std::chrono::nanoseconds(doc["utc_timestamp_ns"]);
-  for (const auto& camJson : doc["CameraCalibrations"]) {
-    calib.cameraCalibs.push_back(calibration::parseCameraCalibrationFromJson(camJson));
+
+  for (int cameraIdx = 0; cameraIdx < doc["CameraCalibrations"].size(); ++cameraIdx) {
+    const auto& camJson = doc["CameraCalibrations"][cameraIdx];
+
+    calibration::CameraCalibration parsedCameraCalib =
+        calibration::parseCameraCalibrationFromJson(camJson);
+
+    if (doc.count("ImageSizes")) {
+      // Note that in the online calibration format, the image size is potentially stored in the
+      // json file and we need to set them poperly beucase the parsing function will always set the
+      // image size to the devcie sensor spec. The image size field is ready after the MPS
+      // trajectory version 1.1.0.
+      const auto& imageSize = doc["ImageSizes"][cameraIdx];
+      std::optional<double> maybeReadOutTimeSec = {};
+      if (doc.count("ReadoutTimesSec")) {
+        for (const auto& readOutTimeInfo : doc["ReadoutTimesSec"]) {
+          // First field is the camera idx, and second field is the readout time in seconds
+          if (readOutTimeInfo[0].get<int>() == cameraIdx) {
+            maybeReadOutTimeSec = readOutTimeInfo[1].get<double>();
+            break;
+          }
+        }
+      }
+
+      calibration::CameraCalibration onlineCameraCalib = calibration::CameraCalibration(
+          parsedCameraCalib.getLabel(),
+          parsedCameraCalib.modelName(),
+          parsedCameraCalib.projectionParams(),
+          parsedCameraCalib.getT_Device_Camera(),
+          imageSize[0].get<int>(),
+          imageSize[1].get<int>(),
+          parsedCameraCalib.getValidRadius(),
+          parsedCameraCalib.getMaxSolidAngle(),
+          parsedCameraCalib.getSerialNumber(),
+          parsedCameraCalib.getTimeOffsetSecDeviceCamera(),
+          maybeReadOutTimeSec);
+      calib.cameraCalibs.push_back(std::move(onlineCameraCalib));
+    } else {
+      calib.cameraCalibs.push_back(std::move(parsedCameraCalib));
+    }
   }
   for (const auto& imuJson : doc["ImuCalibrations"]) {
     calib.imuCalibs.push_back(calibration::parseImuCalibrationFromJson(imuJson));

@@ -49,11 +49,11 @@ class CameraCalibration {
    * this to nullopt means the entire sensor plane is valid.
    * @param maxSolidAngle an angle theta representing the FOV cone of the camera. Rays out of
    * [-theta, +theta] will be rejected during projection.
-   * @param timeOffsetSecDeviceCamera time offset between device and camera. Online calibration may
-   * estimate this value.
    * @param serialNumber The serial number of the camera
    * @param timeOffsetSecDeviceCamera time offset between device and camera. Online calibration may
    * estimate this value. correctedCaptureTime = captureTimestampNs - TimeOffsetSecDeviceCamera
+   * @param readOutTimeSec Optional readout time setting from reading the first pixel to last pixel
+   * which is useful to handle the rolling shutter effect.
    */
   CameraCalibration(
       const std::string& label,
@@ -65,7 +65,8 @@ class CameraCalibration {
       const std::optional<double> maybeValidRadius,
       const double maxSolidAngle,
       const std::string& serialNumber = "",
-      const double timeOffsetSecDeviceCamera = 0.0);
+      const double timeOffsetSecDeviceCamera = 0.0,
+      const std::optional<double> maybeReadOutTimeSec = {});
 
   std::string getLabel() const;
   std::string getSerialNumber() const;
@@ -74,6 +75,7 @@ class CameraCalibration {
   double getMaxSolidAngle() const;
   std::optional<double> getValidRadius() const;
   double getTimeOffsetSecDeviceCamera() const;
+  std::optional<double> getReadOutTimeSec() const;
   /**
    * @brief Function to check whether a pixel is within the valid area of the sensor plane.
    */
@@ -142,6 +144,9 @@ class CameraCalibration {
   double maxSolidAngle_;
   std::string serialNumber_;
   double timeOffsetSecDeviceCamera_ = 0.0;
+
+  // For rolling shutter camera, this could be useful to handling the rolling shutter effect.
+  std::optional<double> maybeReadOutTimeSec_ = 0.0;
 };
 
 /**

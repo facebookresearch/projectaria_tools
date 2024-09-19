@@ -31,7 +31,8 @@ CameraCalibration::CameraCalibration(
     const std::optional<double> maybeValidRadius,
     const double maxSolidAngle,
     const std::string& serialNumber,
-    const double timeOffsetSecDeviceCamera)
+    const double timeOffsetSecDeviceCamera,
+    const std::optional<double> maybeReadOutTimeSec)
     : label_(label),
       projectionModel_(projectionModelType, projectionParams),
       T_Device_Camera_(T_Device_Camera),
@@ -40,7 +41,8 @@ CameraCalibration::CameraCalibration(
       maybeValidRadius_(maybeValidRadius),
       maxSolidAngle_(maxSolidAngle),
       serialNumber_(serialNumber),
-      timeOffsetSecDeviceCamera_(timeOffsetSecDeviceCamera) {}
+      timeOffsetSecDeviceCamera_(timeOffsetSecDeviceCamera),
+      maybeReadOutTimeSec_(maybeReadOutTimeSec) {}
 
 std::string CameraCalibration::getLabel() const {
   return label_;
@@ -68,6 +70,10 @@ std::optional<double> CameraCalibration::getValidRadius() const {
 
 double CameraCalibration::getTimeOffsetSecDeviceCamera() const {
   return timeOffsetSecDeviceCamera_;
+}
+
+std::optional<double> CameraCalibration::getReadOutTimeSec() const {
+  return maybeReadOutTimeSec_;
 }
 
 namespace {

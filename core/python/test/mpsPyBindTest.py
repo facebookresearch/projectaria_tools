@@ -95,6 +95,9 @@ class MPSPointCloudAndObservations(unittest.TestCase):
 online_calibration_file = os.path.join(
     TEST_FOLDER, "mps_sample/trajectory/online_calibration.jsonl"
 )
+online_calibration_file_v1_1_0 = os.path.join(
+    TEST_FOLDER, "mps_sample/trajectory/online_calibration_v1_1_0.jsonl"
+)
 
 
 class MPSOnlineCalibration(unittest.TestCase):
@@ -105,6 +108,19 @@ class MPSOnlineCalibration(unittest.TestCase):
     def test_online_calibration(self) -> None:
         mps_online_calibration = mps.read_online_calibration(online_calibration_file)
         assert len(mps_online_calibration) > 0
+
+        mps_online_calibration_v1_1_0 = mps.read_online_calibration(
+            online_calibration_file_v1_1_0
+        )
+        assert len(mps_online_calibration_v1_1_0) > 0
+
+        rgb_camera_calibration = mps_online_calibration_v1_1_0[0].get_camera_calib(
+            "camera-rgb"
+        )
+        assert rgb_camera_calibration.get_readout_time_sec() > 0
+        assert rgb_camera_calibration.get_time_offset_sec_device_camera() < 0
+        assert rgb_camera_calibration.get_image_size()[0] == 1408
+        assert rgb_camera_calibration.get_image_size()[1] == 1408
 
     def test_online_calibration_invalid_file(self) -> None:
         mps_online_calibration = mps.read_online_calibration("")

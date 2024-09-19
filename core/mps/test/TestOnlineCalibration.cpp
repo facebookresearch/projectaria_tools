@@ -32,6 +32,18 @@ TEST(mps_online_calibration_valid_file, reader) {
   EXPECT_TRUE(onlineCalibrationValues.size() > 0);
 }
 
+TEST(mps_online_calibration_valid_file_v1_1_0, reader) {
+  const auto onlineCalibrationValues = readOnlineCalibration(
+      testDataFolder + "mps_sample/trajectory/online_calibration_v1_1_0.jsonl");
+  EXPECT_TRUE(onlineCalibrationValues.size() > 0);
+
+  const auto rgbOnlineCalibration = onlineCalibrationValues[0].getCameraCalib("camera-rgb");
+  EXPECT_EQ(rgbOnlineCalibration->getImageSize()[0], 1408);
+  EXPECT_EQ(rgbOnlineCalibration->getImageSize()[1], 1408);
+  EXPECT_GT(rgbOnlineCalibration->getReadOutTimeSec(), 0);
+  EXPECT_LT(rgbOnlineCalibration->getTimeOffsetSecDeviceCamera(), 0);
+}
+
 TEST(mps_online_calibration_invalid_file, reader) {
   const auto onlineCalibrationValues = readOnlineCalibration("");
   EXPECT_TRUE(onlineCalibrationValues.empty());
