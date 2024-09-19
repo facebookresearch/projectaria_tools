@@ -39,8 +39,8 @@ OnlineCalibration readSingleOnlineCalibFromJson(const nlohmann::json& doc) {
 
     if (doc.count("ImageSizes")) {
       // Note that in the online calibration format, the image size is potentially stored in the
-      // json file and we need to set them poperly beucase the parsing function will always set the
-      // image size to the devcie sensor spec. The image size field is ready after the MPS
+      // json file and we need to set them properly because the parsing function will always set the
+      // image size to the device sensor spec. The image size field is ready after the MPS
       // trajectory version 1.1.0.
       const auto& imageSize = doc["ImageSizes"][cameraIdx];
       std::optional<double> maybeReadOutTimeSec = {};
@@ -54,7 +54,7 @@ OnlineCalibration readSingleOnlineCalibFromJson(const nlohmann::json& doc) {
         }
       }
 
-      calibration::CameraCalibration onlineCameraCalib = calibration::CameraCalibration(
+      calibration::CameraCalibration onlineCameraCalib(
           parsedCameraCalib.getLabel(),
           parsedCameraCalib.modelName(),
           parsedCameraCalib.projectionParams(),
