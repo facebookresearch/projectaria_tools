@@ -2,6 +2,8 @@
 sidebar_position: 20
 title: Python Package Installation
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # How to Install the Python Package for Project Aria Tools
 
@@ -12,19 +14,28 @@ Go to the [Python Type Annotation page](/docs/data_utilities/installation/type_h
 ## Install via virtual environment
 ### Step 1 : Install Python
 
-To use projectaria_tools and its Jupyter notebooks, you'll need Python 3.9 or above (3.10 if you are on [Apple Silicon](https://support.apple.com/en-us/116943)). To ensure all utilities work effectively, we recommend keeping Python 3 up to date.
+To use projectaria_tools and its Jupyter notebooks, you'll need Python 3.9 or above (3.10 if you are on [Apple Silicon](https://support.apple.com/en-us/116943) or Windows). To ensure all utilities work effectively, we recommend keeping Python 3 up to date.
 * [Python 3 download page](https://www.python.org/downloads/)
 * To check what what version of Python 3 you have use `python3 --version`
 
 ### Step 2 : Create a virtual environment
 
+<Tabs groupId="operating-systems">
+<TabItem value="unix" label="Linux & macOS">
 ```bash
 rm -rf $HOME/projectaria_tools_python_env
-
 python3 -m venv $HOME/projectaria_tools_python_env
-
 source $HOME/projectaria_tools_python_env/bin/activate
 ```
+</TabItem>
+<TabItem value="windows" label="Windows">
+```bash
+Remove-Item $HOME\projectaria_tools_python_env
+py -3 -m venv $HOME\projectaria_tools_python_env
+$HOME\projectaria_tools_python_env\bin\Scripts\activate
+```
+</TabItem>
+</Tabs>
 
 ###  Step 3 : Install the required Python packages
 
@@ -76,4 +87,50 @@ cd $HOME/Documents/projectaria_sandbox/projectaria_tools
 python3 generate_stubs.py
 cp -r projectaria_tools-stubs/projectaria_tools .
 python3 -m pip install .
+```
+
+## Building Python bindings from source with a package manager
+
+You can build projectaria_tools python bindings in isolation using pixi on and for your local platform (Linux, macOS Intel/Silicon, Windows) using the exact same command lines.
+Pixi is a convenient package and environment manager that simplifies the logic to compile and run projects by defining dependencies and tasks in a single pixi.toml file for all platforms.
+
+:::note
+For Windows platform we assume that Microsoft Visual C++ Compiler, MSVC 2017 or 2022 has been installed.
+:::
+
+### Step1 Install Pixi
+
+<Tabs groupId="operating-systems">
+<TabItem value="unix" label="Linux & macOS">
+```bash
+# Install Pixi
+curl -fsSL https://pixi.sh/install.sh | bash
+```
+</TabItem>
+<TabItem value="windows" label="Windows">
+```bash
+# Install Pixi
+iwr -useb https://pixi.sh/install.ps1 | iex
+```
+</TabItem>
+</Tabs>
+
+### Step2 Compile and test the code
+
+```bash
+# When this command line first run, it will collect required dependencies, and then trigger the build and unit test
+pixi run run_python
+```
+
+### Step3 Access the compiled artifacts
+
+```bash
+# Activate the environment
+pixi shell
+# You can now run and use things from the projects
+python
+import projectaria_tools
+dir(projectaria_tools)
+# Will print
+>>>['__builtins__', '__cached__', '__doc__', '__file__', '__loader__', '__name__', '__package__', '__path__', '__spec__', 'core']
 ```

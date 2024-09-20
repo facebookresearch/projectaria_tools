@@ -12,6 +12,8 @@ This page provides instructions on how to:
 * Build projectaria_tools for C++, without visualization
 * Build projectaria_tools for C++, with visualization
    * To install dependencies, follow the instructions for build without visualization first
+* Build projectaria_tools in isolation with a package manager (Linux/MacOs/Windows)
+   * Most convenient way to check that code and unit test are running when performing Contribution/GitHub PR to the project
 
 ## Build from source without visualization
 
@@ -123,6 +125,47 @@ cd $HOME/Documents/projectaria_sandbox/build
 # Running the Aria Viewer with default example data
 ./tools/visualization/aria_viewer \
 --vrs ../projectaria_tools/data/mps_sample/sample.vrs
+```
+
+## Build projectaria_tools in isolation with a package manager
+
+You can build projectaria_tools in isolation using pixi on and for your local platform (Linux, macOS Intel/Silicon, Windows) using the exact same command lines.
+Pixi is a convenient package and environment manager that simplifies the logic to compile and run projects by defining dependencies and tasks in a single pixi.toml file for all platforms.
+
+:::note
+For Windows platform we assume that Microsoft Visual C++ Compiler, MSVC 2017 or 2022 has been installed.
+:::
+
+### Step1 Install Pixi
+
+<Tabs groupId="operating-systems">
+<TabItem value="unix" label="Linux & macOS">
+```bash
+# Install Pixi
+curl -fsSL https://pixi.sh/install.sh | bash
+```
+</TabItem>
+<TabItem value="windows" label="Windows">
+```bash
+# Install Pixi
+iwr -useb https://pixi.sh/install.ps1 | iex
+```
+</TabItem>
+</Tabs>
+
+### Step2 Compile and test the code
+
+```bash
+# When this command line first run, it will collect required dependencies, and then trigger the build and unit test
+pixi run run_c
+```
+
+### Step3 Access the compiled artifacts
+
+```bash
+# Activate the environment
+pixi shell
+# You can now run and use things from the projects
 ```
 
 ## Troubleshooting
