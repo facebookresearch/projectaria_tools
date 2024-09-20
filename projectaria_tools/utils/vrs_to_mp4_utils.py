@@ -309,10 +309,10 @@ class Vrs2Mp4Converter:
         if self.down_sampling_factor_ > 1:
             img_array = Image.fromarray(img_array)
             img_array = img_array.resize(
-                [
+                (
                     int(img_array.width / self.down_sampling_factor_),
                     int(img_array.height / self.down_sampling_factor_),
-                ]
+                )
             )
             img_array = np.array(img_array)
         img_array = np.rot90(img_array, -1)

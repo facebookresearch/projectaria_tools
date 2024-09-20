@@ -255,7 +255,7 @@ def main():
         updated_camera_calibration = rgb_camera_calibration.rescale(
             new_resolution, 1.0 / args.down_sampling_factor
         )
-        image_display = image_display.resize(new_resolution)
+        image_display = image_display.resize((new_resolution[0], new_resolution[1]))
         image_display = np.array(image_display)
 
         # rectify image (unless otherwise specified)
