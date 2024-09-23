@@ -137,7 +137,7 @@ def log_glbs(
             rr.Asset3D(path=glb_path),
             static=True,
         )
-        rr.log(entity_path, ToTransform3D(T_scene_object))
+        rr.log(entity_path, ToTransform3D(T_scene_object), static=is_static)
         if not is_static:
             obj_meshes_to_log.append(instance_id)
 
