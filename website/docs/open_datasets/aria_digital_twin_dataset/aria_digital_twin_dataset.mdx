@@ -6,24 +6,41 @@ title: Overview
 
 ## Overview
 
-Project Aria Tools provides Python and C++ APIs to access the [Aria Digital Twin (ADT) dataset](https://www.projectaria.com/datasets/adt/) ([paper](https://arxiv.org/abs/2306.06362)).
+Project Aria Tools provides Python and C++ APIs to access the [Aria Digital Twin (ADT) dataset](https://www.projectaria.com/datasets/adt/)
+([paper](https://openaccess.thecvf.com/content/ICCV2023/html/Pan_Aria_Digital_Twin_A_New_Benchmark_Dataset_for_Egocentric_3D_ICCV_2023_paper.html)).
 
 ## About the data
-ADT provides raw and synthesized sensor data from Project Aria glasses, combined with groundtruth data generated using a motion capture system including depth images, device trajectories, object trajectories and bounding boxes, and human tracking. We also provide processed sensor data from our [Machine Perception Services](/ARK/mps/mps.mdx). Go to [ADT Data Format](data_format.mdx) to see a full list of the data we provide.
+ADT provides raw and synthesized sensor data from Project Aria glasses, combined with groundtruth data generated using a motion capture
+system including depth images, device trajectories, object trajectories and bounding boxes, and human tracking.
+We also provide processed sensor data from our [Machine Perception Services](/ARK/mps/mps.mdx).
+Go to [ADT Data Format](data_format.mdx) to see a full list of the data we provide.
 
-The ADT dataset contains 222 sequences recording single and dual-person activities. The data was recorded in two spaces: an apartment and a single room office. There are 74 single-instance dynamic objects shared between the two spaces.
+The ADT dataset contains 236 sequences recording single and dual-person activities.
+The data was recorded in two spaces: an apartment and a single room office.
+There are 74 single-instance dynamic objects shared between the two spaces.
 
-Go to the [Getting Started Tutorial](getting_started.mdx) to explore the sample dataset (available on Google colab, no download necessary) or the [Dataset Download page](dataset_download.mdx) to get started.
+Go to the [Getting Started Tutorial](getting_started.mdx) to explore the sample dataset (available on Google colab, no download necessary)
+or the [Dataset Download page](dataset_download.mdx) to get started.
 
-The sample dataset is a single-user dataset with body pose in the Apartment. It is a pretty representative example that should give you an idea of the dataset.
+The sample dataset is a single-user dataset with body pose in the Apartment.
+It is a pretty representative example that should give you an idea of the dataset.
+
+In addition to the sensor data and annotated ground truth data, we also provide high quality 3D object models (in .glb) for each of the objects in ADT.
+For more info on downloading and viewing these models, see [Object Model](object_models.mdx) page.
+
+:::info NEW UPDATE!
+3D object model release is new as of September 2024
+:::
 
 ### Apartment scene
-170 sequences were recorded in the apartment scene. The apartment comprised of a living room, kitchen, dining room and bedroom and contained 281 unique stationary objects.
+284 sequences were recorded in the apartment scene. The apartment comprised of a living room, kitchen, dining room and bedroom and contained
+281 unique stationary objects.
 
 Given some objects have multiple instances that may differ slightly, the apartment has 324 stationary object instances in total.
 
 ### Office scene
-52 sequences were recorded in the office scene, a single room with minimal office furniture.  The office room contained 15 unique stationary objects and 20 stationary object instances.
+52 sequences were recorded in the office scene, a single room with minimal office furniture.
+The office room contained 15 unique stationary objects and 20 stationary object instances.
 
 
 ### Activities
@@ -46,13 +63,6 @@ The dual-person activities included:
 Every activity has 10 to 50 sequences and the activity names are embedded into the sequence_names.
 
 
-### Other statistics:
-
-* Number of multi-person sequences: 77
-* Number of sequences with no skeletons: 110
-* Number of sequences with 1 skeleton: 92
-* Number of sequences with 2 skeleton: 20
-
 :::info
 We provide a mix of datasets where users may or may not be wearing an Aria and/or a bodysuit.
 Please refer to the `skeleton_aria_association.json` to see the case for each specific sub-sequence.
@@ -64,7 +74,9 @@ The ADT section of the wiki covers:
 * [Getting Started](getting_started.mdx)
     * A quickstart tutorial available as a Google colab project or install Project Aria Tools Python package to run locally, run the ADT notebook to access and visualize ground-truth data.
 * [Dataset Download](dataset_download.mdx)
-   * A walkthrough of using `adt_benchmark_dataset_downloader` to download the published ADT dataset.
+   * A walkthrough of using `aria_dataset_downloader` to download the ADT dataset.
+* [Object Models](object_models.mdx)
+   * Everything you need to know about the released ADT object models including: a walkthrough of using `dtc_object_downloader` to download the ADT object models, and brief description of data content and how to visualize the models
 * [Data Format](data_format.mdx)
     *  How ADT data is organized and stored
 * [Data Loader](data_loader.mdx)
