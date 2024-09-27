@@ -70,4 +70,12 @@ Our team will review your application and reach out to you with next steps if yo
 * The [Quickstart Guide](/ARK/ARK_quickstart.mdx) covers how to set up your glasses
 * The [Glasses User Manual](/ARK/glasses_manual/glasses_user_manual.mdx) provides a range of information, including how to factory reset your glasses
 
+
+## Unlock the power of Aria Training and Evaluation toolkit (ATEK)
+
+ATEK is an e2e framework for training and evaluating deep learning models on Aria data, for both 3D egocentric-specific and general machine perception tasks.
+* [About ATEK](/ATEK/about_ATEK.mdx)
+* Read about ATEK on [projectaria.com](https://www.projectaria.com/news/aria-training-and-evaluation-toolkit-atek/)
+* Learn more about the ATEK on [ATEK GitHub Repo](https://github.com/facebookresearch/ATEK/tree/main)
+
 If you encounter any issues, go to our [Support page](/support.mdx) for multiple ways to get in touch!
