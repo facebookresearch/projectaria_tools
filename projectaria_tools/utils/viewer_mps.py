@@ -44,7 +44,7 @@ from tqdm import tqdm
 WRIST_PALM_TIME_DIFFERENCE_THRESHOLD_NS: int = 2e8
 WRIST_PALM_COLOR: List[int] = [255, 64, 0]
 NORMAL_VIS_LEN = 0.03  # in meters
-NORMAL_VIS_LEN_2D = 30.0  # in pixels
+NORMAL_VIS_LEN_2D = 120.0  # in pixels
 
 
 def parse_args():
@@ -464,7 +464,7 @@ def log_hand_tracking(
                 ):
                     wrist_normal_in_2d = wrist_normal_tip_pixels[hand_i] - wrist_pixel
                     wrist_normal_in_2d /= np.linalg.norm(wrist_normal_in_2d)
-                    wrist_normal_in_2d *= NORMAL_VIS_LEN_2D
+                    wrist_normal_in_2d *= NORMAL_VIS_LEN_2D / down_sampling_factor
                     wrist_and_palm_normal_arrows_2d.append(wrist_normal_in_2d)
                 if (
                     palm_normal_tip_pixels[hand_i] is not None
@@ -472,7 +472,7 @@ def log_hand_tracking(
                 ):
                     palm_normal_in_2d = palm_normal_tip_pixels[hand_i] - palm_pixel
                     palm_normal_in_2d /= np.linalg.norm(palm_normal_in_2d)
-                    palm_normal_in_2d *= NORMAL_VIS_LEN_2D
+                    palm_normal_in_2d *= NORMAL_VIS_LEN_2D / down_sampling_factor
                     wrist_and_palm_normal_arrows_2d.append(palm_normal_in_2d)
 
             if wrist_and_palm_normal_arrows_2d:
