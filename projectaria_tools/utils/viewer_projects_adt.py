@@ -120,6 +120,10 @@ def log_glbs(
             raise Exception(f"glb file {glb_path} does not exist")
 
         # Get first pose. For dynamic objects, we will update it as we iterate through the timestamps.
+        if object_name not in instance_name_to_info:
+            raise Exception(
+                f"object {object_name} is not available in the current ADT sequence"
+            )
         instance_info = instance_name_to_info[object_name]
         instance_id = instance_info.id
         assert (
