@@ -40,6 +40,7 @@ CameraCalibration rescaleAriaRgb(
       "Supported downscaled image size are assumed to be (1408, 1408) or (704, 704) for Aria RGB images. Detected size: ({}, {})",
       newImageSize.x(),
       newImageSize.y());
+
   double rescaleFactor = newImageSize == Eigen::Vector2i(1408, 1408) ? 0.5 : 0.25;
   return camCalib.rescale(newImageSize, rescaleFactor, {32.0, 32.0});
 }
