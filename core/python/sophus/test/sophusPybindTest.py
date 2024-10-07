@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import math
 import unittest
 
 import numpy as np
@@ -198,5 +199,34 @@ class SophusPybindTest(unittest.TestCase):
         self.assertIsNone(
             np.testing.assert_array_almost_equal(
                 average01.log()[0], inter_half.log()[0]
+            )
+        )
+
+        # rotation
+        x = SE3.rot_x(math.pi / 2.0)
+        self.assertIsNone(
+            np.testing.assert_array_almost_equal(
+                x.to_matrix3x4(), np.array([[1, 0, 0, 0], [0, 0, -1, 0], [0, 1, 0, 0]])
+            )
+        )
+
+        y = SE3.rot_y([-math.pi / 2.0, math.pi / 2.0])
+        self.assertIsNone(
+            np.testing.assert_array_almost_equal(
+                y[0].to_matrix3x4(),
+                np.array([[0, 0, -1, 0], [0, 1, 0, 0], [1, 0, 0, 0]]),
+            )
+        )
+        self.assertIsNone(
+            np.testing.assert_array_almost_equal(
+                y[1].to_matrix3x4(),
+                np.array([[0, 0, 1, 0], [0, 1, 0, 0], [-1, 0, 0, 0]]),
+            )
+        )
+
+        z = SE3.rot_z(math.pi / 2.0)
+        self.assertIsNone(
+            np.testing.assert_array_almost_equal(
+                z.to_matrix3x4(), np.array([[0, -1, 0, 0], [1, 0, 0, 0], [0, 0, 1, 0]])
             )
         )

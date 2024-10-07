@@ -193,26 +193,62 @@ PybindSE3Type<Scalar> exportSE3Transformation(
 
   type.def(
       "from_quat_and_translation",
-      [](const std::vector<Scalar>& x_vec,
+      [](const std::vector<Scalar>& w_vec,
          const Eigen::Matrix<Scalar, -1, 3>& xyz_vec,
          const Eigen::Matrix<Scalar, -1, 3>& translations) -> SE3Group<Scalar> {
-        if (x_vec.size() != xyz_vec.rows() || x_vec.size() != translations.rows()) {
+        if (w_vec.size() != xyz_vec.rows() || w_vec.size() != translations.rows()) {
           throw std::domain_error(fmt::format(
               "Size of the input variables are not the same: x_vec = {}, xyz_vec = {}, translation = {}",
-              x_vec.size(),
+              w_vec.size(),
               xyz_vec.rows(),
               translations.rows()));
         }
         SE3Group<Scalar> output;
-        output.reserve(x_vec.size());
-        for (size_t i = 0; i < x_vec.size(); ++i) {
-          Eigen::Quaternion quat(x_vec[i], xyz_vec(i, 0), xyz_vec(i, 1), xyz_vec(i, 2));
+        output.reserve(w_vec.size());
+        for (size_t i = 0; i < w_vec.size(); ++i) {
+          Eigen::Quaternion quat(w_vec[i], xyz_vec(i, 0), xyz_vec(i, 1), xyz_vec(i, 2));
           quat.normalize();
           output.push_back(Sophus::SE3<Scalar>(quat, translations.row(i)));
         }
         return output;
       },
       "Create SE3 from a list of quaternion as w_vec: Nx1, xyz_vec: Nx3, and a list of translation vectors: Nx3");
+
+  type.def_static(
+      "rot_x", [](const Scalar& x) { return SE3Group<Scalar>{Sophus::SE3<Scalar>::rotX(x)}; });
+
+  type.def_static("rot_x", [](const std::vector<Scalar>& x_vec) {
+    SE3Group<Scalar> output;
+    output.reserve(x_vec.size());
+    for (size_t i = 0; i < x_vec.size(); ++i) {
+      output.push_back(Sophus::SE3<Scalar>::rotX(x_vec[i]));
+    }
+    return output;
+  });
+
+  type.def_static(
+      "rot_y", [](const Scalar& y) { return SE3Group<Scalar>{Sophus::SE3<Scalar>::rotY(y)}; });
+
+  type.def_static("rot_y", [](const std::vector<Scalar>& y_vec) {
+    SE3Group<Scalar> output;
+    output.reserve(y_vec.size());
+    for (size_t i = 0; i < y_vec.size(); ++i) {
+      output.push_back(Sophus::SE3<Scalar>::rotY(y_vec[i]));
+    }
+    return output;
+  });
+
+  type.def_static(
+      "rot_z", [](const Scalar& z) { return SE3Group<Scalar>{Sophus::SE3<Scalar>::rotZ(z)}; });
+
+  type.def_static("rot_z", [](const std::vector<Scalar>& z_vec) {
+    SE3Group<Scalar> output;
+    output.reserve(z_vec.size());
+    for (size_t i = 0; i < z_vec.size(); ++i) {
+      output.push_back(Sophus::SE3<Scalar>::rotZ(z_vec[i]));
+    }
+    return output;
+  });
 
   type.def(
       "to_matrix3x4",
