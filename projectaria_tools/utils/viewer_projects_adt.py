@@ -73,11 +73,14 @@ def parse_args():
         action="store_true",
         help="If set, the RGB images will not be undistorted.",
     )
+    parser.add_argument(
+        "--down_sampling_factor",
+        type=int,
+        default=4,
+        help="Down sampling factor for the displayed images",
+    )
 
     # Add options that does not show by default, but still accessible for debugging purpose
-    parser.add_argument(
-        "--down_sampling_factor", type=int, default=4, help=argparse.SUPPRESS
-    )
     parser.add_argument("--jpeg_quality", type=int, default=75, help=argparse.SUPPRESS)
     # If this path is set, we will save the rerun (.rrd) file to the given path
     parser.add_argument(
