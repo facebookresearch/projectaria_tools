@@ -347,7 +347,7 @@ void exportMps(py::module& m) {
       [](const std::string& path, StreamCompressionMode& mode) -> GlobalPointCloud {
         auto warnings = pybind11::module::import("warnings");
         warnings.attr("warn")(
-            "readGlobalPointCloud(path, mode) is deprecated, use readGlobalPointCloud(path) instead.");
+            "read_global_point_cloud(path, mode) is deprecated, use read_global_point_cloud(path) instead.");
 
         return readGlobalPointCloud(path);
       },
@@ -395,7 +395,7 @@ void exportMps(py::module& m) {
       [](const std::string& path, StreamCompressionMode& mode) -> PointObservations {
         auto warnings = pybind11::module::import("warnings");
         warnings.attr("warn")(
-            "readPointObservations(path, mode) is deprecated, use readPointObservations(path) instead.");
+            "read_point_observations(path, mode) is deprecated, use read_point_observations(path) instead.");
 
         return readPointObservations(path);
       },
