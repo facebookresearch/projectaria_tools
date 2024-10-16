@@ -18,7 +18,7 @@ import numpy as np
 import rerun as rr
 from PIL import Image
 
-from projectaria_tools.core import calibration, mps
+from projectaria_tools.core import mps
 from projectaria_tools.core.mps.utils import (
     filter_points_from_confidence,
     filter_points_from_count,
