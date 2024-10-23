@@ -17,6 +17,7 @@ import concurrent
 import functools
 import logging
 import multiprocessing
+import platform
 import shutil
 import tempfile
 import zipfile
@@ -61,8 +62,13 @@ async def to_proc(func: Callable[..., T], /, *args: Any, **kwargs: Any) -> T:
     Main functionality is to maintain context when offloading to OS threads.
     """
     if not hasattr(to_proc, "process_pool"):
+        mp_context = (
+            multiprocessing.get_context("spawn")
+            if platform.system() == "Windows"
+            else multiprocessing.get_context("fork")
+        )
         to_proc.process_pool = concurrent.futures.ProcessPoolExecutor(
-            mp_context=multiprocessing.get_context("fork"),
+            mp_context=mp_context,
         )
     loop = asyncio.get_running_loop()
     func_call = functools.partial(func, *args, **kwargs)
