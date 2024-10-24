@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 from _core_pybinds.calibration import CameraCalibration, DeviceCalibration
@@ -135,9 +135,13 @@ def get_gaze_vector_reprojection(
     camera_calibration: CameraCalibration,
     depth_m: float = 1.0,
     make_upright: bool = False,
-) -> np.ndarray:
+) -> Optional[np.ndarray]:
     """
-    Helper function to project a eye gaze output onto a given image and its calibration, assuming specified fixed depth
+    Helper function to project a eye gaze output onto a given image and its calibration, assuming specified fixed depth.
+
+    If no reprojection is possible (e.g. the eye gaze is out of the
+    field of view), then None is returned. See `CameraCalibration::project()`
+    (in CameraCalibration.h) for details.
     """
     gaze_center_in_cpf = get_eyegaze_point_at_depth(
         eye_gaze.yaw, eye_gaze.pitch, depth_m
