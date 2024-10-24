@@ -202,10 +202,26 @@ inline void declareCameraCalibration(py::module& m) {
           &CameraCalibration::isVisible,
           py::arg("camera_pixel"),
           "Function to check whether a pixel is within the valid area of the sensor plane.")
-      .def("model_name", &CameraCalibration::modelName)
+      .def(
+          "model_name",
+          [](const CameraCalibration& self) -> CameraProjection::ModelType {
+            auto warnings = pybind11::module::import("warnings");
+            warnings.attr("warn")(
+                "model_name(stream_id) is deprecated, use get_model_name() instead.");
+            return self.modelName();
+          })
+      .def("get_model_name", &CameraCalibration::modelName)
       .def("get_principal_point", &CameraCalibration::getPrincipalPoint)
       .def("get_focal_lengths", &CameraCalibration::getFocalLengths)
-      .def("projection_params", &CameraCalibration::projectionParams)
+      .def(
+          "projection_params",
+          [](const CameraCalibration& self) -> Eigen::VectorXd {
+            auto warnings = pybind11::module::import("warnings");
+            warnings.attr("warn")(
+                "projection_params() is deprecated, use get_projection_params() instead.");
+            return self.projectionParams();
+          })
+      .def("get_projection_params", &CameraCalibration::projectionParams)
       .def(
           "project_no_checks",
           &CameraCalibration::projectNoChecks,
