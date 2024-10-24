@@ -64,7 +64,8 @@ def parse_args():
         help="""
         List (space separated) of data types to download for each sequence.
         To get a list of all data types available for this dataset, leave this blank and it will list all options.
-        If only one type exists, it will download it automatically
+        - If only one type exists, it will download it automatically
+        - If set to "all" it will download all available data types
         """,
     )
 
@@ -74,7 +75,11 @@ def parse_args():
         dest="sequence_names",
         nargs="+",
         required=False,
-        help="a list of sequence names (separated by space) to be downloaded. If not set, all sequences will be downloaded",
+        help="""
+        A list of sequence names (separated by space) to be downloaded.
+        - If not set, all sequences will be downloaded after user confirmation
+        - If set to "all" it will download all sequences automatically
+        """,
     )
 
     return parser.parse_args()
@@ -90,7 +95,11 @@ def main():
     if "mps_slam_summary" in all_data_groups_list:
         all_data_groups_list.remove("mps_slam_summary")
 
-    if len(args.data_types) == 0 and len(all_data_groups_list) > 1:
+    # If data_types is specified as "all", download all available data_types without user prompt
+    if len(args.data_types) == 1 and "all" in args.data_types:
+        args.data_types = list(range(len(all_data_groups_list)))
+    # Else if no type is specified, ask the user if they want to download all types
+    elif len(args.data_types) == 0 and len(all_data_groups_list) > 1:
         print("-d(, --data_types) not specified")
         print("Available data types include:")
         for i, data_group in enumerate(all_data_groups_list):
@@ -114,7 +123,11 @@ def main():
     for input_data_type in args.data_types:
         data_types.append(all_data_groups_list[int(input_data_type)])
 
-    if args.sequence_names is None:
+    # If sequence_names is specified as "all", download all available sequences without user prompt
+    if len(args.sequence_names) == 1 and "all" in args.sequence_names:
+        args.sequence_names = None
+        print("Downloading all sequences...")
+    elif args.sequence_names is None:
         download_all = (
             input(
                 """
