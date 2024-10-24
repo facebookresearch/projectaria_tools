@@ -121,6 +121,7 @@ inline void declareCameraCalibration(py::module& m) {
   Args:
     label: The label of the camera, e.g. "camera-slam-left".
     projection_model_type The type of camera projection model, e.g. ModelType::Linear
+    projection_params: The projection parameters.
     T_Device_Camera: The extrinsics of camera in Device frame.
     image_width: Width of camera image.
     image_height: Height of camera image.
@@ -146,6 +147,7 @@ inline void declareCameraCalibration(py::module& m) {
   Args:
     label: The label of the camera, e.g. "camera-slam-left".
     projection_model_type The type of camera projection model, e.g. ModelType::Linear
+    projection_params: The projection parameters.
     T_Device_Camera: The extrinsics of camera in Device frame.
     image_width: Width of camera image.
     image_height: Height of camera image.
@@ -175,6 +177,7 @@ inline void declareCameraCalibration(py::module& m) {
     label: The label of the camera, e.g. "camera-slam-left".
     projection_model_type The type of camera projection model, e.g. ModelType::Linear
     T_Device_Camera: The extrinsics of camera in Device frame.
+    projection_params: The projection parameters.
     image_width: Width of camera image.
     image_height: Height of camera image.
     maybe_valid_radius: [optional] radius of a circular mask that represents the valid area on
