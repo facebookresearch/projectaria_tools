@@ -41,6 +41,7 @@ class CameraCalibration {
    * @brief Constructor with a list of parameters for CameraCalibration.
    * @param label The label of the camera, e.g. "camera-slam-left".
    * @param projectionModelType The type of camera projection model, e.g. ModelType::Linear
+   * @param projectionParams The projection parameters
    * @param T_Device_Camera The extrinsics of camera in Device frame.
    * @param imageWidth Width of camera image.
    * @param imageHeight Height of camera image.
