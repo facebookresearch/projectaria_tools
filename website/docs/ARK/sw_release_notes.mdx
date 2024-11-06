@@ -10,6 +10,98 @@ These SW Release notes are for the Aria Research Kit (ARK), and are for Meta SW 
 
 Our Open Source Project Aria Tools SW Release notes are posted to [Project Aria Tools GitHub repository](https://github.com/facebookresearch/projectaria_tools), using Tags > Releases.
 
+
+## **Aria Mobile App v185 is now available**
+October 25, 2024
+
+Dear Academic Partners,
+
+The Aria Mobile App v185 is now available. Go to the [Downloads page](/ARK/ark_downloads.mdx) to get the latest version for Android. For iOS, select Update in the TestFlight app. Please **Update** the app to access the following features and bug fixes.
+
+### BUG FIXES
+
+Various bug fixes to improve the overall usage.
+
+
+
+### PROJECT ARIA LATEST OS
+
+The latest Project Aria OS build **4970205.890.70** (June 28, 2024).
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+If you encounter any problems using Project Aria support, please contact us. There are several ways for getting user support.
+
+We encourage you to post issues to GitHub, so that they can be tracked.
+
+* Post to [Project Aria Tools issues on GitHub](https://github.com/facebookresearch/projectaria_tools/issues)
+
+If you are a Research Partner with access to the Aria Research Kit there are several other support options available, although GitHub is ideal for bug reports and feature requests.
+
+* Post to [Academic Partners Feedback and Support workplace group](/ARK/workplacegroup.mdx) - discussion, feedback or user support
+* Post to Project Aria Discord - best for discussion, feedback or user support
+* Email AriaOps@meta.com - for feedback or user support
+
+<br/>
+<br/>
+
+## **Announcing Aria Research Kit v1.10**
+October 9, 2024
+
+We're announcing the release of Aria Research Kit v1.10. This release adds versioning to all of the Machine Perception Services and includes a major update to make the SLAM service more accurate for downstream tasks that utilize 3D results projected into the RGB camera frame. We are also making it much easier for you to visualize, edit, and prepare your Aria recordings for downstream use such as dataset preparation and model training with PyTorch.
+
+### MPS Versioning
+
+Starting now, we are introducing the concept of versioning to machine perception services. When we make changes to our SLAM, hand tracking, or eye tracking services, you will have information about which version of the service was utilized for your result computation. This will be available directly at the very end of the summary.json file. Versions will have a major, minor, and bugfix number (e.g. SLAM v1.1.0). We will keep our [MPS Service Versions page](/ARK/mps/mps_versioning.mdx) updated as we roll out new versions so that you are aware of the changes we make.
+
+### RGB Online Calibration
+
+Aria excels at enabling computer vision from a 3D perspective. Our SLAM Machine Perception Service provides Aria trajectory and a semi-dense point cloud output that allow computations in a 3D reference frame. Tasks like object detection can be performed in 3D and then be re-projected back into the 2D RGB images. Available as of v1.1.0, we’ve implemented extremely accurate RGB online calibration for all of your downstream tasks that utilize 3D results reprojected into the RGB camera frame. Read the [MPS Output Calibration page](/data_formats/mps/slam/mps_calibration.mdx) for more details on how to make use of online calibration.
+
+### New Tools for Working with VRS
+
+We know that it takes manual work to prepare Aria recordings for downstream use, so we’ve released some new tools to make things easier. We now provide a lightweight [VRS Player App](/data_formats/aria_vrs/aria_vrsplayer.mdx) that allows you to easily play the visual and audio sensor streams of a recording from a file menu or by using a simple command. We’ve also released a [VRS Command Line Tool](/data_formats/aria_vrs/aria_vrs_command_line.mdx) that enables easy inspection and editing of VRS files. For example, you can time crop a recording to eliminate an unwanted segment or remove sensor streams that you no longer need in your final dataset after processing through Machine Perception Services. Install both the lightweight VRS Player and the VRS Command Line Tool with the [VRS Tools Installer](/data_formats/aria_vrs/aria_vrs_tools_installation.mdx).
+
+### Aria Training and Evaluation Toolkit
+
+Preparing Aria recordings for training in PyTorch just got easier with Aria Training and Evaluation Kit (ATEK). ATEK offers an efficient solution to convert VRS files to PyTorch compatible formats, simplifying integration and use within deep learning projects. We’ve also pre-processed two popular Aria datasets with ATEK for direct usage in a data store. And lastly, we’ve created standardized evaluation libraries for 3D object detection and surface reconstruction. Read an in-depth [blog post on ATEK](https://www.projectaria.com/news/aria-training-and-evaluation-toolkit-atek/) for more information and see the [ATEK GitHub page](https://github.com/facebookresearch/ATEK/tree/main) to install ATEK today.
+
+### Project Aria Now on Huggingface
+Finally, we introduce the [Project Aria Huggingface Space](https://huggingface.co/projectaria), which allows researchers to track their model performance, helping measure, compare, and accelerate AI and ML research within the open community. AI models and datasets, released in the Project Aria Hugging Face space, will be supported by ATEK. Where possible, AI models trained using Project Aria data will also be available with full weights and scripts, making it easy for researchers to discover and benchmark existing models against their own methods.
+
+### Aria Studio Updates
+
+We've also made some updates to Aria Studio. We now display a version number and have a mechanism for surfacing updates and other key information that we want to communicate to our users. Today, Aria Studio is installed via pip install, and in doing so you'll automatically get these new features. If you haven't yet tried it, please install [Aria Studio](/ARK/aria_studio.mdx) today.
+
+### Any Questions?
+
+If you have any questions regarding this new functionality in Aria Research Kit v1.10 or any issues accessing any of the features, please reach out to our support team at AriaOps@meta.com.
+
+<br/>
+<br/>
+
+## **Aria Mobile App v180 is now available**
+September 17, 2024
+
+Dear Academic Partners,
+
+The Aria Mobile App v180 for Android is now available. Go to the [Downloads page](/ARK/ark_downloads.mdx) to get the latest version for Android. For iOS, select **Update** in the TestFlight app. Please update the app.
+
+### BUG FIXES
+Various bug fixes to improve the overall usage.
+
+### PROJECT ARIA LATEST OS
+The latest Project Aria OS build **4970205.890.70** (June 28, 2024).
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+Contact Aria User Support by posting here in [Academic Partners Feedback and Support workplace group](/ARK/workplacegroup.mdx) or emailing AriaOps@meta.com.
+
+Additional resources are available at Project Aria Github.
+
+<br/>
+<br/>
+
 ## Announcing Aria Research Kit v1.9
 
 We're announcing a new release of Aria Research Kit v1.9, now including Live Preview in the Aria Companion App and updates to our Wrist and Palm tracking MPS output. Read below for more details!
