@@ -12,26 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import bisect
 import os
+from typing import Dict, List
 
-import sys
-from datetime import timedelta
-from typing import Dict, List, Set
-
-import numpy as np
 import rerun as rr
-from projectaria_tools.core import data_provider, mps
-from projectaria_tools.core.mps import (
-    MpsDataPathsProvider,
-    MpsDataProvider,
-    PointObservation,
+import rerun.blueprint as rrb
+
+from PointsAndObservationsManager import (
+    PointsAndObservationsManager,
+    PointsDict,
+    PointsIndexList,
+    PointsUVsList,
 )
-from projectaria_tools.core.mps.utils import filter_points_from_confidence
+
+from projectaria_tools.core import data_provider, mps
+from projectaria_tools.core.mps import MpsDataPathsProvider, MpsDataProvider
 from projectaria_tools.core.sensor_data import SensorDataType, TimeDomain
 from projectaria_tools.core.stream_id import StreamId
 from projectaria_tools.utils.rerun_helpers import AriaGlassesOutline, ToTransform3D
 from tqdm import tqdm
+from TracksManager import MAX_TRACK_LENGTH, Tracks, TracksManager
+from utils import OnlineRgbCameraHelper
 
 # MPS Semi Dense Point Visibility Demo
 # - Show how to use Semi Dense Point Observations in conjunction of the VRS image frames
@@ -41,7 +42,8 @@ from tqdm import tqdm
 # 1. MPS Point cloud data consists of:
 # - A global point cloud (3D points)
 # - Point cloud observations (visibility information for camera_serial and timestamps)
-# Global points and their observations are linked together by their unique 3D point ids
+# -> Global points and their observations are linked together by their unique 3D point ids
+# => We are introducing the PointsAndObservationsManager class to enable easy retrieval of visible point per timestamp for each camera
 
 # 2. How to connect MPS data to corresponding VRS image:
 # MPS point cloud data observations is indexed by camera_serial and can be slam_left or slam_right
@@ -51,174 +53,136 @@ from tqdm import tqdm
 # 3. This code sample show how to keep a list of visible tracks at the current timestamp
 # I.E point observations are accumulated and hashed by their global point unique ids
 # - if a point is not visible on the current frame, the track is removed
-#
+# => We are introducing the TracksManager manager class to update and store the visible tracks
+
+
+RERUN_JPEG_QUALITY = 75
+# Create alias for the stream ids
+LEFT_SLAM_STREAM_ID = StreamId("1201-1")
+RIGHT_SLAM_STREAM_ID = StreamId("1201-2")
+RGB_STREAM_ID = StreamId("214-1")
 
 #
-# Deal with Python versioning potential restriction
-# This code sample is using some function from BISECT that are available only in Python 3.10+
-if sys.version_info < (3, 10):
-    print(
-        "This code sample use bisect and function from python 3.10+. Please upgrade your python version"
-    )
-    exit(1)
-
-MAX_TRACK_LENGTH = 5
-
-#
-# Data Loading
+# Configure Data Loading
 # MPS output paths
 mps_folder_data = "../../../../data/mps_sample"
 vrs_file = os.path.join(mps_folder_data, "sample.vrs")
+
+
+#
+# Utility function
+def display_tracks_and_points(
+    uvs: PointsUVsList,
+    uids: PointsIndexList,
+    points_dict: PointsDict,  # Global Points indexed by uid
+    tracks: Tracks,
+    stream_id: StreamId,
+    stream_label: str,
+) -> None:
+    """
+    Display onto existing images:
+     - 2D observations (uvs)
+     - tracklets (the past trace of the tracked point)
+     - 3D visible points (for SLAM left and right)
+    """
+    # Display the collected 2D point projections
+    #
+    rr.log(
+        stream_label + "/observations",
+        rr.Points2D(uvs, colors=[255, 255, 0], radii=1, class_ids=uids),
+    )
+
+    # Display tracklets
+    #
+
+    # Compile tracks as a list to display them as lines
+    tracked_points = [tracks[track_id] for track_id in tracks]
+    rr.log(
+        stream_label + "/track",
+        rr.LineStrips2D(tracked_points, radii=2),
+    )
+
+    # Collect visible 3D points and display them
+    #
+    if stream_id in [
+        LEFT_SLAM_STREAM_ID,
+        RIGHT_SLAM_STREAM_ID,
+    ]:
+        points = [points_dict[uid].position_world for uid in uids]
+        rr.log(
+            f"world/tracked_points_{stream_label}",
+            rr.Points3D(
+                points,
+                radii=0.02,
+                colors=(
+                    [255, 255, 0] if stream_id == LEFT_SLAM_STREAM_ID else [0, 255, 255]
+                ),
+            ),
+        )
+
+
+###
+###
+
+#
+# Initialize the interface to read MPS data
 mps_data_paths = MpsDataPathsProvider(mps_folder_data)
 mps_data_provider = MpsDataProvider(mps_data_paths.get_data_paths())
-
-# Check we have the required data
+# Check we have the required MPS data available
 if not (
     mps_data_provider.has_closed_loop_poses
+    and mps_data_provider.has_online_calibrations  # Required to have accurate RGB camera poses
     and mps_data_provider.has_semidense_point_cloud
     and mps_data_provider.has_semidense_observations
 ):
     print(
-        "Missing required data for this demo (either closed loop trajectory, semi dense point cloud, semi dense observations are missing)"
+        "Missing required data for this demo (either closed loop trajectory, semi dense point cloud, semi dense observations, online calibration are missing)"
     )
     exit(1)
 
-left_slam_stream_id = StreamId("1201-1")
-right_slam_stream_id = StreamId("1201-2")
-
-
-# Helper function to create an index for semi-dense observations
-def index_observations(points_observations_sorted: List[PointObservation]) -> Dict:
-    """
-    Hashes observations by timestamp and camera serial
-    - leverage the fact that input observations are sorted for quick indexing
-    """
-    observations_index = {}
-    start_index = 0
-    while True:
-        upper_bound = bisect.bisect_right(
-            points_observations_sorted,
-            points_observations_sorted[start_index].frame_capture_timestamp,
-            lo=start_index,
-            hi=len(points_observations_sorted),
-            key=lambda x: x.frame_capture_timestamp,
-        )
-        upper_bound_serial = bisect.bisect_right(
-            points_observations_sorted,
-            points_observations_sorted[start_index].camera_serial,
-            lo=start_index,
-            hi=upper_bound - 1,
-            key=lambda x: x.camera_serial,
-        )
-        observations_index[
-            points_observations_sorted[start_index].frame_capture_timestamp,
-            points_observations_sorted[start_index].camera_serial,
-        ] = (start_index, upper_bound_serial - 1)
-        observations_index[
-            points_observations_sorted[start_index].frame_capture_timestamp,
-            points_observations_sorted[upper_bound_serial].camera_serial,
-        ] = (upper_bound_serial, upper_bound - 1)
-        start_index = upper_bound
-        if upper_bound >= len(points_observations_sorted):
-            break
-    return observations_index
-
-
-# Helper function to query 2D semi-dense observations visible in a frame
-def get_2dpoints_uvs_uids(
-    capture_timestamp_ns: int,
-    sensor_serial: str,
-    observations: List[PointObservation],
-    observations_index: Dict,
-):
-    """
-    Leverage the observations index to retrieve the visible 2d uv observations and unique ids for this timestamp and camera serial
-    Note: observations could be not existing, in this case we return empty arrays
-    """
-    try:
-        start_index, end_index = observations_index[
-            timedelta(microseconds=int(capture_timestamp_ns * 1e-3)), sensor_serial
-        ]
-        return (
-            np.array([obs.uv for obs in observations[start_index:end_index]]),
-            [obs.point_uid for obs in observations[start_index:end_index]],
-        )
-    except KeyError:
-        return (np.array([]), np.array([]))
-
-
 #
-# Load MPS trajectory data
-#
-trajectory_data = mps.read_closed_loop_trajectory(
-    mps_data_paths.get_data_paths().slam.closed_loop_trajectory
-)
-# Reduce the number of points to display more easily
-device_trajectory = [
-    it.transform_world_device.translation()[0] for it in trajectory_data
-][0::80]
-
-#
-# Load MPS global point cloud and filter points
-#
-points_data = mps_data_provider.get_semidense_point_cloud()
-points_data_length_before_filtering = len(points_data)
-# Filter out low confidence points
-points_data = filter_points_from_confidence(points_data)
-print(
-    f"Filtering make us keep: {int(100 * len(points_data)/points_data_length_before_filtering)} % of the total 3D global point data"
-)
-# Convert points to a dictionary for faster lookup by uid
-points_dict = {pt.uid: pt for pt in points_data}
-del points_data  # Free memory (no longer needed)
-
-# Retrieve point observations and sort them by timestamp and camera serial
-print("Loading semi-dense observations...")
-points_observations_sorted = mps_data_provider.get_semidense_observations()
-#
-# If desired, do the following to keep only the FILTERED point observations
-#
-# Gather the global Point unique ids
-kept_point_uids = set(points_dict.keys())
-print("Total points UIDS after filtering: ", len(kept_point_uids))
-# Keep only the observations related to those points
-points_observations_sorted = [
-    obs for obs in points_observations_sorted if obs.point_uid in kept_point_uids
-]
-# Sort the observations by timestamp and camera serial for easier indexing
-print("Sorting semi-dense observations...")
-points_observations_sorted = sorted(
-    points_observations_sorted,
-    key=lambda x: (x.frame_capture_timestamp, x.camera_serial),
+# Initialize the Semi Dense Points and observations manager
+# This interface will provide us an easy way to retrieve visible points per camera stream and timestamp
+points_and_observations_manager = PointsAndObservationsManager.from_mps_data_provider(
+    mps_data_provider
 )
 
-# Index points using BISECT for easy retrieval by using key as (timestamp, camera_serial)
-print("Indexing semi-dense observations...")
-observations_index = index_observations(points_observations_sorted)
-
-# Display
 #
-# Loop over the recording (SLAM Images, and display points that are visible at this timestamp)
-#
+# Configure a VRS data provider to get all the SLAM and RGB images
 vrs_data_provider = data_provider.create_vrs_data_provider(vrs_file)
 device_calibration = vrs_data_provider.get_device_calibration()
 deliver_option = vrs_data_provider.get_default_deliver_queued_options()
 deliver_option.deactivate_stream_all()
-deliver_option.activate_stream(left_slam_stream_id)
-deliver_option.activate_stream(right_slam_stream_id)
+deliver_option.activate_stream(LEFT_SLAM_STREAM_ID)
+deliver_option.activate_stream(RIGHT_SLAM_STREAM_ID)
+deliver_option.activate_stream(RGB_STREAM_ID)
 
-left_slam_serial = (
-    vrs_data_provider.get_configuration(left_slam_stream_id)
-    .image_configuration()
-    .sensor_serial
+#
+# Load MPS trajectory data (and reduce the number of points for display)
+trajectory_data = mps.read_closed_loop_trajectory(
+    mps_data_paths.get_data_paths().slam.closed_loop_trajectory
 )
-right_slam_serial = (
-    vrs_data_provider.get_configuration(right_slam_stream_id)
-    .image_configuration()
-    .sensor_serial
-)
+device_trajectory = [
+    it.transform_world_device.translation()[0] for it in trajectory_data
+][0::80]
 
+
+#
+# Initialize Rerun and set the viewing layout (3D, RGB, VerticalStack(SlamLeft, SlamRight)):
 rr.init("MPS SemiDensePoint Viewer", spawn=True)
+my_blueprint = rrb.Blueprint(
+    rrb.Horizontal(
+        rrb.Spatial3DView(origin="world"),
+        rrb.Spatial2DView(origin="camera-rgb"),
+        rrb.Vertical(
+            rrb.Spatial2DView(origin="camera-slam-left"),
+            rrb.Spatial2DView(origin="camera-slam-right"),
+        ),
+    ),
+    collapse_panels=True,
+)
+rr.send_blueprint(my_blueprint)
+
 
 # Display device trajectory
 rr.log(
@@ -228,7 +192,7 @@ rr.log(
 )
 
 # Display global point cloud
-points = [pt.position_world for pt in points_dict.values()]
+points = [pt.position_world for pt in points_and_observations_manager.points.values()]
 rr.log("world/points", rr.Points3D(points, radii=0.005), static=True)
 del points  # Free memory (no longer needed)
 
@@ -243,46 +207,23 @@ rr.log(
     static=True,
 )
 
+#
+# Save tracks for each stream_id (the last X visible 2d projection coordinates for each visible track ID in the current frame)
+aria_track_manager = TracksManager(max_track_length=MAX_TRACK_LENGTH)
 
-def add_point(
-    tracks: List,
-    track_id: int,
-    x: float,
-    y: float,
-    max_track_length: int = MAX_TRACK_LENGTH,
-):
-    """
-    Add a new point to the "tracks" dictionary
-    - Tracks are defined as the following:
-       track_id hash -> Key of the dictionary
-       for each track we have a list of observations (x,y)
-    If track is longer than expected, we remove the oldest observation
-    """
-    if track_id not in tracks:
-        tracks[track_id] = {"points": [(x, y)]}
-    else:
-        tracks[track_id]["points"].append((x, y))
-        if len(tracks[track_id]["points"]) > MAX_TRACK_LENGTH:
-            tracks[track_id]["points"] = tracks[track_id]["points"][-MAX_TRACK_LENGTH:]
+#
+# SemiDense point visibility information is done only for the SLAM cameras
+# RGB point cloud visibility is not pre-computed, we estimate point visibilities from the SLAM ones
+# - We are here store the Global point cloud unique ids that are visible in the current frame set (left and right)
+# - so we can know later estimate which point is visible in the RGB frame
+frame_set_uids: Dict[str, List[int]] = {}
 
-
-def remove_non_visible_observations(currently_visible_uids: Set[int], tracks: List):
-    """
-    Remove tracks/points that are no longer visible
-    - Remove the tracks ids that are not currently visible in the currently_visible_uids set
-    """
-    track_ids_to_remove = [
-        track_id for track_id in tracks if track_id not in currently_visible_uids
-    ]
-    for track_id in track_ids_to_remove:
-        del tracks[track_id]
-    return tracks
-
-
-left_tracks = {}  # dictionary to store left camera tracks
-right_tracks = {}  # dictionary to store right camera tracks
-
-
+#
+# Display loop
+# - going over the images
+# - retrieve visible points
+# - update tracks and display them
+#
 for data in tqdm(vrs_data_provider.deliver_queued_sensor_data(deliver_option)):
     device_time_ns = data.get_time_ns(TimeDomain.DEVICE_TIME)
     rr.set_time_nanos("device_time", device_time_ns)
@@ -296,61 +237,88 @@ for data in tqdm(vrs_data_provider.deliver_queued_sensor_data(deliver_option)):
             ToTransform3D(T_world_device, False),
         )
 
-    # In order to factorize code, we use the following variables to store the label, camera serial and tracks of the current frame (left or right)
-    stream_label = camera_serial = tracks = None
-    if data.stream_id() == left_slam_stream_id:
-        stream_label = "camera-slam-left"
-        camera_serial = left_slam_serial
-        tracks = left_tracks
-    elif data.stream_id() == right_slam_stream_id:
-        stream_label = "camera-slam-right"
-        camera_serial = right_slam_serial
-        tracks = right_tracks
+    # Retrieve the stream label and current camera serial
+    camera_serial = tracks = None
+    stream_label = vrs_data_provider.get_label_from_stream_id(data.stream_id())
+    if data.stream_id() == LEFT_SLAM_STREAM_ID:
+        camera_serial = (
+            vrs_data_provider.get_configuration(LEFT_SLAM_STREAM_ID)
+            .image_configuration()
+            .sensor_serial
+        )
+    elif data.stream_id() == RIGHT_SLAM_STREAM_ID:
+        camera_serial = (
+            vrs_data_provider.get_configuration(RIGHT_SLAM_STREAM_ID)
+            .image_configuration()
+            .sensor_serial
+        )
 
-    # Collect 2D coordinates (uvs) and unique ids (uuids) of all visible points in this frame & display them
+    # For each view we will collect the visible uvs (2d projection) and the ids of the visible 3D points
+    # Note: RGB view will be handled separately as projection needs to be computed and not directly available
+
+    # If this is an image, display it
     if data.sensor_data_type() == SensorDataType.IMAGE:
-        slam_frame = data.image_data_and_record()[0].to_numpy_array()
-        rr.log(stream_label, rr.Image(slam_frame))
+        frame = data.image_data_and_record()[0].to_numpy_array()
+        rr.log(stream_label, rr.Image(frame).compress(jpeg_quality=RERUN_JPEG_QUALITY))
 
-        uvs, uids = get_2dpoints_uvs_uids(
-            device_time_ns,
-            camera_serial,
-            points_observations_sorted,
-            observations_index,
-        )
-        rr.log(
-            stream_label + "/observations",
-            rr.Points2D(uvs, colors=[255, 255, 0], radii=1, class_ids=uids),
-        )
+        # Collect and display "slam images" visible semi dense point 2D coordinates (uvs) and unique ids (uuids)
+        if data.stream_id() in [
+            LEFT_SLAM_STREAM_ID,
+            RIGHT_SLAM_STREAM_ID,
+        ]:
+            uvs, uids = points_and_observations_manager.get_slam_observations(
+                device_time_ns,
+                camera_serial,
+            )
+            # Store the current visible global points uids for this view to propagate to the RGB view
+            frame_set_uids[str(data.stream_id())] = uids
 
-        #
-        # Collect visible 3D points and display them
-        #
-        visible_points = [points_dict[uid].position_world for uid in uids]
-        rr.log(
-            f"world/tracked_points_{stream_label}",
-            rr.Points3D(
-                visible_points,
-                radii=0.02,
-                colors=(
-                    [255, 255, 0]
-                    if stream_label == "camera-slam-left"
-                    else [0, 255, 255]
-                ),
-            ),
-        )
+            #
+            # Update tracks and display them (for slam left or right)
+            aria_track_manager.update_tracks_and_remove_old_observations(
+                stream_label, uvs, uids
+            )
+            display_tracks_and_points(
+                uvs,
+                uids,
+                points_and_observations_manager.points,
+                aria_track_manager.get_track_for_camera_label(stream_label),
+                data.stream_id(),
+                stream_label,
+            )
 
-        #
-        # Display tracks history (track traces)
-        #
-        for uv, id in zip(uvs, uids):
-            add_point(tracks, id, uv[0], uv[1])
-        # remove track_ids that are not longer visible
-        remove_non_visible_observations(set(uids), tracks)
+        # If we have accumulated SLAM image visibilities for both slam images, we can compute RGB visible points
+        if len(frame_set_uids) == 2:
+            # We will now estimate uvs and ids for the RGB view
+            #
+            # Collect visible 3D points for the SLAM images and see if they are "visible" in the RGB frame
+            all_uids = set(frame_set_uids[str(LEFT_SLAM_STREAM_ID)]).union(
+                frame_set_uids[str(RIGHT_SLAM_STREAM_ID)]
+            )
+            # Collect online camera calibration (used for point re-projection)
+            camera_calibration, device_pose = OnlineRgbCameraHelper(
+                vrs_data_provider, mps_data_provider, device_time_ns
+            )
+            # Retrieve visible points and uids
+            uvs, uids = points_and_observations_manager.get_rgb_observations(
+                all_uids, camera_calibration, device_pose
+            )
 
-        # Compile tracks as a list to display them as lines
-        tracks_points = [tracks[track_id]["points"] for track_id in tracks]
-        rr.log(
-            stream_label + "/track",
-            rr.LineStrips2D(tracks_points),
-        )
+            #
+            # Clean up the left/right slam camera uids cache for the next frame set iteration
+            frame_set_uids = {}
+
+            #
+            # Update tracks and display (for the RGB view)
+            rgb_stream_name = vrs_data_provider.get_label_from_stream_id(RGB_STREAM_ID)
+            aria_track_manager.update_tracks_and_remove_old_observations(
+                rgb_stream_name, uvs, uids
+            )
+            display_tracks_and_points(
+                uvs,
+                uids,
+                points_and_observations_manager.points,
+                aria_track_manager.get_track_for_camera_label(rgb_stream_name),
+                RGB_STREAM_ID,
+                rgb_stream_name,
+            )

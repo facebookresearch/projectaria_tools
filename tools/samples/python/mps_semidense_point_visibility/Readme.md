@@ -18,6 +18,7 @@ python mps_semidense_point_visibility_demo.py
 
 - A global point cloud (3D points)
 - Point cloud observations for the SLAM cameras (visibility information for camera_serial and timestamps)
+- => We are introducing the PointsAndObservationsManager class to enable easy retrieval of visible point per timestamp for each camera
 
 > [!TIP]
 > Global points and their observations are linked together by their unique 3D point ids
@@ -32,3 +33,4 @@ python mps_semidense_point_visibility_demo.py
 
 - I.E point observations are accumulated and hashed by their global point unique ids
 - if a point is not visible on the current frame, the track is removed
+- => We are introducing the TracksManager manager class to update and store the visible tracks
