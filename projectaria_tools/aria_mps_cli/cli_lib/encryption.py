@@ -35,6 +35,14 @@ logger = logging.getLogger(__name__)
 config = Config.get()
 
 
+class EncryptionException(RuntimeError):
+    """
+    Raised when encryption fails
+    """
+
+    pass
+
+
 class VrsEncryptor(RunnerWithProgress):
     """
     Encrypt a vrs file and report progress
@@ -83,6 +91,7 @@ class VrsEncryptor(RunnerWithProgress):
                     self._dest_path,
                     self._encryption_key,
                     self._encryption_key_id,
+                    self._total,
                     config.getint(ConfigSection.ENCRYPTION, ConfigKey.CHUNK_SIZE),
                     sender,
                 )
@@ -110,6 +119,7 @@ class FileEncryptor:
         chunk_size: int,
         src_file: Path,
         dest_file: Path,
+        src_file_size: int,
     ):
         self._crypto_version: int = 1
         self._symmetric_key_length: int = 32
@@ -120,6 +130,7 @@ class FileEncryptor:
         self._crypto_key_id: int = key_id
         self._pub_key: RSA.RSAKey = RSA.import_key(encryption_key)
         self._src_file: Path = src_file
+        self._src_file_size: int = src_file_size
         self._dest_file: Path = dest_file
         self._logger: CustomAdapter = CustomAdapter(
             logging.getLogger(__name__), {"vrs": str(src_file)}
@@ -175,8 +186,13 @@ class FileEncryptor:
         """Encrypt the data from the source file and write to the destination stream"""
         with self._src_file.open("rb") as fr:
             processed_bytes: int = 0
-            while chunk := fr.read(self._chunk_size):
-                if len(chunk) == 0:
+            while True:
+                chunk = fr.read(self._chunk_size)
+                if not chunk:
+                    if processed_bytes != self._src_file_size:
+                        raise EncryptionException(
+                            f"Encrypted {processed_bytes} bytes, expected {self._src_file_size}"
+                        )
                     break
                 cipher_text = self._cipher.encrypt(chunk)
                 dest_stream.write(cipher_text)
@@ -202,6 +218,7 @@ def _encrypt_file(
     dest_file: Path,
     encryption_key: str,
     key_id: int,
+    src_file_size: int,
     chunk_size: int,
     conn: connection.Connection,
 ) -> None:
@@ -211,9 +228,12 @@ def _encrypt_file(
         dest_file: The encrypted file to create
         encryption_key: The RSA public key to encrypt the file
         key_id: The ID of provided encryption key
+        src_file_size: The size of the source file
         chunk_size: The size of each chunk to encrypt
         conn: The connection (Pipe) to send progress updates over
 
     We use a temporary directory to avoid having to deal with partially encrypted file
     """
-    FileEncryptor(encryption_key, key_id, chunk_size, src_file, dest_file).encrypt(conn)
+    FileEncryptor(
+        encryption_key, key_id, chunk_size, src_file, dest_file, src_file_size
+    ).encrypt(conn)
