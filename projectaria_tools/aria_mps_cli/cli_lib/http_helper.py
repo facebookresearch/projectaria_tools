@@ -17,7 +17,7 @@ import logging
 import os
 from typing import Any, Dict, Final, List, Mapping, Optional, Set, Tuple
 
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientTimeout
 from aiohttp.client_exceptions import ContentTypeError
 
 from .common import Config, retry
@@ -88,7 +88,11 @@ class HttpHelper:
 
     def __init__(self):
         logger.debug("Creating http session")
-        self._http_session: ClientSession = ClientSession(raise_for_status=True)
+        timeout: ClientTimeout = ClientTimeout(total=None)
+        self._http_session: ClientSession = ClientSession(
+            raise_for_status=True,
+            timeout=timeout,
+        )
 
     @property
     def session(self) -> ClientSession:
