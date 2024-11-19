@@ -510,7 +510,154 @@ def log_hand_tracking(
             )
 
 
-def main():
+def log_to_rerun(
+    vrs_path: Optional[str],
+    trajectory_files: List[str],
+    points_files: List[str],
+    eye_gaze_file: Optional[str],
+    wrist_and_palm_poses_file: Optional[str],
+    should_rectify_image: bool = False,
+    should_rotate_image: bool = False,
+    down_sampling_factor: int = 4,
+    jpeg_quality: int = 75,
+    rrd_output_path: Optional[str] = None,
+) -> None:
+    if rrd_output_path:
+        print(f"Saving .rrd file to {rrd_output_path}")
+        rr.save(rrd_output_path)
+    rr.log("world", rr.ViewCoordinates.RIGHT_HAND_Z_UP, static=True)
+
+    if trajectory_files:
+        log_device_trajectory(trajectory_files)
+
+    if points_files:
+        log_point_clouds(points_files)
+
+    # If we we do not have a vrs file, we are done
+    if not vrs_path:
+        return
+
+    #
+    # Go over RGB timestamps and
+    # - Plot camera pose
+    # - Plot user eye gaze
+    # - Plot user wrist and palm pose
+    #
+
+    provider = data_provider.create_vrs_data_provider(vrs_path)
+    device_calibration = provider.get_device_calibration()
+    T_device_CPF = (
+        device_calibration.get_transform_device_cpf()
+    )  # this is always CAD value
+    rgb_stream_id = StreamId("214-1")
+    rgb_stream_label = provider.get_label_from_stream_id(rgb_stream_id)
+    rgb_camera_calibration = device_calibration.get_camera_calib(rgb_stream_label)
+
+    if should_rectify_image:
+        rgb_linear_camera_calibration = calibration.get_linear_camera_calibration(
+            int(rgb_camera_calibration.get_image_size()[0]),
+            int(rgb_camera_calibration.get_image_size()[1]),
+            rgb_camera_calibration.get_focal_lengths()[0],
+            "pinhole",
+            rgb_camera_calibration.get_transform_device_camera(),
+        )
+        if should_rotate_image:
+            rgb_rotated_linear_camera_calibration = (
+                calibration.rotate_camera_calib_cw90deg(rgb_linear_camera_calibration)
+            )
+            camera_calibration = rgb_rotated_linear_camera_calibration
+        else:
+            camera_calibration = rgb_linear_camera_calibration
+    else:  # No rectification
+        if should_rotate_image:
+            raise NotImplementedError(
+                "Showing upright-rotated image without rectification is not currently supported.\n"
+                "Please use --no_rotate_image_upright and --no_rectify_image together."
+            )
+        else:
+            camera_calibration = rgb_camera_calibration
+
+    def post_process_image(img):
+        if should_rectify_image:
+            img = calibration.distort_by_calibration(
+                img,
+                rgb_linear_camera_calibration,
+                rgb_camera_calibration,
+            )
+            if should_rotate_image:
+                img = np.rot90(img, k=3)
+        return img
+
+    # Load Trajectory, Eye Gaze, and Wrist and Palm Pose data - corresponding to this specific VRS file
+    trajectory_data = (
+        mps.read_closed_loop_trajectory(str(trajectory_files[0]))
+        if trajectory_files
+        else None
+    )
+    eyegaze_data = mps.read_eyegaze(eye_gaze_file) if eye_gaze_file else None
+    wrist_and_palm_poses = (
+        mps.hand_tracking.read_wrist_and_palm_poses(wrist_and_palm_poses_file)
+        if wrist_and_palm_poses_file
+        else None
+    )
+
+    # Log Aria Glasses outline
+    log_RGB_camera_calibration(
+        rgb_camera_calibration, rgb_stream_label, down_sampling_factor
+    )
+
+    log_Aria_glasses_outline(device_calibration)
+
+    # Configure the loop for data replay
+    deliver_option = provider.get_default_deliver_queued_options()
+    deliver_option.deactivate_stream_all()
+    deliver_option.activate_stream(rgb_stream_id)  # RGB Stream Id
+    rgb_frame_count = provider.get_num_data(rgb_stream_id)
+
+    progress_bar = tqdm(total=rgb_frame_count)
+    # Iterate over the data and LOG data as we see fit
+    for data in provider.deliver_queued_sensor_data(deliver_option):
+        device_time_ns = data.get_time_ns(TimeDomain.DEVICE_TIME)
+        rr.set_time_nanos("device_time", device_time_ns)
+        rr.set_time_sequence("timestamp", device_time_ns)
+        progress_bar.update(1)
+
+        log_camera_pose(
+            trajectory_data,
+            device_time_ns,
+            camera_calibration,
+            rgb_stream_label,
+        )
+
+        log_RGB_image(
+            data,
+            down_sampling_factor,
+            jpeg_quality,
+            rgb_stream_label,
+            postprocess_image=post_process_image,
+        )
+
+        log_eye_gaze(
+            eyegaze_data,
+            device_time_ns,
+            T_device_CPF,
+            rgb_stream_label,
+            device_calibration,
+            camera_calibration,
+            down_sampling_factor,
+            should_rotate_image,
+        )
+
+        log_hand_tracking(
+            wrist_and_palm_poses,
+            device_time_ns,
+            camera_calibration,
+            rgb_stream_label,
+            down_sampling_factor,
+        )
+
+
+def main() -> None:
     args = parse_args()
 
     #
@@ -570,139 +717,19 @@ def main():
 
     # Initializing Rerun viewer
     rr.init("MPS Data Viewer", spawn=(not args.rrd_output_path))
-    if args.rrd_output_path:
-        print(f"Saving .rrd file to {args.rrd_output_path}")
-        rr.save(args.rrd_output_path)
-    rr.log("world", rr.ViewCoordinates.RIGHT_HAND_Z_UP, static=True)
 
-    if args.trajectory:
-        log_device_trajectory(args.trajectory)
-
-    if args.points:
-        log_point_clouds(args.points)
-
-    #
-    # If we we do not have a vrs file, we are done
-    #
-    if not args.vrs:
-        return
-
-    #
-    # Go over RGB timestamps and
-    # - Plot camera pose
-    # - Plot user eye gaze
-    # - Plot user wrist and palm pose
-    #
-
-    provider = data_provider.create_vrs_data_provider(args.vrs)
-    device_calibration = provider.get_device_calibration()
-    T_device_CPF = (
-        device_calibration.get_transform_device_cpf()
-    )  # this is always CAD value
-    rgb_stream_id = StreamId("214-1")
-    rgb_stream_label = provider.get_label_from_stream_id(rgb_stream_id)
-    rgb_camera_calibration = device_calibration.get_camera_calib(rgb_stream_label)
-
-    if not args.no_rectify_image:
-        rgb_linear_camera_calibration = calibration.get_linear_camera_calibration(
-            int(rgb_camera_calibration.get_image_size()[0]),
-            int(rgb_camera_calibration.get_image_size()[1]),
-            rgb_camera_calibration.get_focal_lengths()[0],
-            "pinhole",
-            rgb_camera_calibration.get_transform_device_camera(),
-        )
-        if not args.no_rotate_image_upright:
-            rgb_rotated_linear_camera_calibration = (
-                calibration.rotate_camera_calib_cw90deg(rgb_linear_camera_calibration)
-            )
-            camera_calibration = rgb_rotated_linear_camera_calibration
-        else:
-            camera_calibration = rgb_linear_camera_calibration
-    else:  # No rectification
-        if args.no_rotate_image_upright:
-            camera_calibration = rgb_camera_calibration
-        else:
-            raise NotImplementedError(
-                "Showing upright-rotated image without rectification is not currently supported.\n"
-                "Please use --no_rotate_image_upright and --no_rectify_image together."
-            )
-
-    def post_process_image(img):
-        if not args.no_rectify_image:
-            img = calibration.distort_by_calibration(
-                img,
-                rgb_linear_camera_calibration,
-                rgb_camera_calibration,
-            )
-            if not args.no_rotate_image_upright:
-                img = np.rot90(img, k=3)
-        return img
-
-    # Load Trajectory, Eye Gaze, and Wrist and Palm Pose data - corresponding to this specific VRS file
-    trajectory_data = (
-        mps.read_closed_loop_trajectory(str(args.trajectory[0]))
-        if args.trajectory
-        else None
+    log_to_rerun(
+        vrs_path=args.vrs,
+        trajectory_files=args.trajectory,
+        points_files=args.points,
+        eye_gaze_file=args.eyegaze,
+        wrist_and_palm_poses_file=args.hands,
+        should_rectify_image=not args.no_rectify_image,
+        should_rotate_image=not args.no_rotate_image_upright,
+        down_sampling_factor=args.down_sampling_factor,
+        jpeg_quality=args.jpeg_quality,
+        rrd_output_path=args.rrd_output_path,
     )
-    eyegaze_data = mps.read_eyegaze(args.eyegaze) if args.eyegaze else None
-    wrist_and_palm_poses = (
-        mps.hand_tracking.read_wrist_and_palm_poses(args.hands) if args.hands else None
-    )
-
-    # Log Aria Glasses outline
-    log_RGB_camera_calibration(
-        rgb_camera_calibration, rgb_stream_label, args.down_sampling_factor
-    )
-
-    log_Aria_glasses_outline(device_calibration)
-
-    # Configure the loop for data replay
-    deliver_option = provider.get_default_deliver_queued_options()
-    deliver_option.deactivate_stream_all()
-    deliver_option.activate_stream(rgb_stream_id)  # RGB Stream Id
-    rgb_frame_count = provider.get_num_data(rgb_stream_id)
-
-    progress_bar = tqdm(total=rgb_frame_count)
-    # Iterate over the data and LOG data as we see fit
-    for data in provider.deliver_queued_sensor_data(deliver_option):
-        device_time_ns = data.get_time_ns(TimeDomain.DEVICE_TIME)
-        rr.set_time_nanos("device_time", device_time_ns)
-        rr.set_time_sequence("timestamp", device_time_ns)
-        progress_bar.update(1)
-
-        log_camera_pose(
-            trajectory_data,
-            device_time_ns,
-            camera_calibration,
-            rgb_stream_label,
-        )
-
-        log_RGB_image(
-            data,
-            args.down_sampling_factor,
-            args.jpeg_quality,
-            rgb_stream_label,
-            postprocess_image=post_process_image,
-        )
-
-        log_eye_gaze(
-            eyegaze_data,
-            device_time_ns,
-            T_device_CPF,
-            rgb_stream_label,
-            device_calibration,
-            camera_calibration,
-            args.down_sampling_factor,
-            not args.no_rotate_image_upright,
-        )
-
-        log_hand_tracking(
-            wrist_and_palm_poses,
-            device_time_ns,
-            camera_calibration,
-            rgb_stream_label,
-            args.down_sampling_factor,
-        )
 
 
 if __name__ == "__main__":
