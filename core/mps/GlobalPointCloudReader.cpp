@@ -16,6 +16,8 @@
 
 #include "GlobalPointCloudReader.h"
 
+#include "CompressedIStream.h"
+
 #ifndef CSV_IO_NO_THREAD
 #define CSV_IO_NO_THREAD
 #endif

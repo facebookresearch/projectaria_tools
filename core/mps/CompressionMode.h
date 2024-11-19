@@ -15,25 +15,11 @@
  */
 
 #pragma once
-
-#include <boost/iostreams/filtering_streambuf.hpp>
-#include <fstream>
-#include <string>
-
-#include "CompressionMode.h"
-
 namespace projectaria::tools::mps {
 
-using boost_filtering_inbuf = boost::iostreams::filtering_streambuf<boost::iostreams::input>;
-
-class CompressedIStream : public std::istream {
- public:
-  explicit CompressedIStream(
-      const std::string& path,
-      StreamCompressionMode compression = StreamCompressionMode::GZIP);
-
- private:
-  std::ifstream backingIfstream_; // destruct AFTER inbuf_
-  boost_filtering_inbuf inbuf_; // destruct BEFORE backingIfstream_
+enum class StreamCompressionMode {
+  NONE,
+  GZIP,
 };
-} // namespace projectaria::tools::mps
+
+}

@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "CompressedIStream.h"
+#include "CompressionMode.h"
 
 #include "GlobalPointCloud.h"
 

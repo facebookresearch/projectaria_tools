@@ -14,7 +14,7 @@
 
 find_package(Boost REQUIRED COMPONENTS iostreams)
 
-add_library(compressed_istream CompressedIStream.cpp CompressedIStream.h)
+add_library(compressed_istream CompressedIStream.cpp CompressedIStream.h CompressionMode.h)
 target_link_libraries(compressed_istream PUBLIC Boost::iostreams)
 
 add_library(eye_gaze EyeGaze.h EyeGazeReader.cpp EyeGazeFormat.h EyeGazeReader.h)
