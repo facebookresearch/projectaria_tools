@@ -392,10 +392,10 @@ class MultiRecordingModel:
             logger.info("Force flag is enabled, skipping pre-existing requests check")
             await self.next()
         else:
-            mps_feature_request: Optional[MpsFeatureRequest] = (
-                await self._http_helper.query_mps_requested_feature_by_file_hash_set(
-                    list({r.file_hash for r in self._recordings})
-                )
+            mps_feature_request: Optional[
+                MpsFeatureRequest
+            ] = await self._http_helper.query_mps_requested_feature_by_file_hash_set(
+                list({r.file_hash for r in self._recordings})
             )
             # Submit the request if it doesn't exist yet or if we are retrying failed requests
             if mps_feature_request is None or (

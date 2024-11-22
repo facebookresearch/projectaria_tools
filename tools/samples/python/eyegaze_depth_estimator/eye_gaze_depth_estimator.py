@@ -445,7 +445,6 @@ class GazeDepthEstimator:
 
 
 def parse_args() -> argparse.Namespace:
-
     parser = argparse.ArgumentParser(
         description="Compute depth scores for eye gaze data"
     )

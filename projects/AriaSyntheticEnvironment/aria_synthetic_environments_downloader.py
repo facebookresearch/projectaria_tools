@@ -144,7 +144,6 @@ def main(
 
 
 if __name__ == "__main__":
-
     args = parser.parse_args()
     main(
         cdn_file=args.cdn_file,

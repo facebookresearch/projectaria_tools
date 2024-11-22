@@ -209,9 +209,9 @@ async def check_if_already_uploaded(
     """
     Checks if a file with the given hash has already been successfully uploaded.
     """
-    recording_info: Optional[Tuple[int, int]] = (
-        await http_helper.query_recording_by_file_hash(file_hash)
-    )
+    recording_info: Optional[
+        Tuple[int, int]
+    ] = await http_helper.query_recording_by_file_hash(file_hash)
     if recording_info is not None and recording_info[1] > _MIN_REMAINING_TTL_SECS:
         return recording_info[0]
     return None

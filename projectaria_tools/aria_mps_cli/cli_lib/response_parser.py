@@ -49,7 +49,7 @@ class ResponseParser:
 
     @staticmethod
     def parse_mps_request(
-        response: Optional[Mapping[str, Any]]
+        response: Optional[Mapping[str, Any]],
     ) -> Optional[MpsRequest]:
         """Parse the given response into an MpsRequest object."""
         if not response:
@@ -111,7 +111,7 @@ class ResponseParser:
 
     @staticmethod
     def parse_recording_id_and_ttl(
-        response: Mapping[str, Any]
+        response: Mapping[str, Any],
     ) -> Optional[Tuple[int, int]]:
         """Parse the given response into an recording fbid and remaining ttl tuple"""
         recording = response["recording"]

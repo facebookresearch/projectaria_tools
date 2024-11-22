@@ -63,7 +63,7 @@ class SingleRecordingMps:
 
         self._on_state_changed: Callable[
             [SingleRecordingModel, RequestMonitorModel], Awaitable[None]
-        ] = (on_state_changed or __noop)
+        ] = on_state_changed or __noop
 
         self._model_by_feature: Mapping[
             MpsFeature, Union[SingleRecordingModel, RequestMonitorModel]
@@ -83,9 +83,9 @@ class SingleRecordingMps:
         The recording may get submitted to server for processing, if necessary.
         After that it will go through the request monitor.
         """
-        models_to_submit: Set[SingleRecordingModel] = (
-            await self._process_through_requestor()
-        )
+        models_to_submit: Set[
+            SingleRecordingModel
+        ] = await self._process_through_requestor()
         await self._submit_request_and_add_to_monitor(models_to_submit)
 
         #

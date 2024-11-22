@@ -121,7 +121,6 @@ class CMakeBuild(build_ext):
         # MSVC is putting pyd files in a subfolder
         # We are here setting them aside of the projectaria_tools build folder
         if system() == "Windows":
-
             from glob import glob
 
             file_list = glob(f"{self.build_lib}/**/*.pyd", recursive=True)

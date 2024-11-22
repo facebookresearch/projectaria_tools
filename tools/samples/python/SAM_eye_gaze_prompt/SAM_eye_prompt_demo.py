@@ -224,7 +224,6 @@ def main():
         # If an image is available, process SAM with the eye gaze data as point prompt
         #
         for model_name, model in models.items():
-
             # Log image
             rr.log(
                 f"{model_name}/{rgb_stream_label}",

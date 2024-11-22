@@ -63,7 +63,7 @@ class MultiRecordingMps:
 
         self._on_state_changed: Callable[
             [MultiRecordingModel, RequestMonitorModel], Awaitable[None]
-        ] = (on_state_changed or __noop)
+        ] = on_state_changed or __noop
 
         self._model: Optional[Union[MultiRecordingModel, RequestMonitorModel]] = None
         self._finish_status: Mapping[Path, ModelState] = {}

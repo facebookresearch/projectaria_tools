@@ -140,7 +140,6 @@ def convert_vrs_to_mp4(
     temp_audio_file = os.path.join(log_folder, "audio.mp3")
     # extract audio from vrs file
     if converter.contain_audio():
-
         audio_writer_clip = AudioClip(
             converter.make_audio_data,
             duration=duration_in_second,

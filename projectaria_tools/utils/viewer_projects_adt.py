@@ -374,7 +374,6 @@ def main():
         for obj_id in bboxes3d:
             instance_info = gt_provider.get_instance_info_by_id(obj_id)
             if instance_info.motion_type == DYNAMIC:
-
                 bbox_3d = bboxes3d[obj_id]
                 instance_info = gt_provider.get_instance_info_by_id(obj_id)
 
@@ -401,7 +400,6 @@ def main():
                         dynamic_obj_moved.add(instance_info.name)
 
                 if display_dynamic_object:  # Not in cache, or object moved enough
-
                     # We store the last known pose of the object
                     dynamic_obj_pose_cache[instance_info.name] = (
                         bbox_3d.transform_scene_object

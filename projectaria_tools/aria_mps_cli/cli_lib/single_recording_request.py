@@ -309,10 +309,10 @@ class SingleRecordingModel:
         else:
             # check if there are any existing requests with this file hash
             # Once T190464177 lands, we can filter by file hash and feature
-            past_requested_features: List[MpsFeatureRequest] = (
-                await self._http_helper.query_mps_requested_features_by_file_hash(
-                    self._recording.file_hash
-                )
+            past_requested_features: List[
+                MpsFeatureRequest
+            ] = await self._http_helper.query_mps_requested_features_by_file_hash(
+                self._recording.file_hash
             )
             self._logger.info(
                 f"Found {len(past_requested_features)} existing feature requests"
