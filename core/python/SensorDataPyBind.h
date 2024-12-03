@@ -281,6 +281,7 @@ inline void declareGpsDataRecord(py::module& m) {
           "longitude of the position in Degrees Minutes Seconds (DMS)")
       .def_readwrite("altitude", &GpsData::altitude, "altitude of the position")
       .def_readwrite("accuracy", &GpsData::accuracy)
+      .def_readwrite("verticalAccuracy", &GpsData::verticalAccuracy)
       .def_readwrite("speed", &GpsData::speed)
       .def_readwrite("raw_data", &GpsData::rawData);
 }

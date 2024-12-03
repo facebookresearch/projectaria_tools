@@ -39,7 +39,8 @@ struct GpsData {
   float latitude; ///< @brief latitude of the position in Degrees Minutes Seconds (DMS)
   float longitude; ///< @brief longitude of the position in Degrees Minutes Seconds (DMS)
   float altitude; ///< @brief altitude of the position
-  float accuracy;
+  float accuracy; ///< @brief horizontal accuracy of the position in meters
+  float verticalAccuracy; ///< @brief vertical accuracy of the position in meters
   float speed;
   std::vector<std::string> rawData;
 };

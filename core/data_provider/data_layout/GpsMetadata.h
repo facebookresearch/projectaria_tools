@@ -58,6 +58,9 @@ struct GpsDataMetadata : public vrs::AutoDataLayout {
   // Horizontal accuracy in meters
   vrs::DataPieceValue<float> accuracy{"accuracy"};
 
+  // Vertical accuracy in meters
+  vrs::DataPieceValue<float> verticalAccuracy{"vertical_accuracy"};
+
   // Speed over ground [m/s]
   vrs::DataPieceValue<float> speed{"speed"};
 
