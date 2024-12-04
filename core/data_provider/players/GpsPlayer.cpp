@@ -37,6 +37,7 @@ bool GpsPlayer::onDataLayoutRead(
     dataRecord_.longitude = data.longitude.get();
     dataRecord_.altitude = data.altitude.get();
     dataRecord_.accuracy = data.accuracy.get();
+    dataRecord_.verticalAccuracy = data.verticalAccuracy.get();
     dataRecord_.speed = data.speed.get();
     data.rawData.get(dataRecord_.rawData);
     nextTimestampSec_ = std::nextafter(r.timestamp, std::numeric_limits<double>::max());
