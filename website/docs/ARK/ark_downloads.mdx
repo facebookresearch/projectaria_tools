@@ -9,14 +9,13 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 # ARK SW Downloads and Updates
 
 
-The [Aria Research Kit (ARK)](about_ARK.mdx) provides the [Aria Mobile Companion app](mobile_companion_app.mdx) and [Desktop Companion app](desktop_companion_app.mdx) to researchers who use Project Aria glasses.
+The [Aria Research Kit (ARK)](about_ARK.mdx) provides the [Aria Mobile Companion app](mobile_companion_app.mdx) to researchers who use Project Aria glasses.
 
 To be able to use Project Aria glasses you must set them up using the Mobile Companion app.
 
 Optional Software available with the ARK:
 * [Aria Studio](#studio)
 * [Aria Client SDK](#sdk)
-* [Aria Desktop Companion app](#desktop)
 
 <div id="mobile"></div>
 
@@ -99,8 +98,9 @@ Aria Studio is available on:
     * Fedora 36, 37, 38
     * Ubuntu Jammy (22.04 LTS) and Focal (20.04 LTS)
 * Mac Intel or Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
+* x64 Windows Intel machines running Windows 11 or newer
 
-It is installed via PyPI (pip instiallation). Go to the [Aria Studio guide](/ARK/aria_studio.mdx) to get started.
+You can install it through either one-click installation or via PyPI (pip instiallation). Go to the [Aria Studio guide](/ARK/aria_studio.mdx) to get started.
 
 <div id="sdk"></div>
 
@@ -115,75 +115,8 @@ Aria Client SDK with CLI is available on:
 
 It is installed via PyPI (pip instiallation). Go to the [Aria Client SDK setup guide](/ARK/sdk/setup.mdx) to get started.
 
-
-<div id="desktop"></div>
-
-## Desktop Companion App
-
-The latest version is v38, go to [ARK Software Release Notes](/docs/ARK/sw_release_notes) to find out about the latest features. To update the app, download and install the latest version.
-
-```mdx-code-block
-<Tabs groupId="operating-systems">
-<TabItem value="macos" label="MacOS">
-```
-### Requirements
-* MacOS Big Sur 11.3+, Intel or Apple Silicon
-
-### Aria For MacOS Installer
-
-1. [Download Aria's DMG installer](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/mac/Aria_v38.dmg)
-2. Open the downloaded file
-3. Drag and drop Aria.app to your Applications folder
-4. Double clicking on Aria.app to launch the app
-
-```mdx-code-block
-</TabItem>
-<TabItem value="windows" label="Windows">
-```
-### Requirements
-* Windows 10 x86_64 with DirectX (or OpenGL with the latest drivers installed)
-* Windows 11 may work, but is not actively supported at this time
-
-### Aria For Windows Installer
-
-1. [Download Aria's Windows installer](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/windows/Aria_v38.msi)
-2. Open the installer and follow the instructions for the Aria Setup Wizard
-    1. Sign the End-User License Agreement
-    2. Select a Destination folder
-3. Once the Aria Setup Wizard is complete you should see Aria as a shortcut on your desktop and under the Start Menu
-
-```mdx-code-block
-</TabItem>
-<TabItem value="linux" label="Linux">
-```
-Aria Desktop for Linux is only available for V36. Please use the [MPS CLI to](/ARK/mps/request_mps/mps_cli.mdx) or Aria Studio to request Hand Tracking MPS.
-
-### Requirements
-* Linux, debian package for Ubuntu, 22.04 LTS version.
-
-:::caution
-The app was only tested for that specific version under Gnome 42.5 and X11 (X Server) as well as Wayland. Any other debian distribution (Ubuntu 22.04 fork such as Kubuntu, Mint etc.) or environment may or may not work.
-:::
-
-### Aria For Linux Installer
-
-1. [Download Aria's Linux debian package](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/linux/Aria_v36.deb)
-    * v36 is the latest version for Linux, please use the [MPS CLI to](/ARK/mps/request_mps/mps_cli.mdx) request Hand Tracking MPS
-2. Right-click on the Deb file and select “Open With Other Application“.
-3. Select “Software Install” and then “Select” at the top-right.
-4. The Software Center will open up on the screen with information on the app you are installing.
-5. Select **Install**
-
-The app will then be visible through "Activities"
-
-```mdx-code-block
-</TabItem>
-</Tabs>
-```
-
-
 ## Are these apps open source?
 
-Mobile Companion app, Desktop Companion app, Aria Studio and Client SDK are Meta Licensed Materials and are licensed by Meta to research partners via organizational or individual research agreements. Go to [projectaria.com](https://www.projectaria.com/research-kit/) to find out how to become a research partner.
+The Mobile Companion app, Aria Studio, and Client SDK are Meta Licensed Materials and are licensed by Meta to research partners via organizational or individual research agreements. Go to [projectaria.com](https://www.projectaria.com/research-kit/) to find out how to become a research partner.
 
 This software is not part of Project Aria Tools, so it won’t be downloaded when you install [Project Aria Tools Data Utilities](https://facebookresearch.github.io/projectaria_tools/docs/data_utilities), which is open source and licensed under Apache 2.0.
