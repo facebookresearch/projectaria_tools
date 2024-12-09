@@ -25,15 +25,13 @@ Aria Studio can be installed on:
     * Fedora 36, 37, 38
     * Ubuntu jammy (22.04 LTS) and focal (20.04 LTS)
 * Mac Intel or Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
-
-Python requirements:
-* Linux - Python 3.8+
-* MacOS, Intel chip - Python 3.9+
-* MacOS, [Apple Silicon](https://support.apple.com/en-us/116943) - Python 3.10+
-
-To check which version of Python 3 you have, use `python3 --version`. Get the latest version from the [Python 3 download page](https://www.python.org/downloads/)
+* x64 Windows Intel machines running Windows 11 or newer
 
 Aria Studio is supported on Google Chrome.
+
+:::tip Just received Aria glasses?
+Go to the [Quickstart Guide](/ARK/ARK_quickstart.mdx) for how to start using them.
+:::
 
 ## Machine Perception Services (MPS) capabilities
 
@@ -48,55 +46,74 @@ Aria Studio is supported on Google Chrome.
 
 Like the MPS CLI, you can have granular control over settings such as uploads and download speeds by customizing `$HOME/.projectaria/mps.ini`. Go to the [MPS CLI Guide](/ARK/mps/request_mps/mps_cli_guide.mdx#cli-settings) for details about all the settings.
 
+## Install Aria Studio with one click
+Install the package appropriate for your computer platform. This is a new feature for this release. Double-click on the downloaded file and follow the prompts to complete the installation.
+* Mac ARM: Download the [Package for ARM](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.1-arm64.pkg)
+* Mac Intel: Download the [Package for Intel](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.1-Intel.pkg)
+* Windows: Download the [Package for Windows](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.1-windows.exe)
+* Linux: Download the [Package for Linux](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.1-Linux.AppImage)
+
+### Important: Allow unsigned builds
+Right now, our build is **not signed**. We are in the process of signing it. For now, however, you will need to allow the installation of unsigned builds if you want to install the package.
+
+### macOS
+1. Double-click the downloaded PKG and select **Done**.
+2. Go to **System Settings** > **Privacy & Security**, scroll to the bottom, and select **Open Anyway** to enable the installation.
+
+### Windows
+1. Double-click on the downloaded EXE file.
+2. When the "Windows protected your PC" dialog appears, select **More info**.
+3. Select **Run anyway**.
 
 ## Install Aria Studio via PyPI
 
-### Create a virtual environment
+:::note
+If you're going to install Aria Studio via PyPI, you'll want a Python version from 3.10 to 3.12. To To check which version of Python 3 you have, use `python3 --version`. Get the latest version from the [Python 3 download page](https://www.python.org/downloads/)
+:::
 
-When using PyPI’s `pip` command, it is best practice to use a virtual environment. This will keep all the modules under one folder and will not break your local environment. Use the following command with your version of Python3.
+### Optional: Create a virtual environment
 
+When using PyPI's `pip` command, it's a best practice to use a virtual environment. This will keep all the modules in one folder and avoiding breaking anything in your local environment. To install Aria Studio in a virtual environment, use the following steps:
+
+### Linux and macOS
 ```
-rm -rf $HOME/aria_studio # this removes any previous version of Aria Studio
-
-python3 -m venv $HOME/aria_studio
-```
-
-### Install Aria Studio
-
-Install `aria_studio` with pip
-
-```
-source $HOME/aria_studio/bin/activate
-
+rm -rf $HOME/venv/aria_studio
+python3 -m venv $HOME/venv/aria_studio
+source $HOME/venv/aria_studio/bin/activate
 python3 -m pip install aria_studio --no-cache-dir
 ```
 
+### Windows
+```
+remove-Item -Path $HOME/venv/aria_studio -recurse -Force
+py -3 -m venv $HOME/venv/aria_studio
+.\$HOME\venv\aria_studio\Scripts\Activate.ps1
+py -3 -m pip install aria_studio --no-cache-dir
+```
 
-### Run Aria Studio
+## Run Aria Studio
 
+### Run Aria Studio from your desktop (single-click installation)
+
+If you installed Aria Studio used single-click installation, you can run Aria Studio like you would any other application on your desktop.
+
+### Run Aria Studio using Python (PyPI installation)
 ```
 aria_studio
 ```
 
 Aria Studio will then open in your web browser.
 
-
-![Aria Studio login screen](/img/ARK/aria_studio/aria_studio.png)
-
-Sign in using your Project Aria username and password.
-
 :::info Closing the browser won't quit the application
 If you close the browser, Aria Studio will continue to run in the background, which can be helpful when running MPS requests. Use Ctrl + C in the command window to quit the application.
 :::
 
-To return to your installation of Aria Studio at any time, restart the virtual environment using the following command:
+To return to your installation of Aria Studio at any time, restart the virtual environment using the following commands:
 
 ```
 source $HOME/aria_studio/bin/activate
+aria_studio
 ```
-
-And then run `aria_studio`.
-
 
 ## Using Aria Studio
 
