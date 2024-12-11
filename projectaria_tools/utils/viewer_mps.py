@@ -724,6 +724,7 @@ def main() -> None:
 
     # Initializing Rerun viewer 
     rr.init("MPS Data Viewer", spawn=(not args.rrd_output_path and not args.web))
+    
     # Run the viewer in the web browser or desktop app
     if args.web:
         rr.serve()

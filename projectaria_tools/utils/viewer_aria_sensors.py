@@ -59,11 +59,13 @@ def main():
 
     # Spawn rerun and log things we want to see
     rr.init("Aria Sensors Data Viewer", spawn=(not args.rrd_output_path and not args.web))
-
+    
+    # Run the viewer in the web browser or desktop app
     if args.web:
         rr.serve()
     else:
         rr.spawn()
+        
     if args.rrd_output_path:
         print(f"Saving .rrd file to {args.rrd_output_path}")
         rr.save(args.rrd_output_path)
