@@ -742,7 +742,12 @@ def main() -> None:
         jpeg_quality=args.jpeg_quality,
         rrd_output_path=args.rrd_output_path,
     )
-
-
+    if args.web:
+        # Keep the server running
+        try:
+            while True:
+                pass
+        except KeyboardInterrupt:
+            print("Shutting down server...")
 if __name__ == "__main__":
     main()

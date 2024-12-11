@@ -58,7 +58,12 @@ def main():
     device_calibration = provider.get_device_calibration()
 
     # Spawn rerun and log things we want to see
-    rr.init("Aria_Sensor_Viewer", spawn=(not args.rrd_output_path))
+    rr.init("Aria Sensors Data Viewer", spawn=(not args.rrd_output_path and not args.web))
+
+    if args.web:
+        rr.serve()
+    else:
+        rr.spawn()
     if args.rrd_output_path:
         print(f"Saving .rrd file to {args.rrd_output_path}")
         rr.save(args.rrd_output_path)
@@ -149,6 +154,13 @@ def main():
             media_type=rr.MediaType.MARKDOWN,
         ),
     )
+    if args.web:
+        # Keep the server running
+        try:
+            while True:
+                pass
+        except KeyboardInterrupt:
+            print("Shutting down server...")
 
 
 #
