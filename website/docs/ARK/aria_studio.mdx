@@ -71,6 +71,11 @@ Right now, our build is **not signed**. We are in the process of signing it. For
 If you're going to install Aria Studio via PyPI, you'll want a Python version from 3.10 to 3.12. To To check which version of Python 3 you have, use `python3 --version`. Get the latest version from the [Python 3 download page](https://www.python.org/downloads/)
 :::
 
+To install Aria Studio via PyPI, use the following command:
+```
+pip install aria_studio --no-cache-dir
+```
+
 ### Optional: Create a virtual environment
 
 When using PyPI's `pip` command, it's a best practice to use a virtual environment. This will keep all the modules in one folder and avoiding breaking anything in your local environment. To install Aria Studio in a virtual environment, use the following steps:
@@ -87,7 +92,7 @@ python3 -m pip install aria_studio --no-cache-dir
 ```
 remove-Item -Path $HOME/venv/aria_studio -recurse -Force
 py -3 -m venv $HOME/venv/aria_studio
-.\$HOME\venv\aria_studio\Scripts\Activate.ps1
+& $HOME\venv\aria_studio\Scripts\Activate.ps1
 py -3 -m pip install aria_studio --no-cache-dir
 ```
 
