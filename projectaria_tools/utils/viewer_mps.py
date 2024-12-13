@@ -107,6 +107,9 @@ def parse_args():
         action="store_true",
         help="If set, the raw fisheye RGB images are shown without being undistorted.",
     )
+    # User can choose to run the viewer in the web browser
+    parser.add_argument("--web", action="store_true", help="Run viewer in web browser")
+
     return parser.parse_args()
 
 
@@ -716,7 +719,13 @@ def main() -> None:
         exit(1)
 
     # Initializing Rerun viewer
-    rr.init("MPS Data Viewer", spawn=(not args.rrd_output_path))
+    rr.init("MPS Data Viewer", spawn=(not args.rrd_output_path and not args.web))
+
+    # Run the viewer in the web browser or desktop app
+    if args.web:
+        rr.serve_web()
+    else:
+        rr.spawn()
 
     log_to_rerun(
         vrs_path=args.vrs,
@@ -730,6 +739,13 @@ def main() -> None:
         jpeg_quality=args.jpeg_quality,
         rrd_output_path=args.rrd_output_path,
     )
+    if args.web:
+        # Keep the server running
+        try:
+            while True:
+                pass
+        except KeyboardInterrupt:
+            print("Shutting down server...")
 
 
 if __name__ == "__main__":
