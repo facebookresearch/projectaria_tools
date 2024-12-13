@@ -62,7 +62,7 @@ def main():
     
     # Run the viewer in the web browser or desktop app
     if args.web:
-        rr.serve()
+        rr.serve_web()
     else:
         rr.spawn()
         
