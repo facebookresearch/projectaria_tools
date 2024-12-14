@@ -17,13 +17,55 @@
 #include <data_provider/ErrorHandler.h>
 #include <data_provider/SensorDataSequence.h>
 #include <data_provider/VrsDataProvider.h>
-
+#include <filesystem>
 #define DEFAULT_LOG_CHANNEL "VrsDataProvider"
 #include <logging/Log.h>
 
 #include <limits>
 
 namespace projectaria::tools::data_provider {
+const std::string rgbHalfInverseDevignettingMaskFile = "rgb_half_inverse_vignette_mask.bin";
+const std::string rgbFullInverseDevignettingMaskFile = "rgb_full_inverse_vignette_mask.bin";
+const std::string slamInverseDevignettingMaskFile = "slam_inverse_vignette_mask.bin";
+Eigen::MatrixXf VrsDataProvider::loadDevignettingMask(const vrs::StreamId& streamId) {
+  std::string binaryPath;
+  uint32_t imageWidth = getImageConfiguration(streamId).imageWidth;
+  uint32_t imageHeight = getImageConfiguration(streamId).imageHeight;
+  if (devignettingMaskFolderPath_.empty()) {
+    throw std::runtime_error(
+        "Devignetting mask folder path is not set. Please use setDevignettingMaskFolderPath function");
+  }
+  if (!std::filesystem::exists(devignettingMaskFolderPath_)) {
+    throw std::runtime_error(
+        "Devignetting mask folder path does not exist: " + devignettingMaskFolderPath_);
+  }
+  if (streamId.getNumericName() == "214-1" && imageWidth == 1408 && imageHeight == 1408) {
+    binaryPath = devignettingMaskFolderPath_ + '/' + rgbHalfInverseDevignettingMaskFile;
+  } else if (streamId.getNumericName() == "214-1" && imageWidth == 2880 && imageHeight == 2880) {
+    binaryPath = devignettingMaskFolderPath_ + '/' + rgbFullInverseDevignettingMaskFile;
+  } else if (streamId.getNumericName() == "1201-1" || streamId.getNumericName() == "1201-2") {
+    binaryPath = devignettingMaskFolderPath_ + '/' + slamInverseDevignettingMaskFile;
+  } else {
+    throw std::runtime_error(
+        "Vignetting mask not found for streamId: " + streamId.getNumericName());
+  }
+  Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> vignetteMask(
+      imageHeight, imageWidth);
+  std::ifstream file(binaryPath, std::ios::binary);
+  if (!file.is_open()) {
+    throw std::runtime_error("Could not open file: " + binaryPath);
+  }
+  file.read(reinterpret_cast<char*>(vignetteMask.data()), imageWidth * imageHeight * sizeof(float));
+  file.close();
+  return vignetteMask;
+}
+
+void VrsDataProvider::setDevignettingMaskFolderPath(const std::string& maskFolderPath) {
+  if (!std::filesystem::exists(maskFolderPath)) {
+    throw std::runtime_error("Devignetting mask folder path does not exist: " + maskFolderPath);
+  }
+  devignettingMaskFolderPath_ = maskFolderPath;
+}
 VrsDataProvider::VrsDataProvider(
     const std::shared_ptr<RecordReaderInterface>& interface,
     const std::shared_ptr<StreamIdConfigurationMapper>& configMap,
