@@ -29,6 +29,8 @@
 #include <data_provider/TimeSyncMapper.h>
 #include <data_provider/TimestampIndexMapper.h>
 
+template <class T>
+using DefaultImageAllocator = std::allocator<T>;
 namespace projectaria::tools::data_provider {
 class VrsDataProvider;
 
@@ -86,7 +88,31 @@ class VrsDataProvider {
    * @return Label corresponds to the streamId, return nullopt if streamId cannot be found
    */
   std::optional<std::string> getLabelFromStreamId(const vrs::StreamId& streamId) const;
+  /**
+   * @brief set the folder path of the vignetting mask.
+   * @param maskFolderPath The folder path of the vignetting mask.
+   * @return void
+   */
+  void setDevignettingMaskFolderPath(const std::string& maskFolderPath);
+  /**
+   * @brief Get vignetting mask based on streamId. now supporting rgb-full, rgb-half and slam
+   * A devignetting mask lightens image edges, restoring balance and brightness.
+   * our devignetting mask is a inverse mask, inverse_devignetting_mask * original_image =
+   * devignetted_image
+   * @param streamId The ID of a sensor's stream.
+   * @return Vignetting mask in Eigen::MatrixXf format.
+   */
+  Eigen::MatrixXf loadDevignettingMask(const vrs::StreamId& streamId);
 
+  /**
+   * @brief Apply devignetting to an image using a vignetting mask.
+   * @param srcImage The input image to be processed.
+   * @param vignettingMask The vignetting mask to be applied to the image.
+   * @return The devignetted image.
+   */
+  image::ManagedImageVariant devignetting(
+      const image::ImageVariant& srcImage,
+      const Eigen::MatrixXf& devignettingMask);
   /**
    * @brief Get streamId from label as oppose to getLabelFromStreamId().
    * @param label Label of a sensor.
@@ -436,6 +462,7 @@ class VrsDataProvider {
   const std::shared_ptr<TimestampIndexMapper> timeQuery_;
   const std::shared_ptr<TimeSyncMapper> timeSyncMapper_;
   const std::shared_ptr<StreamIdLabelMapper> streamIdLabelMapper_;
+  std::string devignettingMaskFolderPath_;
   std::optional<calibration::DeviceCalibration> maybeDeviceCalib_;
 
   // pybind11 requires variable to attach to VrsDataProvider class
