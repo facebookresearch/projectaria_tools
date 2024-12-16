@@ -29,6 +29,8 @@
 #include <data_provider/TimeSyncMapper.h>
 #include <data_provider/TimestampIndexMapper.h>
 
+template <class T>
+using DefaultImageAllocator = std::allocator<T>;
 namespace projectaria::tools::data_provider {
 class VrsDataProvider;
 
@@ -101,6 +103,16 @@ class VrsDataProvider {
    * @return Vignetting mask in Eigen::MatrixXf format.
    */
   Eigen::MatrixXf loadDevignettingMask(const vrs::StreamId& streamId);
+
+  /**
+   * @brief Apply devignetting to an image using a vignetting mask.
+   * @param srcImage The input image to be processed.
+   * @param vignettingMask The vignetting mask to be applied to the image.
+   * @return The devignetted image.
+   */
+  image::ManagedImageVariant devignetting(
+      const image::ImageVariant& srcImage,
+      const Eigen::MatrixXf& devignettingMask);
   /**
    * @brief Get streamId from label as oppose to getLabelFromStreamId().
    * @param label Label of a sensor.

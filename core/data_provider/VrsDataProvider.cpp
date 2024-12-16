@@ -67,6 +67,35 @@ void VrsDataProvider::setDevignettingMaskFolderPath(const std::string& maskFolde
   }
   devignettingMaskFolderPath_ = maskFolderPath;
 }
+
+template <class T, int MaxVal>
+image::ManagedImage<T, DefaultImageAllocator<T>, MaxVal> devignetteImage(
+    const image::Image<T, MaxVal>& srcImage,
+    const Eigen::MatrixXf& devignettingMask) {
+  image::ManagedImage<T, DefaultImageAllocator<T>, MaxVal> dstImage(
+      srcImage.width(), srcImage.height());
+  // note: different index convention: MatrixXf(row, col), image::Image(col, row)
+  for (int col = 0; col < srcImage.width(); ++col) {
+    for (int row = 0; row < srcImage.height(); ++row) {
+      // if constexpr is compile-time conditional statement, avoiding runtime check in the loop
+      if constexpr (image::DefaultImageValTraits<T>::isEigen) {
+        // if any of the channel is larger than 255, we scale the whole pixel value to maintain
+        // valid color
+        auto val = srcImage(col, row).template cast<float>() *
+            std::min(devignettingMask(row, col),
+                     255.0f / srcImage(col, row).template cast<float>().maxCoeff());
+        using Scalar = typename image::DefaultImageValTraits<T>::Scalar;
+        dstImage(col, row) = val.template cast<Scalar>();
+      } else {
+        float val = static_cast<float>(srcImage(col, row)) * devignettingMask(row, col);
+        val = std::min(val, 255.0f);
+        dstImage(col, row) = static_cast<T>(val);
+      }
+    }
+  }
+  return dstImage;
+}
+
 VrsDataProvider::VrsDataProvider(
     const std::shared_ptr<RecordReaderInterface>& interface,
     const std::shared_ptr<StreamIdConfigurationMapper>& configMap,
@@ -91,6 +120,16 @@ std::optional<std::string> VrsDataProvider::getLabelFromStreamId(
 
 std::optional<vrs::StreamId> VrsDataProvider::getStreamIdFromLabel(const std::string& label) const {
   return streamIdLabelMapper_->getStreamIdFromLabel(label);
+}
+
+image::ManagedImageVariant VrsDataProvider::devignetting(
+    const image::ImageVariant& srcImage,
+    const Eigen::MatrixXf& devignettingMask) {
+  return std::visit(
+      [&devignettingMask](const auto& srcImage) -> image::ManagedImageVariant {
+        return devignetteImage(srcImage, devignettingMask);
+      },
+      srcImage);
 }
 
 /*******************************
