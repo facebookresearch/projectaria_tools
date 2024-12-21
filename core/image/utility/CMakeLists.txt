@@ -19,3 +19,7 @@ target_link_libraries(image_distort PUBLIC image PRIVATE dispenso)
 add_library(image_debayer Debayer.cpp Debayer.h)
 target_include_directories(image_debayer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 target_link_libraries(image_debayer PUBLIC image)
+
+add_library(image_devignetting Devignetting.cpp Devignetting.h)
+target_include_directories(image_devignetting PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+target_link_libraries(image_devignetting PUBLIC image)
