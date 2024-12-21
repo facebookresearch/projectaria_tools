@@ -23,6 +23,7 @@
 #include <calibration/ImuMagnetometerCalibrationFormat.h>
 #include <calibration/loader/DeviceCalibrationJson.h>
 #include <calibration/utility/Distort.h>
+#include <image/utility/Devignetting.h>
 
 #include <fmt/format.h>
 #include <sophus/se3.hpp>
@@ -702,13 +703,50 @@ inline void declareDistortByCalibrationAll(py::module& m) {
   declareDistortByCalibration<uint16_t>(m);
   declareDistortByCalibration<uint64_t>(m);
 }
+
+template <typename T>
+inline void declareDevignetting(py::module& m) {
+  m.def(
+      "devignetting",
+      [](py::array_t<T> srcImage, const py::array_t<float>& devignettingMask) {
+        Eigen::MatrixXf convertedDevignettingMask = tools::image::numpyToMatrix2f(devignettingMask);
+        py::buffer_info info = srcImage.request();
+        size_t imageWidth = srcImage.shape()[1];
+        size_t imageHeight = srcImage.shape()[0];
+        constexpr int MaxVal = image::DefaultImageValTraits<T>::maxValue;
+        bool isRgb = srcImage.ndim() == 3 && srcImage.shape()[2] == 3;
+        if (isRgb) {
+          if constexpr (std::is_same<T, uint8_t>::value) {
+            image::Image3U8 imageSrc((Eigen::Vector3<T>*)info.ptr, imageWidth, imageHeight);
+            return image::toPyArrayVariant(
+                devignetting(image::ImageVariant{imageSrc}, convertedDevignettingMask));
+          } else {
+            throw std::runtime_error("Type is not uint8_t but has 3 channels.");
+          }
+        } else {
+          image::Image<T, MaxVal> imageSrc((T*)info.ptr, imageWidth, imageHeight);
+          return image::toPyArrayVariant(
+              devignetting(image::ImageVariant{imageSrc}, convertedDevignettingMask));
+        }
+      },
+      py::arg("src_image"),
+      py::arg("devignetting_mask"),
+      "Devignetting image with devignetting mask");
+}
+
+inline void declareDevignettingAll(py::module& m) {
+  declareDevignetting<uint8_t>(m);
+  declareDevignetting<uint16_t>(m);
+  declareDevignetting<uint64_t>(m);
+  declareDevignetting<float>(m);
+}
 } // namespace
 
 inline void exportDeviceCalibration(py::module& m) {
   // For submodule documentation, see: projectaria_tools/projectaria_tools/core/calibration.py
-
   declareSensorCalibration(m);
   declareDeviceCalibration(m);
   declareDistortByCalibrationAll(m);
+  declareDevignettingAll(m);
 }
 } // namespace projectaria::tools::calibration
