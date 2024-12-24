@@ -9,15 +9,17 @@ import TabItem from '@theme/TabItem';
 
 ##  Overview
 This page provides instructions on how to:
-* Build projectaria_tools for C++, without visualization
-* Build projectaria_tools for C++, with visualization
+* [Build projectaria_tools for C++, without visualization](#build-from-source-without-visualization)
+* [Build projectaria_tools for C++, with visualization](#build-from-source-with-visualization)
    * To install dependencies, follow the instructions for build without visualization first
-* Build projectaria_tools in isolation with a package manager (Linux/MacOs/Windows)
-   * Most convenient way to check that code and unit test are running when performing Contribution/GitHub PR to the project
+* [Build projectaria_tools in isolation with a package manager](#build-projectaria_tools-in-isolation-with-a-package-manager) (Linux/MacOs/Windows)
+   * This is the most convenient way to check that code and unit test pass when performing Contribution/GitHub PR to the project
+
+Go to the [Troubleshooting Guide](/docs/data_utilities/installation/troubleshooting) if you encounter any issues.
 
 ## Build from source without visualization
 
-### Step 1 : Install dependencies
+### Step 1: Install dependencies
 
 ```mdx-code-block
 <Tabs groupId="operating-systems">
@@ -64,7 +66,7 @@ glog lz4 zstd xxhash libpng jpeg-turbo glew
 </Tabs>
 ```
 
-### Step 2 : Compile C++ source code
+### Step 2: Compile C++ source code
 
 ```bash
 cd $HOME/Documents/projectaria_sandbox
@@ -81,10 +83,10 @@ make -j2
 
 ## Build from source with visualization
 
-### Step 1 : Install dependencies
+### Step 1: Install dependencies
 Follow the above steps to install dependencies [build from source](#build-from-source-without-visualization)
 
-### Step 2 :  Compile Pangolin
+### Step 2:  Compile Pangolin
 
 The viewers are built using [Pangolin](https://github.com/stevenlovegrove/Pangolin).
 
@@ -104,7 +106,7 @@ make -j2
 sudo make install
 ```
 
-### Step 3 : Build projectaria_tools with visualization
+### Step 3: Build projectaria_tools with visualization
 
 ```bash
 cd $HOME/Documents/projectaria_sandbox
@@ -117,7 +119,7 @@ cmake ../projectaria_tools -DPROJECTARIA_TOOLS_BUILD_TOOLS=ON
 make -j2
 ```
 
-### Step 4 : Verify installation by running the viewer
+### Step 4: Verify installation by running the viewer
 
 ```bash
 cd $HOME/Documents/projectaria_sandbox/build
@@ -136,7 +138,7 @@ Pixi is a convenient package and environment manager that simplifies the logic t
 For Windows platform we assume that Microsoft Visual C++ Compiler, MSVC 2017 or 2022 has been installed.
 :::
 
-### Step1 Install Pixi
+### Step 1: Install Pixi
 
 <Tabs groupId="operating-systems">
 <TabItem value="unix" label="Linux & macOS">
@@ -153,14 +155,14 @@ iwr -useb https://pixi.sh/install.ps1 | iex
 </TabItem>
 </Tabs>
 
-### Step2 Compile and test the code
+### Step 2: Compile and test the code
 
 ```bash
 # When this command line first run, it will collect required dependencies, and then trigger the build and unit test
 pixi run run_c
 ```
 
-### Step3 Access the compiled artifacts
+### Step 3: Access the compiled artifacts
 
 ```bash
 # Activate the environment
