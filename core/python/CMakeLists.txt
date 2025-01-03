@@ -23,4 +23,4 @@ FetchContent_MakeAvailable(pybind11)
 
 add_subdirectory(${pybind11_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/pybind)
 pybind11_add_module(_core_pybinds ${CMAKE_CURRENT_SOURCE_DIR}/bindings.cpp)
-target_link_libraries(_core_pybinds PUBLIC mps vrs_data_provider image_debayer vrs_health_check)
+target_link_libraries(_core_pybinds PUBLIC mps vrs_data_provider image_debayer image_devignetting vrs_health_check)
