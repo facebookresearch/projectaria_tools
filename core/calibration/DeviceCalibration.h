@@ -16,14 +16,12 @@
 
 #pragma once
 
+#include <calibration/DeviceCadExtrinsics.h>
+#include <calibration/SensorCalibration.h>
+#include <sophus/se3.hpp>
 #include <map>
 #include <optional>
 #include <string>
-
-#include <sophus/se3.hpp>
-
-#include <calibration/DeviceCadExtrinsics.h>
-#include <calibration/SensorCalibration.h>
 
 namespace projectaria::tools::calibration {
 
@@ -156,6 +154,22 @@ class DeviceCalibration {
    */
   const std::string& getOriginLabel() const;
 
+  /**
+   * @brief set the folder path of the vignetting mask.
+   * @param maskFolderPath The folder path of the vignetting mask.
+   * @return void
+   */
+  void setDevignettingMaskFolderPath(const std::string& maskFolderPath);
+  /**
+   * @brief Get devignetting mask based on label and image size.
+   * devignetting_mask = 1/vignetting_mask
+   * devignetted_image = devignetting_mask * original_image
+   * @param label The label of the camera
+   * now supporting "camera-slam-left", "camera-slam-right", "camera-rgb"
+   * @return Vignetting mask in Eigen::MatrixXf format.
+   */
+  Eigen::MatrixXf loadDevignettingMask(const std::string& label);
+
  private:
   friend void tryCropAndScaleCameraCalibration(
       DeviceCalibration& deviceCalibration,
@@ -177,6 +191,7 @@ class DeviceCalibration {
 
   std::string deviceSubtype_;
   std::string originLabel_ = "";
+  std::string devignettingMaskFolderPath_;
 };
 
 } // namespace projectaria::tools::calibration
