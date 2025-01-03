@@ -578,7 +578,20 @@ inline void declareDeviceCalibration(py::module& m) {
       .def(
           "get_origin_label",
           &DeviceCalibration::getOriginLabel,
-          "obtain the definition of Origin (or Device in T_Device_Sensor).");
+          "obtain the definition of Origin (or Device in T_Device_Sensor).")
+      .def(
+          "set_devignetting_mask_folder_path",
+          &DeviceCalibration::setDevignettingMaskFolderPath,
+          py::arg("mask_folder_path"),
+          "Set the devignetting mask folder path.")
+      .def(
+          "load_devignetting_mask",
+          [](DeviceCalibration& self, const std::string& label) {
+            Eigen::MatrixXf matrix = self.loadDevignettingMask(label);
+            return tools::image::matrix2fToNumpy(matrix);
+          },
+          py::arg("label"),
+          "Load devignetting mask corresponding to the label and return as numpy array");
 
   m.def(
       "device_calibration_from_json",
