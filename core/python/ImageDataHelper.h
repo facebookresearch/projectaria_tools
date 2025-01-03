@@ -37,6 +37,30 @@ inline PyArrayVariant toPyArrayVariant(const ManagedImageVariant& imageVariant);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Implementation below
+inline py::array_t<float> matrix2fToNumpy(const Eigen::MatrixXf& matrix) {
+  size_t rows = matrix.rows();
+  size_t cols = matrix.cols();
+  return py::array_t<float>(
+      {rows, cols}, // shape
+      {cols * sizeof(float), sizeof(float)}, // strides
+      matrix.data() // data pointer
+  );
+}
+
+inline Eigen::MatrixXf numpyToMatrix2f(const py::array_t<float>& array) {
+  // Request a buffer descriptor from the NumPy array
+  py::buffer_info buf = array.request();
+  if (buf.ndim != 2) {
+    throw std::runtime_error("Input should be a 2D NumPy array");
+  }
+  if (buf.format != py::format_descriptor<float>::format()) {
+    throw std::runtime_error("Input should be a NumPy array of type float");
+  }
+  size_t rows = buf.shape[0];
+  size_t cols = buf.shape[1];
+  Eigen::MatrixXf matrix = Eigen::Map<Eigen::MatrixXf>(static_cast<float*>(buf.ptr), rows, cols);
+  return matrix;
+}
 
 struct PyArrayVariantVisitor {
   template <class T, int M>
