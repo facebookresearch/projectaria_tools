@@ -15,12 +15,17 @@
  */
 
 #include <calibration/DeviceCalibration.h>
-
 #include <logging/Checks.h>
+#include <filesystem>
+#include <fstream>
 #define DEFAULT_LOG_CHANNEL "DeviceCalibration"
 #include <logging/Log.h>
 
 namespace projectaria::tools::calibration {
+constexpr std::string_view rgbHalfInverseDevignettingMaskFile = "rgb_half_devignetting_mask.bin";
+constexpr std::string_view rgbFullInverseDevignettingMaskFile = "rgb_full_devignetting_mask.bin";
+constexpr std::string_view slamInverseDevignettingMaskFile = "slam_devignetting_mask.bin";
+
 DeviceCalibration::DeviceCalibration(
     const std::map<std::string, CameraCalibration>& cameraCalibs,
     const std::map<std::string, ImuCalibration>& imuCalibs,
@@ -247,4 +252,62 @@ std::optional<Sophus::SE3d> DeviceCalibration::getT_Cpf_Sensor(
 const std::string& DeviceCalibration::getOriginLabel() const {
   return originLabel_;
 }
+
+Eigen::MatrixXf DeviceCalibration::loadDevignettingMask(const std::string& label) {
+  std::string binaryPath;
+  const auto maybeCamCalib = getCameraCalib(label);
+  if (!maybeCamCalib) {
+    throw std::runtime_error("Camera label " + label + " not found in calibration");
+  }
+  Eigen::Vector2i imageSize = maybeCamCalib->getImageSize();
+  uint32_t imageWidth = imageSize.x();
+  uint32_t imageHeight = imageSize.y();
+
+  if (devignettingMaskFolderPath_.empty()) {
+    throw std::runtime_error(
+        "Devignetting mask folder path is not set. Please use setDevignettingMaskFolderPath function");
+  }
+  if (!std::filesystem::exists(devignettingMaskFolderPath_)) {
+    throw std::runtime_error(
+        "Devignetting mask folder path does not exist: " + devignettingMaskFolderPath_);
+  }
+  if (label == "camera-slam-left" || label == "camera-slam-right") {
+    binaryPath = devignettingMaskFolderPath_ + '/' + slamInverseDevignettingMaskFile.data();
+  } else if (label == "camera-rgb" && imageWidth == 2880 && imageHeight == 2880) {
+    binaryPath = devignettingMaskFolderPath_ + '/' + rgbFullInverseDevignettingMaskFile.data();
+  } else if (label == "camera-rgb" && imageWidth == 1408 && imageHeight == 1408) {
+    binaryPath = devignettingMaskFolderPath_ + '/' + rgbHalfInverseDevignettingMaskFile.data();
+  } else {
+    throw std::runtime_error(
+        "Devignettting mask not found for label: " + label +
+        " with image size: " + std::to_string(imageWidth) + "," + std::to_string(imageHeight));
+  }
+  Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> vignetteMask(
+      imageHeight, imageWidth);
+  std::ifstream file(binaryPath, std::ios::binary);
+  if (!file.is_open()) {
+    throw std::runtime_error("Could not open file: " + binaryPath);
+  }
+  file.seekg(0, std::ios::end);
+  std::streamsize fileSize = file.tellg();
+  file.seekg(0, std::ios::beg);
+  std::streamsize expectedSize = imageWidth * imageHeight * sizeof(float);
+  if (fileSize != expectedSize) {
+    file.close();
+    throw std::runtime_error(
+        "File size (" + std::to_string(fileSize) + ") does not match expected size (" +
+        std::to_string(expectedSize) + ") for: " + binaryPath);
+  }
+  file.read(reinterpret_cast<char*>(vignetteMask.data()), imageWidth * imageHeight * sizeof(float));
+  file.close();
+  return vignetteMask;
+}
+
+void DeviceCalibration::setDevignettingMaskFolderPath(const std::string& maskFolderPath) {
+  if (!std::filesystem::exists(maskFolderPath)) {
+    throw std::runtime_error("Devignetting mask folder path does not exist: " + maskFolderPath);
+  }
+  devignettingMaskFolderPath_ = maskFolderPath;
+}
+
 } // namespace projectaria::tools::calibration
