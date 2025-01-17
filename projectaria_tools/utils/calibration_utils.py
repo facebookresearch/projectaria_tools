@@ -27,8 +27,9 @@ def undistort_image_and_calibration(
     input_calib_height = input_calib.get_image_size()[1]
     input_calib_focal = input_calib.get_focal_lengths()[0]
     if (
-        input_image.shape[0] != input_calib_width
-        or input_image.shape[1] != input_calib_height
+        # numpy array report matrix shape as (height, width)
+        input_image.shape[0] != input_calib_height
+        or input_image.shape[1] != input_calib_width
     ):
         raise ValueError(
             f"Input image shape {input_image.shape} does not match calibration {input_calib.get_image_size()}"
