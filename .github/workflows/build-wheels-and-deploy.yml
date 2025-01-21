@@ -75,7 +75,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-13, ubuntu-22.04, macos-latest-xlarge, windows-2022]
+        os: [macos-13, macos-14, ubuntu-22.04, windows-2022] # macos-14 is macSilicon
         python-version: ["3.10", "3.11", "3.12"]
         # Default consider only Python >=3.10 since actions/setup-python supports only python<3.10 and mac-silicon
         # Other Python versions are added below as matrix entries
@@ -119,7 +119,7 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install cibuildwheel==2.17.0
       - name: Build wheels for CPython
-        if: matrix.os == 'macos-latest-xlarge'
+        if: matrix.os == 'macos-14'
         shell: bash
         run: |
           CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist
