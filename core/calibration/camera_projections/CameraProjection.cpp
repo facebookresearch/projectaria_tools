@@ -18,37 +18,45 @@
 #include <stdexcept>
 
 namespace projectaria::tools::calibration {
-CameraProjection::ProjectionVariant getProjectionVariant(const CameraProjection::ModelType& type) {
+template <typename Scalar>
+CameraProjection::ProjectionVariant getProjectionVariant(
+    const typename CameraProjectionTemplated<Scalar>::ModelType& type) {
   switch (type) {
-    case CameraProjection::ModelType::Linear:
+    case CameraProjectionTemplated<Scalar>::ModelType::Linear:
       return LinearProjection{};
-    case CameraProjection::ModelType::Spherical:
+    case CameraProjectionTemplated<Scalar>::ModelType::Spherical:
       return SphericalProjection{};
-    case CameraProjection::ModelType::KannalaBrandtK3:
+    case CameraProjectionTemplated<Scalar>::ModelType::KannalaBrandtK3:
       return KannalaBrandtK3Projection{};
-    case CameraProjection::ModelType::Fisheye624:
+    case CameraProjectionTemplated<Scalar>::ModelType::Fisheye624:
       return Fisheye624{};
   }
-
   throw std::runtime_error("Unrecognized camera model.");
 }
 
-CameraProjection::CameraProjection(const ModelType& type, const Eigen::VectorXd& projectionParams)
+template <typename Scalar>
+CameraProjectionTemplated<Scalar>::CameraProjectionTemplated(
+    const ModelType& type,
+    const Eigen::Matrix<Scalar, Eigen::Dynamic, 1>& projectionParams)
     : modelName_(type),
       projectionParams_(projectionParams),
-      projectionVariant_(getProjectionVariant(type)) {}
+      projectionVariant_(getProjectionVariant<Scalar>(type)) {}
 
+template <>
 CameraProjection::ModelType CameraProjection::modelName() const {
   return modelName_;
 }
 
-Eigen::VectorXd CameraProjection::projectionParams() const {
+template <typename Scalar>
+Eigen::Matrix<Scalar, Eigen::Dynamic, 1> CameraProjectionTemplated<Scalar>::projectionParams()
+    const {
   return projectionParams_;
 }
 
-Eigen::Vector2d CameraProjection::getFocalLengths() const {
+template <typename Scalar>
+Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::getFocalLengths() const {
   return std::visit(
-      [this](auto&& projection) -> Eigen::Vector2d {
+      [this](auto&& projection) -> Eigen::Matrix<Scalar, 2, 1> {
         using T = std::decay_t<decltype(projection)>;
         int focalXIdx = T::kFocalXIdx;
         int focalYIdx = T::kFocalYIdx;
@@ -57,9 +65,10 @@ Eigen::Vector2d CameraProjection::getFocalLengths() const {
       projectionVariant_);
 }
 
-Eigen::Vector2d CameraProjection::getPrincipalPoint() const {
+template <typename Scalar>
+Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::getPrincipalPoint() const {
   return std::visit(
-      [this](auto&& projection) -> Eigen::Vector2d {
+      [this](auto&& projection) -> Eigen::Matrix<Scalar, 2, 1> {
         using T = std::decay_t<decltype(projection)>;
         int principalPointColIdx = T::kPrincipalPointColIdx;
         int principalPointRowIdx = T::kPrincipalPointRowIdx;
@@ -68,7 +77,9 @@ Eigen::Vector2d CameraProjection::getPrincipalPoint() const {
       projectionVariant_);
 }
 
-Eigen::Vector2d CameraProjection::project(const Eigen::Vector3d& pointInCamera) const {
+template <typename Scalar>
+Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::project(
+    const Eigen::Matrix<Scalar, 3, 1>& pointInCamera) const {
   return std::visit(
       [&](auto&& projection) {
         using T = std::decay_t<decltype(projection)>;
@@ -77,7 +88,9 @@ Eigen::Vector2d CameraProjection::project(const Eigen::Vector3d& pointInCamera) 
       projectionVariant_);
 }
 
-Eigen::Vector3d CameraProjection::unproject(const Eigen::Vector2d& cameraPixel) const {
+template <typename Scalar>
+Eigen::Matrix<Scalar, 3, 1> CameraProjectionTemplated<Scalar>::unproject(
+    const Eigen::Matrix<Scalar, 2, 1>& cameraPixel) const {
   return std::visit(
       [&](auto&& projection) {
         using T = std::decay_t<decltype(projection)>;
@@ -86,7 +99,8 @@ Eigen::Vector3d CameraProjection::unproject(const Eigen::Vector2d& cameraPixel) 
       projectionVariant_);
 }
 
-void CameraProjection::scaleParams(double scale) {
+template <typename Scalar>
+void CameraProjectionTemplated<Scalar>::scaleParams(Scalar scale) {
   return std::visit(
       [&](auto&& projection) {
         using T = std::decay_t<decltype(projection)>;
@@ -95,7 +109,8 @@ void CameraProjection::scaleParams(double scale) {
       projectionVariant_);
 }
 
-void CameraProjection::subtractFromOrigin(double offsetU, double offsetV) {
+template <typename Scalar>
+void CameraProjectionTemplated<Scalar>::subtractFromOrigin(Scalar offsetU, Scalar offsetV) {
   return std::visit(
       [&](auto&& projection) {
         using T = std::decay_t<decltype(projection)>;
@@ -104,4 +119,6 @@ void CameraProjection::subtractFromOrigin(double offsetU, double offsetV) {
       projectionVariant_);
 }
 
+template struct CameraProjectionTemplated<double>;
+template struct CameraProjectionTemplated<float>;
 } // namespace projectaria::tools::calibration
