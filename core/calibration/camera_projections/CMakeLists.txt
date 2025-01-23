@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if(BUILD_UNIT_TEST)
+    add_subdirectory(test)
+endif()
+
 add_library(common INTERFACE)
 target_sources(common INTERFACE Common.h IgnoreJetInfinitesimal.h)
 target_link_libraries(common INTERFACE Eigen3::Eigen Sophus::Sophus)
