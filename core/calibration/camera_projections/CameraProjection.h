@@ -30,10 +30,11 @@
 namespace projectaria::tools::calibration {
 
 /**
- * @brief A struct to represent a camera projection instance, which is basically camera intrinsics.
- * This struct stores the intrinsics parameters internally.
+ * @brief A templated struct to represent a camera projection instance, which is basically camera
+ * intrinsics. This templated struct stores the intrinsics parameters internally.
  */
-struct CameraProjection {
+template <typename Scalar>
+struct CameraProjectionTemplated {
   /**
    * @brief Enum that represents the type of camera projection model. See Linear.h, Spherical.h,
    * KannalaBrandtK3.h and FisheyeRadTanThinPrism.h for details
@@ -47,56 +48,60 @@ struct CameraProjection {
                 distortion */
   };
   /**
-   * @brief Default constructor, creates an empty CameraProjection instance.
+   * @brief Default constructor, creates an empty CameraProjectionTemplated instance.
    */
-  CameraProjection() = default;
+  CameraProjectionTemplated() = default;
 
   /**
-   * @brief Constructor with a list of parameters for CameraProjection.
+   * @brief Constructor with a list of parameters for CameraProjectionTemplated.
    * @param type The type of projection model, e.g. ModelType::Linear.
    * @param projectionParams The projection parameters.
    */
-  CameraProjection(const ModelType& type, const Eigen::VectorXd& projectionParams);
+  CameraProjectionTemplated(
+      const ModelType& type,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1>& projectionParams);
 
   ModelType modelName() const;
-  Eigen::VectorXd projectionParams() const;
+  Eigen::Matrix<Scalar, Eigen::Dynamic, 1> projectionParams() const;
 
   /**
    * @brief projects a 3d world point in the camera space to a 2d pixel in the image space. No
    * checks performed in this process.
    */
-  Eigen::Vector2d project(const Eigen::Vector3d& pointInCamera) const;
+  Eigen::Matrix<Scalar, 2, 1> project(const Eigen::Matrix<Scalar, 3, 1>& pointInCamera) const;
 
   /**
    * @brief unprojects a 2d pixel in the image space to a 3d world point in homogenous coordinate.
    * No checks performed in this process.
    */
-  Eigen::Vector3d unproject(const Eigen::Vector2d& cameraPixel) const;
+  Eigen::Matrix<Scalar, 3, 1> unproject(const Eigen::Matrix<Scalar, 2, 1>& cameraPixel) const;
 
   /**
    * @brief returns principal point location as {cx, cy}
    */
-  Eigen::Vector2d getPrincipalPoint() const;
+  Eigen::Matrix<Scalar, 2, 1> getPrincipalPoint() const;
   /**
    * @brief returns focal lengths as {fx, fy}
    */
-  Eigen::Vector2d getFocalLengths() const;
+  Eigen::Matrix<Scalar, 2, 1> getFocalLengths() const;
 
   /**
    * @brief scales the projection parameters as the image scales without the offset changing
    */
-  void scaleParams(double scale);
+  void scaleParams(Scalar scale);
   /**
    * @brief translates the origin by (offsetU, offsetV)
    */
-  void subtractFromOrigin(double offsetU, double offsetV);
+  void subtractFromOrigin(Scalar offsetU, Scalar offsetV);
 
   using ProjectionVariant =
       std::variant<LinearProjection, SphericalProjection, KannalaBrandtK3Projection, Fisheye624>;
 
  private:
   ModelType modelName_;
-  Eigen::VectorXd projectionParams_;
+  Eigen::Matrix<Scalar, Eigen::Dynamic, 1> projectionParams_;
   ProjectionVariant projectionVariant_;
 };
+using CameraProjection = CameraProjectionTemplated<double>;
+
 } // namespace projectaria::tools::calibration
