@@ -97,6 +97,14 @@ struct CameraProjectionTemplated {
   using ProjectionVariant =
       std::variant<LinearProjection, SphericalProjection, KannalaBrandtK3Projection, Fisheye624>;
 
+  /**
+   * @brief Casts the CameraProjectionTemplated to another scalar type.
+   * @tparam OtherScalar The target scalar type for casting.
+   * @return A new CameraProjectionTemplated instance with the specified scalar type.
+   */
+  template <typename OtherScalar>
+  CameraProjectionTemplated<OtherScalar> cast() const;
+
  private:
   ModelType modelName_;
   Eigen::Matrix<Scalar, Eigen::Dynamic, 1> projectionParams_;

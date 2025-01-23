@@ -119,6 +119,19 @@ void CameraProjectionTemplated<Scalar>::subtractFromOrigin(Scalar offsetU, Scala
       projectionVariant_);
 }
 
+template <typename Scalar>
+template <typename OtherScalar>
+[[nodiscard]] CameraProjectionTemplated<OtherScalar> CameraProjectionTemplated<Scalar>::cast()
+    const {
+  Eigen::Matrix<OtherScalar, Eigen::Dynamic, 1> castedParams =
+      projectionParams_.template cast<OtherScalar>();
+  auto castedModelName =
+      static_cast<typename CameraProjectionTemplated<OtherScalar>::ModelType>(modelName_);
+  return CameraProjectionTemplated<OtherScalar>(castedModelName, castedParams);
+}
+
 template struct CameraProjectionTemplated<double>;
 template struct CameraProjectionTemplated<float>;
+template CameraProjectionTemplated<float> CameraProjectionTemplated<double>::cast<float>() const;
+template CameraProjectionTemplated<double> CameraProjectionTemplated<float>::cast<double>() const;
 } // namespace projectaria::tools::calibration
