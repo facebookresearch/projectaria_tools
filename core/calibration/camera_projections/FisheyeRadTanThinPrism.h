@@ -71,10 +71,11 @@ class FisheyeRadTanThinPrism {
   static constexpr bool kIsFisheye = true;
   static constexpr bool kHasAnalyticalProjection = true;
 
-  template <class D, class DP>
+  template <class D, class DP, class DJ = Eigen::Matrix<typename D::Scalar, 2, 3>>
   static Eigen::Matrix<typename D::Scalar, 2, 1> project(
       const Eigen::MatrixBase<D>& pointOptical,
-      const Eigen::MatrixBase<DP>& params) {
+      const Eigen::MatrixBase<DP>& params,
+      Eigen::MatrixBase<DJ>* d_point = nullptr) {
     using T = typename D::Scalar;
 
     validateProjectInput<D, DP, kNumParams>();
@@ -134,6 +135,44 @@ class FisheyeRadTanThinPrism {
       radialPowers2And4(1) = xr_yr_squaredNorm * xr_yr_squaredNorm;
       uvDistorted(0) += params.template segment<2>(startS).dot(radialPowers2And4);
       uvDistorted(1) += params.template segment<2>(startS + 2).dot(radialPowers2And4);
+    }
+
+    // Maybe compute point jacobian
+    if (d_point) {
+      Eigen::Matrix<T, 2, 2> duvDistorted_dxryr;
+      compute_duvDistorted_dxryr(xr_yr, xr_yr_squaredNorm, params, duvDistorted_dxryr);
+
+      // compute jacobian wrt point
+      Eigen::Matrix<T, 2, 2> duvDistorted_dab;
+      if (r == static_cast<T>(0.0)) {
+        duvDistorted_dab.setIdentity();
+      } else {
+        T dthD_dth = static_cast<T>(1.0);
+        T theta2i = thetaSq;
+        for (size_t i = 0; i < numK; ++i) {
+          dthD_dth += T(2 * i + 3) * params[startK + i] * theta2i;
+          theta2i *= thetaSq;
+        }
+
+        const T w1 = dthD_dth / (r_sq + r_sq * r_sq);
+        const T w2 = th_radial * th_divr / r_sq;
+        const T ab10 = ab[0] * ab[1];
+        Eigen::Matrix<T, 2, 2> temp1;
+        temp1(0, 0) = w1 * ab_squared[0] + w2 * ab_squared[1];
+        temp1(0, 1) = (w1 - w2) * ab10;
+        temp1(1, 0) = temp1(0, 1);
+        temp1(1, 1) = w1 * ab_squared[1] + w2 * ab_squared[0];
+        duvDistorted_dab.noalias() = duvDistorted_dxryr * temp1;
+      }
+
+      // compute the derivative of the projection wrt the point:
+      if (useSingleFocalLength) {
+        d_point->template leftCols<2>() = params[0] * inv_z * duvDistorted_dab;
+      } else {
+        d_point->template leftCols<2>() =
+            params.template head<2>().asDiagonal() * duvDistorted_dab * inv_z;
+      }
+      d_point->template rightCols<1>().noalias() = -d_point->template leftCols<2>() * ab;
     }
 
     // compute the return value
