@@ -116,3 +116,43 @@ TEST(CameraProjectionTest, FloatDoubleParamsComparison) {
     testCastForSinglePair(cameraProjectionDouble2, cameraProjectionFloat2, "FtoD, ");
   }
 }
+
+TEST(CameraProjectionTest, Jacobian) {
+  // Set up problem
+  Eigen::Matrix<double, 2, 3> dProj_dPointCam;
+  const double max_norm = 1e-4;
+
+  for (const auto& [modelType, projectionParams] : kTestProjectionParams) {
+    // Skip spherical model, since we can't compute Jacobian
+    if (modelType == CameraProjection::ModelType::Spherical) {
+      continue;
+    }
+
+    CameraProjectionTemplated<double> cameraProjectionDouble(modelType, projectionParams);
+
+    // Project at X and compute Jacobian
+    Eigen::Matrix<double, 2, 1> fX0 =
+        cameraProjectionDouble.project(kPtInCameraDouble, &dProj_dPointCam);
+
+    // Check Jacobian with finite difference approximation
+    double eps = 1e-8;
+    Eigen::Matrix<double, 2, 3> J(fX0.rows(), kPtInCameraDouble.rows());
+
+    for (int i = 0; i < J.cols(); ++i) {
+      Eigen::Matrix<double, 3, 1> xp = kPtInCameraDouble;
+      Eigen::Matrix<double, 3, 1> xn = kPtInCameraDouble;
+
+      xp[i] += eps;
+      xn[i] -= eps;
+
+      const Eigen::Matrix<double, 2, 1> fxp = cameraProjectionDouble.project(xp);
+      const Eigen::Matrix<double, 2, 1> fxn = cameraProjectionDouble.project(xn);
+
+      J.col(i) = (fxp - fxn) / (2 * eps);
+    }
+
+    // We expect the approximate derivative to be close to the actual derivative
+    double norm = (J - dProj_dPointCam).norm();
+    EXPECT_NEAR(norm, 0.0, max_norm);
+  }
+}

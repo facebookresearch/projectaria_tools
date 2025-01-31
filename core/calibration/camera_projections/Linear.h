@@ -42,10 +42,11 @@ class LinearProjection {
   static constexpr bool kIsFisheye = false;
   static constexpr bool kHasAnalyticalProjection = true;
 
-  template <class D, class DP>
+  template <class D, class DP, class DJ = Eigen::Matrix<typename D::Scalar, 2, 3>>
   static Eigen::Matrix<typename D::Scalar, 2, 1> project(
       const Eigen::MatrixBase<D>& pointOptical,
-      const Eigen::MatrixBase<DP>& params) {
+      const Eigen::MatrixBase<DP>& params,
+      Eigen::MatrixBase<DJ>* d_point = nullptr) {
     validateProjectInput<D, DP, kNumParams>();
     using T = typename D::Scalar;
 
@@ -56,6 +57,17 @@ class LinearProjection {
     const Eigen::Matrix<T, 2, 1> pp = params.template segment<2>(2);
     const Eigen::Matrix<T, 2, 1> px =
         ff.cwiseProduct(pointOptical.template head<2>()) / pointOptical(2) + pp;
+
+    if (d_point) {
+      const T oneOverZ = T(1) / pointOptical(2);
+
+      (*d_point)(0, 0) = ff(0) * oneOverZ;
+      (*d_point)(0, 1) = static_cast<T>(0.0);
+      (*d_point)(0, 2) = -(*d_point)(0, 0) * pointOptical(0) * oneOverZ;
+      (*d_point)(1, 0) = static_cast<T>(0.0);
+      (*d_point)(1, 1) = ff(1) * oneOverZ;
+      (*d_point)(1, 2) = -(*d_point)(1, 1) * pointOptical(1) * oneOverZ;
+    }
 
     return px;
   }
