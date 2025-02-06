@@ -310,7 +310,8 @@ void AriaViewer::updateGuiAndControl() {
 
 void AriaViewer::updateImages() {
   for (const auto& [streamId, imageView] : streamIdToPixelFrame_) {
-    if (ariaVisData_->cameraImageBufferMap_.count(streamId) == 0) {
+    if (!ariaVisData_->isDataChanged(streamId) ||
+        ariaVisData_->cameraImageBufferMap_.count(streamId) == 0) {
       continue;
     }
     auto& imageData = ariaVisData_->cameraImageBufferMap_.at(streamId);
