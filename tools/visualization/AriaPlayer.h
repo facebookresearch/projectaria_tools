@@ -48,6 +48,7 @@ class AriaPlayer {
   std::shared_ptr<projectaria::tools::data_provider::VrsDataProvider> dataProvider_;
   std::shared_ptr<AriaVisualizationData> visData_;
   std::shared_ptr<AriaVisualizationControl> visControl_;
+  int64_t lastTimestampNs_ = -1;
 };
 
 std::shared_ptr<AriaPlayer> createAriaPlayer(
