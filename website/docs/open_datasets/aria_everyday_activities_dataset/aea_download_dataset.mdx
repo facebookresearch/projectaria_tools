@@ -49,61 +49,32 @@ mv $HOME/Downloads/aria_everyday_activities_dataset_download_urls.json $HOME/Doc
 ```
 
 
-### Step 4 : Download the sample sequence (~3GB) via CLI:
-
-From your Python virtual environment, run:
-
-```
-aea_dataset_downloader -c $HOME/Documents/projectaria_tools_aea_data/aria_everyday_activities_dataset_download_urls.json \
--o $HOME/Documents/projectaria_tools_aea_data/ \
--d 0 1 2 3 -e
-```
-
-
-The sample sequence is representative of a typical single-user sequence, which gives you an idea of to expect from the dataset.
-
-
 ## Download the AEA dataset
 
 
 ### Data size
 
-The AEA dataset contains 143 sequences and the total size of the dataset is about 353GB. The dataset is split into main data and MPS outputs, eye gaze and Multi-SLAM (SLAM outputs created in shared coordinate frame) results. Go to [Project Aria Machine Perception Services](/ARK/mps/mps.mdx) for more information about MPS data. The MPS data is also broken into chunks that can be included or excluded at download time.
-
-
-| Data type  | What's included  | Per sequence size    | Total size for all sequences    |
-|---|---|---|---|
-| main    | Aria raw data, speech to text, metadata json    | 2 - 4 GB    | ~309 GB    |
-| MPS eyegaze    | Eyegaze, summary file    | < 1 MB    | ~31 MB    |
-| MPS SLAM points    | Semi-dense points and observations    | 200 - 500 MB    | ~31 GB    |
-| MPS SLAM trajectories    | Open and closed loop trajectories    | 100 - 200 MB    | 12 GB    |
-| MPS SLAM online calibration    | Online calibrations    |  < 20 MB    |  1.2 GB    |
-
+The AEA dataset contains 143 sequences and the total size of the dataset is about 353GB.
+The dataset is split into main VRS data, annotations, and MPS outputs
+Go to [Project Aria Machine Perception Services](/ARK/mps/mps.mdx) for more information about MPS data.
+The MPS data is also broken into chunks that can be included or excluded at download time.
 
 
 ### Download via CLI
 
-Follow the [AEA Getting Started Guide](aea_getting_started.mdx) to download the example data. This section will introduce how to download the dataset using the `aea_dataset_downloader`.
+AEA uses the general Aria dataset downloader, which is available in the [`projectaria_tools` PyPI (pip install) package](/data_utilities/installation/installation_python.mdx).
 
+To use the downloader, use the following commands in the virtual environment where you've installed `projectaria_tools`:
 
-#### Resumable download
+```bash
+aria_dataset_downloader
+```
 
-The `aea_dataset_downloader` checks the previous download status of the sequences in the --output_folder. If the downloading breaks in the middle, relaunch the CLI and it will continue the downloading.
+To get a description of the arguments that the script needs, run:
 
-
-#### Detailed arguments
-
-
-| Arguments    | Type    | Description    |
-|---|---|---|
-| --cdn_file    | str    | The download-urls file you downloaded from the AEA website page after signing up    |
-| --output_folder    | str    | A local path where the downloaded files and metadata will be stored    |
-| --metadata_only    | flag    | Only download the metadata file for the dataset    |
-| --data_types    | list of int    | 0→main, 1→MPS eyegaze, 2→MPS trajectories, 3→MPS semidense pointclouds and observations, 4→MPS online calibrations    |
-| --example_only    | flag    | Only download example data    |
-| --overwrite    | flag    | Disable resumable download. Force download and overwrite existing data    |
-| --sequence_names    | list of str    | list of sequence names. If not specified, download all sequences    |
-
+```bash
+aria_dataset_downloader --help
+```
 
 ### Download Examples
 
@@ -113,40 +84,25 @@ All these commands must be run from your Python virtual environment that has the
 :::
 
 
-#### Download metadata for all datasets
-This will download the  `aria_everyday_activities_metadata.json`, which contains metadata for each AEA sequence, including: location number, script number, sequence number, recording number,  dataset version, dataset name, and list of concurrent recordings.
-
-You can use this data to select specific sequences to download.
+#### Download all data for a single sequence
 
 ```
-aea_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --metadata_only
+aria_dataset_downloader -c ${PATH_TO_YOUR_CDN_FILE} -o ${OUTPUT_FOLDER_PATH} -l loc5_script4_seq6_rec1
 ```
 
-
-#### Download main data for all sequences
+#### Download VRS only for all sequences
 
 ```
-aea_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0
+aria_dataset_downloader -c ${PATH_TO_YOUR_CDN_FILE} -o ${OUTPUT_FOLDER_PATH} -d 0
 ```
 
 
 #### Download all data for all sequences
 
 ```
-aea_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 1 2 3
+aria_dataset_downloader -c ${PATH_TO_YOUR_CDN_FILE} -o ${OUTPUT_FOLDER_PATH}
 ```
 
-
-#### Download main data for 2 specific sequences
-
-```
-aea_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 --sequence_names loc1_script1_seq1_rec1 loc2_script1_seq1_rec1
-```
-
-#### Download main data for all sequences and overwrite
-```
-aea_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 --overwrite
-```
 
 ## Troubleshooting
 Go to [troubleshooting](data_utilities/installation/troubleshooting.mdx) if you experience issues using this guide.

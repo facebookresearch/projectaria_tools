@@ -179,7 +179,6 @@ def main():
                 "aria_dataset_downloader = projectaria_tools.utils.datasets.dataset_downloader_main:main",
                 "adt_benchmark_dataset_downloader = projectaria_tools.projects.adt.adt_benchmark_dataset_downloader:main",
                 "adt_challenge_dataset_downloader = projectaria_tools.projects.adt.adt_challenge_dataset_downloader:main",
-                "aea_dataset_downloader = projectaria_tools.projects.aea.aria_everyday_activities_dataset_downloader:main",
                 "dtc_object_downloader = projectaria_tools.projects.dtc_objects.downloader_main:main",
                 "aria_mps = projectaria_tools.aria_mps_cli.cli:main",
                 "viewer_aria_sensors = projectaria_tools.utils.viewer_aria_sensors:main",
