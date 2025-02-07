@@ -124,10 +124,7 @@ def main():
         data_types.append(all_data_groups_list[int(input_data_type)])
 
     # If sequence_names is specified as "all", download all available sequences without user prompt
-    if len(args.sequence_names) == 1 and "all" in args.sequence_names:
-        args.sequence_names = None
-        print("Downloading all sequences...")
-    elif args.sequence_names is None:
+    if args.sequence_names is None:
         download_all = (
             input(
                 """
@@ -144,6 +141,9 @@ def main():
                 load_sequences_list_from_cdn(args.cdn_file),
             )
             exit(1)
+    elif len(args.sequence_names) == 1 and "all" in args.sequence_names:
+        args.sequence_names = None
+        print("Downloading all sequences...")
     else:
         print(f"Downloading the following sequences: {args.sequence_names}")
 
