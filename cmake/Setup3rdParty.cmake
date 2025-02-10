@@ -17,7 +17,7 @@ include(FetchContent) # once in the project to include the module
 FetchContent_Declare(
   Dispenso
   GIT_REPOSITORY      https://github.com/facebookincubator/dispenso.git
-  GIT_TAG             d56d92ed814d44f727812434142959a5d0e6db79 # v1.3.0
+  GIT_TAG             f5d0dc5c5c02bf26063ab11ebfaa42f6d1a7c650 # v1.4.0
 )
 
 FetchContent_Declare(
