@@ -4,7 +4,7 @@ description = "projectaria_tools is an C++/Python open-source toolkit to interac
 homepage = "https://github.com/facebookresearch/projectaria_tools"
 license = "Apache-2.0"
 channels = ["conda-forge"]
-platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
+platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64", "win-64"]
 version = "1.5.2"
 
 [tasks]
@@ -56,9 +56,9 @@ test = "cd build; ctest -C Release -j"
 build_python = "python -m pip install ."
 
 [build-dependencies]
-cmake = "3.28.3"
-cxx-compiler = "1.6.0.*"
-ninja = "1.11.1"
+cmake = "3.31.4"
+cxx-compiler = "1.9.0"
+ninja = "1.12.1"
 
 [dependencies]
 # Note: projectaria_tools gather its own dependencies using CMake Fetch, but
