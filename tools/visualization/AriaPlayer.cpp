@@ -28,7 +28,7 @@ AriaPlayer::AriaPlayer(
 void AriaPlayer::run() {
   while (!visControl_->shouldClose_) {
     int64_t timestampNs = visControl_->timestampNs_;
-    if (timestampNs != lastTimestampNs_) {
+    if (timestampNs != lastTimestampNs_ || visControl_->isPlaying_) {
       playFromTimeNsMultiThread(timestampNs);
       updateImagesStatic(visControl_->timestampNs_);
       lastTimestampNs_ = timestampNs;
