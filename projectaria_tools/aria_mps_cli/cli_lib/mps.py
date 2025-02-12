@@ -69,6 +69,7 @@ class Mps:
             "force": args.force,
             "retry_failed": args.retry_failed,
             "suffix": args.suffix,
+            "persist_on_failure": args.persist_on_failure,
         }
         if args.mode == _MULTI_COMMAND:
             self._requestor: MultiRecordingRequest = MultiRecordingRequest(

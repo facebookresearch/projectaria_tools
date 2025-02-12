@@ -41,6 +41,7 @@ class MultiRecordingMps:
         requestor: MultiRecordingRequest,
         request_monitor: RequestMonitor,
         source: MpsRequestSource,
+        persist_on_failure: bool = False,
         name: Optional[str] = None,
         suffix: Optional[str] = None,
         on_state_changed: Optional[
@@ -51,6 +52,7 @@ class MultiRecordingMps:
         self._output_dir: Path = output_dir
         self._force: bool = force
         self._retry_failed: bool = retry_failed
+        self._persist_on_failure: bool = persist_on_failure
         self._http_helper: HttpHelper = http_helper
         self._requestor: MultiRecordingRequest = requestor
         self._request_monitor: RequestMonitor = request_monitor

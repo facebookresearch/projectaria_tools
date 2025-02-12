@@ -108,6 +108,7 @@ class SingleRecordingRequest(BaseStateMachine):
         feature: MpsFeature,
         force: bool,
         retry_failed: bool,
+        persist_on_failure: bool,
         suffix: Optional[str] = None,
     ) -> "SingleRecordingModel":
         """
@@ -124,6 +125,7 @@ class SingleRecordingRequest(BaseStateMachine):
             force=force,
             suffix=suffix,
             retry_failed=retry_failed,
+            persist_on_failure=persist_on_failure,
             encryption_key=self._encryption_key,
             key_id=self._key_id,
         )
@@ -161,6 +163,7 @@ class SingleRecordingModel:
         feature: MpsFeature,
         http_helper: HttpHelper,
         force: bool,
+        persist_on_failure: bool,
         suffix: Optional[str] = None,
         retry_failed: bool = False,
         encryption_key=str,
@@ -174,6 +177,7 @@ class SingleRecordingModel:
         self._force: bool = force
         self._suffix: Optional[str] = suffix
         self._retry_failed: bool = retry_failed
+        self._persist_on_failure: bool = persist_on_failure
 
         self._encryption_key: str = encryption_key
         self._key_id: int = key_id
@@ -222,6 +226,11 @@ class SingleRecordingModel:
     def is_force(self) -> bool:
         """Get force flag."""
         return self._force
+
+    @property
+    def is_persisted_on_failure(self) -> bool:
+        """Get persist on failure flag."""
+        return self._persist_on_failure
 
     @property
     def is_retry_failed(self) -> bool:

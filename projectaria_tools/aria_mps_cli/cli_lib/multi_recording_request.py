@@ -101,6 +101,7 @@ class MultiRecordingRequest(BaseStateMachine):
         output_dir: Path,
         force: bool,
         retry_failed: bool,
+        persist_on_failure: bool,
         name: Optional[str] = None,
         suffix: Optional[str] = None,
     ) -> "MultiRecordingModel":
@@ -119,6 +120,7 @@ class MultiRecordingRequest(BaseStateMachine):
             force=force,
             suffix=suffix,
             retry_failed=retry_failed,
+            persist_on_failure=persist_on_failure,
             output_dir=output_dir,
             encryption_key=encryption_key,
             key_id=key_id,
@@ -165,6 +167,7 @@ class MultiRecordingModel:
         force: bool,
         suffix: Optional[str],
         retry_failed: bool,
+        persist_on_failure: bool,
         output_dir: Optional[Path],
         encryption_key: str,
         key_id: int,
@@ -175,6 +178,7 @@ class MultiRecordingModel:
         self._force: bool = force
         self._suffix: Optional[str] = suffix
         self._retry_failed: bool = retry_failed
+        self._persist_on_failure: bool = persist_on_failure
         self._hash_calculators: Mapping[Path, HashCalculator] = {}
         self._output_dir: Path = output_dir
         self._output_dir.mkdir(parents=True, exist_ok=True)
@@ -281,6 +285,13 @@ class MultiRecordingModel:
         Whether or not the retry failed flag was set for this request.
         """
         return self._retry_failed
+
+    @property
+    def is_persist_on_failure(self) -> bool:
+        """
+        Whether or not the persist on failure flag was set for this request.
+        """
+        return self._persist_on_failure
 
     def get_status(self, recording: Path) -> str:
         """

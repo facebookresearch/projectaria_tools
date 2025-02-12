@@ -46,6 +46,7 @@ from .constants import (
     KEY_NODES,
     KEY_PAGE_INFO,
     KEY_PAGE_SIZE,
+    KEY_PERSIST_ON_FAILURE,
     KEY_PUBLIC_KEY,
     KEY_RECORDINGS,
     KEY_REQUEST_ID,
@@ -60,7 +61,7 @@ from .types import GraphQLError, MpsFeatureRequest, MpsRequest, MpsRequestSource
 logger = logging.getLogger(__name__)
 
 ## Doc ids for various graphql queries and mutations
-_DOC_ID_SUBMIT_MPS_REQUEST: Final[int] = 7600943133300278
+_DOC_ID_SUBMIT_MPS_REQUEST: Final[int] = 28480305154918594
 _DOC_ID_QUERY_MPS_REQUESTED_FEATURE_BY_FILE_HASH: Final[int] = 7587879547939670
 _DOC_ID_QUERY_MPS_REQUESTED_FEATURE_BY_FILE_HASH_SET: Final[int] = 25450657081245347
 _DOC_ID_QUERY_FEATURE_REQUEST: Final[int] = 7490684447654027
@@ -145,18 +146,20 @@ class HttpHelper:
         recording_ids: List[int],
         features: Set[str],
         source: MpsRequestSource,
+        persist_on_failure: bool,
     ) -> MpsRequest:
         """
         Submit a request to the MPS service to process the given recording id.
         """
         logger.debug(
-            f"Submitting MPS request. Name: {name}, Recordings: {recording_ids}, Features: {features}"
+            f"Submitting MPS request. Name: {name}, Recordings: {recording_ids}, Features: {features}, Persist on failure: {persist_on_failure}"
         )
         input = {
             KEY_NAME: name,
             KEY_RECORDINGS: recording_ids,
             KEY_FEATURES: list(features),
             KEY_SOURCE: source.value,
+            KEY_PERSIST_ON_FAILURE: persist_on_failure,
         }
         if extra_input := os.environ.get("MPS_EXTRA_INPUT"):
             input = {**input, **json.loads(extra_input)}
@@ -337,6 +340,7 @@ class HttpHelper:
         Helper function to get/post to an endpoint and return the JSON response
         Insert the authorization header if it's not present.
         """
+        logger.debug(f"_run_method args: {kwargs}")
         headers = kwargs.pop("headers", {})
         if auth_token := kwargs.pop(_AUTH_TOKEN, None):
             headers[_AUTHORIZATION] = f"OAuth {auth_token}"

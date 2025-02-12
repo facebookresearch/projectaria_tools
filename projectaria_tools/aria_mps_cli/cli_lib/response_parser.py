@@ -25,6 +25,7 @@ from .constants import (
     KEY_MPS_RESULTS,
     KEY_NAME,
     KEY_NODES,
+    KEY_PERSIST_ON_FAILURE,
     KEY_RECORDING_HASH,
     KEY_RECORDING_NAME,
     KEY_RECORDINGS,
@@ -67,6 +68,7 @@ class ResponseParser:
                 MpsFeature(f[KEY_FEATURE]): ResponseParser.parse_mps_feature_request(f)
                 for f in features
             },
+            persist_on_failure=response.get(KEY_PERSIST_ON_FAILURE, False),
         )
         return mps_request
 

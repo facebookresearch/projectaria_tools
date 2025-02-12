@@ -146,6 +146,7 @@ class MpsRequest:
     creation_time: int
     features: Dict[MpsFeature, MpsFeatureRequest]
     recordings_fbids: List[int]
+    persist_on_failure: bool
 
 
 @dataclass

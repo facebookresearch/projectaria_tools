@@ -81,6 +81,12 @@ def _add_common_args(parser: argparse.ArgumentParser):
         action="store_false",
         dest="show_ui",
     )
+    parser.add_argument(
+        "--persist-on-failure",
+        help="If the MPS request fails, persist the files of the request in a bucket for debugging purposes.",
+        action="store_true",
+        dest="persist_on_failure",
+    )
     # For debugging only to re-upload the same file by appending the suffix to the
     # file hash
     parser.add_argument("-s", "--suffix", help=argparse.SUPPRESS, type=str)

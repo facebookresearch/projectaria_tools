@@ -43,6 +43,7 @@ class SingleRecordingMps:
         requestor: SingleRecordingRequest,
         request_monitor: RequestMonitor,
         source: MpsRequestSource,
+        persist_on_failure: bool = False,
         suffix: Optional[str] = None,
         on_state_changed: Optional[
             Callable[[SingleRecordingModel, RequestMonitorModel], Awaitable[None]]
@@ -52,6 +53,7 @@ class SingleRecordingMps:
         self._features: Set[MpsFeature] = features
         self._force: bool = force
         self._retry_failed: bool = retry_failed
+        self._persist_on_failure: bool = persist_on_failure
         self._http_helper: HttpHelper = http_helper
         self._requestor: SingleRecordingRequest = requestor
         self._request_monitor: RequestMonitor = request_monitor
@@ -106,6 +108,7 @@ class SingleRecordingMps:
                 feature=feature,
                 force=self._force,
                 retry_failed=self._retry_failed,
+                persist_on_failure=self._persist_on_failure,
                 suffix=self._suffix,
             )
             logger.debug(f"Done adding recording {self._recording} {feature}")
@@ -184,6 +187,7 @@ class SingleRecordingMps:
                     recording_ids=[model.recording.fbid],
                     features=[m.feature for m in models_to_submit],
                     source=self._source,
+                    persist_on_failure=self._persist_on_failure,
                 )
                 for feature, request in mps_request.features.items():
                     self._model_by_feature[feature] = (
