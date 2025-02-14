@@ -50,10 +50,11 @@ class KannalaBrandtK3Projection {
   static constexpr bool kIsFisheye = true;
   static constexpr bool kHasAnalyticalProjection = true;
 
-  template <class D, class DP>
+  template <class D, class DP, class DJ = Eigen::Matrix<typename D::Scalar, 2, 3>>
   static Eigen::Matrix<typename D::Scalar, 2, 1> project(
       const Eigen::MatrixBase<D>& pointOptical,
-      const Eigen::MatrixBase<DP>& params) {
+      const Eigen::MatrixBase<DP>& params,
+      Eigen::MatrixBase<DJ>* d_point = nullptr) {
     validateProjectInput<D, DP, kNumParams>();
 
     using T = typename D::Scalar;
@@ -83,6 +84,28 @@ class KannalaBrandtK3Projection {
       const T theta8 = theta4 * theta4;
       const T rDistorted = theta * (T(1.0) + k0 * theta2 + k1 * theta4 + k2 * theta6 + k3 * theta8);
       const T scaling = rDistorted * radiusInverse;
+
+      if (d_point) {
+        const T xSquared = pointOptical(0) * pointOptical(0);
+        const T ySquared = pointOptical(1) * pointOptical(1);
+        const T normSquared = pointOptical(2) * pointOptical(2) + radiusSquared;
+        const T rDistortedDerivative = T(1.0) + T(3.0) * k0 * theta2 + T(5.0) * k1 * theta4 +
+            T(7.0) * k2 * theta6 + T(9.0) * k3 * theta8;
+        const T x13 = pointOptical(2) * rDistortedDerivative / normSquared - scaling;
+        const T rDistortedDerivativeNormalized = rDistortedDerivative / normSquared;
+        const T x20 =
+            pointOptical(2) * rDistortedDerivative / (normSquared)-radiusInverse * rDistorted;
+
+        (*d_point)(0, 0) = xSquared / radiusSquared * x20 + scaling;
+        (*d_point)(0, 1) = pointOptical(1) * x13 * pointOptical(0) / radiusSquared;
+        (*d_point)(0, 2) = -pointOptical(0) * rDistortedDerivativeNormalized;
+        (*d_point)(1, 0) = (*d_point)(0, 1);
+        (*d_point)(1, 1) = ySquared / radiusSquared * x20 + scaling;
+        (*d_point)(1, 2) = -pointOptical(1) * rDistortedDerivativeNormalized;
+
+        // toDenseMatrix() is needed for CUDA to explicitly know the matrix dimensions
+        (*d_point) = ff.asDiagonal().toDenseMatrix() * (*d_point);
+      }
 
       const Eigen::Matrix<T, 2, 1> px =
           scaling * ff.cwiseProduct(pointOptical.template head<2>()) + pp;
