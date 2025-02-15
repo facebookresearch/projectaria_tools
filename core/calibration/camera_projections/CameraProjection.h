@@ -67,8 +67,16 @@ struct CameraProjectionTemplated {
   /**
    * @brief projects a 3d world point in the camera space to a 2d pixel in the image space. No
    * checks performed in this process.
+   *
+   * @param pointInCamera The 3D point in camera space to be projected.
+   * @param jacobianWrtPoint Optional, if not null, will store the Jacobian of the projection
+   * with respect to the point in camera space.
+   *
+   * @return The 2D pixel coordinates of the projected point in the image space.
    */
-  Eigen::Matrix<Scalar, 2, 1> project(const Eigen::Matrix<Scalar, 3, 1>& pointInCamera) const;
+  Eigen::Matrix<Scalar, 2, 1> project(
+      const Eigen::Matrix<Scalar, 3, 1>& pointInCamera,
+      Eigen::Matrix<Scalar, 2, 3>* jacobianWrtPoint = nullptr) const;
 
   /**
    * @brief unprojects a 2d pixel in the image space to a 3d world point in homogenous coordinate.

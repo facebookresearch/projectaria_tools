@@ -62,6 +62,7 @@ inline void declareCameraCalibration(py::module& m) {
           "project",
           &CameraProjection::project,
           py::arg("point_in_camera"),
+          py::arg("jacobian_wrt_point") = nullptr,
           "projects a 3d world point in the camera space to a 2d pixel in the image space."
           " No checks performed in this process.")
       .def(

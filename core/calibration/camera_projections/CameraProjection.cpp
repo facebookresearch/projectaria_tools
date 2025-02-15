@@ -79,11 +79,12 @@ Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::getPrincipalPoint
 
 template <typename Scalar>
 Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::project(
-    const Eigen::Matrix<Scalar, 3, 1>& pointInCamera) const {
+    const Eigen::Matrix<Scalar, 3, 1>& pointInCamera,
+    Eigen::Matrix<Scalar, 2, 3>* jacobianWrtPoint) const {
   return std::visit(
       [&](auto&& projection) {
         using T = std::decay_t<decltype(projection)>;
-        return T::project(pointInCamera, projectionParams_);
+        return T::project(pointInCamera, projectionParams_, jacobianWrtPoint);
       },
       projectionVariant_);
 }
