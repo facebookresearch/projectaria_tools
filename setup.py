@@ -171,7 +171,7 @@ def main():
                 "plotly",
                 "scipy",
                 ## Required for vrs_to_mp4
-                "moviepy",
+                "moviepy==1.0.3",
             ]
         },
         entry_points={
