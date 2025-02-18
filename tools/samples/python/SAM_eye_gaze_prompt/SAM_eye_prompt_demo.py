@@ -263,16 +263,14 @@ def main():
                 # Log scalar data
                 # - mask_area
                 # - inference_time
-                rr.log(f"mask_area/{model_name}", rr.TimeSeriesScalar(mask_area))
-                rr.log(
-                    f"inference_time/{model_name}", rr.TimeSeriesScalar(elapsed_time)
-                )
+                rr.log(f"mask_area/{model_name}", rr.Scalar(mask_area))
+                rr.log(f"inference_time/{model_name}", rr.Scalar(elapsed_time))
 
                 # Log std_dev area (Update mask statistics and compute std_dev)
                 running_mask_area_average[model_name].append(mask_area)
                 rr.log(
                     f"mask_area/{model_name}/std_dev",
-                    rr.TimeSeriesScalar(np.std(running_mask_area_average[model_name])),
+                    rr.Scalar(np.std(running_mask_area_average[model_name])),
                 )
 
                 # Log SAM mask
