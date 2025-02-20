@@ -8,7 +8,7 @@ title: Aria Studio
 
 ## Overview
 
-Aria Studio is part of the [Aria Research Kit](about_ARK.mdx). The application will launch in your default web-browser and provides the ability to:
+Aria Studio is part of the [Aria Research Kit](about_ARK.mdx). The application will launch in your default web browser and provides the ability to:
 
 * Examine preview thumbnails and metadata of Aria recordings (on device or stored locally)
 * Transfer recordings from the device to the local computer or delete recordings stored on the device or local computer
@@ -30,28 +30,28 @@ Aria Studio can be installed on:
 Aria Studio is supported on Google Chrome.
 
 :::tip Just received Aria glasses?
-Go to the [Quickstart Guide](/ARK/ARK_quickstart.mdx) for how to start using them.
+Go to the [Quickstart Guide](/ARK/ARK_quickstart.mdx) for info on how to start using them.
 :::
 
 ## Machine Perception Services (MPS) capabilities
 
 * Request MPS processing for recordings
-    * SLAM, Eye Gaze and Hand Tracking for individual recordings
-    * Multi-SLAM available for grouped recordings
+    * SLAM, Eye Gaze and Hand Tracking are available for individual recordings
+    * Multi-SLAM is available for grouped recordings
 * View MPS request history and status of current requests
 * Access MPS CLI capabilities through a graphical user interface, such as:
     * Resumable uploads
-    * MPS outputs automatically download (as long as Aria Studio is running)
-    * Ability to submit multiple MPS requests at the same time
+    * MPS outputs automatically downloading (as long as Aria Studio is running)
+    * The ability to submit multiple MPS requests at the same time
 
-Like the MPS CLI, you can have granular control over settings such as uploads and download speeds by customizing `$HOME/.projectaria/mps.ini`. Go to the [MPS CLI Guide](/ARK/mps/request_mps/mps_cli_guide.mdx#cli-settings) for details about all the settings.
+Like the MPS CLI, you can exercise granular control over settings like uploads and download speeds by customizing `$HOME/.projectaria/mps.ini`. Go to the [MPS CLI Guide](/ARK/mps/request_mps/mps_cli_guide.mdx#cli-settings) for details about all the settings.
 
 ## Install Aria Studio with one click
-Install the package appropriate for your computer platform. This is a new feature for this release. Double-click on the downloaded file and follow the prompts to complete the installation.
-* Mac ARM: Download the [Package for ARM](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.2-arm64.pkg)
-* Mac Intel: Download the [Package for Intel](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria+Studio-1.0.2-Intel.pkg)
-* Windows: Download the [Package for Windows](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.2-windows.exe)
-* Linux: Download the [Package for Linux](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.2-Linux.AppImage)
+Install the package appropriate for your computer platform. Double-click on the downloaded file and follow the prompts to complete the installation.
+* Mac ARM: Download the [Package for ARM](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-arm64.pkg)
+* Mac Intel: Download the [Package for Intel](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-Intel.pkg)
+* Windows: Download the [Package for Windows](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-windows.exe)
+* Linux: Download the [Package for Linux](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-Linux.AppImage)
 
 ### Important: Allow unsigned builds
 Right now, our build is **not signed**. We are in the process of signing it. For now, however, you will need to allow the installation of unsigned builds if you want to install the package.
@@ -68,17 +68,17 @@ Right now, our build is **not signed**. We are in the process of signing it. For
 ## Install Aria Studio via PyPI
 
 :::note
-If you're going to install Aria Studio via PyPI, you'll want a Python version from 3.10 to 3.12. To check which version of Python 3 you have, use `python3 --version`. Get the latest version from the [Python 3 download page](https://www.python.org/downloads/)
+If you're going to install Aria Studio via PyPI, you'll want Python 3.11 or above. To check which version of Python 3 you have, use `python3 --version`. Get the latest version from the [Python 3 download page](https://www.python.org/downloads/).
 :::
 
 To install Aria Studio via PyPI, use the following command:
 ```
-pip install aria_studio --no-cache-dir
+python3 -m pip install aria_studio --no-cache-dir
 ```
 
 ### Optional: Create a virtual environment
 
-When using PyPI's `pip` command, it's a best practice to use a virtual environment. This will keep all the modules in one folder and avoiding breaking anything in your local environment. To install Aria Studio in a virtual environment, use the following steps:
+When using PyPI's `pip` command, it's a best practice to use a virtual environment. This will keep all the modules in one folder and avoid breaking anything in your local environment. To install Aria Studio in a virtual environment, use the following steps:
 
 ### Linux and macOS
 ```
