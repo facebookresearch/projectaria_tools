@@ -35,8 +35,8 @@ struct AriaDigitalTwinDataPaths {
   std::string objectTrajectoriesFilePath; /**< object 6Dof pose trajectory */
   std::string objectBoundingBox3dFilePath; /**< axis-aligned bounding box (AABB) of objects in its
                                               local coordinate frame */
-  std::string boundingBoxes2dFilePath =
-      ""; /**< 2D object bounding boxes for all cameras, stored as <cameraId, filePath> */
+  std::string boundingBoxes2dFilePath; /**< 2D object bounding boxes for all cameras, stored as
+                                          <cameraId, filePath> */
   std::string segmentationsFilePath; /**< 2D segmentation maps */
   std::string depthImagesFilePath; /**< depth maps */
   std::string syntheticVrsFilePath; /**< synthetic file */
