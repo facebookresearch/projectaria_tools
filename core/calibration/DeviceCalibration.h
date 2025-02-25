@@ -190,7 +190,7 @@ class DeviceCalibration {
   DeviceCadExtrinsics deviceCadExtrinsics_;
 
   std::string deviceSubtype_;
-  std::string originLabel_ = "";
+  std::string originLabel_;
   std::string devignettingMaskFolderPath_;
 };
 
