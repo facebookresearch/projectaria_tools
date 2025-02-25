@@ -115,7 +115,7 @@ OnlineCalibration readSingleOnlineCalibFromJsonString(const nlohmann::json& doc)
 OnlineCalibrations readOnlineCalibration(const std::string& filepath) {
   std::ifstream infile(filepath);
   if (infile) {
-    std::string jsonCalibrationString = "";
+    std::string jsonCalibrationString;
     OnlineCalibrations onlineCalibs;
 
     while (std::getline(infile, jsonCalibrationString)) {
