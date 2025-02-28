@@ -396,6 +396,8 @@ class FisheyeRadTanThinPrism {
 // length
 using Fisheye624 = FisheyeRadTanThinPrism<6, true, true, true>;
 
+using Fisheye62 = FisheyeRadTanThinPrism<6, true, false, true>;
+
 // We need explicit template instantiation + definition in a separate cpp (ProjectionConstants.cpp)
 // in order to have static const string compile under both clang C++17 and C++11. However, that
 // will cause redefinition error under MSVC. Therefore we bypass it with macro.
@@ -408,10 +410,10 @@ template <>
 const char Fisheye624::kDescription[];
 
 template <>
-const char FisheyeRadTanThinPrism<6, true, false, true>::kName[];
+const char Fisheye62::kName[];
 
 template <>
-const char FisheyeRadTanThinPrism<6, true, false, true>::kDescription[];
+const char Fisheye62::kDescription[];
 #endif // !defined(_MSC_VER) || defined(__clang__)
 
 } // namespace projectaria::tools::calibration

@@ -101,6 +101,10 @@ inline void declareCameraCalibration(py::module& m) {
           "LINEAR",
           CameraProjection::ModelType::Linear,
           "Linear pinhole projection, unit plane points and camera pixels are linearly related.")
+      .value(
+          "FISHEYE62",
+          CameraProjection::ModelType::Fisheye62,
+          "Spherical + polynomial radial distortion up to 11-th order")
       .export_values();
 
   py::class_<CameraCalibration>(

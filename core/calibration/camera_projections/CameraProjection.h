@@ -46,6 +46,7 @@ struct CameraProjectionTemplated {
     KannalaBrandtK3, /**< Spherical + polynomial radial distortion up to 9-th order */
     Fisheye624, /**< Spherical + polynomial radial distortion up to 11-th order + tangential
                 distortion */
+    Fisheye62, /**< Spherical + polynomial radial distortion up to 11-th order */
   };
   /**
    * @brief Default constructor, creates an empty CameraProjectionTemplated instance.
@@ -102,8 +103,12 @@ struct CameraProjectionTemplated {
    */
   void subtractFromOrigin(Scalar offsetU, Scalar offsetV);
 
-  using ProjectionVariant =
-      std::variant<LinearProjection, SphericalProjection, KannalaBrandtK3Projection, Fisheye624>;
+  using ProjectionVariant = std::variant<
+      LinearProjection,
+      SphericalProjection,
+      KannalaBrandtK3Projection,
+      Fisheye624,
+      Fisheye62>;
 
   /**
    * @brief Casts the CameraProjectionTemplated to another scalar type.

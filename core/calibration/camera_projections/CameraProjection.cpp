@@ -30,6 +30,8 @@ CameraProjection::ProjectionVariant getProjectionVariant(
       return KannalaBrandtK3Projection{};
     case CameraProjectionTemplated<Scalar>::ModelType::Fisheye624:
       return Fisheye624{};
+    case CameraProjectionTemplated<Scalar>::ModelType::Fisheye62:
+      return Fisheye62{};
   }
   throw std::runtime_error("Unrecognized camera model.");
 }

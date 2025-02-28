@@ -59,7 +59,23 @@ static const std::unordered_map<CameraProjection::ModelType, Eigen::VectorXd>
                  .data(),
              15)},
         {CameraProjection::ModelType::Spherical,
-         Eigen::VectorXd::Map(std::array<double, 4>{{800.0, 800.0, 640.0, 360.0}}.data(), 4)}};
+         Eigen::VectorXd::Map(std::array<double, 4>{{800.0, 800.0, 640.0, 360.0}}.data(), 4)},
+        {CameraProjection::ModelType::Fisheye62,
+         Eigen::VectorXd::Map(
+             std::array<double, 11>{{242.0503165415735,
+                                     319.8053191211108,
+                                     240.9679064324467,
+                                     -0.02689165420917155,
+                                     0.1019919163316408,
+                                     -0.07180862612716554,
+                                     0.01245898233008245,
+                                     0.001242086400994195,
+                                     -0.0004149914187376608,
+                                     0.0005499786009926172,
+                                     0.0005819661606400815}}
+                 .data(),
+             11)},
+};
 static const Eigen::Matrix<float, 3, 1> kPtInCameraFloat(1.0f, 1.0f, 5.0f);
 static const Eigen::Matrix<double, 3, 1> kPtInCameraDouble(1.0, 1.0, 5.0);
 static const Eigen::Matrix<float, 2, 1> kCameraPixelFloat(340.0f, 240.0f);

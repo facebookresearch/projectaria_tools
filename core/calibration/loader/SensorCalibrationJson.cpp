@@ -83,6 +83,8 @@ CameraCalibration parseCameraCalibrationFromJson(const nlohmann::json& json) {
     modelName = CameraProjection::ModelType::Fisheye624;
   } else if (projectionModelName == "KannalaBrandtK3") {
     modelName = CameraProjection::ModelType::KannalaBrandtK3;
+  } else if (projectionModelName == "Fisheye62") {
+    modelName = CameraProjection::ModelType::Fisheye62;
   }
   Eigen::VectorXd projectionParams = parseVectorXdFromJson(json["Projection"]["Params"]);
 
