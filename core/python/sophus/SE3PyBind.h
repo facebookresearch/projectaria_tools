@@ -53,8 +53,7 @@ class SE3Group : public std::vector<Sophus::SE3<Scalar>> {
 // python object is not a 1-element SE3 object.
 // NOTE: this caster makes a copy, so can't not be used for passing a reference of a SE3 element to
 // a c++ function.
-namespace pybind11 {
-namespace detail {
+namespace pybind11::detail {
 template <>
 struct type_caster<Sophus::SE3<double>> {
  public:
@@ -80,8 +79,7 @@ struct type_caster<Sophus::SE3<double>> {
     return type_caster_base<sophus::SE3Group<double>>::cast(sophus::SE3Group(src), policy, parent);
   }
 };
-} // namespace detail
-} // namespace pybind11
+} // namespace pybind11::detail
 
 namespace sophus {
 /*SE3*/

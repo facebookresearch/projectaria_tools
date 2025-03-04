@@ -51,8 +51,7 @@ class SO3Group : public std::vector<Sophus::SO3<Scalar>> {
 // python object is not a 1-element SO3 object.
 // NOTE: this caster makes a copy, so can't not be used for passing a reference of a SO3 element to
 // a c++ function.
-namespace pybind11 {
-namespace detail {
+namespace pybind11::detail {
 template <>
 struct type_caster<Sophus::SO3<double>> {
  public:
@@ -78,8 +77,7 @@ struct type_caster<Sophus::SO3<double>> {
     return type_caster_base<sophus::SO3Group<double>>::cast(sophus::SO3Group(src), policy, parent);
   }
 };
-} // namespace detail
-} // namespace pybind11
+} // namespace pybind11::detail
 
 namespace sophus {
 template <typename Scalar>
