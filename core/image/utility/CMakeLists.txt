@@ -23,3 +23,7 @@ target_link_libraries(image_debayer PUBLIC image)
 add_library(image_devignetting Devignetting.cpp Devignetting.h)
 target_include_directories(image_devignetting PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 target_link_libraries(image_devignetting PUBLIC image)
+
+add_library(image_color_correct ColorCorrect.cpp ColorCorrect.h ColorCorrectData.h)
+target_include_directories(image_color_correct PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+target_link_libraries(image_color_correct PUBLIC image)

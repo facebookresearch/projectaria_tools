@@ -23,6 +23,7 @@
 #include <calibration/ImuMagnetometerCalibrationFormat.h>
 #include <calibration/loader/DeviceCalibrationJson.h>
 #include <calibration/utility/Distort.h>
+#include <image/utility/ColorCorrect.h>
 #include <image/utility/Devignetting.h>
 
 #include <fmt/format.h>
@@ -745,6 +746,40 @@ inline void declareDevignettingAll(py::module& m) {
   declareDevignetting<uint64_t>(m);
   declareDevignetting<float>(m);
 }
+
+template <typename T>
+inline void declareColorCorrect(py::module& m) {
+  m.def(
+      "color_correct",
+      [](py::array_t<T> srcImage) {
+        py::buffer_info info = srcImage.request();
+        size_t imageWidth = srcImage.shape()[1];
+        size_t imageHeight = srcImage.shape()[0];
+
+        bool isRgb = srcImage.ndim() == 3 && srcImage.shape()[2] == 3;
+        if (isRgb) {
+          if constexpr (std::is_same<T, uint8_t>::value) {
+            image::Image3U8 imageSrc((Eigen::Vector3<T>*)info.ptr, imageWidth, imageHeight);
+            return image::toPyArrayVariant(colorCorrect(image::ImageVariant{imageSrc}));
+          } else {
+            throw std::runtime_error("Type is not uint8_t but has 3 channels.");
+          }
+        } else {
+          throw std::runtime_error(
+              "Invalid input image depth, an image with 3 channel is expected");
+        }
+      },
+      py::arg("src_image"),
+      "Correct color distorted image in old Aria recordings");
+}
+
+inline void declareColorCorrectAll(py::module& m) {
+  declareColorCorrect<uint8_t>(m);
+  declareColorCorrect<uint16_t>(m);
+  declareColorCorrect<uint64_t>(m);
+  declareColorCorrect<float>(m);
+}
+
 } // namespace
 
 inline void exportDeviceCalibration(py::module& m) {
@@ -753,5 +788,6 @@ inline void exportDeviceCalibration(py::module& m) {
   declareDeviceCalibration(m);
   declareDistortByCalibrationAll(m);
   declareDevignettingAll(m);
+  declareColorCorrectAll(m);
 }
 } // namespace projectaria::tools::calibration
