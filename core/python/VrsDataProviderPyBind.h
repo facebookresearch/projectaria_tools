@@ -91,13 +91,13 @@ inline void declareSubstreamSelector(py::module& m) {
           "Toggles a VRS stream from on to off or from off to on.")
       .def(
           "activate_stream",
-          [](SubstreamSelector& self, const vrs::StreamId& typeId) {
+          [](SubstreamSelector& self, const vrs::RecordableTypeId& typeId) {
             return self.activateStream(typeId);
           },
           "Turns on all streams of a specific typeId, regardless of current state.")
       .def(
           "deactivate_stream",
-          [](SubstreamSelector& self, const vrs::StreamId& typeId) {
+          [](SubstreamSelector& self, const vrs::RecordableTypeId& typeId) {
             return self.deactivateStream(typeId);
           },
           "Turns on all streams of a specific typeId, regardless of current state.")
