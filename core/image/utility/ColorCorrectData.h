@@ -15,6 +15,7 @@
  */
 
 #pragma once
+#include <array>
 namespace projectaria::tools::image {
 
 // How the camera InvCRFTable is generated:
@@ -24,7 +25,7 @@ namespace projectaria::tools::image {
 // https://docs.opencv.org/4.x/d6/df5/group__photo__hdr.html#ga35f1652aa5e908c91a8d4a1fd78502c4
 // 3. Fit a spline to the InvCRF function
 // 4. Sample spline and build cache table with 256 elements to cameraInvCRFTable
-const double cameraInvCRFTable[256] = {
+const std::array<double, 256> cameraInvCRFTable = {
     0.0,
     0.0005489583158375797,
     0.0011304615925053726,
@@ -287,9 +288,15 @@ const double cameraInvCRFTable[256] = {
 // 2. Optimize color correction matrix to minimize the error between the color checker from captured
 // image and the ground truth color checker values, this is a 3x3 matrix Note: during optimization,
 // we need to transform color into linear space and reduce the impact from vignetting.
-const Eigen::Matrix3d colorCorrectionMatrix{
-    {0.7436561584472656, 0.15223266184329987, -0.012550695799291134},
-    {0.02287297323346138, 0.8269245028495789, -0.004977707751095295},
-    {-0.02940891683101654, -0.08261162042617798, 0.5401387810707092}};
+const std::array<double, 9> colorCorrectionMatrixData = {
+    0.7436561584472656,
+    0.15223266184329987,
+    -0.012550695799291134,
+    0.02287297323346138,
+    0.8269245028495789,
+    -0.004977707751095295,
+    -0.02940891683101654,
+    -0.08261162042617798,
+    0.5401387810707092};
 
 } // namespace projectaria::tools::image
