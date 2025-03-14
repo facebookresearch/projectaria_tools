@@ -17,8 +17,12 @@
 #include "ColorCorrect.h"
 #include "ColorCorrectData.h"
 
+#include <Eigen/Dense>
+#include <thread>
+
 namespace projectaria::tools::image {
 
+// Convert color from linear to srgb color space see:
 // https://www.nayuki.io/page/srgb-transform-library
 inline double linearToSrgb(double linearPixelVal) {
   double srgbPixelVal = 0;
@@ -34,29 +38,49 @@ inline double linearToSrgb(double linearPixelVal) {
 template <class T, int MaxVal>
 ManagedImage<T, DefaultImageAllocator<T>, MaxVal> colorCorrectImage(
     const Image<T, MaxVal>& srcImage) {
-  ManagedImage<T, DefaultImageAllocator<T>, MaxVal> dstImage(srcImage.width(), srcImage.height());
-  for (int col = 0; col < srcImage.width(); ++col) {
-    for (int row = 0; row < srcImage.height(); ++row) {
-      if constexpr (DefaultImageValTraits<T>::isEigen && DefaultImageValTraits<T>::channel == 3) {
-        auto srcIntValue = static_cast<T>(srcImage(col, row));
-        // Convert to linear color space
-        Eigen::Vector3<double> linearColorValue{
-            cameraInvCRFTable[static_cast<uint8_t>(srcIntValue[0])],
-            cameraInvCRFTable[static_cast<uint8_t>(srcIntValue[1])],
-            cameraInvCRFTable[static_cast<uint8_t>(srcIntValue[2])]};
-        // Multiply with corrected CCM 3x3 matrix
-        Eigen::Vector3<double> correctedColorValue = colorCorrectionMatrix * linearColorValue;
-        // Convert to srgb color space
-        Eigen::Vector3<double> srgbColorValue{
-            linearToSrgb(correctedColorValue[0]),
-            linearToSrgb(correctedColorValue[1]),
-            linearToSrgb(correctedColorValue[2])};
+  // Do color correction to fix the color distortion in Aria captured images before Aria V1.12
+  // update. This includes 2 fixes:
+  // 1. Correct non conventional gamma curve
+  // 2. Correct non conventional color temperature and set to 5000K
+  // We initialize colorCorrectionMatrixData as const std::array<double, 9> and assign it to
+  // Eigen::Matrix3d to avoid compiler's warning about "-Wglobal-constructors"
+  const Eigen::Matrix3d colorCorrectionMatrix =
+      Eigen::Map<const Eigen::Matrix3d>(&colorCorrectionMatrixData[0]).transpose();
+  unsigned int numThreads = std::thread::hardware_concurrency();
+  const int chunkSize = (srcImage.height() + numThreads - 1) / numThreads;
 
-        srgbColorValue = srgbColorValue * 255.0;
-        using Scalar = typename DefaultImageValTraits<T>::Scalar;
-        dstImage(col, row) = srgbColorValue.template cast<Scalar>();
+  ManagedImage<T, DefaultImageAllocator<T>, MaxVal> dstImage(srcImage.width(), srcImage.height());
+  auto processRow = [&](int startRow) {
+    for (int col = 0; col < srcImage.width(); ++col) {
+      int endRow = std::min(startRow + chunkSize, static_cast<int>(srcImage.height()));
+      for (int row = startRow; row < endRow; ++row) {
+        if constexpr (DefaultImageValTraits<T>::isEigen && DefaultImageValTraits<T>::channel == 3) {
+          auto srcIntValue = static_cast<T>(srcImage(col, row));
+          Eigen::Vector3<double> linearColorValue{
+              cameraInvCRFTable[static_cast<uint8_t>(srcIntValue[0])],
+              cameraInvCRFTable[static_cast<uint8_t>(srcIntValue[1])],
+              cameraInvCRFTable[static_cast<uint8_t>(srcIntValue[2])]};
+          Eigen::Vector3<double> correctedColorValue = colorCorrectionMatrix * linearColorValue;
+          Eigen::Vector3<double> srgbColorValue{
+              linearToSrgb(correctedColorValue[0]),
+              linearToSrgb(correctedColorValue[1]),
+              linearToSrgb(correctedColorValue[2])};
+          srgbColorValue = srgbColorValue * 255.0;
+          using Scalar = typename DefaultImageValTraits<T>::Scalar;
+          dstImage(col, row) = srgbColorValue.template cast<Scalar>();
+        }
       }
     }
+  };
+
+  // Multi-threaded processing, we use std::thread instead of std::execution::par as
+  // std::execution::par doesn't show any improvements potentially due to c++ compiler settings.
+  std::vector<std::thread> threads;
+  for (int i = 0; i < srcImage.height(); i += chunkSize) {
+    threads.emplace_back(processRow, i);
+  }
+  for (auto& thread : threads) {
+    thread.join();
   }
   return dstImage;
 }
