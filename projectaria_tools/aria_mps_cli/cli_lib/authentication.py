@@ -15,6 +15,8 @@
 import base64
 import json
 import logging
+import os
+import stat
 import time
 from http import HTTPStatus
 from typing import Any, Final, Mapping, Optional
@@ -112,7 +114,7 @@ class Authenticator:
         Returns:
             True if the token is found and is valid
         """
-        if not AUTH_TOKEN_FILE.is_file():
+        if not AUTH_TOKEN_FILE.is_file() or not os.access(AUTH_TOKEN_FILE, os.R_OK):
             logger.debug("No cached token found")
             return False
         logger.debug("Reading cached token")
@@ -236,6 +238,8 @@ class Authenticator:
         AUTH_TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
         with AUTH_TOKEN_FILE.open("w") as f:
             f.write(self._auth_token)
+        # lock read/write access to auth token
+        os.chmod(AUTH_TOKEN_FILE, stat.S_IRUSR | stat.S_IWUSR)
 
     def _encrypt_password(self, key_id: int, pub_key: str, raw_password: str) -> str:
         """Encrypts the password using the public key
