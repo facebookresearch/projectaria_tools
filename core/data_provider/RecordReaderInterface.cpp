@@ -407,4 +407,19 @@ MotionData RecordReaderInterface::getLastCachedMagnetometerData(const vrs::Strea
   magnetometerData.magTesla[2] = magnetometerData.magTesla[2] * 1e-6;
   return magnetometerData;
 }
+
+uint32_t RecordReaderInterface::getRgbIspTuningVersion() const {
+  if (fileTags_.empty()) {
+    return 0;
+  }
+  std::string tempKey = "rgb_isp_tuning_version";
+  auto it = fileTags_.find(tempKey);
+  if (it != fileTags_.end()) {
+    auto metadataJson = nlohmann::json::parse(it->second);
+    if (metadataJson.contains(tempKey)) {
+      return static_cast<uint32_t>(metadataJson[tempKey]);
+    }
+  }
+  return 0;
+}
 } // namespace projectaria::tools::data_provider
