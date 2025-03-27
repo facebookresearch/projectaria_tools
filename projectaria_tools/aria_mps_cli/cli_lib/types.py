@@ -118,6 +118,18 @@ class MpsResult:
 
 
 @dataclass
+class MpsOutput:
+    """
+    Output of a feature computation
+    """
+
+    fbid: int
+    cdn_url: str
+    result_type: str
+    recording_hash: str
+
+
+@dataclass
 class MpsFeatureRequest:
     """
     Details of a MPS feature request
@@ -127,6 +139,7 @@ class MpsFeatureRequest:
     feature: MpsFeature
     status: Status
     results: List[MpsResult]
+    outputs: List[MpsOutput]
     creation_time: int
     status_message: Optional[str] = None
     error_code: Optional[int] = None

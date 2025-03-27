@@ -22,6 +22,7 @@ from .constants import (
     KEY_FEATURES,
     KEY_FILE_HASH,
     KEY_ID,
+    KEY_MPS_OUTPUTS,
     KEY_MPS_RESULTS,
     KEY_NAME,
     KEY_NODES,
@@ -38,6 +39,7 @@ from .constants import (
 from .types import (
     MpsFeature,
     MpsFeatureRequest,
+    MpsOutput,
     MpsRequest,
     MpsResult,
     MpsResultType,
@@ -88,6 +90,9 @@ class ResponseParser:
             results=ResponseParser.parse_results(
                 response.get(KEY_MPS_RESULTS, {}).get(KEY_NODES, {})
             ),
+            outputs=ResponseParser.parse_outputs(
+                response.get(KEY_MPS_OUTPUTS, {}).get(KEY_NODES, {})
+            ),
         )
 
     @staticmethod
@@ -110,6 +115,21 @@ class ResponseParser:
                 )
             )
         return mps_results
+
+    @staticmethod
+    def parse_outputs(response: Mapping[str, Any]) -> List[MpsOutput]:
+        """Parse the given response into an list of MpsResult objects."""
+        mps_outputs: List[MpsOutput] = []
+        for resp in response:
+            mps_outputs.append(
+                MpsOutput(
+                    fbid=resp["id"],
+                    result_type=MpsResultType(resp[KEY_RESULT_TYPE]),
+                    cdn_url=resp[KEY_CDN_URL],
+                    recording_hash=resp[KEY_RECORDING_HASH],
+                )
+            )
+        return mps_outputs
 
     @staticmethod
     def parse_recording_id_and_ttl(

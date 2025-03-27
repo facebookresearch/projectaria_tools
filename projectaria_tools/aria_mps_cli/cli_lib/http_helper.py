@@ -62,9 +62,9 @@ logger = logging.getLogger(__name__)
 
 ## Doc ids for various graphql queries and mutations
 _DOC_ID_SUBMIT_MPS_REQUEST: Final[int] = 28480305154918594
-_DOC_ID_QUERY_MPS_REQUESTED_FEATURE_BY_FILE_HASH: Final[int] = 7587879547939670
-_DOC_ID_QUERY_MPS_REQUESTED_FEATURE_BY_FILE_HASH_SET: Final[int] = 25450657081245347
-_DOC_ID_QUERY_FEATURE_REQUEST: Final[int] = 7490684447654027
+_DOC_ID_QUERY_MPS_REQUESTED_FEATURE_BY_FILE_HASH: Final[int] = 9503574209719730
+_DOC_ID_QUERY_MPS_REQUESTED_FEATURE_BY_FILE_HASH_SET: Final[int] = 9521321874589454
+_DOC_ID_QUERY_FEATURE_REQUEST: Final[int] = 9434343959975371
 _DOC_ID_GET_HORIZON_PROFILE_TOKEN: Final[int] = 24299011599746673
 _DOC_ID_QUERY_RECORDING_BY_FILE_HASH: Final[int] = 6818108551598913
 _DOC_ID_QUERY_ME: Final[int] = 7092145450831175
@@ -74,7 +74,10 @@ _DOC_ID_QUERY_PUBLIC_ENCRYPTION_KEY: Final[int] = 7360371104027087
 # hard, server-side limit for the number of requests to be returned in a single response is 10 000
 _QUERY_DEFAULT_PAGE_SIZE: Final[int] = 1000
 
-_GQL_URL: Final[str] = os.environ.get("GQL_URL", "https://graph.oculus.com/graphql")
+_GQL_URL: Final[str] = os.environ.get(
+    "GQL_URL",
+    "https://graph.oculus.com/graphql",
+)
 _AUTHORIZATION: Final[str] = "Authorization"
 _AUTH_TOKEN: Final[str] = "auth_token"
 

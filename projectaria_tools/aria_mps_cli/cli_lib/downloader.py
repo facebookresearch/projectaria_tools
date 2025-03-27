@@ -13,9 +13,11 @@
 # limitations under the License.
 
 import logging
+import pathlib
 from asyncio import Semaphore
 from pathlib import Path
 from typing import final, Final, Optional
+from urllib.parse import urlparse
 
 import aiofiles
 
@@ -77,7 +79,9 @@ class Downloader(RunnerWithProgress):
         async with self.semaphore_:
             async with self._http_helper.session.get(self._url) as response:
                 filename = (
-                    self._download_filename or response.content_disposition.filename
+                    self._download_filename
+                    or pathlib.Path(urlparse(self._url).path).name
+                    or response.content_disposition.filename
                 )
                 if filename is None:
                     raise ValueError(f"Filename is not specified for {self._url}")
