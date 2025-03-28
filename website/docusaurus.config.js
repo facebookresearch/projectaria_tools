@@ -19,8 +19,8 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const math = require('remark-math');
-const katex = require('rehype-katex');
+import math from 'remark-math';
+import katex from 'rehype-katex';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
