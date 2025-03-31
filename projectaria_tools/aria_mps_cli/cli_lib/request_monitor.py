@@ -226,17 +226,22 @@ class RequestMonitorModel:
         await self._download_multi_slam_summary()
 
         for rec in self._recordings:
-            cdn_url = None
-            outputs = [
+            output_ents = [
                 o
                 for o in self._feature_request.outputs
                 if o.recording_hash == rec.file_hash
                 and o.result_type in RESULT_TYPES_BY_FEATURE[feature]
             ]
-            # Older requests may have 0 OCEntAriaMPSOutput ents associated with the request
-            if len(outputs) == 1:
-                logger.debug(f"Downloading {rec.path} from everstore")
-                cdn_url = outputs[0].cdn_url
+            output_ents = sorted(output_ents, key=lambda o: o.shard_number)
+            outputs_cdn_urls = [o.cdn_url for o in output_ents]
+            if outputs_cdn_urls:
+                downloader: Downloader = Downloader(
+                    url_or_urls=outputs_cdn_urls,
+                    download_dir=rec.output_path,
+                    http_helper=self._http_helper,
+                    unzip=True,
+                )
+                self._downloaders[rec.path] = downloader
             else:
                 results = [
                     r
@@ -246,15 +251,14 @@ class RequestMonitorModel:
                 ]
                 if len(results) != 1:
                     logger.error(f"{rec} has {len(results)} results: {results}")
-                cdn_url = results[0].cdn_url
+                downloader: Downloader = Downloader(
+                    url_or_urls=results[0].cdn_url,
+                    download_dir=rec.output_path,
+                    http_helper=self._http_helper,
+                    unzip=True,
+                )
+                self._downloaders[rec.path] = downloader
 
-            downloader: Downloader = Downloader(
-                url=cdn_url,
-                download_dir=rec.output_path,
-                http_helper=self._http_helper,
-                unzip=True,
-            )
-            self._downloaders[rec.path] = downloader
             logger.debug(f"Created downloader for {rec.path}")
 
         logger.debug(f"Starting downloads for {self._recordings}")
