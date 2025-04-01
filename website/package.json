@@ -20,40 +20,42 @@
     "prettier:diff": "prettier --config .prettierrc --list-different \"**/*.{js,jsx,ts,tsx,md,mdx}\""
   },
   "dependencies": {
-    "@algolia/client-search": "^5.1.0",
+    "@algolia/client-search": "^5.23.0",
     "@cmfcmf/docusaurus-search-local": "^1.2.0",
-    "@docusaurus/core": "^3.5.2",
-    "@docusaurus/preset-classic": "^3.5.2",
-    "@docusaurus/theme-classic": "^3.5.2",
-    "@mdx-js/react": "^3.0.1",
+    "@docusaurus/babel": "^3.7.0",
+    "@docusaurus/core": "^3.7.0",
+    "@docusaurus/mdx-loader": "^3.7.0",
+    "@docusaurus/preset-classic": "^3.7.0",
+    "@docusaurus/theme-classic": "^3.7.0",
+    "@mdx-js/react": "^3.1.0",
     "@types/react": "^18.3.3",
     "clsx": "^2.1.1",
-    "docusaurus-plugin-internaldocs-fb": "^1.18.4",
+    "docusaurus-plugin-internaldocs-fb": "^1.19.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-loadable": "^5.5.0",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
-    "search-insights": "^2.16.3"
+    "search-insights": "^2.17.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.2",
-    "@babel/eslint-parser": "^7.25.1",
+    "@babel/core": "^7.26.10",
+    "@babel/eslint-parser": "^7.27.0",
     "@babel/helper-environment-visitor": "^7.24.7",
     "@babel/helper-function-name": "^7.24.7",
     "@babel/helper-hoist-variables": "^7.24.7",
     "@babel/helper-split-export-declaration": "^7.24.7",
     "eslint": "^8.19.0",
     "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-prettier": "^10.1.0",
     "eslint-plugin-header": "^3.1.1",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-jsx-a11y": "^6.9.0",
-    "eslint-plugin-react": "^7.35.0",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "prettier": "^3.3.3",
-    "stylelint": "^16.8.2",
-    "typescript": "5.5.4"
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "prettier": "^3.5.3",
+    "stylelint": "^16.17.0",
+    "typescript": "5.8.2"
   },
   "browserslist": {
     "production": [
@@ -73,6 +75,7 @@
     "yarn": "^1.5"
   },
   "resolutions": {
-    "cheerio": "1.0.0-rc.12"
+    "cheerio": "1.0.0-rc.12",
+    "@mdx-js/react": "^3.1.0"
   }
 }
