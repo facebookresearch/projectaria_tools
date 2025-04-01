@@ -84,6 +84,9 @@ jobs:
         shell: bash
         run: |
           mkdir build
-          cmake -DCMAKE_BUILD_TYPE=RELEASE -S ./ -B build -D${{ matrix.project }}=ON -DPROJECTARIA_TOOLS_BUILD_PROJECTS=ON
+          cmake -DCMAKE_BUILD_TYPE=RELEASE -S ./ \
+            -B build -D${{ matrix.project }}=ON \
+            -DPROJECTARIA_TOOLS_BUILD_PROJECTS=ON  \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5
           cd build
           make -j8

@@ -64,7 +64,8 @@ jobs:
         run: |
           mkdir build
           cmake -DCMAKE_BUILD_TYPE=RELEASE -S . -B build \
-            -DBUILD_UNIT_TEST=ON
+            -DBUILD_UNIT_TEST=ON \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: C++ - Build and Test
         shell: bash
