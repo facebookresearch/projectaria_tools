@@ -101,7 +101,7 @@ bool ImageSensorPlayer::onImageRead(
     size_t /*idx*/,
     const vrs::ContentBlock& cb) {
   // the image data was not read yet: allocate your own buffer & read!
-  auto& imageSpec = cb.image();
+  const auto& imageSpec = cb.image();
   size_t blockSize = cb.getBlockSize();
   // Synchronously read the image data
   if (vrs::utils::PixelFrame::readFrame(data_.pixelFrame, r.reader, cb)) {

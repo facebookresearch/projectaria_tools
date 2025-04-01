@@ -47,7 +47,7 @@ bool AudioPlayer::onAudioRead(
     const vrs::CurrentRecord& r,
     size_t /* idx */,
     const vrs::ContentBlock& cb) {
-  auto& audioSpec = cb.audio();
+  const auto& audioSpec = cb.audio();
   assert(audioSpec.getSampleFormat() == vrs::AudioSampleFormat::S32_LE);
   data_.data.clear();
   std::vector<int32_t> dataVec(audioSpec.getSampleCount() * audioSpec.getChannelCount());
