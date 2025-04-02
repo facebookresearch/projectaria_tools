@@ -594,8 +594,8 @@ inline void declareDeviceCalibration(py::module& m) {
       .def(
           "load_devignetting_mask",
           [](DeviceCalibration& self, const std::string& label) {
-            Eigen::MatrixXf matrix = self.loadDevignettingMask(label);
-            return tools::image::matrix2fToNumpy(matrix);
+            projectaria::tools::image::ManagedImage3F32 matrix = self.loadDevignettingMask(label);
+            return image::toPyArrayVariant(matrix);
           },
           py::arg("label"),
           "Load devignetting mask corresponding to the label and return as numpy array");
@@ -715,22 +715,37 @@ inline void declareDevignetting(py::module& m) {
   m.def(
       "devignetting",
       [](py::array_t<T> srcImage, const py::array_t<float>& devignettingMask) {
-        Eigen::MatrixXf convertedDevignettingMask = tools::image::numpyToMatrix2f(devignettingMask);
-        py::buffer_info info = srcImage.request();
-        size_t imageWidth = srcImage.shape()[1];
-        size_t imageHeight = srcImage.shape()[0];
+        size_t srcImageWidth = srcImage.shape()[1];
+        size_t srcImageHeight = srcImage.shape()[0];
         constexpr int MaxVal = image::DefaultImageValTraits<T>::maxValue;
+
+        py::buffer_info maskBuf = devignettingMask.request();
+        if (maskBuf.ndim != 3 || maskBuf.shape[2] != 3) {
+          throw std::runtime_error(
+              "Input array for devignetting mask must have shape (height, width, 3)");
+        }
+        Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+            eigenMatrix(
+                static_cast<float*>(maskBuf.ptr),
+                maskBuf.shape[0],
+                maskBuf.shape[1] * maskBuf.shape[2]);
+        image::ManagedImage3F32 convertedDevignettingMask(maskBuf.shape[1], maskBuf.shape[0]);
+        std::memcpy(
+            convertedDevignettingMask.data(), eigenMatrix.data(), maskBuf.size * sizeof(float));
+
         bool isRgb = srcImage.ndim() == 3 && srcImage.shape()[2] == 3;
         if (isRgb) {
           if constexpr (std::is_same<T, uint8_t>::value) {
-            image::Image3U8 imageSrc((Eigen::Vector3<T>*)info.ptr, imageWidth, imageHeight);
+            image::Image3U8 imageSrc(
+                (Eigen::Vector3<T>*)srcImage.request().ptr, srcImageWidth, srcImageHeight);
             return image::toPyArrayVariant(
                 devignetting(image::ImageVariant{imageSrc}, convertedDevignettingMask));
           } else {
             throw std::runtime_error("Type is not uint8_t but has 3 channels.");
           }
         } else {
-          image::Image<T, MaxVal> imageSrc((T*)info.ptr, imageWidth, imageHeight);
+          image::Image<T, MaxVal> imageSrc(
+              (T*)srcImage.request().ptr, srcImageWidth, srcImageHeight);
           return image::toPyArrayVariant(
               devignetting(image::ImageVariant{imageSrc}, convertedDevignettingMask));
         }

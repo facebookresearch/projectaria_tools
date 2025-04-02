@@ -253,7 +253,9 @@ const std::string& DeviceCalibration::getOriginLabel() const {
   return originLabel_;
 }
 
-Eigen::MatrixXf DeviceCalibration::loadDevignettingMask(const std::string& label) {
+projectaria::tools::image::ManagedImage3F32 DeviceCalibration::loadDevignettingMask(
+    const std::string& label,
+    uint32_t rgbIspTuningVersion) {
   std::string binaryPath;
   const auto maybeCamCalib = getCameraCalib(label);
   if (!maybeCamCalib) {
@@ -271,19 +273,20 @@ Eigen::MatrixXf DeviceCalibration::loadDevignettingMask(const std::string& label
     throw std::runtime_error(
         "Devignetting mask folder path does not exist: " + devignettingMaskFolderPath_);
   }
+  binaryPath = (rgbIspTuningVersion == 0) ? devignettingMaskFolderPath_ + "/old_isp"
+                                          : devignettingMaskFolderPath_ + "/new_isp";
   if (label == "camera-slam-left" || label == "camera-slam-right") {
-    binaryPath = devignettingMaskFolderPath_ + '/' + slamInverseDevignettingMaskFile.data();
+    binaryPath = binaryPath + '/' + slamInverseDevignettingMaskFile.data();
   } else if (label == "camera-rgb" && imageWidth == 2880 && imageHeight == 2880) {
-    binaryPath = devignettingMaskFolderPath_ + '/' + rgbFullInverseDevignettingMaskFile.data();
+    binaryPath = binaryPath + '/' + rgbFullInverseDevignettingMaskFile.data();
   } else if (label == "camera-rgb" && imageWidth == 1408 && imageHeight == 1408) {
-    binaryPath = devignettingMaskFolderPath_ + '/' + rgbHalfInverseDevignettingMaskFile.data();
+    binaryPath = binaryPath + '/' + rgbHalfInverseDevignettingMaskFile.data();
   } else {
     throw std::runtime_error(
         "Devignettting mask not found for label: " + label +
         " with image size: " + std::to_string(imageWidth) + "," + std::to_string(imageHeight));
   }
-  Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> vignetteMask(
-      imageHeight, imageWidth);
+  projectaria::tools::image::ManagedImage3F32 vignetteMask(imageWidth, imageHeight);
   std::ifstream file(binaryPath, std::ios::binary);
   if (!file.is_open()) {
     throw std::runtime_error("Could not open file: " + binaryPath);
@@ -291,14 +294,14 @@ Eigen::MatrixXf DeviceCalibration::loadDevignettingMask(const std::string& label
   file.seekg(0, std::ios::end);
   std::streamsize fileSize = file.tellg();
   file.seekg(0, std::ios::beg);
-  std::streamsize expectedSize = imageWidth * imageHeight * sizeof(float);
+  std::streamsize expectedSize = imageWidth * imageHeight * 3 * sizeof(float); // 3 channels
   if (fileSize != expectedSize) {
     file.close();
     throw std::runtime_error(
         "File size (" + std::to_string(fileSize) + ") does not match expected size (" +
         std::to_string(expectedSize) + ") for: " + binaryPath);
   }
-  file.read(reinterpret_cast<char*>(vignetteMask.data()), imageWidth * imageHeight * sizeof(float));
+  file.read(reinterpret_cast<char*>(vignetteMask.data()), expectedSize);
   file.close();
   return vignetteMask;
 }

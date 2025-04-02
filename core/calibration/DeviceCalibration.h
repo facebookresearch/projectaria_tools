@@ -18,6 +18,7 @@
 
 #include <calibration/DeviceCadExtrinsics.h>
 #include <calibration/SensorCalibration.h>
+#include <image/ImageVariant.h>
 #include <sophus/se3.hpp>
 #include <map>
 #include <optional>
@@ -168,7 +169,9 @@ class DeviceCalibration {
    * now supporting "camera-slam-left", "camera-slam-right", "camera-rgb"
    * @return Vignetting mask in Eigen::MatrixXf format.
    */
-  Eigen::MatrixXf loadDevignettingMask(const std::string& label);
+  projectaria::tools::image::ManagedImage3F32 loadDevignettingMask(
+      const std::string& label,
+      uint32_t rgbIspTuningVersion = 0);
 
  private:
   friend void tryCropAndScaleCameraCalibration(
