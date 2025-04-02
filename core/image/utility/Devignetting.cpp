@@ -21,21 +21,32 @@ namespace projectaria::tools::image {
 template <class T, int MaxVal>
 ManagedImage<T, DefaultImageAllocator<T>, MaxVal> devignettingImage(
     const Image<T, MaxVal>& srcImage,
-    const Eigen::MatrixXf& devignettingMask) {
+    const ManagedImage3F32& devignettingMask) {
   ManagedImage<T, DefaultImageAllocator<T>, MaxVal> dstImage(srcImage.width(), srcImage.height());
   // Note: Image class uses col, row convention while Eigen::MatrixXf uses row, col
   // convention.
+  if (srcImage.width() != devignettingMask.width() ||
+      srcImage.height() != devignettingMask.height()) {
+    throw std::runtime_error(
+        "devignetting mask size (" + std::to_string(devignettingMask.width()) + "," +
+        std::to_string(devignettingMask.height()) + ") does not match source image size (" +
+        std::to_string(srcImage.width()) + "," + std::to_string(srcImage.height()) + ")");
+  }
   for (int col = 0; col < srcImage.width(); ++col) {
     for (int row = 0; row < srcImage.height(); ++row) {
       if constexpr (DefaultImageValTraits<T>::isEigen) {
-        auto val = srcImage(col, row).template cast<double>() *
-            std::min(static_cast<double>(devignettingMask(row, col)),
-                     255.0 / srcImage(col, row).template cast<double>().maxCoeff());
-        using Scalar = typename DefaultImageValTraits<T>::Scalar;
-        dstImage(col, row) = val.template cast<Scalar>();
+        if constexpr (DefaultImageValTraits<T>::channel == 3) {
+          auto srcPixel = srcImage(col, row).template cast<double>();
+          auto maskPixel = devignettingMask(col, row).template cast<double>();
+          auto val = (srcPixel.array() * maskPixel.array()).cwiseMin(255.0);
+          using Scalar = typename DefaultImageValTraits<T>::Scalar;
+          dstImage(col, row) = val.template cast<Scalar>();
+        } else {
+          throw std::runtime_error("Unsupported image type, channel must be 3 or 1");
+        }
       } else {
         double val = static_cast<double>(srcImage(col, row)) *
-            static_cast<double>(devignettingMask(row, col));
+            static_cast<double>(devignettingMask(col, row)(0));
         val = std::min(val, 255.0);
         dstImage(col, row) = static_cast<T>(val);
       }
@@ -46,7 +57,7 @@ ManagedImage<T, DefaultImageAllocator<T>, MaxVal> devignettingImage(
 
 ManagedImageVariant devignetting(
     const ImageVariant& srcImage,
-    const Eigen::MatrixXf& devignettingMask) {
+    const ManagedImage3F32& devignettingMask) {
   return std::visit(
       [&devignettingMask](const auto& srcImage) -> image::ManagedImageVariant {
         return devignettingImage(srcImage, devignettingMask);
