@@ -75,6 +75,9 @@ class RecordReaderInterface {
   MotionData getLastCachedMagnetometerData(const vrs::StreamId& streamId);
 
   void setReadImageContent(vrs::StreamId streamId, bool readContent);
+  // ISP tuning version for RGB images, 0: output image is color corrected, 1: output image is not
+  // color correctted.
+  [[nodiscard]] uint32_t getRgbIspTuningVersion() const;
 
   [[nodiscard]] std::optional<MetadataTimeSyncMode> getTimeSyncMode() const;
 
