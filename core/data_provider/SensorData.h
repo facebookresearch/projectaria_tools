@@ -130,10 +130,15 @@ class SensorData {
 
  private:
   vrs::StreamId streamId_;
+
+ protected:
   SensorDataVariant dataVariant_;
+
+ private:
   SensorDataType sensorDataType_;
   int64_t recordInfoTimeNs_;
   std::map<TimeSyncMode, int64_t> timeSyncTimeNs_;
+  friend class VrsDataProvider;
 
   // get timestamp in device or host time domain
   int64_t getDeviceTime() const;
