@@ -17,12 +17,15 @@
 #include <data_provider/ErrorHandler.h>
 #include <data_provider/SensorDataSequence.h>
 #include <data_provider/VrsDataProvider.h>
-
+#include <image/ImageVariant.h>
+#include <image/utility/ColorCorrect.h>
 #define DEFAULT_LOG_CHANNEL "VrsDataProvider"
+#include <image/CopyToPixelFrame.h>
+#include <image/utility/Devignetting.h>
 #include <logging/Log.h>
 
 #include <limits>
-
+using namespace projectaria::tools::image;
 namespace projectaria::tools::data_provider {
 VrsDataProvider::VrsDataProvider(
     const std::shared_ptr<RecordReaderInterface>& interface,
@@ -189,7 +192,15 @@ std::optional<calibration::SensorCalibration> VrsDataProvider::getSensorCalibrat
 /* get data from index */
 SensorData VrsDataProvider::getSensorDataByIndex(const vrs::StreamId& streamId, const int index) {
   if (interface_->readRecordByIndex(streamId, index)) {
-    return interface_->getLastCachedSensorData(streamId);
+    SensorData sensorData = interface_->getLastCachedSensorData(streamId);
+    // only post process rgb and slam images
+    if (sensorData.sensorDataType() == SensorDataType::Image &&
+        (streamId.getTypeName() == "RgbCameraRecordableClass" ||
+         streamId.getTypeName() == "SlamCameraData")) {
+      ImageDataPostProcessing(
+          std::get<ImageDataAndRecord>(sensorData.dataVariant_).first, streamId);
+    }
+    return sensorData;
   } else {
     return SensorData(streamId, std::monostate{}, SensorDataType::NotValid, -1, {});
   }
@@ -210,9 +221,13 @@ ImageDataAndRecord VrsDataProvider::getImageDataByIndex(
     const int index) {
   assertStreamIsActive(streamId);
   assertStreamIsType(streamId, SensorDataType::Image);
-
   if (interface_->readRecordByIndex(streamId, index)) {
-    return interface_->getLastCachedImageData(streamId);
+    ImageDataAndRecord imageDataAndRecord = interface_->getLastCachedImageData(streamId);
+    if (streamId.getTypeName() == "RgbCameraRecordableClass" ||
+        streamId.getTypeName() == "SlamCameraData") {
+      ImageDataPostProcessing(imageDataAndRecord.first, streamId);
+    }
+    return imageDataAndRecord;
   } else {
     return {};
   }
@@ -541,6 +556,59 @@ void VrsDataProvider::assertStreamIsType(const vrs::StreamId& streamId, SensorDa
   checkAndThrow(
       checkStreamIsType(streamId, type),
       fmt::format("StreamId {} is not {} type streamId", streamId.getName(), getName(type)));
+}
+
+void VrsDataProvider::lazyLoadDevignettingMasks() {
+  std::vector<std::string> labels = {"camera-rgb", "camera-slam-left", "camera-slam-right"};
+  for (const auto& label : labels) {
+    auto devignettingMask = loadDevignettingMask(label);
+    devignettingMasks_[label] = devignettingMask;
+  }
+}
+
+void VrsDataProvider::ImageDataPostProcessing(
+    ImageData& srcImageData,
+    const vrs::StreamId& streamId) {
+  // This function applies devignetting and color correction to image data
+  // Load the vignetting mask from cache if it exists, otherwise load it from file
+  auto maybeLabel = getLabelFromStreamId(streamId);
+  if (!maybeLabel) {
+    std::string typeIdStr = vrs::toString(streamId.getTypeId());
+    std::string instanceIdStr = std::to_string(streamId.getInstanceId());
+    throw std::runtime_error(
+        "Label not found for streamId during post processing, stream numeric name: " +
+        streamId.getNumericName());
+  }
+  const std::string label = *maybeLabel;
+  bool willApplyColorCorrection =
+      (applyColorCorrection_ && rgbIspTuningVersion_ == 0 && label == "camera-rgb");
+  if (applyDevignetting_ && devignettingMasks_.empty()) {
+    lazyLoadDevignettingMasks();
+  }
+  if (std::optional<ImageVariant> imageVariantOpt = srcImageData.imageVariant()) {
+    // case 0: without color correction and without devignetting
+    if (!applyDevignetting_ && !willApplyColorCorrection) {
+      return;
+    }
+    // case 1: with color correction and without devignetting
+    else if (willApplyColorCorrection && !applyDevignetting_) {
+      ManagedImageVariant colorCorrectedManagedImageVariant = colorCorrect(imageVariantOpt.value());
+      copyToPixelFrame(colorCorrectedManagedImageVariant, *srcImageData.pixelFrame);
+    }
+    // case 2: without color correction and with devignetting
+    else if (!willApplyColorCorrection && applyDevignetting_) {
+      ManagedImageVariant devignettedManagedImageVariant =
+          devignetting(imageVariantOpt.value(), devignettingMasks_[label]);
+      copyToPixelFrame(devignettedManagedImageVariant, *srcImageData.pixelFrame);
+    }
+    // case 3: with color correction and with devignetting
+    else {
+      ManagedImageVariant colorCorrectedManagedImageVariant = colorCorrect(imageVariantOpt.value());
+      ManagedImageVariant devignettedManagedImageVariant = devignetting(
+          toImageVariant(colorCorrectedManagedImageVariant), devignettingMasks_[label]);
+      copyToPixelFrame(devignettedManagedImageVariant, *srcImageData.pixelFrame);
+    }
+  }
 }
 
 void VrsDataProvider::setDevignettingMaskFolderPath(const std::string& maskFolderPath) {
