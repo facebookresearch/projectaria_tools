@@ -218,6 +218,10 @@ ImageDataAndRecord VrsDataProvider::getImageDataByIndex(
   }
 }
 
+void VrsDataProvider::setDevignetting(bool applyDevignetting) {
+  applyDevignetting_ = applyDevignetting;
+}
+
 MotionData VrsDataProvider::getImuDataByIndex(const vrs::StreamId& streamId, const int index) {
   assertStreamIsActive(streamId);
   assertStreamIsType(streamId, SensorDataType::Imu);
@@ -547,5 +551,9 @@ void VrsDataProvider::setDevignettingMaskFolderPath(const std::string& maskFolde
 Eigen::MatrixXf VrsDataProvider::loadDevignettingMask(const std::string& label) {
   checkAndThrow(maybeDeviceCalib_.has_value(), "Device calibration is not found");
   return maybeDeviceCalib_->loadDevignettingMask(label);
+}
+
+void VrsDataProvider::setColorCorrection(bool applyColorCorrection) {
+  applyColorCorrection_ = applyColorCorrection;
 }
 } // namespace projectaria::tools::data_provider

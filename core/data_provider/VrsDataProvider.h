@@ -423,6 +423,13 @@ class VrsDataProvider {
       const std::optional<calibration::DeviceCalibration>& maybeDeviceCalib);
 
   virtual ~VrsDataProvider() = default; // Add a virtual destructor
+
+  /**
+   * @brief turn on/off devignetting
+   * @param applyDevignetting True to apply devignetting, false to skip devignetting
+   * @return void
+   */
+  void setDevignetting(bool applyDevignetting);
   /**
    * @brief set the folder path of the vignetting mask.
    * @param maskFolderPath The folder path of the vignetting mask.
@@ -438,6 +445,12 @@ class VrsDataProvider {
    * @return Vignetting mask in Eigen::MatrixXf format.
    */
   Eigen::MatrixXf loadDevignettingMask(const std::string& label);
+  /**
+   * @brief turn on/off color correction
+   * @param applyColorCorrection True to apply color correction, false to skip color correction
+   * @return void
+   */
+  void setColorCorrection(bool applyColorCorrection);
 
  private:
   // assert if a streamId is not active
@@ -457,6 +470,8 @@ class VrsDataProvider {
   // in order to keep the iterator alive
   std::pair<SensorDataIterator, SensorDataIterator> dataIterPair_;
   uint32_t rgbIspTuningVersion_ = 0;
+  bool applyDevignetting_ = false;
+  bool applyColorCorrection_ = false;
 };
 
 } // namespace projectaria::tools::data_provider
