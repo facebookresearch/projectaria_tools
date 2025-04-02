@@ -538,4 +538,14 @@ void VrsDataProvider::assertStreamIsType(const vrs::StreamId& streamId, SensorDa
       checkStreamIsType(streamId, type),
       fmt::format("StreamId {} is not {} type streamId", streamId.getName(), getName(type)));
 }
+
+void VrsDataProvider::setDevignettingMaskFolderPath(const std::string& maskFolderPath) {
+  checkAndThrow(maybeDeviceCalib_.has_value(), "Device calibration is not found");
+  maybeDeviceCalib_->setDevignettingMaskFolderPath(maskFolderPath);
+}
+
+Eigen::MatrixXf VrsDataProvider::loadDevignettingMask(const std::string& label) {
+  checkAndThrow(maybeDeviceCalib_.has_value(), "Device calibration is not found");
+  return maybeDeviceCalib_->loadDevignettingMask(label);
+}
 } // namespace projectaria::tools::data_provider
