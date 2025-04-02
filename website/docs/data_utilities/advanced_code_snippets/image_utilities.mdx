@@ -155,18 +155,23 @@ auto ray = pinholeCW90.getT_Device_Camera() * pinholeCW90.projectNoChecks(textPi
 ## Image devignetting
 
 Devignetting corrects uneven lighting, enhancing image uniformity and clarity. We provide devignetting for camera-rgb full size image [2880, 2880], camera-rgb half size image[1408, 1408] and slam image [640, 480].
-1. Download [Aria devignetting masks](https://www.projectaria.com/async/sample/download/?bucket=core&filename=aria_devignetting_masks.zip) containing following files:
+1. Download [Aria devignetting masks](https://www.projectaria.com/async/sample/download/?bucket=core&filename=devignetting_masks_bin.zip) containing following files:
 
 ```
-aria_devignetting_masks
-|- slam_devignetting_mask.bin
-|- rgb_half_devignetting_mask.bin
-|- rgb_full_devignetting_mask.bin
+devignetting_masks_bin
+|- new_isp
+   |- slam_devignetting_mask.bin
+   |- rgb_half_devignetting_mask.bin
+   |- rgb_full_devignetting_mask.bin
+|- old_isp
+   |- slam_devignetting_mask.bin
+   |- rgb_half_devignetting_mask.bin
+   |- rgb_full_devignetting_mask.bin
 ```
 2. Turn on devignetting. Set devignetting mask folder path with the local aria camera devignetting masks folder path.
    ```python
    set_devignetting(True)
-   mask_folder_path = "aria_camera_devignetting_masks"
+   mask_folder_path = "devignetting_masks_bin"
    set_devignetting_mask_folder_path(mask_folder_path)
    ```
 3. The image data from `get_image_data_by_index` will be devignetted.

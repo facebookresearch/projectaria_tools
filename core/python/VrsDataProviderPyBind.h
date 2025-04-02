@@ -539,8 +539,8 @@ inline void declareVrsDataProvider(py::module& m) {
       .def(
           "load_devignetting_mask",
           [](VrsDataProvider& self, const std::string& label) {
-            Eigen::MatrixXf matrix = self.loadDevignettingMask(label);
-            return tools::image::matrix2fToNumpy(matrix);
+            projectaria::tools::image::ManagedImage3F32 matrix = self.loadDevignettingMask(label);
+            return image::toPyArrayVariant(matrix);
           },
           py::arg("label"),
           "Load devignetting mask corresponding to the label and return as numpy array");

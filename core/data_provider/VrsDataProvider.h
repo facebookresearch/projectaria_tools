@@ -444,7 +444,7 @@ class VrsDataProvider {
    * now supporting "camera-slam-left", "camera-slam-right", "camera-rgb"
    * @return Vignetting mask in Eigen::MatrixXf format.
    */
-  Eigen::MatrixXf loadDevignettingMask(const std::string& label);
+  projectaria::tools::image::ManagedImage3F32 loadDevignettingMask(const std::string& label);
   /**
    * @brief turn on/off color correction
    * @param applyColorCorrection True to apply color correction, false to skip color correction
@@ -485,7 +485,7 @@ class VrsDataProvider {
   uint32_t rgbIspTuningVersion_ = 0;
   bool applyDevignetting_ = false;
   bool applyColorCorrection_ = false;
-  std::unordered_map<std::string, Eigen::MatrixXf> devignettingMasks_;
+  std::unordered_map<std::string, std::shared_ptr<image::ManagedImage3F32>> devignettingMasks_;
 };
 
 } // namespace projectaria::tools::data_provider

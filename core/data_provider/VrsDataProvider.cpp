@@ -23,6 +23,7 @@
 #include <image/CopyToPixelFrame.h>
 #include <image/utility/Devignetting.h>
 #include <logging/Log.h>
+#include <stdexcept>
 
 #include <limits>
 using namespace projectaria::tools::image;
@@ -195,8 +196,8 @@ SensorData VrsDataProvider::getSensorDataByIndex(const vrs::StreamId& streamId, 
     SensorData sensorData = interface_->getLastCachedSensorData(streamId);
     // only post process rgb and slam images
     if (sensorData.sensorDataType() == SensorDataType::Image &&
-        (streamId.getTypeName() == "RgbCameraRecordableClass" ||
-         streamId.getTypeName() == "SlamCameraData")) {
+        ((streamId.getTypeId() == vrs::RecordableTypeId::SlamCameraData) ||
+         (streamId.getTypeId() == vrs::RecordableTypeId::RgbCameraRecordableClass))) {
       ImageDataPostProcessing(
           std::get<ImageDataAndRecord>(sensorData.dataVariant_).first, streamId);
     }
@@ -223,8 +224,8 @@ ImageDataAndRecord VrsDataProvider::getImageDataByIndex(
   assertStreamIsType(streamId, SensorDataType::Image);
   if (interface_->readRecordByIndex(streamId, index)) {
     ImageDataAndRecord imageDataAndRecord = interface_->getLastCachedImageData(streamId);
-    if (streamId.getTypeName() == "RgbCameraRecordableClass" ||
-        streamId.getTypeName() == "SlamCameraData") {
+    if ((streamId.getTypeId() == vrs::RecordableTypeId::SlamCameraData) ||
+        (streamId.getTypeId() == vrs::RecordableTypeId::RgbCameraRecordableClass)) {
       ImageDataPostProcessing(imageDataAndRecord.first, streamId);
     }
     return imageDataAndRecord;
@@ -562,7 +563,8 @@ void VrsDataProvider::lazyLoadDevignettingMasks() {
   std::vector<std::string> labels = {"camera-rgb", "camera-slam-left", "camera-slam-right"};
   for (const auto& label : labels) {
     auto devignettingMask = loadDevignettingMask(label);
-    devignettingMasks_[label] = devignettingMask;
+    devignettingMasks_[label] =
+        std::make_shared<image::ManagedImage3F32>(std::move(devignettingMask));
   }
 }
 
@@ -598,14 +600,14 @@ void VrsDataProvider::ImageDataPostProcessing(
     // case 2: without color correction and with devignetting
     else if (!willApplyColorCorrection && applyDevignetting_) {
       ManagedImageVariant devignettedManagedImageVariant =
-          devignetting(imageVariantOpt.value(), devignettingMasks_[label]);
+          devignetting(imageVariantOpt.value(), *devignettingMasks_[label]);
       copyToPixelFrame(devignettedManagedImageVariant, *srcImageData.pixelFrame);
     }
     // case 3: with color correction and with devignetting
     else {
       ManagedImageVariant colorCorrectedManagedImageVariant = colorCorrect(imageVariantOpt.value());
       ManagedImageVariant devignettedManagedImageVariant = devignetting(
-          toImageVariant(colorCorrectedManagedImageVariant), devignettingMasks_[label]);
+          toImageVariant(colorCorrectedManagedImageVariant), *devignettingMasks_[label]);
       copyToPixelFrame(devignettedManagedImageVariant, *srcImageData.pixelFrame);
     }
   }
@@ -616,12 +618,16 @@ void VrsDataProvider::setDevignettingMaskFolderPath(const std::string& maskFolde
   maybeDeviceCalib_->setDevignettingMaskFolderPath(maskFolderPath);
 }
 
-Eigen::MatrixXf VrsDataProvider::loadDevignettingMask(const std::string& label) {
+projectaria::tools::image::ManagedImage3F32 VrsDataProvider::loadDevignettingMask(
+    const std::string& label) {
   checkAndThrow(maybeDeviceCalib_.has_value(), "Device calibration is not found");
-  return maybeDeviceCalib_->loadDevignettingMask(label);
+  return maybeDeviceCalib_->loadDevignettingMask(label, rgbIspTuningVersion_);
 }
 
 void VrsDataProvider::setColorCorrection(bool applyColorCorrection) {
+  checkAndThrow(
+      rgbIspTuningVersion_ == 1 && applyColorCorrection == true,
+      "do not need to set color correction, since Aria recording has been color corrected.");
   applyColorCorrection_ = applyColorCorrection;
 }
 } // namespace projectaria::tools::data_provider

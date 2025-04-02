@@ -27,5 +27,5 @@ namespace projectaria::tools::image {
  */
 ManagedImageVariant devignetting(
     const ImageVariant& srcImage,
-    const Eigen::MatrixXf& devignettingMask);
+    const ManagedImage3F32& devignettingMask);
 } // namespace projectaria::tools::image
