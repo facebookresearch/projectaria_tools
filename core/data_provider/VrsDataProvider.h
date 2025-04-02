@@ -457,6 +457,19 @@ class VrsDataProvider {
   void assertStreamIsActive(const vrs::StreamId& streamId) const;
   // assert of a streamId is not of an expected type
   void assertStreamIsType(const vrs::StreamId& streamId, SensorDataType type) const;
+  /**
+   * @brief Applies post-processing to image data and records, currently
+   * support color correction and devignetting.
+   * @param inputImageDataAndRecord The image data and record to be processed.
+   * @param streamId The ID of the stream associated with the image data.
+   * @return void
+   */
+  void ImageDataPostProcessing(ImageData& srcImageData, const vrs::StreamId& streamId);
+  /**
+   * This function loads devignetting masks for camera-rgb, camera-slam-left, and camera-slam-right
+   * labels if they are not already loaded.
+   */
+  void lazyLoadDevignettingMasks();
 
  private:
   const std::shared_ptr<RecordReaderInterface> interface_;
@@ -472,6 +485,7 @@ class VrsDataProvider {
   uint32_t rgbIspTuningVersion_ = 0;
   bool applyDevignetting_ = false;
   bool applyColorCorrection_ = false;
+  std::unordered_map<std::string, Eigen::MatrixXf> devignettingMasks_;
 };
 
 } // namespace projectaria::tools::data_provider

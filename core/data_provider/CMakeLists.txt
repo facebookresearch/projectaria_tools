@@ -97,4 +97,7 @@ target_link_libraries(vrs_data_provider PUBLIC
         timestamp_index_mapper
         aria_calib_rescale_and_crop
         device_calibration_json
+        image_devignetting
+        image_color_correct
+        image
         )
