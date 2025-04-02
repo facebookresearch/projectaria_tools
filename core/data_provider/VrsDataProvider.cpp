@@ -35,7 +35,9 @@ VrsDataProvider::VrsDataProvider(
       timeQuery_(std::make_shared<TimestampIndexMapper>(interface_)),
       timeSyncMapper_(timeSyncMapper),
       streamIdLabelMapper_(streamIdLabelMapper),
-      maybeDeviceCalib_(maybeDeviceCalib) {}
+      maybeDeviceCalib_(maybeDeviceCalib) {
+  rgbIspTuningVersion_ = interface_ ? interface_->getRgbIspTuningVersion() : 0;
+}
 
 SensorDataType VrsDataProvider::getSensorDataType(const vrs::StreamId& streamId) const {
   return interface_->getSensorDataType(streamId);
