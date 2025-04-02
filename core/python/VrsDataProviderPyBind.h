@@ -21,6 +21,7 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include "ImageDataHelper.h"
 #include "SensorDataSequence.h"
 
 #define DEFAULT_LOG_CHANNEL "VrsDataProvider"
@@ -519,7 +520,20 @@ inline void declareVrsDataProvider(py::module& m) {
           py::arg("stream_id"),
           py::arg("time_ns"),
           py::arg("time_domain"),
-          py::arg("time_query_options") = TimeQueryOptions::Before);
+          py::arg("time_query_options") = TimeQueryOptions::Before)
+      .def(
+          "set_devignetting_mask_folder_path",
+          &VrsDataProvider::setDevignettingMaskFolderPath,
+          py::arg("mask_folder_path"),
+          "Set the devignetting mask folder path.")
+      .def(
+          "load_devignetting_mask",
+          [](VrsDataProvider& self, const std::string& label) {
+            Eigen::MatrixXf matrix = self.loadDevignettingMask(label);
+            return tools::image::matrix2fToNumpy(matrix);
+          },
+          py::arg("label"),
+          "Load devignetting mask corresponding to the label and return as numpy array");
 }
 } // namespace
 
