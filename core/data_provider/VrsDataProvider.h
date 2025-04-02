@@ -441,6 +441,7 @@ class VrsDataProvider {
   // pybind11 requires variable to attach to VrsDataProvider class
   // in order to keep the iterator alive
   std::pair<SensorDataIterator, SensorDataIterator> dataIterPair_;
+  uint32_t rgbIspTuningVersion_ = 0;
 };
 
 } // namespace projectaria::tools::data_provider
