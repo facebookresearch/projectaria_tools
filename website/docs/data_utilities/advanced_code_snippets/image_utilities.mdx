@@ -154,42 +154,42 @@ auto ray = pinholeCW90.getT_Device_Camera() * pinholeCW90.projectNoChecks(textPi
 
 ## Image devignetting
 
-Devignetting corrects uneven lighting, enhancing image uniformity and clarity. We provide devignetting for camera-rgb full size image [2880, 2880], camera-rgb half size image[1408, 1408] and slam iamge [640, 480].
-1. Download devignetting masks from [Link](https://www.projectaria.com/async/sample/download/?bucket=core&filename=aria_devignetting_masks.zip)
-2. Unzip to local folder. The folder should follow the structure below:
+Devignetting corrects uneven lighting, enhancing image uniformity and clarity. We provide devignetting for camera-rgb full size image [2880, 2880], camera-rgb half size image[1408, 1408] and slam image [640, 480].
+1. Download [Aria devignetting masks](https://www.projectaria.com/async/sample/download/?bucket=core&filename=aria_devignetting_masks.zip) containing following files:
 
 ```
-aria_camera_devignetting_masks
+aria_devignetting_masks
 |- slam_devignetting_mask.bin
 |- rgb_half_devignetting_mask.bin
 |- rgb_full_devignetting_mask.bin
 ```
-
-3. set devignetting mask folder path with local folder.
-4. load mask by passing camera label, now supporting "camera-rgb", "camera-slam-left" and "camera-slam-right"
-5. apply devignetting to source image.
+2. Turn on devignetting. Set devignetting mask folder path with the local aria camera devignetting masks folder path.
+   ```python
+   set_devignetting(True)
+   mask_folder_path = "aria_camera_devignetting_masks"
+   set_devignetting_mask_folder_path(mask_folder_path)
+   ```
+3. The image data from `get_image_data_by_index` will be devignetted.
+4. (Optional) If you don't want to devignetting feature, turn off by calling `set_devignetting(False)`
 
 ```mdx-code-block
 <Tabs groupId="programming-language">
 <TabItem value="python" label="Python">
 ```
 ```python
-from projectaria_tools.core import data_provider, calibration, image
+from projectaria_tools.core import data_provider
 camera_label = "camera-rgb"
-devignetting_mask_folder_path = <FOLDER_PATH_CONTAINING_DEVIGNETTING_MASK>
-device_calib = provider.get_device_calibration()
 stream_id = provider.get_stream_id_from_label(camera_label)
-raw_image = provider.get_image_data_by_index(stream_id, 0)[0].to_numpy_array()
 
-# set devignetting mask with local folder path
-device_calib.set_devignetting_mask_folder_path(devignetting_mask_folder_path)
+# set devignetting mask path
+devignetting_mask_folder_path = <FOLDER_PATH_CONTAINING_DEVIGNETTING_MASK>
+provider.set_devignetting_mask_folder_path(devignetting_mask_folder_path)
 
-# load devignetting_mask by camera label
-devignetting_mask = device_calib.load_devignetting_mask(camera_label)
+# turn on devignetting
+provider.set_devignetting(True)
 
-# apply devignetting to source image
-devigneted_image = calibration.devignetting(raw_image, devignetting_mask)
-
+# the output image from get_image_data_by_index will be devignetted
+devignetted_image = provider.get_image_data_by_index(stream_id, 0)
 ```
 ```mdx-code-block
 </TabItem>
@@ -197,23 +197,20 @@ devigneted_image = calibration.devignetting(raw_image, devignetting_mask)
 ```
 ```cpp
 #include <dataprovider/VrsDataProvider.h>
-#include <image/utility/Devignetting.h>
 
 std::string cameraLabel = "camera-rgb";
-std::string devignettingMaskFolderPath = <FOLDER_PATH_CONTAINING_DEVIGNETTING_MASK>;
-auto deviceCalib = provider->getDeviceCalibration();
 vrs::StreamId streamId = provider->getStreamIdFromLabel(cameraLabel);
-auto imageData = provider->getImageDataByIndex(streamId, 0);
 
-// set devignetting mask with local folder path
-deviceCalib.SetDevignettingMaskFolderPath(devignettingMaskFolderPath);
+std::string devignettingMaskFolderPath = <FOLDER_PATH_CONTAINING_DEVIGNETTING_MASK>;
 
-// load devignetting_mask by camera label
-Eigen::MatrixXf devignettingMask = deviceCalib.loadDevignettingMask(cameraLabel);
+// set devignetting mask path
+provider.setDevignettingMaskFolderPath(devignettingMaskFolderPath);
 
-// apply devignetting to source image
-auto devignettedImage = devignetting(imageData.first.imageVariant(), devignettingMask);
+// turn on devignetting
+provider.setDevignetting(true);
 
+// the output image from getImageDataByIndex will be devignetted
+ImageDataAndRecord imageDataAndRecord = provider.getImageDataByIndex(streamId, 0);
 ```
 ```mdx-code-block
 </TabItem>
