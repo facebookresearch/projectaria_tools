@@ -522,6 +522,16 @@ inline void declareVrsDataProvider(py::module& m) {
           py::arg("time_domain"),
           py::arg("time_query_options") = TimeQueryOptions::Before)
       .def(
+          "set_devignetting",
+          &VrsDataProvider::setDevignetting,
+          py::arg("apply_devignetting"),
+          "Turn on/off devignetting. Pass True to apply devignetting, False to skip it.")
+      .def(
+          "set_color_correction",
+          &VrsDataProvider::setColorCorrection,
+          py::arg("apply_color_correction"),
+          "Turn on/off color correction. Pass True to apply color correction, False to skip it.")
+      .def(
           "set_devignetting_mask_folder_path",
           &VrsDataProvider::setDevignettingMaskFolderPath,
           py::arg("mask_folder_path"),
