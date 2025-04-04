@@ -19,6 +19,9 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/pybind/pybind11.git
     GIT_TAG master
 )
+# We are assuming here that python has been found by CMake already
+# so it avoid to make pybind11/CMake & CIBUILDWHEEL to use different python versions
+set(PYBIND11_FINDPYTHON OFF)
 FetchContent_MakeAvailable(pybind11)
 
 add_subdirectory(${pybind11_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/pybind)
