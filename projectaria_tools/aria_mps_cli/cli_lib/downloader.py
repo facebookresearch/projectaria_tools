@@ -14,10 +14,9 @@
 
 import logging
 import pathlib
-import tempfile
 from asyncio import Semaphore
 from pathlib import Path
-from typing import final, Final, List, Optional, Union
+from typing import final, Final, Optional
 from urllib.parse import urlparse
 
 import aiofiles
@@ -42,7 +41,7 @@ class Downloader(RunnerWithProgress):
 
     def __init__(
         self,
-        url_or_urls: Union[str, List[str]],
+        url: str,
         download_dir: Path,
         http_helper: HttpHelper,
         download_filename: Optional[str] = None,
@@ -50,9 +49,7 @@ class Downloader(RunnerWithProgress):
     ):
         super().__init__()
         self._http_helper: HttpHelper = http_helper
-        self._urls: List[str] = (
-            [url_or_urls] if isinstance(url_or_urls, str) else url_or_urls
-        )
+        self._url: str = url
         self._download_dir: Path = download_dir
         self._download_filename: str = download_filename
         self._unzip: bool = unzip
@@ -79,47 +76,35 @@ class Downloader(RunnerWithProgress):
     async def _run(self) -> None:
         self._processed = 0
         self._total = 0
-        filename = None
-
-        self._logger: CustomAdapter = CustomAdapter(
-            logging.getLogger(__name__),
-            {"path": self._download_dir},
-        )
-
         async with self.semaphore_:
-            with tempfile.TemporaryDirectory(dir=self._download_dir) as tmp_dir:
-                tmp_dir_path = Path(tmp_dir)
-                tmp_file = tmp_dir_path / "output"
-                async with aiofiles.open(tmp_file, mode="wb") as f:
-                    for url in self._urls:
-                        self._logger.debug(f"Downloading output {url}")
-                        async with self._http_helper.session.get(url) as response:
-                            if not filename:
-                                filename = (
-                                    self._download_filename
-                                    or pathlib.Path(urlparse(self._urls[0]).path).name
-                                    or response.content_disposition.filename
-                                )
-                            self._total += response.content_length
-                            chunk_size: int = config.getint(
-                                ConfigSection.DOWNLOAD, ConfigKey.CHUNK_SIZE
-                            )
-                            self._logger.debug(
-                                f"content length {response.content_length}"
-                            )
-                            async for chunk in response.content.iter_chunked(
-                                chunk_size
-                            ):
-                                await f.write(chunk)
-                                self._processed += len(chunk)
-                                self._logger.debug(
-                                    f"Downloaded {filename} : {self.progress}%"
-                                )
-                    self._logger.info(f"Finished downloading {filename}")
-                tmp_file.rename(self._download_dir / filename)
+            async with self._http_helper.session.get(self._url) as response:
+                filename = (
+                    self._download_filename
+                    or pathlib.Path(urlparse(self._url).path).name
+                    or response.content_disposition.filename
+                )
+                if filename is None:
+                    raise ValueError(f"Filename is not specified for {self._url}")
 
-        if self._unzip and not filename.endswith(".zip"):
-            raise ValueError(f"Cannot unzip. File {filename} should be zip file")
+                self._logger: CustomAdapter = CustomAdapter(
+                    logging.getLogger(__name__), {"path": self._download_dir / filename}
+                )
+                if self._unzip and not filename.endswith(".zip"):
+                    raise ValueError(
+                        f"Cannot unzip. File {filename} should be zip file"
+                    )
+
+                self._total = response.content_length
+                chunk_size: int = config.getint(
+                    ConfigSection.DOWNLOAD, ConfigKey.CHUNK_SIZE
+                )
+                async with aiofiles.open(self._download_dir / filename, mode="wb") as f:
+                    self._logger.debug(f"content length {response.content_length}")
+                    async for chunk in response.content.iter_chunked(chunk_size):
+                        await f.write(chunk)
+                        self._processed += len(chunk)
+                        self._logger.debug(f"Downloaded {filename} : {self.progress}%")
+                    self._logger.info(f"Finished downloading {filename}")
 
         if self._unzip:
             zip_file = self._download_dir / filename

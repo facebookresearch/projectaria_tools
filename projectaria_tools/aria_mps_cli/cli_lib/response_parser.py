@@ -32,7 +32,6 @@ from .constants import (
     KEY_RECORDINGS,
     KEY_REMAINING_TTL,
     KEY_RESULT_TYPE,
-    KEY_SHARD_NUMBER,
     KEY_STATUS,
     KEY_STATUS_MESSAGE,
 )
@@ -128,7 +127,6 @@ class ResponseParser:
                     result_type=MpsResultType(resp[KEY_RESULT_TYPE]),
                     cdn_url=resp[KEY_CDN_URL],
                     recording_hash=resp[KEY_RECORDING_HASH],
-                    shard_number=resp[KEY_SHARD_NUMBER],
                 )
             )
         return mps_outputs

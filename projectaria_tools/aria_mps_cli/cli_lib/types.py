@@ -127,7 +127,6 @@ class MpsOutput:
     cdn_url: str
     result_type: str
     recording_hash: str
-    shard_number: int
 
 
 @dataclass
