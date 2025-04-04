@@ -226,30 +226,17 @@ class RequestMonitorModel:
         await self._download_multi_slam_summary()
 
         for rec in self._recordings:
-            cdn_url = None
-            outputs = [
-                o
-                for o in self._feature_request.outputs
-                if o.recording_hash == rec.file_hash
-                and o.result_type in RESULT_TYPES_BY_FEATURE[feature]
+            results = [
+                r
+                for r in self._feature_request.results
+                if r.recording_hash == rec.file_hash
+                and r.result_type in RESULT_TYPES_BY_FEATURE[feature]
             ]
-            # Older requests may have 0 OCEntAriaMPSOutput ents associated with the request
-            if len(outputs) == 1:
-                logger.debug(f"Downloading {rec.path} from everstore")
-                cdn_url = outputs[0].cdn_url
-            else:
-                results = [
-                    r
-                    for r in self._feature_request.results
-                    if r.recording_hash == rec.file_hash
-                    and r.result_type in RESULT_TYPES_BY_FEATURE[feature]
-                ]
-                if len(results) != 1:
-                    logger.error(f"{rec} has {len(results)} results: {results}")
-                cdn_url = results[0].cdn_url
+            if len(results) != 1:
+                logger.error(f"{rec} has {len(results)} results: {results}")
 
             downloader: Downloader = Downloader(
-                url=cdn_url,
+                url=results[0].cdn_url,
                 download_dir=rec.output_path,
                 http_helper=self._http_helper,
                 unzip=True,
