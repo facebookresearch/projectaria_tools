@@ -54,12 +54,16 @@ environment = {"CMAKE_ARGS"="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_C_COMPI
 # To ensure we have a fast build we:
 # - are editing x64-windows-static.cmake to build RELEASE only artifacts
 # - build only the required boost dependencies (building all boost is slow)
+#
+# We use VCPKG with a commit HASH containing the fix for CMake 4.0 see https://github.com/microsoft/vcpkg/issues/44507
+# We will update to the next available release tag once it is available
 ##
 [tool.cibuildwheel.windows]
 environment = {"CMAKE_GENERATOR"="Visual Studio 17 2022"}
 before-build = [
-"if not exist \"vcpkg\" git clone --branch 2024.08.23 https://github.com/microsoft/vcpkg.git",
+"git clone https://github.com/microsoft/vcpkg.git",
 "cd vcpkg",
+"git checkout 0bde25d4ffc4349ac70a8c22615203eb1201aa4a",
 "findstr /c:\"set(VCPKG_BUILD_TYPE release)\" triplets\\x64-windows-static.cmake || echo set(VCPKG_BUILD_TYPE release) >> triplets\\x64-windows-static.cmake",
 "bootstrap-vcpkg.bat -disableMetrics",
 "vcpkg update",

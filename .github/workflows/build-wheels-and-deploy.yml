@@ -29,8 +29,8 @@ jobs:
           python-version: 3.11
       - name: Upgrade pip and python packages
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install cibuildwheel==2.17.0 pybind11-stubgen==1.1
+          python -m pip install --upgrade pip
+          python -m pip install cibuildwheel==2.17.0 pybind11-stubgen==1.1
       - name: Install dependencies
         shell: bash
         run: |
@@ -61,7 +61,7 @@ jobs:
           rm -rf build
       - name: Generate stubs & Include stubs in python package
         run: |
-          python3 generate_stubs.py
+          python generate_stubs.py
           cp -r projectaria_tools-stubs/projectaria_tools .
       - uses: actions/upload-artifact@v4
         with:
@@ -116,13 +116,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Upgrade pip and python packages
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install cibuildwheel==2.17.0
+          python -m pip install --upgrade pip
+          python -m pip install cibuildwheel==2.17.0
       - name: Build wheels for CPython
         if: matrix.os == 'macos-14'
         shell: bash
         run: |
-          CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist
+          CMAKE_BUILD_PARALLEL_LEVEL=4 python -m cibuildwheel --output-dir dist
         env:
           CIBW_BUILD_VERBOSITY: 3
           CIBW_BUILD: ${{ matrix.cibw_build }}
@@ -132,7 +132,7 @@ jobs:
         if: ${{ (matrix.os == 'macos-13') || (matrix.os == 'ubuntu-22.04') }}
         shell: bash
         run: |
-          CMAKE_BUILD_PARALLEL_LEVEL=4 python3 -m cibuildwheel --output-dir dist
+          CMAKE_BUILD_PARALLEL_LEVEL=4 python -m cibuildwheel --output-dir dist
         env:
           CIBW_BUILD_VERBOSITY: 3
           CIBW_BUILD: ${{ matrix.cibw_build }}
@@ -142,7 +142,7 @@ jobs:
         if: matrix.os == 'windows-2022'
         shell: bash
         run: |
-          python3 -m cibuildwheel --output-dir dist
+          python -m cibuildwheel --output-dir dist
         env:
           CIBW_BUILD_VERBOSITY: 3
           CIBW_BUILD: ${{ matrix.cibw_build }}
@@ -157,11 +157,11 @@ jobs:
         shell: bash
         run: |
           # Install wheel
-          python3 -m pip install dist/*.whl
+          python -m pip install dist/*.whl
           # Run Python unit tests
           export TEST_FOLDER="./data/"
-          python3 -m unittest core/python/test/corePyBindTest.py
-          python3 -m unittest core/python/test/mpsPyBindTest.py
+          python -m unittest core/python/test/corePyBindTest.py
+          python -m unittest core/python/test/mpsPyBindTest.py
 
   publish-to-pypi:
     name: Publish to Pypi
