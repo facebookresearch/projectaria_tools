@@ -151,7 +151,50 @@ auto ray = pinholeCW90.getT_Device_Camera() * pinholeCW90.projectNoChecks(textPi
 </TabItem>
 </Tabs>
 ```
+## Color Correction
+Videos and images captured with earlier versions of the Aria OS may exhibit color distortion due to inconsistent gamma curves and unconventional color temperatures. This can result in colors appearing inconsistent across images and overly blue. This issue has been resolved in the new OS update V1.13. For images and videos captured before this update, we offer a Color Correction API to address the distortion. The images will be corrected to a reference color temperature of 5000K.
 
+Below, we demonstrate how to apply color correction:
+
+1. set set_color_correction with True, default value is False
+2. The output from provider.get_image_data_by_index would be color corrected.
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+from projectaria_tools.core import data_provider
+camera_label = "camera-rgb"
+stream_id = provider.get_stream_id_from_label(camera_label)
+
+# turn on color correction
+provider.set_color_correction(True)
+
+# the output image from get_image_data_by_index will be color corrected
+color_corrected_image_array = provider.get_image_data_by_index(stream_id, 0)[0].to_numpy_array()
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <dataprovider/VrsDataProvider.h>
+
+std::string cameraLabel = "camera-rgb";
+vrs::StreamId streamId = provider->getStreamIdFromLabel(cameraLabel);
+
+// turn on color correction
+provider.setColorCorrection(True);
+
+// the output image from getImageDataByIndex will be color corrected
+ImageDataAndRecord imageDataAndRecord = provider.getImageDataByIndex(streamId, 0);
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+![Image](/img//data_utilities/advanced_guide/color_correction.png)
 ## Image devignetting
 
 Devignetting corrects uneven lighting, enhancing image uniformity and clarity. We provide devignetting for camera-rgb full size image [2880, 2880], camera-rgb half size image[1408, 1408] and slam image [640, 480].
