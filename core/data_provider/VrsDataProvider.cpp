@@ -625,9 +625,10 @@ projectaria::tools::image::ManagedImage3F32 VrsDataProvider::loadDevignettingMas
 }
 
 void VrsDataProvider::setColorCorrection(bool applyColorCorrection) {
-  checkAndThrow(
-      !(rgbIspTuningVersion_ == 1 && applyColorCorrection == true),
-      "do not need to set color correction, since Aria recording has been color corrected.");
+  if (rgbIspTuningVersion_ == 1 && applyColorCorrection == true) {
+    XR_LOGW("Aria recording is already color corrected. No need to set this flag.");
+    return;
+  }
   applyColorCorrection_ = applyColorCorrection;
 }
 } // namespace projectaria::tools::data_provider
