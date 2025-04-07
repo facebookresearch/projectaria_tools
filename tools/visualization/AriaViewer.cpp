@@ -20,10 +20,10 @@
 #include <pangolin/gl/glpixformat.h>
 #include <pangolin/pangolin.h>
 
+#include <data_provider/SensorDataSequence.h>
+#include <image/ImagePangolinFormat.h>
+#include <vrs/RecordFormat.h>
 #include "AriaStreamIds.h"
-#include "SensorDataSequence.h"
-#include "image/ImagePangolinFormat.h"
-#include "vrs/RecordFormat.h"
 
 #include <iostream>
 

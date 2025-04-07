@@ -15,8 +15,8 @@
  */
 
 #include "AriaVisualizationControlAndData.h"
+#include <vrs/StreamId.h>
 #include "AriaStreamIds.h"
-#include "vrs/StreamId.h"
 
 #include <chrono>
 
