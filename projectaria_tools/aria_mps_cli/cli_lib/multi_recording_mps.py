@@ -91,6 +91,7 @@ class MultiRecordingMps:
             output_dir=self._output_dir,
             force=self._force,
             retry_failed=self._retry_failed,
+            persist_on_failure=self._persist_on_failure,
             name=self._name,
             suffix=self._suffix,
         )
@@ -135,6 +136,7 @@ class MultiRecordingMps:
                     recording_ids=[rec.fbid for rec in self._model.recordings],
                     features=[MpsFeature.MULTI_SLAM],
                     source=self._source,
+                    persist_on_failure=self._persist_on_failure,
                 )
                 self._model = self._request_monitor.track_feature_request(
                     recordings=self._model.recordings,
