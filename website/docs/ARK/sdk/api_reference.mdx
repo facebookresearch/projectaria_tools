@@ -141,11 +141,12 @@ Some classes have properties and methods, some classes have only properties. Pro
 
 ### aria.sdk.RecordingConfig
 
-| Property         | Type         | Description                                                        |
-|------------------|--------------|--------------------------------------------------------------------|
-| profile_name     | str          | (read-write) Sensor's profile name for recording                   |
-| time_sync_mode   | TimeSyncMode | (read-write) Timesync mode for recording                           |
-| timecode_trigger | bool         | (read-write) True if this device triggers timecode synchronization |
+| Property               | Type         | Description                                                        |
+|------------------------|--------------|--------------------------------------------------------------------|
+| profile_name           | str          | (read-write) Sensor's profile name for recording                   |
+| time_sync_mode         | TimeSyncMode | (read-write) Timesync mode for recording                           |
+| timecode_trigger       | bool         | (read-write) True if this device triggers timecode synchronization |
+| rgb_isp_tuning_version | int          | (read-write) RGB ISP tuning version                                |
 
 ### aria.sdk.RecordingManager
 
@@ -186,14 +187,15 @@ Some classes have properties and methods, some classes have only properties. Pro
 
 ### aria.sdk.StreamingConfig
 
-| Property            | Type                     | Description                                                        |
-|---------------------|--------------------------|--------------------------------------------------------------------|
-| security_options    | StreamingSecurityOptions | (read-write) Security options used to start streaming              |
-| topic_prefix        | str                      | (read-write) A unique string to prefix all streamed data messages  |
-| profile_name        | str                      | (read-write) Sensors' profile name used to start streaming         |
-| streaming_interface | StreamingInterface       | (read-write) Network interface used to start streaming             |
-| time_sync_mode      | TimeSyncMode             | (read-write) The timesync mode for this streaming session          |
-| timecode_trigger    | bool                     | (read-write) True if this device triggers timecode synchronization |
+| Property               | Type                     | Description                                                        |
+|------------------------|--------------------------|--------------------------------------------------------------------|
+| security_options       | StreamingSecurityOptions | (read-write) Security options used to start streaming              |
+| topic_prefix           | str                      | (read-write) A unique string to prefix all streamed data messages  |
+| profile_name           | str                      | (read-write) Sensors' profile name used to start streaming         |
+| streaming_interface    | StreamingInterface       | (read-write) Network interface used to start streaming             |
+| time_sync_mode         | TimeSyncMode             | (read-write) The timesync mode for this streaming session          |
+| timecode_trigger       | bool                     | (read-write) True if this device triggers timecode synchronization |
+| rgb_isp_tuning_version | int                      | (read-write) RGB ISP tuning version                                |
 
 ### aria.sdk.StreamingManager
 
