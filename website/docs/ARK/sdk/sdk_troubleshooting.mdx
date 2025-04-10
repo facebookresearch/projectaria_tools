@@ -108,9 +108,21 @@ sudo iptables -A INPUT -p udp -m udp --dport 7000:8000 -j ACCEPT
 
   3. Ensure that during streaming, USB Ethernet tab in the "Network Settings Window" has `Aria` selected
 
+## Aria diagnostics
+Running `aria-diagnostics` in your Python environment will create a diagnostic report file called *diagnostics.zip* in the same folder you're currently working in. You can send this collection of logs to the most relevant location listed under [How do I get support/report issues?](/support.mdx#how-do-i-get-supportreport-issues), as it's very useful for debugging. Running this command captures the following data:
+* Hardware information
+* OS information
+* USB information
+* Network information
+* The Aria home folder structure
+* The ADB connected devices listed
+* Device logs for all connected Aria devices
+* Device status and info for all connected Aria devices
+* After attempting streaming with connected Aria devices for 20 seconds, it captures logs for both successful and failed attempts.
+
+**NOTE:** The exception handling is intentionally broad, as the goal is to avoid crashing in any scenario and capture a subset of essential data even in failure modalities.
 
 ## Other Useful Links
 
 * [Aria Glasses User Manual](/ARK/glasses_manual/glasses_user_manual.mdx) for general information about using your glasses.
 * [Aria Research Kit (ARK) Troubleshooting and Known Issues page](/ARK/troubleshooting/troubleshooting_issues.mdx) for general Aria Glasses troubleshooting information.
-* Running `aria-diagnostics` in your Python environment will create a diagnostic report file called *diagnostics.zip* in the same folder you're currently working in. You can send this collection of logs to the most relevant location listed under [How do I get support/report issues?](/support.mdx#how-do-i-get-supportreport-issues).
