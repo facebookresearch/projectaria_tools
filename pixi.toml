@@ -18,13 +18,13 @@ clean = "rm -rf ./build ./wheels ./projectaria_tools.egg-info/"
 
 #
 # C++ - BUILD and TEST
-prepare = "cmake -GNinja -B build -S . -DBUILD_UNIT_TEST=ON"
+prepare = "cmake -GNinja -B build -S . -DBUILD_UNIT_TEST=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
 build = "cmake --build build --target all"
 test = "cd build; ctest -j"
 
-prepare_and_build = { depends_on = ["prepare", "build"] }
-build_and_test = { depends_on = ["prepare_and_build", "test"] }
-run_c = { depends_on = ["build_and_test"] }
+prepare_and_build = { depends-on = ["prepare", "build"] }
+build_and_test = { depends-on = ["prepare_and_build", "test"] }
+run_c = { depends-on = ["build_and_test"] }
 
 #
 # Python - BUILD and TEST
@@ -35,7 +35,7 @@ test_python = """
     python -m unittest core/python/test/mpsPyBindTest.py;
     python -m unittest core/python/sophus/test/sophusPybindTest.py;"""
 
-run_python = { depends_on = ["build_python", "test_python"]}
+run_python = { depends-on = ["build_python", "test_python"]}
 
 #
 # Python - PACKAGE
@@ -48,7 +48,7 @@ build_python_wheel = "python -m pip wheel . -w wheels"
 #
 #
 cmake-generator = "cmake --help"
-prepare = "cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TEST=ON"
+prepare = "cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TEST=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
 build = "cmake --build build --config Release -- /nologo /verbosity:minimal /maxcpucount"
 # --parallel 4 -- /m
 test = "cd build; ctest -C Release -j"
@@ -56,9 +56,9 @@ test = "cd build; ctest -C Release -j"
 build_python = "python -m pip install ."
 
 [build-dependencies]
-cmake = "3.31.4"
-cxx-compiler = "1.9.0"
-ninja = "1.12.1"
+cmake = "4.0.0.*"
+cxx-compiler = "1.9.0.*"
+ninja = "1.12.1.*"
 
 [dependencies]
 # Note: projectaria_tools gather its own dependencies using CMake Fetch, but
@@ -66,12 +66,12 @@ ninja = "1.12.1"
 #  - Unit testing is leveraging installed gtest
 
 # Install UNIT TEST dependencies
-gtest = "1.14.0"
+gtest = "1.14.0.*"
 
 # Install VRS dependencies
 # - Note that some library are listed as '*' so pixi can pick the last compatible set of libraries versions
-boost = "1.84.0"
-fmt = "10.2.1"
+boost = "1.84.0.*"
+fmt = "10.2.1.*"
 libjpeg-turbo = "*"
 libpng = "*"
 lz4 = "*"
