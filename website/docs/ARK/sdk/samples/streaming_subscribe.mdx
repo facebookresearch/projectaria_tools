@@ -46,6 +46,27 @@ To use Wi-Fi to initiate streaming or to stream data, alter the `aria streaming 
 * To initiate streaming over Wi-Fi, add `--device-ip <glasses IP>`
   *  Open the Mobile Companion app and tap [Wi-Fi on the Dashboard](/docs/ARK/mobile_companion_app#dashboard) to see your glasses' IP address
 
+### Example 3: Stream and subscribe in hotspot mode
+
+In this example, the CLI is used to initiate streaming and the Client SDK is used to subscribe to the stream.
+
+1. From the samples directory in Terminal, run:
+
+```bash
+aria streaming start --interface hotspot --use-ephemeral-certs
+```
+
+2. Wait for the stream to start: once it does, it should display the details of the hotspot connection. Go to the Wi-Fi settings on your computer and connect to the glasses' hotspot connection using the printed SSID and passphrase information.
+
+3. Run the below command to subscribe to the streamed data:
+
+```bash
+python -m streaming_subscribe --update_iptables
+```
+
+4. There are several ways you can stop streaming:
+  * Use Ctrl-C to terminate in Terminal.
+  * Press the Capture button on your glasses.
 
 ### Code walkthrough
 
