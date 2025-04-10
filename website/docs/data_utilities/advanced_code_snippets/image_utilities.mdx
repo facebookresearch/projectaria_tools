@@ -152,12 +152,23 @@ auto ray = pinholeCW90.getT_Device_Camera() * pinholeCW90.projectNoChecks(textPi
 </Tabs>
 ```
 ## Color Correction
-Videos and images captured with earlier versions of the Aria OS may exhibit color distortion due to inconsistent gamma curves and unconventional color temperatures. This can result in colors appearing inconsistent across images and overly blue. This issue has been resolved in the new OS update V1.13. For images and videos captured before this update, we offer a Color Correction API to address the distortion. The images will be corrected to a reference color temperature of 5000K.
+Videos and images taken with earlier versions of the Aria OS may show color distortion due to inconsistent gamma curves and unconventional color temperatures, leading to inconsistent and overly blue hues. To address this, we've introduced a Color Correction feature in the new OS update v1.13. With this update, images captured by Aria devices now have more consistent colors and are calibrated to a standard color temperature of 5000K. We also recommend applying devignetting to the images to achieve more accurate image quality.
+
+### Color Correction user recommendations
+The new Color Correction feature is available as an option in data campaigns and the Companion App. It's enabled by default in the new Aria OS, and we recommend users utilize the feature for future Aria captures to achieve optimal image quality. We also suggest keeping existing images captured with the old Aria OS and combining them with new Aria captures for research purposes.
+For advanced users, we provide a Color Correction API in Project Aria Tools that can correct color distortions in old captures and images. We advise using this API with caution for the following reasons:
+* The post-processing API can effectively convert and correct color distortion in older images, particularly in environments that are not overexposed. If your images do not contain overexposed areas, we recommend converting them for optimal image quality.
+* If an image contains overexposed areas, the colors in the overexposed regions may be oversaturated due to distortion in color settings: this may make it impossible to accurately recover the proper colors, potentially resulting in artifacts. This is more common in outdoor environments, where oversaturated areas can appear around the sky or sun. In such cases, we recommend retaining the old images without converting them.
+
+### Potential failure cases
+The issue with overexposed captures is demonstrated in the picture below. In the left image, captured by the old Aria OS, the central area is oversaturated due to strong light around the sun, resulting in the loss of digital values above 255 for higher-range colors. These lost colors cannot be recovered. The middle image, where the old image has been color-corrected and devignetted, displays a yellowish tint after the color correction conversion due to the original image's oversaturation. This problem does not occur in images captured with the updated Aria OS, shown in the right image.
+
+![Image](/img//data_utilities/advanced_guide/color_correction_failure.png)
 
 Below, we demonstrate how to apply color correction:
 
-1. set set_color_correction with True, default value is False
-2. The output from provider.get_image_data_by_index would be color corrected.
+1. Set set_color_correction as True (the default value is False).
+2. The output from provider.get_image_data_by_index would be color-corrected.
 
 ```mdx-code-block
 <Tabs groupId="programming-language">
@@ -195,6 +206,8 @@ ImageDataAndRecord imageDataAndRecord = provider.getImageDataByIndex(streamId, 0
 </Tabs>
 ```
 ![Image](/img//data_utilities/advanced_guide/color_correction.png)
+Go to [projectaria_tools/core/image/utility/ColorCorrect.cpp](https://github.com/facebookresearch/projectaria_tools/blob/main/core/image/utility/ColorCorrect.cpp) for implementation.
+
 ## Image devignetting
 
 Devignetting corrects uneven lighting, enhancing image uniformity and clarity. We provide devignetting for camera-rgb full size image [2880, 2880], camera-rgb half size image[1408, 1408] and slam image [640, 480].
