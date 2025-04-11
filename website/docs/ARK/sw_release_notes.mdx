@@ -10,6 +10,41 @@ These SW Release notes are for the Aria Research Kit (ARK), and are for Meta SW 
 
 Our Open Source Project Aria Tools SW Release notes are posted to [Project Aria Tools GitHub repository](https://github.com/facebookresearch/projectaria_tools), using Tags > Releases.
 
+## Announcement: Aria Research Kit v1.13 is now available
+We are excited to announce Aria Research Kit v1.13, featuring color correction and devignetting on videos recorded with the Aria RGB camera and a new ability for Aria to operate as a Wi-Fi hotspot for streaming, eliminating dependency on external networks. Download the latest versions of the Aria Mobile Companion App, the Aria Client SDK, and Project Aria Tools to access these improvements today.
+
+### Color correction and devignetting for the Aria RGB camera
+You may have noticed blueish color distortion in Aria RGB recordings. We’ve now fixed these with consistent gamma curves and standard color temperatures in ARK v1.13. With this update, Aria devices now produce images with more consistent colors, calibrated to a standard color temperature of 5000K. Additionally, a new devignetting API is available in Project Aria Tools to further enhance image quality and accuracy.
+
+![Pre-CC, post-CC, and reference image](/img/data_utilities/color-correction.png)
+
+### Wi-Fi hotspot streaming
+A new Wi-Fi hotspot streaming feature allows users to set up a dedicated hotspot using the Aria device, enabling direct and stable streaming without relying on external network infrastructure. **Users can enable this feature through the Aria Client SDK or directly within the Aria Companion App.**
+
+### Update your software to access these improvements
+
+#### Aria Companion App
+Aria Mobile Companion App App v210 is now available for download. Visit [ARK SW Downloads and Updates](ark_downloads.mdx#mobile-companion-app) to download the latest version for Android. For iOS, select **Update** in the TestFlight app.
+
+#### Project Aria latest OS
+Project Aria OS build 4975080.310.70 (released April 1, 2025) contains the changes necessary for RGB color correction and devignetting. Update to this build or newer using the Aria Companion App.
+
+#### Aria Client SDK
+The Aria Client SDK now supports streaming in hotspot mode, diagnostic logging collections for users, support for Python 3.12, RGB color correction, and more. See the [ARK download documentation](ark_downloads.mdx#client-sdk-with-cli) for download instructions.
+
+#### Project Aria Tools
+The latest projectaria-tools 1.5.8 contains the tooling necessary to support RGB camera color correction and devignetting. See the [data utilities overview](../data_utilities/data_utilities.mdx#overview) for download instructions.
+
+### Questions, comments, concerns?
+If you encounter any bugs or issues, please contact our support team through one of the following channels:
+
+* Post in the Project Aria Discord
+    * [Join the server](https://discord.gg/2pj4er4dGF) | [User support channel](https://discord.com/channels/1149058737504538654/1293298255576301631)
+* Post to Workplace
+    * [Feedback and support group](https://facebookresearch.github.io/projectaria_tools/docs/ARK/workplacegroup)
+* Email us directly at AriaOps@meta.com
+
+
 ## Aria Research Kit v1.12
 We are excited to announce updates to the Aria Research Kit with v1.12. Download the latest versions and access new features for Aria Studio, Project Aria Tools, and the Companion App.
 
