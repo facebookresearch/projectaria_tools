@@ -205,7 +205,7 @@ double VrsHealthCheck::getLastDataRecordTime() {
   double maxTimestamp = 0.0;
   for (const auto& reader : reader_) {
     for (const auto& streamId : reader->getStreams()) {
-      const auto record = reader->getLastRecord(streamId, vrs::Record::Type::DATA);
+      const auto* const record = reader->getLastRecord(streamId, vrs::Record::Type::DATA);
       if (record != nullptr && record->timestamp > maxTimestamp) {
         maxTimestamp = record->timestamp;
       }

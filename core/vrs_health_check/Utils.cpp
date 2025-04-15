@@ -231,8 +231,8 @@ int Utils::runVrsHealthCheck(int argc, char* argv[]) {
                                               ->expected(0, 1);
 
   // Mutually exclusive options
-  auto verboseOpt = app.add_flag("--verbose", verbose, "Print verbose logging");
-  auto debugOpt = app.add_flag("--debug", debug, "Print debug logging");
+  auto* verboseOpt = app.add_flag("--verbose", verbose, "Print verbose logging");
+  auto* debugOpt = app.add_flag("--debug", debug, "Print debug logging");
   debugOpt->excludes(verboseOpt);
 
   settings.isInteractive = ISATTY(FILENO(stdout)); // else it's a file or pipe
