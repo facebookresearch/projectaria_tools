@@ -45,6 +45,13 @@ constexpr float kCalibratedGazeColor[] = {1.0f, 0.0f, 1.0f};
 // In meters
 constexpr float kNormalVisLen = 0.05;
 
+constexpr size_t kNumLandmarks = 21;
+constexpr size_t kNumJointConnections = 23;
+constexpr std::array<std::pair<size_t, size_t>, kNumJointConnections> kJointConnections = {
+    {{5, 17}, {17, 18}, {18, 19}, {19, 4}, {5, 14}, {14, 15}, {15, 16}, {16, 3},
+     {5, 11}, {11, 12}, {12, 13}, {13, 2}, {5, 8},  {8, 9},   {9, 10},  {10, 1},
+     {5, 6},  {6, 7},   {7, 0},   {6, 8},  {8, 11}, {11, 14}, {14, 17}}};
+
 extern const unsigned char AnonymousPro_ttf[];
 static pangolin::GlFont kGlFont(AnonymousPro_ttf, 20);
 
@@ -480,8 +487,8 @@ void Data3DGui::draw(
             oneHandWristAndPalmPose.value().confidence < MIN_CONFIDENCE_) {
           continue;
         }
-        const auto& wristPose = oneHandWristAndPalmPose.value().wristPosition_device;
-        const auto& palmPose = oneHandWristAndPalmPose.value().palmPosition_device;
+        const auto& wristPose = oneHandWristAndPalmPose->wristPosition_device;
+        const auto& palmPose = oneHandWristAndPalmPose->palmPosition_device;
         const auto& wristPose_world = T_World_Device.value() * wristPose;
         const auto& palmPose_world = T_World_Device.value() * palmPose;
         const std::vector<Eigen::Vector3d> wristAndPalmPoses_world{wristPose_world, palmPose_world};
@@ -489,6 +496,21 @@ void Data3DGui::draw(
         glPointSize(10);
         pangolin::glDrawPoints(wristAndPalmPoses_world);
         pangolin::glDrawLines(wristAndPalmPoses_world);
+
+        // draw landmarks vis 3d
+        std::array<Eigen::Vector3d, kNumLandmarks> landmarks_world;
+        for (size_t iLandmark = 0; iLandmark < kNumLandmarks; ++iLandmark) {
+          landmarks_world[iLandmark] =
+              T_World_Device.value() * oneHandWristAndPalmPose->landmarkPositions_device[iLandmark];
+        }
+        std::vector<Eigen::Vector3d> fingerConnections;
+        fingerConnections.reserve(23);
+        for (const auto& connection : kJointConnections) {
+          fingerConnections.push_back(landmarks_world[connection.first]);
+          fingerConnections.push_back(landmarks_world[connection.second]);
+        }
+        pangolin::glDrawPoints(fingerConnections);
+        pangolin::glDrawLines(fingerConnections);
 
         // draw wrist and palm normal
         if (!oneHandWristAndPalmPose.value().wristAndPalmNormal_device) {
@@ -555,21 +577,26 @@ void Data3DGui::draw(
 
       // Collect all lines as pair of points
       std::vector<Eigen::Vector3d> lines = {
-          oneHandWristAndPalmPose.value().wristPosition_device,
-          oneHandWristAndPalmPose.value().palmPosition_device};
-      if (oneHandWristAndPalmPose.value().wristAndPalmNormal_device) {
+          oneHandWristAndPalmPose->wristPosition_device,
+          oneHandWristAndPalmPose->palmPosition_device};
+      if (oneHandWristAndPalmPose->wristAndPalmNormal_device.has_value()) {
         const auto& wristAndPalmNormal_device =
-            oneHandWristAndPalmPose.value().wristAndPalmNormal_device.value();
+            oneHandWristAndPalmPose->wristAndPalmNormal_device.value();
         // wrist normal line
-        lines.emplace_back(oneHandWristAndPalmPose.value().wristPosition_device);
+        lines.emplace_back(oneHandWristAndPalmPose->wristPosition_device);
         lines.emplace_back(
-            oneHandWristAndPalmPose.value().wristPosition_device +
+            oneHandWristAndPalmPose->wristPosition_device +
             wristAndPalmNormal_device.wristNormal_device * kNormalVisLen);
         // palm normal line
-        lines.emplace_back(oneHandWristAndPalmPose.value().palmPosition_device);
+        lines.emplace_back(oneHandWristAndPalmPose->palmPosition_device);
         lines.emplace_back(
-            oneHandWristAndPalmPose.value().palmPosition_device +
+            oneHandWristAndPalmPose->palmPosition_device +
             wristAndPalmNormal_device.palmNormal_device * kNormalVisLen);
+      }
+      // Add landmarks
+      for (const auto& connection : kJointConnections) {
+        lines.emplace_back(oneHandWristAndPalmPose->landmarkPositions_device[connection.first]);
+        lines.emplace_back(oneHandWristAndPalmPose->landmarkPositions_device[connection.second]);
       }
       // Must be multiple of 2 points
       if (lines.size() % 2 != 0) {
