@@ -27,7 +27,9 @@ TEST(format_oneSideWristAndPalmPose, formattedMessageIsCorrectForDefaultPose) {
   std::string fmtStr = fmt::format("{}", oneSideWristAndPalmPose);
   std::cout << fmtStr << std::endl;
   EXPECT_THAT(
-      fmtStr, MatchesRegex("^WristAndPalmPose::OneSide\\(confidence: .*, wrist: .*, palm: .*\\)"));
+      fmtStr,
+      MatchesRegex(
+          "^WristAndPalmPose::OneSide\\(confidence: .*, landmarks: .*, wrist: .*, palm: .*\\)"));
 }
 
 TEST(format_oneSideWristAndPalmPose, formattedMessageIsCorrectForBothNormals) {
@@ -35,12 +37,14 @@ TEST(format_oneSideWristAndPalmPose, formattedMessageIsCorrectForBothNormals) {
   // Now contains both palm and wrist normals
   oneSideWristAndPalmPose.wristAndPalmNormal_device =
       WristAndPalmPose::OneSide::WristAndPalmNormals();
-  oneSideWristAndPalmPose.wristAndPalmNormal_device->palmNormal_device = Eigen::Vector3d(0, 1, 0);
-  oneSideWristAndPalmPose.wristAndPalmNormal_device->wristNormal_device = Eigen::Vector3d(0, 0, 1);
+  oneSideWristAndPalmPose.wristAndPalmNormal_device->palmNormal_device =
+      Eigen::Vector3d{0., 1., 0.};
+  oneSideWristAndPalmPose.wristAndPalmNormal_device->wristNormal_device =
+      Eigen::Vector3d{0., 0., 1.};
   std::string fmtStr = fmt::format("{}", oneSideWristAndPalmPose);
   std::cout << fmtStr << std::endl;
   EXPECT_THAT(
       fmtStr,
       MatchesRegex(
-          "^WristAndPalmPose::OneSide\\(confidence: .*, wrist: .*, palm: .*, palmNormal: .*, wristNormal: .*\\)"));
+          "^WristAndPalmPose::OneSide\\(confidence: .*, landmarks: .*, wrist: .*, palm: .*, palmNormal: .*, wristNormal: .*\\)"));
 }

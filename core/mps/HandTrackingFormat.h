@@ -55,8 +55,19 @@ struct fmt::formatter<projectaria::tools::mps::WristAndPalmPose::OneSide>
       FormatContext& ctx) const {
     // Start the message with basic info that's guaranteed to be there
     std::string msg = fmt::format(
-        "WristAndPalmPose::OneSide(confidence: {}, wrist: {}, palm: {}",
-        oneSideWristAndPalmPose.confidence,
+        "WristAndPalmPose::OneSide(confidence: {}, landmarks: [",
+        oneSideWristAndPalmPose.confidence);
+    // Iterate over the landmark positions and append them to the message
+    for (size_t iLandmark = 0; iLandmark < oneSideWristAndPalmPose.landmarkPositions_device.size();
+         ++iLandmark) {
+      msg += fmt::format(
+          "{}: {}", iLandmark, oneSideWristAndPalmPose.landmarkPositions_device[iLandmark]);
+      if (iLandmark < oneSideWristAndPalmPose.landmarkPositions_device.size() - 1) {
+        msg += ", "; // Add a comma between landmarks, except after the last one
+      }
+    }
+    msg += fmt::format(
+        "], wrist: {}, palm: {}",
         oneSideWristAndPalmPose.wristPosition_device,
         oneSideWristAndPalmPose.palmPosition_device);
     // Add optional palm normal field
@@ -64,8 +75,8 @@ struct fmt::formatter<projectaria::tools::mps::WristAndPalmPose::OneSide>
       msg = fmt::format(
           "{}, palmNormal: {}, wristNormal: {}",
           msg,
-          oneSideWristAndPalmPose.wristAndPalmNormal_device.value().palmNormal_device,
-          oneSideWristAndPalmPose.wristAndPalmNormal_device.value().wristNormal_device);
+          oneSideWristAndPalmPose.wristAndPalmNormal_device->palmNormal_device,
+          oneSideWristAndPalmPose.wristAndPalmNormal_device->wristNormal_device);
     }
     // Finally close up the bracket
     return fmt::format_to(ctx.out(), "{})", msg);
