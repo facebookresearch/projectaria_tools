@@ -688,6 +688,10 @@ void exportMps(py::module& m) {
           &WristAndPalmPose::OneSide::confidence,
           "Tracking confidence score for this hand.")
       .def_readwrite(
+          "landmark_positions_device",
+          &WristAndPalmPose::OneSide::landmarkPositions_device,
+          "List of hand landmark positions in device frame.")
+      .def_readwrite(
           "wrist_position_device",
           &WristAndPalmPose::OneSide::wristPosition_device,
           "Position of the wrist joint in device frame.")

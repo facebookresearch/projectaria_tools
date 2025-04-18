@@ -30,16 +30,28 @@ namespace projectaria::tools::mps {
 enum class HANDEDNESS { LEFT = 0, RIGHT = 1 };
 
 /**
- * @brief A struct representing wrist and palm tracking status per frame.
+ * @brief A struct representing hand landmarks tracking status per frame.
  */
 struct WristAndPalmPose {
+  static constexpr size_t kNumLandmarks = 21;
   struct OneSide {
-    double confidence;
-    Eigen::Vector3d wristPosition_device;
-    Eigen::Vector3d palmPosition_device;
+    double confidence = 0.;
+    // The following code is required to make the initialization work with pybind11. The following
+    // code is more concise in C++, but pybind doesn't seem to initialize the array to all zeros.
+    // std::array<Eigen::Vector3d, kNumLandmarks> landmarkPositions_device = {};
+    std::array<Eigen::Vector3d, kNumLandmarks> landmarkPositions_device = {
+        Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
+        Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
+        Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
+        Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
+        Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
+        Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
+        Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero()};
+    Eigen::Vector3d wristPosition_device{};
+    Eigen::Vector3d palmPosition_device{};
     struct WristAndPalmNormals {
-      Eigen::Vector3d palmNormal_device;
-      Eigen::Vector3d wristNormal_device;
+      Eigen::Vector3d palmNormal_device{};
+      Eigen::Vector3d wristNormal_device{};
     };
     std::optional<WristAndPalmNormals> wristAndPalmNormal_device;
   };
