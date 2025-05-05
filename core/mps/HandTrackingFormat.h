@@ -36,7 +36,7 @@ struct fmt::formatter<projectaria::tools::mps::WristAndPalmPose::OneSide::WristA
     // Start the message with basic info that's guaranteed to be there
     return fmt::format_to(
         ctx.out(),
-        "WristAndPalmPose::OneSide::wristAndPalmNormals(wrist: {}, palm: {}",
+        "WristAndPalmPose::OneSide::wristAndPalmNormals(wrist: {}, palm: {})",
         wristAndPalmNormals.wristNormal_device,
         wristAndPalmNormals.palmNormal_device);
   }
@@ -64,8 +64,8 @@ struct fmt::formatter<projectaria::tools::mps::WristAndPalmPose::OneSide>
       msg = fmt::format(
           "{}, palmNormal: {}, wristNormal: {}",
           msg,
-          oneSideWristAndPalmPose.wristAndPalmNormal_device.value().palmNormal_device,
-          oneSideWristAndPalmPose.wristAndPalmNormal_device.value().wristNormal_device);
+          oneSideWristAndPalmPose.wristAndPalmNormal_device->palmNormal_device,
+          oneSideWristAndPalmPose.wristAndPalmNormal_device->wristNormal_device);
     }
     // Finally close up the bracket
     return fmt::format_to(ctx.out(), "{})", msg);
@@ -92,6 +92,104 @@ struct fmt::formatter<projectaria::tools::mps::WristAndPalmPose>
         ctx.out(),
         "WristAndPalmPose(tracking_timestamp: {}, left: {}, right: {})",
         wristAndPalmPose.trackingTimestamp,
+        leftHandString,
+        rightHandString);
+  }
+};
+
+/*
+ * fmt::format() specialization for HandTrackingResult::OneSide::WristAndPalmNormals
+ */
+template <>
+struct fmt::formatter<projectaria::tools::mps::HandTrackingResult::OneSide::WristAndPalmNormals>
+    : fmt::formatter<std::string_view> {
+  // Format the HandTrackingResult::OneSide::WristAndPalmNormals object
+  template <typename FormatContext>
+  auto format(
+      const projectaria::tools::mps::HandTrackingResult::OneSide::WristAndPalmNormals&
+          wristAndPalmNormals,
+      FormatContext& ctx) const {
+    // Start the message with basic info that's guaranteed to be there
+    return fmt::format_to(
+        ctx.out(),
+        "HandTrackingResult::OneSide::wristAndPalmNormals(wrist: {}, palm: {})",
+        wristAndPalmNormals.wristNormal_device,
+        wristAndPalmNormals.palmNormal_device);
+  }
+};
+
+/*
+ * fmt::format() specialization for HandTrackingResult::OneSide
+ */
+template <>
+struct fmt::formatter<projectaria::tools::mps::HandTrackingResult::OneSide>
+    : fmt::formatter<std::string_view> {
+  // Format the HandTrackingResult::OneSide object
+  template <typename FormatContext>
+  auto format(
+      const projectaria::tools::mps::HandTrackingResult::OneSide& oneSideHandTrackingResult,
+      FormatContext& ctx) const {
+    // Start the message with basic info that's guaranteed to be there
+    std::string msg = fmt::format(
+        "HandTrackingResult::OneSide(confidence: {}, landmarks: [",
+        oneSideHandTrackingResult.confidence);
+
+    const auto& landmarkPositions_device = oneSideHandTrackingResult.landmarkPositions_device;
+    // Iterate over the landmark positions and append them to the message
+    for (size_t iLandmark = 0; iLandmark < landmarkPositions_device.size(); ++iLandmark) {
+      msg += fmt::format("{}: {}", iLandmark, landmarkPositions_device[iLandmark]);
+      if (iLandmark < landmarkPositions_device.size() - 1) {
+        msg += ", "; // Add a comma between landmarks, except after the last one
+      }
+    }
+    msg += "]"; // Close the list of landmarks
+
+    // T_device_wrist transform
+    msg = fmt::format(
+        "{}, T_Device_Wrist(t: [{}, {}, {}], R: [{}, {}, {}, {}])",
+        msg,
+        oneSideHandTrackingResult.T_Device_Wrist.translation().x(),
+        oneSideHandTrackingResult.T_Device_Wrist.translation().y(),
+        oneSideHandTrackingResult.T_Device_Wrist.translation().z(),
+        oneSideHandTrackingResult.T_Device_Wrist.so3().unit_quaternion().x(),
+        oneSideHandTrackingResult.T_Device_Wrist.so3().unit_quaternion().y(),
+        oneSideHandTrackingResult.T_Device_Wrist.so3().unit_quaternion().z(),
+        oneSideHandTrackingResult.T_Device_Wrist.so3().unit_quaternion().w());
+
+    // Add optional palm normal field
+    if (oneSideHandTrackingResult.wristAndPalmNormal_device.has_value()) {
+      msg = fmt::format(
+          "{}, palmNormal: {}, wristNormal: {}",
+          msg,
+          oneSideHandTrackingResult.wristAndPalmNormal_device->palmNormal_device,
+          oneSideHandTrackingResult.wristAndPalmNormal_device->wristNormal_device);
+    }
+    // Finally close up the bracket
+    return fmt::format_to(ctx.out(), "{})", msg);
+  }
+};
+
+/*
+ * fmt::format() specialization for HandTrackingResult
+ */
+template <>
+struct fmt::formatter<projectaria::tools::mps::HandTrackingResult>
+    : fmt::formatter<std::string_view> {
+  // Format the HandTrackingResult object
+  template <typename FormatContext>
+  auto format(
+      const projectaria::tools::mps::HandTrackingResult& handTrackingResult,
+      FormatContext& ctx) const {
+    const auto& leftHandString = handTrackingResult.leftHand.has_value()
+        ? fmt::to_string(handTrackingResult.leftHand.value())
+        : "NONE";
+    const auto& rightHandString = handTrackingResult.rightHand.has_value()
+        ? fmt::to_string(handTrackingResult.rightHand.value())
+        : "NONE";
+    return fmt::format_to(
+        ctx.out(),
+        "HandTrackingResult(tracking_timestamp: {}, left: {}, right: {})",
+        handTrackingResult.trackingTimestamp,
         leftHandString,
         rightHandString);
   }

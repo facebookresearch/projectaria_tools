@@ -35,12 +35,41 @@ TEST(format_oneSideWristAndPalmPose, formattedMessageIsCorrectForBothNormals) {
   // Now contains both palm and wrist normals
   oneSideWristAndPalmPose.wristAndPalmNormal_device =
       WristAndPalmPose::OneSide::WristAndPalmNormals();
-  oneSideWristAndPalmPose.wristAndPalmNormal_device->palmNormal_device = Eigen::Vector3d(0, 1, 0);
-  oneSideWristAndPalmPose.wristAndPalmNormal_device->wristNormal_device = Eigen::Vector3d(0, 0, 1);
+  oneSideWristAndPalmPose.wristAndPalmNormal_device->palmNormal_device =
+      Eigen::Vector3d{0., 1., 0.};
+  oneSideWristAndPalmPose.wristAndPalmNormal_device->wristNormal_device =
+      Eigen::Vector3d{0., 0., 1.};
   std::string fmtStr = fmt::format("{}", oneSideWristAndPalmPose);
   std::cout << fmtStr << std::endl;
   EXPECT_THAT(
       fmtStr,
       MatchesRegex(
           "^WristAndPalmPose::OneSide\\(confidence: .*, wrist: .*, palm: .*, palmNormal: .*, wristNormal: .*\\)"));
+}
+
+TEST(format_oneSideHandTrackingResult, formattedMessageIsCorrectForDefaultResult) {
+  HandTrackingResult::OneSide oneSideHandTrackingResult;
+  std::string fmtStr = fmt::format("{}", oneSideHandTrackingResult);
+  std::cout << fmtStr << std::endl;
+  EXPECT_THAT(
+      fmtStr,
+      MatchesRegex(
+          "^HandTrackingResult::OneSide\\(confidence: .*, landmarks: .*, T_Device_Wrist\\(t: .*, R: .*\\)\\)"));
+}
+
+TEST(format_oneSideHandTrackingResult, formattedMessageIsCorrectForBothNormals) {
+  HandTrackingResult::OneSide oneSideHandTrackingResult;
+  // Now contains both palm and wrist normals
+  oneSideHandTrackingResult.wristAndPalmNormal_device =
+      HandTrackingResult::OneSide::WristAndPalmNormals();
+  oneSideHandTrackingResult.wristAndPalmNormal_device->palmNormal_device =
+      Eigen::Vector3d{0., 1., 0.};
+  oneSideHandTrackingResult.wristAndPalmNormal_device->wristNormal_device =
+      Eigen::Vector3d{0., 0., 1.};
+  std::string fmtStr = fmt::format("{}", oneSideHandTrackingResult);
+  std::cout << fmtStr << std::endl;
+  EXPECT_THAT(
+      fmtStr,
+      MatchesRegex(
+          "^HandTrackingResult::OneSide\\(confidence: .*, landmarks: .*, T_Device_Wrist\\(t: .*, R: .*\\), palmNormal: .*, wristNormal: .*\\)"));
 }
