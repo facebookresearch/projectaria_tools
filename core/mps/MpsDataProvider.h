@@ -49,43 +49,43 @@ class MpsDataProvider {
    * @brief Check if general eye gaze data is available in the MPS data paths
    * @return true if data is available, false otherwise
    */
-  bool hasGeneralEyeGaze() const;
+  [[nodiscard]] bool hasGeneralEyeGaze() const;
 
   /**
    * @brief Check if personalized eye gaze data is available in the MPS data paths
    * @return true if data is available, false otherwise
    */
-  bool hasPersonalizedEyeGaze() const;
+  [[nodiscard]] bool hasPersonalizedEyeGaze() const;
 
   /**
    * @brief Check if open loop poses are available in the MPS data paths
    * @return true if data is available, false otherwise
    */
-  bool hasOpenLoopPoses() const;
+  [[nodiscard]] bool hasOpenLoopPoses() const;
 
   /**
    * @brief Check if closed loop poses are available in the MPS data paths
    * @return true if data is available, false otherwise
    */
-  bool hasClosedLoopPoses() const;
+  [[nodiscard]] bool hasClosedLoopPoses() const;
 
   /**
    * @brief Check if online calbrations are available in the MPS data paths
    * @return true if data is available, false otherwise
    */
-  bool hasOnlineCalibrations() const;
+  [[nodiscard]] bool hasOnlineCalibrations() const;
 
   /**
    * @brief Check if semidense point cloud data is available in the MPS data paths
    * @return true if data is available, false otherwise
    */
-  bool hasSemidensePointCloud() const;
+  [[nodiscard]] bool hasSemidensePointCloud() const;
 
   /**
    * @brief Check if semidense observations are available in the MPS data paths
    * @return true if data is available, false otherwise
    */
-  bool hasSemidenseObservations() const;
+  [[nodiscard]] bool hasSemidenseObservations() const;
 
   /**
    * @brief Query MPS for general EyeGaze at a specific timestamp. This will throw an exception if
@@ -192,7 +192,26 @@ class MpsDataProvider {
    * @brief Check if WristAndPalmPoses are available in the MPS data paths
    * @return true if data is available, false otherwise
    */
-  bool hasWristAndPalmPoses() const;
+  [[nodiscard]] bool hasWristAndPalmPoses() const;
+
+  /**
+   * @brief Query MPS for HandTrackingResult (landmark positions, wrist transform, wrist and palm
+   * normals, etc.) at a specific timestamp. This will throw an exception if HandTrackingResult
+   * data is not available. Check for data availability first using `hasHandTrackingResults()`
+   * @param deviceTimeStampNs The query timestamp in `TimeDomain::DeviceTime`.
+   * @param timeQueryOptions The options for TimeQuery, one of {BEFORE, AFTER, CLOSEST}. Defaults to
+   * CLOSEST.
+   * @return optional HandTrackingResult, will return invalid if the query time is invalid
+   */
+  std::optional<HandTrackingResult> getHandTrackingResult(
+      int64_t captureTimestampNs,
+      const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Closest);
+
+  /**
+   * @brief Check if HandTrackingResults are available in the MPS data paths
+   * @return true if data is available, false otherwise
+   */
+  [[nodiscard]] bool hasHandTrackingResults() const;
 
   /**
    * @brief Get the RGB frame closed loop pose relative to world at a specific timestamp. This will
@@ -243,6 +262,7 @@ class MpsDataProvider {
   std::map<int64_t, ClosedLoopTrajectoryPose> closedLoopPoses_;
   std::map<int64_t, OnlineCalibration> onlineCalibrations_;
   std::map<int64_t, WristAndPalmPose> wristAndPalmPoses_;
+  std::map<int64_t, HandTrackingResult> handTrackingResults_;
   GlobalPointCloud globalPointCloud_;
   PointObservations pointObservations_;
   std::optional<std::string> slamVersion_;

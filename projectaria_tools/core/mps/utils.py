@@ -93,6 +93,22 @@ def get_nearest_wrist_and_palm_pose(
     return wirst_and_palm_poses[bisection_index]
 
 
+def get_nearest_hand_tracking_result(
+    hand_tracking_results: List[hand_tracking.HandTrackingResult],
+    query_timestamp_ns: int,
+) -> hand_tracking.HandTrackingResult:
+    """
+    Helper function to get nearest hand tracking result for a timestamp (ns)
+    Return the closest or equal timestamp hand tracking result that can be found, returns None if not found (out of time range)
+    """
+    bisection_index = bisection_timestamp_search(
+        hand_tracking_results, query_timestamp_ns
+    )
+    if bisection_index is None:
+        return None
+    return hand_tracking_results[bisection_index]
+
+
 def filter_points_from_confidence(
     raw_points: List[GlobalPointPosition],
     threshold_invdep: float = 0.001,

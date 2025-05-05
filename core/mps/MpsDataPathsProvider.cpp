@@ -103,17 +103,23 @@ void MpsDataPathsProvider::loadDataPaths() {
 
   loadFilePathIfExists(mpsEyegazePath, kMpsEyegazeSummaryFile, dataPaths_.eyegaze.summary);
 
-  std::string mpsWristAndPalmPath =
+  std::string mpsHandTrackingResultsPath =
       (fs::path(mpsRootPath_) / fs::path(kMpsHandTrackingFolder)).string();
-  if (!fs::exists(mpsWristAndPalmPath)) {
+  if (!fs::exists(mpsHandTrackingResultsPath)) {
     XR_LOGW(
-        "Hand tracking folder ({}) does not exist in MPS root folder, not loading wrist and palm poses.",
-        mpsWristAndPalmPath);
+        "Hand tracking folder ({}) does not exist in MPS root folder, not loading hand tracking results.",
+        mpsHandTrackingResultsPath);
   } else {
     loadFilePathIfExists(
-        mpsWristAndPalmPath, kMpsWristAndPalmPosesFile, dataPaths_.handTracking.wristAndPalmPoses);
+        mpsHandTrackingResultsPath,
+        kMpsWristAndPalmPosesFile,
+        dataPaths_.handTracking.wristAndPalmPoses);
     loadFilePathIfExists(
-        mpsWristAndPalmPath, kMpsHandTrackingSummaryFile, dataPaths_.handTracking.summary);
+        mpsHandTrackingResultsPath,
+        kMpsHandTrackingResultsFile,
+        dataPaths_.handTracking.handTrackingResults);
+    loadFilePathIfExists(
+        mpsHandTrackingResultsPath, kMpsHandTrackingSummaryFile, dataPaths_.handTracking.summary);
   }
 }
 

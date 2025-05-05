@@ -68,6 +68,10 @@ bool MpsDataProvider::hasWristAndPalmPoses() const {
   return !dataPaths_.handTracking.wristAndPalmPoses.empty();
 }
 
+bool MpsDataProvider::hasHandTrackingResults() const {
+  return !dataPaths_.handTracking.handTrackingResults.empty();
+}
+
 std::optional<EyeGaze> MpsDataProvider::getGeneralEyeGaze(
     int64_t deviceTimeStampNs,
     const TimeQueryOptions& timeQueryOptions) {
@@ -106,6 +110,26 @@ std::optional<WristAndPalmPose> MpsDataProvider::getWristAndPalmPose(
   auto iter = data_provider::queryMapByTimestamp<WristAndPalmPose>(
       wristAndPalmPoses_, captureTimestampNs, timeQueryOptions);
   return iter == wristAndPalmPoses_.end() ? std::optional<WristAndPalmPose>() : iter->second;
+}
+
+std::optional<HandTrackingResult> MpsDataProvider::getHandTrackingResult(
+    int64_t captureTimestampNs,
+    const TimeQueryOptions& timeQueryOptions) {
+  if (!hasHandTrackingResults()) {
+    std::string error = "Cannot query for hand tracking result since the data is not available";
+    XR_LOGE("{}", error);
+    throw std::runtime_error{error};
+  }
+  if (handTrackingResults_.empty()) {
+    auto handTrackingResults = readHandTrackingResults(dataPaths_.handTracking.handTrackingResults);
+    for (const auto& handTrackingResult : handTrackingResults) {
+      handTrackingResults_.emplace(
+          handTrackingResult.trackingTimestamp.count() * kUsToNs, handTrackingResult);
+    }
+  }
+  auto iter = data_provider::queryMapByTimestamp<HandTrackingResult>(
+      handTrackingResults_, captureTimestampNs, timeQueryOptions);
+  return iter == handTrackingResults_.end() ? std::optional<HandTrackingResult>() : iter->second;
 }
 
 std::optional<EyeGaze> MpsDataProvider::getPersonalizedEyeGaze(

@@ -60,6 +60,11 @@ def parse_args():
     parser.add_argument(
         "--hands",
         type=str,
+        help="path to the MPS wrist and palm file",
+    )
+    parser.add_argument(
+        "--hands_all",
+        type=str,
         help="path to the MPS hand tracking file",
     )
     parser.add_argument(
@@ -137,6 +142,11 @@ def main() -> None:
             ):
                 args.hands = mps_data_paths.hand_tracking.wrist_and_palm_poses
 
+            if not args.hands_all and os.path.exists(
+                mps_data_paths.hand_tracking.hand_tracking_results
+            ):
+                args.hands_all = mps_data_paths.hand_tracking.hand_tracking_results
+
     mps_data_available = args.trajectory or args.points or args.eyegaze or args.hands
 
     print(
@@ -146,7 +156,8 @@ def main() -> None:
     - trajectory/closed_loop_trajectory: {args.trajectory}
     - trajectory/point_cloud: {args.points}
     - eye_gaze/general_eye_gaze: {args.eyegaze}
-    - hand_tracking/wrist_and_palm_poses: {args.hands}
+    - wrist_and_palm_poses: {args.hands}
+    - hand_tracking_results: {args.hands_all}
     """
     )
 
@@ -169,6 +180,7 @@ def main() -> None:
         points_files=args.points,
         eye_gaze_file=args.eyegaze,
         wrist_and_palm_poses_file=args.hands,
+        hand_tracking_results_file=args.hands_all,
         should_rectify_image=not args.no_rectify_image,
         should_rotate_image=not args.no_rotate_image_upright,
         down_sampling_factor=args.down_sampling_factor,

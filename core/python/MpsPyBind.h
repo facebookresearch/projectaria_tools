@@ -518,6 +518,10 @@ void exportMps(py::module& m) {
       "A struct that includes the file paths of all MPS Hand Tracking data for a VRS sequence processed by MPS.")
       .def_readwrite(
           "wrist_and_palm_poses", &HandTrackingDataPaths::wristAndPalmPoses, "Wrist and palm poses")
+      .def_readwrite(
+          "hand_tracking_results",
+          &HandTrackingDataPaths::handTrackingResults,
+          "Hand tracking results")
       .def_readwrite("summary", &HandTrackingDataPaths::summary, "Hand Tracking summary")
       .def("__repr__", [](HandTrackingDataPaths const& self) { return fmt::to_string(self); });
 
@@ -569,6 +573,10 @@ void exportMps(py::module& m) {
           "has_wrist_and_palm_poses",
           &MpsDataProvider::hasWristAndPalmPoses,
           "Check if wrist and palm poses are available in the MPS data paths")
+      .def(
+          "has_hand_tracking_results",
+          &MpsDataProvider::hasHandTrackingResults,
+          "Check if hand tracking results are available in the MPS data paths")
       .def(
           "get_general_eyegaze",
           &MpsDataProvider::getGeneralEyeGaze,
@@ -649,6 +657,13 @@ void exportMps(py::module& m) {
           "Get the MPS wrist and palm pose. This will throw an exception if the wrist and palm "
           "poses are not available. Check for data availability first using "
           "'has_wrist_and_palm_poses()'")
+      .def(
+          "get_hand_tracking_result",
+          &MpsDataProvider::getHandTrackingResult,
+          py::return_value_policy::reference_internal,
+          "Get the MPS hand tracking result (landmarks, wrist transform, wrist and palm normals, etc.). "
+          "This will throw an exception if the hand tracking results are not available."
+          "Check for data availability first using 'has_hand_tracking_results()'")
       .def("get_slam_version", &MpsDataProvider::getSlamVersion, "Get the MPS SLAM version.")
       .def(
           "get_eyegaze_version",

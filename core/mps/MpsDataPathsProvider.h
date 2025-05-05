@@ -43,6 +43,7 @@ struct MpsSlamDataPaths {
 
 struct HandTrackingDataPaths {
   std::string wristAndPalmPoses; /**< wrist and palm poses*/
+  std::string handTrackingResults; /**< full hand tracking results */
   std::string summary; /**< hand tracking summary */
 };
 

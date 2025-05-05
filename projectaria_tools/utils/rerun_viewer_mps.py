@@ -25,6 +25,7 @@ from projectaria_tools.core.mps.utils import (
     filter_points_from_count,
     get_gaze_vector_reprojection,
     get_nearest_eye_gaze,
+    get_nearest_hand_tracking_result,
     get_nearest_pose,
     get_nearest_wrist_and_palm_pose,
 )
@@ -317,6 +318,7 @@ def log_hand_tracking(
                     colors=[WRIST_PALM_COLOR],
                 ),
             )
+
         if palm_normals:
             # Log palm 3D normals
             rr.log(
@@ -327,6 +329,7 @@ def log_hand_tracking(
                     colors=[WRIST_PALM_COLOR],
                 ),
             )
+
         # Log wrist and palm 3D point projections on the image
         wrist_pixels = [
             get_camera_projection_from_device_point(wrist_point, rgb_camera_calibration)
@@ -441,12 +444,340 @@ def log_hand_tracking(
             )
 
 
+def log_hand_tracking_results(
+    hand_tracking_results: List[mps.hand_tracking.HandTrackingResult],
+    device_time_ns: int,
+    rgb_camera_calibration: CameraCalibration,
+    rgb_stream_label: str,
+    down_sampling_factor: int,
+) -> None:
+    #
+    # Hand Tracking (wrist and palm 3D pose and image projections)
+    #
+    logged_hand_tracking_2D_points: bool = False
+    logged_hand_tracking_2D_links: bool = False
+    logged_hand_tracking_3D: bool = False
+    logged_hand_tracking_2D_normal_links: bool = False
+    if hand_tracking_results:
+        hand_tracking_result = get_nearest_hand_tracking_result(
+            hand_tracking_results, device_time_ns
+        )
+        wrist_points: List[np.array] = []
+        palm_points: List[np.array] = []
+        landmark_points: List[np.array] = []
+        wrist_normals: List[np.array] = []
+        palm_normals: List[np.array] = []
+        if (
+            hand_tracking_result
+            and np.abs(
+                hand_tracking_result.tracking_timestamp.total_seconds() * 1e9
+                - device_time_ns
+            )
+            < WRIST_PALM_TIME_DIFFERENCE_THRESHOLD_NS
+        ):
+            for one_side_pose in [
+                hand_tracking_result.right_hand,
+                hand_tracking_result.left_hand,
+            ]:
+                if one_side_pose and one_side_pose.confidence > 0:
+                    wrist_points.append(
+                        one_side_pose.landmark_positions_device[
+                            int(mps.hand_tracking.HandLandmark.WRIST)
+                        ]
+                    )
+                    palm_points.append(
+                        one_side_pose.landmark_positions_device[
+                            int(mps.hand_tracking.HandLandmark.PALM_CENTER)
+                        ]
+                    )
+                    landmark_points.extend(one_side_pose.landmark_positions_device)
+
+                    # Then collect optional wrist and palm normals
+                    if one_side_pose.wrist_and_palm_normal_device is not None:
+                        wrist_normals.append(
+                            one_side_pose.wrist_and_palm_normal_device.wrist_normal_device
+                        )
+                        palm_normals.append(
+                            one_side_pose.wrist_and_palm_normal_device.palm_normal_device
+                        )
+        if wrist_points and palm_points:
+            # Log wrist and palm 3D points
+            rr.log(
+                "world/device/wrist-and-palm/points",
+                rr.Points3D(
+                    np.concatenate([wrist_points, palm_points]),
+                    radii=0.01,
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+            rr.log(
+                "world/device/wrist-and-palm/links",
+                rr.LineStrips3D(
+                    np.stack([wrist_points, palm_points], axis=1),
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+            logged_hand_tracking_3D = True
+
+        if landmark_points:
+            # Log landmark 3D points
+            rr.log(
+                "world/device/wrist-and-palm/points",
+                rr.Points3D(
+                    np.concatenate(landmark_points),
+                    radii=0.005,
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+            # Add linestrips for landmark points based on the given pairs.
+            landmark_line_strips_3d = np.zeros((0, 2, 3))
+            # Split the landmark points into left and right
+            left_landmark_points = landmark_points[
+                : mps.hand_tracking.kNumHandLandmarks
+            ]
+            right_landmark_points = landmark_points[
+                mps.hand_tracking.kNumHandLandmarks :
+            ]
+            for start, end in mps.hand_tracking.kHandJointConnections:
+                if left_landmark_points:
+                    landmark_line_strips_3d = np.append(
+                        landmark_line_strips_3d,
+                        [
+                            [
+                                left_landmark_points[int(start)],
+                                left_landmark_points[int(end)],
+                            ]
+                        ],
+                        axis=0,
+                    )
+                if right_landmark_points:
+                    landmark_line_strips_3d = np.append(
+                        landmark_line_strips_3d,
+                        [
+                            [
+                                right_landmark_points[int(start)],
+                                right_landmark_points[int(end)],
+                            ]
+                        ],
+                        axis=0,
+                    )
+            rr.log(
+                "world/device/wrist-and-palm/landmark_links",
+                rr.LineStrips3D(
+                    landmark_line_strips_3d,
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+            logged_hand_tracking_3D = True
+
+        if wrist_normals:
+            # Log wrist 3D normals
+            rr.log(
+                "world/device/wrist-and-palm/wrist_normals",
+                rr.Arrows3D(
+                    origins=wrist_points,
+                    vectors=np.asarray(wrist_normals) * NORMAL_VIS_LEN,
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+
+        if palm_normals:
+            # Log palm 3D normals
+            rr.log(
+                "world/device/wrist-and-palm/palm_normals",
+                rr.Arrows3D(
+                    origins=palm_points,
+                    vectors=np.asarray(palm_normals) * NORMAL_VIS_LEN,
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+
+        # Log wrist and palm 3D point projections on the image
+        wrist_pixels = [
+            get_camera_projection_from_device_point(wrist_point, rgb_camera_calibration)
+            for wrist_point in wrist_points
+        ]
+        palm_pixels = [
+            get_camera_projection_from_device_point(palm_point, rgb_camera_calibration)
+            for palm_point in palm_points
+        ]
+        wrist_and_palm_points_2d = []
+        wrist_and_palm_line_strips_2d = []
+        for wrist_pixel, palm_pixel in zip(wrist_pixels, palm_pixels):
+            wrist_and_palm_points_2d += [
+                p / down_sampling_factor
+                for p in [wrist_pixel, palm_pixel]
+                if p is not None
+            ]
+            if wrist_pixel is not None and palm_pixel is not None:
+                wrist_and_palm_line_strips_2d += [
+                    [p / down_sampling_factor for p in [wrist_pixel, palm_pixel]]
+                ]
+
+        if wrist_and_palm_points_2d:
+            rr.log(
+                f"world/device/{rgb_stream_label}/wrist-and-palm_projection/points",
+                rr.Points2D(
+                    wrist_and_palm_points_2d,
+                    radii=4,
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+            logged_hand_tracking_2D_points = True
+
+        if wrist_and_palm_line_strips_2d:
+            rr.log(
+                f"world/device/{rgb_stream_label}/wrist-and-palm_projection/link",
+                rr.LineStrips2D(
+                    wrist_and_palm_line_strips_2d,
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+            logged_hand_tracking_2D_links = True
+
+        # Log landmark points projections on the image
+        landmark_points_2d = []
+        landmark_line_strips_2d = []
+        if landmark_points:
+            landmark_pixels = [
+                get_camera_projection_from_device_point(
+                    landmark_point, rgb_camera_calibration
+                )
+                for landmark_point in landmark_points
+            ]
+            for landmark_pixel in landmark_pixels:
+                if landmark_pixel is not None:
+                    landmark_points_2d += [landmark_pixel / down_sampling_factor]
+
+            left_landmark_pixels = landmark_pixels[
+                : mps.hand_tracking.kNumHandLandmarks
+            ]
+            right_landmark_pixels = landmark_pixels[
+                mps.hand_tracking.kNumHandLandmarks :
+            ]
+            for start, end in mps.hand_tracking.kHandJointConnections:
+                if (
+                    left_landmark_pixels
+                    and left_landmark_pixels[int(start)] is not None
+                    and left_landmark_pixels[int(end)] is not None
+                ):
+                    landmark_line_strips_2d.append(
+                        [
+                            left_landmark_pixels[int(start)] / down_sampling_factor,
+                            left_landmark_pixels[int(end)] / down_sampling_factor,
+                        ]
+                    )
+                if (
+                    right_landmark_pixels
+                    and right_landmark_pixels[int(start)] is not None
+                    and right_landmark_pixels[int(end)] is not None
+                ):
+                    landmark_line_strips_2d.append(
+                        [
+                            right_landmark_pixels[int(start)] / down_sampling_factor,
+                            right_landmark_pixels[int(end)] / down_sampling_factor,
+                        ]
+                    )
+
+        if landmark_points_2d:
+            rr.log(
+                f"world/device/{rgb_stream_label}/wrist-and-palm_projection/points",
+                rr.Points2D(
+                    landmark_points_2d,
+                    radii=2,
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+            logged_hand_tracking_2D_points = True
+
+        if landmark_line_strips_2d:
+            rr.log(
+                f"world/device/{rgb_stream_label}/wrist-and-palm_projection/link",
+                rr.LineStrips2D(
+                    landmark_line_strips_2d,
+                    colors=[WRIST_PALM_COLOR],
+                ),
+            )
+            logged_hand_tracking_2D_links = True
+
+        # Log wrist and palm 3D normals projections on the image
+        if len(wrist_normals) > 0 and len(palm_normals) > 0:
+            wrist_normal_tip_pixels = [
+                get_camera_projection_from_device_point(
+                    wrist_point + wrist_normal * NORMAL_VIS_LEN, rgb_camera_calibration
+                )
+                for wrist_point, wrist_normal in zip(wrist_points, wrist_normals)
+            ]
+            palm_normal_tip_pixels = [
+                get_camera_projection_from_device_point(
+                    palm_point + palm_normal * NORMAL_VIS_LEN, rgb_camera_calibration
+                )
+                for palm_point, palm_normal in zip(palm_points, palm_normals)
+            ]
+            wrist_and_palm_normal_arrows_2d = []
+            for hand_i, (wrist_pixel, palm_pixel) in enumerate(
+                zip(wrist_pixels, palm_pixels)
+            ):
+                # normal tip vector projected to image can be used as arrow direction for the vis
+                if (
+                    wrist_normal_tip_pixels[hand_i] is not None
+                    and wrist_pixel is not None
+                ):
+                    wrist_normal_in_2d = wrist_normal_tip_pixels[hand_i] - wrist_pixel
+                    wrist_normal_in_2d /= np.linalg.norm(wrist_normal_in_2d)
+                    wrist_normal_in_2d *= NORMAL_VIS_LEN_2D / down_sampling_factor
+                    wrist_and_palm_normal_arrows_2d.append(wrist_normal_in_2d)
+                if (
+                    palm_normal_tip_pixels[hand_i] is not None
+                    and palm_pixel is not None
+                ):
+                    palm_normal_in_2d = palm_normal_tip_pixels[hand_i] - palm_pixel
+                    palm_normal_in_2d /= np.linalg.norm(palm_normal_in_2d)
+                    palm_normal_in_2d *= NORMAL_VIS_LEN_2D / down_sampling_factor
+                    wrist_and_palm_normal_arrows_2d.append(palm_normal_in_2d)
+
+            if wrist_and_palm_normal_arrows_2d:
+                rr.log(
+                    f"world/device/{rgb_stream_label}/wrist-and-palm_projection/normals",
+                    rr.Arrows2D(
+                        origins=wrist_and_palm_points_2d,
+                        vectors=wrist_and_palm_normal_arrows_2d,
+                        colors=[WRIST_PALM_COLOR],
+                    ),
+                )
+                logged_hand_tracking_2D_normal_links = True
+
+    if not logged_hand_tracking_3D:
+        rr.log("world/device/wrist-and-palm", rr.Clear.recursive())
+
+    if not logged_hand_tracking_2D_points:
+        # If no points were found, recursively clear the 2D projections
+        rr.log(
+            f"world/device/{rgb_stream_label}/wrist-and-palm_projection",
+            rr.Clear.recursive(),
+        )
+    else:
+        if not logged_hand_tracking_2D_links:
+            # If only the points links are missing, clear the links
+            rr.log(
+                f"world/device/{rgb_stream_label}/wrist-and-palm_projection/link",
+                rr.Clear.recursive(),
+            )
+        if not logged_hand_tracking_2D_normal_links:
+            # If only the normal links are missing, clear the links
+            rr.log(
+                f"world/device/{rgb_stream_label}/wrist-and-palm_projection/normals",
+                rr.Clear.recursive(),
+            )
+
+
 def log_mps_to_rerun(
     vrs_path: Optional[str],
     trajectory_files: List[str],
     points_files: List[str],
     eye_gaze_file: Optional[str],
     wrist_and_palm_poses_file: Optional[str],
+    hand_tracking_results_file: Optional[str],
     should_rectify_image: bool = False,
     should_rotate_image: bool = False,
     down_sampling_factor: int = 4,
@@ -526,11 +857,26 @@ def log_mps_to_rerun(
         else None
     )
     eyegaze_data = mps.read_eyegaze(eye_gaze_file) if eye_gaze_file else None
-    wrist_and_palm_poses = (
-        mps.hand_tracking.read_wrist_and_palm_poses(wrist_and_palm_poses_file)
-        if wrist_and_palm_poses_file
+
+    # If both wrist and palm poses and hand tracking results are available, use hand tracking
+    # results as it's a superset of wrist and palm poses.
+    hand_tracking_results = (
+        mps.hand_tracking.read_hand_tracking_results(hand_tracking_results_file)
+        if hand_tracking_results_file
         else None
     )
+    wrist_and_palm_poses = None
+    if hand_tracking_results is None:
+        wrist_and_palm_poses = (
+            mps.hand_tracking.read_wrist_and_palm_poses(wrist_and_palm_poses_file)
+            if wrist_and_palm_poses_file
+            else None
+        )
+    else:
+        print(
+            f"Using hand tracking results provided at {hand_tracking_results_file} "
+            f"for visualization. wrist_and_palm_poses_file ({wrist_and_palm_poses_file}) will be ignored."
+        )
 
     # Log Aria Glasses outline
     log_RGB_camera_calibration(
@@ -579,10 +925,19 @@ def log_mps_to_rerun(
             should_rotate_image,
         )
 
-        log_hand_tracking(
-            wrist_and_palm_poses,
-            device_time_ns,
-            camera_calibration,
-            rgb_stream_label,
-            down_sampling_factor,
-        )
+        if hand_tracking_results is not None:
+            log_hand_tracking_results(
+                hand_tracking_results,
+                device_time_ns,
+                camera_calibration,
+                rgb_stream_label,
+                down_sampling_factor,
+            )
+        if wrist_and_palm_poses is not None:
+            log_hand_tracking(
+                wrist_and_palm_poses,
+                device_time_ns,
+                camera_calibration,
+                rgb_stream_label,
+                down_sampling_factor,
+            )

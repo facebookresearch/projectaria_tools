@@ -38,6 +38,7 @@ inline const std::string kMpsEyegazeSummaryFile = "summary.json";
 
 // HandTracking
 inline const std::string kMpsWristAndPalmPosesFile = "wrist_and_palm_poses.csv";
+inline const std::string kMpsHandTrackingResultsFile = "hand_tracking_results.csv";
 inline const std::string kMpsHandTrackingSummaryFile = "summary.json";
 
 // Folders
