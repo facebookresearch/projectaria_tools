@@ -75,6 +75,11 @@ int main(int argc, char* argv[]) {
   std::string wristAndPalmPosesPath;
   app.add_option(
       "--wrist-and-palm-poses", wristAndPalmPosesPath, "Path to wrist and palm poses .csv file");
+  std::string handTrackingResultsPath;
+  app.add_option(
+      "--hand-tracking-results",
+      handTrackingResultsPath,
+      "Path to hand tracking results .csv file");
   CLI11_PARSE(app, argc, argv);
 
   if (closedLoopTrajPaths.empty()) {
@@ -98,6 +103,9 @@ int main(int argc, char* argv[]) {
   if (calibratedEyeGazePath.empty()) {
     XR_LOGW("Eye gaze file is not provided");
   }
+  XR_CHECK(
+      wristAndPalmPosesPath.empty() || handTrackingResultsPath.empty(),
+      "Only one of hand tracking files (wrist and palm poses csv or hand tracking results csv) can be used at a time");
 
   // Create vrs provider
   auto vrsProvider = *data_provider::createVrsDataProvider(vrsPath);
@@ -211,6 +219,11 @@ int main(int argc, char* argv[]) {
   WristAndPalmPosesProvider wristAndPalmPosesProvider(wristAndPalmPoses);
   XR_LOGI("Loaded and cached wrist and palm poses: {}", wristAndPalmPosesProvider.size());
 
+  // Get hand tracking results
+  const auto handTrackingResults = readHandTrackingResults(handTrackingResultsPath);
+  HandTrackingResultsProvider handTrackingResultsProvider(handTrackingResults);
+  XR_LOGI("Loaded and cached hand tracking results: {}", handTrackingResultsProvider.size());
+
   XR_CHECK_LE(
       allWorldFrameUids.size(),
       1,
@@ -241,7 +254,9 @@ int main(int argc, char* argv[]) {
   gui3d.setUiPlotCalibratedGaze(calibratedEyeGazeProvider.numEyeGazes() > 0);
 
   const bool wristAndPalmPosesAreAvailable = wristAndPalmPosesProvider.size() > 0;
-  gui3d.setUiShowWristAndPalmPose(wristAndPalmPosesAreAvailable);
+  const bool handTrackingResultsAreAvailable = handTrackingResultsProvider.size() > 0;
+  gui3d.setUiShowHandTrackingResult(
+      wristAndPalmPosesAreAvailable || handTrackingResultsAreAvailable);
 
   // Declare per-frame variables to draw
   std::optional<projectaria::tools::data_provider::ImageData> slamLeftImageData, slamRightImageData,
@@ -252,6 +267,7 @@ int main(int argc, char* argv[]) {
   std::optional<EyeGaze> generalizedEyeGaze;
   std::optional<EyeGaze> calibratedEyeGaze;
   std::optional<WristAndPalmPose> wristAndPalmPose;
+  std::optional<HandTrackingResult> handTrackingResult;
 
   // Main viewer loop
   while (!pangolin::ShouldQuit()) {
@@ -354,6 +370,16 @@ int main(int argc, char* argv[]) {
           }
         }
 
+        if (handTrackingResultsAreAvailable && pose) {
+          const int64_t poseTimestampNs =
+              std::chrono::duration_cast<std::chrono::nanoseconds>(pose.value().trackingTimestamp)
+                  .count();
+          handTrackingResult = handTrackingResultsProvider.findHandTrackingResult(poseTimestampNs);
+          if (!handTrackingResult) {
+            XR_LOGW("No hand tracking result data is available at this frame");
+          }
+        }
+
         // Update frame index to the next frame
         lastReplayFrame = replayFrame;
         ++replayFrame;
@@ -375,7 +401,8 @@ int main(int argc, char* argv[]) {
         currRightPointObs,
         generalizedEyeGaze,
         calibratedEyeGaze,
-        wristAndPalmPose);
+        wristAndPalmPose,
+        handTrackingResult);
 
     pangolin::FinishFrame();
   }

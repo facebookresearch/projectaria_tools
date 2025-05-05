@@ -20,4 +20,5 @@
 
 namespace projectaria::tools::mps {
 WristAndPalmPoses readWristAndPalmPoses(const std::string& filepath);
+HandTrackingResults readHandTrackingResults(const std::string& filepath);
 } // namespace projectaria::tools::mps

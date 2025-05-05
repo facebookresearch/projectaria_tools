@@ -60,7 +60,8 @@ class Data3DGui {
       const std::vector<PointObservationPair>& rightPtObs,
       const std::optional<EyeGaze>& generalizedEyeGaze,
       const std::optional<EyeGaze>& calibratedEyeGaze,
-      const std::optional<WristAndPalmPose>& wristAndPalmPose);
+      const std::optional<WristAndPalmPose>& wristAndPalmPose,
+      const std::optional<HandTrackingResult>& handTrackingResult);
 
   // Clear history of last traj
   void clearLastTraj();
@@ -73,8 +74,7 @@ class Data3DGui {
 
   void setUiPlotGeneralizedGaze(bool value);
   void setUiPlotCalibratedGaze(bool value);
-
-  void setUiShowWristAndPalmPose(bool value);
+  void setUiShowHandTrackingResult(bool value);
 
  private:
   void drawRig(
@@ -173,12 +173,12 @@ class Data3DGui {
   pangolin::Var<bool> uiPlotCalibratedGaze{"ui3d.Calibrated Eye gaze", true, true};
   pangolin::Var<float> uiGazeRayLength{"ui3d.Eye gaze depth(m) ", 0.35, 0.1, 20};
 
-  // Wrist and Palm UI
-  pangolin::Var<std::string> uiDelimiterWristAndPalmRef_{
-      "ui3d.--------- Wrist and palm poses ----------",
+  // Hand Tracking Result UI
+  pangolin::Var<std::string> uiDelimiterHandTrackingResultRef_{
+      "ui3d.--------- Hand Tracking ----------",
       "",
       pangolin::META_FLAG_READONLY};
-  pangolin::Var<bool> uiShowWristAndPalm{"ui3d.show wrist and palm pose", true, true};
+  pangolin::Var<bool> uiShowHandTrackingResult{"ui3d.show hand tracking result", true, true};
 
   pangolin::Var<std::string> uiDelimiterScaleRef_{
       "ui3d.-------------- Scale reference ---------------",
@@ -222,7 +222,7 @@ class Data3DGui {
     void drawLandmarksInImageView(Data3DGui::ImageViewName imageViewName);
   };
 
-  HandImageViewProjector wristAndPalmImageViewProjector_;
+  HandImageViewProjector handImageViewProjector_;
   static void setHandsGlColor(HANDEDNESS handedness);
   static constexpr double MIN_CONFIDENCE_ = 0.5;
 };

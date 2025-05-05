@@ -289,8 +289,8 @@ void Data3DGui::setUiPlotCalibratedGaze(bool value) {
   uiPlotCalibratedGaze = value;
 }
 
-void Data3DGui::setUiShowWristAndPalmPose(bool value) {
-  uiShowWristAndPalm = value;
+void Data3DGui::setUiShowHandTrackingResult(bool value) {
+  uiShowHandTrackingResult = value;
 }
 
 void Data3DGui::draw(
@@ -304,7 +304,8 @@ void Data3DGui::draw(
     const std::vector<std::pair<Eigen::Vector2f, GlobalPointPosition>>& rightPtObs,
     const std::optional<EyeGaze>& generalizedEyeGaze,
     const std::optional<EyeGaze>& calibratedEyeGaze,
-    const std::optional<WristAndPalmPose>& wristAndPalmPose) {
+    const std::optional<WristAndPalmPose>& wristAndPalmPose,
+    const std::optional<HandTrackingResult>& handTrackingResult) {
   // Plot fixed scene
   draw();
 
@@ -471,24 +472,30 @@ void Data3DGui::draw(
     }
   }
 
-  // wrist and palm vis 3d
-  if (uiShowWristAndPalm && T_World_Device) {
+  // hand tracking result (incl. wrist and palm) vis 3d
+  const bool showHandTrackingResultOnly =
+      handTrackingResult.has_value() && wristAndPalmPose.has_value();
+  if (showHandTrackingResultOnly) {
+    XR_LOGW(
+        "Both hand tracking results are provided. Wirst and plam poses will be ignored as they are included in the other loaded results.");
+  }
+  if (uiShowHandTrackingResult && T_World_Device) {
     for (HANDEDNESS handedness : {HANDEDNESS::LEFT, HANDEDNESS::RIGHT}) {
-      if (wristAndPalmPose) {
+      // wrist and palm vis 3d
+      if (wristAndPalmPose.has_value() && !showHandTrackingResultOnly) {
         const auto& oneHandWristAndPalmPose = wristAndPalmPose.value()[handedness];
-        if (!oneHandWristAndPalmPose ||
-            oneHandWristAndPalmPose.value().confidence < MIN_CONFIDENCE_) {
+        if (!oneHandWristAndPalmPose || oneHandWristAndPalmPose->confidence < MIN_CONFIDENCE_) {
           continue;
         }
-        const auto& wristPose = oneHandWristAndPalmPose.value().wristPosition_device;
-        const auto& palmPose = oneHandWristAndPalmPose.value().palmPosition_device;
-        const auto& wristPose_world = T_World_Device.value() * wristPose;
-        const auto& palmPose_world = T_World_Device.value() * palmPose;
-        const std::vector<Eigen::Vector3d> wristAndPalmPoses_world{wristPose_world, palmPose_world};
+        const auto& wrist_device = oneHandWristAndPalmPose->wristPosition_device;
+        const auto& palm_device = oneHandWristAndPalmPose->palmPosition_device;
+        const auto& wrist_world = T_World_Device.value() * wrist_device;
+        const auto& palm_world = T_World_Device.value() * palm_device;
+        const std::vector<Eigen::Vector3d> wristAndPalm_world{wrist_world, palm_world};
         setHandsGlColor(handedness);
         glPointSize(10);
-        pangolin::glDrawPoints(wristAndPalmPoses_world);
-        pangolin::glDrawLines(wristAndPalmPoses_world);
+        pangolin::glDrawPoints(wristAndPalm_world);
+        pangolin::glDrawLines(wristAndPalm_world);
 
         // draw wrist and palm normal
         if (!oneHandWristAndPalmPose.value().wristAndPalmNormal_device) {
@@ -502,10 +509,63 @@ void Data3DGui::draw(
         const auto& palmNormal_world =
             T_World_Device.value().so3() * wristAndPalmNormal_device.palmNormal_device;
         const std::vector<Eigen::Vector3d> wristAndPalmNormalLines{
-            wristPose_world,
-            wristPose_world + wristNormal_world * kNormalVisLen,
-            palmPose_world,
-            palmPose_world + palmNormal_world * kNormalVisLen};
+            wrist_world,
+            wrist_world + wristNormal_world * kNormalVisLen,
+            palm_world,
+            palm_world + palmNormal_world * kNormalVisLen};
+        setHandsGlColor(handedness);
+        pangolin::glDrawLines(wristAndPalmNormalLines);
+      }
+
+      // hand tracking result vis 3d
+      if (handTrackingResult) {
+        const auto& oneSideHandTrackingResult = handTrackingResult.value()[handedness];
+        if (!oneSideHandTrackingResult || oneSideHandTrackingResult->confidence < MIN_CONFIDENCE_) {
+          continue;
+        }
+        const auto& landmarkPositions_device = oneSideHandTrackingResult->landmarkPositions_device;
+        const auto& wrist_device =
+            landmarkPositions_device[static_cast<size_t>(HandLandmark::WRIST)];
+        const auto& palm_device =
+            landmarkPositions_device[static_cast<size_t>(HandLandmark::PALM_CENTER)];
+        const auto& wrist_world = T_World_Device.value() * wrist_device;
+        const auto& palm_world = T_World_Device.value() * palm_device;
+        const std::vector<Eigen::Vector3d> wristAndPalm_world{wrist_world, palm_world};
+        setHandsGlColor(handedness);
+        glPointSize(10);
+        pangolin::glDrawPoints(wristAndPalm_world);
+        pangolin::glDrawLines(wristAndPalm_world);
+
+        // draw landmarks vis 3d
+        std::array<Eigen::Vector3d, kNumHandLandmarks> landmarks_world;
+        for (size_t iLandmark = 0; iLandmark < kNumHandLandmarks; ++iLandmark) {
+          landmarks_world[iLandmark] = T_World_Device.value() * landmarkPositions_device[iLandmark];
+        }
+        std::vector<Eigen::Vector3d> jointConnections;
+        jointConnections.reserve(kHandJointConnections.size() * 2);
+        for (const auto& connection : kHandJointConnections) {
+          jointConnections.push_back(landmarks_world[static_cast<size_t>(connection.first)]);
+          jointConnections.push_back(landmarks_world[static_cast<size_t>(connection.second)]);
+        }
+        pangolin::glDrawPoints(jointConnections);
+        pangolin::glDrawLines(jointConnections);
+
+        // draw wrist and palm normal
+        if (!oneSideHandTrackingResult->wristAndPalmNormal_device.has_value()) {
+          continue;
+        }
+
+        const auto& wristAndPalmNormal_device =
+            oneSideHandTrackingResult->wristAndPalmNormal_device.value();
+        const auto& wristNormal_world =
+            T_World_Device.value().so3() * wristAndPalmNormal_device.wristNormal_device;
+        const auto& palmNormal_world =
+            T_World_Device.value().so3() * wristAndPalmNormal_device.palmNormal_device;
+        const std::vector<Eigen::Vector3d> wristAndPalmNormalLines{
+            wrist_world,
+            wrist_world + wristNormal_world * kNormalVisLen,
+            palm_world,
+            palm_world + palmNormal_world * kNormalVisLen};
         setHandsGlColor(handedness);
         pangolin::glDrawLines(wristAndPalmNormalLines);
       }
@@ -518,18 +578,14 @@ void Data3DGui::draw(
         Data3DGui::ImageViewName::LEFT_SLAM_VIEW,
         Data3DGui::ImageViewName::RIGHT_SLAM_VIEW}) {
     for (HANDEDNESS handedness : {HANDEDNESS::LEFT, HANDEDNESS::RIGHT}) {
-      auto& wristAndPalmLandmarksInImageView =
-          wristAndPalmImageViewProjector_.landmarksInImageView[imageViewName][handedness];
-      auto& wristAndPalmConnectivityLinksInImageView =
-          wristAndPalmImageViewProjector_.linksInImageView[imageViewName][handedness];
-      wristAndPalmLandmarksInImageView.clear();
-      wristAndPalmConnectivityLinksInImageView.clear();
-      if (!wristAndPalmPose) {
-        continue;
-      }
-      const auto& oneHandWristAndPalmPose = wristAndPalmPose.value()[handedness];
-      if (!uiShowWristAndPalm || !deviceCalib || !oneHandWristAndPalmPose ||
-          oneHandWristAndPalmPose.value().confidence < MIN_CONFIDENCE_) {
+      auto& handLandmarksInImageView =
+          handImageViewProjector_.landmarksInImageView[imageViewName][handedness];
+      auto& handConnectivityLinksInImageView =
+          handImageViewProjector_.linksInImageView[imageViewName][handedness];
+      handLandmarksInImageView.clear();
+      handConnectivityLinksInImageView.clear();
+
+      if (!uiShowHandTrackingResult || !deviceCalib) {
         continue;
       }
 
@@ -553,24 +609,68 @@ void Data3DGui::draw(
         continue;
       }
 
-      // Collect all lines as pair of points
-      std::vector<Eigen::Vector3d> lines = {
-          oneHandWristAndPalmPose.value().wristPosition_device,
-          oneHandWristAndPalmPose.value().palmPosition_device};
-      if (oneHandWristAndPalmPose.value().wristAndPalmNormal_device) {
-        const auto& wristAndPalmNormal_device =
-            oneHandWristAndPalmPose.value().wristAndPalmNormal_device.value();
-        // wrist normal line
-        lines.emplace_back(oneHandWristAndPalmPose.value().wristPosition_device);
-        lines.emplace_back(
-            oneHandWristAndPalmPose.value().wristPosition_device +
-            wristAndPalmNormal_device.wristNormal_device * kNormalVisLen);
-        // palm normal line
-        lines.emplace_back(oneHandWristAndPalmPose.value().palmPosition_device);
-        lines.emplace_back(
-            oneHandWristAndPalmPose.value().palmPosition_device +
-            wristAndPalmNormal_device.palmNormal_device * kNormalVisLen);
+      // Shared for both hand tracking result and wrist and palm pose. We assume only one is
+      // provided at a time (enforced by the options passed into the 3d replay viewer).
+      std::vector<Eigen::Vector3d> lines;
+
+      if (wristAndPalmPose.has_value() && !showHandTrackingResultOnly) {
+        const auto& oneHandWristAndPalmPose = wristAndPalmPose.value()[handedness];
+        if (!oneHandWristAndPalmPose || oneHandWristAndPalmPose->confidence < MIN_CONFIDENCE_) {
+          continue;
+        }
+
+        // Collect all lines as pair of points
+        lines.emplace_back(oneHandWristAndPalmPose->wristPosition_device);
+        lines.emplace_back(oneHandWristAndPalmPose->palmPosition_device);
+        if (oneHandWristAndPalmPose->wristAndPalmNormal_device.has_value()) {
+          const auto& wristAndPalmNormal_device =
+              oneHandWristAndPalmPose->wristAndPalmNormal_device.value();
+          // wrist normal line
+          lines.emplace_back(oneHandWristAndPalmPose->wristPosition_device);
+          lines.emplace_back(
+              oneHandWristAndPalmPose->wristPosition_device +
+              wristAndPalmNormal_device.wristNormal_device * kNormalVisLen);
+          // palm normal line
+          lines.emplace_back(oneHandWristAndPalmPose->palmPosition_device);
+          lines.emplace_back(
+              oneHandWristAndPalmPose->palmPosition_device +
+              wristAndPalmNormal_device.palmNormal_device * kNormalVisLen);
+        }
       }
+
+      if (handTrackingResult.has_value()) {
+        const auto& oneSideHandTrackingResult = handTrackingResult.value()[handedness];
+        if (!oneSideHandTrackingResult || oneSideHandTrackingResult->confidence < MIN_CONFIDENCE_) {
+          continue;
+        }
+
+        // Collect all lines as pair of points
+        const auto& landmarkPositions_device = oneSideHandTrackingResult->landmarkPositions_device;
+        const auto& wristPosition_device =
+            landmarkPositions_device[static_cast<size_t>(HandLandmark::WRIST)];
+        const auto& palmPosition_device =
+            landmarkPositions_device[static_cast<size_t>(HandLandmark::PALM_CENTER)];
+        lines.emplace_back(wristPosition_device);
+        lines.emplace_back(palmPosition_device);
+        if (oneSideHandTrackingResult->wristAndPalmNormal_device.has_value()) {
+          const auto& wristAndPalmNormal_device =
+              oneSideHandTrackingResult->wristAndPalmNormal_device.value();
+          // wrist normal line
+          lines.emplace_back(wristPosition_device);
+          lines.emplace_back(
+              wristPosition_device + wristAndPalmNormal_device.wristNormal_device * kNormalVisLen);
+          // palm normal line
+          lines.emplace_back(palmPosition_device);
+          lines.emplace_back(
+              palmPosition_device + wristAndPalmNormal_device.palmNormal_device * kNormalVisLen);
+        }
+        // Add hand landmarks
+        for (const auto& connection : kHandJointConnections) {
+          lines.emplace_back(landmarkPositions_device[static_cast<size_t>(connection.first)]);
+          lines.emplace_back(landmarkPositions_device[static_cast<size_t>(connection.second)]);
+        }
+      }
+
       // Must be multiple of 2 points
       if (lines.size() % 2 != 0) {
         const auto err = fmt::format(
@@ -582,27 +682,26 @@ void Data3DGui::draw(
         const auto point = cameraCalib->project(
             cameraCalib->getT_Device_Camera().inverse() * landmark.cast<double>());
         if (point) {
-          wristAndPalmLandmarksInImageView.emplace_back(
+          handLandmarksInImageView.emplace_back(
               cameraCalib->getImageSize()[1] - 1 - point.value()[1], point.value()[0]);
         } else {
-          wristAndPalmLandmarksInImageView.emplace_back(-1, -1);
+          handLandmarksInImageView.emplace_back(-1, -1);
         }
       }
       // Add each line to projector line list
       for (int i = 0; i < lines.size(); i += 2) {
-        const auto& p0 = wristAndPalmLandmarksInImageView.at(i).cast<double>();
-        const auto& p1 = wristAndPalmLandmarksInImageView.at(i + 1).cast<double>();
+        const auto& p0 = handLandmarksInImageView.at(i).cast<double>();
+        const auto& p1 = handLandmarksInImageView.at(i + 1).cast<double>();
         // Check visibility of link boundary points in rotated image
         const auto& imageSize = cameraCalib->getImageSize();
         if (p0[0] >= 0 && p0[0] < imageSize[1] && p0[1] >= 0 && p0[1] < imageSize[0] &&
             p1[0] >= 0 && p1[0] < imageSize[1] && p1[1] >= 0 && p1[1] < imageSize[0]) {
-          wristAndPalmConnectivityLinksInImageView.emplace_back(p0, p1);
+          handConnectivityLinksInImageView.emplace_back(p0, p1);
         }
       }
     }
-
     draw(imageViewName, [&, imageViewName](pangolin::View&) {
-      wristAndPalmImageViewProjector_.drawLandmarksInImageView(imageViewName);
+      handImageViewProjector_.drawLandmarksInImageView(imageViewName);
     });
   }
 }
@@ -683,10 +782,10 @@ void Data3DGui::HandImageViewProjector::drawLandmarksInImageView(
 void Data3DGui::setHandsGlColor(HANDEDNESS handedness) {
   switch (handedness) {
     case HANDEDNESS::LEFT:
-      glColor4f(1.0f, 0.5f, 0.0f, 1.0f);
+      glColor4f(1.f, .25f, 0.f, 1.0f);
       break;
     case HANDEDNESS::RIGHT:
-      glColor4f(0.0f, 0.5f, 1.0f, 1.0f);
+      glColor4f(1.f, 1.f, 0.f, 1.0f);
       break;
   }
 }
