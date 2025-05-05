@@ -89,7 +89,7 @@ def display_tracks_and_points(
     #
     rr.log(
         stream_label + "/observations",
-        rr.Points2D(uvs, colors=[255, 255, 0], radii=1, class_ids=uids),
+        rr.Points2D(uvs, colors=[255, 255, 0], radii=1),
     )
 
     # Display tracklets
@@ -288,7 +288,7 @@ for data in tqdm(vrs_data_provider.deliver_queued_sensor_data(deliver_option)):
             )
 
         # If we have accumulated SLAM image visibilities for both slam images, we can compute RGB visible points
-        if len(frame_set_uids) == 2:
+        if len(frame_set_uids) == 2 and stream_label == "camera-rgb":
             # We will now estimate uvs and ids for the RGB view
             #
             # Collect visible 3D points for the SLAM images and see if they are "visible" in the RGB frame
