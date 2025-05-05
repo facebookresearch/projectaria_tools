@@ -727,6 +727,115 @@ void exportMps(py::module& m) {
   path: Path to the wrist and palm poses csv file.
 
   )docdelimiter");
+
+  py::enum_<HANDEDNESS>(hand_tracking, "Handness")
+      .value("LEFT", HANDEDNESS::LEFT)
+      .value("RIGHT", HANDEDNESS::RIGHT);
+
+  py::enum_<HandLandmark>(hand_tracking, "HandLandmark")
+      .value("THUMB_FINGERTIP", HandLandmark::THUMB_FINGERTIP)
+      .value("INDEX_FINGERTIP", HandLandmark::INDEX_FINGERTIP)
+      .value("MIDDLE_FINGERTIP", HandLandmark::MIDDLE_FINGERTIP)
+      .value("RING_FINGERTIP", HandLandmark::RING_FINGERTIP)
+      .value("PINKY_FINGERTIP", HandLandmark::PINKY_FINGERTIP)
+      .value("WRIST", HandLandmark::WRIST)
+      .value("THUMB_INTERMEDIATE", HandLandmark::THUMB_INTERMEDIATE)
+      .value("THUMB_DISTAL", HandLandmark::THUMB_DISTAL)
+      .value("INDEX_PROXIMAL", HandLandmark::INDEX_PROXIMAL)
+      .value("INDEX_INTERMEDIATE", HandLandmark::INDEX_INTERMEDIATE)
+      .value("INDEX_DISTAL", HandLandmark::INDEX_DISTAL)
+      .value("MIDDLE_PROXIMAL", HandLandmark::MIDDLE_PROXIMAL)
+      .value("MIDDLE_INTERMEDIATE", HandLandmark::MIDDLE_INTERMEDIATE)
+      .value("MIDDLE_DISTAL", HandLandmark::MIDDLE_DISTAL)
+      .value("RING_PROXIMAL", HandLandmark::RING_PROXIMAL)
+      .value("RING_INTERMEDIATE", HandLandmark::RING_INTERMEDIATE)
+      .value("RING_DISTAL", HandLandmark::RING_DISTAL)
+      .value("PINKY_PROXIMAL", HandLandmark::PINKY_PROXIMAL)
+      .value("PINKY_INTERMEDIATE", HandLandmark::PINKY_INTERMEDIATE)
+      .value("PINKY_DISTAL", HandLandmark::PINKY_DISTAL)
+      .value("PALM_CENTER", HandLandmark::PALM_CENTER)
+      .value("NUM_LANDMARKS", HandLandmark::NUM_LANDMARKS);
+
+  // Expose constants
+  hand_tracking.attr("kNumHandLandmarks") = kNumHandLandmarks;
+  hand_tracking.attr("kNumHandJointConnections") = kNumHandJointConnections;
+  hand_tracking.attr("kHandJointConnections") = kHandJointConnections;
+
+  py::class_<HandTrackingResult>(
+      hand_tracking,
+      "HandTrackingResult",
+      "An object representing hand tracking output at a single timestamp.")
+      .def_readwrite(
+          "tracking_timestamp",
+          &HandTrackingResult::trackingTimestamp,
+          "The timestamp of the hand tracking estimate in device time domain.")
+      .def_readwrite(
+          "left_hand",
+          &HandTrackingResult::leftHand,
+          "Left hand estimate, or None if no valid pose was found.")
+      .def_readwrite(
+          "right_hand",
+          &HandTrackingResult::rightHand,
+          "Right hand estimate, or None if no valid pose was found.")
+      .def("__repr__", [](HandTrackingResult const& self) { return fmt::to_string(self); });
+
+  py::class_<HandTrackingResult::OneSide>(
+      hand_tracking,
+      "HandTrackingResult.OneSide",
+      "An object representing HandTrackingResult output for one side of the body.")
+      .def_readwrite(
+          "confidence",
+          &HandTrackingResult::OneSide::confidence,
+          "Tracking confidence score for this hand.")
+      .def_readwrite(
+          "landmark_positions_device",
+          &HandTrackingResult::OneSide::landmarkPositions_device,
+          "List of hand landmark positions in device frame, or None if no valid hand was found.")
+      .def_readwrite(
+          "T_device_wrist",
+          &HandTrackingResult::OneSide::T_Device_Wrist,
+          "Full 6 degree of freedom transform of wrist in device space, or None if no valid hand was found.")
+      .def_readwrite(
+          "wrist_and_palm_normal_device",
+          &HandTrackingResult::OneSide::wristAndPalmNormal_device,
+          "Normal for each of the wrist and palm joint in device frame, or None if no normals were specified in MPS generation.")
+      .def(
+          "get_wrist_position_device",
+          &HandTrackingResult::OneSide::getWristPositionInDevice,
+          "Helper function to get the wrist position in device frame.")
+      .def(
+          "get_palm_position_device",
+          &HandTrackingResult::OneSide::getPalmPositionInDevice,
+          "Helper function to get the palm position in device frame.")
+      .def(
+          "__repr__", [](HandTrackingResult::OneSide const& self) { return fmt::to_string(self); });
+
+  py::class_<HandTrackingResult::OneSide::WristAndPalmNormals>(
+      hand_tracking,
+      "HandTrackingResult.OneSide.WristAndPalmNormals",
+      "An object representing WristAndPalmNormals output for one side of the body.")
+      .def_readwrite(
+          "wrist_normal_device",
+          &HandTrackingResult::OneSide::WristAndPalmNormals::wristNormal_device,
+          "Normal for wrist joint in device frame.")
+      .def_readwrite(
+          "palm_normal_device",
+          &HandTrackingResult::OneSide::WristAndPalmNormals::palmNormal_device,
+          "Normal for palm joint in device frame.")
+      .def("__repr__", [](HandTrackingResult::OneSide::WristAndPalmNormals const& self) {
+        return fmt::to_string(self);
+      });
+
+  hand_tracking.def(
+      "read_hand_tracking_results",
+      &readHandTrackingResults,
+      py::arg("path"),
+      R"docdelimiter(Read hand tracking results from the hand tracking output generated via MPS.
+  Parameters
+  __________
+  path: Path to the hand tracking results csv file.
+
+  )docdelimiter");
 }
 
 } // namespace projectaria::tools::mps

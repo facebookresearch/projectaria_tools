@@ -158,6 +158,76 @@ class MPSHandTracking(unittest.TestCase):
             wrist_and_palm_pose.left_hand.wrist_and_palm_normal_device is not None
         )
 
+    # v1 doesn't contain wrist and palm normals
+    def test_hand_tracking_result_valid_file_v1(self) -> None:
+        hand_tracking_results_file = os.path.join(
+            TEST_FOLDER, "mps_sample/hand_tracking/hand_tracking_results_v1.csv"
+        )
+        mps_hand_tracking_results = mps.hand_tracking.read_hand_tracking_results(
+            hand_tracking_results_file
+        )
+        self.assertEqual(len(mps_hand_tracking_results), 8)
+        # Test the second pose and randomly picked landmark from the file.
+        hand_tracking_result: mps.hand_tracking.HandTrackingResult = (
+            mps_hand_tracking_results[1]
+        )
+        self.assertAlmostEqual(
+            hand_tracking_result.left_hand.landmark_positions_device[5][0], 0.187604
+        )
+        self.assertAlmostEqual(
+            hand_tracking_result.left_hand.landmark_positions_device[5][1], -0.190168
+        )
+        self.assertAlmostEqual(
+            hand_tracking_result.left_hand.landmark_positions_device[5][2], 0.242241
+        )
+        self.assertTrue(
+            hand_tracking_result.left_hand.wrist_and_palm_normal_device is None
+        )
+
+    # v2 contains wrist and palm normals
+    def test_hand_tracking_result_valid_file_v2(self) -> None:
+        hand_tracking_results_file = os.path.join(
+            TEST_FOLDER, "mps_sample/hand_tracking/hand_tracking_results_v2.csv"
+        )
+        mps_hand_tracking_results = mps.hand_tracking.read_hand_tracking_results(
+            hand_tracking_results_file
+        )
+        self.assertEqual(len(mps_hand_tracking_results), 8)
+        # Test the second pose and randomly picked landmark from the file.
+        hand_tracking_result: mps.hand_tracking.HandTrackingResult = (
+            mps_hand_tracking_results[1]
+        )
+        self.assertAlmostEqual(
+            hand_tracking_result.left_hand.landmark_positions_device[5][0], 0.187604
+        )
+        self.assertAlmostEqual(
+            hand_tracking_result.left_hand.landmark_positions_device[5][1], -0.190168
+        )
+        self.assertAlmostEqual(
+            hand_tracking_result.left_hand.landmark_positions_device[5][2], 0.242241
+        )
+        self.assertTrue(
+            hand_tracking_result.left_hand.wrist_and_palm_normal_device is not None
+        )
+        self.assertAlmostEqual(
+            hand_tracking_result.right_hand.wrist_and_palm_normal_device.wrist_normal_device[
+                0
+            ],
+            0.359117,
+        )
+        self.assertAlmostEqual(
+            hand_tracking_result.right_hand.wrist_and_palm_normal_device.wrist_normal_device[
+                1
+            ],
+            0.738406,
+        )
+        self.assertAlmostEqual(
+            hand_tracking_result.right_hand.wrist_and_palm_normal_device.wrist_normal_device[
+                2
+            ],
+            0.570781,
+        )
+
     def test_wrist_and_palm_invalid_file(self) -> None:
         wrist_and_palm_file = ""
         mps_wrist_and_palm_poses = mps.hand_tracking.read_wrist_and_palm_poses(
