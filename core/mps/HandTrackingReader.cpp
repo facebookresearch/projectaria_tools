@@ -411,8 +411,16 @@ HandTrackingResults readHandTrackingResultsV2(const std::string& filepath) {
           Sophus::SE3d(R_Device_Wrist[1].normalized(), t_Device_Wrist[1]);
       HandTrackingResult handTrackingResult;
       handTrackingResult.trackingTimestamp = std::chrono::microseconds(tracking_timestamp_us);
-      handTrackingResult.leftHand = leftHandTrackingResult;
-      handTrackingResult.rightHand = rightHandTrackingResult;
+      if (leftHandTrackingResult.confidence > 0) {
+        handTrackingResult.leftHand = leftHandTrackingResult;
+      } else {
+        handTrackingResult.leftHand = std::nullopt;
+      }
+      if (rightHandTrackingResult.confidence > 0) {
+        handTrackingResult.rightHand = rightHandTrackingResult;
+      } else {
+        handTrackingResult.rightHand = std::nullopt;
+      }
       handTrackingResults.emplace_back(handTrackingResult);
     }
     std::cout << "Loaded #HandTrackingResults: " << handTrackingResults.size() << std::endl;
@@ -751,8 +759,16 @@ HandTrackingResults readHandTrackingResultsV1(const std::string& filepath) {
           Sophus::SE3d(R_Device_Wrist[1].normalized(), t_Device_Wrist[1]);
       HandTrackingResult handTrackingResult;
       handTrackingResult.trackingTimestamp = std::chrono::microseconds(tracking_timestamp_us);
-      handTrackingResult.leftHand = leftHandTrackingResult;
-      handTrackingResult.rightHand = rightHandTrackingResult;
+      if (leftHandTrackingResult.confidence > 0) {
+        handTrackingResult.leftHand = leftHandTrackingResult;
+      } else {
+        handTrackingResult.leftHand = std::nullopt;
+      }
+      if (rightHandTrackingResult.confidence > 0) {
+        handTrackingResult.rightHand = rightHandTrackingResult;
+      } else {
+        handTrackingResult.rightHand = std::nullopt;
+      }
       handTrackingResults.emplace_back(handTrackingResult);
     }
     std::cout << "Loaded #HandTrackingResults: " << handTrackingResults.size() << std::endl;
@@ -863,8 +879,16 @@ WristAndPalmPoses readWristAndPalmPosesV2(const std::string& filepath) {
       }
       WristAndPalmPose wristAndPalmPose;
       wristAndPalmPose.trackingTimestamp = std::chrono::microseconds(tracking_timestamp_us);
-      wristAndPalmPose.leftHand = leftWristAndPalmPose;
-      wristAndPalmPose.rightHand = rightWristAndPalmPose;
+      if (leftWristAndPalmPose.confidence > 0) {
+        wristAndPalmPose.leftHand = leftWristAndPalmPose;
+      } else {
+        wristAndPalmPose.leftHand = std::nullopt;
+      }
+      if (rightWristAndPalmPose.confidence > 0) {
+        wristAndPalmPose.rightHand = rightWristAndPalmPose;
+      } else {
+        wristAndPalmPose.rightHand = std::nullopt;
+      }
       wristAndPalmPoses.push_back(wristAndPalmPose);
     }
     std::cout << "Loaded #WristAndPalmPose: " << wristAndPalmPoses.size() << std::endl;
@@ -926,8 +950,16 @@ WristAndPalmPoses readWristAndPalmPosesV1(const std::string& filepath) {
       }
       WristAndPalmPose wristAndPalmPose;
       wristAndPalmPose.trackingTimestamp = std::chrono::microseconds(tracking_timestamp_us);
-      wristAndPalmPose.leftHand = leftWristAndPalmPose;
-      wristAndPalmPose.rightHand = rightWristAndPalmPose;
+      if (leftWristAndPalmPose.confidence > 0) {
+        wristAndPalmPose.leftHand = leftWristAndPalmPose;
+      } else {
+        wristAndPalmPose.leftHand = std::nullopt;
+      }
+      if (rightWristAndPalmPose.confidence > 0) {
+        wristAndPalmPose.rightHand = rightWristAndPalmPose;
+      } else {
+        wristAndPalmPose.rightHand = std::nullopt;
+      }
       wristAndPalmPoses.push_back(wristAndPalmPose);
     }
     std::cout << "Loaded #WristAndPalmPose: " << wristAndPalmPoses.size() << std::endl;

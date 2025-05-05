@@ -141,6 +141,24 @@ class MPSHandTracking(unittest.TestCase):
         )
         self.assertGreater(len(mps_wrist_and_palm_poses), 0)
 
+        # No hands detected in the first frame.
+        wrist_and_palm_pose_no_hand: mps.hand_tracking.WristAndPalmPose = (
+            mps_wrist_and_palm_poses[0]
+        )
+        self.assertTrue(wrist_and_palm_pose_no_hand.left_hand is None)
+        self.assertTrue(wrist_and_palm_pose_no_hand.right_hand is None)
+
+        # No left hand detected in the 112-th frame.
+        wrist_and_palm_pose_one_hand: mps.hand_tracking.WristAndPalmPose = (
+            mps_wrist_and_palm_poses[111]
+        )
+        self.assertTrue(wrist_and_palm_pose_one_hand.left_hand is None)
+        self.assertTrue(wrist_and_palm_pose_one_hand.right_hand is not None)
+        self.assertGreater(wrist_and_palm_pose_one_hand.right_hand.confidence, 0)
+        self.assertTrue(
+            wrist_and_palm_pose_one_hand.right_hand.wrist_and_palm_normal_device is None
+        )
+
     def test_wrist_and_palm_valid_file_v2(self) -> None:
         wrist_and_palm_file = os.path.join(
             TEST_FOLDER, "mps_sample/hand_tracking/wrist_and_palm_poses_v2.csv"
@@ -150,12 +168,23 @@ class MPSHandTracking(unittest.TestCase):
         )
         self.assertGreater(len(mps_wrist_and_palm_poses), 0)
 
-        wrist_and_palm_pose: mps.hand_tracking.WristAndPalmPose = (
+        # No hands detected in the first frame.
+        wrist_and_palm_pose_no_hand: mps.hand_tracking.WristAndPalmPose = (
             mps_wrist_and_palm_poses[0]
         )
-        self.assertTrue(wrist_and_palm_pose.left_hand is not None)
+        self.assertTrue(wrist_and_palm_pose_no_hand.left_hand is None)
+        self.assertTrue(wrist_and_palm_pose_no_hand.right_hand is None)
+
+        # No left hand detected in the 112-th frame.
+        wrist_and_palm_pose_one_hand: mps.hand_tracking.WristAndPalmPose = (
+            mps_wrist_and_palm_poses[111]
+        )
+        self.assertTrue(wrist_and_palm_pose_one_hand.left_hand is None)
+        self.assertTrue(wrist_and_palm_pose_one_hand.right_hand is not None)
+        self.assertGreater(wrist_and_palm_pose_one_hand.right_hand.confidence, 0)
         self.assertTrue(
-            wrist_and_palm_pose.left_hand.wrist_and_palm_normal_device is not None
+            wrist_and_palm_pose_one_hand.right_hand.wrist_and_palm_normal_device
+            is not None
         )
 
     # v1 doesn't contain wrist and palm normals

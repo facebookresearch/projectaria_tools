@@ -29,20 +29,30 @@ TEST(mps_wrist_and_palm_valid_legacy_file, reader) {
   const auto wristAndPalmPoses =
       readWristAndPalmPoses(testDataFolder + "mps_sample/hand_tracking/wrist_and_palm_poses.csv");
   EXPECT_GT(wristAndPalmPoses.size(), 0);
-  EXPECT_TRUE(wristAndPalmPoses.at(0).leftHand.has_value());
-  EXPECT_FALSE(wristAndPalmPoses.at(0).leftHand.value().wristAndPalmNormal_device.has_value());
-  EXPECT_TRUE(wristAndPalmPoses.at(0).rightHand.has_value());
-  EXPECT_FALSE(wristAndPalmPoses.at(0).rightHand.value().wristAndPalmNormal_device.has_value());
+  // No hands detected in the first frame.
+  EXPECT_FALSE(wristAndPalmPoses.at(0).leftHand.has_value());
+  EXPECT_FALSE(wristAndPalmPoses.at(0).rightHand.has_value());
+
+  // No left hand detected in the 112-th frame.
+  EXPECT_FALSE(wristAndPalmPoses.at(111).leftHand.has_value());
+  EXPECT_TRUE(wristAndPalmPoses.at(111).rightHand.has_value());
+  EXPECT_GT(wristAndPalmPoses.at(111).rightHand->confidence, 0);
+  EXPECT_FALSE(wristAndPalmPoses.at(111).rightHand.value().wristAndPalmNormal_device.has_value());
 }
 
 TEST(mps_wrist_and_palm_valid_v2_file, reader) {
   const auto wristAndPalmPoses = readWristAndPalmPoses(
       testDataFolder + "mps_sample/hand_tracking/wrist_and_palm_poses_v2.csv");
   EXPECT_GT(wristAndPalmPoses.size(), 0);
-  EXPECT_TRUE(wristAndPalmPoses.at(0).leftHand.has_value());
-  EXPECT_TRUE(wristAndPalmPoses.at(0).leftHand.value().wristAndPalmNormal_device.has_value());
-  EXPECT_TRUE(wristAndPalmPoses.at(0).rightHand.has_value());
-  EXPECT_TRUE(wristAndPalmPoses.at(0).rightHand.value().wristAndPalmNormal_device.has_value());
+  // No hands detected in the first frame.
+  EXPECT_FALSE(wristAndPalmPoses.at(0).leftHand.has_value());
+  EXPECT_FALSE(wristAndPalmPoses.at(0).rightHand.has_value());
+
+  // No left hand detected in the 112-th frame.
+  EXPECT_FALSE(wristAndPalmPoses.at(111).leftHand.has_value());
+  EXPECT_TRUE(wristAndPalmPoses.at(111).rightHand.has_value());
+  EXPECT_GT(wristAndPalmPoses.at(111).rightHand->confidence, 0);
+  EXPECT_TRUE(wristAndPalmPoses.at(111).rightHand.value().wristAndPalmNormal_device.has_value());
 }
 
 TEST(mps_wrist_and_palm_tracking_invalid_file, loader) {
