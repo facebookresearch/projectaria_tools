@@ -146,7 +146,7 @@ int64_t SensorData::getTimeNs(TimeDomain timeDomain) const {
       }
       return -1;
     case TimeDomain::Count:
-      checkAndThrow(false, "Invalid time domain {}TimeDomain::Count");
+      checkAndThrow(false, "Invalid time domain: TimeDomain::Count");
       break;
   }
   return -1;
