@@ -743,7 +743,7 @@ void exportMps(py::module& m) {
 
   )docdelimiter");
 
-  py::enum_<HANDEDNESS>(hand_tracking, "Handness")
+  py::enum_<HANDEDNESS>(hand_tracking, "Handedness")
       .value("LEFT", HANDEDNESS::LEFT)
       .value("RIGHT", HANDEDNESS::RIGHT);
 
@@ -807,7 +807,7 @@ void exportMps(py::module& m) {
           &HandTrackingResult::OneSide::landmarkPositions_device,
           "List of hand landmark positions in device frame, or None if no valid hand was found.")
       .def_readwrite(
-          "T_device_wrist",
+          "transform_device_wrist",
           &HandTrackingResult::OneSide::T_Device_Wrist,
           "Full 6 degree of freedom transform of wrist in device space, or None if no valid hand was found.")
       .def_readwrite(
