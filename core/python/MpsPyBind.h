@@ -734,7 +734,12 @@ void exportMps(py::module& m) {
 
   hand_tracking.def(
       "read_wrist_and_palm_poses",
-      &readWristAndPalmPoses,
+      [](const std::string& path) -> WristAndPalmPoses {
+        auto warnings = pybind11::module::import("warnings");
+        warnings.attr("warn")(
+            "WristAndPalmPoses and read_wrist_and_palm_poses are to be deprecated: Use HandTrackingResults and read_hand_tracking_results instead.");
+        return readWristAndPalmPoses(path);
+      },
       py::arg("path"),
       R"docdelimiter(Read Wrist and Palm poses from the hand tracking output generated via MPS.
   Parameters

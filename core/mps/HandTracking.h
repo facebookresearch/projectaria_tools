@@ -97,7 +97,8 @@ constexpr std::array<std::pair<HandLandmark, HandLandmark>, kNumHandJointConnect
 /**
  * @brief A struct representing wrist and palm tracking status per frame.
  */
-struct WristAndPalmPose {
+struct [[deprecated(
+    "WristAndPalmPose is to be deprecated. Use HandTrackingResult instead.")]] WristAndPalmPose {
   struct OneSide {
     double confidence = 0.;
     Eigen::Vector3d wristPosition_device{0., 0., 0.};

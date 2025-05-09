@@ -42,6 +42,9 @@ struct MpsSlamDataPaths {
 };
 
 struct HandTrackingDataPaths {
+  [[deprecated(
+      "WristAndPalmPoses and HandTrackingDataPaths::wristAndPalmPoses are to be deprecated."
+      "Use HandTrackingResults and HandTrackingDataPaths::handTrackingResults instead.")]]
   std::string wristAndPalmPoses; /**< wrist and palm poses*/
   std::string handTrackingResults; /**< full hand tracking results */
   std::string summary; /**< hand tracking summary */
