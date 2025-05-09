@@ -340,10 +340,11 @@ class HttpHelper:
         Helper function to get/post to an endpoint and return the JSON response
         Insert the authorization header if it's not present.
         """
-        logger.debug(f"_run_method args: {kwargs}")
         headers = kwargs.pop("headers", {})
         if auth_token := kwargs.pop(_AUTH_TOKEN, None):
             headers[_AUTHORIZATION] = f"OAuth {auth_token}"
+        # log the args, but not the auth token
+        logger.debug(f"_run_method args: {kwargs}")
         m = getattr(self._http_session, method)
         async with m(headers=headers, **kwargs) as r:
             try:
