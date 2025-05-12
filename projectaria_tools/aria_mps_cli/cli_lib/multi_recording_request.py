@@ -562,7 +562,7 @@ class MultiRecordingModel:
             # Backup error code based on state.
             # These are only used if the current error code is None
             state_to_error: Dict[MultiRecordingRequest.States, ErrorCode] = {
-                MultiRecordingRequest.States.PAST_OUTPUTS_CHECK.name: ErrorCode.PAST_OUTPUTS_CHECK_FAILURE,
+                MultiRecordingRequest.States.PAST_OUTPUTS_CHECK.name: ErrorCode.PAST_OUTPUT_CHECK_FAILURE,
                 MultiRecordingRequest.States.HASH_COMPUTATION.name: ErrorCode.HASH_COMPUTATION_FAILURE,
                 MultiRecordingRequest.States.PAST_REQUESTS_CHECK.name: ErrorCode.PAST_REQUESTS_CHECK_FAILURE,
                 MultiRecordingRequest.States.VALIDATION.name: ErrorCode.HEALTH_CHECK_FAILURE,
