@@ -37,7 +37,7 @@ if sys.version_info < (3, 10):
 
 
 PointsDict = Dict[int, GlobalPointPosition]
-ObservationIndex = Dict[Tuple[int, str], Tuple[int, int]]
+ObservationIndex = Dict[Tuple[timedelta, str], Tuple[int, int]]
 PointsUVsList = List[Tuple[float, float]]
 PointsIndexList = List[int]
 PointsUVsAndIDs = Tuple[PointsUVsList, PointsIndexList]
