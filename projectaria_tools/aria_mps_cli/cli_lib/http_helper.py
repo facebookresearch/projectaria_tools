@@ -343,8 +343,13 @@ class HttpHelper:
         headers = kwargs.pop("headers", {})
         if auth_token := kwargs.pop(_AUTH_TOKEN, None):
             headers[_AUTHORIZATION] = f"OAuth {auth_token}"
-        # log the args, but not the auth token
-        logger.debug(f"_run_method args: {kwargs}")
+        # log the args, but not sensitive data
+        log_data = kwargs.copy()
+        if "json" in log_data:
+            log_data["json"] = {
+                k: v for (k, v) in log_data["json"].items() if k not in ["password"]
+            }
+        logger.debug(f"_run_method args: {log_data}")
         m = getattr(self._http_session, method)
         async with m(headers=headers, **kwargs) as r:
             try:
