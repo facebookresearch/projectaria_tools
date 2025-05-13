@@ -479,7 +479,7 @@ def log_landmarks_3d(
             f"world/device/landmarks/landmark_links_{handedness_str}",
             rr.LineStrips3D(
                 landmark_line_strips_3d,
-                colors=[HAND_LANDMARK_COLORS[0]],
+                colors=[HAND_LANDMARK_COLORS[handedness]],
             ),
         )
         logged_landmarks_3d = True
