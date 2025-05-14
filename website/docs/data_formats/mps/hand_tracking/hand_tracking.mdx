@@ -29,6 +29,32 @@ We currently provide hand tracking data. The file outputs are:
 The landmark positions, and wrist and palm normal vectors are given in the device frame in meters.
 The translation from the hand frame to the device frame is given in meters.
 
+The 21 landmarks are indexed from 0 to 20, representing key points on the hand. These landmarks correspond to specific joints and locations as follows:
+| **Landmark ID** | **Description**   |
+|---|---|
+|0 | Thumb Fingertip|
+|1 | Index Finger Fingertip|
+|2 | Middle Finger Fingertip|
+|3 | Ring Finger Fingertip|
+|4 | Pinky Finger Fingertip|
+|5 | Wrist Joint|
+|6 | Thumb Intermediate|
+|7 | Thumb Distal|
+|8 | Index Finger Proximal|
+|9 | Index Finger Intermediate|
+|10 | Index Finger Distal|
+|11 | Middle Finger Proximal|
+|12 | Middle Finger Intermediate|
+|13 | Middle Finger Distal|
+|14 | Ring Finger Proximal|
+|15 | Ring Finger Intermediate|
+|16 | Ring Finger Distal|
+|17 | Pinky Finger Proximal|
+|18 | Pinky Finger Intermediate|
+|19 | Pinky Finger Distal|
+|20 | Palm Center|
+
+
 | **Column** | **Type** | **Description**   |
 |---|---|---|
 | tracking_timestamp_us | int    | Timestamp, in microseconds, of the SLAM camera frame in device time domain. This is the same time domain in which the MPS [trajectory outputs](/data_formats/mps/slam/mps_trajectory.mdx#open-loop-trajectory) are reported, so these timestamps can be directly used to infer the device pose from the MPS trajectory output. |
