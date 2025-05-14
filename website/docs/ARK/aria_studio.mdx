@@ -24,7 +24,9 @@ Aria Studio can be installed on:
 * x64 Linux distributions of:
     * Fedora 36, 37, 38
     * Ubuntu jammy (22.04 LTS) and focal (20.04 LTS)
-* Mac Intel or Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
+    * **Note:** Aria Studio 1.1.0 (the most recent version) can only be installed on Linux via [pip install](#install-aria-studio-via-pypi).
+* Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
+    * Note: Current versions of Aria Studio are not supported on Intel-based Mac machines, though [version 1.0.3](#previous-versions) is available for download.
 * x64 Windows Intel machines running Windows 11 or newer
 
 Aria Studio is supported on Google Chrome.
@@ -48,19 +50,28 @@ Like the MPS CLI, you can exercise granular control over settings like uploads a
 
 ## Install Aria Studio with one click
 Install the package appropriate for your computer platform. Double-click on the downloaded file and follow the prompts to complete the installation.
-* Mac ARM: Download the [Package for ARM](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-arm64.pkg)
-* Mac Intel: Download the [Package for Intel](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-Intel.pkg)
-* Windows: Download the [Package for Windows](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-windows.exe)
-* Linux: Download the [Package for Linux](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-Linux.AppImage)
+* Mac ARM: Download the [Package for ARM](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.0-arm64.pkg)
+* Windows: Download the [Package for Windows](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.0-windows.exe)
+* Linux: Aria Studio 1.1.0 does not work for one-click installation with Linux. Download it via [pip install](#install-aria-studio-via-pypi) instead.
 
-### Important: Allow unsigned builds
-Right now, our build is **not signed**. We are in the process of signing it. For now, however, you will need to allow the installation of unsigned builds if you want to install the package.
+### Previous versions
+The table below includes links to previous versions of Aria Studio across multiple platforms. Note that if you are installing version 1.0.3, you will need to [allow the installation of unsigned builds](#unsigned-builds).
 
-### macOS
+| Version | Platform | Download link |
+| --- | --- | --- |
+| 1.0.3 | Mac ARM | [Aria_Studio-1.0.3-arm64.pkg](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-arm64.pkg) |
+| 1.0.3 | Mac Intel | [Aria_Studio-1.0.3-Intel.pkg](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-Intel.pkg) |
+| 1.0.3 | Windows | [Aria_Studio-1.0.3-windows.exe](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-windows.exe) |
+| 1.0.3 | Linux | [Aria_Studio-1.0.3-Linux.AppImage](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-Linux.AppImage) |
+
+#### Note: Version 1.0.3 requires unsigned builds
+You will need to allow the installation of unsigned builds if you want to install version 1.0.3 in this way. We don't recommend enabling unsigned builds for any other versions.
+
+**macOS**
 1. Double-click the downloaded PKG and select **Done**.
 2. Go to **System Settings** > **Privacy & Security**, scroll to the bottom, and select **Open Anyway** to enable the installation.
 
-### Windows
+**Windows**
 1. Double-click on the downloaded EXE file.
 2. When the "Windows protected your PC" dialog appears, select **More info**.
 3. Select **Run anyway**.
