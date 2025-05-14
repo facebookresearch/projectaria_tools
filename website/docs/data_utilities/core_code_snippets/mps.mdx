@@ -216,35 +216,50 @@ for (const OnlineCalibration& calib : onlineCalibs) {
 ```
 ```python
 import projectaria_tools.core.mps as mps
-from projectaria_tools.core.mps.utils import get_nearest_wrist_and_palm_pose
+from projectaria_tools.core.mps.utils import get_nearest_hand_tracking_result
 
 
-## Load wrist and palm pose data
-wrist_and_palm_poses_path = "/path/to/mps/output/hand_tracking/wrist_and_palm_poses.csv"
-wrist_and_palm_poses = mps.hand_tracking.read_wrist_and_palm_poses(
-   wrist_and_palm_poses_path
+## Load hand tracking results
+hand_tracking_results_path = "/path/to/mps/output/hand_tracking/hand_tracking_results.csv"
+hand_tracking_results = mps.hand_tracking.read_hand_tracking_results(
+    hand_tracking_results_path
 )
 
 
 # Example query: find the nearest hand tracking data outputs in relation to a specific timestamp
-wrist_and_palm_pose = get_nearest_wrist_and_palm_pose(
-   wrist_and_palm_poses, query_timestamp_ns
+hand_tracking_result = get_nearest_hand_tracking_result(
+    hand_tracking_results, query_timestamp_ns
 )
 
 
-# Get left and right-hand confidences and wrist and palm positions and normals in the device frame
+# Get left and right-hand confidences, landmarks wrist and palm positions and normals in the device frame. Note that if hands are not found, per-hand result is None.
 # Left-hand side
-left_pose_confidence = wrist_and_palm_pose.left_hand.confidence
-left_wrist_position_device = wrist_and_palm_pose.left_hand.wrist_position_device
-left_palm_position_device = wrist_and_palm_pose.left_hand.palm_position_device
-left_wrist_normal_device = wrist_and_palm_pose.left_hand.wrist_and_palm_normal_device.wrist_normal_device
-left_palm_normal_device = wrist_and_palm_pose.left_hand.wrist_and_palm_normal_device.palm_normal_device
+if hand_tracking_result.left_hand:
+    left_pose_confidence = hand_tracking_result.left_hand.confidence
+    left_landmark_positions_device = hand_tracking_result.left_hand.landmark_positions_device
+    left_transform_device_wrist = hand_tracking_result.left_hand.transform_device_wrist
+
+    # Use helper functions to get wrist and palm positions in the device frame
+    left_wrist_position_device = hand_tracking_result.left_hand.get_wrist_position_device()
+    left_palm_position_device = hand_tracking_result.left_hand.get_palm_position_device()
+
+    if hand_tracking_result.left_hand.wrist_and_palm_normal_device:
+        left_wrist_normal_device = hand_tracking_result.left_hand.wrist_and_palm_normal_device.wrist_normal_device
+        left_palm_normal_device = hand_tracking_result.left_hand.wrist_and_palm_normal_device.palm_normal_device
+
 # Right-hand side
-right_pose_confidence = wrist_and_palm_pose.right_hand.confidence
-right_wrist_position_device = wrist_and_palm_pose.right_hand.wrist_position_device
-right_palm_position_device = wrist_and_palm_pose.right_hand.palm_position_device
-right_wrist_normal_device = wrist_and_palm_pose.right_hand.wrist_and_palm_normal_device.wrist_normal_device
-right_palm_normal_device = wrist_and_palm_pose.right_hand.wrist_and_palm_normal_device.palm_normal_device
+if hand_tracking_result.right_hand:
+    right_pose_confidence = hand_tracking_result.right_hand.confidence
+    right_landmark_positions_device = hand_tracking_result.right_hand.landmark_positions_device
+    right_transform_device_wrist = hand_tracking_result.right_hand.transform_device_wrist
+
+    # Use helper functions to get wrist and palm positions in the device frame
+    right_wrist_position_device = hand_tracking_result.right_hand.get_wrist_position_device()
+    right_palm_position_device = hand_tracking_result.right_hand.get_palm_position_device()
+
+    if hand_tracking_result.right_hand.wrist_and_palm_normal_device:
+        right_wrist_normal_device = hand_tracking_result.right_hand.wrist_and_palm_normal_device.wrist_normal_device
+        right_palm_normal_device = hand_tracking_result.right_hand.wrist_and_palm_normal_device.palm_normal_device
 ```
 ```mdx-code-block
 </TabItem>
@@ -255,26 +270,37 @@ right_palm_normal_device = wrist_and_palm_pose.right_hand.wrist_and_palm_normal_
 
 using namespace projectaria::tools::mps;
 
-const auto wristAndPalmPoses = readWristAndPalmPoses("/path/to/mps/output/hand_tracking/wrist_and_palm_poses.csv");
+const auto handTrackingResults = readHandTrackingResults("/path/to/mps/output/hand_tracking/hand_tracking_results.csv");
 
-for (const auto& wristAndPalmPose: wristAndPalmPoses) {
+for (const auto& handTrackingResult: handTrackingResults) {
   for (HANDEDNESS handedness : {HANDEDNESS::LEFT, HANDEDNESS::RIGHT}) {
-    const auto& oneHandWristAndPalmPose = wristAndPalmPose.value()[handedness];
-    if (!oneHandWristAndPalmPose ||
-        oneHandWristAndPalmPose.value().confidence < MIN_CONFIDENCE_) {
+    const auto& perHandHandTrackingResult = handTrackingResult.value()[handedness];
+    if (!perHandHandTrackingResult ||
+        perHandHandTrackingResult->confidence < MIN_CONFIDENCE_) {
       continue;
     }
-    const auto& wristPose = oneHandWristAndPalmPose.value().wristPosition_device;
-    const auto& palmPose = oneHandWristAndPalmPose.value().palmPosition_device;
-    const auto& wristPose_world = T_World_Device.value() * wristPose;
-    const auto& palmPose_world = T_World_Device.value() * palmPose;
 
-    if (oneHandWristAndPalmPose.wristAndPalmNormal_device.has_value()) {
-        const auto& wristNormal_device = oneSideWristAndPalmPose.wristAndPalmNormal_device.value().wristNormal_device;
-        const auto& palmNormal_device = oneSideWristAndPalmPose.wristAndPalmNormal_device.value().palmNormal_device;
-        const auto wristNormal_world = T_World_Device.value().so3() * wristNormal_device;
-        const auto palmNormal_world = T_World_Device.value().so3() * palmNormal_device;
+    const auto& landmarksInDevice = perHandHandTrackingResult->landmarkPositions_device;
+    Landmarks landmarksInWorld;
+    landmarksInWorld.reserve(landmarksInDevice.size());
+    for (const auto& landmarkInDevice: landmarksInDevice) {
+        landmarksInWorld.emplace_back(T_World_Device.value() * landmarkInDevice);
     }
+
+    // Use helper functions to get wrist and palm positions in the device frame
+    const auto& wristInDevice = perHandHandTrackingResult->getWristPositionInDevice();
+    const auto& palmInDevice = perHandHandTrackingResult->getPalmPositionInDevice();
+    const auto& wristInWorld = T_World_Device.value() * wristInDevice;
+    const auto& palmInWorld = T_World_Device.value() * palmInDevice;
+
+    if (perHandHandTrackingResult.wristAndPalmNormal_device.has_value()) {
+        const auto& wristNormalInDevice = perHandHandTrackingResult.wristAndPalmNormal_device->wristNormal_device;
+        const auto& palmNormalInDevice = perHandHandTrackingResult.wristAndPalmNormal_device->palmNormal_device;
+        const auto wristNormalInWorld = T_World_Device.value().so3() * wristNormal_device;
+        const auto palmNormalInWorld = T_World_Device.value().so3() * palmNormal_device;
+    }
+
+    const auto& T_Device_Wrist = perHandHandTrackingResult->T_Device_Wrist;
   }
 }
 ```
