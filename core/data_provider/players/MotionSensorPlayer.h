@@ -17,6 +17,7 @@
 #pragma once
 
 #include <array>
+#include <utility>
 
 #include <data_layout/MotionSensorMetadata.h>
 #include <vrs/RecordFormatStreamPlayer.h>
@@ -71,7 +72,7 @@ class MotionSensorPlayer : public vrs::RecordFormatStreamPlayer {
   MotionSensorPlayer(MotionSensorPlayer&&) = default;
 
   void setCallback(MotionCallback callback) {
-    callback_ = callback;
+    callback_ = std::move(callback);
   }
 
   const MotionConfigRecord& getConfigRecord() const {
