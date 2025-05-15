@@ -10,6 +10,43 @@ These SW Release notes are for the Aria Research Kit (ARK), and are for Meta SW 
 
 Our Open Source Project Aria Tools SW Release notes are posted to [Project Aria Tools GitHub repository](https://github.com/facebookresearch/projectaria_tools), using Tags > Releases.
 
+## Announcing Aria Research Kit v1.14 with 21 Landmark Hand Tracking in MPS
+We are pleased to announce the release of Aria Research Kit v1.14 which now makes fully articulated 21 landmark hand joint positions available with Machine Perception Services Hand Tracking output as a new CSV file called hand_tracking_results.csv. Researchers can utilize this long-awaited feature to produce detailed 3D hand pose annotations useful for robotics research, contextual AI, and anywhere else that hand signals may be important.
+
+![Hand tracking demonstration](/img/data_utilities/21-keypoint-tri.png)
+
+In addition to 21 landmarks output, we output a six-degree-of-freedom transform at the wrist location to allow for transformation of the landmarks from the hand frame to the device frame, and normal vectors computed at both the wrist and palm landmarks. The transform and normals form a consistent system and the normals also match the normals we’ve computed on previous versions of wrist and palm output.
+
+![The 21 keypoints](/img/data_utilities/21-keypoints.png)
+
+We encourage hand tracking users to transition to this new output format, where we will be investing in any future maintenance and bug fixing. We will also continue to provide wrist_and_palm_poses output, which can be loaded with prior versions of projectaria_tools, but will not invest in bug fixes or feature additions for this legacy format.
+
+* Here's a [Notebook](https://github.com/facebookresearch/projectaria_tools/blob/main/core/examples/mps_quickstart_tutorial.ipynb) and [Sample Code (Python & C++)](../data_utilities/core_code_snippets/mps.mdx#hand-tracking) demonstrating how to load and use the landmarks.
+
+* See [Documentation](../data_formats/mps/hand_tracking/hand_tracking.mdx) on data format definitions.
+
+**Reminder for Aria Desktop App Deprecation:** As mentioned in previous release notes, the Aria Desktop App will be fully deprecated on May 30th, 2025, at which point requests to MPS will not be possible and documentation for the tool will be removed. Please migrate over to [Aria Studio](aria_studio.mdx) if you haven’t already.
+
+### Update your Software to Access These Improvements
+
+#### Aria Companion App
+Aria Mobile Companion App App v215 is now available for installation. Visit to the [ARK SW Downloads and Updates](ark_downloads.mdx) to download the latest version for Android. For iOS, select Update in the TestFlight app.
+
+#### Project Aria Tools
+The latest projectaria-tools 1.6.0 contains tooling necessary to load and visualize 21 keypoint hand tracking output. See [documentation](../data_utilities/data_utilities.mdx) for download instructions.
+
+#### Aria Studio v1.1.0
+The latest version of Aria Studi, v1.1.0 is required to submit requests to the MPS service for hand tracking annotations with 21 keypoint output. See [documentation](aria_studio.mdx) for instructions on how to install Aria Studio. Note that starting with this version, we no longer support Mac Intel with a one-click installer and Mac Intel users must use pip for Aria Studio installation.
+
+### Questions, comments, concerns?
+If you encounter any bugs or issues, please contact our support team through one of the following channels:
+
+* Post in the Project Aria Discord
+    * [Join the server](https://discord.gg/2pj4er4dGF) | [User support channel](https://discord.com/channels/1149058737504538654/1293298255576301631)
+* Post to Workplace
+    * [Feedback and support group](https://facebookresearch.github.io/projectaria_tools/docs/ARK/workplacegroup)
+* Email us directly at AriaOps@meta.com
+
 ## Announcement: Aria Research Kit v1.13 is now available
 We are excited to announce Aria Research Kit v1.13, featuring color correction and devignetting on videos recorded with the Aria RGB camera and a new ability for Aria to operate as a Wi-Fi hotspot for streaming, eliminating dependency on external networks. Download the latest versions of the Aria Mobile Companion App, the Aria Client SDK, and Project Aria Tools to access these improvements today.
 
