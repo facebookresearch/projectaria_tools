@@ -360,7 +360,7 @@ def _check_leq(
         logger_.error(f"   {message}")
     elif not metrics_json[prop_name] <= warn_threshold:
         summary.warn(message)
-        logger_.warn(f"   {message}")
+        logger_.warning(f"   {message}")
     else:
         logger_.info(f"   Pass: {message}")
 
@@ -386,7 +386,7 @@ def _check_geq(
         logger_.error(f"   {message}")
     elif not metrics_json[prop_name] >= warn_threshold:
         summary.warn(message)
-        logger_.warn(f"   {message}")
+        logger_.warning(f"   {message}")
     else:
         logger_.info(f"   Pass: {message}")
 
@@ -448,7 +448,7 @@ def _check_leq_ratio(
         logger_.error(f"   {message}")
     elif not val <= warn_threshold:
         summary.warn(message)
-        logger_.warn(f"   {message}")
+        logger_.warning(f"   {message}")
     else:
         logger_.info(f"   Pass: {message}")
 
