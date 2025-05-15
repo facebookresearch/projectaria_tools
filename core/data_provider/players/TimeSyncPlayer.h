@@ -19,6 +19,8 @@
 #include <data_layout/TimeSyncMetadata.h>
 #include <vrs/RecordFormatStreamPlayer.h>
 
+#include <utility>
+
 namespace projectaria::tools::data_provider {
 
 struct AriaTimeSyncConfigRecord {
@@ -50,7 +52,7 @@ class TimeSyncPlayer : public vrs::RecordFormatStreamPlayer {
   TimeSyncPlayer(TimeSyncPlayer&&) = default;
 
   void setCallback(TimeSyncCallback callback) {
-    callback_ = callback;
+    callback_ = std::move(callback);
   }
 
   const AriaTimeSyncConfigRecord& getConfigRecord() const {

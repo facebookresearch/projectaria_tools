@@ -19,6 +19,8 @@
 #include <data_layout/GpsMetadata.h>
 #include <vrs/RecordFormatStreamPlayer.h>
 
+#include <utility>
+
 namespace projectaria::tools::data_provider {
 
 /**
@@ -57,7 +59,7 @@ class GpsPlayer : public vrs::RecordFormatStreamPlayer {
   GpsPlayer(GpsPlayer&&) = default;
 
   void setCallback(GpsCallback callback) {
-    callback_ = callback;
+    callback_ = std::move(callback);
   }
 
   const GpsConfigRecord& getConfigRecord() const {

@@ -19,6 +19,7 @@
 #include <data_layout/AudioMetadata.h>
 #include <vrs/RecordFormatStreamPlayer.h>
 #include <Eigen/Core>
+#include <utility>
 
 namespace projectaria::tools::data_provider {
 
@@ -71,7 +72,7 @@ class AudioPlayer : public vrs::RecordFormatStreamPlayer {
   AudioPlayer(AudioPlayer&&) = default;
 
   void setCallback(AudioCallback callback) {
-    callback_ = callback;
+    callback_ = std::move(callback);
   }
 
   const AudioData& getData() const {

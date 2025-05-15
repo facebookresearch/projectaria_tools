@@ -21,6 +21,8 @@
 #include <image/ImageVariant.h>
 #include <vrs/RecordFormatStreamPlayer.h>
 
+#include <utility>
+
 namespace projectaria::tools::data_provider {
 
 /**
@@ -104,7 +106,7 @@ class ImageSensorPlayer : public vrs::RecordFormatStreamPlayer {
   ImageSensorPlayer(ImageSensorPlayer&&) = default;
 
   void setCallback(ImageCallback callback) {
-    callback_ = callback;
+    callback_ = std::move(callback);
   }
 
   const ImageData& getData() const {
