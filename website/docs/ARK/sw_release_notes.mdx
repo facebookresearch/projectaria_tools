@@ -17,7 +17,7 @@ We are pleased to announce the release of Aria Research Kit v1.14 which now make
 
 In addition to 21 landmarks output, we output a six-degree-of-freedom transform at the wrist location to allow for transformation of the landmarks from the hand frame to the device frame, and normal vectors computed at both the wrist and palm landmarks. The transform and normals form a consistent system and the normals also match the normals we’ve computed on previous versions of wrist and palm output.
 
-![The 21 keypoints](/img/data_utilities/21-keypoints.png)
+![The 21 landmarks](/img/data_utilities/21-keypoints.png)
 
 We encourage hand tracking users to transition to this new output format, where we will be investing in any future maintenance and bug fixing. We will also continue to provide wrist_and_palm_poses output, which can be loaded with prior versions of projectaria_tools, but will not invest in bug fixes or feature additions for this legacy format.
 
@@ -33,10 +33,10 @@ We encourage hand tracking users to transition to this new output format, where 
 Aria Mobile Companion App App v215 is now available for installation. Visit to the [ARK SW Downloads and Updates](ark_downloads.mdx) to download the latest version for Android. For iOS, select Update in the TestFlight app.
 
 #### Project Aria Tools
-The latest projectaria-tools 1.6.0 contains tooling necessary to load and visualize 21 keypoint hand tracking output. See [documentation](../data_utilities/data_utilities.mdx) for download instructions.
+The latest projectaria-tools 1.6.0 contains tooling necessary to load and visualize 21 landmark hand tracking output. See [documentation](../data_utilities/data_utilities.mdx) for download instructions.
 
 #### Aria Studio v1.1.0
-The latest version of Aria Studi, v1.1.0 is required to submit requests to the MPS service for hand tracking annotations with 21 keypoint output. See [documentation](aria_studio.mdx) for instructions on how to install Aria Studio. Note that starting with this version, we no longer support Mac Intel with a one-click installer and Mac Intel users must use pip for Aria Studio installation.
+The latest version of Aria Studi, v1.1.0 is required to submit requests to the MPS service for hand tracking annotations with 21 landmark output. See [documentation](aria_studio.mdx) for instructions on how to install Aria Studio. Note that starting with this version, we no longer support Mac Intel with a one-click installer and Mac Intel users must use pip for Aria Studio installation.
 
 ### Questions, comments, concerns?
 If you encounter any bugs or issues, please contact our support team through one of the following channels:
@@ -295,8 +295,8 @@ We’ve made some exciting updates to our wrist and palm tracking capabilities i
 
 #### What’s New?
 1. We’ve tuned our hand tracking algorithm to improve recall for common computer vision research use cases.
-2. We are including normal vectors to the wrist and palm keypoint output so that you can better understand the orientation of hands in your sequences ([see documentation](https://facebookresearch.github.io/projectaria_tools/docs/data_formats/mps/hand_tracking) and [a notebook to visualize sample data](https://github.com/facebookresearch/projectaria_tools/blob/main/core/examples/mps_quickstart_tutorial.ipynb))
-3. We provide a demonstration of how to project popular third-party hand tracking models onto our wrist and palm keypoint output for tasks that require higher-fidelity hand tracking output ([see Jupyter notebook](https://github.com/facebookresearch/projectaria_tools/tree/main/tools/samples/python/mps_handtracking_overlay_media_pipe)).
+2. We are including normal vectors to the wrist and palm landmark output so that you can better understand the orientation of hands in your sequences ([see documentation](https://facebookresearch.github.io/projectaria_tools/docs/data_formats/mps/hand_tracking) and [a notebook to visualize sample data](https://github.com/facebookresearch/projectaria_tools/blob/main/core/examples/mps_quickstart_tutorial.ipynb))
+3. We provide a demonstration of how to project popular third-party hand tracking models onto our wrist and palm landmark output for tasks that require higher-fidelity hand tracking output ([see Jupyter notebook](https://github.com/facebookresearch/projectaria_tools/tree/main/tools/samples/python/mps_handtracking_overlay_media_pipe)).
 
 #### What Do I Need to Update to Access It?
 1. Follow [instructions in our Wiki](https://facebookresearch.github.io/projectaria_tools/docs/ARK/aria_studio#install-aria-studio-via-pypi) to re-install Aria Studio. This will update all necessary dependencies for you.
