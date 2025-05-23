@@ -19,9 +19,6 @@
 #include "HandTracking.h"
 
 namespace projectaria::tools::mps {
-[[deprecated(
-    "WristAndPalmPoses and readWristAndPalmPoses are to be deprecated. Use HandTrackingResults and readHandTrackingResults instead.")]]
 WristAndPalmPoses readWristAndPalmPoses(const std::string& filepath);
-
 HandTrackingResults readHandTrackingResults(const std::string& filepath);
 } // namespace projectaria::tools::mps

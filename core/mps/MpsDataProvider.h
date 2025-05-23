@@ -184,8 +184,6 @@ class MpsDataProvider {
    * CLOSEST.
    * @return optional WristAndPalmPose, will return invalid if the query time is invalid
    */
-  [[deprecated(
-      "WristAndPalmPose and getWristAndPalmPose are to be deprecated. Use HandTrackingResult and getHandTrackingResult instead.")]]
   std::optional<WristAndPalmPose> getWristAndPalmPose(
       int64_t captureTimestampNs,
       const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Closest);
@@ -194,9 +192,7 @@ class MpsDataProvider {
    * @brief Check if WristAndPalmPoses are available in the MPS data paths
    * @return true if data is available, false otherwise
    */
-  [[deprecated(
-      "WristAndPalmPose and hasWristAndPalmPoses are to be deprecated. Use HandTrackingResult and hasHandTrackingResults instead.")]] [[nodiscard]] bool
-  hasWristAndPalmPoses() const;
+  [[nodiscard]] bool hasWristAndPalmPoses() const;
 
   /**
    * @brief Query MPS for HandTrackingResult (landmark positions, wrist transform, wrist and palm

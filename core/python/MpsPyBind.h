@@ -737,7 +737,9 @@ void exportMps(py::module& m) {
       [](const std::string& path) -> WristAndPalmPoses {
         auto warnings = pybind11::module::import("warnings");
         warnings.attr("warn")(
-            "WristAndPalmPoses and read_wrist_and_palm_poses are to be deprecated: Use HandTrackingResults and read_hand_tracking_results instead.");
+            "WristAndPalmPoses and read_wrist_and_palm_poses are to be deprecated: "
+            "Use HandTrackingResults and read_hand_tracking_results with the new MPS hand tracking csv instead."
+            "See https://facebookresearch.github.io/projectaria_tools/docs/data_formats/mps/hand_tracking#hand_tracking_resultscsv for more details.");
         return readWristAndPalmPoses(path);
       },
       py::arg("path"),
