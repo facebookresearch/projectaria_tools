@@ -108,6 +108,33 @@ class Authenticator:
         """
         return self._auth_token is not None
 
+    async def set_auth_token(self, token: str, save_token: bool = False) -> None:
+        """
+        Sets the authentication token.
+
+        Args:
+            token (str): The authentication token to be set.
+            save_token (bool): Optional; Whether to save the token. Defaults to False.
+
+        """
+
+        # Validate the input token
+        if not isinstance(token, str):
+            raise ValueError("Token must be a string")
+
+        self._auth_token = token
+        self._clear_cached_token()
+
+        self._user_alias = await self._get_user_alias()
+        if not self._user_alias:
+            logger.error("Failed to get user alias: Token is invalid.")
+            self._user_alias = None
+            raise ValueError("Token is invalid")
+
+        # Save the token if required
+        if save_token:
+            self._cache_token()
+
     async def load_and_validate_token(self) -> bool:
         """
         Reads the token from the local disk if present and validates it.
@@ -240,6 +267,19 @@ class Authenticator:
             f.write(self._auth_token)
         # lock read/write access to auth token
         os.chmod(AUTH_TOKEN_FILE, stat.S_IRUSR | stat.S_IWUSR)
+
+    def _clear_cached_token(self) -> None:
+        """
+        Clear the locally cached token
+        """
+        try:
+            if AUTH_TOKEN_FILE.exists():
+                logger.info(f"Clearing cached token from {AUTH_TOKEN_FILE}")
+                AUTH_TOKEN_FILE.unlink()
+            else:
+                logger.debug(f"No cached token found at {AUTH_TOKEN_FILE}")
+        except OSError as e:
+            logger.error(f"Failed to clear cached token: {e}")
 
     def _encrypt_password(self, key_id: int, pub_key: str, raw_password: str) -> str:
         """Encrypts the password using the public key
