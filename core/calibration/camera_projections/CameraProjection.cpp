@@ -19,7 +19,7 @@
 
 namespace projectaria::tools::calibration {
 template <typename Scalar>
-CameraProjection::ProjectionVariant getProjectionVariant(
+typename CameraProjectionTemplated<Scalar>::ProjectionVariant getProjectionVariant(
     const typename CameraProjectionTemplated<Scalar>::ModelType& type) {
   switch (type) {
     case CameraProjectionTemplated<Scalar>::ModelType::Linear:
@@ -44,8 +44,9 @@ CameraProjectionTemplated<Scalar>::CameraProjectionTemplated(
       projectionParams_(projectionParams),
       projectionVariant_(getProjectionVariant<Scalar>(type)) {}
 
-template <>
-CameraProjection::ModelType CameraProjection::modelName() const {
+template <typename Scalar>
+typename CameraProjectionTemplated<Scalar>::ModelType CameraProjectionTemplated<Scalar>::modelName()
+    const {
   return modelName_;
 }
 
