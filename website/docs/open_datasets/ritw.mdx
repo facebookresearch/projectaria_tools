@@ -1,0 +1,54 @@
+---
+sidebar_position: 80
+title: RitW dataset
+---
+
+# Reading in the Wild dataset
+
+Reading in the Wild (RitW) is a new benchmark dataset designed to inform models that determine whether or not subjects are reading. The dataset contains 100 hours of egocentric recordings, capturing 1716 sequences of individuals engaged in reading and non-reading activities in unconstrained environments.
+
+![A grid of captures displaying participants engaged in various activities.](/img/open_datasets/ritw/image-grid.png)
+
+The dataset contains:
+* Video captures from Aria headsets that include data from 2 SLAM cameras, 1 RGB camera, 2 IMUs, 2 eye-tracking cameras (60 Hz), 1 magnetometer, 1 barometer, and audio, captured with Profile 28.
+
+* Metadata containing information about the reading material and activity categories.
+
+* [Eye Gaze MPS data](../data_formats/mps/mps_eye_gaze.mdx).
+
+* [Semi-Dense Point Cloud MPS data](../data_formats/mps/slam/mps_pointcloud.mdx).
+
+![A display of images captured from different kinds of cameras and how they map onto things like gaze and pose estimation.](/img/open_datasets/ritw/camera-comparison.png)
+
+
+## Subsets
+The Reading in the Wild dataset can be further divided into two subsets that were collected independently of each other: the **Seattle** dataset and the **Columbus** dataset.
+* Seattle - This subset was collected for training, validation, and testing purposes. It focuses on reading and non-reading activities in diverse scenarios, meaning it covers a wide variety of participants, reading modes, written materials, and more. It contains a mix of normal negative (no text present) and hard negative (text present but not being read) examples, as well as mixed sequences that alternate between reading and not reading. These data were collected in homes, office spaces, libraries, and the outdoors.
+* Columbus - This subset was collected to find cases where models intended to discern whether participants are reading encounter failure points. It contains examples of hard negatives (where text is present but not being read), searching/browsing (which gives confusing gaze patterns), and the reading of non-English texts (where reading direction differs).
+
+![A table illustrating the differences between the Seattle and Columbus datasets.](/img/open_datasets/ritw/subset-table.png)
+
+
+## Download the data
+All RitW data is available at https://www.projectaria.com/datasets/reading-in-the-wild/, but the process differs depending on whether you want to download the Seattle subset or the Columbus subset.
+
+### Seattle subset
+This dataset is owned and distributed by Meta with a CC-by-NC4 license. You can request and download the dataset [here](https://www.projectaria.com/datasets/reading-in-the-wild/#download-dataset).
+
+Alternatively, you can access the dataset through the [Dataset Explorer](https://explorer.projectaria.com/ritw), which provides a convenient way to visualize the data and selectively download specific sequences.
+
+### Columbus subset
+This dataset is owned and distributed by The Ohio State University (OSU) with an Apache2 license. Please refer to the [official OSU repository](https://github.com/AIoT-MLSys-Lab/Reading-in-the-Wild-Columbus/) for access and licensing information.
+
+## Data Explorer
+You can explore the Seattle Subset using Data Explorer [here](https://explorer.projectaria.com/ritw).
+
+## GitHub repo
+You can find the code for the Reading Recognition Model [here](https://github.com/facebookresearch/reading_in_the_wild).
+
+## Additional info
+* [The dataset](https://www.projectaria.com/reading-in-the-wild/) - Learn more about the dataset and how to get access to it.
+
+* [Reading Recognition in the Wild](https://arxiv.org/abs/2505.24848) - Read the original research paper that RitW is based on.
+
+* [Blog post](https://www.projectaria.com/news/introducing-reading-recognition-in-the-wild/) - Read the blog post that announced Reading in the Wild.
