@@ -207,6 +207,48 @@ class Config(ConfigParser):
     """
 
     _config = None
+    # Default config values
+    DEFAULT_CONFIG: Dict[str, Dict[str, str]] = {
+        ConfigSection.DEFAULT: {
+            ConfigKey.LOG_DIR: "/tmp/logs/projectaria/mps/ # Path to log directory",
+            ConfigKey.STATUS_CHECK_INTERVAL: "30 # Status check interval in seconds",
+        },
+        ConfigSection.HASH: {
+            ConfigKey.CONCURRENT_HASHES: "4 # Maximum number of recordings whose hashes will be calculated concurrently",
+            ConfigKey.CHUNK_SIZE: "10485760 # 10 * 2**20 (10MB)",
+        },
+        ConfigSection.HEALTH_CHECK: {
+            ConfigKey.CONCURRENT_HEALTH_CHECKS: "2  # Maximum number of checks that can run concurrently",
+        },
+        ConfigSection.ENCRYPTION: {
+            ConfigKey.CHUNK_SIZE: "52428800 # 50 * 2**20 (50MB)",
+            ConfigKey.CONCURRENT_ENCRYPTIONS: "5 # Maximum number of recordings that will be encrypted concurrently",
+            ConfigKey.DELETE_ENCRYPTED_FILES: "true # Delete encrypted files after upload is done",
+        },
+        ConfigSection.UPLOAD: {
+            ConfigKey.BACKOFF: "1.5 # Backoff factor for retries",
+            ConfigKey.CONCURRENT_UPLOADS: "4 # Maximum number of concurrent uploads",
+            ConfigKey.INTERVAL: "20 # Interval between runs",
+            ConfigKey.MAX_CHUNK_SIZE: "104857600 # 100 * 2**20 (100 MB)",
+            ConfigKey.MIN_CHUNK_SIZE: "5242880 # 5 * 2**20 (5MB)",
+            ConfigKey.RETRIES: "10 # Number of times to retry a failed upload",
+            ConfigKey.SMOOTHING_WINDOW_SIZE: "10 # Size of the smoothing window",
+            ConfigKey.TARGET_CHUNK_UPLOAD_SECS: "3 # Target duration to upload a chunk",
+        },
+        ConfigSection.DOWNLOAD: {
+            ConfigKey.BACKOFF: "1.5 # Backoff factor for retries",
+            ConfigKey.CHUNK_SIZE: "10485760 # 10 * 2**20 (10MB)",
+            ConfigKey.CONCURRENT_DOWNLOADS: "10 # Maximum number of concurrent downloads",
+            ConfigKey.DELETE_ZIP: "true # Delete zip files after extracting",
+            ConfigKey.INTERVAL: "20 # Interval between runs",
+            ConfigKey.RETRIES: "10 # Number of times to retry a failed upload",
+        },
+        ConfigSection.GRAPHQL: {
+            ConfigKey.BACKOFF: "1.5 # Backoff factor for retries",
+            ConfigKey.INTERVAL: "4 # Interval between runs",
+            ConfigKey.RETRIES: "3 # Number of times to retry a failed upload",
+        },
+    }
 
     @staticmethod
     def get() -> "Config":
@@ -219,50 +261,8 @@ class Config(ConfigParser):
             Config._config = ConfigParser(inline_comment_prefixes="#")
 
             if not CONFIG_FILE.is_file():
-                _DEFAULT_CONFIG: Dict[str, Dict[str, str]] = {
-                    ConfigSection.DEFAULT: {
-                        ConfigKey.LOG_DIR: "/tmp/logs/projectaria/mps/ # Path to log directory",
-                        ConfigKey.STATUS_CHECK_INTERVAL: "30 # Status check interval in seconds",
-                    },
-                    ConfigSection.HASH: {
-                        ConfigKey.CONCURRENT_HASHES: "4 # Maximum number of recordings whose hashes will be calculated concurrently",
-                        ConfigKey.CHUNK_SIZE: "10485760 # 10 * 2**20 (10MB)",
-                    },
-                    ConfigSection.HEALTH_CHECK: {
-                        ConfigKey.CONCURRENT_HEALTH_CHECKS: "2  # Maximum number of checks that can run concurrently",
-                    },
-                    ConfigSection.ENCRYPTION: {
-                        ConfigKey.CHUNK_SIZE: "52428800 # 50 * 2**20 (50MB)",
-                        ConfigKey.CONCURRENT_ENCRYPTIONS: "5 # Maximum number of recordings that will be encrypted concurrently",
-                        ConfigKey.DELETE_ENCRYPTED_FILES: "true # Delete encrypted files after upload is done",
-                    },
-                    ConfigSection.UPLOAD: {
-                        ConfigKey.BACKOFF: "1.5 # Backoff factor for retries",
-                        ConfigKey.CONCURRENT_UPLOADS: "4 # Maximum number of concurrent uploads",
-                        ConfigKey.INTERVAL: "20 # Interval between runs",
-                        ConfigKey.MAX_CHUNK_SIZE: "104857600 # 100 * 2**20 (100 MB)",
-                        ConfigKey.MIN_CHUNK_SIZE: "5242880 # 5 * 2**20 (5MB)",
-                        ConfigKey.RETRIES: "10 # Number of times to retry a failed upload",
-                        ConfigKey.SMOOTHING_WINDOW_SIZE: "10 # Size of the smoothing window",
-                        ConfigKey.TARGET_CHUNK_UPLOAD_SECS: "3 # Target duration to upload a chunk",
-                    },
-                    ConfigSection.DOWNLOAD: {
-                        ConfigKey.BACKOFF: "1.5 # Backoff factor for retries",
-                        ConfigKey.CHUNK_SIZE: "10485760 # 10 * 2**20 (10MB)",
-                        ConfigKey.CONCURRENT_DOWNLOADS: "10 # Maximum number of concurrent downloads",
-                        ConfigKey.DELETE_ZIP: "true # Delete zip files after extracting",
-                        ConfigKey.INTERVAL: "20 # Interval between runs",
-                        ConfigKey.RETRIES: "10 # Number of times to retry a failed upload",
-                    },
-                    ConfigSection.GRAPHQL: {
-                        ConfigKey.BACKOFF: "1.5 # Backoff factor for retries",
-                        ConfigKey.INTERVAL: "4 # Interval between runs",
-                        ConfigKey.RETRIES: "3 # Number of times to retry a failed upload",
-                    },
-                }
-
                 c = ConfigParser()
-                c.read_dict(_DEFAULT_CONFIG)
+                c.read_dict(Config.DEFAULT_CONFIG)
                 CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
                 with CONFIG_FILE.open("w") as fd:
                     c.write(fd)
