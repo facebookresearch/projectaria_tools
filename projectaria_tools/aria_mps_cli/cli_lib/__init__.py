@@ -36,6 +36,7 @@ def _install_deps():
         "textual",
         "transitions",
         "xxhash",
+        "keyring",
     }
 
     _modules_to_install = [m for m in _required_modules if not is_module_installed(m)]

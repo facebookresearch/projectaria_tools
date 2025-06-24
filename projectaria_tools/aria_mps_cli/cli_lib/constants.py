@@ -19,6 +19,7 @@ from typing import Final, Sequence
 CONFIG_DIR: Final[Path] = Path.home().joinpath(".projectaria")
 CONFIG_FILE: Final[Path] = CONFIG_DIR.joinpath("mps.ini")
 AUTH_TOKEN_FILE: Final[Path] = CONFIG_DIR.joinpath("auth_token")
+ENCRYPTION_KEY_FILE: Final[Path] = CONFIG_DIR.joinpath(".encryption_key")
 
 # GraphQL keys
 KEY_ACCESS_TOKEN: Final[str] = "access_token"

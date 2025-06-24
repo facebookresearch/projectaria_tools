@@ -21,6 +21,13 @@ import time
 from http import HTTPStatus
 from typing import Any, Final, Mapping, Optional
 
+try:
+    import keyring
+
+    KEYRING_AVAILABLE = True
+except ImportError:
+    KEYRING_AVAILABLE = False
+
 from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
@@ -28,6 +35,7 @@ from Crypto.Random import get_random_bytes
 from .common import retry
 from .constants import (
     AUTH_TOKEN_FILE,
+    ENCRYPTION_KEY_FILE,
     KEY_ACCESS_TOKEN,
     KEY_APP_ID,
     KEY_CONTACT_POINT,
@@ -43,6 +51,10 @@ from .constants import (
 from .http_helper import HttpHelper
 
 logger = logging.getLogger(__name__)
+
+# Keyring constants
+_KEYRING_SERVICE_NAME: Final[str] = "projectaria_tools"
+_KEYRING_SESSION_TOKEN_KEY: Final[str] = "session_token_key"
 
 # OAuth FRL|FRL App ID| Client Token
 _CLIENT_TOKEN: Final[str] = "FRL|844405224048903|ed1d75011c9a461b1f6c83c91f1fecb9"
@@ -138,18 +150,89 @@ class Authenticator:
     async def load_and_validate_token(self) -> bool:
         """
         Reads the token from the local disk if present and validates it.
+        Handles both encrypted tokens (newer versions) and unencrypted tokens (older versions).
+
         Returns:
             True if the token is found and is valid
         """
         if not AUTH_TOKEN_FILE.is_file() or not os.access(AUTH_TOKEN_FILE, os.R_OK):
             logger.debug("No cached token found")
             return False
-        logger.debug("Reading cached token")
-        with AUTH_TOKEN_FILE.open("r") as f:
-            self._auth_token = f.read().strip()
 
-        self._user_alias = await self._get_user_alias()
-        return self._user_alias is not None
+        try:
+            logger.debug("Reading cached token")
+            with AUTH_TOKEN_FILE.open("rb") as f:
+                # Read the first byte to check if it's a version byte
+                first_byte = f.read(1)
+
+                # If the first byte is 0x01, it's an encrypted token (version 1)
+                if first_byte == b"\x01":
+                    # Continue with decryption process for encrypted tokens
+                    iv = f.read(12)
+                    tag = f.read(16)
+                    cipher_text = f.read()
+
+                    key = self.get_encryption_key()
+                    cipher = AES.new(key, AES.MODE_GCM, iv)
+                    self._auth_token = cipher.decrypt_and_verify(
+                        cipher_text, tag
+                    ).decode()
+                else:
+                    # Handle unencrypted token from older versions
+                    # Seek back to the beginning of the file
+                    f.seek(0)
+                    self._auth_token = f.read().decode().strip()
+                    logger.info(
+                        "Found unencrypted token from older version - upgrading to encrypted format"
+                    )
+                    self._cache_token()
+                    logger.info("Token successfully upgraded to encrypted format")
+
+                self._user_alias = await self._get_user_alias()
+                return True
+        except (ValueError, KeyError, OSError) as e:
+            logger.error(f"Token loading failed: {e}")
+            return False
+
+    def get_encryption_key(self) -> bytes:
+        """
+        Generate or retrieve the encryption key used for token encryption/decryption.
+
+        This function attempts to retrieve an existing encryption key from the system keyring
+        if available. If the key doesn't exist in the keyring, it generates a new random 32-byte key
+        and stores it in the keyring for future use.
+
+        If the keyring is not available (e.g., due to missing dependencies or permissions),
+        it falls back to using a local file (ENCRYPTION_KEY_FILE) to store and retrieve the key.
+        If the file doesn't exist, it creates a new random key, saves it to the file with
+        appropriate permissions (read/write for the owner only), and returns it.
+
+        Returns:
+            bytes: A 32-byte encryption key for AES-256 encryption
+        """
+        if KEYRING_AVAILABLE:
+            try:
+                key = keyring.get_password(
+                    _KEYRING_SERVICE_NAME, _KEYRING_SESSION_TOKEN_KEY
+                )
+                if not key:
+                    key = get_random_bytes(32)
+                    keyring.set_password(
+                        _KEYRING_SERVICE_NAME, _KEYRING_SESSION_TOKEN_KEY, key
+                    )
+                return key
+            except Exception as e:
+                logger.error(f"Failed to get encryption key from keyring: {e}")
+        # Fallback to the local file if keyring is not available
+        if ENCRYPTION_KEY_FILE.exists():
+            with ENCRYPTION_KEY_FILE.open("rb") as f:
+                return f.read()
+        else:
+            key = get_random_bytes(32)
+            with ENCRYPTION_KEY_FILE.open("wb") as f:
+                f.write(key)
+            os.chmod(ENCRYPTION_KEY_FILE, stat.S_IRUSR | stat.S_IWUSR)
+            return key
 
     async def login(self, username: str, password: str, save_token: bool) -> bool:
         """
@@ -258,14 +341,16 @@ class Authenticator:
             AUTH_TOKEN_FILE.unlink(missing_ok=True)
 
     def _cache_token(self) -> None:
-        """
-        Cache the token locally
-        """
-        logger.info(f"Caching token to {AUTH_TOKEN_FILE}")
-        AUTH_TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with AUTH_TOKEN_FILE.open("w") as f:
-            f.write(self._auth_token)
-        # lock read/write access to auth token
+        key = self.get_encryption_key()
+        iv = get_random_bytes(12)
+        cipher = AES.new(key, AES.MODE_GCM, iv)
+        cipher_text, tag = cipher.encrypt_and_digest(self._auth_token.encode())
+
+        with AUTH_TOKEN_FILE.open("wb") as f:
+            f.write(b"\x01")  # Version
+            f.write(iv)
+            f.write(tag)
+            f.write(cipher_text)
         os.chmod(AUTH_TOKEN_FILE, stat.S_IRUSR | stat.S_IWUSR)
 
     def _clear_cached_token(self) -> None:
