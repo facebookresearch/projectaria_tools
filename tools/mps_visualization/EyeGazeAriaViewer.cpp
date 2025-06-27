@@ -20,6 +20,7 @@
 #include "mps/EyeGazeReader.h"
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <ctime>
@@ -34,8 +35,8 @@ using namespace projectaria::tools;
 using namespace projectaria::tools::data_provider;
 using namespace projectaria::tools::mps;
 
-constexpr float kGeneralizedGazeColor[] = {0.0f, 1.0f, 1.0f};
-constexpr float kCalibratedGazeColor[] = {1.0f, 0.0f, 1.0f};
+constexpr std::array<float, 3> kGeneralizedGazeColor = {0.0f, 1.0f, 1.0f};
+constexpr std::array<float, 3> kCalibratedGazeColor = {1.0f, 0.0f, 1.0f};
 
 namespace {
 void plotEt(std::shared_ptr<EyeGazeVisualizationData> eyeGazeVisData) {
