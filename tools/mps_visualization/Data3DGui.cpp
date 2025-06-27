@@ -15,6 +15,7 @@
  */
 
 #include "Data3DGui.h"
+#include <array>
 #include <stdexcept>
 #include "PangolinHelper.h"
 
@@ -39,13 +40,13 @@ const std::vector<Eigen::Vector3f> kTrajColors{
     {0.5, 0.5, 0.5},
     {0.74, 0.74, 0.13},
     {0.09, 0.75, 0.81}};
-constexpr float kGeneralizedGazeColor[] = {0.0f, 1.0f, 1.0f};
-constexpr float kCalibratedGazeColor[] = {1.0f, 0.0f, 1.0f};
+constexpr std::array<float, 3> kGeneralizedGazeColor = {0.0f, 1.0f, 1.0f};
+constexpr std::array<float, 3> kCalibratedGazeColor = {1.0f, 0.0f, 1.0f};
 
 // In meters
 constexpr float kNormalVisLen = 0.05;
 
-extern const unsigned char AnonymousPro_ttf[];
+extern const unsigned char AnonymousPro_ttf[]; // NOLINT(modernize-avoid-c-arrays)
 static pangolin::GlFont kGlFont(AnonymousPro_ttf, 20);
 
 namespace projectaria::tools::mps {
