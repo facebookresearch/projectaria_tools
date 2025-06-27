@@ -293,7 +293,7 @@ class MultiRecordingModel:
         """
         return self._persist_on_failure
 
-    def get_status(self, recording: Path) -> str:
+    def get_status(self, recording: Path) -> ModelState:
         """
         The current status of the request.
         We append the progress, where applicable
