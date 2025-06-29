@@ -436,7 +436,7 @@ class MultiRecordingModel:
                 )
                 await vhc_runner.run()
             if not rec.health_check_path.is_file():
-                logger.error("Failed to run VrsHealthCheck for {rec.path}")
+                logger.error(f"Failed to run VrsHealthCheck for {rec.path}")
                 self._error_codes[rec.path] = ErrorCode.HEALTH_CHECK_FAILURE
                 raise VrsHealthCheckError()
 
