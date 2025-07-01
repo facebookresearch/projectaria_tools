@@ -37,6 +37,11 @@ def main():
             default="True",
             help="Use CAD or Factory calibration data (default use CAD calibration)",
         )
+        parser.add_argument(
+            "--web",
+            action="store_true",
+            help="Run the viewer in web browser instead of desktop app",
+        )
 
         # If this path is set, we will save the rerun (.rrd) file to the given path
         parser.add_argument(
