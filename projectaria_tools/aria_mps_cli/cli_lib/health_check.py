@@ -24,6 +24,7 @@ from typing import Dict, final, List, Optional, Union
 from projectaria_tools.core import vrs_health_check as vhc
 
 from .common import Config, CustomAdapter, to_proc
+from .config_updatable import ConfigUpdatable
 from .constants import ConfigKey, ConfigSection
 from .runner_with_progress import RunnerWithProgress
 from .types import AriaRecording, MpsFeature
@@ -467,7 +468,7 @@ def _vhc_run(vrs_path: Path, json_out: Path):
     logger.debug(f"Health check output written to {json_out}")
 
 
-class HealthCheckRunner(RunnerWithProgress):
+class HealthCheckRunner(RunnerWithProgress, ConfigUpdatable):
     """
     Run health check on a given vrs file.
     """
@@ -477,6 +478,11 @@ class HealthCheckRunner(RunnerWithProgress):
             ConfigSection.HEALTH_CHECK, ConfigKey.CONCURRENT_HEALTH_CHECKS
         )
     )
+
+    @classmethod
+    def get_setting_keys(cls) -> tuple[str, str]:
+        """Return the config section and key for the health check runner's semaphore setting"""
+        return ConfigSection.HEALTH_CHECK, ConfigKey.CONCURRENT_HEALTH_CHECKS
 
     def __init__(self, vrs_path: Path, json_out: Path) -> None:
         self._vrs_file: Path = vrs_path

@@ -26,6 +26,7 @@ import aiohttp
 import xxhash
 
 from .common import Config, CustomAdapter, get_pretty_size, retry
+from .config_updatable import ConfigUpdatable
 from .constants import ConfigKey, ConfigSection, HTTP_RETRY_CODES
 from .http_helper import HttpHelper
 from .runner_with_progress import RunnerWithProgress
@@ -45,7 +46,7 @@ class UploadPending(Exception):
     pass
 
 
-class Uploader(RunnerWithProgress):
+class Uploader(RunnerWithProgress, ConfigUpdatable):
     """
     Uploads the VRS file to the MPS server via the resumable upload service
     The upload handle is supposed to be a unique identifier for the file being uploaded.
@@ -86,6 +87,11 @@ class Uploader(RunnerWithProgress):
         """Get a unique key for this Runner instance"""
         # We only need the file hash
         return input_hash
+
+    @classmethod
+    def get_setting_keys(cls) -> Tuple[str, str]:
+        """Return the config section and key for the uploader's semaphore setting"""
+        return ConfigSection.UPLOAD, ConfigKey.CONCURRENT_UPLOADS
 
     @final
     @retry(

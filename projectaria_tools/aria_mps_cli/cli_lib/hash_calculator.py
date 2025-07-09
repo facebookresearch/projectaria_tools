@@ -22,13 +22,14 @@ import aiofiles.os
 import xxhash
 
 from .common import Config, CustomAdapter
+from .config_updatable import ConfigUpdatable
 from .constants import ConfigKey, ConfigSection
 from .runner_with_progress import RunnerWithProgress
 
 config = Config.get()
 
 
-class HashCalculator(RunnerWithProgress):
+class HashCalculator(RunnerWithProgress, ConfigUpdatable):
     """
     Class to calculate hash of a given input path
     """
@@ -36,6 +37,11 @@ class HashCalculator(RunnerWithProgress):
     semaphore_: Final[Semaphore] = Semaphore(
         value=config.getint(ConfigSection.HASH, ConfigKey.CONCURRENT_HASHES)
     )
+
+    @classmethod
+    def get_setting_keys(cls) -> tuple[str, str]:
+        """Return the config section and key for the hash calculator's semaphore setting"""
+        return ConfigSection.HASH, ConfigKey.CONCURRENT_HASHES
 
     def __init__(self, input_path: Path, debug_suffix: Optional[str] = None):
         super().__init__()

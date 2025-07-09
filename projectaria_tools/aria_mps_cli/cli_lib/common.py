@@ -269,3 +269,40 @@ class Config(ConfigParser):
             Config._config.read(CONFIG_FILE)
             logger.info(f"Loaded config file {CONFIG_FILE}")
         return Config._config
+
+    @staticmethod
+    def reload() -> None:
+        """
+        Reload the config object from the file.
+        Clears the current configuration and reads the updated config file.
+        Used in Aria Studio to reload the config after it is updated using UI
+
+        This method also updates all registered components that depend on configuration values.
+
+        Raises:
+            ConfigUpdateError: If updating components fails after config reload.
+        """
+        if Config._config is not None:
+            # Clear the current configuration
+            Config._config.clear()
+            # Re-read the configuration file
+            Config._config.read(CONFIG_FILE)
+            logger.info(f"Reloaded config file {CONFIG_FILE}")
+
+            # Update all components semaphore configuration values
+            try:
+                from .config_updatable import update_all_components
+
+                update_all_components()
+                logger.info("Updated all components with new configuration values")
+            except Exception as e:
+                logger.error(f"Error updating components: {e}")
+                raise ConfigUpdateError(
+                    f"Failed to update components after config reload: {e}"
+                ) from e
+
+
+class ConfigUpdateError(Exception):
+    """Exception raised when configuration update fails."""
+
+    pass

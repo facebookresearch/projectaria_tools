@@ -28,6 +28,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 
 from .common import Config, CustomAdapter, to_proc
+from .config_updatable import ConfigUpdatable
 from .constants import ConfigKey, ConfigSection
 from .runner_with_progress import RunnerWithProgress
 
@@ -43,7 +44,7 @@ class EncryptionException(RuntimeError):
     pass
 
 
-class VrsEncryptor(RunnerWithProgress):
+class VrsEncryptor(RunnerWithProgress, ConfigUpdatable):
     """
     Encrypt a vrs file and report progress
     """
@@ -51,6 +52,11 @@ class VrsEncryptor(RunnerWithProgress):
     semaphore_: Final[Semaphore] = Semaphore(
         config.getint(ConfigSection.ENCRYPTION, ConfigKey.CONCURRENT_ENCRYPTIONS)
     )
+
+    @classmethod
+    def get_setting_keys(cls) -> tuple[str, str]:
+        """Return the config section and key for the encryptor's semaphore setting"""
+        return ConfigSection.ENCRYPTION, ConfigKey.CONCURRENT_ENCRYPTIONS
 
     def __init__(
         self, src_path: Path, dest_path: Path, encryption_key: str, key_id: int

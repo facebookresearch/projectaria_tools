@@ -20,6 +20,7 @@ from typing import final, Final, Optional
 import aiofiles
 
 from .common import Config, CustomAdapter, retry, to_proc, unzip
+from .config_updatable import ConfigUpdatable
 from .constants import ConfigKey, ConfigSection, HTTP_RETRY_CODES
 from .http_helper import HttpHelper
 from .runner_with_progress import RunnerWithProgress
@@ -27,7 +28,7 @@ from .runner_with_progress import RunnerWithProgress
 config = Config.get()
 
 
-class Downloader(RunnerWithProgress):
+class Downloader(RunnerWithProgress, ConfigUpdatable):
     """
     Download the file from the given URL to the given local path and maybe unzip it, if
     needed.
@@ -36,6 +37,11 @@ class Downloader(RunnerWithProgress):
     semaphore_: Final[Semaphore] = Semaphore(
         value=config.getint(ConfigSection.DOWNLOAD, ConfigKey.CONCURRENT_DOWNLOADS)
     )
+
+    @classmethod
+    def get_setting_keys(cls) -> tuple[str, str]:
+        """Return the config section and key for the downloader's semaphore setting"""
+        return ConfigSection.DOWNLOAD, ConfigKey.CONCURRENT_DOWNLOADS
 
     def __init__(
         self,
