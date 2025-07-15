@@ -192,6 +192,12 @@ class Authenticator:
                 return True
         except (ValueError, KeyError, OSError) as e:
             logger.error(f"Token loading failed: {e}")
+            AUTH_TOKEN_FILE.unlink(missing_ok=True)
+            return False
+        except Exception as e:
+            logger.error(f"Unexpected error while loading token: {e}")
+            # removing the auth token cache file
+            AUTH_TOKEN_FILE.unlink(missing_ok=True)
             return False
 
     def get_encryption_key(self) -> bytes:
