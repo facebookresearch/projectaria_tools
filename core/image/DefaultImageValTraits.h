@@ -30,9 +30,6 @@ struct DefaultImageValTraits {
   static const size_t channel = 1;
 };
 
-template <class T, class Enable>
-constexpr int DefaultImageValTraits<T, Enable>::maxValue;
-
 template <class T>
 struct DefaultImageValTraits<T, typename std::enable_if<std::is_integral<T>::value>::type> {
   static constexpr int maxValue = (sizeof(T) >= sizeof(int))

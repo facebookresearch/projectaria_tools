@@ -386,9 +386,6 @@ PROJECTARIA_HOST_DEVICE inline T Image<T, MaxValue>::operator()(P u, P v) const 
   }
 }
 
-template <typename T, int MaxValue>
-constexpr int Image<T, MaxValue>::maxValue;
-
 static_assert(Image<uint8_t>::maxValue == 255, "Compile time sanity check");
 static_assert(Image<float>::maxValue == 1, "Compile time sanity check");
 static_assert(Image<uint16_t, 1023>::maxValue == 1023, "Compile time sanity check");
