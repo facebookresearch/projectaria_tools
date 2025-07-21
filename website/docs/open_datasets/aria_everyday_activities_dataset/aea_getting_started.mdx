@@ -2,6 +2,8 @@
 sidebar_position: 10
 title: Getting Started
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # Getting Started With AEA
 
@@ -46,13 +48,22 @@ If you have problems using Jupyter examples, please [upgrade python3](https://ww
 ### Step 2 : Create a virtual environment
 
 
-```
+<Tabs groupId="operating-systems">
+<TabItem value="unix" label="Linux & macOS">
+```bash
 rm -rf $HOME/projectaria_tools_python_env
-
 python3 -m venv $HOME/projectaria_tools_python_env
-
 source $HOME/projectaria_tools_python_env/bin/activate
 ```
+</TabItem>
+<TabItem value="windows" label="Windows">
+```bash
+Remove-Item $HOME\projectaria_tools_python_env
+py -3 -m venv $HOME\projectaria_tools_python_env
+& $HOME\projectaria_tools_python_env\Scripts\Activate.ps1
+```
+</TabItem>
+</Tabs>
 
 
 ### Step 3 : Install `projectaria-tools` from PyPI
