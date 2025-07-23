@@ -49,8 +49,9 @@ void plotEt(std::shared_ptr<EyeGazeVisualizationData> eyeGazeVisData) {
   const Eigen::Vector2f center(
       eyeGazeVisData->yawPitchHistory.back().x(), eyeGazeVisData->yawPitchHistory.back().y());
   pangolin::glDrawVertices(std::vector<Eigen::Vector2f>{center}, GL_POINTS);
-  for (double r = .1; r < .3; r += 0.1)
+  for (double r = .1; r < .3; r += 0.1) {
     pangolin::glDrawCirclePerimeter(center.cast<double>(), r);
+  }
 }
 } // namespace
 
@@ -289,8 +290,9 @@ void EyeGazeAriaViewer::updateEtPlot() {
 
     // Draw radar view background
     glColor3f(1, 1., 1.);
-    for (double r = .1; r < 2; r += 0.5)
+    for (double r = .1; r < 2; r += 0.5) {
       pangolin::glDrawCirclePerimeter(Eigen::Vector2d(0, 0), r);
+    }
 
     if (*showGeneralizedGaze_) {
       plotEt(generalizedEyeGazesVisData_);
