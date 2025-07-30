@@ -169,6 +169,70 @@ std::unordered_map<std::string, Sophus::SE3d> constructCadForDvtmAria() {
 
   return cadMapT_Device_Sensor;
 }
+
+// A helper function for constructing CAD extrinsics for EVT-S
+std::unordered_map<std::string, Sophus::SE3d> constructCadForEvtSmall() {
+  std::unordered_map<std::string, Sophus::SE3d> cadMapT_Device_Sensor;
+
+  const std::vector<std::string> cadCsvLines = {
+      "camera-slam-left, 0.069051, 0.002372, 0.009254, 0.793353, 0.000000, -0.608761, 0.607927, -0.052336, 0.792266",
+      "camera-slam-right, -0.069051, 0.002372, 0.009254, 0.793353, 0.000000, 0.608761, -0.607927, -0.052336, 0.792266",
+      "camera-et-left, 0.054298, -0.018500, 0.006210, 0.034478, -0.508118, -0.860597, -0.674245, 0.623794, -0.395316",
+      "camera-et-right, -0.054298, -0.018500, 0.006210, -0.034478, -0.508118, -0.860597, 0.674245, 0.623794, -0.395316",
+      "camera-rgb, 0.056000, 0.007121, 0.012883, 1.000000, 0.000000, 0.000000, 0.000000, -0.130526, 0.991445",
+      "imu-left, 0.064799, 0.001997, 0.003152, 0.790027, 0.000000, -0.613072, -0.607365, 0.136127, -0.782673",
+      "imu-right, -0.065182, 0.001893, 0.002645, -0.793353, 0.000000, -0.608761, 0.595593, 0.206874, -0.776191",
+      "baro0, -0.009258, 0.010842, 0.017200, 0.000000, 0.000000, -1.000000, 0.173648, 0.984808, 0.000000",
+      "mag0, 0.064411, -0.004813, 0.000723, 0.588329, 0.006506, -0.808595, -0.808020, 0.043280, -0.587563",
+      "mic0, -0.045906 ,-0.027938 ,0.006667 ,0.97508224 ,-0.160939007 ,0.152686805 ,-0.14019156 ,-0.980440 ,-0.138144",
+      "mic1, 0.009161 ,0.010231 ,0.017250 ,-0.984808 ,-0.173648 ,0.000000 ,-0.173648 ,0.984808 ,0.000000",
+      "mic2, 0.045905 ,-0.027931 ,0.006668 ,-0.975082 ,-0.160938 ,0.152687 ,0.140190 ,-0.980440 ,-0.138146",
+      "mic3, 0.063471 ,0.012034 ,0.005566 ,-0.017386 ,0.001521 ,0.999848 ,0.087156 ,0.996195 ,0.000000",
+      "mic4, -0.052398 ,0.013200 ,0.012160 ,0.965337 ,0.033710 ,0.258819 ,-0.034899 ,0.999391 ,0.000000",
+      "mic5, 0.069856 ,0.008270 ,-0.093105 ,0.002466 ,-0.996176 ,0.087334 ,0.990147 ,-0.009795 ,-0.139689",
+      "mic6, -0.069822 ,0.008268 ,-0.093138 ,-0.002487 ,-0.996176 ,0.087333 ,-0.990081 ,-0.009815 ,-0.140151"};
+
+  for (const auto& line : cadCsvLines) {
+    const auto maybeLabelAndPose = readSingleCsvLine(line);
+    XR_CHECK(maybeLabelAndPose.has_value(), "Reading csv line has failed: {}", line);
+    cadMapT_Device_Sensor.emplace(
+        maybeLabelAndPose.value().first, maybeLabelAndPose.value().second);
+  }
+
+  return cadMapT_Device_Sensor;
+}
+
+// A helper function for constructing CAD extrinsics for EVT-L
+std::unordered_map<std::string, Sophus::SE3d> constructCadForEvtLarge() {
+  std::unordered_map<std::string, Sophus::SE3d> cadMapT_Device_Sensor;
+
+  const std::vector<std::string> cadCsvLines = {
+      "camera-slam-left, 0.071351, 0.002372, 0.008454, 0.793353, 0.000000, -0.608761, 0.607927, -0.052336, 0.792266",
+      "camera-slam-right, -0.071351, 0.002372, 0.008454, 0.793353, 0.000000, 0.608761, -0.607927, -0.052336, 0.792266",
+      "camera-et-left, 0.055753, -0.019589, 0.004786, 0.034096, -0.508436, -0.860424, -0.674299, 0.623745, -0.395300",
+      "camera-et-right, -0.055753, -0.019589, 0.004786, -0.034096, -0.508436, -0.860424, 0.674299, 0.623745, -0.395300",
+      "camera-rgb, 0.058250, 0.007186, 0.012096, 1.000000, 0.000000, 0.000000, 0.000000, -0.130526, 0.991445",
+      "imu-left, 0.067042, 0.002160, 0.002413, 0.790027, 0.000000, -0.613072, -0.607365, 0.136127, -0.782673",
+      "imu-right, -0.067482, 0.001893, 0.001845, -0.793353, 0.000000, -0.608761, 0.595593, 0.206874, -0.776191",
+      "baro0, -0.009258, 0.010842, 0.017200, 0.000000, 0.000000, -1.000000, 0.173648, 0.984808, 0.000000",
+      "mag0, 0.066568, -0.004813, -0.001498, 0.587782, -0.008810, -0.808971, -0.808020, 0.043280, -0.587563",
+      "mic0, -0.04613750996 ,-0.02929690419 ,0.006233332458 ,0.981006 ,-0.109790 ,0.159915 ,-0.087780 ,-0.986430 ,-0.138744",
+      "mic1, 0.009200472201 ,0.01030418902 ,0.01725 ,-0.984807753 ,-0.173648178 ,0 ,-0.173648178 ,0.984807753 ,0",
+      "mic2, 0.046138 ,-0.029297 ,0.006233 ,-0.981006 ,-0.109790 ,0.159915 ,0.087780 ,-0.986430 ,-0.138744",
+      "mic3, 0.065925 ,0.011961 ,0.004305 ,-0.017386 ,0.001521 ,0.999848 ,0.087156 ,0.996195 ,0.000000",
+      "mic4, -0.054800 ,0.013142 ,0.010960 ,0.965337 ,0.033710 ,0.258819 ,-0.034899 ,0.999391 ,0.000000",
+      "mic5, 0.072318 ,0.008272 ,-0.094955 ,0.002477 ,-0.996176 ,0.087334 ,0.990114 ,-0.009805 ,-0.139920",
+      "mic6, -0.072319 ,0.008271 ,-0.094955 ,-0.002477 ,-0.996176 ,0.087334 ,-0.990114 ,-0.009805 ,-0.139920"};
+
+  for (const auto& line : cadCsvLines) {
+    const auto maybeLabelAndPose = readSingleCsvLine(line);
+    XR_CHECK(maybeLabelAndPose.has_value(), "Reading csv line has failed: {}", line);
+    cadMapT_Device_Sensor.emplace(
+        maybeLabelAndPose.value().first, maybeLabelAndPose.value().second);
+  }
+
+  return cadMapT_Device_Sensor;
+}
 } // namespace
 
 DeviceCadExtrinsics::DeviceCadExtrinsics(
@@ -183,6 +247,12 @@ DeviceCadExtrinsics::DeviceCadExtrinsics(
     labelToT_Cpf_Sensor_ = constructCadForDvtLarge();
   } else if (deviceSubType == "DVT-MARIA") {
     labelToT_Cpf_Sensor_ = constructCadForDvtmAria();
+  }
+  // Add support for legacy EVT devices
+  else if (deviceSubType == "EVT-S") {
+    labelToT_Cpf_Sensor_ = constructCadForEvtSmall();
+  } else if (deviceSubType == "EVT-L") {
+    labelToT_Cpf_Sensor_ = constructCadForEvtLarge();
   } else if (simulatedDeviceSubtypes.find(deviceSubType) != simulatedDeviceSubtypes.end()) {
     XR_LOGW("No CAD available for simulated device");
     return;
