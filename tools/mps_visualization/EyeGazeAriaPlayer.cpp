@@ -50,7 +50,6 @@ void EyeGazeAriaPlayer::playFromTimeNsMultiThread(int64_t timestampNs) {
   }
   // request to stop playing
   visControl_->isPlaying_ = false;
-  return;
 }
 
 namespace {

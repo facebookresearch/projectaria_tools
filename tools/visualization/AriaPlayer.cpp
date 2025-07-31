@@ -65,7 +65,6 @@ void AriaPlayer::playFromTimeNsMultiThread(int64_t timestampNs) {
   }
   // request to stop playing
   visControl_->isPlaying_ = false;
-  return;
 }
 
 void AriaPlayer::playStreamFromTimeNs(int64_t timestampNs, const vrs::StreamId& streamId) {
