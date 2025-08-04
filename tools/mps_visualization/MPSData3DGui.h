@@ -33,7 +33,7 @@ class MPSData3DGui {
   // update plot's 3d view
   void draw();
   // flush resources
-  void finish();
+  static void finish();
 
  private:
   // Point cloud data & filtered version

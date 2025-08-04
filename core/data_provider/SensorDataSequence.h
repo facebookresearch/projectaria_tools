@@ -81,7 +81,7 @@ class SensorDataSequence {
   /**
    * @brief Returns iterator representing the end point of the sequence
    */
-  SensorDataIterator end();
+  static SensorDataIterator end();
 
  private:
   VrsDataProvider* provider_; // non-owning pointer to vrs data provider

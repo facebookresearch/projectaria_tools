@@ -262,7 +262,7 @@ void Data3DGui::drawEyeGaze(
     const Eigen::Vector3d& eyeGazePointCpf,
     const Sophus::SE3d& T_World_Device,
     const Sophus::SE3d& T_Device_Cpf,
-    bool calibrated) const {
+    bool calibrated) {
   const auto T_World_Cpf = T_World_Device * T_Device_Cpf;
   const Eigen::Vector3d cpfPointWorld = T_World_Cpf.translation();
   const Eigen::Vector3d eyeGazePointWorld = T_World_Cpf * eyeGazePointCpf;

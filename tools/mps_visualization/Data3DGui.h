@@ -90,11 +90,11 @@ class Data3DGui {
 
   void drawEyeGazePoint() const;
 
-  void drawEyeGaze(
+  static void drawEyeGaze(
       const Eigen::Vector3d& eyeGazePointCpf,
       const Sophus::SE3d& T_World_Device,
       const Sophus::SE3d& T_Device_Cpf,
-      bool calibrated) const;
+      bool calibrated);
 
   pangolin::ImageView& getImageView(ImageViewName name);
 
