@@ -27,7 +27,7 @@ namespace projectaria::tools::data_provider {
 TimeSyncMapper::TimeSyncMapper(
     const std::shared_ptr<vrs::MultiRecordFileReader>& reader,
     const std::map<TimeSyncMode, std::shared_ptr<TimeSyncPlayer>>& timesyncPlayers) {
-  if (timesyncPlayers.size() == 0) {
+  if (timesyncPlayers.empty()) {
     return;
   }
   timesyncPlayers_ = timesyncPlayers;

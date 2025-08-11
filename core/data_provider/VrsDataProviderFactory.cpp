@@ -273,10 +273,10 @@ void VrsDataProviderFactory::tryAddTimeSyncPlayer(const vrs::StreamId& streamId)
 
 std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
   bool hasStreamPlayer = false;
-  if (imagePlayers_.size()) {
+  if (!imagePlayers_.empty()) {
     hasStreamPlayer = true;
   }
-  if (motionPlayers_.size()) {
+  if (!motionPlayers_.empty()) {
     hasStreamPlayer = true;
   }
   checkAndThrow(hasStreamPlayer, "No stream activated, cannot create provider");

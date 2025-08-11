@@ -200,7 +200,7 @@ RecordReaderInterface::getStreamIdToDataRecords() {
     vrs::StreamId streamId = recordInfo->streamId;
     if (streamIds_.count(streamId) > 0 && recordInfo->recordType == vrs::Record::Type::DATA) {
       auto& dataRecords = streamIdToDataRecords[streamId];
-      if (dataRecords.size() == 0) {
+      if (dataRecords.empty()) {
         dataRecords.reserve(reader_->getRecordCount(streamId, vrs::Record::Type::DATA));
       }
       dataRecords.push_back(recordInfo);

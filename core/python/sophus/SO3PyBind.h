@@ -237,7 +237,7 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
   type.def(
       "__matmul__",
       [](const SO3Group<Scalar>& rotations, const SO3Group<Scalar>& other) -> SO3Group<Scalar> {
-        if (other.size() == 0 || rotations.size() == 0) {
+        if (other.empty() || rotations.empty()) {
           throw std::domain_error("Both operand should have size greater than 0");
         }
         SO3Group<Scalar> result;
@@ -258,7 +258,7 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
         return result;
       });
   type.def("__imatmul__", [](SO3Group<Scalar>& rotations, const SO3Group<Scalar>& other) {
-    if (rotations.size() == 0 || other.size() == 0) {
+    if (rotations.empty() || other.empty()) {
       throw std::domain_error("Both operand should have size greater than 0");
     }
 
@@ -281,7 +281,7 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
       "__matmul__",
       [](const SO3Group<Scalar>& rotations, const Eigen::Matrix<Scalar, 3, Eigen::Dynamic>& matrix)
           -> Eigen::Matrix<Scalar, 3, Eigen::Dynamic> {
-        if (matrix.cols() == 0 || rotations.size() == 0) {
+        if (matrix.cols() == 0 || rotations.empty()) {
           throw std::domain_error("Both operand should have size greater than 0");
         }
         if (rotations.size() != 1) {
