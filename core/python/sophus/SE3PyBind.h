@@ -377,7 +377,7 @@ PybindSE3Type<Scalar> exportSE3Transformation(
       "__matmul__",
       [](const SE3Group<Scalar>& transformations,
          const SE3Group<Scalar>& other) -> SE3Group<Scalar> {
-        if (other.size() == 0 || transformations.size() == 0) {
+        if (other.empty() || transformations.empty()) {
           throw std::domain_error("Both operand should have size greater than 0");
         }
         SE3Group<Scalar> result;
@@ -399,7 +399,7 @@ PybindSE3Type<Scalar> exportSE3Transformation(
       });
 
   type.def("__imatmul__", [](SE3Group<Scalar>& transformations, const SE3Group<Scalar>& other) {
-    if (transformations.size() == 0 || other.size() == 0) {
+    if (transformations.empty() || other.empty()) {
       throw std::domain_error("Both operand should have size greater than 0");
     }
 
@@ -424,7 +424,7 @@ PybindSE3Type<Scalar> exportSE3Transformation(
       [](const SE3Group<Scalar>& transformations,
          const Eigen::Matrix<Scalar, 3, Eigen::Dynamic>& matrix)
           -> Eigen::Matrix<Scalar, 3, Eigen::Dynamic> {
-        if (matrix.cols() == 0 || transformations.size() == 0) {
+        if (matrix.cols() == 0 || transformations.empty()) {
           throw std::domain_error("Both operand should have size greater than 0");
         }
         if (transformations.size() != 1) {

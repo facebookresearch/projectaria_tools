@@ -62,7 +62,7 @@ inline constexpr auto durationDoubleToChronoUsCast(const double time_s) {
 
 inline int queryEyetrackIndex(const EyeGazes& eyeGazes, std::chrono::microseconds timestampUs) {
   if (timestampUs < eyeGazes.begin()->trackingTimestamp ||
-      timestampUs > eyeGazes.rbegin()->trackingTimestamp || eyeGazes.size() == 0) {
+      timestampUs > eyeGazes.rbegin()->trackingTimestamp || eyeGazes.empty()) {
     return -1;
   }
   // Linear interpolation if timestamp is falling before two records
@@ -142,7 +142,7 @@ std::shared_ptr<EyeGazeAriaPlayer> createEyeGazeAriaPlayer(
   // load aria eye gaze data
   std::shared_ptr<EyeGazes> generalizedEyeGazes;
   std::shared_ptr<EyeGazeVisualizationData> generalizedEyeGazesVisData;
-  if (generalizedGazePath != "") {
+  if (!generalizedGazePath.empty()) {
     generalizedEyeGazes = std::make_shared<EyeGazes>();
     *generalizedEyeGazes = readEyeGaze(generalizedGazePath);
     generalizedEyeGazesVisData = std::make_shared<EyeGazeVisualizationData>();
@@ -151,7 +151,7 @@ std::shared_ptr<EyeGazeAriaPlayer> createEyeGazeAriaPlayer(
   }
   std::shared_ptr<EyeGazes> calibratedEyeGazes;
   std::shared_ptr<EyeGazeVisualizationData> calibratedEyeGazesVisData;
-  if (calibratedGazePath != "") {
+  if (!calibratedGazePath.empty()) {
     calibratedEyeGazes = std::make_shared<EyeGazes>();
     *calibratedEyeGazes = readEyeGaze(calibratedGazePath);
     calibratedEyeGazesVisData = std::make_shared<EyeGazeVisualizationData>();
