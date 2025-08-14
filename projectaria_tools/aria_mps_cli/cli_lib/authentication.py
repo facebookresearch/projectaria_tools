@@ -218,15 +218,34 @@ class Authenticator:
         """
         if KEYRING_AVAILABLE:
             try:
-                key = keyring.get_password(
+                key_str = keyring.get_password(
                     _KEYRING_SERVICE_NAME, _KEYRING_SESSION_TOKEN_KEY
                 )
-                if not key:
+                if not key_str:
                     key = get_random_bytes(32)
+                    # Store as base64 string to handle Windows keyring string conversion
+                    key_b64 = base64.b64encode(key).decode("ascii")
                     keyring.set_password(
-                        _KEYRING_SERVICE_NAME, _KEYRING_SESSION_TOKEN_KEY, key
+                        _KEYRING_SERVICE_NAME, _KEYRING_SESSION_TOKEN_KEY, key_b64
                     )
-                return key
+                    return key
+                else:
+                    try:
+                        return base64.b64decode(key_str.encode("ascii"))
+                    except Exception:
+                        # If decoding fails, delete the corrupted key
+                        logger.warning(
+                            "Invalid key format in keyring, deleting corrupted key"
+                        )
+                        try:
+                            keyring.delete_password(
+                                _KEYRING_SERVICE_NAME, _KEYRING_SESSION_TOKEN_KEY
+                            )
+                        except Exception as delete_error:
+                            logger.error(
+                                f"Failed to delete corrupted key from keyring: {delete_error}"
+                            )
+                        # Fall through to file-based fallback
             except Exception as e:
                 logger.error(f"Failed to get encryption key from keyring: {e}")
         # Fallback to the local file if keyring is not available
