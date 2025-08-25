@@ -262,7 +262,7 @@ void AriaDigitalTwinViewer::drawRawImage(
   float transY2 = -static_cast<float>(image.getHeight()) / 2 + 0.5;
 
   // markup images with GT data
-  view.extern_draw_function = [=](pangolin::View& v) {
+  view.extern_draw_function = [=, this](pangolin::View& v) {
     v.Activate();
 
     // rotate 90 before drawing
