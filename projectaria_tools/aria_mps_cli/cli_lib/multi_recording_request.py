@@ -104,6 +104,7 @@ class MultiRecordingRequest(BaseStateMachine):
         persist_on_failure: bool,
         name: Optional[str] = None,
         suffix: Optional[str] = None,
+        feedback_id: Optional[str] = None,
     ) -> "MultiRecordingModel":
         """
         Search for all aria recordings recursively in all the input paths and add them
@@ -121,6 +122,7 @@ class MultiRecordingRequest(BaseStateMachine):
             suffix=suffix,
             retry_failed=retry_failed,
             persist_on_failure=persist_on_failure,
+            feedback_id=feedback_id,
             output_dir=output_dir,
             encryption_key=encryption_key,
             key_id=key_id,
@@ -172,6 +174,7 @@ class MultiRecordingModel:
         encryption_key: str,
         key_id: int,
         name: Optional[str] = None,
+        feedback_id: Optional[str] = None,
     ) -> None:
         self._feature: MpsFeature = MpsFeature.MULTI_SLAM
         self._http_helper: HttpHelper = http_helper
@@ -179,6 +182,8 @@ class MultiRecordingModel:
         self._suffix: Optional[str] = suffix
         self._retry_failed: bool = retry_failed
         self._persist_on_failure: bool = persist_on_failure
+        self._feedback_id: Optional[str] = feedback_id
+
         self._hash_calculators: Mapping[Path, HashCalculator] = {}
         self._output_dir: Path = output_dir
         self._output_dir.mkdir(parents=True, exist_ok=True)

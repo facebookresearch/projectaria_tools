@@ -48,6 +48,7 @@ class SingleRecordingMps:
         on_state_changed: Optional[
             Callable[[SingleRecordingModel, RequestMonitorModel], Awaitable[None]]
         ] = None,
+        feedback_id: Optional[str] = None,
     ):
         self._recording: Path = recording
         self._features: Set[MpsFeature] = features
@@ -72,6 +73,7 @@ class SingleRecordingMps:
         ] = {}
         self._finish_status: Mapping[MpsFeature, ModelState] = {}
         self._running: bool = False
+        self._feedback_id: Optional[str] = feedback_id
 
     @property
     def recording(self) -> Path:
@@ -110,6 +112,7 @@ class SingleRecordingMps:
                 retry_failed=self._retry_failed,
                 persist_on_failure=self._persist_on_failure,
                 suffix=self._suffix,
+                feedback_id=self._feedback_id,
             )
             logger.debug(f"Done adding recording {self._recording} {feature}")
             self._model_by_feature[feature] = model
@@ -188,6 +191,7 @@ class SingleRecordingMps:
                     features=[m.feature for m in models_to_submit],
                     source=self._source,
                     persist_on_failure=self._persist_on_failure,
+                    feedback_id=self._feedback_id,
                 )
                 for feature, request in mps_request.features.items():
                     self._model_by_feature[feature] = (

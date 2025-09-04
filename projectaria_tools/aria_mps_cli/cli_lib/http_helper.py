@@ -34,6 +34,7 @@ from .constants import (
     KEY_END_CURSOR,
     KEY_FEATURE,
     KEY_FEATURES,
+    KEY_FEEDBACK_ID,
     KEY_FILE_HASH,
     KEY_FILE_HASHES,
     KEY_HAS_NEXT_PAGE,
@@ -147,9 +148,10 @@ class HttpHelper:
         features: Set[str],
         source: MpsRequestSource,
         persist_on_failure: bool,
+        feedback_id: Optional[str] = None,
     ) -> MpsRequest:
         """
-        Submit a request to the MPS service to process the given recording id.
+        Submit a request to the MPS service to process the given recording id with the given features and feedback id.
         """
         logger.debug(
             f"Submitting MPS request. Name: {name}, Recordings: {recording_ids}, Features: {features}, Persist on failure: {persist_on_failure}"
@@ -160,6 +162,7 @@ class HttpHelper:
             KEY_FEATURES: list(features),
             KEY_SOURCE: source.value,
             KEY_PERSIST_ON_FAILURE: persist_on_failure,
+            KEY_FEEDBACK_ID: feedback_id,
         }
         if extra_input := os.environ.get("MPS_EXTRA_INPUT"):
             input = {**input, **json.loads(extra_input)}

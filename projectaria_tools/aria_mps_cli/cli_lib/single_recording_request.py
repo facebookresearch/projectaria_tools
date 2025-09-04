@@ -109,6 +109,7 @@ class SingleRecordingRequest(BaseStateMachine):
         force: bool,
         retry_failed: bool,
         persist_on_failure: bool,
+        feedback_id: Optional[str] = None,
         suffix: Optional[str] = None,
     ) -> "SingleRecordingModel":
         """
@@ -126,6 +127,7 @@ class SingleRecordingRequest(BaseStateMachine):
             suffix=suffix,
             retry_failed=retry_failed,
             persist_on_failure=persist_on_failure,
+            feedback_id=feedback_id,
             encryption_key=self._encryption_key,
             key_id=self._key_id,
         )
@@ -168,6 +170,7 @@ class SingleRecordingModel:
         retry_failed: bool = False,
         encryption_key=str,
         key_id=int,
+        feedback_id: Optional[str] = None,
     ) -> None:
         self._recording: AriaRecording = AriaRecording.create(recording)
         self._feature: MpsFeature = feature
@@ -178,6 +181,7 @@ class SingleRecordingModel:
         self._suffix: Optional[str] = suffix
         self._retry_failed: bool = retry_failed
         self._persist_on_failure: bool = persist_on_failure
+        self._feedback_id: Optional[str] = feedback_id
 
         self._encryption_key: str = encryption_key
         self._key_id: int = key_id

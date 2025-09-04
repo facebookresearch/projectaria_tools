@@ -47,6 +47,7 @@ class MultiRecordingMps:
         on_state_changed: Optional[
             Callable[[MultiRecordingModel, RequestMonitorModel], Awaitable[None]]
         ] = None,
+        feedback_id: Optional[str] = None,
     ):
         self._recordings: List[Path] = recordings
         self._output_dir: Path = output_dir
@@ -59,6 +60,7 @@ class MultiRecordingMps:
         self._source: MpsRequestSource = source
         self._name: Optional[str] = name
         self._suffix: Optional[str] = suffix
+        self._feedback_id: Optional[str] = feedback_id
 
         async def __noop(*args, **kwargs):
             pass
@@ -94,6 +96,7 @@ class MultiRecordingMps:
             persist_on_failure=self._persist_on_failure,
             name=self._name,
             suffix=self._suffix,
+            feedback_id=self._feedback_id,
         )
         await self._on_state_changed(self._model)
         logger.debug(f"{self._model}")
@@ -137,6 +140,7 @@ class MultiRecordingMps:
                     features=[MpsFeature.MULTI_SLAM],
                     source=self._source,
                     persist_on_failure=self._persist_on_failure,
+                    feedback_id=self._feedback_id,
                 )
                 self._model = self._request_monitor.track_feature_request(
                     recordings=self._model.recordings,
