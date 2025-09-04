@@ -49,8 +49,9 @@ jobs:
               sudo apt-get clean
 
           elif [ "$RUNNER_OS" == "macOS" ]; then
-              # Install system deps with Homebrew
-              brew install cmake
+              # Update or install cmake
+              brew upgrade cmake || brew install cmake
+
               # VRS dependencies
               brew install boost fmt googletest glog lz4 zstd xxhash libpng jpeg-turbo
           else
