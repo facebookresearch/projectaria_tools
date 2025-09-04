@@ -44,7 +44,12 @@ cd /tmp && git clone --recursive https://github.com/boostorg/boost.git -b boost-
 '''
 
 [tool.cibuildwheel.macos]
-before-build="brew install boost cmake fmt glog jpeg-turbo libpng lz4 xxhash zstd"
+before-build = '''
+# Update or install cmake
+brew upgrade cmake || brew install cmake
+
+brew install boost fmt glog jpeg-turbo libpng lz4 xxhash zstd
+'''
 environment = {"CMAKE_ARGS"="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"}
 
 ##
