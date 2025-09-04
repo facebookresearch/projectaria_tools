@@ -183,7 +183,7 @@ jobs:
 
     - name: Publish to Test PyPI
       if: github.event.inputs.deploy == 'test'
-      uses: pypa/gh-action-pypi-publish@v1.4.2
+      uses: pypa/gh-action-pypi-publish@v1.13.0
       with:
         user: __token__
         password: ${{ secrets.TEST_PYPI_TOKEN_PROJECTARIA_TOOLS }}
@@ -192,7 +192,7 @@ jobs:
         verbose: true
     - name: Publish to PyPI
       if: github.event.inputs.deploy == 'prod'
-      uses: pypa/gh-action-pypi-publish@v1.4.2
+      uses: pypa/gh-action-pypi-publish@v1.13.0
       with:
         user: __token__
         password: ${{ secrets.PYPI_TOKEN_PROJECTARIA_TOOLS_DEV }}
