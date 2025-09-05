@@ -610,7 +610,7 @@ void exportMps(py::module& m) {
           py::arg("device_timestamp_ns"),
           py::arg("time_query_options") = TimeQueryOptions::Closest)
       .def(
-          "get interpolated closed loop pose",
+          "get_interpolated_closed_loop_pose",
           &MpsDataProvider::getInterpolatedClosedLoopPose,
           "Query MPS for ClosedLoopTrajectoryPose at a specific timestamp."
           "interpolate between two poses if the timestamp is not exactly matched,"
