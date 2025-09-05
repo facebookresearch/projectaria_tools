@@ -21,19 +21,6 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
-  vrs
-  GIT_REPOSITORY https://github.com/facebookresearch/vrs.git
-  GIT_TAG 26fdab54501d3567f27f953c13b9c786e000b7ee # master Sept 3, 2025.
-)
-# Override config for vrs
-option(UNIT_TESTS OFF)
-option(BUILD_SAMPLES OFF)
-option(BUILD_TOOLS OFF)
-
-message("Pulling deps: {vrs}")
-FetchContent_MakeAvailable(vrs)
-
-FetchContent_Declare(
   eigen
   GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
   GIT_TAG 19cacd3ecb9dab73c2dd7bc39d9193e06ba92bdd # 3.4.90
@@ -80,3 +67,30 @@ ExternalProject_Add(
   INSTALL_DIR ""
   INSTALL_COMMAND ""
 )
+
+# Enable long paths on Windows -- required for checking out Ocean in vrs
+if(WIN32)
+  execute_process(
+    COMMAND git config --system core.longpaths true
+    RESULT_VARIABLE result
+    OUTPUT_VARIABLE output
+    ERROR_VARIABLE error
+  )
+  if(NOT result EQUAL 0)
+    message(WARNING "Failed to set git core.longpaths: ${error}")
+  endif()
+endif()
+
+FetchContent_Declare(
+  vrs
+  GIT_REPOSITORY https://github.com/facebookresearch/vrs.git
+  GIT_TAG 26fdab54501d3567f27f953c13b9c786e000b7ee # master Sept 3, 2025.
+)
+# Override config for vrs
+option(UNIT_TESTS OFF)
+option(BUILD_SAMPLES OFF)
+option(BUILD_TOOLS OFF)
+option(BUILD_WITH_XPRS OFF)
+
+message("Pulling deps: {vrs}")
+FetchContent_MakeAvailable(vrs)
