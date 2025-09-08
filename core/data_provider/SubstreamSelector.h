@@ -33,18 +33,18 @@ class SubstreamSelector {
   /**
    * @brief Returns the list of available stream ids
    */
-  const std::set<vrs::StreamId> getStreamIds() const;
+  std::set<vrs::StreamId> getStreamIds() const;
   /**
    * @brief Returns the list of available type ids
    */
 
-  const std::set<vrs::RecordableTypeId> getTypeIds() const;
+  std::set<vrs::RecordableTypeId> getTypeIds() const;
   /**
    * @brief Returns the list of stream ids of a specified type
    * @param typeId the ID of a VRS recordable type e.g. vrs::RecordableTypeId::SlamCameraData
    */
 
-  const std::set<vrs::StreamId> getStreamIds(const vrs::RecordableTypeId& typeId) const;
+  std::set<vrs::StreamId> getStreamIds(const vrs::RecordableTypeId& typeId) const;
 
   /* info about selected streams */
 
@@ -57,7 +57,7 @@ class SubstreamSelector {
    * @brief Returns all selected streams
    */
 
-  const std::set<vrs::StreamId> getActiveStreamIds() const;
+  std::set<vrs::StreamId> getActiveStreamIds() const;
 
   /* toggle streams on or off */
   /**

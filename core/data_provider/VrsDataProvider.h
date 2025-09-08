@@ -49,7 +49,7 @@ class VrsDataProvider {
    * @brief Get all available streams from the vrs file.
    * @return A set of streamIds.
    */
-  const std::set<vrs::StreamId> getAllStreams() const;
+  std::set<vrs::StreamId> getAllStreams() const;
 
   /**
    * @brief Get the tags map for all the underlying files. Does not include any stream tags.
