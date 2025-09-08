@@ -315,18 +315,16 @@ class AriaDigitalTwinDataProvider {
 
   // ---- Getter of all stored data provider pointers within ADTDataProvider----
   // Also provide API to the core data provider itself.
-  const std::shared_ptr<const tools::data_provider::VrsDataProvider> rawDataProviderPtr() const {
+  std::shared_ptr<const tools::data_provider::VrsDataProvider> rawDataProviderPtr() const {
     return dataProvider_;
   }
-  const std::shared_ptr<const tools::data_provider::VrsDataProvider> segmentationDataProviderPtr()
-      const {
+  std::shared_ptr<const tools::data_provider::VrsDataProvider> segmentationDataProviderPtr() const {
     return segmentationProvider_;
   }
-  const std::shared_ptr<const tools::data_provider::VrsDataProvider> depthDataProviderPtr() const {
+  std::shared_ptr<const tools::data_provider::VrsDataProvider> depthDataProviderPtr() const {
     return depthImageProvider_;
   }
-  const std::shared_ptr<const tools::data_provider::VrsDataProvider> syntheticDataProviderPtr()
-      const {
+  std::shared_ptr<const tools::data_provider::VrsDataProvider> syntheticDataProviderPtr() const {
     return syntheticVrsProvider_;
   }
   std::shared_ptr<tools::mps::MpsDataProvider> mpsDataProviderPtr() {

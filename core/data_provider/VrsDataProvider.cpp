@@ -144,7 +144,7 @@ MotionConfigRecord VrsDataProvider::getMagnetometerConfiguration(
  random access interfaces
  *******************************/
 /* get dimension of data */
-const std::set<vrs::StreamId> VrsDataProvider::getAllStreams() const {
+std::set<vrs::StreamId> VrsDataProvider::getAllStreams() const {
   return interface_->getStreamIds();
 }
 

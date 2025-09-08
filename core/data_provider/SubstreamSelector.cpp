@@ -28,16 +28,15 @@ SubstreamSelector::SubstreamSelector(const std::set<vrs::StreamId>& allStreamIds
 }
 
 /* info about available streams */
-const std::set<vrs::StreamId> SubstreamSelector::getStreamIds() const {
+std::set<vrs::StreamId> SubstreamSelector::getStreamIds() const {
   return allStreamIds_;
 }
 
-const std::set<vrs::RecordableTypeId> SubstreamSelector::getTypeIds() const {
+std::set<vrs::RecordableTypeId> SubstreamSelector::getTypeIds() const {
   return typeIds_;
 }
 
-const std::set<vrs::StreamId> SubstreamSelector::getStreamIds(
-    const vrs::RecordableTypeId& typeId) const {
+std::set<vrs::StreamId> SubstreamSelector::getStreamIds(const vrs::RecordableTypeId& typeId) const {
   return typeIdToStreamIds_.at(typeId);
 }
 
@@ -47,7 +46,7 @@ bool SubstreamSelector::isActive(const vrs::StreamId& streamId) const {
   return selectedStreamIds_.count(streamId);
 }
 
-const std::set<vrs::StreamId> SubstreamSelector::getActiveStreamIds() const {
+std::set<vrs::StreamId> SubstreamSelector::getActiveStreamIds() const {
   return selectedStreamIds_;
 }
 
