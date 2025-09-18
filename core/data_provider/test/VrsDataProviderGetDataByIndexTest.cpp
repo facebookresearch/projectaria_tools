@@ -15,90 +15,22 @@
  */
 
 #include <data_provider/VrsDataProvider.h>
-
+#include <data_provider/test/CompareDataHelper.h>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 
 using namespace projectaria::tools::data_provider;
-
+using namespace projectaria::tools::mps;
+using namespace projectaria::tools::data_provider::test;
 #define STRING(x) #x
-#define XSTRING(x) std::string(STRING(x)) + "aria_unit_test_sequence_calib.vrs"
+#define GEN1_STRING(x) std::string(STRING(x)) + "aria_unit_test_sequence_calib.vrs"
+#define GEN2_STRING(x) std::string(STRING(x)) + "aria_gen2_unit_test_sequence.vrs"
+#define GEN2_STRING_BLU(x) \
+  std::string(STRING(x)) + "aria_gen2_unit_test_sequence_with_bluetooth.vrs"
 
-static const std::string ariaTestDataPath = XSTRING(TEST_FOLDER);
-
-void compare(const ImageDataAndRecord& imageData1, const ImageDataAndRecord& imageData2) {
-  EXPECT_EQ(imageData1.first.pixelFrame->getSpec(), imageData2.first.pixelFrame->getSpec());
-  EXPECT_EQ(imageData1.second.arrivalTimestampNs, imageData2.second.arrivalTimestampNs);
-  EXPECT_EQ(imageData1.second.captureTimestampNs, imageData2.second.captureTimestampNs);
-  EXPECT_EQ(imageData1.second.exposureDuration, imageData2.second.exposureDuration);
-  EXPECT_EQ(imageData1.second.frameNumber, imageData2.second.frameNumber);
-  EXPECT_EQ(imageData1.second.gain, imageData2.second.gain);
-  EXPECT_EQ(imageData1.second.groupId, imageData2.second.groupId);
-  EXPECT_EQ(imageData1.second.groupMask, imageData2.second.groupMask);
-  EXPECT_THAT(
-      imageData1.second.temperature, testing::NanSensitiveDoubleEq(imageData2.second.temperature));
-}
-
-void compare(const MotionData& imuData1, const MotionData& imuData2) {
-  EXPECT_EQ(imuData1.accelMSec2, imuData2.accelMSec2);
-  EXPECT_EQ(imuData1.gyroRadSec, imuData2.gyroRadSec);
-  EXPECT_EQ(imuData1.accelMSec2, imuData2.accelMSec2);
-  EXPECT_EQ(imuData1.gyroRadSec, imuData2.gyroRadSec);
-  EXPECT_EQ(imuData1.magValid, imuData2.magValid);
-  EXPECT_EQ(imuData1.magTesla, imuData2.magTesla);
-  EXPECT_EQ(imuData1.captureTimestampNs, imuData2.captureTimestampNs);
-  EXPECT_EQ(imuData1.arrivalTimestampNs, imuData2.arrivalTimestampNs);
-}
-
-void compare(const GpsData& gpsData1, const GpsData& gpsData2) {
-  EXPECT_EQ(gpsData1.captureTimestampNs, gpsData2.captureTimestampNs);
-  EXPECT_EQ(gpsData1.utcTimeMs, gpsData2.utcTimeMs);
-  EXPECT_EQ(gpsData1.provider, gpsData2.provider);
-  EXPECT_EQ(gpsData1.latitude, gpsData2.latitude);
-  EXPECT_EQ(gpsData1.longitude, gpsData2.longitude);
-  EXPECT_EQ(gpsData1.altitude, gpsData2.altitude);
-  EXPECT_EQ(gpsData1.accuracy, gpsData2.accuracy);
-  EXPECT_EQ(gpsData1.speed, gpsData2.speed);
-}
-
-void compare(const WifiBeaconData& wpsData1, const WifiBeaconData& wpsData2) {
-  EXPECT_EQ(wpsData1.systemTimestampNs, wpsData2.systemTimestampNs);
-  EXPECT_EQ(wpsData1.boardTimestampNs, wpsData2.boardTimestampNs);
-  EXPECT_EQ(wpsData1.boardScanRequestStartTimestampNs, wpsData2.boardScanRequestStartTimestampNs);
-  EXPECT_EQ(
-      wpsData1.boardScanRequestCompleteTimestampNs, wpsData2.boardScanRequestCompleteTimestampNs);
-  EXPECT_EQ(wpsData1.ssid, wpsData2.ssid);
-  EXPECT_EQ(wpsData1.bssidMac, wpsData2.bssidMac);
-  EXPECT_EQ(wpsData1.rssi, wpsData2.rssi);
-  EXPECT_EQ(wpsData1.freqMhz, wpsData2.freqMhz);
-}
-
-void compare(const AudioDataAndRecord& audioData1, const AudioDataAndRecord& audioData2) {
-  EXPECT_EQ(audioData1.first.data, audioData2.first.data);
-  EXPECT_EQ(audioData1.second.captureTimestampsNs, audioData2.second.captureTimestampsNs);
-  EXPECT_EQ(audioData1.second.audioMuted, audioData2.second.audioMuted);
-}
-
-void compare(const BluetoothBeaconData& bluetoothData1, const BluetoothBeaconData& bluetoothData2) {
-  EXPECT_EQ(bluetoothData1.systemTimestampNs, bluetoothData2.systemTimestampNs);
-  EXPECT_EQ(bluetoothData1.boardTimestampNs, bluetoothData2.boardTimestampNs);
-  EXPECT_EQ(
-      bluetoothData1.boardScanRequestStartTimestampNs,
-      bluetoothData2.boardScanRequestStartTimestampNs);
-  EXPECT_EQ(
-      bluetoothData1.boardScanRequestCompleteTimestampNs,
-      bluetoothData2.boardScanRequestCompleteTimestampNs);
-  EXPECT_EQ(bluetoothData1.uniqueId, bluetoothData2.uniqueId);
-  EXPECT_EQ(bluetoothData1.txPower, bluetoothData2.txPower);
-  EXPECT_EQ(bluetoothData1.rssi, bluetoothData2.rssi);
-  EXPECT_EQ(bluetoothData1.freqMhz, bluetoothData2.freqMhz);
-}
-
-void compare(const BarometerData& barometerData1, const BarometerData& barometerData2) {
-  EXPECT_EQ(barometerData1.captureTimestampNs, barometerData2.captureTimestampNs);
-  EXPECT_EQ(barometerData1.pressure, barometerData2.pressure);
-  EXPECT_EQ(barometerData1.temperature, barometerData2.temperature);
-}
+static const std::string ariaGen1TestDataPath = GEN1_STRING(TEST_FOLDER);
+static const std::string ariaGen2TestDataPath = GEN2_STRING(TEST_FOLDER_GEN2);
+static const std::string ariaGen2TestDataPathWithBluetooth = GEN2_STRING_BLU(TEST_FOLDER_GEN2);
 
 void checkGetDataByIndex(
     const std::shared_ptr<VrsDataProvider>& provider,
@@ -127,7 +59,7 @@ void checkGetDataByIndex(
       }
       case SensorDataType::Gps: {
         const auto gpsData = provider->getGpsDataByIndex(streamId, f);
-        compare(gpsData, sensorData.gpsData());
+        // compare(gpsData, sensorData.gpsData()); // TODO: enable this after GPS data is available.
         break;
       }
       case SensorDataType::Wps: {
@@ -154,23 +86,103 @@ void checkGetDataByIndex(
         compare(magnetometerData, sensorData.magnetometerData());
         break;
       }
+      case SensorDataType::Ppg: {
+        const auto ppgData = provider->getPpgDataByIndex(streamId, f);
+        compare(ppgData, sensorData.ppgData());
+        break;
+      }
+      case SensorDataType::Als: {
+        const auto alsData = provider->getAlsDataByIndex(streamId, f);
+        compare(alsData, sensorData.alsData());
+        break;
+      }
+      case SensorDataType::Temperature: {
+        const auto temperatureData = provider->getTemperatureDataByIndex(streamId, f);
+        compare(temperatureData, sensorData.temperatureData());
+        break;
+      }
+      case SensorDataType::Vio: {
+        const auto vioData = provider->getVioDataByIndex(streamId, f);
+        compare(vioData, sensorData.vioData());
+        break;
+      }
+      case SensorDataType::VioHighFreq: {
+        const auto vioHighFreqData = provider->getVioHighFreqDataByIndex(streamId, f);
+        compare(vioHighFreqData, sensorData.vioHighFreqData());
+        break;
+      }
+      case SensorDataType::EyeGaze: {
+        const auto eyeGazeData = provider->getEyeGazeDataByIndex(streamId, f);
+        compare(eyeGazeData, sensorData.eyeGazeData());
+        break;
+      }
+      case SensorDataType::HandPose: {
+        const auto handPoseData = provider->getHandPoseDataByIndex(streamId, f);
+        compare(handPoseData, sensorData.handPoseData());
+        break;
+      }
       default:
         break;
     }
   }
 }
 
-TEST(VrsDataProvider, getDataByIndex) {
-  auto provider = createVrsDataProvider(ariaTestDataPath);
+// TODO: Add with BLU sequence.
+TEST(VrsDataProvider, checkStreamDataCount) {
+  for (const auto& dataPath :
+       {ariaGen1TestDataPath, ariaGen2TestDataPath, ariaGen2TestDataPathWithBluetooth}) {
+    auto provider = createVrsDataProvider(dataPath);
 
-  const auto streamIds = provider->getAllStreams();
-  for (const auto streamId : streamIds) {
-    checkGetDataByIndex(provider, streamId);
+    const auto streamIds = provider->getAllStreams();
+    for (const auto streamId : streamIds) {
+      // Skipping Bluetooth and GPS stream because the unit test does not contain these data
+      if (dataPath == ariaGen2TestDataPath &&
+          (streamId.getTypeId() == vrs::RecordableTypeId::BluetoothBeaconRecordableClass ||
+           streamId.getTypeId() == vrs::RecordableTypeId::GpsRecordableClass)) {
+        continue;
+      }
+      // Skipping Wifi stream for Gen2 sequence with Bluetooth, which does not contain Wifi and GPS
+      // data.
+      else if (
+          dataPath == ariaGen2TestDataPathWithBluetooth &&
+          (streamId.getTypeId() == vrs::RecordableTypeId::WifiBeaconRecordableClass ||
+           streamId.getTypeId() == vrs::RecordableTypeId::GpsRecordableClass)) {
+        continue;
+      }
+
+      // Skipping ALS stream for Gen2 sequence with Bluetooth, which does not contain ALS data.
+      else if (
+          dataPath == ariaGen2TestDataPathWithBluetooth &&
+          (streamId.getTypeId() == vrs::RecordableTypeId::AmbientLightRecordableClass)) {
+        continue;
+      }
+
+      // Skipping Temperature stream for Gen2 sequence, which does not contain Temperature data.
+      else if (
+          dataPath == ariaGen2TestDataPath &&
+          (streamId.getTypeId() == vrs::RecordableTypeId::TemperatureRecordableClass)) {
+        continue;
+      }
+      auto numData = provider->getNumData(streamId);
+      EXPECT_GT(numData, 0);
+    }
+  }
+}
+
+TEST(VrsDataProvider, getDataByIndex) {
+  for (const auto& dataPath :
+       {ariaGen1TestDataPath, ariaGen2TestDataPath, ariaGen2TestDataPathWithBluetooth}) {
+    auto provider = createVrsDataProvider(dataPath);
+
+    const auto streamIds = provider->getAllStreams();
+    for (const auto streamId : streamIds) {
+      checkGetDataByIndex(provider, streamId);
+    }
   }
 }
 
 TEST(VrsDataProvider, multiThreadGetDataByIndex) {
-  auto provider = createVrsDataProvider(ariaTestDataPath);
+  auto provider = createVrsDataProvider(ariaGen1TestDataPath);
 
   const auto streamIds = provider->getAllStreams();
   static constexpr int numProviderRequests = 10;

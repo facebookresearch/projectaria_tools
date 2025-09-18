@@ -24,7 +24,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <string_view>
 
 #define DEFAULT_LOG_CHANNEL "VrsHealthCheck:Periodic"
 #include <logging/Log.h>
@@ -120,7 +119,7 @@ void Periodic::logDroppedFrames(std::ofstream& csvWriter) {
   if (droppedFrames_.empty()) {
     return;
   }
-  constexpr std::string_view csvHeader =
+  constexpr char csvHeader[] =
       "stream,captureTimestampUs,expectedTimestampUs,deltaFromExpectedUs,deltaFromPreviousUs,periodUs,dropped,firstTimestampUs,lastTimestampUs";
   if (csvWriter.tellp() == 0) {
     csvWriter << csvHeader;

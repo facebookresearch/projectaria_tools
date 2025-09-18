@@ -31,8 +31,16 @@ StreamIdConfigurationMapper::StreamIdConfigurationMapper(
     std::map<vrs::StreamId, std::shared_ptr<WifiBeaconPlayer>>& wpsPlayers,
     std::map<vrs::StreamId, std::shared_ptr<AudioPlayer>>& audioPlayers,
     std::map<vrs::StreamId, std::shared_ptr<BarometerPlayer>>& barometerPlayers,
+    std::map<vrs::StreamId, std::shared_ptr<BatteryStatusPlayer>>& batteryStatusPlayers,
     std::map<vrs::StreamId, std::shared_ptr<BluetoothBeaconPlayer>>& bluetoothPlayers,
-    std::map<vrs::StreamId, std::shared_ptr<MotionSensorPlayer>>& magnetometerPlayers) {
+    std::map<vrs::StreamId, std::shared_ptr<MotionSensorPlayer>>& magnetometerPlayers,
+    std::map<vrs::StreamId, std::shared_ptr<PpgPlayer>>& ppgPlayers,
+    std::map<vrs::StreamId, std::shared_ptr<AlsPlayer>>& alsPlayers,
+    std::map<vrs::StreamId, std::shared_ptr<TemperaturePlayer>>& temperaturePlayers,
+    std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>>& EyeGazePlayers,
+    std::map<vrs::StreamId, std::shared_ptr<HandPosePlayer>>& handPosePlayers,
+    std::map<vrs::StreamId, std::shared_ptr<VioPlayer>>& vioPlayers,
+    std::map<vrs::StreamId, std::shared_ptr<VioHighFrequencyPlayer>>& vioHighFreqPlayers) {
   for (const auto& [streamId, imagePlayer] : imagePlayers) {
     streamIdToImageConfig_.emplace(streamId, imagePlayer->getConfigRecord());
   }
@@ -51,11 +59,35 @@ StreamIdConfigurationMapper::StreamIdConfigurationMapper(
   for (const auto& [streamId, barometerPlayer] : barometerPlayers) {
     streamIdToBaroConfig_.emplace(streamId, barometerPlayer->getConfigRecord());
   }
+  for (const auto& [streamId, batteryStatusPlayer] : batteryStatusPlayers) {
+    streamIdToBatteryStatusConfig_.emplace(streamId, batteryStatusPlayer->getConfigRecord());
+  }
   for (const auto& [streamId, bluetoothPlayer] : bluetoothPlayers) {
     streamIdToBluetoothConfig_.emplace(streamId, bluetoothPlayer->getConfigRecord());
   }
   for (const auto& [streamId, magnetometerPlayer] : magnetometerPlayers) {
     streamIdToMagConfig_.emplace(streamId, magnetometerPlayer->getConfigRecord());
+  }
+  for (const auto& [streamId, eyeGazePlayer] : EyeGazePlayers) {
+    streamIdToEyeGazeConfig_.emplace(streamId, eyeGazePlayer->getConfigRecord());
+  }
+  for (const auto& [streamId, handPosePlayer] : handPosePlayers) {
+    streamIdToHandPoseConfig_.emplace(streamId, handPosePlayer->getConfigRecord());
+  }
+  for (const auto& [streamId, vioPlayer] : vioPlayers) {
+    streamIdToVioConfig_.emplace(streamId, vioPlayer->getConfigRecord());
+  }
+  for (const auto& [streamId, vioHighFreqPlayer] : vioHighFreqPlayers) {
+    streamIdToVioHighFreqConfig_.emplace(streamId, vioHighFreqPlayer->getConfigRecord());
+  }
+  for (const auto& [streamId, ppgPlayer] : ppgPlayers) {
+    streamIdToPpgConfig_.emplace(streamId, ppgPlayer->getConfigRecord());
+  }
+  for (const auto& [streamId, alsPlayer] : alsPlayers) {
+    streamIdToAlsConfig_.emplace(streamId, alsPlayer->getConfigRecord());
+  }
+  for (const auto& [streamId, temperaturePlayer] : temperaturePlayers) {
+    streamIdToTemperatureConfig_.emplace(streamId, temperaturePlayer->getConfigRecord());
   }
 }
 
@@ -92,6 +124,11 @@ BarometerConfigRecord StreamIdConfigurationMapper::getBarometerConfiguration(
   return streamIdToBaroConfig_.at(streamId);
 }
 
+BatteryStatusConfiguration StreamIdConfigurationMapper::getBatteryStatusConfiguration(
+    const vrs::StreamId& streamId) const {
+  return streamIdToBatteryStatusConfig_.at(streamId);
+}
+
 BluetoothBeaconConfigRecord StreamIdConfigurationMapper::getBluetoothConfiguration(
     const vrs::StreamId& streamId) const {
   return streamIdToBluetoothConfig_.at(streamId);
@@ -100,5 +137,37 @@ BluetoothBeaconConfigRecord StreamIdConfigurationMapper::getBluetoothConfigurati
 MotionConfigRecord StreamIdConfigurationMapper::getMagnetometerConfiguration(
     const vrs::StreamId& streamId) const {
   return streamIdToMagConfig_.at(streamId);
+}
+
+PpgConfiguration StreamIdConfigurationMapper::getPpgConfiguration(
+    const vrs::StreamId& streamId) const {
+  return streamIdToPpgConfig_.at(streamId);
+}
+
+AlsConfiguration StreamIdConfigurationMapper::getAlsConfiguration(
+    const vrs::StreamId& streamId) const {
+  return streamIdToAlsConfig_.at(streamId);
+}
+
+TemperatureConfiguration StreamIdConfigurationMapper::getTemperatureConfiguration(
+    const vrs::StreamId& streamId) const {
+  return streamIdToTemperatureConfig_.at(streamId);
+}
+
+EyeGazeConfiguration StreamIdConfigurationMapper::getEyeGazeConfiguration(
+    const vrs::StreamId& streamId) const {
+  return streamIdToEyeGazeConfig_.at(streamId);
+}
+HandPoseConfiguration StreamIdConfigurationMapper::getHandPoseConfiguration(
+    const vrs::StreamId& streamId) const {
+  return streamIdToHandPoseConfig_.at(streamId);
+}
+VioConfiguration StreamIdConfigurationMapper::getVioConfiguration(
+    const vrs::StreamId& streamId) const {
+  return streamIdToVioConfig_.at(streamId);
+}
+VioHighFreqConfiguration StreamIdConfigurationMapper::getVioHighFreqConfiguration(
+    const vrs::StreamId& streamId) const {
+  return streamIdToVioHighFreqConfig_.at(streamId);
 }
 } // namespace projectaria::tools::data_provider

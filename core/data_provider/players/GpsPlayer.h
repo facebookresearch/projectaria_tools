@@ -19,8 +19,6 @@
 #include <data_layout/GpsMetadata.h>
 #include <vrs/RecordFormatStreamPlayer.h>
 
-#include <utility>
-
 namespace projectaria::tools::data_provider {
 
 /**
@@ -29,6 +27,7 @@ namespace projectaria::tools::data_provider {
 struct GpsConfigRecord {
   uint32_t streamId; ///< @brief ID of the VRS stream, 0 to N
   double sampleRateHz; ///< @brief the number of data collected per second
+  std::string provider; ///< @brief GPS provider
 };
 
 /**
@@ -45,6 +44,11 @@ struct GpsData {
   float verticalAccuracy; ///< @brief vertical accuracy of the position in meters
   float speed;
   std::vector<std::string> rawData;
+  std::string rawMeasurements; ///< @brief satellite measurements (such as pseudo range)
+  std::string
+      navigationMessages; ///< @brief message (which includes Ephemeris data) stored in text format
+  std::vector<std::string> constellationsEnabled; ///< @brief A list of constellations and frequency
+                                                  ///< bands used for this GNSS result
 };
 
 using GpsCallback =
@@ -59,7 +63,7 @@ class GpsPlayer : public vrs::RecordFormatStreamPlayer {
   GpsPlayer(GpsPlayer&&) = default;
 
   void setCallback(GpsCallback callback) {
-    callback_ = std::move(callback);
+    callback_ = callback;
   }
 
   const GpsConfigRecord& getConfigRecord() const {

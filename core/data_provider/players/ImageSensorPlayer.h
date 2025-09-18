@@ -19,9 +19,7 @@
 #include <data_layout/ImageSensorMetadata.h>
 #include <image/FromPixelFrame.h>
 #include <image/ImageVariant.h>
-#include <vrs/RecordFormatStreamPlayer.h>
-
-#include <utility>
+#include <vrs/utils/VideoRecordFormatStreamPlayer.h>
 
 namespace projectaria::tools::data_provider {
 
@@ -97,7 +95,7 @@ using ImageCallback = std::function<bool(
     const ImageConfigRecord& config,
     bool verbose)>;
 
-class ImageSensorPlayer : public vrs::RecordFormatStreamPlayer {
+class ImageSensorPlayer : public vrs::utils::VideoRecordFormatStreamPlayer {
  public:
   explicit ImageSensorPlayer(vrs::StreamId streamId) : streamId_(streamId) {}
   ImageSensorPlayer(const ImageSensorPlayer&) = delete;
@@ -106,7 +104,7 @@ class ImageSensorPlayer : public vrs::RecordFormatStreamPlayer {
   ImageSensorPlayer(ImageSensorPlayer&&) = default;
 
   void setCallback(ImageCallback callback) {
-    callback_ = std::move(callback);
+    callback_ = callback;
   }
 
   const ImageData& getData() const {
@@ -137,11 +135,49 @@ class ImageSensorPlayer : public vrs::RecordFormatStreamPlayer {
     readContent_ = readContent;
   }
 
+  // An API to allow users to skip decoding the image content.
+  void setSkipImageDecoding(bool skipImageDecoding) {
+    skipImageDecoding_ = skipImageDecoding;
+  }
+
+  /**
+   * @brief Enable empty frame mode for greatly accelerated processing.
+   *
+   * When enabled, this creates PixelFrame objects with proper dimensions and format
+   * but without reading actual image data from the VRS file. This dramatically
+   * speeds up processing when only metadata or frame structure is needed.
+   *
+   * Difference from readContent_:
+   * - readContent_=false: Skips reading content blocks entirely, no callback invocation
+   * - emptyFrameMode_=true: Reads metadata, creates empty frames, invokes callbacks
+   *
+   * @param emptyFrameMode If true, creates empty frames without image data
+   */
+  void setEmptyFrameMode(bool emptyFrameMode) {
+    emptyFrameMode_ = emptyFrameMode;
+  }
+
  private:
   bool onDataLayoutRead(const vrs::CurrentRecord& r, size_t blockIndex, vrs::DataLayout& dl)
       override;
   bool onImageRead(const vrs::CurrentRecord& r, size_t /*idx*/, const vrs::ContentBlock& cb)
       override;
+
+  // Helper methods for different image processing modes
+  bool handleEmptyFrameMode(const vrs::ContentBlock& cb);
+  bool handleSkipImageDecoding(
+      const vrs::CurrentRecord& r,
+      const vrs::ContentBlock& cb,
+      size_t blockSize);
+  bool handleNormalImageProcessing(
+      const vrs::CurrentRecord& r,
+      const vrs::ContentBlock& cb,
+      const vrs::ImageContentBlockSpec& imageSpec);
+  bool handleYuv420Processing(
+      const vrs::CurrentRecord& r,
+      const vrs::ContentBlock& cb,
+      const vrs::ImageContentBlockSpec& imageSpec);
+  void invokeCallbackAndCache();
 
   const vrs::StreamId streamId_;
   ImageCallback callback_ =
@@ -150,10 +186,13 @@ class ImageSensorPlayer : public vrs::RecordFormatStreamPlayer {
   ImageData data_;
   ImageConfigRecord configRecord_;
   ImageDataRecord dataRecord_;
+  int64_t cachedCaptureTimestampNs_ = -1;
 
   double nextTimestampSec_ = 0;
   bool verbose_ = false;
   bool readContent_ = true;
+  bool skipImageDecoding_ = false;
+  bool emptyFrameMode_ = false;
 };
 
 } // namespace projectaria::tools::data_provider

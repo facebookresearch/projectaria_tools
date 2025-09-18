@@ -18,6 +18,7 @@ add_subdirectory(data_provider)
 add_subdirectory(calibration)
 add_subdirectory(mps)
 add_subdirectory(vrs_health_check)
+add_subdirectory(gen2_mp_csv_exporter)
 
 if(BUILD_PYTHON_BINDINGS)
     add_subdirectory(python)

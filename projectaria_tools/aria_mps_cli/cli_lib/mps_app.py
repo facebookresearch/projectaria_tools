@@ -33,10 +33,10 @@ from .authentication import Authenticator
 from .common import get_pretty_size
 from .constants import DisplayStatus
 from .http_helper import HttpHelper
-from .login_screen import LoginScreen
 from .mps import Mps
 from .quit_screen import QuitMode, QuitScreen
 from .types import ModelState, MpsFeature
+from .username_screen import UsernameScreen
 
 logger = logging.getLogger(__name__)
 from_markup = Text.from_markup
@@ -291,7 +291,7 @@ class MpsApp(App):
                     logger.debug("Failed to log in!")
                     self.exit()
 
-            self.push_screen(LoginScreen(), __login_callback)
+            self.push_screen(UsernameScreen(), __login_callback)
 
     def _update_username(self) -> None:
         """Update the user name."""

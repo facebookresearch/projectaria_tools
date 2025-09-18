@@ -25,6 +25,10 @@ std::string MicrophoneCalibration::getLabel() const {
   return label_;
 }
 
+double MicrophoneCalibration::getDSensitivity1KDbv() const {
+  return dSensitivity1KDbv_;
+}
+
 double MicrophoneCalibration::rawToRectified(const double raw) const {
   return raw - dSensitivity1KDbv_;
 }

@@ -19,6 +19,7 @@
 
 #include "ImageSensorPlayer.h"
 
+#include <data_provider/players/RgbImageFrameConverter.h>
 #include <vrs/MultiRecordFileReader.h>
 #include <vrs/RecordFormat.h>
 
@@ -91,6 +92,10 @@ bool ImageSensorPlayer::onDataLayoutRead(
     dataRecord_.gain = data.gain.get();
     dataRecord_.captureTimestampNs = data.captureTimestampNs.get();
     dataRecord_.arrivalTimestampNs = data.arrivalTimestampNs.get();
+    // only read temperature if it is not NaN
+    if (!std::isnan(data.temperature.get())) {
+      dataRecord_.temperature = data.temperature.get();
+    }
     nextTimestampSec_ = std::nextafter(r.timestamp, std::numeric_limits<double>::max());
   }
   return readContent_;
@@ -98,14 +103,33 @@ bool ImageSensorPlayer::onDataLayoutRead(
 
 bool ImageSensorPlayer::onImageRead(
     const vrs::CurrentRecord& r,
-    size_t /*idx*/,
+    size_t /* idx */,
     const vrs::ContentBlock& cb) {
-  // the image data was not read yet: allocate your own buffer & read!
   const auto& imageSpec = cb.image();
   size_t blockSize = cb.getBlockSize();
-  // Synchronously read the image data
-  if (vrs::utils::PixelFrame::readFrame(data_.pixelFrame, r.reader, cb)) {
-    callback_(data_, dataRecord_, configRecord_, verbose_);
+
+  // Skip duplicate frames for encoded streams
+  if (imageSpec.getImageFormat() == vrs::ImageFormat::VIDEO &&
+      dataRecord_.captureTimestampNs == cachedCaptureTimestampNs_) {
+    return true;
+  }
+
+  bool success = false;
+
+  // Fast path: Create empty frames for greatly accelerated processing
+  // This dramatically speeds up workflows that only need metadata or frame structure
+  if (emptyFrameMode_) {
+    success = handleEmptyFrameMode(cb);
+  } else if (skipImageDecoding_) {
+    success = handleSkipImageDecoding(r, cb, blockSize);
+  } else {
+    success = handleNormalImageProcessing(r, cb, imageSpec);
+  }
+
+  if (success) {
+    invokeCallbackAndCache();
+  } else {
+    return false;
   }
 
   if (verbose_) {
@@ -117,7 +141,70 @@ bool ImageSensorPlayer::onImageRead(
         imageSpec.asString(),
         blockSize);
   }
-  return true; // read next blocks, if any
+
+  return true;
+}
+
+bool ImageSensorPlayer::handleEmptyFrameMode(const vrs::ContentBlock& cb) {
+  // Create empty frame for accelerated processing - skips reading image data
+  data_.pixelFrame = std::make_shared<vrs::utils::PixelFrame>(cb.image());
+  return true;
+}
+
+bool ImageSensorPlayer::handleSkipImageDecoding(
+    const vrs::CurrentRecord& r,
+    const vrs::ContentBlock& cb,
+    size_t blockSize) {
+  // Allocate buffer and read raw bytes without decoding
+  data_.pixelFrame = std::make_shared<vrs::utils::PixelFrame>(cb.image());
+
+  int readErrorCode = r.reader->read(data_.pixelFrame->wdata(), blockSize);
+  if (readErrorCode != 0) {
+    fmt::print("Failed to read image data of size {}: error code {} \n", blockSize, readErrorCode);
+    return false;
+  }
+  return true;
+}
+
+bool ImageSensorPlayer::handleNormalImageProcessing(
+    const vrs::CurrentRecord& r,
+    const vrs::ContentBlock& cb,
+    const vrs::ImageContentBlockSpec& imageSpec) {
+  // Handle YUV420 special case
+  if (imageSpec.getPixelFormat() == vrs::PixelFormat::YUV_I420_SPLIT) {
+    return handleYuv420Processing(r, cb, imageSpec);
+  }
+
+  // Handle all other pixel formats
+  data_.pixelFrame = std::make_shared<vrs::utils::PixelFrame>(cb.image());
+  return readFrame(*data_.pixelFrame, r, cb);
+}
+
+bool ImageSensorPlayer::handleYuv420Processing(
+    const vrs::CurrentRecord& r,
+    const vrs::ContentBlock& cb,
+    const vrs::ImageContentBlockSpec& imageSpec) {
+  // Create temporary buffer for YUV420 image
+  vrs::utils::PixelFrame yuvFrame = vrs::utils::PixelFrame(cb.image());
+
+  // Decode image to YUV420
+  if (!readFrame(yuvFrame, r, cb)) {
+    return false;
+  }
+
+  // Convert YUV420 to RGB8
+  uint32_t width = imageSpec.getWidth();
+  uint32_t height = imageSpec.getHeight();
+  uint32_t stride = width * 3; // RGB8 stride
+  data_.pixelFrame =
+      std::make_shared<vrs::utils::PixelFrame>(vrs::PixelFormat::RGB8, width, height, stride);
+  convertDecodedYuv420ToRgb8(yuvFrame, *data_.pixelFrame, width, height);
+  return true;
+}
+
+void ImageSensorPlayer::invokeCallbackAndCache() {
+  callback_(data_, dataRecord_, configRecord_, verbose_);
+  cachedCaptureTimestampNs_ = dataRecord_.captureTimestampNs;
 }
 
 } // namespace projectaria::tools::data_provider

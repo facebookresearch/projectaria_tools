@@ -31,11 +31,20 @@ OnlineCalibration readSingleOnlineCalibFromJson(const nlohmann::json& doc) {
   calib.trackingTimestamp = std::chrono::microseconds(doc["tracking_timestamp_us"]);
   calib.utcTimestamp = std::chrono::nanoseconds(doc["utc_timestamp_ns"]);
 
+  // determine device version by number of cameras
+  // TODO: write this field in the json content
+  const auto numCameras = doc["CameraCalibrations"].size();
+  calibration::DeviceVersion deviceVersion = (numCameras == 4 || numCameras == 5)
+      ? calibration::DeviceVersion::Gen2
+      : calibration::DeviceVersion::Gen1;
+
+  calibration::CameraConfigBuilder cameraConfigBuilder(deviceVersion);
+
   for (int cameraIdx = 0; cameraIdx < doc["CameraCalibrations"].size(); ++cameraIdx) {
     const auto& camJson = doc["CameraCalibrations"][cameraIdx];
 
     calibration::CameraCalibration parsedCameraCalib =
-        calibration::parseCameraCalibrationFromJson(camJson);
+        calibration::parseCameraCalibrationFromJson(camJson, cameraConfigBuilder);
 
     if (doc.count("ImageSizes")) {
       // Note that in the online calibration format, the image size is potentially stored in the
@@ -95,13 +104,23 @@ std::string fixJsonString(const std::string& inputJsonStr) {
 
 // loading old online calib format before Jun 2023
 OnlineCalibration readSingleOnlineCalibFromJsonString(const nlohmann::json& doc) {
+  // determine device version by number of cameras
+  // TODO: write this field in the json content
+  const auto numCameras = doc["CameraCalibrations"].size();
+  calibration::DeviceVersion deviceVersion = (numCameras == 4 || numCameras == 5)
+      ? calibration::DeviceVersion::Gen2
+      : calibration::DeviceVersion::Gen1;
+
+  calibration::CameraConfigBuilder cameraConfigBuilder(deviceVersion);
+
   OnlineCalibration calib;
   calib.trackingTimestamp = std::chrono::microseconds(doc["tracking_timestamp_us"]);
   calib.utcTimestamp = std::chrono::nanoseconds(doc["utc_timestamp_ns"]);
   // cam
   nlohmann::json camDoc = nlohmann::json::parse(fixJsonString(doc["CameraCalibrations"]));
   for (const auto& camJson : camDoc) {
-    calib.cameraCalibs.push_back(calibration::parseCameraCalibrationFromJson(camJson));
+    calib.cameraCalibs.push_back(
+        calibration::parseCameraCalibrationFromJson(camJson, cameraConfigBuilder));
   }
   // imu
   nlohmann::json imuDoc = nlohmann::json::parse(fixJsonString(doc["ImuCalibrations"]));

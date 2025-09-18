@@ -21,9 +21,11 @@
 using namespace projectaria::tools::data_provider;
 
 #define STRING(x) #x
-#define XSTRING(x) std::string(STRING(x)) + "aria_unit_test_sequence_calib.vrs"
+#define GEN1_STRING(x) std::string(STRING(x)) + "aria_unit_test_sequence_calib.vrs"
+#define GEN2_STRING(x) std::string(STRING(x)) + "aria_gen2_unit_test_sequence.vrs"
 
-static const std::string ariaTestDataPath = XSTRING(TEST_FOLDER);
+static const std::string ariaGen1TestDataPath = GEN1_STRING(TEST_FOLDER);
+static const std::string ariaGen2TestDataPath = GEN2_STRING(TEST_FOLDER_GEN2);
 
 // test query by timestamp within vrs time range
 void checkInBound(std::shared_ptr<VrsDataProvider> provider, const vrs::StreamId& streamId) {
@@ -44,7 +46,7 @@ void checkInBound(std::shared_ptr<VrsDataProvider> provider, const vrs::StreamId
 
     // query timestamp slightly before than existing timestamp
     // returns last data if option = Before
-    // returns current data if option = Cloest or After
+    // returns current data if option = Closest or After
     {
       int64_t timestampQuery = timestamp1 - 1;
       const auto sensorDataBefore = provider->getSensorDataByTimeNs(
@@ -64,7 +66,9 @@ void checkInBound(std::shared_ptr<VrsDataProvider> provider, const vrs::StreamId
       int64_t timestampQuery = timestamp1;
       const auto sensorDataBefore = provider->getSensorDataByTimeNs(
           streamId, timestampQuery, timeDomain, TimeQueryOptions::Before);
+
       EXPECT_EQ(sensorDataBefore.getTimeNs(timeDomain), timestamp1);
+
       const auto sensorDataClosest = provider->getSensorDataByTimeNs(
           streamId, timestampQuery, timeDomain, TimeQueryOptions::Closest);
       EXPECT_EQ(sensorDataClosest.getTimeNs(timeDomain), timestamp1);
@@ -75,7 +79,7 @@ void checkInBound(std::shared_ptr<VrsDataProvider> provider, const vrs::StreamId
 
     // query timestamp slightly before than existing timestamp
     // returns next data if option = After
-    // returns current data if option = Cloest or Before
+    // returns current data if option = Closest or Before
     {
       int64_t timestampQuery = timestamp1 + 1;
       const auto sensorDataBefore = provider->getSensorDataByTimeNs(
@@ -142,49 +146,65 @@ void checkOutOfBound(std::shared_ptr<VrsDataProvider> provider, const vrs::Strea
 }
 
 TEST(VrsDataProvider, getDataByTimeNsInBound) {
-  auto provider = createVrsDataProvider(ariaTestDataPath);
+  for (const auto& dataPath : {ariaGen1TestDataPath, ariaGen2TestDataPath}) {
+    fmt::print("Testing get data by time in bound for data {} \n", dataPath);
+    auto provider = createVrsDataProvider(dataPath);
 
-  const auto streamIds = provider->getAllStreams();
-  for (const auto streamId : streamIds) {
-    checkInBound(provider, streamId);
+    const auto streamIds = provider->getAllStreams();
+    for (const auto streamId : streamIds) {
+      fmt::print(
+          "Testing get data by time in bound for data {}, stream {} \n",
+          dataPath,
+          streamId.getNumericName());
+      checkInBound(provider, streamId);
+    }
   }
 }
 
 TEST(VrsDataProvider, getDataByTimeNsOutOfBound) {
-  auto provider = createVrsDataProvider(ariaTestDataPath);
+  for (const auto& dataPath : {ariaGen1TestDataPath, ariaGen2TestDataPath}) {
+    fmt::print("Testing get data by time out of bound for data {} \n", dataPath);
+    auto provider = createVrsDataProvider(dataPath);
 
-  const auto streamIds = provider->getAllStreams();
-  for (const auto streamId : streamIds) {
-    checkOutOfBound(provider, streamId);
+    const auto streamIds = provider->getAllStreams();
+    for (const auto streamId : streamIds) {
+      checkOutOfBound(provider, streamId);
+    }
   }
 }
 
 TEST(VrsDataProvider, multiThreadGetDataByTimeNsInBound) {
-  auto provider = createVrsDataProvider(ariaTestDataPath);
+  for (const auto& dataPath : {ariaGen1TestDataPath, ariaGen2TestDataPath}) {
+    fmt::print("Testing get data by time in bound multi thread for data {} \n", dataPath);
+    auto provider = createVrsDataProvider(dataPath);
 
-  const auto streamIds = provider->getAllStreams();
-  std::vector<std::thread> threads;
-  for (const auto streamId : streamIds) {
-    threads.emplace_back(
-        std::thread([&provider, streamId]() { checkInBound(provider, streamId); }));
-  }
+    const auto streamIds = provider->getAllStreams();
+    std::vector<std::thread> threads;
+    for (const auto streamId : streamIds) {
+      threads.emplace_back(
+          std::thread([&provider, streamId]() { checkInBound(provider, streamId); }));
+    }
 
-  for (auto& thread : threads) {
-    thread.join();
+    for (auto& thread : threads) {
+      thread.join();
+    }
   }
 }
 
 TEST(VrsDataProvider, multiThreadGetDataByTimeNsOutOfBound) {
-  auto provider = createVrsDataProvider(ariaTestDataPath);
+  for (const auto& dataPath : {ariaGen1TestDataPath, ariaGen2TestDataPath}) {
+    fmt::print("Testing get data by time out of bound multi thread for data {} \n", dataPath);
+    auto provider = createVrsDataProvider(dataPath);
 
-  const auto streamIds = provider->getAllStreams();
-  std::vector<std::thread> threads;
-  for (const auto streamId : streamIds) {
-    threads.emplace_back(
-        std::thread([&provider, streamId]() { checkOutOfBound(provider, streamId); }));
-  }
+    const auto streamIds = provider->getAllStreams();
+    std::vector<std::thread> threads;
+    for (const auto streamId : streamIds) {
+      threads.emplace_back(
+          std::thread([&provider, streamId]() { checkOutOfBound(provider, streamId); }));
+    }
 
-  for (auto& thread : threads) {
-    thread.join();
+    for (auto& thread : threads) {
+      thread.join();
+    }
   }
 }

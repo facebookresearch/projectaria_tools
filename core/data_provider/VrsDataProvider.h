@@ -116,6 +116,11 @@ class VrsDataProvider {
    * @return The Optional DeviceCalibration, that contains calibration of all sensors.
    */
   std::optional<calibration::DeviceCalibration> getDeviceCalibration() const;
+
+  /**
+   * @brief Get the version of device, Gen1 or Gen2.
+   */
+  calibration::DeviceVersion getDeviceVersion() const;
   /**
    * @brief Get calibration of a sensor from the device
    * @param streamId The ID of a sensor's stream.
@@ -206,8 +211,8 @@ class VrsDataProvider {
 
   /**
    * @brief Check if a stream contains timestamp of a specific time domain specifically, Audio,
-   * Barometer, and GPS data does not have host timestamps. if the vrs does not contain a timesync
-   * stream with timecode mode, then timecode is not supported.
+   * Barometer, GPS and Ppg data does not have host timestamps. if the vrs does not contain a
+   * timesync stream with timecode mode, then timecode is not supported.
    * @param streamId StreamId of the sensor stream.
    * @param timeDomain An enum class TimeDomain.
    * @return True if timeDomain is supported for this streamId.
@@ -360,8 +365,16 @@ class VrsDataProvider {
   WifiBeaconConfigRecord getWpsConfiguration(const vrs::StreamId& streamId) const;
   AudioConfig getAudioConfiguration(const vrs::StreamId& streamId) const;
   BarometerConfigRecord getBarometerConfiguration(const vrs::StreamId& streamId) const;
+  BatteryStatusConfiguration getBatteryStatusConfiguration(const vrs::StreamId& streamId) const;
   BluetoothBeaconConfigRecord getBluetoothConfiguration(const vrs::StreamId& streamId) const;
   MotionConfigRecord getMagnetometerConfiguration(const vrs::StreamId& streamId) const;
+  PpgConfiguration getPpgConfiguration(const vrs::StreamId& streamId) const;
+  AlsConfiguration getAlsConfiguration(const vrs::StreamId& streamId) const;
+  TemperatureConfiguration getTemperatureConfiguration(const vrs::StreamId& streamId) const;
+  EyeGazeConfiguration getEyeGazeConfiguration(const vrs::StreamId& streamId) const;
+  HandPoseConfiguration getHandPoseConfiguration(const vrs::StreamId& streamId) const;
+  VioConfiguration getVioConfiguration(const vrs::StreamId& streamId) const;
+  VioHighFreqConfiguration getVioHighFreqConfiguration(const vrs::StreamId& streamId) const;
 
   // retrieve by index for specific modalities
   ImageDataAndRecord getImageDataByIndex(const vrs::StreamId& streamId, const int index);
@@ -370,8 +383,16 @@ class VrsDataProvider {
   WifiBeaconData getWpsDataByIndex(const vrs::StreamId& streamId, const int index);
   AudioDataAndRecord getAudioDataByIndex(const vrs::StreamId& streamId, const int index);
   BarometerData getBarometerDataByIndex(const vrs::StreamId& streamId, const int index);
+  BatteryStatusData getBatteryStatusDataByIndex(const vrs::StreamId& streamId, const int index);
   BluetoothBeaconData getBluetoothDataByIndex(const vrs::StreamId& streamId, const int index);
+  PpgData getPpgDataByIndex(const vrs::StreamId& streamId, const int index);
+  AlsData getAlsDataByIndex(const vrs::StreamId& streamId, int index);
+  TemperatureData getTemperatureDataByIndex(const vrs::StreamId& streamId, const int index);
   MotionData getMagnetometerDataByIndex(const vrs::StreamId& streamId, const int index);
+  FrontendOutput getVioDataByIndex(const vrs::StreamId& streamId, int index);
+  OnDeviceVioHighFreqData getVioHighFreqDataByIndex(const vrs::StreamId& streamId, int index);
+  OnDeviceEyeGazeData getEyeGazeDataByIndex(const vrs::StreamId& streamId, int index);
+  OnDeviceHandPoseData getHandPoseDataByIndex(const vrs::StreamId& streamId, const int index);
 
   // retrieve by timestamp for specific modalities
   ImageDataAndRecord getImageDataByTimeNs(
@@ -404,12 +425,52 @@ class VrsDataProvider {
       const int64_t timeNs,
       const TimeDomain& timeDomain = TimeDomain::DeviceTime,
       const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Before);
+  BatteryStatusData getBatteryStatusDataByTimeNs(
+      const vrs::StreamId& streamId,
+      const int64_t timeNs,
+      const TimeDomain& timeDomain = TimeDomain::DeviceTime,
+      const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Before);
   BluetoothBeaconData getBluetoothDataByTimeNs(
       const vrs::StreamId& streamId,
       const int64_t timeNs,
       const TimeDomain& timeDomain = TimeDomain::DeviceTime,
       const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Before);
   MotionData getMagnetometerDataByTimeNs(
+      const vrs::StreamId& streamId,
+      const int64_t timeNs,
+      const TimeDomain& timeDomain = TimeDomain::DeviceTime,
+      const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Before);
+  PpgData getPpgDataByTimeNs(
+      const vrs::StreamId& streamId,
+      const int64_t timeNs,
+      const TimeDomain& timeDomain = TimeDomain::DeviceTime,
+      const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Before);
+  AlsData getAlsDataByTimeNs(
+      const vrs::StreamId& streamId,
+      int64_t timeNs,
+      const TimeDomain& timeDomain = TimeDomain::DeviceTime,
+      const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Before);
+  TemperatureData getTemperatureDataByTimeNs(
+      const vrs::StreamId& streamId,
+      const int64_t timeNs,
+      const TimeDomain& timeDomain = TimeDomain::DeviceTime,
+      const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Before);
+  FrontendOutput getVioDataByTimeNs(
+      const vrs::StreamId& streamId,
+      const int64_t timeNs,
+      const TimeDomain& timeDomain = TimeDomain::DeviceTime,
+      const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Before);
+  OnDeviceVioHighFreqData getVioHighFreqDataByTimeNs(
+      const vrs::StreamId& streamId,
+      const int64_t timeNs,
+      const TimeDomain& timeDomain = TimeDomain::DeviceTime,
+      const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Before);
+  OnDeviceEyeGazeData getEyeGazeDataByTimeNs(
+      const vrs::StreamId& streamId,
+      const int64_t timeNs,
+      const TimeDomain& timeDomain = TimeDomain::DeviceTime,
+      const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Before);
+  OnDeviceHandPoseData getHandPoseDataByTimeNs(
       const vrs::StreamId& streamId,
       const int64_t timeNs,
       const TimeDomain& timeDomain = TimeDomain::DeviceTime,

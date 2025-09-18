@@ -51,8 +51,4 @@ class AriaPlayer {
   int64_t lastTimestampNs_ = -1;
 };
 
-std::shared_ptr<AriaPlayer> createAriaPlayer(
-    const std::string& vrsPath,
-    const std::vector<vrs::StreamId>& imageStreamIds,
-    const std::vector<vrs::StreamId>& imuStreamIds,
-    const std::vector<vrs::StreamId>& dataStreamIds);
+std::shared_ptr<AriaPlayer> createAriaPlayer(const std::string& vrsPath);

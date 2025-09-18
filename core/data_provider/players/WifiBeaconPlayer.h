@@ -19,8 +19,6 @@
 #include <data_layout/WifiBeaconMetadata.h>
 #include <vrs/RecordFormatStreamPlayer.h>
 
-#include <utility>
-
 namespace projectaria::tools::data_provider {
 
 /**
@@ -57,7 +55,7 @@ class WifiBeaconPlayer : public vrs::RecordFormatStreamPlayer {
   WifiBeaconPlayer(WifiBeaconPlayer&&) = default;
 
   void setCallback(WifiBeaconCallback callback) {
-    callback_ = std::move(callback);
+    callback_ = callback;
   }
 
   const WifiBeaconConfigRecord& getConfigRecord() const {

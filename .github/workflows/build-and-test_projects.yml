@@ -15,6 +15,7 @@ jobs:
     name: Build ${{ matrix.project }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-22.04, macos-13, macos-14]  # macos-14 is macSilicon
         project: [
@@ -45,16 +46,24 @@ jobs:
                 libboost-date-time-dev \
                 libboost-filesystem-dev \
                 libboost-iostreams-dev \
-                libboost-system-dev
+                libboost-system-dev \
+                libopus-dev
 
               # Clean APT cache
               sudo apt-get clean
 
+              # Install FFmpeg as third-party dependency
+              ./build_third_party_libs/build_ffmpeg_linuxunix.sh
+
           elif [ "$RUNNER_OS" == "macOS" ]; then
               # Update or install cmake
               brew upgrade cmake || brew install cmake
+
               # VRS dependencies
-              brew install boost fmt sophus glog lz4 zstd xxhash libpng jpeg-turbo
+              brew install boost fmt sophus glog lz4 zstd xxhash libpng jpeg-turbo opus
+
+              # Install FFmpeg as third-party dependency
+              ./build_third_party_libs/build_ffmpeg_linuxunix.sh
           else
               echo "$RUNNER_OS not supported"
               exit 1

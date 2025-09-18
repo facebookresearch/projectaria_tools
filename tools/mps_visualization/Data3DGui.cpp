@@ -268,9 +268,10 @@ void Data3DGui::drawEyeGaze(
   const Eigen::Vector3d eyeGazePointWorld = T_World_Cpf * eyeGazePointCpf;
 
   if (calibrated) {
-    glColor3f(kCalibratedGazeColor[0], kCalibratedGazeColor[1], kCalibratedGazeColor[2]);
+    glColor3f(kCalibratedGazeColor.at(0), kCalibratedGazeColor.at(1), kCalibratedGazeColor.at(2));
   } else {
-    glColor3f(kGeneralizedGazeColor[0], kGeneralizedGazeColor[1], kGeneralizedGazeColor[2]);
+    glColor3f(
+        kGeneralizedGazeColor.at(0), kGeneralizedGazeColor.at(1), kGeneralizedGazeColor.at(2));
   }
   glLineWidth(6);
   pangolin::glDrawLine(
@@ -751,14 +752,15 @@ void Data3DGui::drawEyeGazePoint() const {
   XR_CHECK_EQ(scaleX, scaleY);
   glLineWidth(20);
   if (generalizedEyeGazeProj_ && uiPlotGeneralizedGaze) {
-    glColor3f(kGeneralizedGazeColor[0], kGeneralizedGazeColor[1], kGeneralizedGazeColor[2]);
+    glColor3f(
+        kGeneralizedGazeColor.at(0), kGeneralizedGazeColor.at(1), kGeneralizedGazeColor.at(2));
     pangolin::glDrawCircle(
         rgbHeight_ - 1 - (generalizedEyeGazeProj_->y() * scaleY),
         generalizedEyeGazeProj_->x() * scaleX,
         6);
   }
   if (calibratedEyeGazeProj_ && uiPlotCalibratedGaze) {
-    glColor3f(kCalibratedGazeColor[0], kCalibratedGazeColor[1], kCalibratedGazeColor[2]);
+    glColor3f(kCalibratedGazeColor.at(0), kCalibratedGazeColor.at(1), kCalibratedGazeColor.at(2));
     pangolin::glDrawCircle(
         rgbHeight_ - 1 - (calibratedEyeGazeProj_->y() * scaleY),
         calibratedEyeGazeProj_->x() * scaleX,

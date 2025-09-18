@@ -76,8 +76,8 @@ class TimestampIndexMapper {
   std::shared_ptr<RecordReaderInterface> interface_;
   std::map<vrs::StreamId, std::vector<const vrs::IndexRecord::RecordInfo*>> streamIdToDataRecords_;
 
-  std::map<vrs::StreamId, std::array<int64_t, kNumTimeDomain - 1>> streamIdToFirstTimeNs_;
-  std::map<vrs::StreamId, std::array<int64_t, kNumTimeDomain - 1>> streamIdToLastTimeNs_;
-  std::map<vrs::StreamId, std::array<int64_t, kNumTimeDomain - 1>> streamIdToDeltaToRecordTimeNs_;
+  std::map<vrs::StreamId, std::array<int64_t, kNumTimeDomain>> streamIdToFirstTimeNs_;
+  std::map<vrs::StreamId, std::array<int64_t, kNumTimeDomain>> streamIdToLastTimeNs_;
+  std::map<vrs::StreamId, std::array<int64_t, kNumTimeDomain>> streamIdToDeltaToRecordTimeNs_;
 };
 } // namespace projectaria::tools::data_provider

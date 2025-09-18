@@ -74,10 +74,20 @@ inline void declareRecordableTypeId(py::module& m) {
       .value(
           "BLUETOOTH_BEACON_RECORDABLE_CLASS",
           vrs::RecordableTypeId::BluetoothBeaconRecordableClass)
+      // ppg
+      .value(
+          "PHOTOPLETHYSMOGRAM_RECORDABLE_CLASS",
+          vrs::RecordableTypeId::PhotoplethysmogramRecordableClass)
+      // als
+      .value("AMBIENT_LIGHT_RECORDABLE_CLASS", vrs::RecordableTypeId::AmbientLightRecordableClass)
       // audio
       .value("STEREO_AUDIO_RECORDABLE_CLASS", vrs::RecordableTypeId::StereoAudioRecordableClass)
       // timecode
       .value("TIME_RECORDABLE_CLASS", vrs::RecordableTypeId::TimeRecordableClass)
+      // eyegaze
+      .value("GAZE_RECORDABLE_CLASS", vrs::RecordableTypeId::GazeRecordableClass)
+      // pose (Hand and VIO)
+      .value("POSE_RECORDABLE_CLASS", vrs::RecordableTypeId::PoseRecordableClass)
       .export_values();
 }
 } // namespace

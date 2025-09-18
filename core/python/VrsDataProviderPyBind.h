@@ -275,6 +275,10 @@ inline void declareVrsDataProvider(py::module& m) {
           &VrsDataProvider::getDeviceCalibration,
           "Get calibration of the device.")
       .def(
+          "get_device_version",
+          &VrsDataProvider::getDeviceVersion,
+          "Get device version of the device.")
+      .def(
           "get_sensor_calibration",
           &VrsDataProvider::getSensorCalibration,
           py::arg("stream_id"),
@@ -335,7 +339,7 @@ inline void declareVrsDataProvider(py::module& m) {
           &VrsDataProvider::supportsTimeDomain,
           py::arg("stream_id"),
           py::arg("time_domain"),
-          "Check if a stream contains timestamp of a specific time domain specifically, Audio, Barometer, and GPS data does not have host timestamps. if the vrs does not contain a timesync stream with timecode mode, then timecode is not supported.")
+          "Check if a stream contains timestamp of a specific time domain specifically, Audio, Barometer, GPS and Ppg data does not have host timestamps. if the vrs does not contain a timesync stream with timecode mode, then timecode is not supported.")
       .def(
           "get_first_time_ns",
           &VrsDataProvider::getFirstTimeNs,
@@ -410,6 +414,19 @@ inline void declareVrsDataProvider(py::module& m) {
       .def("get_wps_configuration", &VrsDataProvider::getWpsConfiguration, py::arg("stream_id"))
       .def("get_audio_configuration", &VrsDataProvider::getAudioConfiguration, py::arg("stream_id"))
       .def(
+          "get_eye_gaze_configuration",
+          &VrsDataProvider::getEyeGazeConfiguration,
+          py::arg("stream_id"))
+      .def(
+          "get_hand_pose_configuration",
+          &VrsDataProvider::getHandPoseConfiguration,
+          py::arg("stream_id"))
+      .def("get_vio_configuration", &VrsDataProvider::getVioConfiguration, py::arg("stream_id"))
+      .def(
+          "get_vio_high_freq_configuration",
+          &VrsDataProvider::getVioHighFreqConfiguration,
+          py::arg("stream_id"))
+      .def(
           "get_barometer_configuration",
           &VrsDataProvider::getBarometerConfiguration,
           py::arg("stream_id"))
@@ -420,6 +437,12 @@ inline void declareVrsDataProvider(py::module& m) {
       .def(
           "get_magnetometer_configuration",
           &VrsDataProvider::getMagnetometerConfiguration,
+          py::arg("stream_id"))
+      .def("get_ppg_configuration", &VrsDataProvider::getPpgConfiguration, py::arg("stream_id"))
+      .def("get_als_configuration", &VrsDataProvider::getAlsConfiguration, py::arg("stream_id"))
+      .def(
+          "get_temperature_configuration",
+          &VrsDataProvider::getTemperatureConfiguration,
           py::arg("stream_id"))
 
       /* Get data from index */
@@ -461,6 +484,41 @@ inline void declareVrsDataProvider(py::module& m) {
       .def(
           "get_magnetometer_data_by_index",
           &VrsDataProvider::getMagnetometerDataByIndex,
+          py::arg("stream_id"),
+          py::arg("index"))
+      .def(
+          "get_ppg_data_by_index",
+          &VrsDataProvider::getPpgDataByIndex,
+          py::arg("stream_id"),
+          py::arg("index"))
+      .def(
+          "get_als_data_by_index",
+          &VrsDataProvider::getAlsDataByIndex,
+          py::arg("stream_id"),
+          py::arg("index"))
+      .def(
+          "get_temperature_data_by_index",
+          &VrsDataProvider::getTemperatureDataByIndex,
+          py::arg("stream_id"),
+          py::arg("index"))
+      .def(
+          "get_vio_data_by_index",
+          &VrsDataProvider::getVioDataByIndex,
+          py::arg("stream_id"),
+          py::arg("index"))
+      .def(
+          "get_vio_high_freq_data_by_index",
+          &VrsDataProvider::getVioHighFreqDataByIndex,
+          py::arg("stream_id"),
+          py::arg("index"))
+      .def(
+          "get_eye_gaze_data_by_index",
+          &VrsDataProvider::getEyeGazeDataByIndex,
+          py::arg("stream_id"),
+          py::arg("index"))
+      .def(
+          "get_hand_pose_data_by_index",
+          &VrsDataProvider::getHandPoseDataByIndex,
           py::arg("stream_id"),
           py::arg("index"))
 
@@ -522,6 +580,35 @@ inline void declareVrsDataProvider(py::module& m) {
           py::arg("time_domain"),
           py::arg("time_query_options") = TimeQueryOptions::Before)
       .def(
+          "get_ppg_data_by_time_ns",
+          &VrsDataProvider::getPpgDataByTimeNs,
+          py::arg("stream_id"),
+          py::arg("time_ns"),
+          py::arg("time_domain"),
+          py::arg("time_query_options") = TimeQueryOptions::Before)
+      .def(
+          "get_als_data_by_time_ns",
+          &VrsDataProvider::getAlsDataByTimeNs,
+          py::arg("stream_id"),
+          py::arg("time_ns"),
+          py::arg("time_domain"),
+          py::arg("time_query_options") = TimeQueryOptions::Before)
+      .def(
+          "get_temperature_data_by_time_ns",
+          &VrsDataProvider::getTemperatureDataByTimeNs,
+          py::arg("stream_id"),
+          py::arg("time_ns"),
+          py::arg("time_domain"),
+          py::arg("time_query_options") = TimeQueryOptions::Before)
+      .def(
+          "get_vio_data_by_time_ns",
+          &VrsDataProvider::getVioDataByTimeNs,
+          py::arg("stream_id"),
+          py::arg("time_ns"),
+          py::arg("time_domain"),
+          py::arg("time_query_options") = TimeQueryOptions::Before)
+
+      .def(
           "set_devignetting",
           &VrsDataProvider::setDevignetting,
           py::arg("apply_devignetting"),
@@ -543,7 +630,28 @@ inline void declareVrsDataProvider(py::module& m) {
             return image::toPyArrayVariant(matrix);
           },
           py::arg("label"),
-          "Load devignetting mask corresponding to the label and return as numpy array");
+          "Load devignetting mask corresponding to the label and return as numpy array")
+      .def(
+          "get_vio_high_freq_data_by_time_ns",
+          &VrsDataProvider::getVioHighFreqDataByTimeNs,
+          py::arg("stream_id"),
+          py::arg("time_ns"),
+          py::arg("time_domain"),
+          py::arg("time_query_options") = TimeQueryOptions::Before)
+      .def(
+          "get_eye_gaze_data_by_time_ns",
+          &VrsDataProvider::getEyeGazeDataByTimeNs,
+          py::arg("stream_id"),
+          py::arg("time_ns"),
+          py::arg("time_domain"),
+          py::arg("time_query_options") = TimeQueryOptions::Before)
+      .def(
+          "get_hand_pose_data_by_time_ns",
+          &VrsDataProvider::getHandPoseDataByTimeNs,
+          py::arg("stream_id"),
+          py::arg("time_ns"),
+          py::arg("time_domain"),
+          py::arg("time_query_options") = TimeQueryOptions::Before);
 }
 } // namespace
 

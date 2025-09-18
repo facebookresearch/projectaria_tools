@@ -27,7 +27,7 @@ namespace projectaria::tools::mps {
 /**
  * @brief An enumeration representing the side (left or right) of the hand tracking data.
  */
-enum class HANDEDNESS { LEFT = 0, RIGHT = 1 };
+enum class HANDEDNESS : uint8_t { LEFT = 0, RIGHT = 1 };
 
 // A enum class to represent the type of hand landmarks
 enum class HandLandmark : uint8_t {
@@ -63,6 +63,7 @@ enum class HandLandmark : uint8_t {
   NUM_LANDMARKS = 21,
 };
 
+// Type for single hand 3D landmarks, (x, y, z) array in meters in device coordinate
 constexpr uint32_t kNumHandLandmarks = static_cast<uint32_t>(HandLandmark::NUM_LANDMARKS);
 using Landmarks = std::array<Eigen::Vector3d, kNumHandLandmarks>;
 
@@ -97,10 +98,12 @@ constexpr std::array<std::pair<HandLandmark, HandLandmark>, kNumHandJointConnect
  * @brief A struct representing wrist and palm tracking status per frame.
  */
 struct WristAndPalmPose {
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   struct OneSide {
-    double confidence = 0.;
-    Eigen::Vector3d wristPosition_device{0., 0., 0.};
-    Eigen::Vector3d palmPosition_device{0., 0., 0.};
+    // Gen1 data fields
+    double confidence;
+    Eigen::Vector3d wristPosition_device;
+    Eigen::Vector3d palmPosition_device;
     struct WristAndPalmNormals {
       Eigen::Vector3d palmNormal_device{0., 0., 0.};
       Eigen::Vector3d wristNormal_device{0., 0., 0.};

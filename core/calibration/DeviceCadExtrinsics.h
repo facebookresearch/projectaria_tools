@@ -19,6 +19,7 @@
 #include <optional>
 #include <unordered_map>
 
+#include <calibration/DeviceVersion.h>
 #include <sophus/se3.hpp>
 
 namespace projectaria::tools::calibration {
@@ -27,16 +28,36 @@ namespace projectaria::tools::calibration {
  * @brief This class retrieves fixed CAD extrinsics values for Aria Device
  */
 class DeviceCadExtrinsics {
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
  public:
   DeviceCadExtrinsics() {}
   /**
-   * @brief Construct for Cad extrinsics based on device sub type and origin label.
+   * @brief Construct for Cad extrinsics based on device version, sub type and origin label.
+   * @param[in] deviceVersion the device version: {Gen1, Gen2}.
    * @param[in] deviceSubType the device sub type, for Aria it can be "DVT-S" or "DVT-L" based on
    * glass size.
    * @param[in] originSensorLabel the label of the origin (`Device` coordinate frame) sensor,
    * e.g. "camera-slam-left".
    */
-  DeviceCadExtrinsics(const std::string& deviceSubType, const std::string& originSensorLabel);
+  DeviceCadExtrinsics(
+      const DeviceVersion& deviceVersion,
+      const std::string& deviceSubType,
+      const std::string& originSensorLabel);
+
+  [[deprecated(
+      "This constructor will be removed in the future. Use the constructor with explicit device version instead: \n DeviceCadExtrinsics(DeviceVersion, deviceSubType, originSensorLabel).")]]
+  DeviceCadExtrinsics(const std::string& deviceSubType, const std::string& originSensorLabel)
+      : DeviceCadExtrinsics(DeviceVersion::Gen1, deviceSubType, originSensorLabel){};
+
+  DeviceVersion getDeviceVersion() const {
+    return deviceVersion_;
+  }
+  std::string getDeviceSubType() const {
+    return deviceSubType_;
+  }
+  std::string getOriginSensorLabel() const {
+    return originSensorLabel_;
+  }
 
   /**
    * @brief Get the CAD extrinsics value of `T_Device_Sensor`, from a given sensor label. The
@@ -51,6 +72,10 @@ class DeviceCadExtrinsics {
   Sophus::SE3d getT_Device_Cpf() const;
 
  private:
+  DeviceVersion deviceVersion_;
+  std::string deviceSubType_;
+  std::string originSensorLabel_;
+
   std::unordered_map<std::string, Sophus::SE3d> labelToT_Cpf_Sensor_;
   Sophus::SE3d T_Device_Cpf_;
 };

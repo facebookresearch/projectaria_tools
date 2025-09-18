@@ -57,7 +57,8 @@ struct AriaVisualizationData {
   void initDataStreams(
       const std::vector<vrs::StreamId>& kImageStreamIds,
       const std::vector<vrs::StreamId>& kImuStreamIds = {},
-      const std::vector<vrs::StreamId>& kDataStreamsIds = {});
+      const std::vector<vrs::StreamId>& kDataStreamsIds = {},
+      const std::vector<vrs::StreamId>& kOnDeviceMpStreamsIds = {});
 
   // read data until currentTimestampNs
   bool updateData(const projectaria::tools::data_provider::SensorData& sensorData);
@@ -80,6 +81,13 @@ struct AriaVisualizationData {
 
   // - current barometer chunks
   std::vector<float> temperature_, pressure_;
+
+  // - current on-device MP data
+  // TODO: Add VIO
+  std::optional<projectaria::tools::data_provider::OnDeviceEyeGazeData> eyeGazeData_;
+  std::optional<projectaria::tools::data_provider::OnDeviceHandPoseData> handPoseData_;
+  std::optional<projectaria::tools::data_provider::OnDeviceVioHighFreqData> vioHighFreqData_;
+  std::optional<projectaria::tools::data_provider::FrontendOutput> vioData_;
 
   // Aria VRS data provider
   std::shared_ptr<projectaria::tools::data_provider::VrsDataProvider> dataProvider_;

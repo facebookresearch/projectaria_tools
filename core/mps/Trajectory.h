@@ -20,6 +20,7 @@
 #include <Eigen/Core>
 
 #include <chrono>
+#include <optional>
 #include <string>
 #include <vector>
 

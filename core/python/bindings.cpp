@@ -15,6 +15,7 @@
  */
 
 #include "DeviceCalibrationPyBind.h"
+#include "Gen2MpCsvExporterPyBind.h"
 #include "ImagePyBind.h"
 #include "MpsPyBind.h"
 #include "SensorDataPyBind.h"
@@ -22,6 +23,7 @@
 #include "VrsDataProviderPyBind.h"
 #include "VrsHealthCheckPybind.h"
 #include "VrsPyBind.h"
+#include "XprsPyBind.h"
 
 #include "sophus/SophusPyBind.h"
 
@@ -55,6 +57,12 @@ PYBIND11_MODULE(_core_pybinds, m) {
   py::module vrs = m.def_submodule("vrs");
   vrspybind::exportVrs(vrs);
 
+  py::module xprs = m.def_submodule("xprs");
+  data_provider::exportXprs(xprs);
+
   py::module vrsHealthCheck = m.def_submodule("vrs_health_check");
   vrs_check::exportVrsHealthCheck(vrsHealthCheck);
+
+  py::module gen2MpCsvExporter = m.def_submodule("gen2_mp_csv_exporter");
+  mp_csv_exporter::exportGen2MpCsvExporter(gen2MpCsvExporter);
 }

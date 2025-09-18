@@ -139,7 +139,7 @@ int Utils::runVrsHealthCheck(
   return healthCheck.getResult() ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int Utils::runVrsHealthCheck(int argc, char* argv[]) {
+int Utils::runVrsHealthCheck(int argc, char* argv[]) { // NOLINT(modernize-avoid-c-arrays)
   CLI::App app{"VrsHealthCheckTool"};
   Settings settings;
   std::string path;

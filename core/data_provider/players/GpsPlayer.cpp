@@ -28,6 +28,7 @@ bool GpsPlayer::onDataLayoutRead(
     auto& config = getExpectedLayout<datalayout::GpsConfigRecordMetadata>(dl, blockIndex);
     configRecord_.streamId = config.streamId.get();
     configRecord_.sampleRateHz = config.sampleRateHz.get();
+    configRecord_.provider = config.provider.get();
   } else if (r.recordType == vrs::Record::Type::DATA) {
     auto& data = getExpectedLayout<datalayout::GpsDataMetadata>(dl, blockIndex);
     dataRecord_.captureTimestampNs = data.captureTimestampNs.get();
@@ -40,6 +41,9 @@ bool GpsPlayer::onDataLayoutRead(
     dataRecord_.verticalAccuracy = data.verticalAccuracy.get();
     dataRecord_.speed = data.speed.get();
     data.rawData.get(dataRecord_.rawData);
+    data.rawMeasurements.get(dataRecord_.rawMeasurements);
+    data.navigationMessages.get(dataRecord_.navigationMessages);
+    data.constellationsEnabled.get(dataRecord_.constellationsEnabled);
     nextTimestampSec_ = std::nextafter(r.timestamp, std::numeric_limits<double>::max());
     callback_(dataRecord_, configRecord_, verbose_);
   }

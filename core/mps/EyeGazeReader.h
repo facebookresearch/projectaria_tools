@@ -36,15 +36,6 @@ namespace projectaria::tools::mps {
 */
 EyeGazes readEyeGaze(const std::string& path);
 
-// Get Gaze Direction as Vector 3D given yaw and pitch values
-inline Eigen::Vector3d getUnitVectorFromYawPitch(float yawRads, float pitchRads) {
-  float z = 1; // arbitrary
-  float x = std::tan(yawRads) * z;
-  float y = std::tan(pitchRads) * z;
-  Eigen::Vector3d direction(x, y, z);
-  return direction.normalized();
-}
-
 /*
  Given the yaw and pitch angles of the eye gaze and a depth, return the gaze 3D point in CPF frame.
 */
@@ -57,7 +48,7 @@ inline Eigen::Vector3d getEyeGazePointAtDepth(float yawRads, float pitchRads, fl
   }
 }
 
-// get 3D point of interesection of left and right gaze rays
+// get 3D point of intersection of left and right gaze rays
 inline Eigen::Vector3d
 getGazeIntersectionPoint(float leftYawRads, float rightYawRads, float pitchRads) {
   float halfIPD = IPD_meters / 2.0;

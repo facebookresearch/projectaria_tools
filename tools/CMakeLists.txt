@@ -20,5 +20,3 @@ if (Pangolin_FOUND)
 else()
     message("Pangolin has not been found. Visualization tools will not be compiled.")
 endif()
-
-add_subdirectory(samples)

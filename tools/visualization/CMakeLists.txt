@@ -15,7 +15,10 @@
 add_library(aria_viewer_lib
     AriaViewer.cpp AriaViewer.h
     AriaVisualizationControlAndData.cpp AriaVisualizationControlAndData.h
-     AriaPlayer.cpp AriaPlayer.h)
+     AriaPlayer.cpp AriaPlayer.h
+     PangolinColor.cpp PangolinColor.h
+     PlottingHelper.cpp PlottingHelper.h
+     )
 target_link_libraries(aria_viewer_lib
     PUBLIC
         vrs_data_provider

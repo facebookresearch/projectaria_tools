@@ -102,4 +102,7 @@ Eigen::Vector3d MagnetometerCalibration::rawToRectified(const Eigen::Vector3d& r
 Eigen::Vector3d MagnetometerCalibration::rectifiedToRaw(const Eigen::Vector3d& rectified) const {
   return model_.rectifiedToRaw(rectified);
 }
+LinearRectificationModel3d MagnetometerCalibration::getModel() const {
+  return model_;
+}
 } // namespace projectaria::tools::calibration

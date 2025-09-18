@@ -153,6 +153,10 @@ class MagnetometerCalibration {
    * @brief simulate mag sensor readout from actual magnetic field
    */
   Eigen::Vector3d rectifiedToRaw(const Eigen::Vector3d& rectified) const;
+  /**
+   * @brief get linear rectification model that includes rectification matrix and bias
+   */
+  LinearRectificationModel3d getModel() const;
 
  private:
   std::string label_;

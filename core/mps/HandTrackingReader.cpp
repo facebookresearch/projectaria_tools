@@ -227,15 +227,8 @@ HandTrackingResults readHandTrackingResultsV2(const std::string& filepath) {
       leftHandTrackingResult.wristAndPalmNormal_device =
           rightHandTrackingResult.wristAndPalmNormal_device = {
               Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero()};
-      leftHandTrackingResult.landmarkPositions_device =
-          rightHandTrackingResult.landmarkPositions_device = {
-              Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
-              Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
-              Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
-              Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
-              Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
-              Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
-              Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero()};
+      leftHandTrackingResult.landmarkPositions_device.fill(Eigen::Vector3d::Zero());
+      rightHandTrackingResult.landmarkPositions_device.fill(Eigen::Vector3d::Zero());
       auto& leftLandmarkPositions_device = leftHandTrackingResult.landmarkPositions_device;
       auto& rightLandmarkPositions_device = rightHandTrackingResult.landmarkPositions_device;
       std::array<Eigen::Quaterniond, 2> R_Device_Wrist;

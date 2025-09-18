@@ -177,16 +177,18 @@ def main():
         },
         entry_points={
             "console_scripts": [
-                "aria_dataset_downloader = projectaria_tools.utils.datasets.dataset_downloader_main:main",
+                "aria_dataset_downloader = projectaria_tools.tools.dataset_downloader.dataset_downloader_main:main",
                 "dtc_object_downloader = projectaria_tools.projects.dtc_objects.downloader_main:main",
                 "aria_mps = projectaria_tools.aria_mps_cli.cli:main",
-                "viewer_aria_sensors = projectaria_tools.utils.viewer_aria_sensors:main",
-                "viewer_mps = projectaria_tools.utils.viewer_mps:main",
+                "aria_rerun_viewer = projectaria_tools.tools.aria_rerun_viewer.aria_rerun_viewer:main",
+                "viewer_mps = projectaria_tools.tools.viewer_mps.viewer_mps:main",
                 "viewer_projects_adt = projectaria_tools.utils.viewer_projects_adt:main",
                 "viewer_projects_ase = projectaria_tools.utils.viewer_projects_ase:main",
                 "viewer_projects_aea = projectaria_tools.utils.viewer_projects_aea:main",
-                "vrs_to_mp4 = projectaria_tools.utils.vrs_to_mp4:main",
-                "run_vrs_health_check = projectaria_tools.utils.run_vrs_health_check:main",
+                "vrs_to_mp4 = projectaria_tools.tools.vrs_to_mp4.vrs_to_mp4:main",
+                "gen2_mp_csv_exporter = projectaria_tools.tools.gen2_mp_csv_exporter.run_gen2_mp_csv_exporter:main",
+                # vrs_health_check will be added later for Gen2
+                # "run_vrs_health_check = projectaria_tools.utils.run_vrs_health_check:main",
             ]
         },
         packages=find_packages(),

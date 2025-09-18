@@ -25,5 +25,18 @@ file(
 )
 
 add_library(players ${source_files} ${header_files})
-target_link_libraries(players PUBLIC data_layout image vrslib vrs_utils Eigen3::Eigen)
+target_link_libraries(players
+  PUBLIC
+  vrslib
+  vrs_utils
+  vrs_utils_xprs
+  Eigen3::Eigen
+  Sophus::Sophus
+  image
+  INTERFACE
+  data_layout
+  PRIVATE
+  json_io
+  Ocean::Ocean
+  Opus::opus)
 target_include_directories(players PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

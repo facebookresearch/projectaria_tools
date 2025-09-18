@@ -38,7 +38,15 @@ enum class SensorDataType {
   Audio, /**< Audio data streams*/
   Barometer, /**< Barometer data streams*/
   Bluetooth, /**< Bluetooth data streams*/
-  Magnetometer /**< Magnetometer data streams*/
+  Magnetometer, /**< Magnetometer data streams*/
+  Ppg, /** Ppg data streams */
+  Als, /** ALS (Ambient Light Sensor) data streams */
+  Temperature, /** Temperature data streams */
+  BatteryStatus, /** Battery status data streams */
+  Vio, /**< On Device VIO data streams*/
+  VioHighFreq, /**< On Device VIO high frequency data streams*/
+  EyeGaze, /**< On Device Eye gaze data streams*/
+  HandPose, /**< On Device Hand tracking data streams*/
 };
 
 /** @brief converts the enum to readable std::string */

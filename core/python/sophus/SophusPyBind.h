@@ -45,6 +45,12 @@ inline void exportSophus(pybind11::module& module) {
 
   exportSE3Average<double>(module);
   exportSE3Interpolate<double>(module);
+
+  exportSO3Group<float>(module, "SO3f");
+  exportSE3Transformation<float>(module, "SE3f");
+
+  exportSE3Average<float>(module);
+  exportSE3Interpolate<float>(module);
 }
 
 } // namespace sophus

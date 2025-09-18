@@ -15,15 +15,19 @@
  */
 
 #pragma once
+#include <calibration/DeviceVersion.h>
 #include <image/ImageVariant.h>
-
 namespace projectaria::tools::image {
 
 /**
  * @brief Apply colorCorrect to the image captured with legacy Aria OS versions to fix the gamma
  * distortion and color temperature.
  * @param srcImage The input image to be processed.
+ * @param deviceVersion The device version of the Aria device.
+ * @param cameraLabel The label of the camera that captured the image.
  * @return The corrected image.
  */
-ManagedImageVariant colorCorrect(const ImageVariant& srcImage);
+ManagedImageVariant colorCorrect(
+    const ImageVariant& srcImage,
+    const calibration::DeviceVersion& deviceVersion = calibration::DeviceVersion::Gen1);
 } // namespace projectaria::tools::image

@@ -20,9 +20,9 @@
 #include <image/ImageVariant.h>
 #include <image/utility/ColorCorrect.h>
 #define DEFAULT_LOG_CHANNEL "VrsDataProvider"
+#include <fmt/core.h>
 #include <image/CopyToPixelFrame.h>
 #include <image/utility/Devignetting.h>
-#include <logging/Log.h>
 #include <stdexcept>
 
 #include <limits>
@@ -78,6 +78,22 @@ SensorConfiguration VrsDataProvider::getConfiguration(const vrs::StreamId& strea
       return SensorConfiguration(getMagnetometerConfiguration(streamId), sensorDataType);
     case SensorDataType::Bluetooth:
       return SensorConfiguration(getBluetoothConfiguration(streamId), sensorDataType);
+    case SensorDataType::Ppg:
+      return SensorConfiguration(getPpgConfiguration(streamId), sensorDataType);
+    case SensorDataType::Als:
+      return SensorConfiguration(getAlsConfiguration(streamId), sensorDataType);
+    case SensorDataType::Temperature:
+      return SensorConfiguration(getTemperatureConfiguration(streamId), sensorDataType);
+    case SensorDataType::BatteryStatus:
+      return SensorConfiguration(getBatteryStatusConfiguration(streamId), sensorDataType);
+    case SensorDataType::VioHighFreq:
+      return SensorConfiguration(getVioHighFreqConfiguration(streamId), sensorDataType);
+    case SensorDataType::Vio:
+      return SensorConfiguration(getVioConfiguration(streamId), sensorDataType);
+    case SensorDataType::EyeGaze:
+      return SensorConfiguration(getEyeGazeConfiguration(streamId), sensorDataType);
+    case SensorDataType::HandPose:
+      return SensorConfiguration(getHandPoseConfiguration(streamId), sensorDataType);
     case SensorDataType::NotValid:
     default:
       break;
@@ -140,6 +156,57 @@ MotionConfigRecord VrsDataProvider::getMagnetometerConfiguration(
   return configMap_->getMagnetometerConfiguration(streamId);
 }
 
+PpgConfiguration VrsDataProvider::getPpgConfiguration(const vrs::StreamId& streamId) const {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::Ppg);
+  return configMap_->getPpgConfiguration(streamId);
+}
+
+AlsConfiguration VrsDataProvider::getAlsConfiguration(const vrs::StreamId& streamId) const {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::Als);
+  return configMap_->getAlsConfiguration(streamId);
+}
+
+TemperatureConfiguration VrsDataProvider::getTemperatureConfiguration(
+    const vrs::StreamId& streamId) const {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::Temperature);
+  return configMap_->getTemperatureConfiguration(streamId);
+}
+
+BatteryStatusConfiguration VrsDataProvider::getBatteryStatusConfiguration(
+    const vrs::StreamId& streamId) const {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::BatteryStatus);
+  return configMap_->getBatteryStatusConfiguration(streamId);
+}
+
+EyeGazeConfiguration VrsDataProvider::getEyeGazeConfiguration(const vrs::StreamId& streamId) const {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::EyeGaze);
+  return configMap_->getEyeGazeConfiguration(streamId);
+}
+
+HandPoseConfiguration VrsDataProvider::getHandPoseConfiguration(
+    const vrs::StreamId& streamId) const {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::HandPose);
+  return configMap_->getHandPoseConfiguration(streamId);
+}
+
+VioConfiguration VrsDataProvider::getVioConfiguration(const vrs::StreamId& streamId) const {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::Vio);
+  return configMap_->getVioConfiguration(streamId);
+}
+
+VioHighFreqConfiguration VrsDataProvider::getVioHighFreqConfiguration(
+    const vrs::StreamId& streamId) const {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::VioHighFreq);
+  return configMap_->getVioHighFreqConfiguration(streamId);
+}
 /*******************************
  random access interfaces
  *******************************/
@@ -174,6 +241,15 @@ DeliverQueuedOptions VrsDataProvider::getDefaultDeliverQueuedOptions() const {
 
 std::optional<calibration::DeviceCalibration> VrsDataProvider::getDeviceCalibration() const {
   return maybeDeviceCalib_;
+}
+
+calibration::DeviceVersion VrsDataProvider::getDeviceVersion() const {
+  if (maybeDeviceCalib_.has_value()) {
+    return maybeDeviceCalib_->getDeviceVersion();
+  } else {
+    fmt::print("Device calibration is not found. Returned DeviceVersion::NotValid.\n");
+    return calibration::DeviceVersion::NotValid;
+  }
 }
 
 std::optional<calibration::SensorCalibration> VrsDataProvider::getSensorCalibration(
@@ -235,6 +311,12 @@ ImageDataAndRecord VrsDataProvider::getImageDataByIndex(
 }
 
 void VrsDataProvider::setDevignetting(bool applyDevignetting) {
+  if (maybeDeviceCalib_.has_value() &&
+      maybeDeviceCalib_->getDeviceVersion() == calibration::DeviceVersion::Gen2) {
+    fmt::print(
+        "Devignetting is now only supported for Aria Gen1, therefore it is NOT performed.\n");
+    return;
+  }
   applyDevignetting_ = applyDevignetting;
 }
 
@@ -253,6 +335,11 @@ GpsData VrsDataProvider::getGpsDataByIndex(const vrs::StreamId& streamId, const 
   assertStreamIsActive(streamId);
   assertStreamIsType(streamId, SensorDataType::Gps);
 
+  // Issue an warning for Gen2 data readiness
+  if (getDeviceVersion() == calibration::DeviceVersion::Gen2) {
+    fmt::print("WARNING: GPS data quality is not yet fully validated in Aria Gen2. \n");
+  }
+
   if (interface_->readRecordByIndex(streamId, index)) {
     return interface_->getLastCachedGpsData(streamId);
   } else {
@@ -263,6 +350,11 @@ GpsData VrsDataProvider::getGpsDataByIndex(const vrs::StreamId& streamId, const 
 WifiBeaconData VrsDataProvider::getWpsDataByIndex(const vrs::StreamId& streamId, const int index) {
   assertStreamIsActive(streamId);
   assertStreamIsType(streamId, SensorDataType::Wps);
+
+  // Issue an warning for Gen2 data readiness
+  if (getDeviceVersion() == calibration::DeviceVersion::Gen2) {
+    fmt::print("WARNING: Wifi Beacon data quality is not yet fully validated in Aria Gen2. \n");
+  }
 
   if (interface_->readRecordByIndex(streamId, index)) {
     return interface_->getLastCachedWpsData(streamId);
@@ -303,6 +395,11 @@ BluetoothBeaconData VrsDataProvider::getBluetoothDataByIndex(
   assertStreamIsActive(streamId);
   assertStreamIsType(streamId, SensorDataType::Bluetooth);
 
+  // Issue an warning for Gen2 data readiness
+  if (getDeviceVersion() == calibration::DeviceVersion::Gen2) {
+    fmt::print(
+        "WARNING: Bluetooth Beacon data quality is not yet fully validated in Aria Gen2. \n");
+  }
   if (interface_->readRecordByIndex(streamId, index)) {
     return interface_->getLastCachedBluetoothData(streamId);
   } else {
@@ -318,6 +415,104 @@ MotionData VrsDataProvider::getMagnetometerDataByIndex(
 
   if (interface_->readRecordByIndex(streamId, index)) {
     return interface_->getLastCachedMagnetometerData(streamId);
+  } else {
+    return {};
+  }
+}
+
+PpgData VrsDataProvider::getPpgDataByIndex(const vrs::StreamId& streamId, const int index) {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::Ppg);
+
+  if (interface_->readRecordByIndex(streamId, index)) {
+    return interface_->getLastCachedPpgData(streamId);
+  } else {
+    return {};
+  }
+}
+
+AlsData VrsDataProvider::getAlsDataByIndex(const vrs::StreamId& streamId, const int index) {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::Als);
+
+  if (interface_->readRecordByIndex(streamId, index)) {
+    return interface_->getLastCachedAlsData(streamId);
+  } else {
+    return {};
+  }
+}
+
+TemperatureData VrsDataProvider::getTemperatureDataByIndex(
+    const vrs::StreamId& streamId,
+    const int index) {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::Temperature);
+
+  if (interface_->readRecordByIndex(streamId, index)) {
+    return interface_->getLastCachedTemperatureData(streamId);
+  } else {
+    return {};
+  }
+}
+
+BatteryStatusData VrsDataProvider::getBatteryStatusDataByIndex(
+    const vrs::StreamId& streamId,
+    const int index) {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::BatteryStatus);
+
+  if (interface_->readRecordByIndex(streamId, index)) {
+    return interface_->getLastCachedBatteryStatusData(streamId);
+  } else {
+    return {};
+  }
+}
+
+FrontendOutput VrsDataProvider::getVioDataByIndex(const vrs::StreamId& streamId, const int index) {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::Vio);
+
+  if (interface_->readRecordByIndex(streamId, index)) {
+    return interface_->getLastCachedVioData(streamId);
+  } else {
+    return {};
+  }
+}
+
+OnDeviceVioHighFreqData VrsDataProvider::getVioHighFreqDataByIndex(
+    const vrs::StreamId& streamId,
+    const int index) {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::VioHighFreq);
+
+  if (interface_->readRecordByIndex(streamId, index)) {
+    return interface_->getLastCachedVioHighFreqData(streamId);
+  } else {
+    return {};
+  }
+}
+
+OnDeviceEyeGazeData VrsDataProvider::getEyeGazeDataByIndex(
+    const vrs::StreamId& streamId,
+    const int index) {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::EyeGaze);
+
+  if (interface_->readRecordByIndex(streamId, index)) {
+    return interface_->getLastCachedEyeGazeData(streamId);
+  } else {
+    return {};
+  }
+}
+
+OnDeviceHandPoseData VrsDataProvider::getHandPoseDataByIndex(
+    const vrs::StreamId& streamId,
+    const int index) {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::HandPose);
+
+  if (interface_->readRecordByIndex(streamId, index)) {
+    return interface_->getLastCachedHandPoseData(streamId);
   } else {
     return {};
   }
@@ -405,6 +600,78 @@ MotionData VrsDataProvider::getMagnetometerDataByTimeNs(
   return getMagnetometerDataByIndex(streamId, index);
 }
 
+PpgData VrsDataProvider::getPpgDataByTimeNs(
+    const vrs::StreamId& streamId,
+    const int64_t timeNs,
+    const TimeDomain& timeDomain,
+    const TimeQueryOptions& timeQueryOptions) {
+  const int index = getIndexByTimeNs(streamId, timeNs, timeDomain, timeQueryOptions);
+  return getPpgDataByIndex(streamId, index);
+}
+
+AlsData VrsDataProvider::getAlsDataByTimeNs(
+    const vrs::StreamId& streamId,
+    const int64_t timeNs,
+    const TimeDomain& timeDomain,
+    const TimeQueryOptions& timeQueryOptions) {
+  const int index = getIndexByTimeNs(streamId, timeNs, timeDomain, timeQueryOptions);
+  return getAlsDataByIndex(streamId, index);
+}
+
+TemperatureData VrsDataProvider::getTemperatureDataByTimeNs(
+    const vrs::StreamId& streamId,
+    const int64_t timeNs,
+    const TimeDomain& timeDomain,
+    const TimeQueryOptions& timeQueryOptions) {
+  const int index = getIndexByTimeNs(streamId, timeNs, timeDomain, timeQueryOptions);
+  return getTemperatureDataByIndex(streamId, index);
+}
+
+BatteryStatusData VrsDataProvider::getBatteryStatusDataByTimeNs(
+    const vrs::StreamId& streamId,
+    const int64_t timeNs,
+    const TimeDomain& timeDomain,
+    const TimeQueryOptions& timeQueryOptions) {
+  const int index = getIndexByTimeNs(streamId, timeNs, timeDomain, timeQueryOptions);
+  return getBatteryStatusDataByIndex(streamId, index);
+}
+
+FrontendOutput VrsDataProvider::getVioDataByTimeNs(
+    const vrs::StreamId& streamId,
+    const int64_t timeNs,
+    const TimeDomain& timeDomain,
+    const TimeQueryOptions& timeQueryOptions) {
+  const int index = getIndexByTimeNs(streamId, timeNs, timeDomain, timeQueryOptions);
+  return getVioDataByIndex(streamId, index);
+}
+
+OnDeviceVioHighFreqData VrsDataProvider::getVioHighFreqDataByTimeNs(
+    const vrs::StreamId& streamId,
+    const int64_t timeNs,
+    const TimeDomain& timeDomain,
+    const TimeQueryOptions& timeQueryOptions) {
+  const int index = getIndexByTimeNs(streamId, timeNs, timeDomain, timeQueryOptions);
+  return getVioHighFreqDataByIndex(streamId, index);
+}
+
+OnDeviceEyeGazeData VrsDataProvider::getEyeGazeDataByTimeNs(
+    const vrs::StreamId& streamId,
+    const int64_t timeNs,
+    const TimeDomain& timeDomain,
+    const TimeQueryOptions& timeQueryOptions) {
+  const int index = getIndexByTimeNs(streamId, timeNs, timeDomain, timeQueryOptions);
+  return getEyeGazeDataByIndex(streamId, index);
+}
+
+OnDeviceHandPoseData VrsDataProvider::getHandPoseDataByTimeNs(
+    const vrs::StreamId& streamId,
+    const int64_t timeNs,
+    const TimeDomain& timeDomain,
+    const TimeQueryOptions& timeQueryOptions) {
+  const int index = getIndexByTimeNs(streamId, timeNs, timeDomain, timeQueryOptions);
+  return getHandPoseDataByIndex(streamId, index);
+}
+
 /* get time range */
 int64_t VrsDataProvider::getFirstTimeNs(const vrs::StreamId& streamId, const TimeDomain& timeDomain)
     const {
@@ -419,7 +686,16 @@ int64_t VrsDataProvider::getFirstTimeNs(const vrs::StreamId& streamId, const Tim
     checkAndThrow(supportsTimeDomain(streamId, timeDomain));
     return convertFromDeviceTimeToSyncTimeNs(
         timeQuery_->getFirstTimeNs(streamId, TimeDomain::DeviceTime), TimeSyncMode::TIC_SYNC);
+  } else if (timeDomain == TimeDomain::SubGhz) {
+    checkAndThrow(supportsTimeDomain(streamId, timeDomain));
+    return convertFromDeviceTimeToSyncTimeNs(
+        timeQuery_->getFirstTimeNs(streamId, TimeDomain::DeviceTime), TimeSyncMode::SUBGHZ);
+  } else if (timeDomain == TimeDomain::Utc) {
+    checkAndThrow(supportsTimeDomain(streamId, timeDomain));
+    return convertFromDeviceTimeToSyncTimeNs(
+        timeQuery_->getFirstTimeNs(streamId, TimeDomain::DeviceTime), TimeSyncMode::UTC);
   }
+
   return timeQuery_->getFirstTimeNs(streamId, timeDomain);
 }
 
@@ -436,6 +712,14 @@ int64_t VrsDataProvider::getLastTimeNs(const vrs::StreamId& streamId, const Time
     checkAndThrow(supportsTimeDomain(streamId, timeDomain));
     return convertFromDeviceTimeToSyncTimeNs(
         timeQuery_->getLastTimeNs(streamId, TimeDomain::DeviceTime), TimeSyncMode::TIC_SYNC);
+  } else if (timeDomain == TimeDomain::SubGhz) {
+    checkAndThrow(supportsTimeDomain(streamId, timeDomain));
+    return convertFromDeviceTimeToSyncTimeNs(
+        timeQuery_->getLastTimeNs(streamId, TimeDomain::DeviceTime), TimeSyncMode::SUBGHZ);
+  } else if (timeDomain == TimeDomain::Utc) {
+    checkAndThrow(supportsTimeDomain(streamId, timeDomain));
+    return convertFromDeviceTimeToSyncTimeNs(
+        timeQuery_->getLastTimeNs(streamId, TimeDomain::DeviceTime), TimeSyncMode::UTC);
   }
   return timeQuery_->getLastTimeNs(streamId, timeDomain);
 }
@@ -486,6 +770,10 @@ bool VrsDataProvider::supportsTimeDomain(
     return supportsHostTimeDomain(getSensorDataType(streamId));
   } else if (timeDomain == TimeDomain::TimeCode) {
     return timeSyncMapper_->supportsMode(TimeSyncMode::TIMECODE);
+  } else if (timeDomain == TimeDomain::SubGhz) {
+    return timeSyncMapper_->supportsMode(TimeSyncMode::SUBGHZ);
+  } else if (timeDomain == TimeDomain::Utc) {
+    return timeSyncMapper_->supportsMode(TimeSyncMode::UTC);
   } else { // timeDomain == TimeDomain::TicSync
     return timeSyncMapper_->supportsMode(TimeSyncMode::TIC_SYNC);
   }
@@ -509,6 +797,10 @@ int VrsDataProvider::getIndexByTimeNs(
   } else if (timeDomain == TimeDomain::TicSync) {
     int64_t deviceTimeNs =
         convertFromSyncTimeToDeviceTimeNs(timeNsInTimeDomain, TimeSyncMode::TIC_SYNC);
+    return getIndexByTimeNs(streamId, deviceTimeNs, TimeDomain::DeviceTime, timeQueryOptions);
+  } else if (timeDomain == TimeDomain::SubGhz) {
+    int64_t deviceTimeNs =
+        convertFromSyncTimeToDeviceTimeNs(timeNsInTimeDomain, TimeSyncMode::SUBGHZ);
     return getIndexByTimeNs(streamId, deviceTimeNs, TimeDomain::DeviceTime, timeQueryOptions);
   } else {
     return timeQuery_->getIndexByTimeNs(streamId, timeNsInTimeDomain, timeDomain, timeQueryOptions);
@@ -594,7 +886,8 @@ void VrsDataProvider::ImageDataPostProcessing(
     }
     // case 1: with color correction and without devignetting
     else if (willApplyColorCorrection && !applyDevignetting_) {
-      ManagedImageVariant colorCorrectedManagedImageVariant = colorCorrect(imageVariantOpt.value());
+      ManagedImageVariant colorCorrectedManagedImageVariant =
+          colorCorrect(imageVariantOpt.value(), maybeDeviceCalib_->getDeviceVersion());
       copyToPixelFrame(colorCorrectedManagedImageVariant, *srcImageData.pixelFrame);
     }
     // case 2: without color correction and with devignetting
@@ -605,7 +898,8 @@ void VrsDataProvider::ImageDataPostProcessing(
     }
     // case 3: with color correction and with devignetting
     else {
-      ManagedImageVariant colorCorrectedManagedImageVariant = colorCorrect(imageVariantOpt.value());
+      ManagedImageVariant colorCorrectedManagedImageVariant =
+          colorCorrect(imageVariantOpt.value(), maybeDeviceCalib_->getDeviceVersion());
       ManagedImageVariant devignettedManagedImageVariant = devignetting(
           toImageVariant(colorCorrectedManagedImageVariant), *devignettingMasks_[label]);
       copyToPixelFrame(devignettedManagedImageVariant, *srcImageData.pixelFrame);
@@ -615,18 +909,32 @@ void VrsDataProvider::ImageDataPostProcessing(
 
 void VrsDataProvider::setDevignettingMaskFolderPath(const std::string& maskFolderPath) {
   checkAndThrow(maybeDeviceCalib_.has_value(), "Device calibration is not found");
+  if (maybeDeviceCalib_->getDeviceVersion() == calibration::DeviceVersion::Gen2) {
+    fmt::print(
+        "Color correction is now only supported for Aria Gen1, therefore it is NOT performed.\n");
+    return;
+  }
   maybeDeviceCalib_->setDevignettingMaskFolderPath(maskFolderPath);
 }
 
 projectaria::tools::image::ManagedImage3F32 VrsDataProvider::loadDevignettingMask(
     const std::string& label) {
-  checkAndThrow(maybeDeviceCalib_.has_value(), "Device calibration is not found");
+  checkAndThrow(maybeDeviceCalib_.has_value(), "Device calibration is not found. \n");
+  checkAndThrow(
+      maybeDeviceCalib_->getDeviceVersion() == calibration::DeviceVersion::Gen1,
+      "Devignetting is now only supported for Aria Gen1, therefore it is NOT performed. \n");
   return maybeDeviceCalib_->loadDevignettingMask(label, rgbIspTuningVersion_);
 }
 
 void VrsDataProvider::setColorCorrection(bool applyColorCorrection) {
+  if (maybeDeviceCalib_.has_value() &&
+      maybeDeviceCalib_->getDeviceVersion() == calibration::DeviceVersion::Gen2) {
+    fmt::print(
+        "Color correction is now only supported for Aria Gen1, therefore it is NOT performed.\n");
+    return;
+  }
   if (rgbIspTuningVersion_ == 1 && applyColorCorrection == true) {
-    XR_LOGW("Aria recording is already color corrected. No need to set this flag.");
+    fmt::print("Aria recording is already color corrected. No need to set this flag.\n");
     return;
   }
   applyColorCorrection_ = applyColorCorrection;

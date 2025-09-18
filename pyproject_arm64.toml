@@ -14,10 +14,10 @@ build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel.macos]
 archs = ["arm64"]
-before-build = '''
-# Update or install cmake
-arch -arm64 brew upgrade cmake || arch -arm64 brew install cmake
+before-build='''
+    # Update or install cmake
+    arch -arm64 brew upgrade cmake || arch -arm64 brew install cmake
 
-arch -arm64 brew install boost fmt glog jpeg-turbo libpng lz4 xxhash zstd
+    arch -arm64 brew install boost fmt glog jpeg-turbo libpng lz4 xxhash zstd opus
 '''
 environment = {"ARCHFLAGS" ="-arch arm64", "CMAKE_ARGS"="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"}

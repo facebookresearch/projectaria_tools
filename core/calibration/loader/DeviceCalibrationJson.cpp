@@ -25,6 +25,26 @@
 
 namespace projectaria::tools::calibration {
 
+namespace {
+// A helper function to obtain the origin sensor label
+// label. If the origin label is not valid, return an empty string.
+std::string getOriginSensorLabel(const nlohmann::json& originSpecJson) {
+  // Parse in Origin Sensor Label
+  const std::string originType = originSpecJson["Type"];
+
+  // First check that origin type is valid
+  if (originType != "Custom") {
+    XR_LOGW(
+        "Origin Specification's Type in calibration.json should be 'Custom' instead of {}",
+        originType);
+    return "";
+  } else {
+    return originSpecJson["ChildLabel"];
+  }
+}
+
+} // namespace
+
 void patchSyntheticHomeCalib(nlohmann::json& json) {
   XR_CHECK(json.contains("DeviceClassInfo"));
   // fix device class info
@@ -53,12 +73,23 @@ std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& ca
   auto json = nlohmann::json::parse(calibJsonStr.c_str());
   patchSyntheticHomeCalib(json);
 
+  // Parse in Device version and subtype
+  std::string deviceSubtype;
+  DeviceVersion deviceVersion = DeviceVersion::NotValid;
+  if (json.contains("DeviceClassInfo")) {
+    deviceVersion = fromDeviceClassName(json["DeviceClassInfo"]["DeviceClass"]);
+    deviceSubtype = json["DeviceClassInfo"]["BuildVersion"];
+  }
+
+  // Create a Camera Config builder to parse in camera config information
+  CameraConfigBuilder cameraConfigBuilder(deviceVersion);
+
   std::map<std::string, CameraCalibration> cameraCalibs;
   std::map<std::string, ImuCalibration> imuCalibs;
   {
     if (json.contains("CameraCalibrations")) {
       for (const auto& camJson : json["CameraCalibrations"]) {
-        CameraCalibration camCalib = parseCameraCalibrationFromJson(camJson);
+        CameraCalibration camCalib = parseCameraCalibrationFromJson(camJson, cameraConfigBuilder);
         auto label = camCalib.getLabel();
         cameraCalibs.emplace(label, std::move(camCalib));
       }
@@ -72,17 +103,14 @@ std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& ca
     }
   }
 
-  std::string deviceSubtype;
   std::map<std::string, MagnetometerCalibration> magnetometerCalibs;
   std::map<std::string, BarometerCalibration> barometerCalibs;
   std::map<std::string, MicrophoneCalibration> microphoneCalibs;
-  if (json.contains("DeviceClassInfo")) {
-    deviceSubtype = json["DeviceClassInfo"]["BuildVersion"];
-  }
+
   if (json.contains("MagCalibrations")) {
     for (const auto& magnetometerJson : json["MagCalibrations"]) {
       MagnetometerCalibration magnetometerCalib =
-          parseMagnetometerCalibrationFromJson(magnetometerJson);
+          parseMagnetometerCalibrationFromJson(magnetometerJson, deviceVersion);
       auto label = magnetometerCalib.getLabel();
       magnetometerCalibs.emplace(label, std::move(magnetometerCalib));
     }
@@ -102,20 +130,9 @@ std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& ca
     }
   }
 
-  std::string originLabel;
-  // Parse in Origin Sensor Label
-  if (json.contains("OriginSpecification")) {
-    const std::string originType = json["OriginSpecification"]["Type"];
-    if (originType == "Custom") {
-      originLabel = json["OriginSpecification"]["ChildLabel"];
-    } else {
-      XR_LOGE(
-          "Origin Specification's Type in calibration.json should be 'Custom' instead of {}",
-          originType);
-    }
-  }
-
-  DeviceCadExtrinsics deviceCadExtrinsics(deviceSubtype, originLabel);
+  // Check validity of origin label, and only create DeviceCadExtrinsics if it is valid
+  const auto originSensorLabel = getOriginSensorLabel(json["OriginSpecification"]);
+  DeviceCadExtrinsics deviceCadExtrinsics(deviceVersion, deviceSubtype, originSensorLabel);
 
   return DeviceCalibration{
       cameraCalibs,
@@ -125,6 +142,7 @@ std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& ca
       microphoneCalibs,
       deviceCadExtrinsics,
       deviceSubtype,
-      originLabel};
+      originSensorLabel,
+      deviceVersion};
 }
 } // namespace projectaria::tools::calibration

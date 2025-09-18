@@ -104,6 +104,11 @@ int64_t TimeSyncMapper::convertFromDeviceTimeToSyncTimeNs(
   }
   auto timecodeData = timeSyncData_.at(mode);
 
+  // Skip if this stream doesn't have any timecode data
+  if (timecodeData.empty()) {
+    return -1;
+  }
+
   if (deviceTimeNs <= timecodeData.front().monotonicTimestampNs) {
     return timecodeData.front().realTimestampNs - timecodeData.front().monotonicTimestampNs +
         deviceTimeNs;
@@ -144,8 +149,8 @@ int64_t TimeSyncMapper::convertFromDeviceTimeToTimeCodeNs(const int64_t deviceTi
 
 bool TimeSyncMapper::supportsMode(const TimeSyncMode mode) const {
   return (timesyncPlayers_.find(mode) != timesyncPlayers_.end()) &&
-      (mode == TimeSyncMode::TIMECODE ||
-       mode == TimeSyncMode::TIC_SYNC); // only support TIMECODE and TIC_SYNC mode
+      (mode == TimeSyncMode::TIMECODE || mode == TimeSyncMode::TIC_SYNC ||
+       mode == TimeSyncMode::SUBGHZ || mode == TimeSyncMode::UTC);
 }
 
 std::vector<TimeSyncMode> TimeSyncMapper::getTimeSyncModes() const {

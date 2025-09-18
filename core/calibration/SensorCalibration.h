@@ -23,8 +23,8 @@
 
 namespace projectaria::tools::calibration {
 /**
- * @brief In Aria, ET images are stitched horizontally, thus two calibrations are attached to the
- * same VRS stream.
+ * @brief In AriaGen1, ET images are stitched horizontally, thus two calibrations are attached to
+ * the same VRS stream.
  */
 using AriaEtCalibration = std::array<CameraCalibration, 2>;
 

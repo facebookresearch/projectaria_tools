@@ -22,13 +22,19 @@
 using namespace projectaria::tools::data_provider;
 
 #define STRING(x) #x
-#define XSTRING(x) std::string(STRING(x)) + "aria_unit_test_sequence_calib.vrs"
+#define GEN1_STRING(x) std::string(STRING(x)) + "aria_unit_test_sequence_calib.vrs"
+#define GEN2_STRING(x) std::string(STRING(x)) + "aria_gen2_unit_test_sequence.vrs"
 
-static const std::string ariaTestDataPath = XSTRING(TEST_FOLDER);
+static const std::string ariaGen1TestDataPath = GEN1_STRING(TEST_FOLDER);
+static const std::string ariaGen2TestDataPath = GEN2_STRING(TEST_FOLDER_GEN2);
 
 void checkSensorConfig(
     const std::shared_ptr<VrsDataProvider>& provider,
     const vrs::StreamId& streamId) {
+  // First, check the API of getConfiguration to ensure it returns the correct type
+  const auto sensorConfig = provider->getConfiguration(streamId);
+  EXPECT_EQ(sensorConfig.sensorDataType(), provider->getSensorDataType(streamId));
+
   switch (provider->getSensorDataType(streamId)) {
     case SensorDataType::Image: {
       const auto imageConfig = provider->getImageConfiguration(streamId);
@@ -70,29 +76,58 @@ void checkSensorConfig(
       EXPECT_GE(magnetometerConfig.streamIndex, 0);
       break;
     }
+    case SensorDataType::Ppg: {
+      const auto ppgConfig = provider->getPpgConfiguration(streamId);
+      EXPECT_GE(ppgConfig.streamId, 0);
+      break;
+    }
+    case SensorDataType::EyeGaze: {
+      const auto eyeGazeConfig = provider->getEyeGazeConfiguration(streamId);
+      EXPECT_GE(eyeGazeConfig.streamId, 0);
+      break;
+    }
+    case SensorDataType::HandPose: {
+      const auto handPoseConfig = provider->getHandPoseConfiguration(streamId);
+      EXPECT_GE(handPoseConfig.streamId, 0);
+      break;
+    }
+    case SensorDataType::Vio: {
+      const auto vioConfig = provider->getVioConfiguration(streamId);
+      EXPECT_GE(vioConfig.streamId, 0);
+      break;
+    }
+    case SensorDataType::VioHighFreq: {
+      const auto vioHighFreqConfig = provider->getVioHighFreqConfiguration(streamId);
+      EXPECT_GE(vioHighFreqConfig.streamId, 0);
+      break;
+    }
     default:
       break;
   }
 }
 
 TEST(VrsDataProvider, getConfigurations) {
-  auto provider = createVrsDataProvider(ariaTestDataPath);
-  const auto streamIds = provider->getAllStreams();
-  for (const auto streamId : streamIds) {
-    checkSensorConfig(provider, streamId);
+  for (const auto& dataPath : {ariaGen1TestDataPath, ariaGen2TestDataPath}) {
+    auto provider = createVrsDataProvider(dataPath);
+    const auto streamIds = provider->getAllStreams();
+    for (const auto streamId : streamIds) {
+      checkSensorConfig(provider, streamId);
+    }
   }
 }
 
 TEST(VrsDataProvider, multiThreadGetConfigurations) {
-  auto provider = createVrsDataProvider(ariaTestDataPath);
-  const auto streamIds = provider->getAllStreams();
-  std::vector<std::thread> threads;
-  for (const auto streamId : streamIds) {
-    threads.emplace_back(
-        std::thread([&provider, streamId]() { checkSensorConfig(provider, streamId); }));
-  }
+  for (const auto& dataPath : {ariaGen1TestDataPath, ariaGen2TestDataPath}) {
+    auto provider = createVrsDataProvider(dataPath);
+    const auto streamIds = provider->getAllStreams();
+    std::vector<std::thread> threads;
+    threads.reserve(streamIds.size());
+    for (const auto streamId : streamIds) {
+      threads.emplace_back([&provider, streamId]() { checkSensorConfig(provider, streamId); });
+    }
 
-  for (auto& thread : threads) {
-    thread.join();
+    for (auto& thread : threads) {
+      thread.join();
+    }
   }
 }

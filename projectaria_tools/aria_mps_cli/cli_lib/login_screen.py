@@ -71,13 +71,17 @@ class LoginScreen(ModalScreen[bool]):
     }
     """
 
+    def __init__(self, username: str) -> None:
+        self._username: str = username
+        super().__init__()
+
     def compose(self) -> ComposeResult:
         """Create child widgets for the screen."""
         self._login_attempt: int = 1
 
         yield Grid(
             Static("[b]Log in to Aria Machine Perception Services", id="title"),
-            Input(placeholder="Username", id="username"),
+            Input(value=self._username, id="username", disabled=True),
             Input(placeholder="Password", id="password", password=True),
             Button("Cancel", variant="default", id="cancel"),
             Button("Log in", variant="primary", id="login"),
@@ -95,11 +99,13 @@ class LoginScreen(ModalScreen[bool]):
         elif event.button.id == "login":
             username = self.query_one("#username", Input).value.strip()
             password = self.query_one("#password", Input).value.strip()
-            logger.debug(f"Logging in as {username} {password}")
+            logger.debug(f">Logging in as {username} {password}")
             if username and password:
                 try:
                     event.button.disabled = True
-                    await self.app._authenticator.login(username, password, True)
+                    await self.app._authenticator.password_login(
+                        username, password, True
+                    )
                     self.dismiss(True)
                     return
                 except AuthenticationError as e:

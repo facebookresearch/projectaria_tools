@@ -19,8 +19,6 @@
 #include <data_layout/BluetoothBeaconMetadata.h>
 #include <vrs/RecordFormatStreamPlayer.h>
 
-#include <utility>
-
 namespace projectaria::tools::data_provider {
 
 /**
@@ -57,7 +55,7 @@ class BluetoothBeaconPlayer : public vrs::RecordFormatStreamPlayer {
   BluetoothBeaconPlayer(BluetoothBeaconPlayer&&) = default;
 
   void setCallback(BluetoothBeaconCallback callback) {
-    callback_ = std::move(callback);
+    callback_ = callback;
   }
 
   const BluetoothBeaconConfigRecord& getConfigRecord() const {

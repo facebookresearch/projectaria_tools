@@ -13,17 +13,15 @@
 # limitations under the License.
 
 
+
 include(FetchContent)
 FetchContent_Declare(
     pybind11
     GIT_REPOSITORY https://github.com/pybind/pybind11.git
     GIT_TAG master
 )
-# We are assuming here that python has been found by CMake already
-# so it avoid to make pybind11/CMake & CIBUILDWHEEL to use different python versions
-set(PYBIND11_FINDPYTHON OFF)
 FetchContent_MakeAvailable(pybind11)
 
 add_subdirectory(${pybind11_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/pybind)
 pybind11_add_module(_core_pybinds ${CMAKE_CURRENT_SOURCE_DIR}/bindings.cpp)
-target_link_libraries(_core_pybinds PUBLIC mps vrs_data_provider image_debayer image_devignetting image_color_correct vrs_health_check)
+target_link_libraries(_core_pybinds PUBLIC mps vrs_data_provider image_debayer image_devignetting image_color_correct vrs_health_check gen2_mp_csv_exporter vrs_utils_xprs)

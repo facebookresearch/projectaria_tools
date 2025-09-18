@@ -30,5 +30,5 @@ foreach(X IN LISTS TEST_FILES)
     add_test(NAME mps_${filenameWithoutExt} WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
              COMMAND $<TARGET_FILE:mps_${filenameWithoutExt}>)
     target_compile_definitions(mps_${filenameWithoutExt}
-        PRIVATE -DTEST_FOLDER=${CMAKE_CURRENT_SOURCE_DIR}/../../../data/)
+        PRIVATE -DTEST_FOLDER=${GEN1_TEST_DATA_PATH})
 endforeach()

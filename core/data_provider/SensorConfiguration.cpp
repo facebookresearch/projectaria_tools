@@ -52,6 +52,11 @@ BarometerConfigRecord SensorConfiguration::barometerConfiguration() const {
   checkAndThrow(sensorDataType_ == SensorDataType::Barometer, "Sensor data type is not barometer");
   return std::get<BarometerConfigRecord>(sensorConfigurationVariant_);
 }
+BatteryStatusConfiguration SensorConfiguration::batteryStatusConfiguration() const {
+  checkAndThrow(
+      sensorDataType_ == SensorDataType::BatteryStatus, "Sensor data type is not battery status");
+  return std::get<BatteryStatusConfiguration>(sensorConfigurationVariant_);
+}
 BluetoothBeaconConfigRecord SensorConfiguration::bluetoothConfiguration() const {
   checkAndThrow(sensorDataType_ == SensorDataType::Bluetooth, "Sensor data type is not bluetooth");
   return std::get<BluetoothBeaconConfigRecord>(sensorConfigurationVariant_);
@@ -60,6 +65,36 @@ MotionConfigRecord SensorConfiguration::magnetometerConfiguration() const {
   checkAndThrow(
       sensorDataType_ == SensorDataType::Magnetometer, "Sensor data type is not Magnetometer");
   return std::get<MotionConfigRecord>(sensorConfigurationVariant_);
+}
+PpgConfiguration SensorConfiguration::ppgConfiguration() const {
+  checkAndThrow(sensorDataType_ == SensorDataType::Ppg, "Sensor data type is not Ppg");
+  return std::get<PpgConfiguration>(sensorConfigurationVariant_);
+}
+AlsConfiguration SensorConfiguration::alsConfiguration() const {
+  checkAndThrow(sensorDataType_ == SensorDataType::Als, "Sensor data type is not ALS");
+  return std::get<AlsConfiguration>(sensorConfigurationVariant_);
+}
+TemperatureConfiguration SensorConfiguration::temperatureConfiguration() const {
+  checkAndThrow(
+      sensorDataType_ == SensorDataType::Temperature, "Sensor data type is not Temperature");
+  return std::get<TemperatureConfiguration>(sensorConfigurationVariant_);
+}
+EyeGazeConfiguration SensorConfiguration::eyeGazeConfiguration() const {
+  checkAndThrow(sensorDataType_ == SensorDataType::EyeGaze, "Sensor data type is not EyeGaze");
+  return std::get<EyeGazeConfiguration>(sensorConfigurationVariant_);
+}
+HandPoseConfiguration SensorConfiguration::handPoseConfiguration() const {
+  checkAndThrow(sensorDataType_ == SensorDataType::HandPose, "Sensor data type is not HandPose");
+  return std::get<HandPoseConfiguration>(sensorConfigurationVariant_);
+}
+VioConfiguration SensorConfiguration::vioConfiguration() const {
+  checkAndThrow(sensorDataType_ == SensorDataType::Vio, "Sensor data type is not Vio");
+  return std::get<VioConfiguration>(sensorConfigurationVariant_);
+}
+VioHighFreqConfiguration SensorConfiguration::vioHighFreqConfiguration() const {
+  checkAndThrow(
+      sensorDataType_ == SensorDataType::VioHighFreq, "Sensor data type is not VioHighFreq");
+  return std::get<VioHighFreqConfiguration>(sensorConfigurationVariant_);
 }
 
 double SensorConfiguration::getNominalRateHz() const {
@@ -72,6 +107,8 @@ double SensorConfiguration::getNominalRateHz() const {
       return audioConfiguration().sampleRate;
     case SensorDataType::Barometer:
       return barometerConfiguration().sampleRate;
+    case SensorDataType::BatteryStatus:
+      return batteryStatusConfiguration().nominalRateHz;
     case SensorDataType::Gps:
       return gpsConfiguration().sampleRateHz;
     case SensorDataType::Wps:
@@ -80,6 +117,20 @@ double SensorConfiguration::getNominalRateHz() const {
       return magnetometerConfiguration().nominalRateHz;
     case SensorDataType::Bluetooth:
       return bluetoothConfiguration().sampleRateHz;
+    case SensorDataType::Ppg:
+      return ppgConfiguration().nominalRateHz;
+    case SensorDataType::Als:
+      return alsConfiguration().nominalRateHz;
+    case SensorDataType::Temperature:
+      return temperatureConfiguration().nominalRateHz;
+    case SensorDataType::EyeGaze:
+      return eyeGazeConfiguration().nominalRateHz;
+    case SensorDataType::HandPose:
+      return handPoseConfiguration().nominalRateHz;
+    case SensorDataType::Vio:
+      return vioConfiguration().nominalRateHz;
+    case SensorDataType::VioHighFreq:
+      return vioHighFreqConfiguration().nominalRateHz;
     case SensorDataType::NotValid:
     default:
       return -1;

@@ -14,17 +14,46 @@
 
 include(FetchContent) # once in the project to include the module
 
+# First, find system installed Opus, required for Audio decoding
+find_package(Opus REQUIRED)
+
+find_package(fmt REQUIRED)
+
+# Eigen is required by Ocean
+FetchContent_Declare(
+  eigen
+  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+  GIT_TAG 19cacd3ecb9dab73c2dd7bc39d9193e06ba92bdd # 3.4.90
+)
+FetchContent_MakeAvailable(eigen)
+
+# Find Ocean lib, required for RGB conversion
+find_package(Ocean REQUIRED)
+
 FetchContent_Declare(
   Dispenso
   GIT_REPOSITORY https://github.com/facebookincubator/dispenso.git
   GIT_TAG f5d0dc5c5c02bf26063ab11ebfaa42f6d1a7c650 # v1.4.0
 )
 
+# Fetch VRS lib with XPRS support
 FetchContent_Declare(
-  eigen
-  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-  GIT_TAG 19cacd3ecb9dab73c2dd7bc39d9193e06ba92bdd # 3.4.90
+  vrs
+  GIT_REPOSITORY https://github.com/facebookresearch/vrs.git
+  GIT_TAG 29c585dcb9c4192a06e9d94a614b88731499381d # master Sept 15, 2025.
 )
+# Override config for vrs
+option(UNIT_TESTS OFF)
+option(BUILD_SAMPLES OFF)
+option(BUILD_TOOLS OFF)
+
+# Tell VRS to build with XPRS
+set(BUILD_WITH_XPRS ON CACHE BOOL "Enable XPRS support in VRS" FORCE)
+
+message("Pulling deps: {vrs}")
+FetchContent_MakeAvailable(vrs)
+
+
 FetchContent_Declare(
   Sophus
   GIT_REPOSITORY https://github.com/strasdat/Sophus.git
@@ -49,7 +78,7 @@ FetchContent_Declare(
   GIT_TAG v3.11.3
 )
 
-set(dependencies cli11 eigen Sophus Dispenso nlohmann-json)
+set(dependencies cli11 Sophus Dispenso nlohmann-json)
 foreach(X IN LISTS dependencies)
   message("Pulling deps: {${X}}")
   FetchContent_MakeAvailable(${X})
@@ -67,30 +96,3 @@ ExternalProject_Add(
   INSTALL_DIR ""
   INSTALL_COMMAND ""
 )
-
-# Enable long paths on Windows -- required for checking out Ocean in vrs
-if(WIN32)
-  execute_process(
-    COMMAND git config --system core.longpaths true
-    RESULT_VARIABLE result
-    OUTPUT_VARIABLE output
-    ERROR_VARIABLE error
-  )
-  if(NOT result EQUAL 0)
-    message(WARNING "Failed to set git core.longpaths: ${error}")
-  endif()
-endif()
-
-FetchContent_Declare(
-  vrs
-  GIT_REPOSITORY https://github.com/facebookresearch/vrs.git
-  GIT_TAG 26fdab54501d3567f27f953c13b9c786e000b7ee # master Sept 3, 2025.
-)
-# Override config for vrs
-option(UNIT_TESTS OFF)
-option(BUILD_SAMPLES OFF)
-option(BUILD_TOOLS OFF)
-option(BUILD_WITH_XPRS OFF)
-
-message("Pulling deps: {vrs}")
-FetchContent_MakeAvailable(vrs)

@@ -36,6 +36,9 @@ enum class TimeDomain {
                <b>multi-device</b> data capture. */
   TicSync, /**< capture in TimeSync server's timedomain where the server can be an Aria device,
               accurate across devices in a <b>multi-device</b> data capture.*/
+  SubGhz, /**< capture in TimeSync server's timedomain, where the server can be an Nebula device,
+              accurate across devices in a <b>multi-device</b> data capture.*/
+  Utc, /**< capture in UTC's timedomain, only seconds accurate.*/
   Count, /**< Count of the number of time domains*/
 };
 constexpr size_t kNumTimeDomain = static_cast<size_t>(TimeDomain::Count);
@@ -44,8 +47,8 @@ constexpr size_t kNumTimeDomain = static_cast<size_t>(TimeDomain::Count);
  * @return one of the followings: {"RecordTime", "DeviceTime", "HostTime", "Timecode", "TicSync"}
  */
 inline std::string getName(const TimeDomain& domain) {
-  std::array<std::string, kNumTimeDomain> domainNames{
-      "RecordTime", "DeviceTime", "HostTime", "TimeCode", "TicSync"};
+  static const std::array<std::string, kNumTimeDomain> domainNames{
+      "RecordTime", "DeviceTime", "HostTime", "TimeCode", "TicSync", "SubGhz", "Utc"};
   return domainNames.at(static_cast<size_t>(domain));
 }
 
