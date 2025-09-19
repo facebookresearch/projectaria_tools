@@ -32,7 +32,7 @@ struct BatteryStatusConfigRecordMetadata : public vrs::AutoDataLayout {
   vrs::DataPieceValue<std::uint32_t> streamId{"stream_id"};
   vrs::DataPieceString sensorModel{"sensor_model"};
   vrs::DataPieceValue<std::uint64_t> deviceId{"device_id"};
-  vrs::DataPieceValue<double> nominalRateHz{"nominal_rate_hz"};
+  vrs::DataPieceValue<double> nominalRateHz{"nominal_rate"};
   vrs::DataPieceString description{"description"};
 
   vrs::AutoDataLayoutEnd end;
