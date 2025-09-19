@@ -27,6 +27,7 @@ from .constants import (
     HTTP_RETRY_CODES,
     KEY_ALIAS,
     KEY_ARIA_MPS_REQUEST,
+    KEY_AUTH_TOKEN,
     KEY_CREATE,
     KEY_CURSOR,
     KEY_DATA,
@@ -66,7 +67,6 @@ _DOC_ID_SUBMIT_MPS_REQUEST: Final[int] = 28480305154918594
 _DOC_ID_QUERY_MPS_REQUESTED_FEATURE_BY_FILE_HASH: Final[int] = 7587879547939670
 _DOC_ID_QUERY_MPS_REQUESTED_FEATURE_BY_FILE_HASH_SET: Final[int] = 25450657081245347
 _DOC_ID_QUERY_FEATURE_REQUEST: Final[int] = 7490684447654027
-_DOC_ID_GET_HORIZON_PROFILE_TOKEN: Final[int] = 24299011599746673
 _DOC_ID_QUERY_RECORDING_BY_FILE_HASH: Final[int] = 6818108551598913
 _DOC_ID_QUERY_ME: Final[int] = 7092145450831175
 _DOC_ID_QUERY_MPS_REQUEST: Final[int] = 8119818841375479
@@ -77,7 +77,6 @@ _QUERY_DEFAULT_PAGE_SIZE: Final[int] = 1000
 
 _GQL_URL: Final[str] = os.environ.get("GQL_URL", "https://graph.oculus.com/graphql")
 _AUTHORIZATION: Final[str] = "Authorization"
-_AUTH_TOKEN: Final[str] = "auth_token"
 
 config = Config.get()
 
@@ -344,7 +343,7 @@ class HttpHelper:
         Insert the authorization header if it's not present.
         """
         headers = kwargs.pop("headers", {})
-        if auth_token := kwargs.pop(_AUTH_TOKEN, None):
+        if auth_token := kwargs.pop(KEY_AUTH_TOKEN, None):
             headers[_AUTHORIZATION] = f"OAuth {auth_token}"
         # log the args, but not sensitive data
         log_data = kwargs.copy()
