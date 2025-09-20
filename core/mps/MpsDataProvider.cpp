@@ -132,6 +132,31 @@ std::optional<HandTrackingResult> MpsDataProvider::getHandTrackingResult(
   return iter == handTrackingResults_.end() ? std::optional<HandTrackingResult>() : iter->second;
 }
 
+std::optional<HandTrackingResult> MpsDataProvider::getInterpolatedHandTrackingResult(
+    int64_t deviceTimeStampNs) {
+  // Query for the hand pose before and after the query timestamp
+  auto handBefore = getHandTrackingResult(deviceTimeStampNs, TimeQueryOptions::Before);
+  auto handAfter = getHandTrackingResult(deviceTimeStampNs, TimeQueryOptions::After);
+
+  // Check for before and after hand availability
+  if (!handBefore.has_value() && !handAfter.has_value()) {
+    std::string error = fmt::format(
+        "Query before and after timestamp {} returns empty results, hand tracking data is likely corrupted",
+        deviceTimeStampNs);
+    XR_LOGE("{}", error);
+    throw std::runtime_error{error};
+  }
+
+  if (!handBefore.has_value() || !handAfter.has_value()) {
+    // query before the beginning of traj or after the end
+    return {};
+  }
+
+  std::chrono::microseconds queryTimestampUs = std::chrono::microseconds(deviceTimeStampNs / 1000);
+
+  return interpolateHandTrackingResult(handBefore.value(), handAfter.value(), queryTimestampUs);
+}
+
 std::optional<EyeGaze> MpsDataProvider::getPersonalizedEyeGaze(
     int64_t deviceTimeStampNs,
     const TimeQueryOptions& timeQueryOptions) {

@@ -801,6 +801,13 @@ void exportMps(py::module& m) {
           "Check for data availability first using 'has_hand_tracking_results()'",
           py::arg("capture_timestamp_ns"),
           py::arg("time_query_options") = TimeQueryOptions::Closest)
+      .def(
+          "get_interpolated_hand_tracking_result",
+          &MpsDataProvider::getInterpolatedHandTrackingResult,
+          py::return_value_policy::reference_internal,
+          "Get the interploated MPS hand tracking result (landmarks, wrist transform, wrist and palm normals, etc.). "
+          "This will return None if the interpolation fails. Check the return value for validity.",
+          py::arg("capture_timestamp_ns"))
       .def("get_slam_version", &MpsDataProvider::getSlamVersion, "Get the MPS SLAM version.")
       .def(
           "get_eyegaze_version",
