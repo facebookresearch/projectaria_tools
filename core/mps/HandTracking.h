@@ -169,6 +169,53 @@ using WristAndPalmPoses = std::vector<WristAndPalmPose>;
  * @brief alias to represent a vector of `HandTrackingResult`
  */
 using HandTrackingResults = std::vector<HandTrackingResult>;
+
+/**
+ * @brief Linear interpolation between two HandTrackingResult objects based on target timestamp.
+ *      1. A hand (left/right) is only interpolated if both input results have valid data for that
+ * hand. If either input is missing a hand, the interpolated result will have nullopt for that hand.
+ *      2. Returns nullopt if the time difference between input results exceeds 100ms (interpolation
+ * is considered unreliable beyond this threshold for landmark positions).
+ *
+ * @param handPose1 First hand tracking result
+ * @param handPose2 Second hand tracking result
+ * @param alpha Interpolation factor [0.0, 1.0], where 0.0 returns handPose1 and 1.0 returns
+ * handPose2
+ * @param timestamp Target timestamp for the interpolated result (must be consistent with alpha)
+ * @return std::optional<HandTrackingResult> Interpolated result, or nullopt if time difference >
+ * 100ms
+ *
+ * @throws std::invalid_argument if alpha is outside [0.0, 1.0] or timestamp is inconsistent with
+ * alpha
+ */
+std::optional<HandTrackingResult> interpolateHandTrackingResult(
+    const HandTrackingResult& handPose1,
+    const HandTrackingResult& handPose2,
+    double alpha,
+    std::chrono::microseconds timestamp);
+
+/**
+ * @brief Linear interpolation between two HandTrackingResult objects based on target timestamp.
+ *      1. A hand (left/right) is only interpolated if both input results have valid data for that
+ * hand. If either input is missing a hand, the interpolated result will have nullopt for that hand.
+ *      2. Returns nullopt if the time difference between input results exceeds 100ms (interpolation
+ * is considered unreliable beyond this threshold for landmark positions).
+ *
+ * @param handPose1 First hand tracking result (should have earlier timestamp)
+ * @param handPose2 Second hand tracking result (should have later timestamp)
+ *
+ * @param targetTimestamp Target timestamp for interpolation (should be between handPose1 and
+ *handPose2)
+ * @return std::optional<HandTrackingResult> Interpolated result, or nullopt if time difference >
+ * 100ms
+ * @throws std::invalid_argument if targetTimestamp is outside the range [handPose1.timestamp,
+ * handPose2.timestamp]
+ */
+std::optional<HandTrackingResult> interpolateHandTrackingResult(
+    const HandTrackingResult& handPose1,
+    const HandTrackingResult& handPose2,
+    std::chrono::microseconds targetTimestamp);
+
 /**
  * @brief Calculate the palm normal vector (pointing out of palm) by approximating with
  * the normal of a triangle formed by wrist, index proximal, and pinky proximal landmarks.
