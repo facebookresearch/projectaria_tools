@@ -837,13 +837,12 @@ class AriaDataViewer:
             ),
         )
 
-    def _plot_single_hand(self, hand_joints_in_device: List[np.array], hand_label: str):
+    def _plot_single_hand_3d(
+        self, hand_joints_in_device: List[np.array], hand_label: str
+    ):
         """
-        Plot single hand data in 3D and 2D camera views
+        Plot single hand data in 3D view
         """
-        ################# Plot single hand in 3D views #################
-
-        # Plot 3D hand markers and skeleton
         hand_skeleton_3d = create_hand_skeleton_from_landmarks(hand_joints_in_device)
         rr.log(
             f"world/device/{self.sensor_labels.hand_tracking_label}/{hand_label}/landmarks",
@@ -874,69 +873,88 @@ class AriaDataViewer:
             ),
         )
 
-        ################# Plot single hand in 2D camera views #################
-        # Project joint locations for all cameras
+    def _plot_single_hand_2d(
+        self, hand_joints_in_device: List[np.array], hand_label: str, camera_label: str
+    ):
+        """
+        Plot single hand data in 2D camera view
+        """
+        # get calibration for the camera
+        camera_calib = self.device_calibration.get_camera_calib(camera_label)
 
+        # project into camera frame, and also create line segments
+        hand_joints_in_camera = []
+        for pt_in_device in hand_joints_in_device:
+            pt_in_camera = (
+                camera_calib.get_transform_device_camera().inverse() @ pt_in_device
+            )
+            pixel = camera_calib.project(pt_in_camera)
+            hand_joints_in_camera.append(pixel)
+
+        # Create hand skeleton in 2D image space
+        hand_skeleton = create_hand_skeleton_from_landmarks(hand_joints_in_camera)
+
+        # Remove "None" markers from hand joints in camera. This is intentionally done AFTER the hand skeleton creation
+        hand_joints_in_camera = list(
+            filter(lambda x: x is not None, hand_joints_in_camera)
+        )
+
+        rr.log(
+            f"{camera_label}/{self.sensor_labels.hand_tracking_label}/{hand_label}/landmarks",
+            rr.Points2D(
+                positions=hand_joints_in_camera,
+                colors=self._get_plot_color(f"{hand_label}_hand_markers"),
+                radii=self._get_plot_size(
+                    plot_label=f"{hand_label}_hand_markers",
+                    camera_label=camera_label,
+                ),
+            ),
+        )
+        rr.log(
+            f"{camera_label}/{self.sensor_labels.hand_tracking_label}/{hand_label}/skeleton",
+            rr.LineStrips2D(
+                hand_skeleton,
+                colors=[self._get_plot_color(f"{hand_label}_hand_lines")],
+                radii=self._get_plot_size(
+                    plot_label=f"{hand_label}_hand_lines",
+                    camera_label=camera_label,
+                ),
+            ),
+        )
+
+    def _plot_single_hand(self, hand_joints_in_device: List[np.array], hand_label: str):
+        """
+        Plot single hand data in 3D and 2D camera views
+        """
+        # plot in 3D
+        self._plot_single_hand_3d(hand_joints_in_device, hand_label)
+
+        # plot in 2D
         for camera_label in self.sensor_labels.rgb_and_slam_labels:
-            # get calibration for the camera
-            camera_calib = self.device_calibration.get_camera_calib(camera_label)
-
-            # project into camera frame, and also create line segments
-            hand_joints_in_camera = []
-            for pt_in_device in hand_joints_in_device:
-                pt_in_camera = (
-                    camera_calib.get_transform_device_camera().inverse() @ pt_in_device
-                )
-                pixel = camera_calib.project(pt_in_camera)
-                hand_joints_in_camera.append(pixel)
-
-            # Create hand skeleton in 2D image space
-            hand_skeleton = create_hand_skeleton_from_landmarks(hand_joints_in_camera)
-
-            # Remove "None" markers from hand joints in camera. This is intentionally done AFTER the hand skeleton creation
-            hand_joints_in_camera = list(
-                filter(lambda x: x is not None, hand_joints_in_camera)
-            )
-
-            rr.log(
-                f"{camera_label}/{self.sensor_labels.hand_tracking_label}/{hand_label}/landmarks",
-                rr.Points2D(
-                    positions=hand_joints_in_camera,
-                    colors=self._get_plot_color(f"{hand_label}_hand_markers"),
-                    radii=self._get_plot_size(
-                        plot_label=f"{hand_label}_hand_markers",
-                        camera_label=camera_label,
-                    ),
-                ),
-            )
-            rr.log(
-                f"{camera_label}/{self.sensor_labels.hand_tracking_label}/{hand_label}/skeleton",
-                rr.LineStrips2D(
-                    hand_skeleton,
-                    colors=[self._get_plot_color(f"{hand_label}_hand_lines")],
-                    radii=self._get_plot_size(
-                        plot_label=f"{hand_label}_hand_lines",
-                        camera_label=camera_label,
-                    ),
-                ),
-            )
+            self._plot_single_hand_2d(hand_joints_in_device, hand_label, camera_label)
 
     def plot_hand_pose_data(
         self,
         hand_pose_data,
     ):
         """
-        Plot hand pose data within 2D camera image
+        Plot hand pose data in both 2D and 3D views
         """
-        if self.device_calibration is None:
-            warn_once(
-                self.plot_hand_pose_data,
-                "device_calibration is None. Cannot plot hand pose data.",
+        self.plot_hand_pose_data_3d(hand_pose_data=hand_pose_data)
+
+        for camera_label in self.sensor_labels.rgb_and_slam_labels:
+            self.plot_hand_pose_data_2d(
+                hand_pose_data=hand_pose_data, camera_label=camera_label
             )
-            return
+
+    def plot_hand_pose_data_3d(self, hand_pose_data):
+        """
+        Plot hand pose data in 3D world view
+        """
         rr.set_time_nanos(
             "device_time", int(hand_pose_data.tracking_timestamp.total_seconds() * 1e9)
         )
+
         # Clear the canvas (only if hand_tracking_label exists for this device version)
         if self.sensor_labels.hand_tracking_label:
             rr.log(
@@ -944,22 +962,55 @@ class AriaDataViewer:
                 rr.Clear.recursive(),
             )
 
-            for label in self.sensor_labels.rgb_and_slam_labels:
-                rr.log(
-                    f"{label}/{self.sensor_labels.hand_tracking_label}",
-                    rr.Clear.recursive(),
-                )
-
+        # Plot both hands
         if hand_pose_data.left_hand is not None:
-            self._plot_single_hand(
+            self._plot_single_hand_3d(
                 hand_joints_in_device=hand_pose_data.left_hand.landmark_positions_device,
                 hand_label="left",
             )
         if hand_pose_data.right_hand is not None:
-            self._plot_single_hand(
+            self._plot_single_hand_3d(
                 hand_joints_in_device=hand_pose_data.right_hand.landmark_positions_device,
                 hand_label="right",
             )
+
+    def plot_hand_pose_data_2d(self, hand_pose_data, camera_label: str):
+        """
+        Plot hand pose data in 2D camera view
+        """
+        # calibration is needed to project hand pose data into camera view
+        if self.device_calibration is None:
+            warn_once(
+                self.plot_hand_pose_data,
+                "device_calibration is None. Cannot plot hand pose data.",
+            )
+            return
+
+        if self.sensor_labels.hand_tracking_label:
+            rr.set_time_nanos(
+                "device_time",
+                int(hand_pose_data.tracking_timestamp.total_seconds() * 1e9),
+            )
+
+            # Clear the canvas first
+            rr.log(
+                f"{camera_label}/{self.sensor_labels.hand_tracking_label}",
+                rr.Clear.recursive(),
+            )
+
+            # Plot both ahnds
+            if hand_pose_data.left_hand is not None:
+                self._plot_single_hand_2d(
+                    hand_joints_in_device=hand_pose_data.left_hand.landmark_positions_device,
+                    hand_label="left",
+                    camera_label=camera_label,
+                )
+            if hand_pose_data.right_hand is not None:
+                self._plot_single_hand_2d(
+                    hand_joints_in_device=hand_pose_data.right_hand.landmark_positions_device,
+                    hand_label="right",
+                    camera_label=camera_label,
+                )
 
     def plot_vio_high_freq_data(self, vio_high_freq_data):
         """Plot VIO high frequency data"""

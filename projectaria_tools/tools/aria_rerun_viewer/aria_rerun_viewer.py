@@ -183,10 +183,29 @@ def get_deliver_option(
     return deliver_options
 
 
+def plot_interpolated_hand_pose_in_image(
+    vrs_data_provider, aria_data_viewer, timestamp_ns, camera_label, hand_pose_stream_id
+):
+    """
+    This is a helper function to plot interpolated hand tracking in image.
+    Interpolation is needed here because RGB, SLAM images are not synchronized with hand tracking data.
+    """
+    interpolated_hand_pose = vrs_data_provider.get_interpolated_hand_pose_data(
+        stream_id=hand_pose_stream_id, timestamp_ns=timestamp_ns
+    )
+
+    if interpolated_hand_pose is not None:
+        aria_data_viewer.plot_hand_pose_data_2d(
+            hand_pose_data=interpolated_hand_pose, camera_label=camera_label
+        )
+
+
 def plot_queued_sensor_data(vrs_data_provider, deliver_options, aria_data_viewer):
     """
     Plot queued sensor data from VRS file
     """
+    hand_pose_stream_id = vrs_data_provider.get_stream_id_from_label("handtracking")
+
     # Loop over queued sensor data
     for data in tqdm(vrs_data_provider.deliver_queued_sensor_data(deliver_options)):
         device_time_ns = data.get_time_ns(TimeDomain.DEVICE_TIME)
@@ -200,6 +219,20 @@ def plot_queued_sensor_data(vrs_data_provider, deliver_options, aria_data_viewer
             aria_data_viewer.plot_image(
                 frame, label, data.image_data_and_record()[1].capture_timestamp_ns
             )
+
+            # For Gen2 recordings, plot handtracking data for slam / rgb cameras
+            if (hand_pose_stream_id is not None) and (
+                label in aria_data_viewer.sensor_labels.rgb_and_slam_labels
+            ):
+                plot_interpolated_hand_pose_in_image(
+                    vrs_data_provider,
+                    aria_data_viewer,
+                    device_time_ns,
+                    label,
+                    hand_pose_stream_id,
+                )
+
+            # For Gen2 recordings, print UTC timestamp in RGB camera view
             if label == "camera-rgb" and vrs_data_provider.supports_time_domain(
                 stream_id, TimeDomain.UTC
             ):
@@ -228,12 +261,12 @@ def plot_queued_sensor_data(vrs_data_provider, deliver_options, aria_data_viewer
             )
         elif data.sensor_data_type() == SensorDataType.EYE_GAZE:
             aria_data_viewer.plot_eye_gaze_data(data.eye_gaze_data())
-        elif data.sensor_data_type() == SensorDataType.HAND_POSE:
-            aria_data_viewer.plot_hand_pose_data(data.hand_pose_data())
         elif data.sensor_data_type() == SensorDataType.VIO_HIGH_FREQ:
             aria_data_viewer.plot_vio_high_freq_data(data.vio_high_freq_data())
         elif data.sensor_data_type() == SensorDataType.VIO:
             aria_data_viewer.plot_vio_data(data.vio_data())
+        elif data.sensor_data_type() == SensorDataType.HAND_POSE:
+            aria_data_viewer.plot_hand_pose_data_3d(data.hand_pose_data())
 
 
 def main():
