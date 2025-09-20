@@ -476,6 +476,12 @@ class VrsDataProvider {
       const TimeDomain& timeDomain = TimeDomain::DeviceTime,
       const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Before);
 
+  // API to obtain interpolated data
+  std::optional<OnDeviceHandPoseData> getInterpolatedHandPoseData(
+      const vrs::StreamId& streamId,
+      uint64_t timestampNs,
+      const TimeDomain& timeDomain = TimeDomain::DeviceTime);
+
   VrsDataProvider(
       const std::shared_ptr<RecordReaderInterface>& interface,
       const std::shared_ptr<StreamIdConfigurationMapper>& configMap,

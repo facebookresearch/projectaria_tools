@@ -19,6 +19,7 @@
 #include <data_provider/VrsDataProvider.h>
 #include <image/ImageVariant.h>
 #include <image/utility/ColorCorrect.h>
+#include <mps/HandTracking.h>
 #define DEFAULT_LOG_CHANNEL "VrsDataProvider"
 #include <fmt/core.h>
 #include <image/CopyToPixelFrame.h>
@@ -670,6 +671,61 @@ OnDeviceHandPoseData VrsDataProvider::getHandPoseDataByTimeNs(
     const TimeQueryOptions& timeQueryOptions) {
   const int index = getIndexByTimeNs(streamId, timeNs, timeDomain, timeQueryOptions);
   return getHandPoseDataByIndex(streamId, index);
+}
+
+/* Interpolated query APIs*/
+std::optional<OnDeviceHandPoseData> VrsDataProvider::getInterpolatedHandPoseData(
+    const vrs::StreamId& streamId,
+    uint64_t timestampNs,
+    const TimeDomain& timeDomain) {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::HandPose);
+
+  // Convert timestamp to device time if needed
+  int64_t deviceTimeNs = timestampNs;
+  if (timeDomain == TimeDomain::TimeCode) {
+    deviceTimeNs = convertFromTimeCodeToDeviceTimeNs(timestampNs);
+  } else if (timeDomain == TimeDomain::TicSync) {
+    deviceTimeNs = convertFromSyncTimeToDeviceTimeNs(timestampNs, TimeSyncMode::TIC_SYNC);
+  } else if (timeDomain == TimeDomain::SubGhz) {
+    deviceTimeNs = convertFromSyncTimeToDeviceTimeNs(timestampNs, TimeSyncMode::SUBGHZ);
+  } else if (timeDomain == TimeDomain::Utc) {
+    deviceTimeNs = convertFromSyncTimeToDeviceTimeNs(timestampNs, TimeSyncMode::UTC);
+  } else if (
+      timeDomain != TimeDomain::DeviceTime && timeDomain != TimeDomain::RecordTime &&
+      timeDomain != TimeDomain::HostTime) {
+    return std::nullopt; // Unsupported time domain
+  }
+
+  // Find the two indices that bracket the query timestamp
+  int beforeIndex =
+      getIndexByTimeNs(streamId, deviceTimeNs, TimeDomain::DeviceTime, TimeQueryOptions::Before);
+  int afterIndex =
+      getIndexByTimeNs(streamId, deviceTimeNs, TimeDomain::DeviceTime, TimeQueryOptions::After);
+
+  // Check if we have valid indices
+  if (beforeIndex < 0 || afterIndex < 0) {
+    return std::nullopt; // Query timestamp is outside available data range
+  }
+
+  // If both indices are the same, return the exact match
+  if (beforeIndex == afterIndex) {
+    return getHandPoseDataByIndex(streamId, beforeIndex);
+  }
+
+  // Get the two bracketing hand pose data samples
+  OnDeviceHandPoseData beforeData = getHandPoseDataByIndex(streamId, beforeIndex);
+  OnDeviceHandPoseData afterData = getHandPoseDataByIndex(streamId, afterIndex);
+
+  // Check if both samples are valid
+  if (beforeData.trackingTimestamp.count() == 0 || afterData.trackingTimestamp.count() == 0) {
+    return std::nullopt;
+  }
+
+  // OnDeviceHandPoseData is already mps::HandTrackingResult, no conversion needed
+  // Perform interpolation directly
+  std::chrono::microseconds targetTimestamp(deviceTimeNs / 1000);
+  return mps::interpolateHandTrackingResult(beforeData, afterData, targetTimestamp);
 }
 
 /* get time range */

@@ -651,7 +651,14 @@ inline void declareVrsDataProvider(py::module& m) {
           py::arg("stream_id"),
           py::arg("time_ns"),
           py::arg("time_domain"),
-          py::arg("time_query_options") = TimeQueryOptions::Before);
+          py::arg("time_query_options") = TimeQueryOptions::Before)
+      .def(
+          "get_interpolated_hand_pose_data",
+          &VrsDataProvider::getInterpolatedHandPoseData,
+          py::arg("stream_id"),
+          py::arg("timestamp_ns"),
+          py::arg("time_domain") = TimeDomain::DeviceTime,
+          "Get interpolated hand pose data at a specific timestamp. Returns None if interpolation fails due to missing data or time difference > 100ms between bracketing samples.");
 }
 } // namespace
 
