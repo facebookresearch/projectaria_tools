@@ -20,6 +20,7 @@
 #include <cmath>
 
 #include <data_provider/players/DataPlayerUtils.h>
+#include <mps/HandTracking.h>
 
 namespace projectaria::tools::data_provider {
 

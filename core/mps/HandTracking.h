@@ -169,4 +169,14 @@ using WristAndPalmPoses = std::vector<WristAndPalmPose>;
  * @brief alias to represent a vector of `HandTrackingResult`
  */
 using HandTrackingResults = std::vector<HandTrackingResult>;
+/**
+ * @brief Calculate the palm normal vector (pointing out of palm) by approximating with
+ * the normal of a triangle formed by wrist, index proximal, and pinky proximal landmarks.
+ *
+ * @param landmarks Array of hand landmark positions
+ * @param handedness Whether this is a left or right hand (affects normal direction)
+ * @return Eigen::Vector3d Normalized palm normal vector
+ */
+Eigen::Vector3d estimatePalmNormal(const Landmarks& landmarks, HANDEDNESS handedness);
+
 } // namespace projectaria::tools::mps

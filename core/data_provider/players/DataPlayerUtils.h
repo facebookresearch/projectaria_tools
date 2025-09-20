@@ -15,6 +15,7 @@
  */
 
 #pragma once
+
 #include <mps/HandTracking.h>
 #include <sophus/se3.hpp>
 #include <vrs/DataPieceTypes.h>
@@ -75,31 +76,5 @@ void populateFromEigenVectorToPtr(const Eigen::Matrix<T, N, 1>& src, T* dest) {
   for (int i = 0; i < N; ++i) {
     dest[i] = src[i];
   }
-}
-// A helper function to calculate the normal vector (pointing out of palm), by approximating with
-// the normal of a triangle
-inline Eigen::Vector3d estimatePalmNormal(
-    const projectaria::tools::mps::Landmarks& landmarks,
-    projectaria::tools::mps::HANDEDNESS handedness) {
-  using namespace projectaria::tools::mps;
-  constexpr auto kWristIndex = static_cast<uint8_t>(HandLandmark::WRIST);
-  constexpr auto kIndexProximalIndex = static_cast<uint8_t>(HandLandmark::INDEX_PROXIMAL);
-  constexpr auto kPinkyProximalIndex = static_cast<uint8_t>(HandLandmark::PINKY_PROXIMAL);
-
-  const Eigen::Vector3d& wristLocation = landmarks[kWristIndex];
-  const Eigen::Vector3d& indexProximalLocation = landmarks[kIndexProximalIndex];
-  const Eigen::Vector3d& pinkyProximalLocation = landmarks[kPinkyProximalIndex];
-
-  // Calculate palm normal using cross product
-  Eigen::Vector3d palmNormal = (pinkyProximalLocation - wristLocation)
-                                   .cross(indexProximalLocation - wristLocation)
-                                   .normalized();
-
-  // For right hand, flip the normal
-  if (handedness == HANDEDNESS::RIGHT) {
-    palmNormal *= -1.0;
-  }
-
-  return palmNormal;
 }
 } // namespace projectaria::tools::data_provider
