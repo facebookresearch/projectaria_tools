@@ -89,7 +89,7 @@ class SensorData {
       const vrs::StreamId& streamId,
       const SensorDataVariant& dataVariant,
       const SensorDataType& sensorDataType,
-      const int64_t recordInfoTimeNs,
+      int64_t recordInfoTimeNs,
       const std::map<TimeSyncMode, int64_t>& timeSyncTimeNs);
 
   /** @brief Returns the ID of the VRS Stream the data belongs to */

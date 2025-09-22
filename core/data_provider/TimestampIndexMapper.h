@@ -35,7 +35,7 @@ class TimestampIndexMapper {
   // get index of data based on timestamp in a specified domain
   int getIndexByTimeNs(
       const vrs::StreamId& streamId,
-      const int64_t timeNs,
+      int64_t timeNs,
       const TimeDomain& timeDomain,
       const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Before);
 
@@ -45,17 +45,17 @@ class TimestampIndexMapper {
   /* timecode mapper */
   int getIndexBeforeTimeNsNonTimeCode(
       const vrs::StreamId& streamId,
-      const int64_t timeNsInTimeDomain,
+      int64_t timeNsInTimeDomain,
       const TimeDomain& timeDomain);
 
   int getIndexAfterTimeNsNonTimeCode(
       const vrs::StreamId& streamId,
-      const int64_t timeNsInTimeDomain,
+      int64_t timeNsInTimeDomain,
       const TimeDomain& timeDomain);
 
   int getIndexClosestTimeNsNonTimeCode(
       const vrs::StreamId& streamId,
-      const int64_t timeNsInTimeDomain,
+      int64_t timeNsInTimeDomain,
       const TimeDomain& timeDomain);
 
  private:
@@ -65,12 +65,12 @@ class TimestampIndexMapper {
 
   int getIndexAfterTimeNsNonTimeCodeFromIndexBefore(
       const vrs::StreamId& streamId,
-      const int64_t timeNsInTimeDomain,
+      int64_t timeNsInTimeDomain,
       const TimeDomain& timeDomain,
-      const int indexBefore);
+      int indexBefore);
 
   int64_t
-  getTimestampByIndex(const vrs::StreamId& streamId, const int index, const TimeDomain& timeDomain);
+  getTimestampByIndex(const vrs::StreamId& streamId, int index, const TimeDomain& timeDomain);
 
  private:
   std::shared_ptr<RecordReaderInterface> interface_;

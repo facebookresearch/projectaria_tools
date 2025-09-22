@@ -50,7 +50,7 @@ enum class SensorDataType {
 };
 
 /** @brief converts the enum to readable std::string */
-std::string getName(const SensorDataType type);
+std::string getName(SensorDataType type);
 
 /**
  * @brief checks if host time domain is supported by a type.

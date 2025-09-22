@@ -74,9 +74,7 @@ class RecordReaderInterface {
   // if read fails return null
   // if read is successful, lock the player's corresponding mutex
   // the mutex can only be unlocked if the corresponding getLastCached*Data() is called
-  const vrs::IndexRecord::RecordInfo* readRecordByIndex(
-      const vrs::StreamId& streamId,
-      const int index);
+  const vrs::IndexRecord::RecordInfo* readRecordByIndex(const vrs::StreamId& streamId, int index);
 
   /* read the last cached sensor data in player */
   SensorData getLastCachedSensorData(const vrs::StreamId& streamId);

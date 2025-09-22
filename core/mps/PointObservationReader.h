@@ -24,8 +24,6 @@ namespace projectaria::tools::mps {
 
 PointObservations readPointObservations(const std::string& path);
 
-PointObservations readPointObservations(
-    const std::string& path,
-    const StreamCompressionMode compression);
+PointObservations readPointObservations(const std::string& path, StreamCompressionMode compression);
 
 } // namespace projectaria::tools::mps

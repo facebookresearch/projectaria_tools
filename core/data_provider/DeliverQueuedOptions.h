@@ -29,8 +29,8 @@ namespace projectaria::tools::data_provider {
 class DeliverQueuedOptions : public SubstreamSelector {
  public:
   DeliverQueuedOptions(
-      const int64_t truncateFirstDeviceTimeNs,
-      const int64_t truncateLastDeviceTimeNs,
+      int64_t truncateFirstDeviceTimeNs,
+      int64_t truncateLastDeviceTimeNs,
       const std::map<vrs::StreamId, size_t>& streamIdToDownSampleRate);
 
   /** @brief Returns how many nanoseconds to skip from the beginning of the vrs recording */

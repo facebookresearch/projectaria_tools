@@ -27,8 +27,8 @@ struct MicrophoneCalibration {
   std::string getLabel() const;
   double getDSensitivity1KDbv() const;
 
-  double rawToRectified(const double raw) const;
-  double rectifiedToRaw(const double rectified) const;
+  double rawToRectified(double raw) const;
+  double rectifiedToRaw(double rectified) const;
 
  private:
   std::string label_;

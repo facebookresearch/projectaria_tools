@@ -24,8 +24,6 @@ namespace projectaria::tools::mps {
 
 GlobalPointCloud readGlobalPointCloud(const std::string& path);
 
-GlobalPointCloud readGlobalPointCloud(
-    const std::string& path,
-    const StreamCompressionMode compression);
+GlobalPointCloud readGlobalPointCloud(const std::string& path, StreamCompressionMode compression);
 
 } // namespace projectaria::tools::mps

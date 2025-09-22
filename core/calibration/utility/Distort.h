@@ -31,7 +31,7 @@ image::ManagedImageVariant distortByCalibration(
     const image::ImageVariant& srcVariant,
     const CameraCalibration& dstCalib,
     const CameraCalibration& srcCalib,
-    const image::InterpolationMethod method = image::InterpolationMethod::Bilinear);
+    image::InterpolationMethod method = image::InterpolationMethod::Bilinear);
 
 /**
  * @brief Distorts an input depth image using InterpolationMethod::Bilinear to swap its underlying
