@@ -23,6 +23,7 @@ except ImportError:
     from projectaria_tools.core import data_provider
 
 import rerun as rr
+from projectaria_tools.core.calibration import DeviceVersion
 from projectaria_tools.core.sensor_data import SensorDataType, TimeDomain, TimeSyncMode
 from projectaria_tools.tools.aria_rerun_viewer.aria_data_plotter import (
     AriaDataViewer,
@@ -30,9 +31,7 @@ from projectaria_tools.tools.aria_rerun_viewer.aria_data_plotter import (
 )
 from tqdm import tqdm
 
-# TODO: add support for other streams
-ALL_STREAM_LABELS = [
-    # Gen2
+ALL_STREAM_LABELS_GEN2 = [
     "camera-rgb",
     "slam-front-left",
     "slam-front-right",
@@ -50,10 +49,18 @@ ALL_STREAM_LABELS = [
     "eyegaze",
     "vio",
     "vio_high_frequency",
-    # Gen1
+]
+ALL_STREAM_LABELS_GEN1 = [
     "camera-slam-left",
     "camera-slam-right",
     "camera-et",
+    "camera-rgb",
+    "imu-left",
+    "imu-right",
+    "mic",
+    "baro0",
+    "mag0",
+    "gps",
 ]
 
 
@@ -102,7 +109,7 @@ def parse_args():
     parser.add_argument(
         "--enabled-streams",
         nargs="*",
-        choices=ALL_STREAM_LABELS,
+        choices=ALL_STREAM_LABELS_GEN2 + ALL_STREAM_LABELS_GEN1,
         help="Enable specific viewers by their labels, e.g. `camera-rgb eyegaze`, Use space-separated pairs. (default: all)",
     )
     parser.add_argument(
@@ -137,8 +144,6 @@ def get_deliver_option(
         Configured deliver options object
     """
     # Use defaults if not provided
-    if enabled_stream_labels is None:
-        enabled_stream_labels = ALL_STREAM_LABELS
     if subsample_rates is None:
         subsample_rates = {}
 
@@ -279,19 +284,26 @@ def main():
 
     # Step 2: Extract device_calibration from vrs_data_provider
     device_calibration = vrs_data_provider.get_device_calibration()
+    device_version = device_calibration.get_device_version()
+    if device_version == DeviceVersion.Gen1:
+        all_stream_labels = ALL_STREAM_LABELS_GEN1
+    elif device_version == DeviceVersion.Gen2:
+        all_stream_labels = ALL_STREAM_LABELS_GEN2
+    else:
+        raise ValueError(f" Unsupported Aria device version: {device_version}")
 
     # Step 3: Create config
     viewer_config = AriaDataViewerConfig()
 
     # Step 4: Get configured deliver options
     parsed_subsample_rates = (
-        parse_subsample_rates(args.subsample_rates, ALL_STREAM_LABELS)
+        parse_subsample_rates(args.subsample_rates, all_stream_labels)
         if args.subsample_rates
         else {}
     )
     deliver_options = get_deliver_option(
         vrs_data_provider=vrs_data_provider,
-        enabled_stream_labels=args.enabled_streams or ALL_STREAM_LABELS,
+        enabled_stream_labels=args.enabled_streams or all_stream_labels,
         subsample_rates=parsed_subsample_rates,
         viewer_config=viewer_config,
         skip_begin_sec=args.skip_begin_sec,
