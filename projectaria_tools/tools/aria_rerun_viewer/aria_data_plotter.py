@@ -180,7 +180,7 @@ class AriaDataViewer:
             "device_axis_length": 0.05,
         },
         "vio_gravity": {
-            "color": [255, 255, 255],
+            "color": [101, 67, 33],
         },
         "handtracking": {
             "left_hand_markers_color": [255, 64, 0],
@@ -1082,7 +1082,9 @@ class AriaDataViewer:
             "world/vio_gravity",
             rr.Arrows3D(
                 origins=[T_World_Device.translation()[0]],
-                vectors=[vio_data.gravity_in_odometry],
+                vectors=[
+                    vio_data.gravity_in_odometry * 1e-2
+                ],  # length converted from 9.8 meter -> 10 cm
                 colors=[self.PLOT_COLORS_AND_SIZES_3D["vio_gravity"]["color"]],
                 radii=1.5e-3,
             ),
