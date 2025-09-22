@@ -998,7 +998,7 @@ class AriaDataViewer:
                 rr.Clear.recursive(),
             )
 
-            # Plot both ahnds
+            # Plot both hands
             if hand_pose_data.left_hand is not None:
                 self._plot_single_hand_2d(
                     hand_joints_in_device=hand_pose_data.left_hand.landmark_positions_device,
