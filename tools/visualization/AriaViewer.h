@@ -28,7 +28,7 @@ class AriaViewer {
       int width,
       int height,
       const std::string& windowName,
-      const std::shared_ptr<AriaPlayer> ariaPlayer);
+      std::shared_ptr<AriaPlayer> ariaPlayer);
 
   virtual ~AriaViewer() = default;
 

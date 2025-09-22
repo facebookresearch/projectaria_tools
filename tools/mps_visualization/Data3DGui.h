@@ -38,7 +38,7 @@ class Data3DGui {
  public:
   // Construct 3D viewer with full trajectories, static camera calibrations, and point cloud
   Data3DGui(
-      const bool plot2DView,
+      bool plot2DView,
       const std::vector<std::vector<Eigen::Vector3f>>& fullTrajsWorld,
       const StaticCameraCalibrations& camCalibs,
       const GlobalPointCloud& cloudWorld,

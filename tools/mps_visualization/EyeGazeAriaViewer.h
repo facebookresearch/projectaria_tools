@@ -25,7 +25,7 @@
 class EyeGazeAriaViewer : public AriaViewer {
  public:
   EyeGazeAriaViewer(
-      const std::shared_ptr<EyeGazeAriaPlayer> ariaPlayer,
+      std::shared_ptr<EyeGazeAriaPlayer> ariaPlayer,
       int width,
       int height,
       const std::string& name = "AriaEyeGazeViewer");
