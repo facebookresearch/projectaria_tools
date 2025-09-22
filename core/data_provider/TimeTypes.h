@@ -36,7 +36,7 @@ enum class TimeDomain {
                <b>multi-device</b> data capture. */
   TicSync, /**< capture in TimeSync server's timedomain where the server can be an Aria device,
               accurate across devices in a <b>multi-device</b> data capture.*/
-  SubGhz, /**< capture in TimeSync server's timedomain, where the server can be an Nebula device,
+  SubGhz, /**< capture in TimeSync server's timedomain, where the server can be an Aria-Gen2 device,
               accurate across devices in a <b>multi-device</b> data capture.*/
   Utc, /**< capture in UTC's timedomain, only seconds accurate.*/
   Count, /**< Count of the number of time domains*/

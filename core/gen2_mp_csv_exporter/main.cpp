@@ -27,7 +27,7 @@ struct InputArgs {
 };
 
 int main(int argc, const char* argv[]) {
-  CLI::App app{"Nebula export MPV data to csv"};
+  CLI::App app{"AriaGen2 export MPV data to csv"};
 
   InputArgs args;
 
