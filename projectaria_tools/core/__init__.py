@@ -27,5 +27,4 @@ from . import (  # noqa
     sophus,
     stream_id,
     vrs,
-    vrs_health_check,
 )

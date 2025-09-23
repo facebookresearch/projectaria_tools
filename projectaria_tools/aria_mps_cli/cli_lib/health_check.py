@@ -21,7 +21,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Dict, final, List, Optional, Union
 
-from projectaria_tools.core import vrs_health_check as vhc
+# from projectaria_tools.core import vrs_health_check as vhc
 
 from .common import Config, CustomAdapter, to_proc
 from .config_updatable import ConfigUpdatable
@@ -454,6 +454,7 @@ def _check_leq_ratio(
         logger_.info(f"   Pass: {message}")
 
 
+'''
 def _vhc_run(vrs_path: Path, json_out: Path):
     """
     Helper function to run the health check on a given vrs file. This needs to be in a
@@ -466,6 +467,7 @@ def _vhc_run(vrs_path: Path, json_out: Path):
         disable_logging=True,
     )
     logger.debug(f"Health check output written to {json_out}")
+'''
 
 
 class HealthCheckRunner(RunnerWithProgress, ConfigUpdatable):
@@ -500,7 +502,8 @@ class HealthCheckRunner(RunnerWithProgress, ConfigUpdatable):
         """Run the health check on this vrs file.
         Repeatedly calling run will await on the same task
         """
-        return await to_proc(_vhc_run, vrs_path=self._vrs_file, json_out=self._json_out)
+        # return await to_proc(_vhc_run, vrs_path=self._vrs_file, json_out=self._json_out)
+        return
 
 
 def is_eligible(feature: MpsFeature, rec: AriaRecording) -> bool:

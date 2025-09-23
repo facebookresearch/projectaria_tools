@@ -187,8 +187,6 @@ def main():
                 "viewer_projects_aea = projectaria_tools.utils.viewer_projects_aea:main",
                 "vrs_to_mp4 = projectaria_tools.tools.vrs_to_mp4.vrs_to_mp4:main",
                 "gen2_mp_csv_exporter = projectaria_tools.tools.gen2_mp_csv_exporter.run_gen2_mp_csv_exporter:main",
-                # vrs_health_check will be added later for Gen2
-                # "run_vrs_health_check = projectaria_tools.utils.run_vrs_health_check:main",
             ]
         },
         packages=find_packages(),
