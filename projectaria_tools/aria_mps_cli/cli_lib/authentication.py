@@ -42,6 +42,7 @@ from .constants import (
     HEADER_API_VERSION,
     HEADER_CONTENT_TYPE,
     KEY_ACCESS_TOKEN,
+    KEY_ACCESS_TOKEN_PAYLOAD,
     KEY_APP_ID,
     KEY_AUTH_CODE,
     KEY_CONTACT_POINT,
@@ -49,8 +50,8 @@ from .constants import (
     KEY_DATA,
     KEY_DEVICE_CODE,
     KEY_DOC_ID,
-    KEY_FRL_ACCESS_TOKEN,
     KEY_KEY_ID,
+    KEY_OC_ACCESS_TOKEN,
     KEY_PASSWORD,
     KEY_PROFILE_TOKENS,
     KEY_PUBLIC_KEY,
@@ -183,6 +184,7 @@ class Authenticator:
         if not self._user_alias:
             logger.error("Failed to get user alias: Token is invalid.")
             self._user_alias = None
+            self._auth_token = None
             raise ValueError("Token is invalid")
 
         # Save token to local storage if requested, otherwise clear the cached previous token
@@ -673,7 +675,9 @@ class Authenticator:
                 },
             )
 
-            frl_access_token: str = response.get(KEY_FRL_ACCESS_TOKEN)
+            frl_access_token: str = response[KEY_ACCESS_TOKEN_PAYLOAD][
+                KEY_OC_ACCESS_TOKEN
+            ]
             if not frl_access_token:
                 raise AuthenticationError(
                     f"No access token in response: {json.dumps(response, indent=2)}"
