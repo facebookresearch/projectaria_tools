@@ -22,8 +22,16 @@ target_link_libraries(eye_gaze PUBLIC device_calibration_json Sophus::Sophus)
 add_dependencies(eye_gaze fast-cpp-csv-parser)
 target_include_directories(eye_gaze
     PRIVATE
-        "${CMAKE_BINARY_DIR}/_deps"
+    "${CMAKE_BINARY_DIR}/_deps"
 )
+
+add_library(hand_tracking HandTracking.h HandTracking.cpp)
+target_link_libraries(hand_tracking PUBLIC device_calibration_json Sophus::Sophus)
+target_include_directories(hand_tracking
+    PRIVATE
+    "${CMAKE_BINARY_DIR}/_deps"
+)
+
 
 add_library(mps
     CachedDataProviders.h
@@ -34,7 +42,6 @@ add_library(mps
     GlobalPointCloudFormat.h
     GlobalPointCloudFilter.h
     GlobalPointCloudReader.h GlobalPointCloudReader.cpp
-    HandTracking.h HandTracking.cpp
     HandTrackingFormat.h
     HandTrackingReader.h HandTrackingReader.cpp
     MpsDataPathsProvider.h MpsDataPathsProvider.cpp
@@ -53,21 +60,22 @@ add_library(mps
 )
 target_link_libraries(mps
     PUBLIC
-        compressed_istream
-        device_calibration_json
-        eye_gaze
-        format
-        Sophus::Sophus
+    compressed_istream
+    device_calibration_json
+    eye_gaze
+    hand_tracking
+    format
+    Sophus::Sophus
     PRIVATE
-        utils
-        vrs_logging
-        sensor_calibration_json)
+    utils
+    vrs_logging
+    sensor_calibration_json)
 add_dependencies(mps fast-cpp-csv-parser)
 target_include_directories(mps
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR} "../"
+    ${CMAKE_CURRENT_SOURCE_DIR} "../"
     PRIVATE
-        "${CMAKE_BINARY_DIR}/_deps"
+    "${CMAKE_BINARY_DIR}/_deps"
 )
 
 if(BUILD_UNIT_TEST)
