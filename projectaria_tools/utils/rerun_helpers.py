@@ -98,8 +98,12 @@ def AriaGlassesOutline(
     ]
     points = []
     for index in glasses_outline_indexes:
+        if "mic" in index or "mag" in index or "baro" in index:
+            get_cad_value = True
+        else:
+            get_cad_value = use_cad_calib
         T_device_sensor = device_calibration.get_transform_device_sensor(
-            index, True if "mic" or "mag" or "baro" in index else use_cad_calib
+            index, get_cad_value=get_cad_value
         )
         points.append(T_device_sensor.translation()[0])
     return points
