@@ -33,6 +33,7 @@ target_link_libraries(players
   Eigen3::Eigen
   Sophus::Sophus
   image
+  hand_tracking
   INTERFACE
   data_layout
   PRIVATE
