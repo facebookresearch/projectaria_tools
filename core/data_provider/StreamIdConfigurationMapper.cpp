@@ -24,7 +24,7 @@
 
 namespace projectaria::tools::data_provider {
 StreamIdConfigurationMapper::StreamIdConfigurationMapper(
-    std::shared_ptr<vrs::MultiRecordFileReader>,
+    std::shared_ptr<vrs::MultiRecordFileReader> /*unused*/,
     std::map<vrs::StreamId, std::shared_ptr<ImageSensorPlayer>>& imagePlayers,
     std::map<vrs::StreamId, std::shared_ptr<MotionSensorPlayer>>& motionPlayers,
     std::map<vrs::StreamId, std::shared_ptr<GpsPlayer>>& gpsPlayers,
