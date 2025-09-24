@@ -79,6 +79,7 @@ KEY_RESULT_TYPE: Final[str] = "result_type"
 KEY_SOURCE: Final[str] = "source"
 KEY_STATUS_MESSAGE: Final[str] = "status_message"
 KEY_STATUS: Final[str] = "status"
+KEY_USER_FEEDBACK: Final = "user_feedback"
 KEY_VARIABLES: Final[str] = "variables"
 
 # Common http status codes that should be retried
