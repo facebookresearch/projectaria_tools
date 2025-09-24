@@ -1,10 +1,7 @@
 name: Test for build wheels
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build-stubs:
