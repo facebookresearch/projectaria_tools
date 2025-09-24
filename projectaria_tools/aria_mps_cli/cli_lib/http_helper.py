@@ -54,6 +54,7 @@ from .constants import (
     KEY_REQUESTS,
     KEY_RESPONSE,
     KEY_SOURCE,
+    KEY_USER_FEEDBACK,
     KEY_VARIABLES,
 )
 from .response_parser import ResponseParser
@@ -162,7 +163,7 @@ class HttpHelper:
             KEY_FEATURES: list(features),
             KEY_SOURCE: source.value,
             KEY_PERSIST_ON_FAILURE: persist_on_failure,
-            KEY_FEEDBACK_ID: feedback_id,
+            KEY_USER_FEEDBACK: feedback_id,
         }
         if extra_input := os.environ.get("MPS_EXTRA_INPUT"):
             input = {**input, **json.loads(extra_input)}
