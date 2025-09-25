@@ -141,8 +141,10 @@ class MultiRecordingMps:
                     source=self._source,
                     persist_on_failure=self._persist_on_failure,
                     feedback_id=self._feedback_id,
-                    # TODO: read value from recordings
-                    device_type=MpsAriaDevice.ARIA_GEN1,
+                    # Request for multi SLAM is expected to be for a single device.
+                    # Additionally, the device type is expected to be Aria gen1
+                    # as processing of Aria gen2's recordings is not supported yet.
+                    device_type=self._model.recordings[0].device_type,
                 )
                 self._model = self._request_monitor.track_feature_request(
                     recordings=self._model.recordings,

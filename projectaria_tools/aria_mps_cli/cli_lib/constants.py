@@ -190,3 +190,5 @@ class ErrorCode:
     PROCESSING_FAILURE: int = 115
     # Download failed
     DOWNLOAD_FAILURE: int = 116
+    # Device type unsupported
+    DEVICE_TYPE_UNSUPPORTED: int = 117

@@ -14,18 +14,28 @@
 
 import asyncio
 import functools
-import glob
 import json
 import logging
 from enum import auto, Enum, unique
 from pathlib import Path
 from typing import Any, Dict, Final, List, Mapping, Optional, Sequence, Set
 
+from projectaria_tools.core.data_provider import (
+    create_vrs_data_provider,
+    VrsDataProvider,
+)
+
 from transitions.core import EventData
 
 from .base_state_machine import BaseStateMachine
 from .common import Config
-from .constants import ConfigKey, ConfigSection, DisplayStatus, ErrorCode
+from .constants import (
+    ConfigKey,
+    ConfigSection,
+    DisplayStatus,
+    ErrorCode,
+    KEY_DEVICE_TYPE,
+)
 from .encryption import VrsEncryptor
 from .hash_calculator import HashCalculator
 from .health_check import HealthCheckRunner, is_eligible
@@ -35,6 +45,7 @@ from .types import (
     EncryptionError,
     GraphQLError,
     ModelState,
+    MpsAriaDevice,
     MpsFeature,
     MpsFeatureRequest,
     Status,
@@ -60,12 +71,15 @@ class MultiRecordingRequest(BaseStateMachine):
         PAST_OUTPUTS_CHECK = auto()
         HASH_COMPUTATION = auto()
         PAST_REQUESTS_CHECK = auto()
+        DEVICE_TYPE_CHECK = auto()
         VALIDATION = auto()
         UPLOAD = auto()
         SUBMIT = auto()
+
         SUCCESS_PAST_OUTPUT = auto()
         SUCCESS_NEW_REQUEST = auto()
         SUCCESS_PAST_REQUEST = auto()
+
         FAILURE = auto()
 
     TRANSITIONS: Final[List[List[Any]]] = [
@@ -75,7 +89,8 @@ class MultiRecordingRequest(BaseStateMachine):
         ["start", States.CREATED, States.PAST_OUTPUTS_CHECK],
         ["next", States.PAST_OUTPUTS_CHECK, States.HASH_COMPUTATION],
         ["next", States.HASH_COMPUTATION, States.PAST_REQUESTS_CHECK],
-        ["next", States.PAST_REQUESTS_CHECK, States.VALIDATION],
+        ["next", States.PAST_REQUESTS_CHECK, States.DEVICE_TYPE_CHECK],
+        ["next", States.DEVICE_TYPE_CHECK, States.VALIDATION],
         ["next", States.VALIDATION, States.UPLOAD],
         ["finish", States.PAST_OUTPUTS_CHECK, States.SUCCESS_PAST_OUTPUT],
         ["finish", States.PAST_REQUESTS_CHECK, States.SUCCESS_PAST_REQUEST],
@@ -313,6 +328,7 @@ class MultiRecordingModel:
             self.is_PAST_REQUESTS_CHECK()
             or self.is_PAST_OUTPUTS_CHECK()
             or self.is_SUCCESS_PAST_REQUEST()
+            or self.is_DEVICE_TYPE_CHECK()
         ):
             return ModelState(status=DisplayStatus.CHECKING)
         if self.is_VALIDATION():
@@ -401,6 +417,27 @@ class MultiRecordingModel:
                 self._error_codes[rec.path] = ErrorCode.DUPLICATE_RECORDING_FAILURE
         await self.next()
         self._hash_calculators = {}  # TODO: use before/after callback to clean up
+
+    async def on_enter_DEVICE_TYPE_CHECK(self, event: EventData) -> None:
+        logger.debug(event)
+
+        for recording in self._recordings:
+            provider: VrsDataProvider = create_vrs_data_provider(
+                recording.path.as_posix()
+            )
+            tags: Dict[str, str] = provider.get_file_tags()
+            recording.device_type = MpsAriaDevice.from_device_tag(tags[KEY_DEVICE_TYPE])
+
+            logger.debug(
+                f"Processing recording from {recording.device_type.name} device"
+            )
+
+            # Check if the recording is eligible for the feature computation
+            if recording.device_type == MpsAriaDevice.ARIA_GEN2:
+                logger.error(f"Multi-SLAM is not supported for {self._recording}")
+                self._error_codes[recording.path] = ErrorCode.DEVICE_TYPE_UNSUPPORTED
+
+        await self.next()
 
     async def on_enter_PAST_REQUESTS_CHECK(self, event: EventData) -> None:
         logger.debug(event)
@@ -569,7 +606,7 @@ class MultiRecordingModel:
             state_to_error: Dict[MultiRecordingRequest.States, ErrorCode] = {
                 MultiRecordingRequest.States.PAST_OUTPUTS_CHECK.name: ErrorCode.PAST_OUTPUT_CHECK_FAILURE,
                 MultiRecordingRequest.States.HASH_COMPUTATION.name: ErrorCode.HASH_COMPUTATION_FAILURE,
-                MultiRecordingRequest.States.PAST_REQUESTS_CHECK.name: ErrorCode.PAST_REQUESTS_CHECK_FAILURE,
+                MultiRecordingRequest.States.PAST_REQUESTS_CHECK.name: ErrorCode.PAST_REQUEST_CHECK_FAILURE,
                 MultiRecordingRequest.States.VALIDATION.name: ErrorCode.HEALTH_CHECK_FAILURE,
                 MultiRecordingRequest.States.UPLOAD.name: ErrorCode.UPLOAD_FAILURE,
             }
