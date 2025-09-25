@@ -105,7 +105,7 @@ class SingleRecordingMps:
         #
         model_by_task: Mapping[asyncio.Task, SingleRecordingModel] = {}
         for feature in self._features:
-            model = await self._requestor.add_new_recording(
+            model: SingleRecordingModel = await self._requestor.add_new_recording(
                 recording=self._recording,
                 feature=feature,
                 force=self._force,
@@ -114,10 +114,13 @@ class SingleRecordingMps:
                 suffix=self._suffix,
                 feedback_id=self._feedback_id,
             )
+
             logger.debug(f"Done adding recording {self._recording} {feature}")
             self._model_by_feature[feature] = model
             model_by_task[model.task] = model
+
             await self._on_state_changed(model)
+
             logger.debug(f"{model}")
             logger.debug(f"{model.task}")
 
@@ -139,17 +142,23 @@ class SingleRecordingMps:
         ]
         logger.debug(f"Requestor tasks: {requestor_tasks}")
         removed_models: Set[SingleRecordingModel] = set()
+
         while requestor_tasks:
             done, pending = await asyncio.wait(
                 requestor_tasks, return_when=asyncio.FIRST_COMPLETED
             )
-            requestor_tasks = pending
+            requestor_tasks: Set[asyncio.Task] = pending
+
             for t in done:
-                model = model_by_task[t]
+                model: SingleRecordingModel = model_by_task[t]
                 if model not in removed_models:
                     self._requestor.remove_model(model)
                     removed_models.add(model)
-                if model.is_SUCCESS_PAST_OUTPUT() or model.is_FAILURE():
+                if (
+                    model.is_SUCCESS_PAST_OUTPUT()
+                    or model.is_FAILURE()
+                    or model.is_PROCESSING_NOT_REQUIRED()
+                ):
                     # Set the state to SUCCESS or FAILURE
                     self._finish_status[model.feature] = model.get_status()
                 elif model.is_SUCCESS_PAST_REQUEST():
@@ -192,6 +201,7 @@ class SingleRecordingMps:
                     source=self._source,
                     persist_on_failure=self._persist_on_failure,
                     feedback_id=self._feedback_id,
+                    device_type=model.recording.device_type,
                 )
                 for feature, request in mps_request.features.items():
                     self._model_by_feature[feature] = (

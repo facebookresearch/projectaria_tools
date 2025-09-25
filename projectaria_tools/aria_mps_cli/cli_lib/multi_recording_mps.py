@@ -21,7 +21,7 @@ from .constants import DisplayStatus, ErrorCode
 from .http_helper import HttpHelper
 from .multi_recording_request import MultiRecordingModel, MultiRecordingRequest
 from .request_monitor import RequestMonitor, RequestMonitorModel
-from .types import ModelState, MpsFeature, MpsRequest, MpsRequestSource
+from .types import ModelState, MpsAriaDevice, MpsFeature, MpsRequest, MpsRequestSource
 
 logger = logging.getLogger(__name__)
 
@@ -141,6 +141,8 @@ class MultiRecordingMps:
                     source=self._source,
                     persist_on_failure=self._persist_on_failure,
                     feedback_id=self._feedback_id,
+                    # TODO: read value from recordings
+                    device_type=MpsAriaDevice.ARIA_GEN1,
                 )
                 self._model = self._request_monitor.track_feature_request(
                     recordings=self._model.recordings,

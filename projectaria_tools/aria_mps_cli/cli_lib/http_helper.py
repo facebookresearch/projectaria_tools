@@ -31,6 +31,7 @@ from .constants import (
     KEY_CREATE,
     KEY_CURSOR,
     KEY_DATA,
+    KEY_DEVICE_TYPE,
     KEY_DOC_ID,
     KEY_END_CURSOR,
     KEY_FEATURE,
@@ -59,7 +60,13 @@ from .constants import (
     KEY_VARIABLES,
 )
 from .response_parser import ResponseParser
-from .types import GraphQLError, MpsFeatureRequest, MpsRequest, MpsRequestSource
+from .types import (
+    GraphQLError,
+    MpsAriaDevice,
+    MpsFeatureRequest,
+    MpsRequest,
+    MpsRequestSource,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -148,6 +155,7 @@ class HttpHelper:
         features: Set[str],
         source: MpsRequestSource,
         persist_on_failure: bool,
+        device_type: MpsAriaDevice,
         feedback_id: Optional[str] = None,
     ) -> MpsRequest:
         """
@@ -163,6 +171,7 @@ class HttpHelper:
             KEY_SOURCE: source.value,
             KEY_PERSIST_ON_FAILURE: persist_on_failure,
             KEY_USER_FEEDBACK: feedback_id,
+            KEY_DEVICE_TYPE: device_type.value,
         }
         if extra_input := os.environ.get("MPS_EXTRA_INPUT"):
             input = {**input, **json.loads(extra_input)}

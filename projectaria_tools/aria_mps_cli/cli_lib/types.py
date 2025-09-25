@@ -18,6 +18,27 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 
+class MpsAriaDevice(str, Enum):
+    """
+    Device used to create the recording.
+    """
+
+    def _generate_next_value_(name, start, count, last_values):
+        return name.upper()
+
+    ARIA_GEN1 = auto()
+    ARIA_GEN2 = auto()
+
+    @staticmethod
+    def from_device_tag(label: str) -> "MpsAriaDevice":
+        if label == "Ariane":
+            return MpsAriaDevice.ARIA_GEN1
+        elif label == "Oatmeal":
+            return MpsAriaDevice.ARIA_GEN2
+
+        raise ValueError(f"Unknown device type {label}")
+
+
 @dataclass
 class AriaRecording:
     """
@@ -33,6 +54,7 @@ class AriaRecording:
     health_check_slam_path: Path
     fbid: Optional[int] = None
     file_hash: Optional[str] = None
+    device_type: Optional[MpsAriaDevice] = None
 
     @classmethod
     def create(
