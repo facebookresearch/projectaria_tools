@@ -14,7 +14,6 @@
 
 import asyncio
 import functools
-import glob
 import json
 import logging
 from enum import auto, Enum, unique
@@ -569,7 +568,7 @@ class MultiRecordingModel:
             state_to_error: Dict[MultiRecordingRequest.States, ErrorCode] = {
                 MultiRecordingRequest.States.PAST_OUTPUTS_CHECK.name: ErrorCode.PAST_OUTPUT_CHECK_FAILURE,
                 MultiRecordingRequest.States.HASH_COMPUTATION.name: ErrorCode.HASH_COMPUTATION_FAILURE,
-                MultiRecordingRequest.States.PAST_REQUESTS_CHECK.name: ErrorCode.PAST_REQUESTS_CHECK_FAILURE,
+                MultiRecordingRequest.States.PAST_REQUESTS_CHECK.name: ErrorCode.PAST_REQUEST_CHECK_FAILURE,
                 MultiRecordingRequest.States.VALIDATION.name: ErrorCode.HEALTH_CHECK_FAILURE,
                 MultiRecordingRequest.States.UPLOAD.name: ErrorCode.UPLOAD_FAILURE,
             }

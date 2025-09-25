@@ -141,6 +141,7 @@ class Authenticator:
         if not self._user_alias:
             logger.error("Failed to get user alias: Token is invalid.")
             self._user_alias = None
+            self._auth_token = None
             raise ValueError("Token is invalid")
 
         # Save the token if required
