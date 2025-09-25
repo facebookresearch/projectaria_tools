@@ -15,16 +15,15 @@
  */
 
 #include "AriaVisualizationControlAndData.h"
+#include <vrs/StreamId.h>
 #include "AriaStreamIds.h"
-#include "vrs/StreamId.h"
 
 #include <chrono>
 
 void AriaVisualizationData::initDataStreams(
     const std::vector<vrs::StreamId>& kImageStreamIds,
     const std::vector<vrs::StreamId>& kImuStreamIds,
-    const std::vector<vrs::StreamId>& kDataStreamIds,
-    const std::vector<vrs::StreamId>& kOnDeviceMpStreamsIds) {
+    const std::vector<vrs::StreamId>& kDataStreamIds) {
   imageStreamIds_ = kImageStreamIds;
   imuStreamIds_ = kImuStreamIds;
   dataStreamIds_ = kDataStreamIds;
@@ -32,8 +31,6 @@ void AriaVisualizationData::initDataStreams(
       playbackStreamIds_.end(), imageStreamIds_.begin(), imageStreamIds_.end());
   playbackStreamIds_.insert(playbackStreamIds_.end(), imuStreamIds_.begin(), imuStreamIds_.end());
   playbackStreamIds_.insert(playbackStreamIds_.end(), dataStreamIds_.begin(), dataStreamIds_.end());
-  playbackStreamIds_.insert(
-      playbackStreamIds_.end(), kOnDeviceMpStreamsIds.begin(), kOnDeviceMpStreamsIds.end());
 }
 
 bool AriaVisualizationData::updateData(
@@ -59,7 +56,6 @@ bool AriaVisualizationData::updateData(
     }
     case SensorDataType::Magnetometer: {
       auto magData = sensorData.magnetometerData().magTesla;
-      // Convert to uT for visualization purpose
       magData[0] *= 1e6;
       magData[1] *= 1e6;
       magData[2] *= 1e6;
@@ -81,14 +77,11 @@ bool AriaVisualizationData::updateData(
       const int numSamples = sensorData.audioDataAndRecord().second.captureTimestampsNs.size();
       const int numChannels =
           dataLength / sensorData.audioDataAndRecord().second.captureTimestampsNs.size();
-      // Max amplitude for OPUS decoded audio is int16_t, and for PCM audio is int32_t.
-      const double maxAmplitude = sensorData.audioDataAndRecord().first.maxAmplitude;
-
-      const std::vector<int32_t>& audioVector = sensorData.audioDataAndRecord().first.data;
 
       using ConstMapInt32 =
           Eigen::Map<const Eigen::Matrix<int32_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>;
-      ConstMapInt32 audioMatrix(audioVector.data(), numSamples, numChannels);
+      ConstMapInt32 audioMatrix(
+          sensorData.audioDataAndRecord().first.data.data(), numSamples, numChannels);
 
       // See if we need to allocate our audio memory buffer
       if (audio_.empty()) {
@@ -98,25 +91,9 @@ bool AriaVisualizationData::updateData(
       // Audio samples are 32bit; convert to float for visualization
       for (size_t i = 0; i < audioMatrix.rows(); ++i) {
         for (size_t c = 0; c < audioMatrix.cols(); ++c) {
-          audio_[i][c] = static_cast<float>(audioMatrix(i, c) / maxAmplitude);
+          audio_[i][c] = (float)(audioMatrix(i, c) / (float)std::numeric_limits<int32_t>::max());
         }
       }
-      break;
-    }
-    case SensorDataType::EyeGaze: {
-      eyeGazeData_ = sensorData.eyeGazeData();
-      break;
-    }
-    case SensorDataType::HandPose: {
-      handPoseData_ = sensorData.handPoseData();
-      break;
-    }
-    case SensorDataType::VioHighFreq: {
-      vioHighFreqData_ = sensorData.vioHighFreqData();
-      break;
-    }
-    case SensorDataType::Vio: {
-      vioData_ = sensorData.vioData();
       break;
     }
     // case SensorDataType::Gps:
@@ -157,22 +134,6 @@ void AriaVisualizationData::clearData(const vrs::StreamId& streamId) {
     }
     case SensorDataType::Audio: {
       audio_.clear();
-      break;
-    }
-    case SensorDataType::EyeGaze: {
-      eyeGazeData_ = std::nullopt;
-      break;
-    }
-    case SensorDataType::HandPose: {
-      handPoseData_ = std::nullopt;
-      break;
-    }
-    case SensorDataType::VioHighFreq: {
-      vioHighFreqData_ = std::nullopt;
-      break;
-    }
-    case SensorDataType::Vio: {
-      vioData_ = std::nullopt;
       break;
     }
     // case SensorDataType::Gps:

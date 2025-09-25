@@ -13,12 +13,9 @@
 # limitations under the License.
 
 import os
-import pickle
 import unittest
 
-import numpy as np
-
-from projectaria_tools.core import data_provider, mps
+from projectaria_tools.core import mps
 
 TEST_FOLDER = os.getenv("TEST_FOLDER")
 
@@ -130,9 +127,6 @@ class MPSOnlineCalibration(unittest.TestCase):
         assert len(mps_online_calibration) == 0
 
 
-FRAME_INDEX_NO_LEFT_HAND_FOUND = 111
-
-
 class MPSHandTracking(unittest.TestCase):
     """
     Tests for reading hand tracking data from csv files
@@ -155,11 +149,8 @@ class MPSHandTracking(unittest.TestCase):
         self.assertTrue(wrist_and_palm_pose_no_hand.right_hand is None)
 
         # No left hand detected in the 112-th frame.
-        self.assertGreater(
-            len(mps_wrist_and_palm_poses), FRAME_INDEX_NO_LEFT_HAND_FOUND
-        )
         wrist_and_palm_pose_one_hand: mps.hand_tracking.WristAndPalmPose = (
-            mps_wrist_and_palm_poses[FRAME_INDEX_NO_LEFT_HAND_FOUND]
+            mps_wrist_and_palm_poses[111]
         )
         self.assertTrue(wrist_and_palm_pose_one_hand.left_hand is None)
         self.assertTrue(wrist_and_palm_pose_one_hand.right_hand is not None)
@@ -185,11 +176,8 @@ class MPSHandTracking(unittest.TestCase):
         self.assertTrue(wrist_and_palm_pose_no_hand.right_hand is None)
 
         # No left hand detected in the 112-th frame.
-        self.assertGreater(
-            len(mps_wrist_and_palm_poses), FRAME_INDEX_NO_LEFT_HAND_FOUND
-        )
         wrist_and_palm_pose_one_hand: mps.hand_tracking.WristAndPalmPose = (
-            mps_wrist_and_palm_poses[FRAME_INDEX_NO_LEFT_HAND_FOUND]
+            mps_wrist_and_palm_poses[111]
         )
         self.assertTrue(wrist_and_palm_pose_one_hand.left_hand is None)
         self.assertTrue(wrist_and_palm_pose_one_hand.right_hand is not None)
@@ -428,75 +416,3 @@ class MPSDataProvider(unittest.TestCase):
         assert dp.get_slam_version() is None
         assert dp.get_eyegaze_version() is None
         assert dp.get_hand_tracking_version() is None
-
-
-def compare_eyegaze_vergence(vergence1, vergence2):
-    assert np.isclose(vergence1.left_yaw, vergence2.left_yaw)
-    assert np.isclose(vergence1.right_yaw, vergence2.right_yaw)
-    assert np.isclose(vergence1.left_yaw_low, vergence2.left_yaw_low)
-    assert np.isclose(vergence1.right_yaw_low, vergence2.right_yaw_low)
-    assert np.isclose(vergence1.left_yaw_high, vergence2.left_yaw_high)
-    assert np.isclose(vergence1.right_yaw_high, vergence2.right_yaw_high)
-
-    assert np.isclose(vergence1.tx_left_eye, vergence2.tx_left_eye)
-    assert np.isclose(vergence1.ty_left_eye, vergence2.ty_left_eye)
-    assert np.isclose(vergence1.tz_left_eye, vergence2.tz_left_eye)
-    assert np.isclose(vergence1.tx_right_eye, vergence2.tx_right_eye)
-    assert np.isclose(vergence1.ty_right_eye, vergence2.ty_right_eye)
-    assert np.isclose(vergence1.tz_right_eye, vergence2.tz_right_eye)
-    assert np.isclose(vergence1.left_pitch, vergence2.left_pitch)
-    assert np.isclose(vergence1.right_pitch, vergence2.right_pitch)
-    assert vergence1.left_blink == vergence2.left_blink
-    assert vergence1.right_blink == vergence2.right_blink
-    assert vergence1.left_gaze_valid == vergence2.left_gaze_valid
-    assert vergence1.right_gaze_valid == vergence2.right_gaze_valid
-    assert vergence1.left_blink_valid == vergence2.left_blink_valid
-
-
-def compare_eyegaze(eyegaze1, eyegaze2):
-    assert eyegaze1.session_uid == eyegaze2.session_uid
-    assert eyegaze1.tracking_timestamp == eyegaze2.tracking_timestamp
-
-    assert np.isclose(eyegaze1.yaw, eyegaze2.yaw)
-    assert np.isclose(eyegaze1.pitch, eyegaze2.pitch)
-    assert np.isclose(eyegaze1.depth, eyegaze2.depth)
-    assert np.isclose(eyegaze1.yaw_low, eyegaze2.yaw_low)
-    assert np.isclose(eyegaze1.yaw_high, eyegaze2.yaw_high)
-    assert np.isclose(eyegaze1.pitch_low, eyegaze2.pitch_low)
-    assert np.isclose(eyegaze1.pitch_high, eyegaze2.pitch_high)
-
-    compare_eyegaze_vergence(eyegaze1.vergence, eyegaze2.vergence)
-
-    assert np.allclose(
-        eyegaze1.combined_gaze_origin_in_cpf, eyegaze2.combined_gaze_origin_in_cpf
-    )
-    assert eyegaze1.combined_gaze_valid == eyegaze2.combined_gaze_valid
-    assert np.allclose(
-        eyegaze1.spatial_gaze_point_in_cpf, eyegaze2.spatial_gaze_point_in_cpf
-    )
-    assert eyegaze1.spatial_gaze_point_valid == eyegaze2.spatial_gaze_point_valid
-
-
-class PickleTests(unittest.TestCase):
-    def __test_eyegaze_roundtrip(self, eyegaze) -> None:
-        pickled = pickle.dumps(eyegaze)
-        unpickled = pickle.loads(pickled)
-        compare_eyegaze(eyegaze, unpickled)
-
-    def test_eyegaze_gen1(self) -> None:
-        eye_gaze_file = os.path.join(
-            TEST_FOLDER, "mps_sample/eye_gaze_vergence/generalized_gaze.csv"
-        )
-        mps_eye_gazes = mps.read_eyegaze(eye_gaze_file)
-        self.assertGreater(len(mps_eye_gazes), 0)
-        self.__test_eyegaze_roundtrip(mps_eye_gazes[0])
-
-    def test_eyegaze_gen2(self) -> None:
-        vrs_filepath = os.path.join(
-            os.getenv("TEST_FOLDER_GEN2"), "aria_gen2_unit_test_sequence.vrs"
-        )
-        provider = data_provider.create_vrs_data_provider(vrs_filepath)
-        stream_id = provider.get_stream_id_from_label("eyegaze")
-        assert stream_id is not None
-        self.assertGreater(provider.get_num_data(stream_id), 0)
-        self.__test_eyegaze_roundtrip(provider.get_eye_gaze_data_by_index(stream_id, 0))

@@ -111,23 +111,6 @@ inline int getChannel(const ImageVariant& imageVariant);
  */
 inline ImageVariant toImageVariant(const ManagedImageVariant& managedImageVariant);
 
-template <class T, int MaxVal>
-ManagedImage<T, DefaultImageAllocator<T>, MaxVal> copyToManagedImage(
-    const Image<T, MaxVal>& srcImage) {
-  ManagedImage<T, DefaultImageAllocator<T>, MaxVal> dstImage(srcImage.width(), srcImage.height());
-  for (int col = 0; col < srcImage.width(); ++col) {
-    for (int row = 0; row < srcImage.height(); ++row) {
-      dstImage(col, row) = srcImage(col, row);
-    }
-  }
-  return dstImage;
-}
-
-inline ManagedImageVariant toManagedImageVariant(const ImageVariant& imageVariant) {
-  return std::visit(
-      [](const auto& image) -> ManagedImageVariant { return copyToManagedImage(image); },
-      imageVariant);
-}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Implementation below
 

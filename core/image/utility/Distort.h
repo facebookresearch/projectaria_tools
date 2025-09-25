@@ -40,6 +40,6 @@ image::ManagedImageVariant distortImageVariant(
     const image::ImageVariant& srcVariant,
     const std::function<std::optional<Eigen::Vector2f>(const Eigen::Vector2f&)>& inverseWarp,
     const Eigen::Vector2i& imageSize,
-    const InterpolationMethod method = InterpolationMethod::Bilinear);
+    InterpolationMethod method = InterpolationMethod::Bilinear);
 
 } // namespace projectaria::tools::image

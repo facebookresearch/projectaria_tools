@@ -30,8 +30,7 @@ run_c = { depends-on = ["build_and_test"] }
 # Python - BUILD and TEST
 build_python = "CMAKE_GENERATOR=Ninja python -m pip install ."
 test_python = """
-    export TEST_FOLDER="./data/gen1/";
-    export TEST_FOLDER_GEN2="./data/gen2/";
+    export TEST_FOLDER="./data";
     python -m unittest core/python/test/corePyBindTest.py;
     python -m unittest core/python/test/mpsPyBindTest.py;
     python -m unittest core/python/sophus/test/sophusPybindTest.py;"""
@@ -78,8 +77,6 @@ libpng = "*"
 lz4 = "*"
 xxhash = "*"
 zlib = "*"
-libopus = "1.4*" # optional dependency
-ffmpeg = { version = "*", build = "*lgpl*" }
 
 # Install Python dependencies
 python = "3.11.*"

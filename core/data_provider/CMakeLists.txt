@@ -12,14 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 add_subdirectory(data_layout)
-add_subdirectory(data_types)
-add_subdirectory(json_io)
 add_subdirectory(players)
 
 if(BUILD_UNIT_TEST)
-        add_subdirectory(test)
+    add_subdirectory(test)
 endif()
 
 cmake_policy(SET CMP0076 NEW) # Allow relative path in target_include_directories and INTERFACE
@@ -34,17 +31,13 @@ target_sources(error_handler INTERFACE ErrorHandler.h)
 target_link_libraries(error_handler INTERFACE vrslib)
 target_include_directories(error_handler INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
-add_library(time_types INTERFACE)
-target_sources(time_types INTERFACE TimeTypes.h)
-target_include_directories(time_types INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
-
 add_library(sensor_data_type STATIC SensorDataType.cpp TimeTypes.h SensorDataType.h)
 target_include_directories(sensor_data_type PUBLIC "../")
 target_link_libraries(sensor_data_type PUBLIC vrslib)
 
 add_library(sensor_data STATIC SensorData.cpp SensorData.h)
 target_include_directories(sensor_data PUBLIC "../")
-target_link_libraries(sensor_data PUBLIC error_handler sensor_data_type time_types vrslib players)
+target_link_libraries(sensor_data PUBLIC error_handler sensor_data_type vrslib players)
 
 add_library(sensor_configuration STATIC SensorConfiguration.cpp SensorConfiguration.h)
 target_include_directories(sensor_configuration PUBLIC "../")
@@ -69,10 +62,9 @@ target_link_libraries(timesync_mapper PUBLIC error_handler vrslib players)
 add_library(record_reader_interface STATIC RecordReaderInterface.cpp RecordReaderInterface.h)
 target_include_directories(record_reader_interface PUBLIC "../")
 target_link_libraries(record_reader_interface PUBLIC
-        device_version
         sensor_data
         nlohmann_json::nlohmann_json
-)
+        )
 
 add_library(timestamp_index_mapper STATIC TimestampIndexMapper.cpp TimestampIndexMapper.h)
 target_include_directories(timestamp_index_mapper PUBLIC "../")
@@ -92,7 +84,7 @@ add_library(vrs_data_provider STATIC
         SensorDataSequence.cpp SensorDataSequence.h)
 target_include_directories(vrs_data_provider PUBLIC
         "../"
-)
+        )
 target_link_libraries(vrs_data_provider PUBLIC
         aria_stream_ids
         deliver_queued_options
@@ -108,5 +100,4 @@ target_link_libraries(vrs_data_provider PUBLIC
         image_devignetting
         image_color_correct
         image
-        vrs_utils_xprs
-)
+        )

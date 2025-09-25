@@ -16,12 +16,8 @@
 
 #pragma once
 #include <chrono>
-#include <optional>
 #include <string>
 #include <vector>
-
-#include <sophus/se3.hpp>
-#include <Eigen/Core>
 
 namespace projectaria::tools::mps {
 
@@ -30,8 +26,8 @@ namespace projectaria::tools::mps {
  * (CPF).
  */
 struct EyeGazeVergence {
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  // Gen1 data types
+  /* additional Vergence Fields */
+
   float left_yaw{}; /**< Eye gaze left yaw angle: [the angle between projected left eye gaze ray (on
                 X-Z plane) and Z axis] in radians in CPF frame.*/
 
@@ -60,34 +56,12 @@ struct EyeGazeVergence {
   float tx_right_eye{}; /**< Translation along X for right eye origin in CPF frame. */
   float ty_right_eye{}; /**< Translation along Y for right eye origin in CPF frame. */
   float tz_right_eye{}; /**< Translation along Z for right eye origin in CPF frame. */
-
-  /*********  Gen2 data types *****/
-  float left_pitch{};
-  float right_pitch{};
-  bool left_blink = false;
-  bool right_blink = false;
-  // In CPF Frame
-  Eigen::Vector3f left_entrance_pupil_position_meter;
-  Eigen::Vector3f right_entrance_pupil_position_meter;
-  float left_pupil_diameter_meter;
-  float right_pupil_diameter_meter;
-
-  // Gen2 validity flags
-  bool left_gaze_valid = true;
-  bool right_gaze_valid = true;
-  bool left_blink_valid = true;
-  bool right_blink_valid = true;
-  bool left_entrance_pupil_position_valid = true;
-  bool right_entrance_pupil_position_valid = true;
-  bool left_pupil_diameter_valid = true;
-  bool right_pupil_diameter_valid = true;
 };
 
 /**
  * @brief A struct representing eye gaze direction estimate in the Central Pupil Frame (CPF).
  */
 struct EyeGaze {
-  /****************** Gen1 data types ****************/
   std::chrono::microseconds
       trackingTimestamp; /**< The timestamp of the eye gaze sample in device time domain */
 
@@ -120,33 +94,14 @@ struct EyeGaze {
   EyeGazeVergence
       vergence{}; /**< Additional fields in new model output in the Central Pupil Frame (CPF). */
 
-  std::string session_uid; /*unique id for the calibration session. If there are
-                            multiple in-session calibrations in the recording, each segment will
-                            have a different session_uid.*/
-
-  /***************** Gen2 data types ******************/
-  Eigen::Vector3f spatial_gaze_point_in_cpf;
-  Eigen::Vector3f combined_gaze_origin_in_cpf;
-
-  // Gen2 data validity flags
-  bool spatial_gaze_point_valid = true;
-  bool combined_gaze_valid = true;
+  std::string session_uid; /*unique id for the calibration session. If there are multiple
+                            in-session calibrations in the recording, each segment will have a
+                            different session_uid.*/
 };
 
 /**
  * @brief alias to represent a vector of `EyeGaze`
  */
 using EyeGazes = std::vector<EyeGaze>;
-
-/**
- * A helper function to get Gaze Direction as Vector 3D given yaw and pitch values
- */
-inline Eigen::Vector3d getUnitVectorFromYawPitch(float yawRads, float pitchRads) {
-  float z = 1; // arbitrary
-  float x = std::tan(yawRads) * z;
-  float y = std::tan(pitchRads) * z;
-  Eigen::Vector3d direction(x, y, z);
-  return direction.normalized();
-}
 
 } // namespace projectaria::tools::mps

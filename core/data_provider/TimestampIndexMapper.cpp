@@ -27,7 +27,7 @@ TimestampIndexMapper::TimestampIndexMapper(std::shared_ptr<RecordReaderInterface
   for (const auto& streamId : interface_->getStreamIds()) {
     // lambda function for finding first or last timestamp
     auto findFirstDataTimestamp = [&](int first, int last, int increment) {
-      std::array<int64_t, kNumTimeDomain> timeNs;
+      std::array<int64_t, kNumTimeDomain - 1> timeNs;
       timeNs.fill(-1);
       for (int index = first; index != last; index += increment) {
         const vrs::IndexRecord::RecordInfo* recordInfo =
@@ -127,25 +127,15 @@ int TimestampIndexMapper::getIndexBeforeTimeNsNonTimeCode(
   int64_t estTimeNsInRecordTime = std::max(timeNsInTimeDomain + deltaToRecordTimeNs, int64_t(0));
 
   // search
-  double estTimeSecInRecordTime = static_cast<double>(estTimeNsInRecordTime) * 1e-9;
+  double estTimeSecInRecordTime = double(estTimeNsInRecordTime) * 1e-9;
   vrs::IndexRecord::RecordInfo queryTime(
       estTimeSecInRecordTime, 0, vrs::StreamId(), vrs::Record::Type::UNDEFINED);
   auto dataRecords = streamIdToDataRecords_.at(streamId);
-
   auto recordIter = std::upper_bound( // searches for earliest timestamp > query
       dataRecords.begin(),
       dataRecords.end(),
       &queryTime,
-      [&](const auto& query, const auto& dataRecord) {
-        // Convert both to nanoseconds in integer for comparison, to avoid precision issue when
-        // comparing with double. Note that queryTimeNs has undergone int -> double -> int
-        // conversion, in theory it should get back the same int64_t number as dataRecordTimeNs.
-        int64_t queryTimeNs = static_cast<int64_t>(std::floor(query->timestamp * 1e9));
-        int64_t dataRecordTimeNs = static_cast<int64_t>(dataRecord->timestamp * 1e9);
-
-        return queryTimeNs < dataRecordTimeNs;
-      });
-
+      [&](const auto& lhs, const auto& rhs) { return lhs->timestamp < rhs->timestamp; });
   if (recordIter == dataRecords.begin()) {
     return 0;
   }

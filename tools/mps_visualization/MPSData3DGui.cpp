@@ -38,7 +38,7 @@ const std::vector<Eigen::Vector3f> kColors{
     {0.74, 0.74, 0.13},
     {0.09, 0.75, 0.81}};
 
-extern const unsigned char AnonymousPro_ttf[]; // NOLINT
+extern const unsigned char AnonymousPro_ttf[]; // NOLINT(modernize-avoid-c-arrays)
 static pangolin::GlFont kGlFont(AnonymousPro_ttf, 20);
 
 using namespace projectaria::tools::mps;

@@ -19,58 +19,6 @@
 #include <calibration/DeviceCalibration.h>
 
 namespace projectaria::tools::calibration {
-
-// A struct to represent the parameters of the underlying rescaling operation
-struct RescaleParam {
-  double scale;
-  Eigen::Vector2d offset;
-};
-
-// A struct to represent the input configuration of a camera rescaling operation
-struct RescaleInput {
-  DeviceVersion deviceVersion;
-  std::string cameraLabel;
-  Eigen::Vector2i originalResolution;
-  Eigen::Vector2i newResolution;
-
-  // Equality operator
-  bool operator==(const RescaleInput& other) const {
-    return (deviceVersion == other.deviceVersion) && (cameraLabel == other.cameraLabel) &&
-        (originalResolution == other.originalResolution) && (newResolution == other.newResolution);
-  }
-
-  // Customized Hash function
-  struct Hash {
-    std::size_t operator()(const RescaleInput& value) const {
-      std::size_t h = 2166136261; // initial offset basis
-      std::size_t prime = 0x811C9DC5; // FNV prime
-      h ^= std::hash<int>{}(static_cast<int>(value.deviceVersion));
-      h *= prime;
-      h ^= std::hash<std::string>{}(value.cameraLabel);
-      // original res does not need to be hashed, because it is 1-1 mapped to camera label.
-      h *= prime;
-      h ^= std::hash<int>{}(value.newResolution.x());
-      h *= prime;
-      h ^= std::hash<int>{}(value.newResolution.y());
-      h *= prime;
-      return h;
-    }
-  };
-};
-
-// Utility function to get rescale parameters for a given camera label and resolution
-RescaleParam getRescaleParam(const RescaleInput& rescaleInput);
-
-// Utility functions to rescale a single camera calibration to a new resolution
-CameraCalibration rescaleSingleCamera(
-    const CameraCalibration& inputCalib,
-    const Eigen::Vector2i& newImageSize,
-    const RescaleParam& rescaleParam);
-CameraCalibration rescaleSingleCamera(
-    const CameraCalibration& inputCalib,
-    const Eigen::Vector2i& newImageSize,
-    const DeviceVersion& deviceVersion);
-
 /**
  * @brief A utility function to crop and rescale an Aria camera calibration. This function exactly
  * replicates the process of the camera firmware. Therefore it only supports a fixed number of

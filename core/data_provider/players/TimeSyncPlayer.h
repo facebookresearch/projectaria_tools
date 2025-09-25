@@ -19,6 +19,8 @@
 #include <data_layout/TimeSyncMetadata.h>
 #include <vrs/RecordFormatStreamPlayer.h>
 
+#include <utility>
+
 namespace projectaria::tools::data_provider {
 
 struct AriaTimeSyncConfigRecord {
@@ -30,8 +32,6 @@ struct AriaTimeSyncConfigRecord {
 enum class TimeSyncMode : uint8_t {
   TIMECODE, ///< Timecode timestamps
   TIC_SYNC, ///< TicSync timestamps
-  SUBGHZ, ///< SubGHz timestamps
-  UTC, ///< UTC timestamps (obtained from companion App)
   COUNT ///< Count of values in this enum type.
 };
 
@@ -52,7 +52,7 @@ class TimeSyncPlayer : public vrs::RecordFormatStreamPlayer {
   TimeSyncPlayer(TimeSyncPlayer&&) = default;
 
   void setCallback(TimeSyncCallback callback) {
-    callback_ = callback;
+    callback_ = std::move(callback);
   }
 
   const AriaTimeSyncConfigRecord& getConfigRecord() const {

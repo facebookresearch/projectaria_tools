@@ -16,8 +16,6 @@
 
 #include <data_provider/StreamIdLabelMapper.h>
 
-#include <stdexcept>
-
 #include <logging/Checks.h>
 #define DEFAULT_LOG_CHANNEL "StreamIdLabelMapper"
 #include <logging/Log.h>
@@ -51,18 +49,13 @@ std::optional<vrs::StreamId> StreamIdLabelMapper::getStreamIdFromLabel(
   if (maybeStreamId != labelToStreamId_.end()) {
     return maybeStreamId->second;
   } else {
-    XR_LOGW(
-        "sensor label {} not found in Aria Device Model. You will not be able to get the stream id for this label. ",
-        label);
+    XR_LOGE("sensor label {} not found in Aria Device Model. Double check label. ", label);
     return {};
   }
 }
 
-namespace {
-
-// Helper function to get a static streamId -> label mapping for Gen1
-std::shared_ptr<StreamIdLabelMapper> getAriaGen1StreamIdLabelMapper() {
-  const std::map<vrs::StreamId, std::string> kGen1StreamIdToLabel = {
+std::shared_ptr<StreamIdLabelMapper> getAriaStreamIdLabelMapper() {
+  const std::map<vrs::StreamId, std::string> kStreamIdToLabel = {
       // streams below have calibration
       {vrs::StreamId::fromNumericName("1201-1"), "camera-slam-left"},
       {vrs::StreamId::fromNumericName("1201-2"), "camera-slam-right"},
@@ -78,83 +71,6 @@ std::shared_ptr<StreamIdLabelMapper> getAriaGen1StreamIdLabelMapper() {
       {vrs::StreamId::fromNumericName("281-2"), "gps-app"},
       {vrs::StreamId::fromNumericName("282-1"), "wps"},
       {vrs::StreamId::fromNumericName("283-1"), "bluetooth"}};
-  return std::make_shared<StreamIdLabelMapper>(kGen1StreamIdToLabel);
-}
-
-// Helper function to get stream Id -> label mapping for Gen2, which is dynamically read from VRS
-std::shared_ptr<StreamIdLabelMapper> getAriaGen2StreamIdLabelMapper(
-    std::shared_ptr<vrs::MultiRecordFileReader> reader) {
-  // The following fields are static
-  std::map<vrs::StreamId, std::string> streamIdToLabel = {
-      // streams below have calibration
-      {vrs::StreamId::fromNumericName("1201-1"), "slam-front-left"},
-      {vrs::StreamId::fromNumericName("1201-2"), "slam-front-right"},
-      {vrs::StreamId::fromNumericName("1201-3"), "slam-side-left"},
-      {vrs::StreamId::fromNumericName("1201-4"), "slam-side-right"},
-      {vrs::StreamId::fromNumericName("1202-1"), "imu-left"},
-      {vrs::StreamId::fromNumericName("1202-2"), "imu-right"},
-      {vrs::StreamId::fromNumericName("214-1"), "camera-rgb"},
-      {vrs::StreamId::fromNumericName("211-1"), "camera-et-left"},
-      {vrs::StreamId::fromNumericName("211-2"), "camera-et-right"},
-      {vrs::StreamId::fromNumericName("1203-1"), "mag0"},
-      {vrs::StreamId::fromNumericName("247-1"), "baro0"},
-      {vrs::StreamId::fromNumericName("246-1"), "temperature"},
-      {vrs::StreamId::fromNumericName("231-1"), "mic"},
-      // streams below does not have calibration, but we still assign a label
-      {vrs::StreamId::fromNumericName("281-1"), "gps"},
-      {vrs::StreamId::fromNumericName("281-2"), "gps-app"},
-      {vrs::StreamId::fromNumericName("282-1"), "wps"},
-      {vrs::StreamId::fromNumericName("283-1"), "bluetooth"},
-      {vrs::StreamId::fromNumericName("248-1"), "ppg"},
-      {vrs::StreamId::fromNumericName("500-1"), "als"},
-      // MPV Streams
-      {vrs::StreamId::fromNumericName("373-1"), "eyegaze"},
-  };
-
-  // Hand pose and VIO streams can be dynamic
-  const std::vector<vrs::StreamId> maybeHandPoseStreamIds =
-      reader->getStreams(vrs::RecordableTypeId::PoseRecordableClass, "device/oatmeal/hand");
-  if (maybeHandPoseStreamIds.size() == 1) {
-    streamIdToLabel.emplace(maybeHandPoseStreamIds[0], "handtracking");
-  } else if (maybeHandPoseStreamIds.size() > 1) {
-    throw std::runtime_error("More than one hand pose stream found in the VRS file.");
-  }
-
-  const std::vector<vrs::StreamId> maybeVioStreamIds =
-      reader->getStreams(vrs::RecordableTypeId::PoseRecordableClass, "device/oatmeal/vio");
-  if (maybeVioStreamIds.size() == 1) {
-    streamIdToLabel.emplace(maybeVioStreamIds[0], "vio");
-  } else if (maybeVioStreamIds.size() > 1) {
-    throw std::runtime_error("More than one vio stream found in the VRS file.");
-  }
-
-  const std::vector<vrs::StreamId> maybeVioHighFreqStreamIds = reader->getStreams(
-      vrs::RecordableTypeId::PoseRecordableClass, "device/oatmeal/vio_high_frequency");
-  if (maybeVioHighFreqStreamIds.size() == 1) {
-    streamIdToLabel.emplace(maybeVioHighFreqStreamIds[0], "vio_high_frequency");
-  } else if (maybeVioHighFreqStreamIds.size() > 1) {
-    throw std::runtime_error("More than one vio high frequency stream found in the VRS file.");
-  }
-  return std::make_shared<StreamIdLabelMapper>(streamIdToLabel);
-}
-} // namespace
-
-std::shared_ptr<StreamIdLabelMapper> getAriaStreamIdLabelMapper(
-    const calibration::DeviceVersion& deviceVersion,
-    std::shared_ptr<vrs::MultiRecordFileReader> reader) {
-  if (deviceVersion == calibration::DeviceVersion::Gen1) {
-    return getAriaGen1StreamIdLabelMapper();
-  } else if (deviceVersion == calibration::DeviceVersion::Gen2) {
-    if (!reader) {
-      throw std::runtime_error("VRS reader needs to be provided for Gen2 StreamIdLabelMapper");
-    }
-
-    return getAriaGen2StreamIdLabelMapper(reader);
-  } else {
-    fmt::print(
-        "WARNING: Unsupported device version for label to stream id mapping: {}",
-        getName(deviceVersion));
-    return nullptr;
-  }
+  return std::make_shared<StreamIdLabelMapper>(kStreamIdToLabel);
 }
 } // namespace projectaria::tools::data_provider

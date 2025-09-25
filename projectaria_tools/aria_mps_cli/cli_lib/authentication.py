@@ -18,7 +18,6 @@ import logging
 import os
 import stat
 import time
-from enum import Enum
 from http import HTTPStatus
 from typing import Any, Final, Mapping, Optional
 
@@ -35,21 +34,14 @@ from Crypto.Random import get_random_bytes
 
 from .common import retry
 from .constants import (
-    AUTH_API_VERSION,
     AUTH_TOKEN_FILE,
-    CONTENT_TYPE_JSON,
     ENCRYPTION_KEY_FILE,
-    HEADER_API_VERSION,
-    HEADER_CONTENT_TYPE,
     KEY_ACCESS_TOKEN,
     KEY_APP_ID,
-    KEY_AUTH_CODE,
     KEY_CONTACT_POINT,
     KEY_CREATE_TOKEN,
     KEY_DATA,
-    KEY_DEVICE_CODE,
     KEY_DOC_ID,
-    KEY_FRL_ACCESS_TOKEN,
     KEY_KEY_ID,
     KEY_PASSWORD,
     KEY_PROFILE_TOKENS,
@@ -60,54 +52,20 @@ from .http_helper import HttpHelper
 
 logger = logging.getLogger(__name__)
 
-
-class LoginMethod(Enum):
-    """
-    Enum representing different login methods available for users.
-    """
-
-    MMA = "MMA"
-    PASSWORD = "Password"
-    UNKNOWN = "Unknown"
-
-
 # Keyring constants
 _KEYRING_SERVICE_NAME: Final[str] = "projectaria_tools"
 _KEYRING_SESSION_TOKEN_KEY: Final[str] = "session_token_key"
 
 # OAuth FRL|FRL App ID| Client Token
 _CLIENT_TOKEN: Final[str] = "FRL|844405224048903|ed1d75011c9a461b1f6c83c91f1fecb9"
-_FB_APP_ACCESS_TOKEN: Final[str] = "651116310904236|e0782a32c77405233c4594dd5cbf7a0c"
 # OC App ID
 _CLIENT_APPLICATION: Final[int] = 6715036791927135
 _DOC_ID_GET_HORIZON_PROFILE_TOKEN: Final[int] = 7806394482748426
-
-# Standard Meta authentication endpoints
-_URL_ACCOUNTS_LOGIN: Final[str] = (
-    "https://meta.graph.meta.com/accounts_login"  # Login with username/password
-)
-_URL_ACCOUNTS_LOGOUT: Final[str] = "https://graph.oculus.com/logout"  # Logout endpoint
-_URL_META_GQL: Final[str] = (
-    "https://meta.graph.meta.com/graphql"  # GraphQL endpoint for profile token generation
-)
-_URL_ENCRYPTION_KEY: Final[str] = (  # Public key endpoint for password encryption
+_URL_ACCOUNTS_LOGIN: Final[str] = "https://meta.graph.meta.com/accounts_login"
+_URL_ACCOUNTS_LOGOUT: Final[str] = "https://graph.oculus.com/logout"
+_URL_META_GQL: Final[str] = "https://meta.graph.meta.com/graphql"
+_URL_ENCRYPTION_KEY: Final[str] = (
     "https://meta.graph.meta.com/passwords_encryption?version=2"
-)
-
-# Work/MMA (Managed Meta Account) authentication endpoints
-_URL_WORK_ACCOUNT_PRE_LOGIN_INFO: Final[str] = (  # Check if email has MMA account
-    "https://graph.work.meta.com/work_account/pre_login_info"
-)
-_URL_WORK_ACCOUNT_LOGIN: Final[str] = (
-    "https://graph.work.meta.com/device/login"  # Initiate MMA device flow
-)
-_URL_WORK_ACCOUNT_GET_AUTH_CODE: Final[str] = (  # Poll for auth code in MMA device flow
-    "https://api2.work.meta.com/oauth/poll_auth_code"
-)
-_URL_WORK_ACCOUNT_GET_ACCESS_TOKEN: Final[
-    str
-] = (  # Exchange auth code for access token
-    "https://api2.work.meta.com/oauth/get_profile_token"
 )
 
 
@@ -123,7 +81,7 @@ class Authenticator:
     """
     Class to handle authentication with the MPS backend.
     It supports:
-    - Logging in using Meta account (password or MMA)
+    - Logging in using Meta account
     - Logging out
     - Cache the authentication token
     - Loading and validating cached token
@@ -164,29 +122,28 @@ class Authenticator:
 
     async def set_auth_token(self, token: str, save_token: bool = False) -> None:
         """
-        Sets the authentication token and validates it by retrieving the user alias.
+        Sets the authentication token.
 
         Args:
-            token: The authentication token to be set
-            save_token: Whether to save the token to local storage for future use
+            token (str): The authentication token to be set.
+            save_token (bool): Optional; Whether to save the token. Defaults to False.
 
-        Raises:
-            ValueError: If the token is not a string or is invalid
         """
+
+        # Validate the input token
         if not isinstance(token, str):
             raise ValueError("Token must be a string")
 
         self._auth_token = token
+        self._clear_cached_token()
 
-        # Validate token by attempting to get user alias
         self._user_alias = await self._get_user_alias()
         if not self._user_alias:
             logger.error("Failed to get user alias: Token is invalid.")
             self._user_alias = None
             raise ValueError("Token is invalid")
 
-        # Save token to local storage if requested, otherwise clear the cached previous token
-        self._clear_cached_token()
+        # Save the token if required
         if save_token:
             self._cache_token()
 
@@ -228,7 +185,6 @@ class Authenticator:
                     logger.info(
                         "Found unencrypted token from older version - upgrading to encrypted format"
                     )
-                    # Upgrade the cached token to encrypted format
                     self._cache_token()
                     logger.info("Token successfully upgraded to encrypted format")
 
@@ -239,7 +195,7 @@ class Authenticator:
             AUTH_TOKEN_FILE.unlink(missing_ok=True)
             return False
         except Exception as e:
-            logger.exception(f"Unexpected error while loading token: {e}")
+            logger.error(f"Unexpected error while loading token: {e}")
             # removing the auth token cache file
             AUTH_TOKEN_FILE.unlink(missing_ok=True)
             return False
@@ -286,14 +242,14 @@ class Authenticator:
                                 _KEYRING_SERVICE_NAME, _KEYRING_SESSION_TOKEN_KEY
                             )
                         except Exception as delete_error:
-                            logger.exception(
+                            logger.error(
                                 f"Failed to delete corrupted key from keyring: {delete_error}"
                             )
                         # Fall through to file-based fallback
             except Exception as e:
-                logger.exception(f"Failed to get encryption key from keyring: {e}")
+                logger.error(f"Failed to get encryption key from keyring: {e}")
         # Fallback to the local file if keyring is not available
-        elif ENCRYPTION_KEY_FILE.exists():
+        if ENCRYPTION_KEY_FILE.exists():
             with ENCRYPTION_KEY_FILE.open("rb") as f:
                 return f.read()
         else:
@@ -303,131 +259,7 @@ class Authenticator:
             os.chmod(ENCRYPTION_KEY_FILE, stat.S_IRUSR | stat.S_IWUSR)
             return key
 
-    async def has_mma_account(self, email: str) -> bool:
-        """
-        Check if the given email address has an associated MMA (Managed Meta Account).
-
-        This method queries the graph.work.meta.com/work_account/pre_login_info API
-        to determine if an email is associated with an MMA account.
-
-        Args:
-            email: Email address to check
-
-        Returns:
-            True if the email has an associated MMA account, False otherwise
-        """
-        logger.debug(f"Checking if email {email} has an MMA account")
-        try:
-            response = await self._http_helper.post(
-                url=_URL_WORK_ACCOUNT_PRE_LOGIN_INFO,
-                json={
-                    "identifier": email,
-                    "access_token": _FB_APP_ACCESS_TOKEN,
-                },
-            )
-
-            # If the response contains a valid uid, it means the email is associated with an MMA account
-            logger.debug(f"Response: {response}")
-            return response.get("uid") is not None
-        except Exception as e:
-            logger.warning(f"Failed to check MMA account status: {e}")
-            # If the API call fails, assume no MMA account to fall back to regular login
-            return False
-
-    async def get_mma_device_flow_info(self) -> Mapping[str, Any]:
-        """
-        Initiate MMA device flow and get authentication information.
-
-        This method queries the graph.work.meta.com/device/login API to initiate
-        the device authorization flow for MMA login.
-
-        Returns:
-            A dictionary containing:
-                - user_code: Code for user to enter on the login page
-                - device_code: Code used for polling authentication status
-                - verification_uri: URL where user completes authentication
-                - expires_in: Time in seconds until codes expire
-                - interval: Recommended polling interval in seconds
-        Raises:
-            AuthenticationError: If the device flow initiation fails
-        """
-        logger.info("Initiating MMA device authorization flow")
-        try:
-            response = await self._http_helper.post(
-                url=_URL_WORK_ACCOUNT_LOGIN,
-                json={
-                    "scope": "openid",
-                    "access_token": _FB_APP_ACCESS_TOKEN,
-                },
-            )
-            logger.debug(f"Device flow response: {response}")
-            return response
-        except Exception as e:
-            raise AuthenticationError(f"Failed to initiate MMA device flow: {e}")
-
-    async def validate_username(self, username: str) -> LoginMethod:
-        """
-        Validate a username and return the appropriate login method.
-
-        This method determines whether a user should use MMA login, password login,
-        or if the username is invalid/unknown.
-
-        Args:
-            username: Username to validate
-
-        Returns:
-            LoginMethod.MMA if the user has an MMA account
-            LoginMethod.PASSWORD if the user has a password account
-            LoginMethod.UNKNOWN if the user has neither or validation fails
-        """
-        try:
-            # Convert username to email format
-            email = _get_email(username)
-
-            # Check if user has an MMA account
-            if await self.has_mma_account(email):
-                return LoginMethod.MMA
-            else:
-                # If no MMA account but valid email format, assume password account
-                return LoginMethod.PASSWORD
-
-        except ValueError as e:
-            # Invalid username/email format
-            logger.warning(f"Invalid username format: {username}, error: {e}")
-            return LoginMethod.UNKNOWN
-        except Exception as e:
-            # Any other error during validation
-            logger.error(f"Error validating username {username}: {e}")
-            return LoginMethod.UNKNOWN
-
-    async def _login_mma(self, email: str, save_token: bool) -> bool:
-        """
-        Login using MMA (Managed Meta Account) and obtain the access token.
-
-        This method is currently a placeholder and needs to be implemented
-        to handle the complete MMA authentication flow.
-
-        Args:
-            email: User's email address
-            save_token: Whether to save the token to local storage
-
-        Returns:
-            True if the login was successful
-
-        Raises:
-            NotImplementedError: This method is not yet fully implemented
-        """
-        logger.info("Logging in using MMA account")
-        # TODO: Implement complete MMA login flow
-        # This should include:
-        # 1. Device flow initiation
-        # 2. Token polling and validation
-        # 3. Token caching if requested
-        raise NotImplementedError("MMA login flow is not yet fully implemented")
-
-    async def password_login(
-        self, username: str, password: str, save_token: bool
-    ) -> bool:
+    async def login(self, username: str, password: str, save_token: bool) -> bool:
         """
         Authenticate using the provided credentials and returns the authentication token
         The login is done in 2 steps:
@@ -603,88 +435,6 @@ class Authenticator:
             logger.warning("Token is invalid.")
             return None
 
-    async def check_mma_device_authorization(self, device_code: str) -> Optional[str]:
-        """
-        Poll for auth code using device code (Get Auth Code API call).
-
-        This corresponds to step 3 in the MMA authentication flow where we
-        periodically check if the user has completed authentication on the
-        verification URL and entered their user code.
-
-        Args:
-            device_code: The device code obtained from get_mma_device_flow_info()
-
-        Returns:
-            The auth code if authentication is complete, None if still pending
-
-        Raises:
-            AuthenticationError: If the polling request fails
-        """
-        logger.debug("Polling for auth code using device code")
-        try:
-            response = await self._http_helper.post(
-                url=_URL_WORK_ACCOUNT_GET_AUTH_CODE,
-                auth_token=_FB_APP_ACCESS_TOKEN,
-                headers={
-                    HEADER_CONTENT_TYPE: CONTENT_TYPE_JSON,
-                    HEADER_API_VERSION: AUTH_API_VERSION,
-                },
-                json={
-                    KEY_DEVICE_CODE: device_code,
-                },
-            )
-
-            # If auth_code is present, authentication is complete
-            auth_code: str = response.get(KEY_AUTH_CODE)
-            if auth_code:
-                logger.info("Device authorization completed, received auth code")
-                return auth_code
-            else:
-                logger.debug("Device authorization still pending")
-                return None
-
-        except Exception as e:
-            raise AuthenticationError(f"Failed to poll for auth code: {e}")
-
-    async def get_mma_access_token(self, auth_code: str) -> str:
-        """
-        Get access token using auth code (Get Access Token API call).
-
-        This corresponds to step 4 in the MMA authentication flow where we
-        exchange the auth code for the final access token.
-
-        Args:
-            auth_code: The auth code obtained from check_mma_device_authorization()
-
-        Returns:
-            The FRL access token for authenticated requests
-
-        Raises:
-            AuthenticationError: If the token request fails
-        """
-        logger.info("Getting access token using auth code")
-        try:
-            response = await self._http_helper.post(
-                url=_URL_WORK_ACCOUNT_GET_ACCESS_TOKEN,
-                auth_token=_FB_APP_ACCESS_TOKEN,
-                headers={HEADER_CONTENT_TYPE: CONTENT_TYPE_JSON},
-                json={
-                    KEY_AUTH_CODE: auth_code,
-                },
-            )
-
-            frl_access_token: str = response.get(KEY_FRL_ACCESS_TOKEN)
-            if not frl_access_token:
-                raise AuthenticationError(
-                    f"No access token in response: {json.dumps(response, indent=2)}"
-                )
-
-            logger.info("Successfully obtained FRL access token")
-            return frl_access_token
-
-        except Exception as e:
-            raise AuthenticationError(f"Failed to get access token: {e}")
-
 
 def _get_email(username: str) -> str:
     """
@@ -694,13 +444,11 @@ def _get_email(username: str) -> str:
     only entering the username without the @tfbnw.net suffix. However, we need the full
     email address to authenticate
     """
-    _DEFAULT_DOMAIN = "tfbnw.net"
-    _TEST_DOMAIN = ".wptst.com"
-    _DOMAINS: set[str] = {_DEFAULT_DOMAIN, _TEST_DOMAIN}
-    if any((username.lower().endswith(domain) for domain in _DOMAINS)):
+    _DOMAIN: str = "tfbnw.net"
+    if username.lower().endswith(f"@{_DOMAIN}"):
         return username
     if username.count("@") >= 1:
         raise ValueError(
             f"Invalid email address: {username}. Expected format: <username>@tfbnw.net"
         )
-    return f"{username}@{_DEFAULT_DOMAIN}"
+    return f"{username}@{_DOMAIN}"

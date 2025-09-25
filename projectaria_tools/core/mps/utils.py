@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import numpy as np
 from _core_pybinds.calibration import CameraCalibration, DeviceCalibration
@@ -22,7 +22,6 @@ from _core_pybinds.mps import (
     get_eyegaze_point_at_depth,
     GlobalPointPosition,
     hand_tracking,
-    OpenLoopTrajectoryPose,
 )
 from _core_pybinds.sophus import SE3
 
@@ -67,9 +66,8 @@ def get_nearest_eye_gaze(eye_gazes: List[EyeGaze], query_timestamp_ns: int) -> E
 
 
 def get_nearest_pose(
-    mps_trajectory: List[Union[ClosedLoopTrajectoryPose, OpenLoopTrajectoryPose]],
-    query_timestamp_ns: int,
-) -> Union[ClosedLoopTrajectoryPose, OpenLoopTrajectoryPose]:
+    mps_trajectory: List[ClosedLoopTrajectoryPose], query_timestamp_ns: int
+) -> ClosedLoopTrajectoryPose:
     """
     Helper function to get nearest pose for a timestamp (ns)
     Return the closest or equal timestamp pose information that can be found, returns None if not found (out of time range)

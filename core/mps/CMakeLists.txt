@@ -34,7 +34,6 @@ add_library(mps
     GlobalPointCloudFormat.h
     GlobalPointCloudFilter.h
     GlobalPointCloudReader.h GlobalPointCloudReader.cpp
-    HandTracking.h HandTracking.cpp
     HandTrackingFormat.h
     HandTrackingReader.h HandTrackingReader.cpp
     MpsDataPathsProvider.h MpsDataPathsProvider.cpp

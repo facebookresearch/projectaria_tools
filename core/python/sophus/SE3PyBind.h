@@ -29,8 +29,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-namespace py = pybind11;
-
 namespace sophus {
 
 // In python, we choose to export our Sophus::SE3 as a vector of SE3 objects by binding the cpp
@@ -77,34 +75,8 @@ struct type_caster<Sophus::SE3<double>> {
   }
 
   // converting from c++ -> python type
-  static handle cast(const Sophus::SE3<double>& src, return_value_policy policy, handle parent) {
+  static handle cast(Sophus::SE3<double> src, return_value_policy policy, handle parent) {
     return type_caster_base<sophus::SE3Group<double>>::cast(sophus::SE3Group(src), policy, parent);
-  }
-};
-
-template <>
-struct type_caster<Sophus::SE3<float>> {
- public:
-  PYBIND11_TYPE_CASTER(Sophus::SE3<float>, _("SE3f"));
-
-  // converting from python -> c++ type
-  bool load(handle src, bool convert) {
-    try {
-      sophus::SE3Group<float>& ref = src.cast<sophus::SE3Group<float>&>();
-      if (ref.size() != 1) {
-        throw std::domain_error(fmt::format(
-            "A element of size 1 is required here. Input has {} elements.", ref.size()));
-      }
-      value = ref[0];
-      return true;
-    } catch (const pybind11::cast_error&) {
-      return false; // Conversion failed
-    }
-  }
-
-  // converting from c++ -> python type
-  static handle cast(const Sophus::SE3<float>& src, return_value_policy policy, handle parent) {
-    return type_caster_base<sophus::SE3Group<float>>::cast(sophus::SE3Group(src), policy, parent);
   }
 };
 } // namespace pybind11::detail
@@ -128,18 +100,6 @@ PybindSE3Type<Scalar> exportSE3Transformation(
       }),
       " Default Constructor initializing a group containing 1 identity element");
   type.def(pybind11::init<const Sophus::SE3<Scalar>&>(), "Copy constructor from single element");
-  type.def(py::pickle(
-      [](const SE3Group<Scalar>& transformations) { // __getstate__
-        return py::make_tuple(transformations[0].so3().params(), transformations[0].translation());
-      },
-      [](py::tuple t) { // __setstate__
-        if (t.size() != 2) {
-          throw std::runtime_error("Invalid state!");
-        }
-        return SE3Group<Scalar>{Sophus::SE3<Scalar>(
-            Sophus::SO3<Scalar>(Eigen::Quaternion<Scalar>(t[0].cast<Sophus::Vector<Scalar, 4>>())),
-            t[1].cast<Eigen::Matrix<Scalar, 3, 1>>())};
-      }));
 
   type.def_static("from_matrix", [](const Eigen::Matrix<Scalar, 4, 4>& matrix) -> SE3Group<Scalar> {
     return SE3Group<Scalar>{Sophus::SE3<Scalar>::fitToSE3(matrix)};
@@ -481,7 +441,7 @@ PybindSE3Type<Scalar> exportSE3Transformation(
   type.def(
       "__getitem__",
       [](const SE3Group<Scalar>& se3Vec,
-         const pybind11::object& index_or_slice_or_list) -> SE3Group<Scalar> {
+         pybind11::object index_or_slice_or_list) -> SE3Group<Scalar> {
         if (pybind11::isinstance<pybind11::slice>(index_or_slice_or_list)) {
           pybind11::slice slice = index_or_slice_or_list.cast<pybind11::slice>();
           size_t start, stop, step, slicelength;
@@ -516,7 +476,7 @@ PybindSE3Type<Scalar> exportSE3Transformation(
   type.def(
       "__setitem__",
       [](SE3Group<Scalar>& se3Vec,
-         const pybind11::object& index_or_slice_or_list,
+         pybind11::object index_or_slice_or_list,
          const SE3Group<Scalar>& value) {
         if (pybind11::isinstance<pybind11::slice>(index_or_slice_or_list)) {
           pybind11::slice slice(index_or_slice_or_list);
@@ -582,11 +542,11 @@ template <typename Scalar>
 void exportSE3Interpolate(pybind11::module& module) {
   module.def(
       "interpolate",
-      [](const SE3Group<Scalar>& a, const SE3Group<Scalar>& b, Scalar t) -> Sophus::SE3<Scalar> {
+      [](const SE3Group<Scalar>& a, const SE3Group<Scalar>& b, double t) -> Sophus::SE3<Scalar> {
         if (a.size() != b.size() && a.size() != 1) {
           throw std::domain_error("Should have SE3 of size 1.");
         }
-        return Sophus::interpolate<Sophus::SE3<Scalar>>(a[0], b[0], t);
+        return Sophus::interpolate<Sophus::SE3<double>>(a[0], b[0], t);
       },
       "Interpolate two SE3s of size 1.");
 }

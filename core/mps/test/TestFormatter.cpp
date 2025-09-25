@@ -25,6 +25,7 @@ using ::testing::MatchesRegex;
 TEST(format_oneSideWristAndPalmPose, formattedMessageIsCorrectForDefaultPose) {
   WristAndPalmPose::OneSide oneSideWristAndPalmPose;
   std::string fmtStr = fmt::format("{}", oneSideWristAndPalmPose);
+  std::cout << fmtStr << std::endl;
   EXPECT_THAT(
       fmtStr, MatchesRegex("^WristAndPalmPose::OneSide\\(confidence: .*, wrist: .*, palm: .*\\)"));
 }
@@ -39,6 +40,7 @@ TEST(format_oneSideWristAndPalmPose, formattedMessageIsCorrectForBothNormals) {
   oneSideWristAndPalmPose.wristAndPalmNormal_device->wristNormal_device =
       Eigen::Vector3d{0., 0., 1.};
   std::string fmtStr = fmt::format("{}", oneSideWristAndPalmPose);
+  std::cout << fmtStr << std::endl;
   EXPECT_THAT(
       fmtStr,
       MatchesRegex(
@@ -48,6 +50,7 @@ TEST(format_oneSideWristAndPalmPose, formattedMessageIsCorrectForBothNormals) {
 TEST(format_oneSideHandTrackingResult, formattedMessageIsCorrectForDefaultResult) {
   HandTrackingResult::OneSide oneSideHandTrackingResult;
   std::string fmtStr = fmt::format("{}", oneSideHandTrackingResult);
+  std::cout << fmtStr << std::endl;
   EXPECT_THAT(
       fmtStr,
       MatchesRegex(
@@ -64,6 +67,7 @@ TEST(format_oneSideHandTrackingResult, formattedMessageIsCorrectForBothNormals) 
   oneSideHandTrackingResult.wristAndPalmNormal_device->wristNormal_device =
       Eigen::Vector3d{0., 0., 1.};
   std::string fmtStr = fmt::format("{}", oneSideHandTrackingResult);
+  std::cout << fmtStr << std::endl;
   EXPECT_THAT(
       fmtStr,
       MatchesRegex(

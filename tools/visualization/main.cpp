@@ -19,22 +19,41 @@
 #include <string>
 #include <thread>
 
-#include <vrs/StreamId.h>
 #include "AriaPlayer.h"
+#include "AriaStreamIds.h"
 #include "AriaViewer.h"
 
 using namespace projectaria::tools;
 
+namespace {
 using namespace projectaria::tools::data_provider;
+
+const std::vector<vrs::StreamId> kImageStreamIds = {
+    kSlamLeftCameraStreamId,
+    kSlamRightCameraStreamId,
+    kRgbCameraStreamId,
+    kEyeCameraStreamId};
+const std::vector<vrs::StreamId> kImuStreamIds = {kImuRightStreamId, kImuLeftStreamId};
+const std::vector<vrs::StreamId> kDataStreams = {
+    kMagnetometerStreamId,
+    kBarometerStreamId,
+    kAudioStreamId,
+    // kWifiStreamId,
+    // kBluetoothStreamId,
+    // kGpsStreamId
+};
+} // namespace
 
 int main(int argc, const char* argv[]) {
   CLI::App app{"Aria Sensor Data Visualizer"};
   std::string vrsPath;
-  app.add_option("--vrs", vrsPath, "Path to the source vrs file")->required();
+  app.add_option("--vrs", vrsPath, "Path to the source vrs file")
+      ->check(CLI::ExistingPath)
+      ->required();
 
   CLI11_PARSE(app, argc, argv);
 
-  auto ariaPlayer = createAriaPlayer(vrsPath);
+  auto ariaPlayer = createAriaPlayer(vrsPath, kImageStreamIds, kImuStreamIds, kDataStreams);
   if (!ariaPlayer) {
     return EXIT_FAILURE;
   }

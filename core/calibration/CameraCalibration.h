@@ -61,13 +61,13 @@ class CameraCalibration {
       const CameraProjection::ModelType& projectionModelType,
       const Eigen::VectorXd& projectionParams,
       const Sophus::SE3d& T_Device_Camera,
-      const int imageWidth,
-      const int imageHeight,
-      const std::optional<double> maybeValidRadius,
-      const double maxSolidAngle,
+      int imageWidth,
+      int imageHeight,
+      std::optional<double> maybeValidRadius,
+      double maxSolidAngle,
       const std::string& serialNumber = "",
-      const double timeOffsetSecDeviceCamera = 0.0,
-      const std::optional<double> maybeReadOutTimeSec = {});
+      double timeOffsetSecDeviceCamera = 0.0,
+      std::optional<double> maybeReadOutTimeSec = {});
 
   std::string getLabel() const;
   std::string getSerialNumber() const;
@@ -126,7 +126,7 @@ class CameraCalibration {
    */
   CameraCalibration rescale(
       const Eigen::Vector2i& newResolution,
-      const double scale,
+      double scale,
       const Eigen::Vector2d& originOffset = {0.0, 0.0}) const;
 
  private:
@@ -162,12 +162,12 @@ class CameraCalibration {
  * estimate this value. correctedCaptureTime = captureTimestampNs - TimeOffsetSecDeviceCamera
  */
 CameraCalibration getLinearCameraCalibration(
-    const int imageWidth,
-    const int imageHeight,
-    const double focalLength,
+    int imageWidth,
+    int imageHeight,
+    double focalLength,
     const std::string& label = "",
     const Sophus::SE3d& T_Device_Camera = Sophus::SE3d{},
-    const double timeOffsetSecDeviceCamera = 0.0);
+    double timeOffsetSecDeviceCamera = 0.0);
 /**
  * @brief Function to create a simple Spherical camera calibration object from some parameters.
  * @param imageWidth Width of the camera in pixels.
@@ -180,12 +180,12 @@ CameraCalibration getLinearCameraCalibration(
  * estimate this value. correctedCaptureTime = captureTimestampNs - TimeOffsetSecDeviceCamera
  */
 CameraCalibration getSphericalCameraCalibration(
-    const int imageWidth,
-    const int imageHeight,
-    const double focalLength,
+    int imageWidth,
+    int imageHeight,
+    double focalLength,
     const std::string& label = "",
     const Sophus::SE3d& T_Device_Camera = Sophus::SE3d{},
-    const double timeOffsetSecDeviceCamera = 0.0);
+    double timeOffsetSecDeviceCamera = 0.0);
 
 CameraCalibration rotateCameraCalibCW90Deg(const CameraCalibration& camCalib);
 } // namespace projectaria::tools::calibration

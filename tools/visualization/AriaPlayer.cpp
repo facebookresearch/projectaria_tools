@@ -16,10 +16,6 @@
 
 #include "AriaPlayer.h"
 
-#ifdef BUILD_INTERNAL_PROJECTARIA_TOOLS
-#include <data_provider/internal/VrsDataProvider.h>
-#endif
-
 using namespace projectaria::tools::data_provider;
 constexpr int64_t kSleepInteruptPeriodNs = 100000000; // 100 ms
 
@@ -45,11 +41,7 @@ void AriaPlayer::updateImagesStatic(int64_t timestampNs) {
     if (!dataProvider_->checkStreamIsActive(streamId)) {
       continue;
     }
-    if (dataProvider_->checkStreamIsType(streamId, SensorDataType::Image) ||
-        dataProvider_->checkStreamIsType(streamId, SensorDataType::EyeGaze) ||
-        dataProvider_->checkStreamIsType(streamId, SensorDataType::HandPose) ||
-        dataProvider_->checkStreamIsType(streamId, SensorDataType::VioHighFreq) ||
-        dataProvider_->checkStreamIsType(streamId, SensorDataType::Vio)) {
+    if (dataProvider_->checkStreamIsType(streamId, SensorDataType::Image)) {
       int index = dataProvider_->getIndexByTimeNs(
           streamId, timestampNs, TimeDomain::DeviceTime, TimeQueryOptions::After);
 
@@ -116,36 +108,13 @@ void AriaPlayer::playStreamFromTimeNs(int64_t timestampNs, const vrs::StreamId& 
   }
 }
 
-// A helper function to obtain stream ids by multiple RecordableTypeId, from a VRS data provider
-std::vector<vrs::StreamId> getStreamIdsByMultipleType(
-    const DeliverQueuedOptions& deliverOptions,
-    const std::vector<vrs::RecordableTypeId>& typeIdVec) {
-  const std::set<vrs::RecordableTypeId> allTypeIds = deliverOptions.getTypeIds();
-  std::vector<vrs::StreamId> streamIds;
-
-  for (const auto& typeId : typeIdVec) {
-    // Check if the typeId is in the VRS file
-    auto itor = allTypeIds.find(typeId);
-    if (itor == allTypeIds.end()) {
-      continue;
-    } else {
-      const std::set<vrs::StreamId> currentStreams = deliverOptions.getStreamIds(typeId);
-      streamIds.insert(streamIds.end(), currentStreams.begin(), currentStreams.end());
-    }
-  }
-
-  return streamIds;
-}
-
-std::shared_ptr<AriaPlayer> createAriaPlayer(const std::string& vrsPath) {
-// Open the VRS File
-#ifdef BUILD_INTERNAL_PROJECTARIA_TOOLS
-  auto internalDataProvider = surreal::data_provider::createVrsDataProvider(vrsPath);
-  auto dataProvider = std::static_pointer_cast<projectaria::tools::data_provider::VrsDataProvider>(
-      internalDataProvider);
-#else
+std::shared_ptr<AriaPlayer> createAriaPlayer(
+    const std::string& vrsPath,
+    const std::vector<vrs::StreamId>& imageStreamIds,
+    const std::vector<vrs::StreamId>& imuStreamIds,
+    const std::vector<vrs::StreamId>& dataStreamIds) {
+  // Open the VRS File
   auto dataProvider = createVrsDataProvider(vrsPath);
-#endif
 
   if (!dataProvider) {
     return nullptr;
@@ -153,50 +122,9 @@ std::shared_ptr<AriaPlayer> createAriaPlayer(const std::string& vrsPath) {
 
   fmt::print(stdout, "Opened '{}'.\n", vrsPath);
 
-  // Obtain the image streams from the VRS data provider
-  const DeliverQueuedOptions deliverOptions = dataProvider->getDefaultDeliverQueuedOptions();
-  const auto imageStreamIds = getStreamIdsByMultipleType(
-      deliverOptions,
-      {vrs::RecordableTypeId::SlamCameraData,
-       vrs::RecordableTypeId::RgbCameraRecordableClass,
-       vrs::RecordableTypeId::EyeCameraRecordableClass});
-  const auto imuStreamIds =
-      getStreamIdsByMultipleType(deliverOptions, {vrs::RecordableTypeId::SlamImuData});
-
-  const auto dataStreamIds = getStreamIdsByMultipleType(
-      deliverOptions,
-      {
-          vrs::RecordableTypeId::StereoAudioRecordableClass,
-          vrs::RecordableTypeId::BarometerRecordableClass,
-          vrs::RecordableTypeId::GpsRecordableClass,
-          vrs::RecordableTypeId::WifiBeaconRecordableClass,
-          vrs::RecordableTypeId::MagnetometerRecordableClass,
-          vrs::RecordableTypeId::SlamMagnetometerData,
-      });
-  const auto onDeviceMpStreams = getStreamIdsByMultipleType(
-      deliverOptions,
-      {
-          vrs::RecordableTypeId::GazeRecordableClass,
-          vrs::RecordableTypeId::PoseRecordableClass,
-      });
-
-  // Print out the stream ids
-  for (const auto& streamId : imageStreamIds) {
-    fmt::print("Visualizing image stream: {}\n", streamId.getNumericName());
-  }
-  for (const auto& streamId : imuStreamIds) {
-    fmt::print("Visualizing imu stream: {}\n", streamId.getNumericName());
-  }
-  for (const auto& streamId : dataStreamIds) {
-    fmt::print("Visualizing 1D raw sensor data stream: {}\n", streamId.getNumericName());
-  }
-  for (const auto& streamId : onDeviceMpStreams) {
-    fmt::print("Visualizing on device MP data stream: {}\n", streamId.getNumericName());
-  }
-
   // Set the data buffer for visualization and Variable for playback control
   auto visData = std::make_shared<AriaVisualizationData>(dataProvider);
-  visData->initDataStreams(imageStreamIds, imuStreamIds, dataStreamIds, onDeviceMpStreams);
+  visData->initDataStreams(imageStreamIds, imuStreamIds, dataStreamIds);
   auto visControl = std::make_shared<AriaVisualizationControl>();
 
   visControl->isPlaying_ = true;

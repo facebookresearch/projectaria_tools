@@ -32,14 +32,6 @@ std::string getName(const SensorDataType type) {
       {SensorDataType::Wps, "WPS"},
       {SensorDataType::Magnetometer, "magnetometer"},
       {SensorDataType::Bluetooth, "bluetooth"},
-      {SensorDataType::Ppg, "ppg"},
-      {SensorDataType::Als, "ALS"},
-      {SensorDataType::Temperature, "temperature"},
-      {SensorDataType::BatteryStatus, "battery status"},
-      {SensorDataType::Vio, "VIO"},
-      {SensorDataType::VioHighFreq, "VIO high freq"},
-      {SensorDataType::EyeGaze, "eyegaze"},
-      {SensorDataType::HandPose, "hand pose"},
       {SensorDataType::NotValid, "invalid"}};
   return kTypeNameMap.at(type);
 }

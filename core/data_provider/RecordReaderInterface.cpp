@@ -14,94 +14,16 @@
  * limitations under the License.
  */
 
-#include <data_provider/RecordReaderInterface.h>
-
-#include <sstream>
-
 #include <data_provider/ErrorHandler.h>
-#include <nlohmann/json.hpp>
+#include <data_provider/RecordReaderInterface.h>
+#include <sstream>
 
 #define DEFAULT_LOG_CHANNEL "RecordReaderInterface"
 #include <logging/Log.h>
 
+#include <nlohmann/json.hpp>
+
 namespace projectaria::tools::data_provider {
-
-namespace {
-// Gen1 and Gen2 have different metadata formats, these helpers would parse the metadata json
-void fillMetadataForGen1(
-    VrsMetadata& metadata,
-    const nlohmann::json& metadataJson,
-    const std::shared_ptr<TimeSyncMapper>& timeSyncMapper) {
-  std::string tempKey = "recording_profile";
-  if (metadataJson.contains(tempKey)) {
-    metadata.recordingProfile = metadataJson[tempKey];
-  }
-
-  tempKey = "shared_session_id";
-  if (metadataJson.contains(tempKey)) {
-    metadata.sharedSessionId = metadataJson[tempKey];
-  }
-
-  tempKey = "filename";
-  if (metadataJson.contains(tempKey)) {
-    metadata.filename = metadataJson[tempKey];
-  }
-
-  metadata.timeSyncMode = MetadataTimeSyncMode::NotEnabled;
-  if (metadataJson.contains("ticsync_mode")) {
-    const std::string& ticsyncMode = metadataJson["ticsync_mode"];
-    if (ticsyncMode == "client") {
-      metadata.timeSyncMode = MetadataTimeSyncMode::TicSyncClient;
-    } else if (ticsyncMode == "server") {
-      metadata.timeSyncMode = MetadataTimeSyncMode::TicSyncServer;
-    }
-  } else if (metadataJson.contains("ntp_time_enabled") && metadataJson["ntp_time_enabled"]) {
-    metadata.timeSyncMode = MetadataTimeSyncMode::Ntp;
-  } else if (metadataJson.contains("timecode_enabled") && metadataJson["timecode_enabled"]) {
-    metadata.timeSyncMode = MetadataTimeSyncMode::Timecode;
-  } else if (timeSyncMapper->supportsMode(TimeSyncMode::SUBGHZ)) {
-    metadata.timeSyncMode = MetadataTimeSyncMode::SubGhz;
-  } else if (timeSyncMapper->supportsMode(TimeSyncMode::UTC)) {
-    metadata.timeSyncMode = MetadataTimeSyncMode::Utc;
-  }
-
-  tempKey = "device_id";
-  if (metadataJson.contains(tempKey)) {
-    metadata.deviceId = metadataJson[tempKey];
-  }
-
-  tempKey = "start_time";
-  if (metadataJson.contains(tempKey)) {
-    metadata.startTimeEpochSec = metadataJson[tempKey].get<int64_t>();
-  }
-}
-
-void fillMetadataForGen2(VrsMetadata& metadata, const nlohmann::json& metadataJson) {
-  std::string tempKey_1 = "recording";
-  std::string tempKey_2 = "profile";
-  std::string tempKey_3 = "name";
-  if (metadataJson.contains(tempKey_1) && metadataJson[tempKey_1].contains(tempKey_2) &&
-      metadataJson[tempKey_1][tempKey_2].contains(tempKey_3)) {
-    metadata.recordingProfile = metadataJson[tempKey_1][tempKey_2][tempKey_3];
-  }
-
-  tempKey_1 = "device";
-  tempKey_2 = "uuid";
-  if (metadataJson.contains(tempKey_1) && metadataJson[tempKey_1].contains(tempKey_2)) {
-    metadata.deviceId = metadataJson[tempKey_1][tempKey_2];
-  }
-
-  tempKey_1 = "recording";
-  tempKey_2 = "start_time";
-  if (metadataJson.contains(tempKey_1) && metadataJson[tempKey_1].contains(tempKey_2)) {
-    metadata.startTimeEpochSec = metadataJson[tempKey_1][tempKey_2];
-  }
-
-  // TODO: parse this when OS team adds this to the metadata
-  metadata.timeSyncMode = MetadataTimeSyncMode::NotEnabled;
-}
-} // namespace
-
 RecordReaderInterface::RecordReaderInterface(
     std::shared_ptr<vrs::MultiRecordFileReader> reader,
     std::map<vrs::StreamId, std::shared_ptr<ImageSensorPlayer>>& imagePlayers,
@@ -110,16 +32,8 @@ RecordReaderInterface::RecordReaderInterface(
     std::map<vrs::StreamId, std::shared_ptr<WifiBeaconPlayer>>& wpsPlayers,
     std::map<vrs::StreamId, std::shared_ptr<AudioPlayer>>& audioPlayers,
     std::map<vrs::StreamId, std::shared_ptr<BarometerPlayer>>& barometerPlayers,
-    std::map<vrs::StreamId, std::shared_ptr<BatteryStatusPlayer>>& batteryStatusPlayers,
     std::map<vrs::StreamId, std::shared_ptr<BluetoothBeaconPlayer>>& bluetoothPlayers,
     std::map<vrs::StreamId, std::shared_ptr<MotionSensorPlayer>>& magnetometerPlayers,
-    std::map<vrs::StreamId, std::shared_ptr<PpgPlayer>>& ppgPlayers,
-    std::map<vrs::StreamId, std::shared_ptr<AlsPlayer>>& alsPlayers,
-    std::map<vrs::StreamId, std::shared_ptr<TemperaturePlayer>>& temperaturePlayers,
-    std::map<vrs::StreamId, std::shared_ptr<VioPlayer>>& vioPlayers,
-    std::map<vrs::StreamId, std::shared_ptr<VioHighFrequencyPlayer>>& vioHighFreqPlayers,
-    std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>>& eyegazePlayers,
-    std::map<vrs::StreamId, std::shared_ptr<HandPosePlayer>>& handPosePlayers,
     const std::shared_ptr<TimeSyncMapper>& timeSyncMapper)
     : reader_(reader),
       imagePlayers_(imagePlayers),
@@ -128,22 +42,10 @@ RecordReaderInterface::RecordReaderInterface(
       wpsPlayers_(wpsPlayers),
       audioPlayers_(audioPlayers),
       barometerPlayers_(barometerPlayers),
-      batteryStatusPlayers_(batteryStatusPlayers),
       bluetoothPlayers_(bluetoothPlayers),
       magnetometerPlayers_(magnetometerPlayers),
-      ppgPlayers_(ppgPlayers),
-      alsPlayers_(alsPlayers),
-      temperaturePlayers_(temperaturePlayers),
-      vioPlayers_(vioPlayers),
-      vioHighFreqPlayers_(vioHighFreqPlayers),
-      eyegazePlayers_(eyegazePlayers),
-      handPosePlayers_(handPosePlayers),
       timeSyncMapper_(timeSyncMapper),
       readerMutex_(std::make_unique<std::mutex>()) {
-  // Determine device version
-  const std::string deviceTypeString = reader_->getTag("device_type");
-  deviceVersion_ = calibration::fromDeviceClassName(deviceTypeString);
-
   for (const auto& [streamId, _] : imagePlayers_) {
     streamIds_.insert(streamId);
     streamIdToSensorDataType_.emplace(streamId, SensorDataType::Image);
@@ -174,11 +76,6 @@ RecordReaderInterface::RecordReaderInterface(
     streamIdToSensorDataType_.emplace(streamId, SensorDataType::Barometer);
   }
 
-  for (const auto& [streamId, _] : batteryStatusPlayers_) {
-    streamIds_.insert(streamId);
-    streamIdToSensorDataType_.emplace(streamId, SensorDataType::BatteryStatus);
-  }
-
   for (const auto& [streamId, _] : bluetoothPlayers_) {
     streamIds_.insert(streamId);
     streamIdToSensorDataType_.emplace(streamId, SensorDataType::Bluetooth);
@@ -187,41 +84,6 @@ RecordReaderInterface::RecordReaderInterface(
   for (const auto& [streamId, _] : magnetometerPlayers_) {
     streamIds_.insert(streamId);
     streamIdToSensorDataType_.emplace(streamId, SensorDataType::Magnetometer);
-  }
-
-  for (const auto& [streamId, _] : ppgPlayers_) {
-    streamIds_.insert(streamId);
-    streamIdToSensorDataType_.emplace(streamId, SensorDataType::Ppg);
-  }
-
-  for (const auto& [streamId, _] : alsPlayers_) {
-    streamIds_.insert(streamId);
-    streamIdToSensorDataType_.emplace(streamId, SensorDataType::Als);
-  }
-
-  for (const auto& [streamId, _] : temperaturePlayers_) {
-    streamIds_.insert(streamId);
-    streamIdToSensorDataType_.emplace(streamId, SensorDataType::Temperature);
-  }
-
-  for (const auto& [streamId, _] : vioPlayers_) {
-    streamIds_.insert(streamId);
-    streamIdToSensorDataType_.emplace(streamId, SensorDataType::Vio);
-  }
-
-  for (const auto& [streamId, _] : vioHighFreqPlayers_) {
-    streamIds_.insert(streamId);
-    streamIdToSensorDataType_.emplace(streamId, SensorDataType::VioHighFreq);
-  }
-
-  for (const auto& [streamId, _] : eyegazePlayers_) {
-    streamIds_.insert(streamId);
-    streamIdToSensorDataType_.emplace(streamId, SensorDataType::EyeGaze);
-  }
-
-  for (const auto& [streamId, _] : handPosePlayers_) {
-    streamIds_.insert(streamId);
-    streamIdToSensorDataType_.emplace(streamId, SensorDataType::HandPose);
   }
 
   for (const auto& streamId : streamIds_) {
@@ -264,17 +126,43 @@ std::optional<VrsMetadata> RecordReaderInterface::getMetadata() const {
   }
   auto metadataJson = nlohmann::json::parse(fileTags_.at(tempKey));
 
-  // Parse metadata keys based on device version
-  switch (deviceVersion_) {
-    case calibration::DeviceVersion::Gen1:
-      fillMetadataForGen1(metadata, metadataJson, timeSyncMapper_);
-      break;
-    case calibration::DeviceVersion::Gen2:
-      fillMetadataForGen2(metadata, metadataJson);
-      break;
-    default:
-      throw std::runtime_error(fmt::format(
-          "Unsupported device version for loading metadata: {}", getName(deviceVersion_)));
+  tempKey = "recording_profile";
+  if (metadataJson.contains(tempKey)) {
+    metadata.recordingProfile = metadataJson[tempKey];
+  }
+
+  tempKey = "shared_session_id";
+  if (metadataJson.contains(tempKey)) {
+    metadata.sharedSessionId = metadataJson[tempKey];
+  }
+
+  tempKey = "filename";
+  if (metadataJson.contains(tempKey)) {
+    metadata.filename = metadataJson[tempKey];
+  }
+
+  metadata.timeSyncMode = MetadataTimeSyncMode::NotEnabled;
+  if (metadataJson.contains("ticsync_mode")) {
+    const std::string& ticsyncMode = metadataJson["ticsync_mode"];
+    if (ticsyncMode == "client") {
+      metadata.timeSyncMode = MetadataTimeSyncMode::TicSyncClient;
+    } else if (ticsyncMode == "server") {
+      metadata.timeSyncMode = MetadataTimeSyncMode::TicSyncServer;
+    }
+  } else if (metadataJson.contains("ntp_time_enabled") && metadataJson["ntp_time_enabled"]) {
+    metadata.timeSyncMode = MetadataTimeSyncMode::Ntp;
+  } else if (metadataJson.contains("timecode_enabled") && metadataJson["timecode_enabled"]) {
+    metadata.timeSyncMode = MetadataTimeSyncMode::Timecode;
+  }
+
+  tempKey = "device_id";
+  if (metadataJson.contains(tempKey)) {
+    metadata.deviceId = metadataJson[tempKey];
+  }
+
+  tempKey = "start_time";
+  if (metadataJson.contains(tempKey)) {
+    metadata.startTimeEpochSec = metadataJson[tempKey].get<int64_t>();
   }
 
   return metadata;
@@ -371,7 +259,7 @@ SensorData RecordReaderInterface::getLastCachedSensorData(const vrs::StreamId& s
             data.second.captureTimestampNs, mode);
         timeSyncData.emplace(mode, syncTimeNs);
       }
-      return {streamId, data, sensorDataType, recordTimeNs, timeSyncData};
+      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
     }
     case SensorDataType::Imu: {
       auto data = getLastCachedImuData(streamId);
@@ -446,92 +334,6 @@ SensorData RecordReaderInterface::getLastCachedSensorData(const vrs::StreamId& s
       }
       return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
     }
-    case SensorDataType::Ppg: {
-      auto data = getLastCachedPpgData(streamId);
-      std::map<TimeSyncMode, int64_t> timeSyncData;
-      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
-        const int64_t& syncTimeNs =
-            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(data.captureTimestampNs, mode);
-        timeSyncData.emplace(mode, syncTimeNs);
-      }
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
-    }
-    case SensorDataType::Als: {
-      auto data = getLastCachedAlsData(streamId);
-      std::map<TimeSyncMode, int64_t> timeSyncData;
-      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
-        const int64_t& syncTimeNs =
-            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(data.captureTimestampNs, mode);
-        timeSyncData.emplace(mode, syncTimeNs);
-      }
-      return {streamId, data, sensorDataType, recordTimeNs, timeSyncData};
-    }
-    case SensorDataType::Temperature: {
-      auto data = getLastCachedTemperatureData(streamId);
-      std::map<TimeSyncMode, int64_t> timeSyncData;
-      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
-        const int64_t& syncTimeNs =
-            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(data.captureTimestampNs, mode);
-        timeSyncData.emplace(mode, syncTimeNs);
-      }
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
-    }
-    case SensorDataType::BatteryStatus: {
-      auto data = getLastCachedBatteryStatusData(streamId);
-      std::map<TimeSyncMode, int64_t> timeSyncData;
-      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
-        const int64_t& syncTimeNs =
-            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(data.captureTimestampNs, mode);
-        timeSyncData.emplace(mode, syncTimeNs);
-      }
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
-    }
-    case SensorDataType::Vio: {
-      auto data = getLastCachedVioData(streamId);
-      std::map<TimeSyncMode, int64_t> timeSyncData;
-      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
-        const int64_t& syncTimeNs =
-            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(data.captureTimestampNs, mode);
-        timeSyncData.emplace(mode, syncTimeNs);
-      }
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
-    }
-    case SensorDataType::VioHighFreq: {
-      auto data = getLastCachedVioHighFreqData(streamId);
-      int64_t deviceTimeNs =
-          std::chrono::duration_cast<std::chrono::nanoseconds>(data.trackingTimestamp).count();
-      std::map<TimeSyncMode, int64_t> timeSyncData;
-      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
-        const int64_t& syncTimeNs =
-            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(deviceTimeNs, mode);
-        timeSyncData.emplace(mode, syncTimeNs);
-      }
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
-    }
-    case SensorDataType::EyeGaze: {
-      auto data = getLastCachedEyeGazeData(streamId);
-      int64_t deviceTimeNs =
-          std::chrono::duration_cast<std::chrono::nanoseconds>(data.trackingTimestamp).count();
-      std::map<TimeSyncMode, int64_t> timeSyncData;
-      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
-        const int64_t& syncTimeNs =
-            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(deviceTimeNs, mode);
-        timeSyncData.emplace(mode, syncTimeNs);
-      }
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
-    }
-    case SensorDataType::HandPose: {
-      auto data = getLastCachedHandPoseData(streamId);
-      int64_t deviceTimeNs =
-          std::chrono::duration_cast<std::chrono::nanoseconds>(data.trackingTimestamp).count();
-      std::map<TimeSyncMode, int64_t> timeSyncData;
-      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
-        const int64_t& syncTimeNs =
-            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(deviceTimeNs, mode);
-        timeSyncData.emplace(mode, syncTimeNs);
-      }
-      return SensorData(streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData);
-    }
     case SensorDataType::NotValid:
     default:
       break;
@@ -575,7 +377,7 @@ AudioDataAndRecord RecordReaderInterface::getLastCachedAudioData(const vrs::Stre
   auto audioData = audioPlayer->getData();
   auto audioRecord = audioPlayer->getDataRecord();
   streamIdToCondition_.at(streamId)->notify_one();
-  return {std::move(audioData), audioRecord};
+  return {audioData, audioRecord};
 }
 
 BluetoothBeaconData RecordReaderInterface::getLastCachedBluetoothData(
@@ -598,44 +400,12 @@ MotionData RecordReaderInterface::getLastCachedMagnetometerData(const vrs::Strea
   auto magnetometerData = magnetometerPlayers_[streamId]->getDataRecord();
   streamIdToCondition_.at(streamId)->notify_one();
 
-  // For Aria-Gen1, magnetometer sensor readout are actually in uT rather than Tesla (as the vrs
-  // layout specifies). Not changing the data layout to conform to vrs convention
-  // For Aria-Gen2, magnetometer sensor readout are in Tesla.
-  if (deviceVersion_ == calibration::DeviceVersion::Gen1) {
-    magnetometerData.magTesla[0] = magnetometerData.magTesla[0] * 1e-6;
-    magnetometerData.magTesla[1] = magnetometerData.magTesla[1] * 1e-6;
-    magnetometerData.magTesla[2] = magnetometerData.magTesla[2] * 1e-6;
-  }
+  // Aria magnetometer sensor readout are actually in uT rather than Tesla (as the vrs layout
+  // specifies). Not changing the data layout to conform to vrs convention
+  magnetometerData.magTesla[0] = magnetometerData.magTesla[0] * 1e-6;
+  magnetometerData.magTesla[1] = magnetometerData.magTesla[1] * 1e-6;
+  magnetometerData.magTesla[2] = magnetometerData.magTesla[2] * 1e-6;
   return magnetometerData;
-}
-
-PpgData RecordReaderInterface::getLastCachedPpgData(const vrs::StreamId& streamId) {
-  std::unique_lock<std::mutex> readLock(*(streamIdToPlayerMutex_.at(streamId)));
-  auto ppgData = ppgPlayers_[streamId]->getDataRecord();
-  streamIdToCondition_.at(streamId)->notify_one();
-  return ppgData;
-}
-
-AlsData RecordReaderInterface::getLastCachedAlsData(const vrs::StreamId& streamId) {
-  std::unique_lock<std::mutex> readLock(*(streamIdToPlayerMutex_.at(streamId)));
-  auto alsData = alsPlayers_[streamId]->getDataRecord();
-  streamIdToCondition_.at(streamId)->notify_one();
-  return alsData;
-}
-
-TemperatureData RecordReaderInterface::getLastCachedTemperatureData(const vrs::StreamId& streamId) {
-  std::unique_lock<std::mutex> readLock(*(streamIdToPlayerMutex_.at(streamId)));
-  auto temperatureData = temperaturePlayers_[streamId]->getDataRecord();
-  streamIdToCondition_.at(streamId)->notify_one();
-  return temperatureData;
-}
-
-BatteryStatusData RecordReaderInterface::getLastCachedBatteryStatusData(
-    const vrs::StreamId& streamId) {
-  std::unique_lock<std::mutex> readLock(*(streamIdToPlayerMutex_.at(streamId)));
-  auto batteryStatusData = batteryStatusPlayers_[streamId]->getDataRecord();
-  streamIdToCondition_.at(streamId)->notify_one();
-  return batteryStatusData;
 }
 
 uint32_t RecordReaderInterface::getRgbIspTuningVersion() const {
@@ -651,37 +421,4 @@ uint32_t RecordReaderInterface::getRgbIspTuningVersion() const {
   }
   return 0;
 }
-
-FrontendOutput RecordReaderInterface::getLastCachedVioData(const vrs::StreamId& streamId) {
-  std::unique_lock<std::mutex> readLock(*(streamIdToPlayerMutex_.at(streamId)));
-  auto vioData = vioPlayers_[streamId]->getDataRecord();
-  streamIdToCondition_.at(streamId)->notify_one();
-  return vioData;
-}
-
-OnDeviceVioHighFreqData RecordReaderInterface::getLastCachedVioHighFreqData(
-    const vrs::StreamId& streamId) {
-  std::unique_lock<std::mutex> readLock(*(streamIdToPlayerMutex_.at(streamId)));
-  auto vioHighFreqData = vioHighFreqPlayers_[streamId]->getDataRecord();
-  streamIdToCondition_.at(streamId)->notify_one();
-  return vioHighFreqData;
-}
-
-OnDeviceEyeGazeData RecordReaderInterface::getLastCachedEyeGazeData(const vrs::StreamId& streamId) {
-  std::unique_lock<std::mutex> readLock(*(streamIdToPlayerMutex_.at(streamId)));
-  // TODO: Decide if we want to return OSS type data
-  auto eyeGazeData = eyegazePlayers_[streamId]->getDataRecord();
-  streamIdToCondition_.at(streamId)->notify_one();
-  return eyeGazeData;
-}
-
-OnDeviceHandPoseData RecordReaderInterface::getLastCachedHandPoseData(
-    const vrs::StreamId& streamId) {
-  std::unique_lock<std::mutex> readLock(*(streamIdToPlayerMutex_.at(streamId)));
-  // TODO: Decide if we want to return OSS type data
-  auto handPoseData = handPosePlayers_[streamId]->getDataRecord();
-  streamIdToCondition_.at(streamId)->notify_one();
-  return handPoseData;
-}
-
 } // namespace projectaria::tools::data_provider

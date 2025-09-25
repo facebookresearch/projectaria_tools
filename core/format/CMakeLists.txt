@@ -13,5 +13,4 @@
 # limitations under the License.
 
 add_library(format INTERFACE)
-target_link_libraries(format INTERFACE fmt::fmt)
 target_include_directories(format INTERFACE .)

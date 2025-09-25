@@ -27,7 +27,7 @@ namespace projectaria::tools::mps {
 /**
  * @brief An enumeration representing the side (left or right) of the hand tracking data.
  */
-enum class HANDEDNESS : uint8_t { LEFT = 0, RIGHT = 1 };
+enum class HANDEDNESS { LEFT = 0, RIGHT = 1 };
 
 // A enum class to represent the type of hand landmarks
 enum class HandLandmark : uint8_t {
@@ -63,7 +63,6 @@ enum class HandLandmark : uint8_t {
   NUM_LANDMARKS = 21,
 };
 
-// Type for single hand 3D landmarks, (x, y, z) array in meters in device coordinate
 constexpr uint32_t kNumHandLandmarks = static_cast<uint32_t>(HandLandmark::NUM_LANDMARKS);
 using Landmarks = std::array<Eigen::Vector3d, kNumHandLandmarks>;
 
@@ -98,12 +97,10 @@ constexpr std::array<std::pair<HandLandmark, HandLandmark>, kNumHandJointConnect
  * @brief A struct representing wrist and palm tracking status per frame.
  */
 struct WristAndPalmPose {
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   struct OneSide {
-    // Gen1 data fields
-    double confidence;
-    Eigen::Vector3d wristPosition_device;
-    Eigen::Vector3d palmPosition_device;
+    double confidence = 0.;
+    Eigen::Vector3d wristPosition_device{0., 0., 0.};
+    Eigen::Vector3d palmPosition_device{0., 0., 0.};
     struct WristAndPalmNormals {
       Eigen::Vector3d palmNormal_device{0., 0., 0.};
       Eigen::Vector3d wristNormal_device{0., 0., 0.};
@@ -169,61 +166,4 @@ using WristAndPalmPoses = std::vector<WristAndPalmPose>;
  * @brief alias to represent a vector of `HandTrackingResult`
  */
 using HandTrackingResults = std::vector<HandTrackingResult>;
-
-/**
- * @brief Linear interpolation between two HandTrackingResult objects based on target timestamp.
- *      1. A hand (left/right) is only interpolated if both input results have valid data for that
- * hand. If either input is missing a hand, the interpolated result will have nullopt for that hand.
- *      2. Returns nullopt if the time difference between input results exceeds 100ms (interpolation
- * is considered unreliable beyond this threshold for landmark positions).
- *
- * @param handPose1 First hand tracking result
- * @param handPose2 Second hand tracking result
- * @param alpha Interpolation factor [0.0, 1.0], where 0.0 returns handPose1 and 1.0 returns
- * handPose2
- * @param timestamp Target timestamp for the interpolated result (must be consistent with alpha)
- * @return std::optional<HandTrackingResult> Interpolated result, or nullopt if time difference >
- * 100ms
- *
- * @throws std::invalid_argument if alpha is outside [0.0, 1.0] or timestamp is inconsistent with
- * alpha
- */
-std::optional<HandTrackingResult> interpolateHandTrackingResult(
-    const HandTrackingResult& handPose1,
-    const HandTrackingResult& handPose2,
-    double alpha,
-    std::chrono::microseconds timestamp);
-
-/**
- * @brief Linear interpolation between two HandTrackingResult objects based on target timestamp.
- *      1. A hand (left/right) is only interpolated if both input results have valid data for that
- * hand. If either input is missing a hand, the interpolated result will have nullopt for that hand.
- *      2. Returns nullopt if the time difference between input results exceeds 100ms (interpolation
- * is considered unreliable beyond this threshold for landmark positions).
- *
- * @param handPose1 First hand tracking result (should have earlier timestamp)
- * @param handPose2 Second hand tracking result (should have later timestamp)
- *
- * @param targetTimestamp Target timestamp for interpolation (should be between handPose1 and
- *handPose2)
- * @return std::optional<HandTrackingResult> Interpolated result, or nullopt if time difference >
- * 100ms
- * @throws std::invalid_argument if targetTimestamp is outside the range [handPose1.timestamp,
- * handPose2.timestamp]
- */
-std::optional<HandTrackingResult> interpolateHandTrackingResult(
-    const HandTrackingResult& handPose1,
-    const HandTrackingResult& handPose2,
-    std::chrono::microseconds targetTimestamp);
-
-/**
- * @brief Calculate the palm normal vector (pointing out of palm) by approximating with
- * the normal of a triangle formed by wrist, index proximal, and pinky proximal landmarks.
- *
- * @param landmarks Array of hand landmark positions
- * @param handedness Whether this is a left or right hand (affects normal direction)
- * @return Eigen::Vector3d Normalized palm normal vector
- */
-Eigen::Vector3d estimatePalmNormal(const Landmarks& landmarks, HANDEDNESS handedness);
-
 } // namespace projectaria::tools::mps

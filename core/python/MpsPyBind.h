@@ -51,7 +51,6 @@ void exportMps(py::module& m) {
 
   // gaze vergence fields
   py::class_<EyeGazeVergence>(m, "EyeGazeVergence")
-      .def(py::init<>())
       .def_readwrite("left_yaw", &EyeGazeVergence::left_yaw)
       .def_readwrite("right_yaw", &EyeGazeVergence::right_yaw)
       .def_readwrite("left_yaw_low", &EyeGazeVergence::left_yaw_low)
@@ -63,70 +62,10 @@ void exportMps(py::module& m) {
       .def_readwrite("tz_left_eye", &EyeGazeVergence::tz_left_eye)
       .def_readwrite("tx_right_eye", &EyeGazeVergence::tx_right_eye)
       .def_readwrite("ty_right_eye", &EyeGazeVergence::ty_right_eye)
-      .def_readwrite("tz_right_eye", &EyeGazeVergence::tz_right_eye)
-      .def_readwrite("left_pitch", &EyeGazeVergence::left_pitch)
-      .def_readwrite("right_pitch", &EyeGazeVergence::right_pitch)
-      .def_readwrite("left_blink", &EyeGazeVergence::left_blink)
-      .def_readwrite("right_blink", &EyeGazeVergence::right_blink)
-      .def_readwrite("left_gaze_valid", &EyeGazeVergence::left_gaze_valid)
-      .def_readwrite("right_gaze_valid", &EyeGazeVergence::right_gaze_valid)
-      .def_readwrite("left_blink_valid", &EyeGazeVergence::left_blink_valid)
-      .def_readwrite("right_blink_valid", &EyeGazeVergence::right_blink_valid)
-      .def(py::pickle(
-          [](const EyeGazeVergence& vergence) { // __getstate__
-            return py::make_tuple(
-                vergence.left_yaw,
-                vergence.right_yaw,
-                vergence.left_yaw_low,
-                vergence.right_yaw_low,
-                vergence.left_yaw_high,
-                vergence.right_yaw_high,
-                vergence.tx_left_eye,
-                vergence.ty_left_eye,
-                vergence.tz_left_eye,
-                vergence.tx_right_eye,
-                vergence.ty_right_eye,
-                vergence.tz_right_eye,
-                vergence.left_pitch,
-                vergence.right_pitch,
-                vergence.left_blink,
-                vergence.right_blink,
-                vergence.left_gaze_valid,
-                vergence.right_gaze_valid,
-                vergence.left_blink_valid,
-                vergence.right_blink_valid);
-          },
-          [](py::tuple t) { // __setstate__
-            if (t.size() != 20) {
-              throw std::runtime_error("Invalid state!");
-            }
-            EyeGazeVergence vergence;
-            vergence.left_yaw = t[0].cast<float>();
-            vergence.right_yaw = t[1].cast<float>();
-            vergence.left_yaw_low = t[2].cast<float>();
-            vergence.right_yaw_low = t[3].cast<float>();
-            vergence.left_yaw_high = t[4].cast<float>();
-            vergence.right_yaw_high = t[5].cast<float>();
-            vergence.tx_left_eye = t[6].cast<float>();
-            vergence.ty_left_eye = t[7].cast<float>();
-            vergence.tz_left_eye = t[8].cast<float>();
-            vergence.tx_right_eye = t[9].cast<float>();
-            vergence.ty_right_eye = t[10].cast<float>();
-            vergence.tz_right_eye = t[11].cast<float>();
-            vergence.left_pitch = t[12].cast<float>();
-            vergence.right_pitch = t[13].cast<float>();
-            vergence.left_blink = t[14].cast<bool>();
-            vergence.right_blink = t[15].cast<bool>();
-            vergence.left_gaze_valid = t[16].cast<bool>();
-            vergence.right_gaze_valid = t[17].cast<bool>();
-            vergence.left_blink_valid = t[18].cast<bool>();
-            vergence.right_blink_valid = t[19].cast<bool>();
-            return vergence;
-          }));
+      .def_readwrite("tz_right_eye", &EyeGazeVergence::tz_right_eye);
 
-  // gaze (Gen1 + Gen2)
+  // gaze
   py::class_<EyeGaze>(m, "EyeGaze", "An object representing single Eye gaze output.")
-      .def(py::init<>())
       .def_readwrite(
           "tracking_timestamp",
           &EyeGaze::trackingTimestamp,
@@ -163,61 +102,6 @@ void exportMps(py::module& m) {
           "session_uid",
           &EyeGaze::session_uid,
           "`unique id` for the calibration session. If there are multiple in-session calibrations in the recording, each segment will have a different `session_uid`.")
-      .def_readwrite(
-          "combined_gaze_origin_in_cpf",
-          &EyeGaze::combined_gaze_origin_in_cpf,
-          "Combined gaze origin in CPF frame. This is the common origin for both eyes. This field is only available in the Gen2 model output")
-      .def_readwrite(
-          "combined_gaze_valid",
-          &EyeGaze::combined_gaze_valid,
-          "A flag to indicate if the combined gaze origin, yaw, and pitch are valid.")
-      .def_readwrite(
-          "spatial_gaze_point_in_cpf",
-          &EyeGaze::spatial_gaze_point_in_cpf,
-          "Spatial gaze point in CPF frame. ")
-      .def_readwrite(
-          "spatial_gaze_point_valid",
-          &EyeGaze::spatial_gaze_point_valid,
-          "A flag to indicate if the spatial gaze point is valid.")
-      .def(py::pickle(
-          [](const EyeGaze& gaze) { // __getstate__
-            return py::make_tuple(
-                int64_t(gaze.trackingTimestamp.count()),
-                gaze.yaw,
-                gaze.vergence,
-                gaze.pitch,
-                gaze.depth,
-                gaze.yaw_low,
-                gaze.pitch_low,
-                gaze.yaw_high,
-                gaze.pitch_high,
-                gaze.session_uid,
-                gaze.combined_gaze_origin_in_cpf,
-                gaze.combined_gaze_valid,
-                gaze.spatial_gaze_point_in_cpf,
-                gaze.spatial_gaze_point_valid);
-          },
-          [](py::tuple t) { // __setstate__
-            if (t.size() != 14) {
-              throw std::runtime_error("Invalid state!");
-            }
-            EyeGaze gaze;
-            gaze.trackingTimestamp = std::chrono::microseconds(t[0].cast<int64_t>());
-            gaze.yaw = t[1].cast<float>();
-            gaze.vergence = t[2].cast<EyeGazeVergence>();
-            gaze.pitch = t[3].cast<float>();
-            gaze.depth = t[4].cast<float>();
-            gaze.yaw_low = t[5].cast<float>();
-            gaze.pitch_low = t[6].cast<float>();
-            gaze.yaw_high = t[7].cast<float>();
-            gaze.pitch_high = t[8].cast<float>();
-            gaze.session_uid = t[9].cast<std::string>();
-            gaze.combined_gaze_origin_in_cpf = t[10].cast<Eigen::Vector3f>();
-            gaze.combined_gaze_valid = t[11].cast<bool>();
-            gaze.spatial_gaze_point_in_cpf = t[12].cast<Eigen::Vector3f>();
-            gaze.spatial_gaze_point_valid = t[13].cast<bool>();
-            return gaze;
-          }))
       .def("__repr__", [](EyeGaze const& self) { return fmt::to_string(self); });
 
   m.def(
@@ -230,19 +114,6 @@ void exportMps(py::module& m) {
   path: Path to the eye gaze csv file.
 
   )docdelimiter");
-
-  m.def(
-      "get_unit_vector_from_yaw_pitch",
-      &getUnitVectorFromYawPitch,
-      py::arg("yaw_rads"),
-      py::arg("pitch_rads"),
-      R"docdelimiter( Get Gaze Direction as Vector 3D given yaw and pitch values.
-  Parameters
-  __________
-  yaw_rads: Yaw angle in radians.
-  pitch_rads: Pitch angle in radians.
-  )docdelimiter");
-
   m.def(
       "get_eyegaze_point_at_depth",
       &getEyeGazePointAtDepth,
@@ -316,7 +187,6 @@ void exportMps(py::module& m) {
   In some datasets we also share and use this format for trajectory pose ground truth from
   simulation or Optitrack
     )docdelimiter")
-      .def(py::init<>())
       .def_readwrite(
           "tracking_timestamp",
           &ClosedLoopTrajectoryPose::trackingTimestamp,
@@ -363,7 +233,6 @@ void exportMps(py::module& m) {
         and travel distance. Consider using closed loop trajectory if you are looking for trajectory
         without drift error.
     )docdelimiter")
-      .def(py::init<>())
       .def_readwrite(
           "tracking_timestamp",
           &OpenLoopTrajectoryPose::trackingTimestamp,
@@ -395,7 +264,6 @@ void exportMps(py::module& m) {
           &OpenLoopTrajectoryPose::sessionUid,
           "Unique identifier of the odometry coordinate frame. When the session_uid is the same, poses and velocities are defined in the same coordinate frame.")
       .def("__repr__", [](OpenLoopTrajectoryPose const& self) { return fmt::to_string(self); });
-
   m.def(
       "read_open_loop_trajectory",
       &readOpenLoopTrajectory,
@@ -418,7 +286,6 @@ void exportMps(py::module& m) {
 
   // online calibrations
   py::class_<OnlineCalibration>(m, "OnlineCalibration")
-      .def(py::init<>())
       .def_readwrite(
           "tracking_timestamp",
           &OnlineCalibration::trackingTimestamp,
@@ -789,25 +656,14 @@ void exportMps(py::module& m) {
           py::return_value_policy::reference_internal,
           "Get the MPS wrist and palm pose. This will throw an exception if the wrist and palm "
           "poses are not available. Check for data availability first using "
-          "'has_wrist_and_palm_poses()'",
-          py::arg("capture_timestamp_ns"),
-          py::arg("time_query_options") = TimeQueryOptions::Closest)
+          "'has_wrist_and_palm_poses()'")
       .def(
           "get_hand_tracking_result",
           &MpsDataProvider::getHandTrackingResult,
           py::return_value_policy::reference_internal,
           "Get the MPS hand tracking result (landmarks, wrist transform, wrist and palm normals, etc.). "
           "This will throw an exception if the hand tracking results are not available."
-          "Check for data availability first using 'has_hand_tracking_results()'",
-          py::arg("capture_timestamp_ns"),
-          py::arg("time_query_options") = TimeQueryOptions::Closest)
-      .def(
-          "get_interpolated_hand_tracking_result",
-          &MpsDataProvider::getInterpolatedHandTrackingResult,
-          py::return_value_policy::reference_internal,
-          "Get the interploated MPS hand tracking result (landmarks, wrist transform, wrist and palm normals, etc.). "
-          "This will return None if the interpolation fails. Check the return value for validity.",
-          py::arg("capture_timestamp_ns"))
+          "Check for data availability first using 'has_hand_tracking_results()'")
       .def("get_slam_version", &MpsDataProvider::getSlamVersion, "Get the MPS SLAM version.")
       .def(
           "get_eyegaze_version",
@@ -824,7 +680,6 @@ void exportMps(py::module& m) {
       hand_tracking,
       "WristAndPalmPose",
       "An object representing WristAndPalmPose output at a single timestamp.")
-      .def(py::init<>())
       .def_readwrite(
           "tracking_timestamp",
           &WristAndPalmPose::trackingTimestamp,
@@ -843,7 +698,6 @@ void exportMps(py::module& m) {
       hand_tracking,
       "WristAndPalmPose.OneSide",
       "An object representing WristAndPalmPose output for one side of the body.")
-      .def(py::init<>())
       .def_readwrite(
           "confidence",
           &WristAndPalmPose::OneSide::confidence,
@@ -866,7 +720,6 @@ void exportMps(py::module& m) {
       hand_tracking,
       "WristAndPalmPose.OneSide.WristAndPalmNormals",
       "An object representing WristAndPalmNormals output for one side of the body.")
-      .def(py::init<>())
       .def_readwrite(
           "wrist_normal_device",
           &WristAndPalmPose::OneSide::WristAndPalmNormals::wristNormal_device,
@@ -891,11 +744,11 @@ void exportMps(py::module& m) {
       },
       py::arg("path"),
       R"docdelimiter(Read Wrist and Palm poses from the hand tracking output generated via MPS.
-    Parameters
-    __________
-    path: Path to the wrist and palm poses csv file.
+  Parameters
+  __________
+  path: Path to the wrist and palm poses csv file.
 
-    )docdelimiter");
+  )docdelimiter");
 
   py::enum_<HANDEDNESS>(hand_tracking, "Handedness")
       .value("LEFT", HANDEDNESS::LEFT)
@@ -923,8 +776,7 @@ void exportMps(py::module& m) {
       .value("PINKY_INTERMEDIATE", HandLandmark::PINKY_INTERMEDIATE)
       .value("PINKY_DISTAL", HandLandmark::PINKY_DISTAL)
       .value("PALM_CENTER", HandLandmark::PALM_CENTER)
-      .value("NUM_LANDMARKS", HandLandmark::NUM_LANDMARKS)
-      .export_values(); // Check if we can remove this. Seems still able to access the values.
+      .value("NUM_LANDMARKS", HandLandmark::NUM_LANDMARKS);
 
   // Expose constants
   hand_tracking.attr("kNumHandLandmarks") = kNumHandLandmarks;
@@ -935,7 +787,6 @@ void exportMps(py::module& m) {
       hand_tracking,
       "HandTrackingResult",
       "An object representing hand tracking output at a single timestamp.")
-      .def(py::init<>())
       .def_readwrite(
           "tracking_timestamp",
           &HandTrackingResult::trackingTimestamp,
@@ -954,7 +805,6 @@ void exportMps(py::module& m) {
       hand_tracking,
       "HandTrackingResult.OneSide",
       "An object representing HandTrackingResult output for one side of the body.")
-      .def(py::init<>())
       .def_readwrite(
           "confidence",
           &HandTrackingResult::OneSide::confidence,
@@ -986,7 +836,6 @@ void exportMps(py::module& m) {
       hand_tracking,
       "HandTrackingResult.OneSide.WristAndPalmNormals",
       "An object representing WristAndPalmNormals output for one side of the body.")
-      .def(py::init<>())
       .def_readwrite(
           "wrist_normal_device",
           &HandTrackingResult::OneSide::WristAndPalmNormals::wristNormal_device,
@@ -1004,11 +853,11 @@ void exportMps(py::module& m) {
       &readHandTrackingResults,
       py::arg("path"),
       R"docdelimiter(Read hand tracking results from the hand tracking output generated via MPS.
-    Parameters
-    __________
-    path: Path to the hand tracking results csv file.
+  Parameters
+  __________
+  path: Path to the hand tracking results csv file.
 
-    )docdelimiter");
+  )docdelimiter");
 }
 
 } // namespace projectaria::tools::mps

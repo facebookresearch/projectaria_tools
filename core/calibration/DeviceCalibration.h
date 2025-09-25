@@ -17,7 +17,6 @@
 #pragma once
 
 #include <calibration/DeviceCadExtrinsics.h>
-#include <calibration/DeviceVersion.h>
 #include <calibration/SensorCalibration.h>
 #include <image/ImageVariant.h>
 #include <sophus/se3.hpp>
@@ -53,8 +52,7 @@ class DeviceCalibration {
       const std::map<std::string, MicrophoneCalibration>& microphoneCalibs = {},
       const DeviceCadExtrinsics& deviceCadExtrinsics = {},
       const std::string& deviceSubtype = {},
-      const std::string& originLabel = {},
-      const DeviceVersion& deviceVersion = DeviceVersion::Gen1);
+      const std::string& originLabel = {});
 
   /**
    * @brief returns all labels for all the sensors
@@ -126,41 +124,11 @@ class DeviceCalibration {
    */
   std::optional<AriaMicCalibration> getAriaMicrophoneCalib() const;
 
-  std::map<std::string, CameraCalibration> getCameraCalibs() const {
-    return cameraCalibs_;
-  }
-
-  std::map<std::string, ImuCalibration> getImuCalibs() const {
-    return imuCalibs_;
-  }
-
-  std::map<std::string, MagnetometerCalibration> getMagnetometerCalibs() const {
-    return magnetometerCalibs_;
-  }
-
-  std::map<std::string, BarometerCalibration> getBarometerCalibs() const {
-    return barometerCalibs_;
-  }
-
-  std::map<std::string, MicrophoneCalibration> getMicrophoneCalibs() const {
-    return microphoneCalibs_;
-  }
-
   /**
-   * @brief Get the version of device, Gen1 or Gen2.
-   */
-  DeviceVersion getDeviceVersion() const;
-
-  /**
-   * @brief Get the subtype of device. For Aria Gen1, this is 'DVT-S' or 'DVT-L' to indicate the
-   * size of the Aria unit.
-   * TODO: Add comments for Aria Gen2.
+   * @brief Get the subtype of device. For Aria, this is 'DVT-S' or 'DVT-L' to indicate the size of
+   * the Aria unit.
    */
   std::string getDeviceSubtype() const;
-
-  DeviceCadExtrinsics getDeviceCadExtrinsics() const {
-    return deviceCadExtrinsics_;
-  }
 
   /**
    * @brief returns relative pose between device frame (anchored to a particular sensor defined by
@@ -226,7 +194,6 @@ class DeviceCalibration {
 
   std::string deviceSubtype_;
   std::string originLabel_;
-  DeviceVersion deviceVersion_;
   std::string devignettingMaskFolderPath_;
 };
 

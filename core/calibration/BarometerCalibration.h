@@ -24,13 +24,11 @@ class BarometerCalibration {
   BarometerCalibration(const std::string& label, double slope, double offsetPa);
 
   std::string getLabel() const;
-  double getSlope() const;
-  double getOffsetPa() const;
 
   // convert from raw to rectified data to compensate system error
-  double rawToRectified(const double raw) const;
+  double rawToRectified(double raw) const;
   // inverse function of rawToRectified, for simulating raw sensor data from actual (rectified) data
-  double rectifiedToRaw(const double rectified) const;
+  double rectifiedToRaw(double rectified) const;
 
  private:
   std::string label_;
