@@ -27,8 +27,6 @@ enum class MetadataTimeSyncMode : int {
   Ntp = 2,
   TicSyncClient = 3,
   TicSyncServer = 4,
-  SubGhz = 5,
-  Utc = 6,
 };
 
 /**

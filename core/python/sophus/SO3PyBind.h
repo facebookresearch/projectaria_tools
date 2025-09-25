@@ -25,8 +25,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-namespace py = pybind11;
-
 namespace sophus {
 
 // In python, we choose to export our Sophus::SO3 as a vector of SO3 objects by binding the cpp
@@ -75,34 +73,8 @@ struct type_caster<Sophus::SO3<double>> {
   }
 
   // converting from c++ -> python type
-  static handle cast(const Sophus::SO3<double>& src, return_value_policy policy, handle parent) {
+  static handle cast(Sophus::SO3<double> src, return_value_policy policy, handle parent) {
     return type_caster_base<sophus::SO3Group<double>>::cast(sophus::SO3Group(src), policy, parent);
-  }
-};
-
-template <>
-struct type_caster<Sophus::SO3<float>> {
- public:
-  PYBIND11_TYPE_CASTER(Sophus::SO3<float>, _("SO3f"));
-
-  // converting from python -> c++ type
-  bool load(handle src, bool /*convert*/) {
-    try {
-      sophus::SO3Group<float>& ref = src.cast<sophus::SO3Group<float>&>();
-      if (ref.size() != 1) {
-        throw std::domain_error(fmt::format(
-            "A element of size 1 is required here. Input has {} elements.", ref.size()));
-      }
-      value = ref[0];
-      return true;
-    } catch (const pybind11::cast_error&) {
-      return false; // Conversion failed
-    }
-  }
-
-  // converting from c++ -> python type
-  static handle cast(const Sophus::SO3<float>& src, return_value_policy policy, handle parent) {
-    return type_caster_base<sophus::SO3Group<float>>::cast(sophus::SO3Group(src), policy, parent);
   }
 };
 } // namespace pybind11::detail
@@ -122,17 +94,6 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
       }),
       " Default Constructor initializing a group containing 1 identity element");
   type.def(pybind11::init<const Sophus::SO3<Scalar>&>(), "Copy constructor from single element");
-  type.def(py::pickle(
-      [](const SO3Group<Scalar>& rotations) { // __getstate__
-        return pybind11::make_tuple(rotations[0].params());
-      },
-      [](const pybind11::tuple& t) { // __setstate__
-        if (t.size() != 1) {
-          throw std::runtime_error("Invalid state!");
-        }
-        return SO3Group<Scalar>{
-            Sophus::SO3<Scalar>(Eigen::Quaternion<Scalar>(t[0].cast<Sophus::Vector<Scalar, 4>>()))};
-      }));
 
   type.def_static(
       "exp",
@@ -337,7 +298,7 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
   type.def(
       "__getitem__",
       [](const SO3Group<Scalar>& so3Vec,
-         const pybind11::object& index_or_slice_or_list) -> SO3Group<Scalar> {
+         pybind11::object index_or_slice_or_list) -> SO3Group<Scalar> {
         if (pybind11::isinstance<pybind11::slice>(index_or_slice_or_list)) {
           pybind11::slice slice = index_or_slice_or_list.cast<pybind11::slice>();
           size_t start, stop, step, slicelength;
@@ -372,7 +333,7 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
   type.def(
       "__setitem__",
       [](SO3Group<Scalar>& so3Vec,
-         const pybind11::object& index_or_slice_or_list,
+         pybind11::object index_or_slice_or_list,
          const SO3Group<Scalar>& value) {
         if (pybind11::isinstance<pybind11::slice>(index_or_slice_or_list)) {
           pybind11::slice slice(index_or_slice_or_list);

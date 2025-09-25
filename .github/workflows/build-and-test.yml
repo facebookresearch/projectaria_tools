@@ -15,7 +15,6 @@ jobs:
     name: Build projectaria_tools on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         os: [ubuntu-22.04,  macos-13, macos-14] # macos-14 is macSilicon
     steps:
@@ -44,23 +43,17 @@ jobs:
                 libboost-date-time-dev \
                 libboost-filesystem-dev \
                 libboost-iostreams-dev \
-                libboost-system-dev \
-                libopus-dev
+                libboost-system-dev
 
               # Clean APT cache
               sudo apt-get clean
 
-              # Install FFmpeg as third-party dependency
-              ./build_third_party_libs/build_ffmpeg_linuxunix.sh
-
           elif [ "$RUNNER_OS" == "macOS" ]; then
               # Update or install cmake
               brew upgrade cmake || brew install cmake
-              # VRS dependencies
-              brew install boost fmt googletest glog lz4 zstd xxhash libpng jpeg-turbo opus
 
-              # Install FFmpeg as third-party dependency
-              ./build_third_party_libs/build_ffmpeg_linuxunix.sh
+              # VRS dependencies
+              brew install boost fmt googletest glog lz4 zstd xxhash libpng jpeg-turbo
           else
               echo "$RUNNER_OS not supported"
               exit 1
@@ -93,8 +86,7 @@ jobs:
           CMAKE_BUILD_PARALLEL_LEVEL=4 pip3 install .
 
           # Run Python unit tests
-          export TEST_FOLDER="./data/gen1/"
-          export TEST_FOLDER_GEN2="./data/gen2/"
+          export TEST_FOLDER="./data/"
           python3 -m unittest core/python/test/corePyBindTest.py
           python3 -m unittest core/python/test/mpsPyBindTest.py
           python3 -m unittest core/python/sophus/test/sophusPybindTest.py
@@ -102,9 +94,9 @@ jobs:
       - name: Test Python Notebooks
         shell: bash
         run: |
-          cd examples/Gen2/python_notebooks
+          cd core/examples
           # Installing dependencies
-          pip3 install jupyter matplotlib tqdm pillow plotly
+          pip3 install jupyter matplotlib tqdm pillow
           # Running the notebooks
           jupyter nbconvert --execute --inplace dataprovider_quickstart_tutorial.ipynb
 

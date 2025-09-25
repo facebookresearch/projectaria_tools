@@ -208,15 +208,6 @@ class MpsDataProvider {
       const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Closest);
 
   /**
-   * @brief Query MPS for Hand tracking result, at a specific timestamp, and return interpolated
-   * pose.
-   * @param deviceTimeStampNs The query timestamp in `TimeDomain::DeviceTime`.
-   * @return optional HandTrackingResult, will return invalid if the query is
-   * out of bound
-   */
-  std::optional<HandTrackingResult> getInterpolatedHandTrackingResult(int64_t deviceTimeStampNs);
-
-  /**
    * @brief Check if HandTrackingResults are available in the MPS data paths
    * @return true if data is available, false otherwise
    */

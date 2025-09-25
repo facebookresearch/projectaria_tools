@@ -34,8 +34,7 @@ DeviceCalibration::DeviceCalibration(
     const std::map<std::string, MicrophoneCalibration>& microphoneCalibs,
     const DeviceCadExtrinsics& deviceCadExtrinsics,
     const std::string& deviceSubtype,
-    const std::string& originLabel,
-    const DeviceVersion& deviceVersion)
+    const std::string& originLabel)
     : cameraCalibs_(cameraCalibs),
       imuCalibs_(imuCalibs),
       magnetometerCalibs_(magnetometerCalibs),
@@ -43,8 +42,7 @@ DeviceCalibration::DeviceCalibration(
       microphoneCalibs_(microphoneCalibs),
       deviceCadExtrinsics_(deviceCadExtrinsics),
       deviceSubtype_(deviceSubtype),
-      originLabel_(originLabel),
-      deviceVersion_(deviceVersion) {
+      originLabel_(originLabel) {
   for (const auto& [label, calib] : cameraCalibs) {
     allCalibs_.emplace(label, calib);
   }
@@ -194,10 +192,6 @@ std::optional<AriaMicCalibration> DeviceCalibration::getAriaMicrophoneCalib() co
   return calib;
 }
 
-DeviceVersion DeviceCalibration::getDeviceVersion() const {
-  return deviceVersion_;
-}
-
 std::string DeviceCalibration::getDeviceSubtype() const {
   return deviceSubtype_;
 }
@@ -215,8 +209,7 @@ std::optional<Sophus::SE3d> DeviceCalibration::getT_Device_Sensor(
   } else {
     // Get calibrated extrinsics for camera
     if (label == "camera-slam-left" || label == "camera-slam-right" || label == "camera-rgb" ||
-        label == "camera-et-left" || label == "camera-et-right" || label == "slam-front-left" ||
-        label == "slam-front-right" || label == "slam-side-left" || label == "slam-side-right") {
+        label == "camera-et-left" || label == "camera-et-right") {
       const auto maybeCamCalib = getCameraCalib(label);
       if (maybeCamCalib.has_value()) {
         return maybeCamCalib.value().getT_Device_Camera();

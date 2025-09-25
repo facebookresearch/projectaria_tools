@@ -25,14 +25,6 @@ std::string BarometerCalibration::getLabel() const {
   return label_;
 }
 
-double BarometerCalibration::getSlope() const {
-  return slope_;
-}
-
-double BarometerCalibration::getOffsetPa() const {
-  return offsetPa_;
-}
-
 double BarometerCalibration::rawToRectified(const double raw) const {
   return slope_ * raw + offsetPa_;
 }

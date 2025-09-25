@@ -167,8 +167,8 @@ RotationalSymmetry getRotationalSymmetryFromInstancesJsonObject(
 }
 
 CanonicalPose getCanonicalPoseFromInstancesJsonObject(
-    rapidjson::GenericObject<true, rapidjson::GenericValue<rapidjson::UTF8<>>>&
-        canonicalPoseObject) {
+    rapidjson::GenericObject<true, rapidjson::GenericValue<rapidjson::UTF8<>>>& canonicalPoseObject,
+    const std::string& instanceInfoKey) {
   CanonicalPose canonicalPose;
   if (canonicalPoseObject.HasMember(kCanonicalPoseUpKey.c_str()) &&
       canonicalPoseObject.HasMember(kCanonicalPoseFrontKey.c_str())) {
@@ -672,7 +672,8 @@ void AriaDigitalTwinDataProvider::loadInstancesInfo() {
       logErrorAndThrow(fmt::format(kInstanceFileErrorTemplate, kCanonicalPoseKey, instanceInfoKey));
     }
     auto canonicalPoseObject = instanceInfoValue[kCanonicalPoseKey.c_str()].GetObject();
-    instanceInfo.canonicalPose = getCanonicalPoseFromInstancesJsonObject(canonicalPoseObject);
+    instanceInfo.canonicalPose =
+        getCanonicalPoseFromInstancesJsonObject(canonicalPoseObject, instanceInfoKey);
 
     instancesInfo_[instanceInfo.id] = instanceInfo;
   }

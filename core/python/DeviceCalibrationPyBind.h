@@ -20,7 +20,6 @@
 
 #include <calibration/CameraCalibrationFormat.h>
 #include <calibration/DeviceCalibration.h>
-#include <calibration/DeviceVersion.h>
 #include <calibration/ImuMagnetometerCalibrationFormat.h>
 #include <calibration/loader/DeviceCalibrationJson.h>
 #include <calibration/utility/Distort.h>
@@ -42,29 +41,6 @@ namespace projectaria::tools::calibration {
 namespace py = pybind11;
 
 namespace {
-
-inline void declareDeviceVersion(py::module& m) {
-  py::enum_<DeviceVersion>(
-      m, "DeviceVersion", "A enum class that represents the version of the device: Gen1, Gen2.")
-      .value("NotValid", DeviceVersion::NotValid)
-      .value("Gen1", DeviceVersion::Gen1)
-      .value("Gen2", DeviceVersion::Gen2)
-      .export_values()
-      .def(py::pickle(
-          [](const DeviceVersion& version) { // __getstate__
-            return static_cast<int>(version);
-          },
-          [](int state) { // __setstate__
-            return static_cast<DeviceVersion>(state);
-          }));
-  m.def("get_name", &getName, "Get the name from device version", py::arg("deviceVersion"));
-  m.def(
-      "from_device_class_name",
-      &fromDeviceClassName,
-      "Get the device version from a class name in calibration",
-      py::arg("name"));
-}
-
 inline void declareCameraCalibration(py::module& m) {
   using namespace projectaria::tools::calibration;
 
@@ -103,20 +79,7 @@ inline void declareCameraCalibration(py::module& m) {
       .def(
           "get_focal_lengths",
           &CameraProjection::getFocalLengths,
-          "returns focal lengths as {fx, fy}.")
-      .def(py::pickle(
-          [](const CameraProjection& projection) { // __getstate__
-            return py::make_tuple(projection.modelName(), projection.projectionParams());
-          },
-          [](py::tuple t) { // __setstate__
-            if (t.size() != 2) {
-              throw std::runtime_error("Invalid state!");
-            }
-
-            auto modelType = t[0].cast<CameraProjection::ModelType>();
-            auto projectionParams = t[1].cast<Eigen::VectorXd>();
-            return CameraProjection(modelType, projectionParams);
-          }));
+          "returns focal lengths as {fx, fy}.");
 
   py::enum_<CameraProjection::ModelType>(
       m,
@@ -142,15 +105,8 @@ inline void declareCameraCalibration(py::module& m) {
       .value(
           "FISHEYE62",
           CameraProjection::ModelType::Fisheye62,
-          "Spherical + polynomial radial distortion up to 11-th order.")
-      .export_values()
-      .def(py::pickle(
-          [](const CameraProjection::ModelType& type) { // __getstate__
-            return static_cast<int>(type);
-          },
-          [](int state) { // __setstate__
-            return static_cast<CameraProjection::ModelType>(state);
-          }));
+          "Spherical + polynomial radial distortion up to 11-th order")
+      .export_values();
 
   py::class_<CameraCalibration>(
       m,
@@ -208,7 +164,7 @@ inline void declareCameraCalibration(py::module& m) {
     max_solid_angle: an angle theta representing the FOV cone of the camera. Rays out of
             [-theta, +theta] will be rejected during projection
     serial_number: Serial number of the camera.
-    time_offset_sec_device_camera: time offset in second between the camera mid exposure time and the capture
+    time_offset_sec_device_camera: time offset in second between the camera mid exposure time and the capture 
     timestamp.)pbdoc")
       .def(
           py::init<
@@ -237,7 +193,7 @@ inline void declareCameraCalibration(py::module& m) {
     max_solid_angle: an angle theta representing the FOV cone of the camera. Rays out of
             [-theta, +theta] will be rejected during projection
     serial_number: Serial number of the camera.
-    time_offset_sec_device_camera: time offset in second between the camera mid exposure time and the capture
+    time_offset_sec_device_camera: time offset in second between the camera mid exposure time and the capture 
     timestamp.
     maybe_readout_time_sec: readout time in second to read from the first pixel to the last pixel.)pbdoc")
       .def("get_label", &CameraCalibration::getLabel)
@@ -306,38 +262,6 @@ inline void declareCameraCalibration(py::module& m) {
           "Obtain a new camera calibration after translation and scaling transform from the original "
           "camera calibration. <br> transform is done in the order of (1) shift -> (2) scaling. <\br>"
           "Note that assymetric cropping is allowed")
-      .def(py::pickle(
-          [](const CameraCalibration& calib) { // __getstate__
-            return py::make_tuple(
-                calib.getLabel(),
-                calib.modelName(),
-                calib.projectionParams(),
-                calib.getT_Device_Camera(),
-                calib.getImageSize(),
-                calib.getValidRadius(),
-                calib.getMaxSolidAngle(),
-                calib.getSerialNumber(),
-                calib.getTimeOffsetSecDeviceCamera(),
-                calib.getReadOutTimeSec());
-          },
-          [](py::tuple t) { // __setstate__
-            if (t.size() != 10) {
-              throw std::runtime_error("Invalid state!");
-            }
-
-            return CameraCalibration(
-                t[0].cast<std::string>(),
-                t[1].cast<CameraProjection::ModelType>(),
-                t[2].cast<Eigen::VectorXd>(),
-                t[3].cast<Sophus::SE3d>(),
-                t[4].cast<std::pair<int, int>>().first,
-                t[4].cast<std::pair<int, int>>().second,
-                t[5].cast<std::optional<double>>(),
-                t[6].cast<double>(),
-                t[7].cast<std::string>(),
-                t[8].cast<double>(),
-                t[9].cast<std::optional<double>>());
-          }))
       .def("__repr__", [](const CameraCalibration& self) { return fmt::to_string(self); });
 
   m.def(
@@ -379,19 +303,7 @@ inline void declareLinearRectificationModel(py::module& m) {
           "get_rectification",
           &LinearRectificationModel3d::getRectification,
           "Get the rectification matrix. ")
-      .def("get_bias", &LinearRectificationModel3d::getBias, "Get the bias vector.")
-      .def(py::pickle( // __getstate__
-          [](const LinearRectificationModel3d& model) {
-            return py::make_tuple(model.getRectification(), model.getBias());
-          },
-          [](py::tuple t) { // __setstate__
-            if (t.size() != 2) {
-              throw std::runtime_error("Invalid state!");
-            }
-
-            return LinearRectificationModel3d(
-                t[0].cast<Eigen::Matrix3d>(), t[1].cast<Eigen::Vector3d>());
-          }));
+      .def("get_bias", &LinearRectificationModel3d::getBias, "Get the bias vector.");
 }
 
 inline void declareImuCalibration(py::module& m) {
@@ -441,29 +353,6 @@ inline void declareImuCalibration(py::module& m) {
           &ImuCalibration::getGyroModel,
           "Get gyroscope intrinsics model that contains rectification matrix and bias vector.")
       .def("get_transform_device_imu", &ImuCalibration::getT_Device_Imu)
-      .def(py::pickle(
-          [](const ImuCalibration& calib) { // __getstate__
-            return py::make_tuple(
-                calib.getLabel(),
-                calib.getAccelModel().getRectification(),
-                calib.getAccelModel().getBias(),
-                calib.getGyroModel().getRectification(),
-                calib.getGyroModel().getBias(),
-                calib.getT_Device_Imu());
-          },
-          [](py::tuple t) { // __setstate__
-            if (t.size() != 6) {
-              throw std::runtime_error("Invalid state!");
-            }
-
-            return ImuCalibration(
-                t[0].cast<std::string>(),
-                t[1].cast<Eigen::Matrix3d>(),
-                t[2].cast<Eigen::Vector3d>(),
-                t[3].cast<Eigen::Matrix3d>(),
-                t[4].cast<Eigen::Vector3d>(),
-                t[5].cast<Sophus::SE3d>());
-          }))
       .def("__repr__", [](const ImuCalibration& self) { return fmt::to_string(self); });
 }
 
@@ -486,23 +375,7 @@ inline void declareMagnetometerCalibration(py::module& m) {
           &MagnetometerCalibration::rectifiedToRaw,
           py::arg("rectified"),
           "simulate mag sensor readout from actual magnetic field"
-          " raw = rectificationMatrix * rectified + bias.")
-      .def("get_model", &MagnetometerCalibration::getModel, "Get magnetometer intrinsics model.")
-      .def(py::pickle(
-          [](const MagnetometerCalibration& self) { // __getstate__
-            return py::make_tuple(
-                self.getLabel(), self.getModel().getRectification(), self.getModel().getBias());
-          },
-          [](py::tuple t) { // __setstate__
-            if (t.size() != 3) {
-              throw std::runtime_error("Invalid state!");
-            }
-
-            return MagnetometerCalibration(
-                t[0].cast<std::string>(),
-                t[1].cast<Eigen::Matrix3d>(),
-                t[2].cast<Eigen::Vector3d>());
-          }));
+          " raw = rectificationMatrix * rectified + bias.");
 }
 
 inline void declareBarometerCalibration(py::module& m) {
@@ -510,21 +383,7 @@ inline void declareBarometerCalibration(py::module& m) {
       .def(py::init<const std::string&, double, double>())
       .def("get_label", &BarometerCalibration::getLabel)
       .def("raw_to_rectified", &BarometerCalibration::rawToRectified, py::arg("raw"))
-      .def("rectified_to_raw", &BarometerCalibration::rectifiedToRaw, py::arg("rectified"))
-      .def("get_slope", &BarometerCalibration::getSlope)
-      .def("get_offset_pa", &BarometerCalibration::getOffsetPa)
-      .def(py::pickle(
-          [](const BarometerCalibration& self) { // __getstate__
-            return py::make_tuple(self.getLabel(), self.getSlope(), self.getOffsetPa());
-          },
-          [](py::tuple t) { // __setstate__
-            if (t.size() != 3) {
-              throw std::runtime_error("Invalid state!");
-            }
-
-            return BarometerCalibration(
-                t[0].cast<std::string>(), t[1].cast<double>(), t[2].cast<double>());
-          }));
+      .def("rectified_to_raw", &BarometerCalibration::rectifiedToRaw, py::arg("rectified"));
 }
 
 inline void declareMicrophoneCalibration(py::module& m) {
@@ -533,19 +392,7 @@ inline void declareMicrophoneCalibration(py::module& m) {
       .def(py::init<const std::string&, double>())
       .def("get_label", &MicrophoneCalibration::getLabel)
       .def("raw_to_rectified", &MicrophoneCalibration::rawToRectified, py::arg("raw"))
-      .def("rectified_to_raw", &MicrophoneCalibration::rectifiedToRaw, py::arg("rectified"))
-      .def("get_d_sensitivity_1k_dbv", &MicrophoneCalibration::getDSensitivity1KDbv)
-      .def(py::pickle(
-          [](const MicrophoneCalibration& calib) {
-            return py::make_tuple(calib.getLabel(), calib.getDSensitivity1KDbv());
-          },
-          [](py::tuple t) {
-            if (t.size() != 2) {
-              throw std::runtime_error("Invalid state!");
-            }
-
-            return MicrophoneCalibration(t[0].cast<std::string>(), t[1].cast<double>());
-          }));
+      .def("rectified_to_raw", &MicrophoneCalibration::rectifiedToRaw, py::arg("rectified"));
 }
 
 inline void declareSensorCalibration(py::module& m) {
@@ -565,11 +412,7 @@ inline void declareSensorCalibration(py::module& m) {
       .value("MICROPHONE_CALIBRATION", SensorCalibrationType::MicrophoneCalibration)
       .value("ARIA_ET_CALIBRATION", SensorCalibrationType::AriaEtCalibration)
       .value("ARIA_MIC_CALIBRATION", SensorCalibrationType::AriaMicCalibration)
-      .export_values()
-      .export_values()
-      .def(py::pickle(
-          [](const SensorCalibrationType& type) { return static_cast<int>(type); },
-          [](int state) { return static_cast<SensorCalibrationType>(state); }));
+      .export_values();
 
   py::class_<SensorCalibration>(
       m,
@@ -610,61 +453,7 @@ inline void declareSensorCalibration(py::module& m) {
       .def(
           "sensor_calibration_type",
           &SensorCalibration::sensorCalibrationType,
-          "get the type of this sensor calibration as an enum.")
-      .def(py::pickle(
-          [](const SensorCalibration& calib) {
-            switch (calib.sensorCalibrationType()) {
-              case SensorCalibrationType::CameraCalibration:
-                return py::make_tuple(
-                    SensorCalibrationType::CameraCalibration, calib.cameraCalibration());
-              case SensorCalibrationType::ImuCalibration:
-                return py::make_tuple(
-                    SensorCalibrationType::ImuCalibration, calib.imuCalibration());
-              case SensorCalibrationType::MagnetometerCalibration:
-                return py::make_tuple(
-                    SensorCalibrationType::MagnetometerCalibration,
-                    calib.magnetometerCalibration());
-              case SensorCalibrationType::BarometerCalibration:
-                return py::make_tuple(
-                    SensorCalibrationType::BarometerCalibration, calib.barometerCalibration());
-              case SensorCalibrationType::MicrophoneCalibration:
-                return py::make_tuple(
-                    SensorCalibrationType::MicrophoneCalibration, calib.microphoneCalibration());
-              case SensorCalibrationType::AriaEtCalibration:
-                return py::make_tuple(
-                    SensorCalibrationType::AriaEtCalibration, calib.ariaEtCalibration());
-              case SensorCalibrationType::AriaMicCalibration:
-                return py::make_tuple(
-                    SensorCalibrationType::AriaMicCalibration, calib.ariaMicCalibration());
-              default:
-                throw std::runtime_error("Unsupported calibration type");
-            }
-          },
-          [](py::tuple t) {
-            if (t.size() != 2) {
-              throw std::runtime_error("Invalid state!");
-            }
-
-            auto type = t[0].cast<SensorCalibrationType>();
-            switch (type) {
-              case SensorCalibrationType::CameraCalibration:
-                return SensorCalibration(t[1].cast<CameraCalibration>());
-              case SensorCalibrationType::ImuCalibration:
-                return SensorCalibration(t[1].cast<ImuCalibration>());
-              case SensorCalibrationType::MagnetometerCalibration:
-                return SensorCalibration(t[1].cast<MagnetometerCalibration>());
-              case SensorCalibrationType::BarometerCalibration:
-                return SensorCalibration(t[1].cast<BarometerCalibration>());
-              case SensorCalibrationType::MicrophoneCalibration:
-                return SensorCalibration(t[1].cast<MicrophoneCalibration>());
-              case SensorCalibrationType::AriaEtCalibration:
-                return SensorCalibration(t[1].cast<AriaEtCalibration>());
-              case SensorCalibrationType::AriaMicCalibration:
-                return SensorCalibration(t[1].cast<AriaMicCalibration>());
-              default:
-                throw std::runtime_error("Unsupported calibration type");
-            }
-          }));
+          "get the type of this sensor calibration as an enum.");
 }
 
 inline void declareDeviceCalibration(py::module& m) {
@@ -672,26 +461,9 @@ inline void declareDeviceCalibration(py::module& m) {
       m, "DeviceCadExtrinsics", "This class retrieves fixed CAD extrinsics values for Aria Device")
       .def(py::init<>())
       .def(
-          py::init<const DeviceVersion&, const std::string&, const std::string&>(),
-          "Construct for Cad extrinsics based on device version, device sub type, and origin label, where the label of the origin (`Device` coordinate frame) sensor,"
-          "e.g. camera-slam-left")
-      .def(
           py::init<const std::string&, const std::string&>(),
-          "[Deprecated! Please use: DeviceCadExtrinsics(deviceVersion, deviceTypeType, deviceLabel)] Construct for Cad extrinsics for Aria Gen1 only. Input: device sub type, and origin label, where the label of the origin (`Device` coordinate frame) sensor,"
-          "e.g. camera-slam-left")
-      .def(py::pickle(
-          [](const DeviceCadExtrinsics& cad) {
-            return py::make_tuple(
-                cad.getDeviceVersion(), cad.getDeviceSubType(), cad.getOriginSensorLabel());
-          },
-          [](py::tuple t) {
-            if (t.size() != 3) {
-              throw std::runtime_error("Invalid state!");
-            }
-
-            return DeviceCadExtrinsics(
-                t[0].cast<DeviceVersion>(), t[1].cast<std::string>(), t[2].cast<std::string>());
-          }));
+          "Construct for Cad extrinsics based on device sub type and origin label, where the label of the origin (`Device` coordinate frame) sensor,"
+          "e.g. camera-slam-left");
 
   py::class_<DeviceCalibration>(
       m,
@@ -707,28 +479,17 @@ inline void declareDeviceCalibration(py::module& m) {
               const std::map<std::string, MicrophoneCalibration>&,
               const DeviceCadExtrinsics&,
               const std::string&,
-              const std::string&,
-              const DeviceVersion&>(),
+              const std::string&>(),
           R"pbdoc(Constructor that composes a collection of sensor calibrations into a DeviceCalibration"
-            " @param camera_calibs: map of <label, CameraCalibration>"
-            " @param imu_calibs: map of <label, ImuCalibration>"
-            " @param magnetometer_calibs: map of <label, MagnetometerCalibration>"
-            " @param barometer_calibs: map of <label, BarometerCalibration>"
-            " @param microphone_calibs: map of <label, MicrophoneCalibration>"
-            " @param device_cad_extrinsics: a struct representing the CAD extrinsics info of the device sensors."
-            " @param device_subtype: the subtype of the device. For Aria, this would be 'DVT-S' or 'DVT-L'."
-            " @param origin_label: the label identifying the origin of the calibration extrinsics, which needs"
-            " to be a sensor within this device. This is basically the 'Device' frame in `T_Device_Sensor`."
-            " @param device_version: the version of the device, {Gen1(default), Gen2})pbdoc",
-          py::arg("camera_calibs") = std::map<std::string, CameraCalibration>(),
-          py::arg("imu_calibs") = std::map<std::string, ImuCalibration>(),
-          py::arg("magnetometer_calibs") = std::map<std::string, MagnetometerCalibration>(),
-          py::arg("barometer_calibs") = std::map<std::string, BarometerCalibration>(),
-          py::arg("microphone_calibs") = std::map<std::string, MicrophoneCalibration>(),
-          py::arg("device_cad_extrinsics") = DeviceCadExtrinsics(),
-          py::arg("device_subtype") = std::string(),
-          py::arg("origin_label") = std::string(),
-          py::arg("device_version") = DeviceVersion::Gen1)
+   " @param camera_calibs: map of <label, CameraCalibration>"
+   " @param imu_calibs: map of <label, ImuCalibration>"
+   * @param magnetometer_calibs: map of <label, MagnetometerCalibration>
+   * @param barometer_calibs: map of <label, BarometerCalibration>
+   * @param microphone_calibs: map of <label, MicrophoneCalibration>
+   * @param device_cad_extrinsics: a struct representing the CAD extrinsics info of the device sensors.
+   * @param device_subtype: the subtype of the device. For Aria, this would be "DVT-S' or "DVT-L".
+   * @param origin_label: the label identifying the origin of the calibration extrinsics, which needs
+   to be a sensor within this device. This is basically the "Device" frame in `T_Device_Sensor`.)pbdoc")
       .def(
           "get_all_labels",
           &DeviceCalibration::getAllLabels,
@@ -797,10 +558,6 @@ inline void declareDeviceCalibration(py::module& m) {
           "returns an array-of-7 of mic calibration for an Aria device. "
           "Will return None if device is not Aria, or it does not contain the valid mic calibrations.")
       .def(
-          "get_device_version",
-          &DeviceCalibration::getDeviceVersion,
-          "Get the version of device, e.g. Gen1 or Gen2.")
-      .def(
           "get_device_subtype",
           &DeviceCalibration::getDeviceSubtype,
           "Get the subtype of device. For Aria, this is 'DVT-S' or 'DVT-L' to indicate the size of"
@@ -841,36 +598,7 @@ inline void declareDeviceCalibration(py::module& m) {
             return image::toPyArrayVariant(matrix);
           },
           py::arg("label"),
-          "Load devignetting mask corresponding to the label and return as numpy array")
-      .def(py::pickle(
-          [](const DeviceCalibration& calib) {
-            return py::make_tuple(
-                calib.getCameraCalibs(),
-                calib.getImuCalibs(),
-                calib.getMagnetometerCalibs(),
-                calib.getBarometerCalibs(),
-                calib.getMicrophoneCalibs(),
-                calib.getDeviceCadExtrinsics(),
-                calib.getDeviceSubtype(),
-                calib.getOriginLabel(),
-                calib.getDeviceVersion());
-          },
-          [](py::tuple t) {
-            if (t.size() != 9) {
-              throw std::runtime_error("Invalid state!");
-            }
-
-            return DeviceCalibration(
-                t[0].cast<std::map<std::string, CameraCalibration>>(),
-                t[1].cast<std::map<std::string, ImuCalibration>>(),
-                t[2].cast<std::map<std::string, MagnetometerCalibration>>(),
-                t[3].cast<std::map<std::string, BarometerCalibration>>(),
-                t[4].cast<std::map<std::string, MicrophoneCalibration>>(),
-                t[5].cast<DeviceCadExtrinsics>(),
-                t[6].cast<std::string>(),
-                t[7].cast<std::string>(),
-                t[8].cast<DeviceVersion>());
-          }));
+          "Load devignetting mask corresponding to the label and return as numpy array");
 
   m.def(
       "device_calibration_from_json",
@@ -1038,8 +766,7 @@ template <typename T>
 inline void declareColorCorrect(py::module& m) {
   m.def(
       "color_correct",
-      [](py::array_t<T> srcImage, DeviceVersion deviceVersion = DeviceVersion::Gen1) {
-        // set default device version to 1 (Gen1) to avoid breaking existing code
+      [](py::array_t<T> srcImage) {
         py::buffer_info info = srcImage.request();
         size_t imageWidth = srcImage.shape()[1];
         size_t imageHeight = srcImage.shape()[0];
@@ -1048,8 +775,7 @@ inline void declareColorCorrect(py::module& m) {
         if (isRgb) {
           if constexpr (std::is_same<T, uint8_t>::value) {
             image::Image3U8 imageSrc((Eigen::Vector3<T>*)info.ptr, imageWidth, imageHeight);
-            return image::toPyArrayVariant(
-                colorCorrect(image::ImageVariant{imageSrc}, deviceVersion));
+            return image::toPyArrayVariant(colorCorrect(image::ImageVariant{imageSrc}));
           } else {
             throw std::runtime_error("Type is not uint8_t but has 3 channels.");
           }
@@ -1059,7 +785,6 @@ inline void declareColorCorrect(py::module& m) {
         }
       },
       py::arg("src_image"),
-      py::arg("device_version"),
       "Correct color distorted image in old Aria recordings");
 }
 
@@ -1074,7 +799,6 @@ inline void declareColorCorrectAll(py::module& m) {
 
 inline void exportDeviceCalibration(py::module& m) {
   // For submodule documentation, see: projectaria_tools/projectaria_tools/core/calibration.py
-  declareDeviceVersion(m);
   declareSensorCalibration(m);
   declareDeviceCalibration(m);
   declareDistortByCalibrationAll(m);

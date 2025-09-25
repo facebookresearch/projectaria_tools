@@ -42,7 +42,7 @@ struct CameraCheckSetting {
 class Camera : public Periodic {
  public:
   Camera(
-      const vrs::StreamId streamId,
+      vrs::StreamId streamId,
       float minScore,
       int maxFrameDropUs,
       double minGain,

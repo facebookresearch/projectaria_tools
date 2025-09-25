@@ -44,7 +44,7 @@ class SensorDataIterator {
       const std::priority_queue<SensorData, std::vector<SensorData>, CompareDeviceTime>& queue,
       const std::map<vrs::StreamId, int>& streamIdToNextIndex,
       const std::map<vrs::StreamId, int>& streamIdToSubsampleRate,
-      const int64_t endDeviceTimeNs);
+      int64_t endDeviceTimeNs);
 
   SensorDataIterator operator++();
   bool operator!=(const SensorDataIterator& other) const;

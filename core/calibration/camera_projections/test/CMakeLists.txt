@@ -18,7 +18,6 @@ target_link_libraries(camera_projection_test
     PUBLIC
         camera_projection
         GTest::Main
-        format
 )
 
 gtest_discover_tests(camera_projection_test)

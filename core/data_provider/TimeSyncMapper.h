@@ -22,7 +22,7 @@
 #include <vrs/MultiRecordFileReader.h>
 #include <vrs/StreamId.h>
 
-#include <data_provider/players/TimeSyncPlayer.h>
+#include <players/TimeSyncPlayer.h>
 
 namespace projectaria::tools::data_provider {
 // maps between device time and timecode time
@@ -36,17 +36,15 @@ class TimeSyncMapper {
   // general function to convert between two times in TimeSyncData
   // syncTime: TimeSyncData.realTimestampNs
   // deviceTime: TimeSyncData.monotonicTimestampNs
-  int64_t convertFromSyncTimeToDeviceTimeNs(const int64_t syncTimeNs, const TimeSyncMode mode)
-      const;
-  int64_t convertFromDeviceTimeToSyncTimeNs(const int64_t deviceTimeNs, const TimeSyncMode mode)
-      const;
+  int64_t convertFromSyncTimeToDeviceTimeNs(int64_t syncTimeNs, TimeSyncMode mode) const;
+  int64_t convertFromDeviceTimeToSyncTimeNs(int64_t deviceTimeNs, TimeSyncMode mode) const;
 
   // backward compatible with timecode conversion
-  int64_t convertFromTimeCodeToDeviceTimeNs(const int64_t timecodeTimeNs) const;
-  int64_t convertFromDeviceTimeToTimeCodeNs(const int64_t deviceTimeNs) const;
+  int64_t convertFromTimeCodeToDeviceTimeNs(int64_t timecodeTimeNs) const;
+  int64_t convertFromDeviceTimeToTimeCodeNs(int64_t deviceTimeNs) const;
 
   // only support TIMECODE and TIC_SYNC mode
-  bool supportsMode(const TimeSyncMode mode) const;
+  bool supportsMode(TimeSyncMode mode) const;
 
   std::vector<TimeSyncMode> getTimeSyncModes() const;
 

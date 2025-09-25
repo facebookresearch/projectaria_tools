@@ -20,8 +20,6 @@
 #include <memory>
 #include <optional>
 
-#include <calibration/DeviceVersion.h>
-#include <vrs/MultiRecordFileReader.h>
 #include <vrs/StreamId.h>
 
 namespace projectaria::tools::data_provider {
@@ -49,8 +47,6 @@ class StreamIdLabelMapper {
 /**
  * @brief Add default mapping for Aria from streamId to label and update interface to string only
  */
-std::shared_ptr<StreamIdLabelMapper> getAriaStreamIdLabelMapper(
-    const calibration::DeviceVersion& deviceVersion,
-    std::shared_ptr<vrs::MultiRecordFileReader> reader = nullptr);
+std::shared_ptr<StreamIdLabelMapper> getAriaStreamIdLabelMapper();
 
 } // namespace projectaria::tools::data_provider

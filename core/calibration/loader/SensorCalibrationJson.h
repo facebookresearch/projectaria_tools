@@ -16,20 +16,14 @@
 
 #pragma once
 
-#include <calibration/CameraConfigBuilder.h>
 #include <calibration/SensorCalibration.h>
 #include "nlohmann/json.hpp"
 
 namespace projectaria::tools::calibration {
 
-// Default to Gen1 builder to be backward compatible
-CameraCalibration parseCameraCalibrationFromJson(
-    const nlohmann::json& json,
-    const CameraConfigBuilder& configBuilder);
+CameraCalibration parseCameraCalibrationFromJson(const nlohmann::json& json);
 ImuCalibration parseImuCalibrationFromJson(const nlohmann::json& json);
-MagnetometerCalibration parseMagnetometerCalibrationFromJson(
-    const nlohmann::json& json,
-    const DeviceVersion& deviceVersion);
+MagnetometerCalibration parseMagnetometerCalibrationFromJson(const nlohmann::json& json);
 BarometerCalibration parseBarometerCalibrationFromJson(const nlohmann::json& json);
 MicrophoneCalibration parseMicrophoneCalibrationFromJson(const nlohmann::json& json);
 

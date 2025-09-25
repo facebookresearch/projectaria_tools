@@ -16,7 +16,6 @@
 
 #include <calibration/camera_projections/CameraProjection.h>
 #include <gtest/gtest.h>
-#include "format/Format.h"
 
 #define DEFAULT_LOG_CHANNEL "CameraProjectionTest"
 using namespace projectaria::tools::calibration;

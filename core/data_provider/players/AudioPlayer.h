@@ -19,6 +19,7 @@
 #include <data_layout/AudioMetadata.h>
 #include <vrs/RecordFormatStreamPlayer.h>
 #include <Eigen/Core>
+#include <utility>
 
 namespace projectaria::tools::data_provider {
 
@@ -27,10 +28,6 @@ namespace projectaria::tools::data_provider {
  */
 struct AudioData {
   std::vector<int32_t> data; ///< @brief raw data, length = nChannels * nSamples
-
-  // @brief the max amplitude of audio data type (int32_t) can represent
-  double maxAmplitude = static_cast<double>(std::numeric_limits<int32_t>::max());
-
   using ConstMapInt32 =
       Eigen::Map<const Eigen::Matrix<int32_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>;
   /**
@@ -75,7 +72,7 @@ class AudioPlayer : public vrs::RecordFormatStreamPlayer {
   AudioPlayer(AudioPlayer&&) = default;
 
   void setCallback(AudioCallback callback) {
-    callback_ = callback;
+    callback_ = std::move(callback);
   }
 
   const AudioData& getData() const {
@@ -102,14 +99,11 @@ class AudioPlayer : public vrs::RecordFormatStreamPlayer {
     verbose_ = verbose;
   }
 
- protected:
+ private:
   bool onDataLayoutRead(const vrs::CurrentRecord& r, size_t blockIndex, vrs::DataLayout& dl)
       override;
   bool onAudioRead(const vrs::CurrentRecord& r, size_t blockIdx, const vrs::ContentBlock& cb)
       override;
-
- private:
-  bool readAndDecodeAudioData(const vrs::CurrentRecord& r, const vrs::ContentBlock& cb);
 
   const vrs::StreamId streamId_;
   AudioCallback callback_ = [](const AudioData&, const AudioDataRecord&, const AudioConfig&, bool) {

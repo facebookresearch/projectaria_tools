@@ -15,13 +15,13 @@
  */
 
 #include "ColorCorrect.h"
-#include <fmt/core.h>
+#include "ColorCorrectData.h"
+
 #include <Eigen/Dense>
 #include <thread>
-#include "ColorCorrectData.h"
-#define DEFAULT_LOG_CHANNEL "DeviceCalibration"
-namespace {
-using namespace projectaria::tools::image;
+
+namespace projectaria::tools::image {
+
 // Convert color from linear to srgb color space see:
 // https://www.nayuki.io/page/srgb-transform-library
 inline double linearToSrgb(double linearPixelVal) {
@@ -34,19 +34,21 @@ inline double linearToSrgb(double linearPixelVal) {
   srgbPixelVal = std::max(std::min(srgbPixelVal, 1.0), 0.0);
   return srgbPixelVal;
 }
+
 template <class T, int MaxVal>
-ManagedImage<T, DefaultImageAllocator<T>, MaxVal> colorCorrectImageImpl(
-    const Image<T, MaxVal>& srcImage,
-    const std::array<double, 256>& cameraInvCRFTable,
-    const Eigen::Matrix3d& colorCorrectionMatrix) {
+ManagedImage<T, DefaultImageAllocator<T>, MaxVal> colorCorrectImage(
+    const Image<T, MaxVal>& srcImage) {
   // Do color correction to fix the color distortion in Aria captured images before Aria V1.12
   // update. This includes 2 fixes:
   // 1. Correct non conventional gamma curve
   // 2. Correct non conventional color temperature and set to 5000K
   // We initialize colorCorrectionMatrixData as const std::array<double, 9> and assign it to
   // Eigen::Matrix3d to avoid compiler's warning about "-Wglobal-constructors"
+  const Eigen::Matrix3d colorCorrectionMatrix =
+      Eigen::Map<const Eigen::Matrix3d>(&colorCorrectionMatrixData[0]).transpose();
   unsigned int numThreads = std::thread::hardware_concurrency();
   const int chunkSize = (srcImage.height() + numThreads - 1) / numThreads;
+
   ManagedImage<T, DefaultImageAllocator<T>, MaxVal> dstImage(srcImage.width(), srcImage.height());
   auto processRow = [&](int startRow) {
     for (int col = 0; col < srcImage.width(); ++col) {
@@ -82,28 +84,13 @@ ManagedImage<T, DefaultImageAllocator<T>, MaxVal> colorCorrectImageImpl(
   }
   return dstImage;
 }
-} // namespace
-namespace projectaria::tools::image {
 
-ManagedImageVariant colorCorrect(
-    const ImageVariant& srcImage,
-    const calibration::DeviceVersion& deviceVersion) {
-  if (deviceVersion == calibration::DeviceVersion::Gen1 && getChannel(srcImage) == 3) {
-    return std::visit(
-        [](const auto& srcImage) -> image::ManagedImageVariant {
-          return colorCorrectImageImpl(
-              srcImage,
-              cameraInvCRFTableGen1,
-              Eigen::Map<const Eigen::Matrix3d>(&colorCorrectionMatrixDataGen1[0]).transpose());
-        },
-        srcImage);
-  } else {
-    fmt::print(
-        "Color correction is supported only for the Gen1 RGB camera. The current input {}:{} channel is not supported, returning the original input image.\n",
-        getName(deviceVersion),
-        getChannel(srcImage));
-    return toManagedImageVariant(srcImage);
-  }
+ManagedImageVariant colorCorrect(const ImageVariant& srcImage) {
+  return std::visit(
+      [](const auto& srcImage) -> image::ManagedImageVariant {
+        return colorCorrectImage(srcImage);
+      },
+      srcImage);
 }
 
 } // namespace projectaria::tools::image

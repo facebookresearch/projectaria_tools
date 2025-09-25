@@ -5,14 +5,14 @@ on:
   workflow_dispatch:
     inputs:
       deploy:
-        description: 'Where to deploy the artifacts? Only build (build), deploy to test PyPI (test)'
+        description: 'Where to deploy the artifacts? Only build (build), deploy to test PyPI (test), or deploy to PyPI (prod).'
         required: true
         type: choice
         default: 'build'
         options:
           - build
           - test
-          # - prod TODO: Add this back when stable
+          - prod
 
 jobs:
   build-stubs:
@@ -51,13 +51,9 @@ jobs:
               libboost-date-time-dev \
               libboost-filesystem-dev \
               libboost-iostreams-dev \
-              libboost-system-dev \
-              libopus-dev
+              libboost-system-dev
             # Clean APT cache
             sudo apt-get clean
-
-            # Install ffmpeg dependency lib
-            ./build_third_party_libs/build_ffmpeg_linuxunix.sh
       - name: Install projectaria_tools
         run: |
           # Build and install Python bindings (required to run the stubs on the pybind artifacts)
@@ -78,9 +74,8 @@ jobs:
       - build-stubs
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
-        os: [macos-13, macos-14, ubuntu-22.04] # macos-14 is macSilicon
+        os: [macos-13, macos-14, ubuntu-22.04, windows-2022] # macos-14 is macSilicon
         python-version: ["3.10", "3.11", "3.12"]
         # Default consider only Python >=3.10 since actions/setup-python supports only python<3.10 and mac-silicon
         # Other Python versions are added below as matrix entries
@@ -123,11 +118,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install cibuildwheel==2.17.0
-      - name: Install ffmpeg dependency lib
-        if: ${{ (matrix.os == 'macos-14') || (matrix.os == 'macos-13') || (matrix.os == 'ubuntu-22.04') }}
-        shell: bash
-        run: |
-          ./build_third_party_libs/build_ffmpeg_linuxunix.sh
       - name: Build wheels for CPython
         if: matrix.os == 'macos-14'
         shell: bash
@@ -146,7 +136,6 @@ jobs:
         env:
           CIBW_BUILD_VERBOSITY: 3
           CIBW_BUILD: ${{ matrix.cibw_build }}
-          CIBW_BEFORE_BUILD_LINUX: bash build_third_party_libs/install_manylinux_deps.sh
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_*"
           CIBW_ARCHS: "x86_64"
       - name: Build wheels for CPython
@@ -170,8 +159,7 @@ jobs:
           # Install wheel
           python -m pip install dist/*.whl
           # Run Python unit tests
-          export TEST_FOLDER="./data/gen1/"
-          export TEST_FOLDER_GEN2="./data/gen2/"
+          export TEST_FOLDER="./data/"
           python -m unittest core/python/test/corePyBindTest.py
           python -m unittest core/python/test/mpsPyBindTest.py
 

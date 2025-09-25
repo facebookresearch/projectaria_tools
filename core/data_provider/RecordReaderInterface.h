@@ -21,16 +21,9 @@
 #include <mutex>
 #include <set>
 
-#include <calibration/DeviceVersion.h>
 #include <data_provider/SensorData.h>
 #include <data_provider/TimeSyncMapper.h>
 #include <data_provider/VrsMetadata.h>
-#include <data_provider/players/AlsPlayer.h>
-#include <data_provider/players/EyeGazePlayer.h>
-#include <data_provider/players/HandPosePlayer.h>
-#include <data_provider/players/PpgPlayer.h>
-#include <data_provider/players/TemperaturePlayer.h>
-#include <data_provider/players/VioHighFrequencyPlayer.h>
 #include <vrs/MultiRecordFileReader.h>
 
 namespace projectaria::tools::data_provider {
@@ -48,16 +41,8 @@ class RecordReaderInterface {
       std::map<vrs::StreamId, std::shared_ptr<WifiBeaconPlayer>>& wpsPlayers,
       std::map<vrs::StreamId, std::shared_ptr<AudioPlayer>>& audioPlayers,
       std::map<vrs::StreamId, std::shared_ptr<BarometerPlayer>>& barometerPlayers,
-      std::map<vrs::StreamId, std::shared_ptr<BatteryStatusPlayer>>& batteryStatusPlayers,
       std::map<vrs::StreamId, std::shared_ptr<BluetoothBeaconPlayer>>& bluetoothPlayers,
       std::map<vrs::StreamId, std::shared_ptr<MotionSensorPlayer>>& magnetometerPlayers,
-      std::map<vrs::StreamId, std::shared_ptr<PpgPlayer>>& ppgPlayers,
-      std::map<vrs::StreamId, std::shared_ptr<AlsPlayer>>& alsPlayers,
-      std::map<vrs::StreamId, std::shared_ptr<TemperaturePlayer>>& temperaturePlayers,
-      std::map<vrs::StreamId, std::shared_ptr<VioPlayer>>& vioPlayers,
-      std::map<vrs::StreamId, std::shared_ptr<VioHighFrequencyPlayer>>& vioHighFreqPlayers,
-      std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>>& eyegazePlayers,
-      std::map<vrs::StreamId, std::shared_ptr<HandPosePlayer>>& handPosePlayers,
       const std::shared_ptr<TimeSyncMapper>& timeSyncMapper);
 
   std::set<vrs::StreamId> getStreamIds() const;
@@ -74,13 +59,10 @@ class RecordReaderInterface {
   // if read fails return null
   // if read is successful, lock the player's corresponding mutex
   // the mutex can only be unlocked if the corresponding getLastCached*Data() is called
-  const vrs::IndexRecord::RecordInfo* readRecordByIndex(
-      const vrs::StreamId& streamId,
-      const int index);
+  const vrs::IndexRecord::RecordInfo* readRecordByIndex(const vrs::StreamId& streamId, int index);
 
   /* read the last cached sensor data in player */
   SensorData getLastCachedSensorData(const vrs::StreamId& streamId);
-
   ImageDataAndRecord getLastCachedImageData(const vrs::StreamId& streamId);
   MotionData getLastCachedImuData(const vrs::StreamId& streamId);
   GpsData getLastCachedGpsData(const vrs::StreamId& streamId);
@@ -88,29 +70,17 @@ class RecordReaderInterface {
   AudioDataAndRecord getLastCachedAudioData(const vrs::StreamId& streamId);
   BluetoothBeaconData getLastCachedBluetoothData(const vrs::StreamId& streamId);
   BarometerData getLastCachedBarometerData(const vrs::StreamId& streamId);
-  BatteryStatusData getLastCachedBatteryStatusData(const vrs::StreamId& streamId);
   MotionData getLastCachedMagnetometerData(const vrs::StreamId& streamId);
-  PpgData getLastCachedPpgData(const vrs::StreamId& streamId);
-  AlsData getLastCachedAlsData(const vrs::StreamId& streamId);
-  TemperatureData getLastCachedTemperatureData(const vrs::StreamId& streamId);
-
-  /* read the last cached on-device MP data in player */
-  FrontendOutput getLastCachedVioData(const vrs::StreamId& streamId);
-  OnDeviceVioHighFreqData getLastCachedVioHighFreqData(const vrs::StreamId& streamId);
-  OnDeviceEyeGazeData getLastCachedEyeGazeData(const vrs::StreamId& streamId);
-  OnDeviceHandPoseData getLastCachedHandPoseData(const vrs::StreamId& streamId);
 
   void setReadImageContent(vrs::StreamId streamId, bool readContent);
   // ISP tuning version for RGB images, 0: output image is color corrected, 1: output image is not
-  // color corrected.
+  // color correctted.
   [[nodiscard]] uint32_t getRgbIspTuningVersion() const;
 
   [[nodiscard]] std::optional<MetadataTimeSyncMode> getTimeSyncMode() const;
 
  private:
   std::shared_ptr<vrs::MultiRecordFileReader> reader_;
-
-  calibration::DeviceVersion deviceVersion_;
 
   std::set<vrs::StreamId> streamIds_;
   std::map<vrs::StreamId, SensorDataType> streamIdToSensorDataType_;
@@ -123,18 +93,8 @@ class RecordReaderInterface {
   std::map<vrs::StreamId, std::shared_ptr<WifiBeaconPlayer>> wpsPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<AudioPlayer>> audioPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<BarometerPlayer>> barometerPlayers_;
-  std::map<vrs::StreamId, std::shared_ptr<BatteryStatusPlayer>> batteryStatusPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<BluetoothBeaconPlayer>> bluetoothPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<MotionSensorPlayer>> magnetometerPlayers_;
-  std::map<vrs::StreamId, std::shared_ptr<PpgPlayer>> ppgPlayers_;
-  std::map<vrs::StreamId, std::shared_ptr<AlsPlayer>> alsPlayers_;
-  std::map<vrs::StreamId, std::shared_ptr<TemperaturePlayer>> temperaturePlayers_;
-
-  std::map<vrs::StreamId, std::shared_ptr<VioPlayer>> vioPlayers_;
-  std::map<vrs::StreamId, std::shared_ptr<VioHighFrequencyPlayer>> vioHighFreqPlayers_;
-  std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>> eyegazePlayers_;
-  std::map<vrs::StreamId, std::shared_ptr<HandPosePlayer>> handPosePlayers_;
-
   std::shared_ptr<TimeSyncMapper> timeSyncMapper_;
 
   std::unique_ptr<std::mutex> readerMutex_;

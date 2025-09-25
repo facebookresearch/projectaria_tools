@@ -21,19 +21,11 @@ CONFIG_FILE: Final[Path] = CONFIG_DIR.joinpath("mps.ini")
 AUTH_TOKEN_FILE: Final[Path] = CONFIG_DIR.joinpath("auth_token")
 ENCRYPTION_KEY_FILE: Final[Path] = CONFIG_DIR.joinpath(".encryption_key")
 
-HEADER_CONTENT_TYPE: Final[str] = "Content-Type"
-HEADER_API_VERSION: Final[str] = "X-API-Version"
-
-CONTENT_TYPE_JSON: Final[str] = "application/json"
-AUTH_API_VERSION: Final[str] = "1.0.0"
-
 # GraphQL keys
 KEY_ACCESS_TOKEN: Final[str] = "access_token"
 KEY_ALIAS: Final[str] = "alias"
 KEY_APP_ID: Final[str] = "app_id"
 KEY_ARIA_MPS_REQUEST: Final[str] = "aria_mps_request"
-KEY_AUTH_CODE: Final[str] = "auth_code"
-KEY_AUTH_TOKEN: Final[str] = "auth_token"
 KEY_CDN_URL: Final[str] = "cdn_url"
 KEY_CONTACT_POINT: Final[str] = "contact_point"
 KEY_CREATE_TOKEN: Final[str] = "create_token"
@@ -41,7 +33,6 @@ KEY_CREATE: Final[str] = "create"
 KEY_CREATION_TIME: Final[str] = "creation_time"
 KEY_CURSOR: Final[str] = "cursor"
 KEY_DATA: Final[str] = "data"
-KEY_DEVICE_CODE: Final[str] = "device_code"
 KEY_DOC_ID: Final[str] = "doc_id"
 KEY_END_CURSOR: Final[str] = "end_cursor"
 KEY_ERROR_CODE: Final[str] = "error_code"
@@ -49,7 +40,6 @@ KEY_FEATURE: Final[str] = "feature"
 KEY_FEATURES: Final[str] = "features"
 KEY_FILE_HASH: Final[str] = "file_hash"
 KEY_FILE_HASHES: Final[str] = "file_hashes"
-KEY_FRL_ACCESS_TOKEN: Final[str] = "frl_access_token"
 KEY_HAS_NEXT_PAGE: Final[str] = "has_next_page"
 KEY_ID: Final[str] = "id"
 KEY_INPUT: Final[str] = "input"

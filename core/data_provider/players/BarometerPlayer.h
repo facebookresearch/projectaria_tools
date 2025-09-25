@@ -19,6 +19,8 @@
 #include <data_layout/BarometerMetadata.h>
 #include <vrs/RecordFormatStreamPlayer.h>
 
+#include <utility>
+
 namespace projectaria::tools::data_provider {
 
 /**
@@ -51,7 +53,7 @@ class BarometerPlayer : public vrs::RecordFormatStreamPlayer {
   BarometerPlayer(BarometerPlayer&&) = default;
 
   void setCallback(BarometerCallback callback) {
-    callback_ = callback;
+    callback_ = std::move(callback);
   }
 
   const BarometerConfigRecord& getConfigRecord() const {

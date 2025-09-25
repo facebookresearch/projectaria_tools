@@ -13,13 +13,42 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-[tool.cibuildwheel.macos]
+[tool.cibuildwheel.linux]
 before-build='''
-    # Update or install cmake
-    brew upgrade cmake || brew install cmake
+# Update the mirror list for Centos mirror deprecation
+sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
 
-    # Other deps
-    brew install boost fmt glog jpeg-turbo libpng lz4 xxhash zstd opus
+# Install system deps
+# Toolchains
+yum install -y cmake git gtest-devel \
+    lz4-devel libzstd-devel xxhash-devel libpng-devel
+
+# Install and compile libraries
+thread=$(nproc)
+
+# Build Fmt
+cd /tmp; git clone https://github.com/fmtlib/fmt.git -b 10.2.1 \
+    && cd fmt \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE -DFMT_TEST=OFF .; make -j$thread install; rm -rf /tmp/fmt;
+
+cd /tmp && git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git -b 3.0.1 \
+    && cd libjpeg-turbo \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_JPEG8=1 -DCMAKE_INSTALL_DEFAULT_PREFIX=/usr .;make -j$thread install; rm -rf /tmp/libjpeg-turbo;
+
+cd /tmp && git clone --recursive https://github.com/boostorg/boost.git -b boost-1.84.0 \
+    && cd boost \
+    && ./bootstrap.sh \
+    && ./b2 --with-system --with-filesystem --with-thread --with-chrono --with-date_time --with-serialization --with-iostreams install \
+    && rm -rf /tmp/boost;
+'''
+
+[tool.cibuildwheel.macos]
+before-build = '''
+# Update or install cmake
+brew upgrade cmake || brew install cmake
+
+brew install boost fmt glog jpeg-turbo libpng lz4 xxhash zstd
 '''
 environment = {"CMAKE_ARGS"="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"}
 

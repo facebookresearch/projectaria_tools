@@ -25,7 +25,7 @@ gtest_discover_tests(substream_selector_test)
 add_test(NAME substream_selector_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
              COMMAND $<TARGET_FILE:substream_selector_test>)
 target_compile_definitions(substream_selector_test
-    PRIVATE -DTEST_FOLDER=${GEN1_TEST_DATA_PATH} -DTEST_FOLDER_GEN2=${GEN2_TEST_DATA_PATH})
+    PRIVATE -DTEST_FOLDER=${CMAKE_CURRENT_SOURCE_DIR}/../../../data/)
 
 add_executable(vrs_data_provider_factory_test VrsDataProviderFactoryTest.cpp)
 target_link_libraries(vrs_data_provider_factory_test
@@ -37,7 +37,7 @@ gtest_discover_tests(vrs_data_provider_factory_test)
 add_test(NAME vrs_data_provider_factory_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
              COMMAND $<TARGET_FILE:vrs_data_provider_factory_test>)
 target_compile_definitions(vrs_data_provider_factory_test
-    PRIVATE -DTEST_FOLDER=${GEN1_TEST_DATA_PATH} -DTEST_FOLDER_GEN2=${GEN2_TEST_DATA_PATH})
+    PRIVATE -DTEST_FOLDER=${CMAKE_CURRENT_SOURCE_DIR}/../../../data/)
 
 add_executable(vrs_data_provider_calibration_test VrsDataProviderCalibrationTest.cpp)
 target_link_libraries(vrs_data_provider_calibration_test
@@ -49,7 +49,7 @@ gtest_discover_tests(vrs_data_provider_calibration_test)
 add_test(NAME vrs_data_provider_calibration_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
              COMMAND $<TARGET_FILE:vrs_data_provider_factory_test>)
 target_compile_definitions(vrs_data_provider_calibration_test
-    PRIVATE -DTEST_FOLDER=${GEN1_TEST_DATA_PATH} -DTEST_FOLDER_GEN2=${GEN2_TEST_DATA_PATH})
+    PRIVATE -DTEST_FOLDER=${CMAKE_CURRENT_SOURCE_DIR}/../../../data/)
 
 add_executable(vrs_data_provider_configuration_test VrsDataProviderConfigurationTest.cpp)
 target_link_libraries(vrs_data_provider_configuration_test
@@ -61,7 +61,7 @@ gtest_discover_tests(vrs_data_provider_configuration_test)
 add_test(NAME vrs_data_provider_configuration_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
              COMMAND $<TARGET_FILE:vrs_data_provider_configuration_test>)
 target_compile_definitions(vrs_data_provider_configuration_test
-    PRIVATE -DTEST_FOLDER=${GEN1_TEST_DATA_PATH} -DTEST_FOLDER_GEN2=${GEN2_TEST_DATA_PATH})
+    PRIVATE -DTEST_FOLDER=${CMAKE_CURRENT_SOURCE_DIR}/../../../data/)
 
 add_executable(vrs_data_provider_deliver_queued_test VrsDataProviderDeliverQueuedTest.cpp)
 target_link_libraries(vrs_data_provider_deliver_queued_test
@@ -73,7 +73,7 @@ gtest_discover_tests(vrs_data_provider_deliver_queued_test)
 add_test(NAME vrs_data_provider_deliver_queued_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
              COMMAND $<TARGET_FILE:vrs_data_provider_deliver_queued_test>)
 target_compile_definitions(vrs_data_provider_deliver_queued_test
-    PRIVATE -DTEST_FOLDER=${GEN1_TEST_DATA_PATH} -DTEST_FOLDER_GEN2=${GEN2_TEST_DATA_PATH})
+    PRIVATE -DTEST_FOLDER=${CMAKE_CURRENT_SOURCE_DIR}/../../../data/)
 
 add_executable(vrs_data_provider_get_data_by_time_test VrsDataProviderGetDataByTimeTest.cpp)
 target_link_libraries(vrs_data_provider_get_data_by_time_test
@@ -85,7 +85,7 @@ gtest_discover_tests(vrs_data_provider_get_data_by_time_test)
 add_test(NAME vrs_data_provider_get_data_by_time_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
              COMMAND $<TARGET_FILE:vrs_data_provider_get_data_by_time_test>)
 target_compile_definitions(vrs_data_provider_get_data_by_time_test
-    PRIVATE -DTEST_FOLDER=${GEN1_TEST_DATA_PATH} -DTEST_FOLDER_GEN2=${GEN2_TEST_DATA_PATH})
+    PRIVATE -DTEST_FOLDER=${CMAKE_CURRENT_SOURCE_DIR}/../../../data/)
 
 add_executable(vrs_data_provider_get_data_by_index_test VrsDataProviderGetDataByTimeTest.cpp)
 target_link_libraries(vrs_data_provider_get_data_by_index_test
@@ -97,7 +97,7 @@ gtest_discover_tests(vrs_data_provider_get_data_by_index_test)
 add_test(NAME vrs_data_provider_get_data_by_index_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
              COMMAND $<TARGET_FILE:vrs_data_provider_get_data_by_index_test>)
 target_compile_definitions(vrs_data_provider_get_data_by_index_test
-    PRIVATE -DTEST_FOLDER=${GEN1_TEST_DATA_PATH} -DTEST_FOLDER_GEN2=${GEN2_TEST_DATA_PATH})
+    PRIVATE -DTEST_FOLDER=${CMAKE_CURRENT_SOURCE_DIR}/../../../data/)
 
 add_executable(vrs_data_provider_file_access_test VrsDataProviderFileAccessTest.cpp)
 target_link_libraries(vrs_data_provider_file_access_test
@@ -109,4 +109,4 @@ gtest_discover_tests(vrs_data_provider_file_access_test)
 add_test(NAME vrs_data_provider_file_access_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
              COMMAND $<TARGET_FILE:vrs_data_provider_file_access_test>)
 target_compile_definitions(vrs_data_provider_file_access_test
-    PRIVATE -DTEST_FOLDER=${GEN1_TEST_DATA_PATH} -DTEST_FOLDER_GEN2=${GEN2_TEST_DATA_PATH})
+    PRIVATE -DTEST_FOLDER=${CMAKE_CURRENT_SOURCE_DIR}/../../../data/)
