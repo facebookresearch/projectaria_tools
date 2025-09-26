@@ -110,13 +110,24 @@ void declareXprsDecoding(py::module& module) {
                 imageData.pixelFrame->getBuffer().size(),
                 imageData.pixelFrame->wdata(),
             };
-            XprsResult xprsRes = self->decodeFrame(xprsFrame, buffer);
-            if (xprsRes != XprsResult::OK) {
-              fmt::print("Failed to decode frame using xprs\n");
-              return false;
+
+            // Release GIL during expensive C++ operations
+            XprsResult xprsRes;
+            bool conversionResult = false;
+            {
+              py::gil_scoped_release release;
+              xprsRes = self->decodeFrame(xprsFrame, buffer);
+
+              if (xprsRes != XprsResult::OK) {
+                fmt::print("Failed to decode frame using xprs\n");
+              } else {
+                // convert to image data while GIL is still released
+                conversionResult = xprsFrameToImageData(xprsFrame, imageData);
+              }
             }
-            // convert to image data
-            return xprsFrameToImageData(xprsFrame, imageData);
+            // GIL is automatically reacquired here
+
+            return conversionResult;
           });
 
   module.def(
