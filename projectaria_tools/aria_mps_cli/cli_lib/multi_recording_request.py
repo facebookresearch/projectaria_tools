@@ -38,7 +38,7 @@ from .constants import (
 )
 from .encryption import VrsEncryptor
 from .hash_calculator import HashCalculator
-from .health_check import HealthCheckRunner, is_eligible
+from .health_check import HealthCheckRunner
 from .http_helper import HttpHelper
 from .types import (
     AriaRecording,
@@ -467,22 +467,21 @@ class MultiRecordingModel:
         logger.debug(event)
 
         async def _health_check(rec: AriaRecording) -> None:
+            vhc_runner: HealthCheckRunner = await HealthCheckRunner.get(rec)
+
             if rec.health_check_path.is_file():
                 logger.info(
                     f"Health check output already exists at {rec.health_check_path}, skipping VrsHealthCheck"
                 )
             else:
-                vhc_runner: HealthCheckRunner = await HealthCheckRunner.get(
-                    vrs_path=rec.path,
-                    json_out=rec.health_check_path,
-                )
                 await vhc_runner.run()
+
             if not rec.health_check_path.is_file():
                 logger.error(f"Failed to run VrsHealthCheck for {rec.path}")
                 self._error_codes[rec.path] = ErrorCode.HEALTH_CHECK_FAILURE
                 raise VrsHealthCheckError()
 
-            if not is_eligible(MpsFeature.MULTI_SLAM, rec):
+            if not vhc_runner.is_eligible(MpsFeature.MULTI_SLAM):
                 logger.error(f"{rec.path} is not eligible for multi-slam")
                 self._error_codes[rec.path] = ErrorCode.HEALTH_CHECK_FAILURE
                 raise VrsHealthCheckError()
@@ -490,12 +489,14 @@ class MultiRecordingModel:
         health_check_tasks: List[asyncio.Task] = []
         for rec in self._recordings:
             health_check_tasks.append(asyncio.create_task(_health_check(rec)))
+
         try:
             await asyncio.gather(*health_check_tasks)
         except VrsHealthCheckError:
             # Should be handled by error handling with next()
             ## Note that the pending tasks continue to run in the background
             pass
+
         await self.next()
 
     async def on_enter_UPLOAD(self, event: EventData) -> None:

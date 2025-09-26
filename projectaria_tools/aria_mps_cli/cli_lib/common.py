@@ -217,9 +217,6 @@ class Config(ConfigParser):
             ConfigKey.CONCURRENT_HASHES: "4 # Maximum number of recordings whose hashes will be calculated concurrently",
             ConfigKey.CHUNK_SIZE: "10485760 # 10 * 2**20 (10MB)",
         },
-        ConfigSection.HEALTH_CHECK: {
-            ConfigKey.CONCURRENT_HEALTH_CHECKS: "2  # Maximum number of checks that can run concurrently",
-        },
         ConfigSection.ENCRYPTION: {
             ConfigKey.CHUNK_SIZE: "52428800 # 50 * 2**20 (50MB)",
             ConfigKey.CONCURRENT_ENCRYPTIONS: "5 # Maximum number of recordings that will be encrypted concurrently",

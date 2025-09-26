@@ -36,7 +36,7 @@ from .constants import (
 )
 from .encryption import VrsEncryptor
 from .hash_calculator import HashCalculator
-from .health_check import HealthCheckRunner, is_eligible
+from .health_check import HealthCheckRunner
 from .http_helper import HttpHelper
 from .types import (
     AriaRecording,
@@ -388,15 +388,16 @@ class SingleRecordingModel:
 
     async def on_enter_VALIDATION(self, event: EventData) -> None:
         self._logger.debug(event)
+
+        vhc_runner: HealthCheckRunner = await HealthCheckRunner.get(
+            recording=self._recording,
+        )
+
         if self._recording.health_check_path.exists():
             self._logger.warning(
                 f"Health check output already exists at {self._recording.health_check_path}, skipping VrsHealthCheck"
             )
         else:
-            vhc_runner: HealthCheckRunner = await HealthCheckRunner.get(
-                vrs_path=self._recording.path,
-                json_out=self._recording.health_check_path,
-            )
             await vhc_runner.run()
             if not self._recording.health_check_path.exists():
                 self._logger.error(
@@ -405,9 +406,10 @@ class SingleRecordingModel:
                 raise RuntimeError("VrsHealthCheck failed")
 
         # Check if the recording is eligible for the feature computation
-        if not is_eligible(self._feature, self._recording):
+        if not vhc_runner.is_eligible(self._feature):
             self._logger.error(f"Health check failed for {self._feature}")
             self._error_code = ErrorCode.HEALTH_CHECK_FAILURE
+
         await self.next()
 
     async def on_enter_PAST_RECORDING_CHECK(self, event: EventData) -> None:
