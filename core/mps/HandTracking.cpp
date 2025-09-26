@@ -23,7 +23,7 @@ namespace projectaria::tools::mps {
 
 namespace {
 
-static constexpr int kMaxAllowedInterpolationGapMs = 100;
+constexpr int kMaxAllowedInterpolationGapMs = 100;
 
 /**
  * @brief Helper function to interpolate between two HandTrackingResult::OneSide objects.
