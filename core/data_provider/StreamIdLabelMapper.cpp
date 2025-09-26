@@ -101,8 +101,8 @@ std::shared_ptr<StreamIdLabelMapper> getAriaGen2StreamIdLabelMapper(
       {vrs::StreamId::fromNumericName("246-1"), "temperature"},
       {vrs::StreamId::fromNumericName("231-1"), "mic"},
       // streams below does not have calibration, but we still assign a label
-      {vrs::StreamId::fromNumericName("281-1"), "gps"},
-      {vrs::StreamId::fromNumericName("281-2"), "gps-app"},
+      {vrs::StreamId::fromNumericName("281-1"), "gps-app"},
+      {vrs::StreamId::fromNumericName("281-2"), "gps"},
       {vrs::StreamId::fromNumericName("282-1"), "wps"},
       {vrs::StreamId::fromNumericName("283-1"), "bluetooth"},
       {vrs::StreamId::fromNumericName("248-1"), "ppg"},
