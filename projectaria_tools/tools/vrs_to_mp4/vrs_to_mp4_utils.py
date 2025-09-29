@@ -126,8 +126,12 @@ def convert_vrs_to_mp4(
     log_folder: str = None,
     stream_id: str = "214-1",
     down_sample_factor: int = 1,
+    audio_channels: List[int] = None,
 ):
     """Convert a VRS file to MP4 video."""
+    if audio_channels is None:
+        audio_channels = [0, 2]
+
     use_temp_folder = False
     if log_folder is None:
         # If no log folder is provided, we will create a temporary one
@@ -137,7 +141,9 @@ def convert_vrs_to_mp4(
         os.mkdir(log_folder)
 
     # Create a vrs to mp4 converter
-    converter = Vrs2Mp4Converter(vrs_file, stream_id, down_sample_factor)
+    converter = Vrs2Mp4Converter(
+        vrs_file, stream_id, down_sample_factor, audio_channels
+    )
     duration_ns = converter.duration_ns()
     duration_in_second = duration_ns * 1e-9
     video_writer_clip = VideoClip(converter.make_frame, duration=duration_in_second)
@@ -151,7 +157,7 @@ def convert_vrs_to_mp4(
             duration=duration_in_second,
             fps=converter.audio_config.sample_rate,
         )
-        audio_writer_clip.nchannels = converter.audio_config.num_channels
+        audio_writer_clip.nchannels = len(converter.audio_channels_)
         audio_writer_clip.write_audiofile(
             temp_audio_file,
             fps=converter.audio_config.sample_rate,
@@ -204,10 +210,21 @@ class Vrs2Mp4Converter:
     make_audio_data(t)->np.ndarray is called to insert audio stream into MP4
     """
 
+    # Select audio channels to output to MP4
+    # TODO: support user-selected audio channels.
+    OUTPUT_AUDIO_CHANNELS = [0, 2]
+
     def __init__(
-        self, vrs_path: str, stream_id: str = "214-1", down_sampling_factor: int = 1
+        self,
+        vrs_path: str,
+        stream_id: str = "214-1",
+        down_sampling_factor: int = 1,
+        audio_channels: List[int] = None,
     ):
         self.down_sampling_factor_ = down_sampling_factor
+        if audio_channels is None:
+            audio_channels = [0, 2]
+        self.audio_channels_ = audio_channels
 
         self.provider_ = data_provider.create_vrs_data_provider(vrs_path)
         if not self.provider_:
@@ -242,7 +259,7 @@ class Vrs2Mp4Converter:
             self.audio_config = self.provider_.get_audio_configuration(
                 self.audio_streamid_
             )
-            self.audio_max_value_ = max_signed_value_for_bytes(4)
+            self.audio_num_channels = self.audio_config.num_channels
 
             # RECORD_TIME for audio is the START of a Record
             # DEVICE_TIME for audio is the END of a Record
@@ -415,8 +432,13 @@ class Vrs2Mp4Converter:
             TimeQueryOptions.CLOSEST,
         )
         audio_data = np.array(audio_data_and_config[0].data)
-        audio_data = audio_data.astype(np.float64) / self.audio_max_value_
 
-        # return all channels
-        # a subset of channels create crackle sounds
-        return audio_data
+        num_samples = int(audio_data.shape[0] / self.audio_num_channels)
+        max_amplitude = audio_data_and_config[0].max_amplitude
+        audio_data = audio_data.astype(np.float64) / max_amplitude
+
+        # Select only the specified channels
+        audio_data = audio_data.reshape(num_samples, self.audio_num_channels)
+        selected_audio_data = audio_data[:, self.audio_channels_]
+
+        return selected_audio_data

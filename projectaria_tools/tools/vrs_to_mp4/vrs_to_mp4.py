@@ -52,6 +52,14 @@ def parse_args():
         default=1,
         help="Downsampling factor on VRS images (Must be >=1)",
     )
+    parser.add_argument(
+        "--audio_channels",
+        type=int,
+        nargs="+",
+        required=False,
+        default=[0, 2],
+        help="Audio channel indices to output to the MP4 file, e.g., '--audio_channels 0 1 2'. Default: the 2 mic on the lower frame of the glasses [0, 2]",
+    )
     return parser.parse_args()
 
 
@@ -63,6 +71,7 @@ def main():
         stream_id=args.stream_id,
         log_folder=args.log_folder,
         down_sample_factor=args.downsample,
+        audio_channels=args.audio_channels,
     )
 
 
