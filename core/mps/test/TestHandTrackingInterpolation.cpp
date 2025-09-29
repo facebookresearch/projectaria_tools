@@ -53,10 +53,12 @@ HandTrackingResult createTestHandTrackingSample(
     return hand;
   };
 
-  if (hasLeft)
+  if (hasLeft) {
     result.leftHand = createHand();
-  if (hasRight)
+  }
+  if (hasRight) {
     result.rightHand = createHand();
+  }
   return result;
 }
 
