@@ -391,7 +391,8 @@ inline void declareAudioDataRecord(py::module& m) {
   // audioData
   py::class_<AudioData>(m, "AudioData", "Audio sensor data type: the audio value")
       .def(py::init<>())
-      .def_readwrite("data", &AudioData::data, "raw data, length = nChannels * nSamples");
+      .def_readwrite("data", &AudioData::data, "raw data, length = nChannels * nSamples")
+      .def_readwrite("max_amplitude", &AudioData::maxAmplitude, "max amplitude");
   py::class_<AudioConfig>(m, "AudioConfig", "Audio sensor configuration type")
       .def(py::init<>())
       .def_readwrite("stream_id", &AudioConfig::streamId, "ID of the VRS stream")
