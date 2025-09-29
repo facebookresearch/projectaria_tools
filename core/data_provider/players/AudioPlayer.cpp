@@ -23,10 +23,19 @@
 #include <opus_multistream.h>
 #include <vrs/ErrorCode.h>
 #include <vrs/RecordFileReader.h>
+#include <vrs/RecordFormat.h>
 
 namespace projectaria::tools::data_provider {
 
 static constexpr uint32_t kStereoMultiplier = 2;
+
+// Destructor to clean up Opus decoder
+AudioPlayer::~AudioPlayer() {
+  if (opusDecoder_) {
+    opus_multistream_decoder_destroy(opusDecoder_);
+    opusDecoder_ = nullptr;
+  }
+}
 
 bool AudioPlayer::onDataLayoutRead(
     const vrs::CurrentRecord& r,
@@ -51,7 +60,7 @@ bool AudioPlayer::onAudioRead(
     const vrs::CurrentRecord& r,
     size_t /* idx */,
     const vrs::ContentBlock& cb) {
-  auto& audioSpec = cb.audio();
+  const auto& audioSpec = cb.audio();
 
   // Read Opus-encoded audio data with decoding
   if (audioSpec.getAudioFormat() == vrs::AudioFormat::OPUS &&
@@ -96,34 +105,87 @@ bool AudioPlayer::readAndDecodeAudioData(const vrs::CurrentRecord& r, const vrs:
   uint32_t numChannels = audioSpec.getChannelCount();
   uint32_t numSamples = audioSpec.getSampleCount();
 
-  // Separate mono and coupled channels
-  uint32_t totalCoupledAudioChannel = kStereoMultiplier * audioSpec.getStereoPairCount();
-  uint32_t totalMonoChannel = audioSpec.getChannelCount() - totalCoupledAudioChannel;
-  uint32_t totalAudioStreamCount = totalMonoChannel + audioSpec.getStereoPairCount();
   uint32_t sampleRate = audioSpec.getSampleRate();
 
-  // Create a mapping to map input channels to output channels, as required by Opus.
-  std::vector<uint8_t> mapping(numChannels);
-  for (uint32_t i = 0; i < numChannels; ++i) {
-    mapping[i] = i;
+  // Check if decoder needs to be recreated due to:
+  // 1. Spec changes (codec parameters changed)
+  // 2. Random access seek (current timestamp < last decoded timestamp)
+  double currentTimestamp = r.timestamp;
+  bool needsReset = false;
+
+  if (opusDecoder_ != nullptr && !lastDecoderSpec_.isCompatibleWith(audioSpec)) {
+    needsReset = true;
   }
 
-  // Create Opus decoder
-  int errorCode = 0;
-  auto* decoder = opus_multistream_decoder_create(
-      sampleRate,
-      numChannels,
-      totalAudioStreamCount,
-      audioSpec.getStereoPairCount(),
-      mapping.data(),
-      &errorCode);
+  // Reset decoder if reversed timestamp is found
+  if (opusDecoder_ != nullptr && lastDecodedTimestamp_ >= 0.0 &&
+      currentTimestamp < lastDecodedTimestamp_) {
+    needsReset = true;
+  }
 
-  if (errorCode != OPUS_OK || decoder == nullptr) {
-    fmt::print(
-        "WARNING: Couldn't create Opus decoder. Error {}: {}\n",
-        errorCode,
-        opus_strerror(errorCode));
-    return false;
+  // Decoding should only be done ONCE for the same audio data packet
+  if (currentTimestamp == lastDecodedTimestamp_) {
+    return true;
+  }
+
+  if (needsReset) {
+    opus_multistream_decoder_destroy(opusDecoder_);
+    opusDecoder_ = nullptr;
+    lastDecodedTimestamp_ = -1.0; // Reset timestamp tracking
+  }
+
+  // Create decoder only if needed (reuse existing decoder when possible)
+  if (opusDecoder_ == nullptr) {
+    // Separate mono and coupled channels
+    uint32_t totalCoupledAudioChannel = kStereoMultiplier * audioSpec.getStereoPairCount();
+    uint32_t totalMonoChannel = audioSpec.getChannelCount() - totalCoupledAudioChannel;
+    uint32_t totalAudioStreamCount = totalMonoChannel + audioSpec.getStereoPairCount();
+
+    // Validate channel counts
+    if (numChannels > 255 || numChannels == 0) {
+      fmt::print("ERROR: Invalid channel count of {}\n", numChannels);
+      return false;
+    }
+    if (numChannels < totalCoupledAudioChannel) {
+      fmt::print(
+          "ERROR: Invalid channel count of {} and stereo channel count of {}\n",
+          numChannels,
+          totalCoupledAudioChannel);
+      return false;
+    }
+
+    // Create mapping to map input channels to output channels, as required by Opus
+    std::vector<uint8_t> mapping(numChannels);
+    for (uint32_t i = 0; i < totalCoupledAudioChannel + totalMonoChannel; ++i) {
+      mapping[i] = i;
+    }
+
+    // Create persistent Opus decoder
+    int errorCode = 0;
+    opusDecoder_ = opus_multistream_decoder_create(
+        sampleRate,
+        numChannels,
+        totalAudioStreamCount,
+        audioSpec.getStereoPairCount(),
+        mapping.data(),
+        &errorCode);
+
+    if (errorCode != OPUS_OK || opusDecoder_ == nullptr) {
+      fmt::print(
+          "ERROR: Couldn't create Opus decoder. Error {}: {}\n",
+          errorCode,
+          opus_strerror(errorCode));
+      return false;
+    }
+
+    // Store the spec for compatibility checking
+    lastDecoderSpec_ = audioSpec;
+  }
+
+  // Add fallback for sample count
+  if (numSamples == 0) {
+    // Use maximum possible according to Opus spec: 120 ms
+    numSamples = sampleRate * 120 / 1000;
   }
 
   // Reserve raw buffers for input and output of decoding
@@ -133,34 +195,41 @@ bool AudioPlayer::readAndDecodeAudioData(const vrs::CurrentRecord& r, const vrs:
 
   // First, read audio data into raw buffer (payload)
   if (r.reader->read(decodeInput) != 0) {
-    fmt::print("ERROR: Cannot read audio data into decoding payload \n");
+    fmt::print("ERROR: Cannot read audio data into decoding payload\n");
     return false;
   }
 
-  // Then perform decoding
+  // Then perform decoding using persistent decoder
   opus_int32 result = opus_multistream_decode(
-      decoder,
+      opusDecoder_,
       decodeInput.data(),
       payloadSize,
       reinterpret_cast<int16_t*>(decodeOutput.data()),
       numSamples,
       0);
-  // Check if valid number of data has been decoded
-  if (result == 0) {
-    fmt::print("ERROR: Audio decoding has returned 0 valid decoded samples. \n");
+
+  // Fix error checking: result > 0 means success, not == 0
+  if (result > 0) {
+    // Success: result contains actual number of decoded samples
+    data_.data.clear();
+    data_.data.reserve(result * numChannels);
+
+    // Only process the actual decoded samples (not the full buffer)
+    for (int i = 0; i < result * numChannels; ++i) {
+      data_.data.push_back(static_cast<int32_t>(decodeOutput[i]));
+    }
+    data_.maxAmplitude = static_cast<double>(std::numeric_limits<int16_t>::max());
+
+    // Update timestamp tracking after successful decode
+    lastDecodedTimestamp_ = currentTimestamp;
+
+    callback_(data_, dataRecord_, configRecord_, verbose_);
+    return true;
+  } else {
+    // Error: result contains error code
+    fmt::print("ERROR: Audio decoding failed. Error {}: {}\n", result, opus_strerror(result));
     return false;
   }
-
-  data_.data.clear();
-  for (const auto& decodeValue : decodeOutput) {
-    data_.data.push_back(static_cast<int32_t>(decodeValue));
-  }
-  data_.maxAmplitude = static_cast<double>(std::numeric_limits<int16_t>::max());
-  callback_(data_, dataRecord_, configRecord_, verbose_);
-
-  // Cleaning up
-  opus_multistream_decoder_destroy(decoder);
-  return true;
 }
 
 } // namespace projectaria::tools::data_provider
