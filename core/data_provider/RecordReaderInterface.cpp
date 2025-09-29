@@ -231,6 +231,9 @@ RecordReaderInterface::RecordReaderInterface(
   }
   fileTags_ = reader_->getTags();
   vrsMetadata_ = getMetadata();
+
+  // Initialize Opus detection cache
+  initializeOpusDetection();
 }
 
 std::set<vrs::StreamId> RecordReaderInterface::getStreamIds() const {
@@ -327,8 +330,15 @@ const vrs::IndexRecord::RecordInfo* RecordReaderInterface::readRecordByIndex(
     const int index) {
   std::lock_guard<std::mutex> lockGuard(*readerMutex_);
 
+  // Check bounds first to prevent invalid pre-roll attempts
   if (index < 0 || index >= reader_->getRecordCount(streamId, vrs::Record::Type::DATA)) {
     return nullptr;
+  }
+
+  // Handle Opus audio pre-roll before reading the target record
+  if (getSensorDataType(streamId) == SensorDataType::Audio && isOpusAudioStream(streamId) &&
+      needsOpusPreroll(streamId, index)) {
+    performOpusPreroll(streamId, index);
   }
   const vrs::IndexRecord::RecordInfo* recordInfo =
       reader_->getRecord(streamId, vrs::Record::Type::DATA, static_cast<uint32_t>(index));
@@ -336,6 +346,21 @@ const vrs::IndexRecord::RecordInfo* RecordReaderInterface::readRecordByIndex(
       recordInfo, fmt::format("getRecord failed for {}, index {}", streamId.getName(), index));
   const int errorCode = reader_->readRecord(*recordInfo);
   streamIdToLastReadRecord_[streamId] = recordInfo;
+
+  // Update tracking for audio streams after successful read
+  if (getSensorDataType(streamId) == SensorDataType::Audio) {
+    audioStreamLastReadIndex_[streamId] = index;
+
+    // Update Opus detection cache after first successful read
+    auto audioPlayerIt = audioPlayers_.find(streamId);
+    if (audioPlayerIt != audioPlayers_.end()) {
+      vrs::AudioFormat detectedFormat = audioPlayerIt->second->getDetectedAudioFormat();
+      if (detectedFormat != vrs::AudioFormat::UNDEFINED) {
+        updateOpusDetection(streamId, detectedFormat == vrs::AudioFormat::OPUS);
+      }
+    }
+  }
+
   if (errorCode != 0) {
     XR_LOGE(
         "Fail to read record {} from streamId {} with code {}",
@@ -682,6 +707,64 @@ OnDeviceHandPoseData RecordReaderInterface::getLastCachedHandPoseData(
   auto handPoseData = handPosePlayers_[streamId]->getDataRecord();
   streamIdToCondition_.at(streamId)->notify_one();
   return handPoseData;
+}
+
+bool RecordReaderInterface::needsOpusPreroll(const vrs::StreamId& streamId, int targetIndex) {
+  auto lastIndexIt = audioStreamLastReadIndex_.find(streamId);
+
+  if (lastIndexIt == audioStreamLastReadIndex_.end()) {
+    // First read for this stream - need pre-roll if not starting from index 0
+    return targetIndex > 0;
+  }
+
+  int lastIndex = lastIndexIt->second;
+  // Need pre-roll if not sequential (not lastIndex + 1) and not same index
+  return (targetIndex != lastIndex + 1 && targetIndex != lastIndex);
+}
+
+void RecordReaderInterface::performOpusPreroll(const vrs::StreamId& streamId, int targetIndex) {
+  // Reset Opus decoder first
+  resetOpusDecoder(streamId);
+
+  // Read previous frames for pre-roll (but don't update lastReadIndex yet)
+  int prerollStart = std::max(0, targetIndex - kAudioDecodingPrerollLength);
+  for (int prerollIndex = prerollStart; prerollIndex < targetIndex; ++prerollIndex) {
+    const vrs::IndexRecord::RecordInfo* prerollRecord =
+        reader_->getRecord(streamId, vrs::Record::Type::DATA, static_cast<uint32_t>(prerollIndex));
+    if (prerollRecord) {
+      reader_->readRecord(*prerollRecord);
+      // Audio data is processed by the player but we don't cache or return it
+    }
+  }
+}
+
+bool RecordReaderInterface::isOpusAudioStream(const vrs::StreamId& streamId) {
+  // Use cached Opus detection result
+  auto it = audioStreamIsOpus_.find(streamId);
+  return it != audioStreamIsOpus_.end() && it->second;
+}
+
+void RecordReaderInterface::initializeOpusDetection() {
+  // Initialize all audio streams as undetermined (will be detected lazily on first read)
+  for (const auto& [streamId, audioPlayer] : audioPlayers_) {
+    // Initialize as undetermined - will be detected during first actual read
+    // when the AudioPlayer's onAudioRead() method can access the content block format
+    audioStreamIsOpus_[streamId] = false;
+  }
+}
+
+void RecordReaderInterface::updateOpusDetection(const vrs::StreamId& streamId, bool isOpus) {
+  audioStreamIsOpus_[streamId] = isOpus;
+}
+
+void RecordReaderInterface::resetOpusDecoder(const vrs::StreamId& streamId) {
+  if (audioPlayers_.find(streamId) != audioPlayers_.end()) {
+    audioPlayers_[streamId]->resetOpusDecoder();
+  } else {
+    fmt::print(
+        "Warning: streamId {} not found in audioPlayers_, Opus decoder cannot be reset\n",
+        streamId.getNumericName());
+  }
 }
 
 } // namespace projectaria::tools::data_provider

@@ -526,6 +526,12 @@ SensorData VrsDataProvider::getSensorDataByTimeNs(
     const TimeDomain& timeDomain,
     const TimeQueryOptions& timeQueryOptions) {
   const int index = getIndexByTimeNs(streamId, timeNs, timeDomain, timeQueryOptions);
+
+  // Check for out-of-bounds index and return NotValid SensorData
+  if (index < 0) {
+    return SensorData(streamId, std::monostate{}, SensorDataType::NotValid, -1, {});
+  }
+
   return getSensorDataByIndex(streamId, index);
 }
 

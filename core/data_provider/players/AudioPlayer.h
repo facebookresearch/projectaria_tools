@@ -105,6 +105,15 @@ class AudioPlayer : public vrs::RecordFormatStreamPlayer {
     verbose_ = verbose;
   }
 
+  // Get the detected audio format (available after first read)
+  vrs::AudioFormat getDetectedAudioFormat() const {
+    return detectedAudioFormat_;
+  }
+
+  // A function to explicitly reset the Opus decoder. Note that this DOES NOT initialize the
+  // decoder!
+  void resetOpusDecoder();
+
  protected:
   bool onDataLayoutRead(const vrs::CurrentRecord& r, size_t blockIndex, vrs::DataLayout& dl)
       override;
@@ -133,6 +142,9 @@ class AudioPlayer : public vrs::RecordFormatStreamPlayer {
   OpusMSDecoder* opusDecoder_ = nullptr;
   vrs::AudioContentBlockSpec lastDecoderSpec_; // Track spec compatibility
   double lastDecodedTimestamp_ = -1.0; // Track last decoded timestamp for random access detection
+
+  // Track detected audio format (set on first audio read)
+  vrs::AudioFormat detectedAudioFormat_ = vrs::AudioFormat::UNDEFINED;
 };
 
 } // namespace projectaria::tools::data_provider

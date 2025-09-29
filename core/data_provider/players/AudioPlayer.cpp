@@ -62,6 +62,11 @@ bool AudioPlayer::onAudioRead(
     const vrs::ContentBlock& cb) {
   const auto& audioSpec = cb.audio();
 
+  // Detect and store audio format on first read
+  if (detectedAudioFormat_ == vrs::AudioFormat::UNDEFINED) {
+    detectedAudioFormat_ = audioSpec.getAudioFormat();
+  }
+
   // Read Opus-encoded audio data with decoding
   if (audioSpec.getAudioFormat() == vrs::AudioFormat::OPUS &&
       audioSpec.getSampleFormat() == vrs::AudioSampleFormat::S16_LE) {
@@ -129,12 +134,10 @@ bool AudioPlayer::readAndDecodeAudioData(const vrs::CurrentRecord& r, const vrs:
   }
 
   if (needsReset) {
-    opus_multistream_decoder_destroy(opusDecoder_);
-    opusDecoder_ = nullptr;
-    lastDecodedTimestamp_ = -1.0; // Reset timestamp tracking
+    resetOpusDecoder();
   }
 
-  // Create decoder only if needed (reuse existing decoder when possible)
+  // Initialize decoder if not yet initialized
   if (opusDecoder_ == nullptr) {
     // Separate mono and coupled channels
     uint32_t totalCoupledAudioChannel = kStereoMultiplier * audioSpec.getStereoPairCount();
@@ -224,11 +227,21 @@ bool AudioPlayer::readAndDecodeAudioData(const vrs::CurrentRecord& r, const vrs:
     lastDecodedTimestamp_ = currentTimestamp;
 
     callback_(data_, dataRecord_, configRecord_, verbose_);
+
     return true;
   } else {
     // Error: result contains error code
     fmt::print("ERROR: Audio decoding failed. Error {}: {}\n", result, opus_strerror(result));
     return false;
+  }
+}
+
+void AudioPlayer::resetOpusDecoder() {
+  // Destroy existing decoder
+  if (opusDecoder_ != nullptr) {
+    opus_multistream_decoder_destroy(opusDecoder_);
+    opusDecoder_ = nullptr;
+    lastDecodedTimestamp_ = -1.0; // Reset timestamp tracking
   }
 }
 

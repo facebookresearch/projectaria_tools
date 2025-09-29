@@ -105,7 +105,36 @@ class RecordReaderInterface {
 
   [[nodiscard]] std::optional<MetadataTimeSyncMode> getTimeSyncMode() const;
 
+  // Explicit function to reset AudioPlayer's Opus decoder. This is needed to support random access
+  // for Audio data
+  void resetOpusDecoder(const vrs::StreamId& streamId);
+
  private:
+  // Parameter to control the "pre-roll" length for encoded audio signal.
+  // 5 samples stands for approx 100ms, which is enough for pre-roll
+  static constexpr int kAudioDecodingPrerollLength = 5;
+
+  // Track last read index per audio stream for Opus pre-roll detection
+  std::map<vrs::StreamId, int> audioStreamLastReadIndex_;
+
+  // Cache which audio streams use Opus encoding (determined during initialization)
+  std::map<vrs::StreamId, bool> audioStreamIsOpus_;
+
+  // Helper method to determine if audio stream needs Opus pre-roll
+  bool needsOpusPreroll(const vrs::StreamId& streamId, int targetIndex);
+
+  // Helper method to perform Opus pre-roll
+  void performOpusPreroll(const vrs::StreamId& streamId, int targetIndex);
+
+  // Check if audio stream uses Opus encoding (cached lookup)
+  bool isOpusAudioStream(const vrs::StreamId& streamId);
+
+  // Initialize Opus detection cache during construction
+  void initializeOpusDetection();
+
+  // Update Opus detection cache for a specific stream
+  void updateOpusDetection(const vrs::StreamId& streamId, bool isOpus);
+
   std::shared_ptr<vrs::MultiRecordFileReader> reader_;
 
   calibration::DeviceVersion deviceVersion_;
