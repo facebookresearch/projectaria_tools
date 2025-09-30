@@ -37,6 +37,28 @@ image::ManagedImageVariant distortByCalibration(
   return distortImageVariant(srcVariant, inverseWarp, dstCalib.getImageSize(), method);
 }
 
+// version with rotation
+image::ManagedImageVariant distortByCalibrationAndApplyRotation(
+    const image::ImageVariant& srcVariant,
+    const CameraCalibration& dstCalib,
+    const CameraCalibration& srcCalib,
+    const Sophus::SO3d& so3_srcCalib_dstCalib,
+    const image::InterpolationMethod method) {
+  auto inverseWarp = [&dstCalib, &srcCalib, &so3_srcCalib_dstCalib](
+                         const Eigen::Vector2f& dstPixel) -> std::optional<Eigen::Vector2f> {
+    Eigen::Vector3d rayDir = dstCalib.unprojectNoChecks(dstPixel.template cast<double>());
+    // apply rotation
+    rayDir = so3_srcCalib_dstCalib * rayDir;
+    std::optional<Eigen::Vector2d> maybeSrcPixel = srcCalib.project(rayDir);
+    if (!maybeSrcPixel) {
+      return {};
+    } else {
+      return maybeSrcPixel->template cast<float>();
+    }
+  };
+  return distortImageVariant(srcVariant, inverseWarp, dstCalib.getImageSize(), method);
+}
+
 image::ManagedImageVariant distortDepthByCalibration(
     const image::ImageVariant& srcVariant,
     const CameraCalibration& dstCalib,

@@ -34,6 +34,23 @@ image::ManagedImageVariant distortByCalibration(
     image::InterpolationMethod method = image::InterpolationMethod::Bilinear);
 
 /**
+ * @brief Distorts an input image to swap its underlying image distortion model,
+ * while applying a rotation to the camera ray. This can be used for stereo
+ * rectification.
+ * @param srcVariant the input image
+ * @param dstCalib the calibration model of the output image
+ * @param srcCalib the calibration model of the input image
+ * @param so3_srcCalib_dstCalib rotation from destination to source
+ * @param method the interpolation method (Bilinear, NearestNeighbor)
+ */
+image::ManagedImageVariant distortByCalibrationAndApplyRotation(
+    const image::ImageVariant& srcVariant,
+    const CameraCalibration& dstCalib,
+    const CameraCalibration& srcCalib,
+    const Sophus::SO3d& so3_srcCalib_dstCalib,
+    const image::InterpolationMethod method = image::InterpolationMethod::Bilinear);
+
+/**
  * @brief Distorts an input depth image using InterpolationMethod::Bilinear to swap its underlying
  * image distortion model
  * @param srcVariant the input image
