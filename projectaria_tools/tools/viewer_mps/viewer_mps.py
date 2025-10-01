@@ -85,12 +85,6 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--no_rotate_image_upright",
-        action="store_true",
-        help="If set, the RGB images are shown in their original orientation, which is rotated 90 degrees ccw from upright.",
-    )
-
-    parser.add_argument(
         "--no_rectify_image",
         action="store_true",
         help="If set, the raw fisheye RGB images are shown without being undistorted.",
@@ -185,7 +179,6 @@ def main() -> None:
         wrist_and_palm_poses_file=args.hands,
         hand_tracking_results_file=args.hands_all,
         should_rectify_image=not args.no_rectify_image,
-        should_rotate_image=not args.no_rotate_image_upright,
         down_sampling_factor=args.down_sampling_factor,
         jpeg_quality=args.jpeg_quality,
         rrd_output_path=args.rrd_output_path,

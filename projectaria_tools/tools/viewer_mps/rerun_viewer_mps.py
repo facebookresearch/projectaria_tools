@@ -19,7 +19,11 @@ import numpy as np
 import rerun as rr
 
 from projectaria_tools.core import calibration, data_provider, mps
-from projectaria_tools.core.calibration import CameraCalibration, DeviceCalibration
+from projectaria_tools.core.calibration import (
+    CameraCalibration,
+    DeviceCalibration,
+    DeviceVersion,
+)
 from projectaria_tools.core.mps.utils import (
     filter_points_from_confidence,
     filter_points_from_count,
@@ -790,7 +794,6 @@ def log_mps_to_rerun(
     wrist_and_palm_poses_file: Optional[str],
     hand_tracking_results_file: Optional[str],
     should_rectify_image: bool = False,
-    should_rotate_image: bool = False,
     down_sampling_factor: int = 4,
     jpeg_quality: int = 75,
     rrd_output_path: Optional[str] = None,
@@ -819,6 +822,12 @@ def log_mps_to_rerun(
 
     provider = data_provider.create_vrs_data_provider(vrs_path)
     device_calibration = provider.get_device_calibration()
+
+    # Automatically rotate the image for Gen1 Aria devices
+    should_rotate_image: bool = (
+        device_calibration.get_device_version() == DeviceVersion.Gen1
+    )
+
     T_device_CPF = (
         device_calibration.get_transform_device_cpf()
     )  # this is always CAD value
