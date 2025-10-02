@@ -12,14 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import logging
 from asyncio import Task
-from typing import Any, Dict, final, Final, Optional
+from typing import final, Optional
 
 from projectaria_vrs_health_check.vrs_health_check import run_vrs_health_check
 
-from .common import to_proc
+from .eligibility_check import (
+    EligibilityChecker,
+    EligibilityCheckerGen1,
+    EligibilityCheckerGen2,
+)
 from .runner_with_progress import RunnerWithProgress
 from .types import AriaRecording, MpsAriaDevice, MpsFeature
 
@@ -31,18 +34,13 @@ class HealthCheckRunner(RunnerWithProgress):
     Run health check on a given vrs file.
     """
 
-    __VHC_KEY_SECTION_GEN1: Final[str] = "AriaGen1_Location"
-    __VHC_KEY_SECTION_GEN2: Final[str] = "AriaGen2_Location"
-    __VHC_KEY_FINAL_RESULT: Final[str] = "final_result"
-    __VHC_KEY_FAILED_CHECKS: Final[str] = "failed_checks"
-    __VHC_KEY_WARN_CHECKS: Final[str] = "warn_checks"
-
-    __VHC_OUT_PASS: Final[str] = "pass"
-    __VHC_OUT_WARN: Final[str] = "warn"
-    __VHC_OUT_FAIL: Final[str] = "fail"
-
     def __init__(self, recording: AriaRecording) -> None:
         self._recording: AriaRecording = recording
+        self._elgibility_checker: EligibilityChecker = (
+            EligibilityCheckerGen1(recording)
+            if recording.device_type == MpsAriaDevice.ARIA_GEN1
+            else EligibilityCheckerGen2(recording)
+        )
 
         # Declare for parent class
         self._task: Optional[Task] = None
@@ -51,7 +49,12 @@ class HealthCheckRunner(RunnerWithProgress):
     @final
     def get_key(cls, recording: AriaRecording) -> str:
         """
-        Get a unique key for this Runner instance
+        Get a unique key for this Runner instance.
+
+        Args:
+            recording (AriaRecording): The Aria Recording to get the key for.
+        Returns:
+            A unique key for this Runner instance.
         """
 
         return f"{recording.path}_{recording.health_check_path}"
@@ -63,54 +66,23 @@ class HealthCheckRunner(RunnerWithProgress):
         Repeatedly calling run will await on the same task
         """
 
-        await to_proc(
-            run_vrs_health_check,
+        return run_vrs_health_check(
             path=self._recording.path.as_posix(),
             json_out_filename=self._recording.health_check_path.as_posix(),
+            disable_logging=True,
+            print_stats=False,
         )
 
     def is_eligible(self, feature: MpsFeature) -> bool:
         """
-        Check if a feature is eligible for processing based on the results of the health check
+        Checks if an Aria Recording is eligible for processing with selected MPS feature
+        based on the results of the VRS Health Check.
+
+        Args:
+            feature (MpsFeature): The MPS feature to check eligibility for.
+        Returns:
+            True if the recording is eligible for processing with the selected feature,
+            False otherwise.
         """
 
-        if not self._recording.health_check_path.exists():
-            raise FileNotFoundError(f"No health check found for {feature.file_path}")
-
-        if self._recording.device_type == MpsAriaDevice.ARIA_GEN2 and feature in [
-            MpsFeature.EYE_GAZE,
-            MpsFeature.MULTI_SLAM,
-        ]:
-            return False
-
-        with open(self._recording.health_check_path) as vhc:
-            vhc_json: Dict[str, Any] = json.load(vhc)
-
-            section: str = (
-                HealthCheckRunner.__VHC_KEY_SECTION_GEN1
-                if self._recording.device_type == MpsAriaDevice.ARIA_GEN1
-                else HealthCheckRunner.__VHC_KEY_SECTION_GEN2
-            )
-            is_failed: bool = (
-                vhc_json[section][HealthCheckRunner.__VHC_KEY_FINAL_RESULT]
-                == HealthCheckRunner.__VHC_OUT_FAIL
-            )
-
-            logger.debug(f"Health check result: {vhc_json[section][
-                    HealthCheckRunner.__VHC_KEY_FINAL_RESULT
-                ]}")
-            if is_failed:
-                logger.debug(f"Failed checks: {vhc_json[section][
-                    HealthCheckRunner.__VHC_KEY_FAILED_CHECKS
-                ]}")
-            if (
-                vhc_json[section][HealthCheckRunner.__VHC_KEY_FINAL_RESULT]
-                != HealthCheckRunner.__VHC_OUT_PASS
-            ):
-                logger.debug(f"Warning checks: {vhc_json[section][
-                    HealthCheckRunner.__VHC_KEY_WARN_CHECKS
-                ]}")
-
-            return not is_failed
-
-        raise NotImplementedError(f"Unknown feature type {feature}")
+        return self._elgibility_checker.is_eligible(feature)
