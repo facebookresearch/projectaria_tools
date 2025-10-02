@@ -83,8 +83,6 @@ class SingleRecordingRequest(BaseStateMachine):
         SUCCESS_NEW_REQUEST = auto()
         SUCCESS_PAST_REQUEST = auto()
 
-        PROCESSING_NOT_REQUIRED = auto()
-
         FAILURE = auto()
 
     TRANSITIONS: Final[List[List[Any]]] = [
@@ -102,7 +100,6 @@ class SingleRecordingRequest(BaseStateMachine):
         ["finish", States.UPLOAD, States.SUCCESS_NEW_REQUEST],
         ["finish", States.PAST_OUTPUT_CHECK, States.SUCCESS_PAST_OUTPUT],
         ["finish", States.PAST_REQUEST_CHECK, States.SUCCESS_PAST_REQUEST],
-        ["finish", States.DEVICE_TYPE_CHECK, States.PROCESSING_NOT_REQUIRED],
     ]
 
     def __init__(self, http_helper: HttpHelper, **kwargs):
@@ -286,7 +283,7 @@ class SingleRecordingModel:
             return ModelState(
                 status=DisplayStatus.ERROR, error_code=str(self._error_code)
             )
-        elif self.is_SUCCESS_PAST_OUTPUT() or self.is_PROCESSING_NOT_REQUIRED():
+        elif self.is_SUCCESS_PAST_OUTPUT():
             return ModelState(status=DisplayStatus.SUCCESS)
 
         raise RuntimeError(f"Unknown state {self.state}")
@@ -382,7 +379,7 @@ class SingleRecordingModel:
             and self._feature == MpsFeature.EYE_GAZE
         ):
             self._logger.error(f"Eye gaze is not supported for {self._recording}")
-            await self.finish()
+            self._error_code = ErrorCode.DEVICE_TYPE_UNSUPPORTED
 
         await self.next()
 
@@ -472,10 +469,6 @@ class SingleRecordingModel:
     async def on_enter_SUCCESS_PAST_REQUEST(self, event: EventData) -> None:
         self._logger.debug(event)
         self._logger.info(f"Finished processing {self.state}")
-
-    async def on_enter_PROCESSING_NOT_REQUIRED(self, event: EventData) -> None:
-        self._logger.debug(event)
-        self._logger.info(f"SKIPPING processing {self.state}")
 
     async def on_enter_FAILURE(self, event: EventData) -> None:
         self._logger.critical(event)

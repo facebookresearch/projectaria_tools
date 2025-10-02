@@ -154,11 +154,7 @@ class SingleRecordingMps:
                 if model not in removed_models:
                     self._requestor.remove_model(model)
                     removed_models.add(model)
-                if (
-                    model.is_SUCCESS_PAST_OUTPUT()
-                    or model.is_FAILURE()
-                    or model.is_PROCESSING_NOT_REQUIRED()
-                ):
+                if model.is_SUCCESS_PAST_OUTPUT() or model.is_FAILURE():
                     # Set the state to SUCCESS or FAILURE
                     self._finish_status[model.feature] = model.get_status()
                 elif model.is_SUCCESS_PAST_REQUEST():
