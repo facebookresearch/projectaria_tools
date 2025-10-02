@@ -469,7 +469,7 @@ class MultiRecordingModel:
         async def _health_check(rec: AriaRecording) -> None:
             vhc_runner: HealthCheckRunner = await HealthCheckRunner.get(rec)
 
-            if rec.health_check_path.is_file():
+            if vhc_runner.check_vrs_output_and_remove_invalid():
                 logger.info(
                     f"Health check output already exists at {rec.health_check_path}, skipping VrsHealthCheck"
                 )

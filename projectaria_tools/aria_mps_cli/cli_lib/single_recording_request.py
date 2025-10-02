@@ -393,7 +393,7 @@ class SingleRecordingModel:
             recording=self._recording,
         )
 
-        if self._recording.health_check_path.exists():
+        if vhc_runner.check_vrs_output_and_remove_invalid():
             self._logger.warning(
                 f"Health check output already exists at {self._recording.health_check_path}, skipping VrsHealthCheck"
             )

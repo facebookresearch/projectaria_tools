@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import logging
 from asyncio import Task
-from typing import final, Optional
+from typing import Any, Dict, final, Optional
 
 from projectaria_vrs_health_check.vrs_health_check import run_vrs_health_check
 
@@ -86,3 +87,27 @@ class HealthCheckRunner(RunnerWithProgress):
         """
 
         return self._elgibility_checker.is_eligible(feature)
+
+    def check_vrs_output_and_remove_invalid(self) -> bool:
+        """
+        Check if the vrs health check output is valid.
+
+        Returns:
+            bool: True if the VRS HealthCcheck output exists and is valid, False otherwise.
+            If the VRS Health Check output is invalid, remove it.
+        """
+
+        if not self._recording.health_check_path.exists():
+            return False
+
+        with open(self._recording.health_check_path) as vhc:
+            vhc_json: Dict[str, Any] = json.load(vhc)
+
+        if self._elgibility_checker.VHC_KEY_SECTION_DEFAULT not in vhc_json:
+            logger.warning(
+                f"Detected older version of health check output for {self._recording.path}, removing"
+            )
+            self._recording.health_check_path.unlink()
+            return False
+
+        return True
