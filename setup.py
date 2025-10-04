@@ -159,7 +159,7 @@ def main():
         install_requires=[
             "numpy",
             "requests",  # Required for datasets downloader
-            "rerun-sdk>=0.20.0",
+            "rerun-sdk==0.22.1",
             "tqdm",
         ],
         extras_require={
@@ -171,6 +171,7 @@ def main():
                 "pillow",
                 "plotly",
                 "scipy",
+                "rerun-notebook==0.22.1",
                 ## Required for vrs_to_mp4
                 "moviepy==1.0.3",
             ]
