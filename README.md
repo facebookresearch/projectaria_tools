@@ -16,9 +16,9 @@ Gen1 and Aria Gen2 data**.
 
 ## Interactive python notebook playground (Google Colab)
 
-- [![Aria VRS Data Provider](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/1.6.0/core/examples/dataprovider_quickstart_tutorial.ipynb)
+- [![Aria VRS Data Provider](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/1.6.0/core/examples/dataprovider_quickstart_tutorial.ipynb) Aria VRS Data Provider
 
-- [![Aria Machine Perception Services](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/1.6.0/core/examples/mps_quickstart_tutorial.ipynb)
+- [![Aria Machine Perception Services](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/1.6.0/core/examples/mps_quickstart_tutorial.ipynb) Aria Machine Perception Services
 
 ## Documentation
 
@@ -41,7 +41,7 @@ Gen1 and Aria Gen2 data**.
   - [Dataset link](https://www.projectaria.com/datasets/adt)
   - [![interactive python notebook](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/projects/AriaDigitalTwinDatasetTools/examples/adt_quickstart_tutorial.ipynb).
 - **Aria Synthetic Environments**:
-  - [Datast link](https://www.projectaria.com/datasets/ase)
+  - [Dataset link](https://www.projectaria.com/datasets/ase)
 
 ## How to Contribute
 
