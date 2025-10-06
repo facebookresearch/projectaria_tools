@@ -102,7 +102,8 @@ jobs:
       - name: Test Python Notebooks
         shell: bash
         run: |
-          cd examples/Gen2/python_notebooks
+          # TODO: switch to Gen2 tutorials once sample data is available
+          cd examples/Gen1/python_notebooks
           # Installing dependencies
           pip3 install jupyter matplotlib tqdm pillow plotly
           # Running the notebooks

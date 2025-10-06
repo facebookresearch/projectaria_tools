@@ -70,7 +70,8 @@ jobs:
       - name: Test Python Notebooks
         shell: pixi run bash {0}
         run: |
-          cd examples/Gen2/python_notebooks/
+          # TODO: switch to Gen2 once testing data is available
+          cd examples/Gen1/python_notebooks/
           # Install dependencies used by the notebooks
           pip3 install jupyter matplotlib tqdm pillow plotly
 
