@@ -12,7 +12,7 @@ on:
         options:
           - build
           - test
-          # - prod TODO: Add this back when stable
+          - prod
 
 jobs:
   build-stubs:
