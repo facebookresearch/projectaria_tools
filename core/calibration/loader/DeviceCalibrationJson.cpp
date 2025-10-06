@@ -16,6 +16,7 @@
 
 #include <calibration/loader/DeviceCalibrationJson.h>
 #include <calibration/loader/SensorCalibrationJson.h>
+#include <data_provider/json_io/JsonHelpers.h>
 
 #include <logging/Checks.h>
 #define DEFAULT_LOG_CHANNEL "DeviceCalibrationFactory"
@@ -145,4 +146,207 @@ std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& ca
       originSensorLabel,
       deviceVersion};
 }
+
+// Helper function to convert DeviceVersion enum to string
+std::string deviceVersionToString(const DeviceVersion& version) {
+  switch (version) {
+    case DeviceVersion::Gen1:
+      return "Aria";
+    case DeviceVersion::Gen2:
+      return "Oatmeal";
+    case DeviceVersion::NotValid:
+    default:
+      return "NotValid";
+  }
+}
+
+// Helper function to convert CameraProjection::ModelType to string
+std::string projectionModelToString(const CameraProjection::ModelType& modelType) {
+  switch (modelType) {
+    case CameraProjection::ModelType::Fisheye624:
+      return "FisheyeRadTanThinPrism";
+    case CameraProjection::ModelType::KannalaBrandtK3:
+      return "KannalaBrandtK3";
+    case CameraProjection::ModelType::Fisheye62:
+      return "Fisheye62";
+    default:
+      return "Unknown";
+  }
+}
+
+std::string projectionModuleToDescriptionString(const CameraProjection::ModelType& modelType) {
+  switch (modelType) {
+    case CameraProjection::ModelType::Fisheye624:
+      return "fx, cx, cy, k_0, k_1, k_2, k_3, k_4, k_5, p_0, p_1, s_0, s_1, s_2, s_3";
+    case CameraProjection::ModelType::KannalaBrandtK3:
+      return "fx, fy, cx, cy, kb0, kb1, kb2, kb3";
+    case CameraProjection::ModelType::Fisheye62:
+      return "see Fisheye62.h";
+    default:
+      return "Unknown";
+  }
+}
+
+// Helper function to serialize camera calibration to JSON
+nlohmann::json cameraCalibrationToJson(const CameraCalibration& camCalib) {
+  nlohmann::json camJson;
+
+  camJson["Calibrated"] = true;
+  camJson["Label"] = camCalib.getLabel();
+  camJson["SerialNumber"] = camCalib.getSerialNumber();
+  camJson["T_Device_Camera"] = json::se3ToJson(camCalib.getT_Device_Camera());
+
+  // Projection parameters
+  camJson["Projection"]["Description"] = projectionModuleToDescriptionString(camCalib.modelName());
+  camJson["Projection"]["Name"] = projectionModelToString(camCalib.modelName());
+  camJson["Projection"]["Params"] = json::eigenVectorToJson(camCalib.projectionParams());
+
+  // Time offset if non-zero
+  if (camCalib.getTimeOffsetSecDeviceCamera() != 0.0) {
+    camJson["TimeOffsetSec_Device_Camera"] = camCalib.getTimeOffsetSecDeviceCamera();
+  }
+
+  return camJson;
+}
+
+// Helper function to serialize IMU calibration to JSON
+nlohmann::json imuCalibrationToJson(const ImuCalibration& imuCalib) {
+  nlohmann::json imuJson;
+
+  imuJson["Label"] = imuCalib.getLabel();
+  imuJson["SerialNumber"] = "";
+  imuJson["Calibrated"] = true;
+  imuJson["T_Device_Imu"] = json::se3ToJson(imuCalib.getT_Device_Imu());
+
+  // Accelerometer calibration
+  imuJson["Accelerometer"]["TimeOffsetSec_Device_Accel"] = 0;
+  imuJson["Accelerometer"]["Model"]["Name"] = "UpperTriagonalLinear";
+  imuJson["Accelerometer"]["Model"]["RectificationMatrix"] =
+      json::eigenMatrixToJson(imuCalib.getAccelModel().getRectification());
+  imuJson["Accelerometer"]["Bias"]["Offset"] =
+      json::eigenVectorToJson(imuCalib.getAccelModel().getBias());
+  imuJson["Accelerometer"]["Bias"]["Name"] = "Constant";
+
+  // Gyroscope calibration
+  imuJson["Gyroscope"]["Bias"]["Name"] = "Constant";
+
+  imuJson["Gyroscope"]["Bias"]["Offset"] =
+      json::eigenVectorToJson(imuCalib.getGyroModel().getBias());
+  imuJson["Gyroscope"]["Model"]["RectificationMatrix"] =
+      json::eigenMatrixToJson(imuCalib.getGyroModel().getRectification());
+  imuJson["Gyroscope"]["Model"]["Name"] = "LinearGSensitivity";
+  auto zeroMat = Eigen::Matrix<double, 3, 3>();
+  zeroMat.setZero();
+  imuJson["Gyroscope"]["Model"]["GSensitivityMatrix"] = json::eigenMatrixToJson(zeroMat);
+  imuJson["Gyroscope"]["TimeOffsetSec_Device_Gyro"] = 0;
+
+  return imuJson;
+}
+
+// Helper function to serialize magnetometer calibration to JSON
+nlohmann::json magnetometerCalibrationToJson(
+    const MagnetometerCalibration& magCalib,
+    const DeviceVersion& deviceVersion) {
+  nlohmann::json magJson;
+
+  magJson["Label"] = magCalib.getLabel();
+
+  auto magMatForJson = magCalib.getModel().getRectification();
+  auto biasForJson = magCalib.getModel().getBias();
+
+  magJson["SerialNumber"] = "";
+  magJson["Model"]["Name"] = "Linear";
+  magJson["Model"]["RectificationMatrix"] = json::eigenMatrixToJson(magMatForJson);
+  magJson["Bias"]["Offset"] = json::eigenVectorToJson(biasForJson);
+  magJson["Bias"]["Name"] = "Constant";
+
+  return magJson;
+}
+
+// Helper function to serialize barometer calibration to JSON
+nlohmann::json barometerCalibrationToJson(const BarometerCalibration& baroCalib) {
+  nlohmann::json baroJson;
+
+  baroJson["Label"] = baroCalib.getLabel();
+  baroJson["PressureModel"]["Name"] = "Linear";
+  baroJson["PressureModel"]["Slope"] = baroCalib.getSlope();
+  baroJson["PressureModel"]["OffsetPa"] = baroCalib.getOffsetPa();
+  baroJson["SerialNumber"] = "";
+
+  return baroJson;
+}
+
+// Helper function to serialize microphone calibration to JSON
+nlohmann::json microphoneCalibrationToJson(const MicrophoneCalibration& micCalib) {
+  nlohmann::json micJson;
+
+  micJson["Label"] = micCalib.getLabel();
+  micJson["DSensitivity1KDbv"] = micCalib.getDSensitivity1KDbv();
+  micJson["SerialNumber"] = "";
+
+  return micJson;
+}
+
+// Main function to serialize DeviceCalibration to JSON string
+std::string deviceCalibrationToJson(const DeviceCalibration& deviceCalib) {
+  nlohmann::json json;
+
+  json["AlgorithmName"] = "RealCalib";
+  json["AlgorithmVersion"] = "1.0 Beta";
+  json["CalibrationSource"] = "Unknown";
+  json["Serial"] = ""; // TODO add serial number in DeviceCalibration
+
+  // Device class information
+  json["DeviceClassInfo"]["BuildVersion"] = deviceCalib.getDeviceSubtype();
+  json["DeviceClassInfo"]["DeviceClass"] = deviceVersionToString(deviceCalib.getDeviceVersion());
+
+  // Origin specification
+  json["OriginSpecification"]["Type"] = "Custom";
+  json["OriginSpecification"]["ChildLabel"] = deviceCalib.getOriginLabel();
+
+  // Camera calibrations
+  if (!deviceCalib.getCameraCalibs().empty()) {
+    json["CameraCalibrations"] = nlohmann::json::array();
+    for (const auto& [label, camCalib] : deviceCalib.getCameraCalibs()) {
+      json["CameraCalibrations"].push_back(cameraCalibrationToJson(camCalib));
+    }
+  }
+
+  // IMU calibrations
+  if (!deviceCalib.getImuCalibs().empty()) {
+    json["ImuCalibrations"] = nlohmann::json::array();
+    for (const auto& [label, imuCalib] : deviceCalib.getImuCalibs()) {
+      json["ImuCalibrations"].push_back(imuCalibrationToJson(imuCalib));
+    }
+  }
+
+  // Magnetometer calibrations
+  if (!deviceCalib.getMagnetometerCalibs().empty()) {
+    json["MagCalibrations"] = nlohmann::json::array();
+    for (const auto& [label, magCalib] : deviceCalib.getMagnetometerCalibs()) {
+      json["MagCalibrations"].push_back(
+          magnetometerCalibrationToJson(magCalib, deviceCalib.getDeviceVersion()));
+    }
+  }
+
+  // Barometer calibrations
+  if (!deviceCalib.getBarometerCalibs().empty()) {
+    json["BaroCalibrations"] = nlohmann::json::array();
+    for (const auto& [label, baroCalib] : deviceCalib.getBarometerCalibs()) {
+      json["BaroCalibrations"].push_back(barometerCalibrationToJson(baroCalib));
+    }
+  }
+
+  // Microphone calibrations
+  if (!deviceCalib.getMicrophoneCalibs().empty()) {
+    json["MicCalibrations"] = nlohmann::json::array();
+    for (const auto& [label, micCalib] : deviceCalib.getMicrophoneCalibs()) {
+      json["MicCalibrations"].push_back(microphoneCalibrationToJson(micCalib));
+    }
+  }
+
+  // Return formatted JSON string
+  return json.dump(2); // Pretty print with 2 spaces indentation
+}
+
 } // namespace projectaria::tools::calibration

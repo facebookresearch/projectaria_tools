@@ -25,4 +25,6 @@ namespace projectaria::tools::calibration {
 
 std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& calibJsonStr);
 
+std::string deviceCalibrationToJson(const DeviceCalibration& deviceCalibration);
+
 } // namespace projectaria::tools::calibration
