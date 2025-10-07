@@ -574,6 +574,63 @@ class AriaDataViewer:
             rr.Image(frame).compress(self.config.jpeg_quality),
         )
 
+    def plot_imu_batch_vectorized(self, imu_data_list, label):
+        """Plot multiple IMU sensor data points with maximum efficiency using bulk logging."""
+        if not imu_data_list:
+            return
+
+        # Filter valid data and extract arrays efficiently
+        valid_data = [
+            d
+            for d in imu_data_list
+            if d is not None and hasattr(d, "accel_msec2") and hasattr(d, "gyro_radsec")
+        ]
+
+        if not valid_data:
+            return
+
+        # Extract timestamps and data as numpy arrays for bulk operations
+        timestamps = np.array(
+            [d.capture_timestamp_ns for d in valid_data], dtype=np.int64
+        )
+        accel_data = np.array([d.accel_msec2 for d in valid_data])  # Shape: (N, 3)
+        gyro_data = np.array([d.gyro_radsec for d in valid_data])  # Shape: (N, 3)
+
+        # Use bulk logging with send_columns - same pattern as audio logging
+        # Log accelerometer data
+        rr.send_columns(
+            f"{label}/accl/x[m-sec2]",
+            indexes=[rr.TimeNanosColumn("device_time", timestamps)],
+            columns=[rr.components.ScalarBatch(accel_data[:, 0])],
+        )
+        rr.send_columns(
+            f"{label}/accl/y[m-sec2]",
+            indexes=[rr.TimeNanosColumn("device_time", timestamps)],
+            columns=[rr.components.ScalarBatch(accel_data[:, 1])],
+        )
+        rr.send_columns(
+            f"{label}/accl/z[m-sec2]",
+            indexes=[rr.TimeNanosColumn("device_time", timestamps)],
+            columns=[rr.components.ScalarBatch(accel_data[:, 2])],
+        )
+
+        # Log gyroscope data
+        rr.send_columns(
+            f"{label}/gyro/x[rad-sec]",
+            indexes=[rr.TimeNanosColumn("device_time", timestamps)],
+            columns=[rr.components.ScalarBatch(gyro_data[:, 0])],
+        )
+        rr.send_columns(
+            f"{label}/gyro/y[rad-sec]",
+            indexes=[rr.TimeNanosColumn("device_time", timestamps)],
+            columns=[rr.components.ScalarBatch(gyro_data[:, 1])],
+        )
+        rr.send_columns(
+            f"{label}/gyro/z[rad-sec]",
+            indexes=[rr.TimeNanosColumn("device_time", timestamps)],
+            columns=[rr.components.ScalarBatch(gyro_data[:, 2])],
+        )
+
     def plot_imu(self, imu_data, label):
         """Plot IMU sensor data."""
         if imu_data is None:
@@ -590,12 +647,12 @@ class AriaDataViewer:
             )
             return
         rr.set_time_nanos("device_time", imu_data.capture_timestamp_ns)
-        rr.log(f"{label}/accl/x[m/sec2]", rr.Scalar(imu_data.accel_msec2[0]))
-        rr.log(f"{label}/accl/y[m/sec2]", rr.Scalar(imu_data.accel_msec2[1]))
-        rr.log(f"{label}/accl/z[m/sec2]", rr.Scalar(imu_data.accel_msec2[2]))
-        rr.log(f"{label}/gyro/x[rad/sec2]", rr.Scalar(imu_data.gyro_radsec[0]))
-        rr.log(f"{label}/gyro/y[rad/sec2]", rr.Scalar(imu_data.gyro_radsec[1]))
-        rr.log(f"{label}/gyro/z[rad/sec2]", rr.Scalar(imu_data.gyro_radsec[2]))
+        rr.log(f"{label}/accl/x[m-sec2]", rr.Scalar(imu_data.accel_msec2[0]))
+        rr.log(f"{label}/accl/y[m-sec2]", rr.Scalar(imu_data.accel_msec2[1]))
+        rr.log(f"{label}/accl/z[m-sec2]", rr.Scalar(imu_data.accel_msec2[2]))
+        rr.log(f"{label}/gyro/x[rad-sec]", rr.Scalar(imu_data.gyro_radsec[0]))
+        rr.log(f"{label}/gyro/y[rad-sec]", rr.Scalar(imu_data.gyro_radsec[1]))
+        rr.log(f"{label}/gyro/z[rad-sec]", rr.Scalar(imu_data.gyro_radsec[2]))
 
     def plot_magnetometer(self, magnetometer_data):
         """Plot magnetometer sensor data."""
