@@ -19,6 +19,7 @@
 #include <stdexcept>
 
 #include <data_provider/ErrorHandler.h>
+#include <fmt/format.h>
 #include <sophus/se3.hpp>
 #include <Eigen/Core>
 #include "nlohmann/json.hpp"
