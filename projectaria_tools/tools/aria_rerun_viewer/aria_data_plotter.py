@@ -208,11 +208,16 @@ class AriaDataViewer:
         self,
         config: AriaDataViewerConfig = None,
         device_calibration: DeviceCalibration = None,
+        rrd_output_path: str = "",
     ):
         """
         Initialization - supports both streaming and recording modes
         """
-        rr.init("AriaDataViewer", spawn=True)
+        if rrd_output_path:
+            rr.init("AriaDataViewer", spawn=False)
+            rr.save(rrd_output_path)
+        else:
+            rr.init("AriaDataViewer", spawn=True)
 
         self.config = config if config is not None else AriaDataViewerConfig()
         # A variable to cache full VIO high frequency trajectory

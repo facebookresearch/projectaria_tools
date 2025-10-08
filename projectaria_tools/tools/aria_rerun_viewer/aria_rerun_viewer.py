@@ -118,6 +118,12 @@ def parse_args():
         help="Specify subsampling rates for streams in the format `stream=rate`, e.g. `camera-rgb=2`,"
         "Use space-separated pairs. (default: vio_high_frequency=10 to bring down rate from 800Hz to 80Hz)",
     )
+    parser.add_argument(
+        "--rrd-output-path",
+        type=str,
+        default="",
+        help="path to save .rrd file (if not provided, will spawn viewer window)",
+    )
     return parser.parse_args()
 
 
@@ -312,7 +318,9 @@ def main():
 
     # Step 6: Initialize AriaDataViewer
     aria_data_viewer = AriaDataViewer(
-        config=viewer_config, device_calibration=device_calibration
+        config=viewer_config,
+        device_calibration=device_calibration,
+        rrd_output_path=args.rrd_output_path,
     )
     aria_data_viewer.plot_device_extrinsics()
 
