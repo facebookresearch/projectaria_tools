@@ -13,27 +13,17 @@
 # limitations under the License.
 
 import asyncio
+import json
 import logging
 from enum import auto, Enum, unique
 from pathlib import Path
 from typing import Any, Dict, Final, List, Mapping, Optional, Set
 
-from projectaria_tools.core.data_provider import (
-    create_vrs_data_provider,
-    VrsDataProvider,
-)
-
 from transitions.core import EventData
 
 from .base_state_machine import BaseStateMachine
 from .common import Config, CustomAdapter
-from .constants import (
-    ConfigKey,
-    ConfigSection,
-    DisplayStatus,
-    ErrorCode,
-    KEY_DEVICE_TYPE,
-)
+from .constants import ConfigKey, ConfigSection, DisplayStatus, ErrorCode
 from .encryption import VrsEncryptor
 from .hash_calculator import HashCalculator
 from .health_check import HealthCheckRunner
@@ -73,7 +63,6 @@ class SingleRecordingRequest(BaseStateMachine):
         PAST_OUTPUT_CHECK = auto()
         HASH_COMPUTATION = auto()
         PAST_REQUEST_CHECK = auto()
-        DEVICE_TYPE_CHECK = auto()
         VALIDATION = auto()
         PAST_RECORDING_CHECK = auto()
         ENCRYPT = auto()
@@ -91,8 +80,7 @@ class SingleRecordingRequest(BaseStateMachine):
         ["next", "*", States.FAILURE, "has_error"],
         ["next", States.PAST_OUTPUT_CHECK, States.HASH_COMPUTATION],
         ["next", States.HASH_COMPUTATION, States.PAST_REQUEST_CHECK],
-        ["next", States.PAST_REQUEST_CHECK, States.DEVICE_TYPE_CHECK],
-        ["next", States.DEVICE_TYPE_CHECK, States.VALIDATION],
+        ["next", States.PAST_REQUEST_CHECK, States.VALIDATION],
         ["next", States.VALIDATION, States.PAST_RECORDING_CHECK],
         ["next", States.PAST_RECORDING_CHECK, States.ENCRYPT],
         ["next", States.ENCRYPT, States.UPLOAD],
@@ -266,7 +254,6 @@ class SingleRecordingModel:
             or self.is_PAST_RECORDING_CHECK()
             or self.is_PAST_OUTPUT_CHECK()
             or self.is_SUCCESS_PAST_REQUEST()
-            or self.is_DEVICE_TYPE_CHECK()
         ):
             return ModelState(status=DisplayStatus.CHECKING)
         elif self.is_VALIDATION():
@@ -358,31 +345,6 @@ class SingleRecordingModel:
                 )
         await self.finish() if finish else await self.next()
 
-    async def on_enter_DEVICE_TYPE_CHECK(self, event: EventData) -> None:
-        self._logger.debug(event)
-
-        provider: VrsDataProvider = create_vrs_data_provider(
-            self._recording.path.as_posix()
-        )
-        tags: Dict[str, str] = provider.get_file_tags()
-        self._recording.device_type = MpsAriaDevice.from_device_tag(
-            tags[KEY_DEVICE_TYPE]
-        )
-
-        self._logger.debug(
-            f"Processing recording from {self._recording.device_type.name} device"
-        )
-
-        # Check if the recording is eligible for the feature computation
-        if (
-            self._recording.device_type == MpsAriaDevice.ARIA_GEN2
-            and self._feature == MpsFeature.EYE_GAZE
-        ):
-            self._logger.error(f"Eye gaze is not supported for {self._recording}")
-            self._error_code = ErrorCode.DEVICE_TYPE_UNSUPPORTED
-
-        await self.next()
-
     async def on_enter_VALIDATION(self, event: EventData) -> None:
         self._logger.debug(event)
 
@@ -402,8 +364,36 @@ class SingleRecordingModel:
                 )
                 raise RuntimeError("VrsHealthCheck failed")
 
+        # Determine device type from VHC output JSON
+        with open(self._recording.health_check_path) as vhc:
+            vhc_json: Dict[str, Any] = json.load(vhc)
+
+        if "AriaGen2_Default" in vhc_json:
+            self._recording.device_type = MpsAriaDevice.ARIA_GEN2
+        elif "AriaGen1_Default" in vhc_json:
+            self._recording.device_type = MpsAriaDevice.ARIA_GEN1
+        else:
+            self._logger.error("Unable to determine device type from VHC output")
+            self._error_code = ErrorCode.HEALTH_CHECK_FAILURE
+            await self.next()
+            return
+
+        self._logger.debug(
+            f"Processing recording from {self._recording.device_type.name} device"
+        )
+
         # Check if the recording is eligible for the feature computation
-        if not vhc_runner.is_eligible(self._feature):
+        if (
+            self._recording.device_type == MpsAriaDevice.ARIA_GEN2
+            and self._feature != MpsFeature.SLAM
+        ):
+            self._logger.error(
+                f"{self._feature} is not supported for Aria Gen2 recordings, {self._recording}"
+            )
+            self._error_code = ErrorCode.DEVICE_TYPE_UNSUPPORTED
+
+        # Check if the recording is eligible for the feature computation
+        elif not vhc_runner.is_eligible(self._feature):
             self._logger.error(f"Health check failed for {self._feature}")
             self._error_code = ErrorCode.HEALTH_CHECK_FAILURE
 
