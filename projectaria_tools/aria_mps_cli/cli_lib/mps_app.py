@@ -165,8 +165,10 @@ class StatusTable(Static):
         Apply styling to the given state
         """
         if state.status == DisplayStatus.ERROR:
+            # TODO: Update this to the new URL once it's ready
+            error_code_url = "https://facebookresearch.github.io/projectaria_tools/docs/ARK/mps/mps_troubleshooting#error-codes"
             return Text.from_markup(
-                f":cross_mark: [red]{state.status}({state.error_code})"
+                f":cross_mark: [red]{state.status}([blue underline][link={error_code_url}]{state.error_code}[/link][/blue underline])"
             )
         elif state.status == DisplayStatus.SUCCESS:
             return Text.from_markup(f":white_check_mark: [green]{state.status}")
@@ -252,8 +254,15 @@ class MpsApp(App):
         yield Static("[b]MPS REQUESTS", id="status_title")
         yield ScrollableContainer(StatusTable(self._mps), id="status")
         yield Rule()
+        log_file_url = f"file://{self._log_path.absolute()}"
+        log_text = Text.from_markup(":scroll: Log: [bold]")
+        log_text.append(
+            str(self._log_path), style="bold blue underline link " + log_file_url
+        )
         yield Static(
-            f":scroll: Log: [bold][cyan]{self._log_path}", name="log file", id="log"
+            log_text,
+            name="log file",
+            id="log",
         )
 
         yield Footer()
