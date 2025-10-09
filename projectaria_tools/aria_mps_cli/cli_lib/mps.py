@@ -63,6 +63,12 @@ class Mps:
             elif input_path.is_dir():
                 for rec in glob.glob(f"{input_path}/**/*.vrs", recursive=True):
                     recordings.add(Path(rec))
+            else:
+                logger.error(f"Invalid input path: {input_path}")
+
+        if len(recordings) == 0:
+            raise ValueError("No valid input recordings found")
+
         self._request_monitor = RequestMonitor(self._http_helper)
         common_args: Dict[str, Any] = {
             "http_helper": self._http_helper,
