@@ -329,7 +329,3 @@ class MpsApp(App):
                 logger.debug("Dismissing QuitScreen...")
 
         self.push_screen(QuitScreen(), __check_quit)
-
-    def action_toggle_dark(self) -> None:
-        """An action to toggle dark mode."""
-        self.dark = not self.dark
