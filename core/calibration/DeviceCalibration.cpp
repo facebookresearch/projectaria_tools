@@ -102,12 +102,36 @@ std::vector<std::string> DeviceCalibration::getBarometerLabels() const {
   return barometerLabels;
 }
 
-std::vector<std::string> DeviceCalibration::getMicrophoneLabels() const {
-  std::vector<std::string> microphoneLabels;
+std::vector<std::string> DeviceCalibration::getAudioLabels() const {
+  std::vector<std::string> audioSensorLabels;
+  audioSensorLabels.reserve(microphoneCalibs_.size());
   for (const auto& [key, _] : microphoneCalibs_) {
-    microphoneLabels.push_back(key);
+    audioSensorLabels.push_back(key);
   }
-  return microphoneLabels;
+  return audioSensorLabels;
+}
+
+std::vector<std::string> DeviceCalibration::getMicrophoneLabels() const {
+  std::vector<std::string> micLabels;
+  micLabels.reserve(microphoneCalibs_.size());
+  for (const auto& [key, _] : microphoneCalibs_) {
+    // Filter out audio sensors with names of [`LSPK`, `RSPK`]
+    if (key.find("SPK") == std::string::npos) {
+      micLabels.push_back(key);
+    }
+  }
+  return micLabels;
+}
+
+std::vector<std::string> DeviceCalibration::getSpeakerLabels() const {
+  std::vector<std::string> speakerLabels;
+  for (const auto& [key, _] : microphoneCalibs_) {
+    // Add audio sensors with names of [`LSPK`, `RSPK`]
+    if (key.find("SPK") != std::string::npos) {
+      speakerLabels.push_back(key);
+    }
+  }
+  return speakerLabels;
 }
 
 template <typename T, typename T2>

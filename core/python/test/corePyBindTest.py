@@ -205,7 +205,7 @@ class PickleTests(unittest.TestCase):
         for vrs_filepath in vrs_filepath_list:
             provider = data_provider.create_vrs_data_provider(vrs_filepath)
             calib = provider.get_device_calibration()
-            for mic_label in calib.get_microphone_labels():
+            for mic_label in calib.get_audio_labels():
                 mic_calib = calib.get_microphone_calib(mic_label)
                 pickled = pickle.dumps(mic_calib)
                 unpickled = pickle.loads(pickled)

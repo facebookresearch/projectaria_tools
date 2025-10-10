@@ -77,9 +77,17 @@ class DeviceCalibration {
    */
   std::vector<std::string> getBarometerLabels() const;
   /**
-   * @brief returns all labels for microphones
+   * @brief returns all labels for calibrated audio sensors, including microphones and speakers
+   */
+  std::vector<std::string> getAudioLabels() const;
+  /**
+   * @brief returns all labels for calibrated microphones
    */
   std::vector<std::string> getMicrophoneLabels() const;
+  /**
+   * @brief returns all labels for calibrated speakers
+   */
+  std::vector<std::string> getSpeakerLabels() const;
 
   /**
    * @brief returns a sensor calibration by its label. Will return `nullopt` if label does not exist

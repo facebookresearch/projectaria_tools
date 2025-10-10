@@ -747,9 +747,17 @@ inline void declareDeviceCalibration(py::module& m) {
           &DeviceCalibration::getBarometerLabels,
           "returns all labels for barometers.")
       .def(
+          "get_audio_labels",
+          &DeviceCalibration::getAudioLabels,
+          "returns all labels for calibrated audio sensors, including microphones and speakers.")
+      .def(
           "get_microphone_labels",
           &DeviceCalibration::getMicrophoneLabels,
-          "returns all labels for microphones.")
+          "returns all labels for calibrated microphones.")
+      .def(
+          "get_speaker_labels",
+          &DeviceCalibration::getSpeakerLabels,
+          "returns all labels for calibrated speakers.")
       .def(
           "get_sensor_calib",
           &DeviceCalibration::getSensorCalib,
