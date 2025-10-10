@@ -178,7 +178,7 @@ void VrsDataProviderFactory::addPlayers() {
         getSensorDataType(streamId.getTypeId(), reader_->getFlavor(streamId));
 
     // Define a lambda that sets the StreamPlayer to the reader and log its streamId
-    auto setStreamAndLog = [=, this](
+    auto setStreamAndLog = [this, streamId](
                                const vrs::StreamId, vrs::RecordFormatStreamPlayer* player) -> void {
       reader_->setStreamPlayer(streamId, player);
       XR_LOGI(
