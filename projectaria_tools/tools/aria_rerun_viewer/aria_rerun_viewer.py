@@ -45,6 +45,7 @@ ALL_STREAM_LABELS_GEN2 = [
     "baro0",
     "mag0",
     "gps",
+    "gps-app",
     "handtracking",
     "eyegaze",
     "vio",
@@ -61,6 +62,7 @@ ALL_STREAM_LABELS_GEN1 = [
     "baro0",
     "mag0",
     "gps",
+    "gps-app",
 ]
 
 
