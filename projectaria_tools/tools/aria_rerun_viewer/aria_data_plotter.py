@@ -365,13 +365,15 @@ class AriaDataViewer:
             blueprint_rgb_view, blueprint_device_extrinsics_view
         )
 
-        # Create final horizontal blueprint layout
+        # Create final horizontal blueprint layout.
+        # hide left&right, with compact timeline on bottom
         return rrb.Blueprint(
             rrb.Horizontal(
                 blueprint_3d_view,
                 blueprint_2d_view,
                 blueprint_1d_view,
             ),
+            collapse_panels=True,
         )
 
     def _create_gen2_rerun_blueprint(self):
@@ -407,10 +409,13 @@ class AriaDataViewer:
             _1d_view_container.contents[2],  # Tabbed baro + mag
         )
 
+        # Create final horizontal blueprint layout.
+        # hide left&right, with compact timeline on bottom
         return rrb.Blueprint(
             rrb.Horizontal(
                 updated_3d_view_container, _2d_view_container, updated_1d_view_container
-            )
+            ),
+            collapse_panels=True,
         )
 
     def update_rerun_blueprint(self):
