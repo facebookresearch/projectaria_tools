@@ -180,7 +180,6 @@ def main():
             "console_scripts": [
                 "aria_dataset_downloader = projectaria_tools.tools.dataset_downloader.dataset_downloader_main:main",
                 "dtc_object_downloader = projectaria_tools.projects.dtc_objects.downloader_main:main",
-                # "aria_mps = projectaria_tools.aria_mps_cli.cli:main",
                 "aria_rerun_viewer = projectaria_tools.tools.aria_rerun_viewer.aria_rerun_viewer:main",
                 "viewer_mps = projectaria_tools.tools.viewer_mps.viewer_mps:main",
                 "viewer_projects_adt = projectaria_tools.utils.viewer_projects_adt:main",
