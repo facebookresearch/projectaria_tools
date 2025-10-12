@@ -1,0 +1,49 @@
+name: publish website (gen1_legacy)
+
+on:
+  push:
+    branches: [ gen1_legacy ]
+    paths:
+      - "**/website/**"
+  pull_request:
+    branches: [ gen1_legacy ]
+    paths:
+      - "**/website/**"
+  workflow_dispatch:
+
+jobs:
+  build_docs_job:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        sudo apt-get install doxygen
+    - name: Build the Website
+      run: |
+        cd website
+        yarn install
+        yarn run build
+      id: build
+    - name: Get output time
+      run: echo "The time was ${{ steps.build.outputs.time }}"
+    - name: Upload build artifacts for preview
+      if: ${{ github.event_name != 'workflow_dispatch' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: website-build-preview
+        path: website/build
+        retention-days: 30
+    - name: Deploy to GitHub Pages
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages # The branch the action should deploy to.
+          FOLDER: website/build # The folder the action should deploy.
+          TARGET_FOLDER: gen1_legacy # The folder the action should deploy to.
+          CLEAN: true
