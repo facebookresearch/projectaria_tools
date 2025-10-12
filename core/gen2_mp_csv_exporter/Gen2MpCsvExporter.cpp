@@ -16,6 +16,8 @@
 
 #include <gen2_mp_csv_exporter/Gen2MpCsvExporter.h>
 
+#include <filesystem>
+
 #include <data_provider/VrsDataProvider.h>
 #include <data_provider/data_types/FrontendOutput.h>
 #include <gen2_mp_csv_exporter/file_io/MpvCsvWriter.h>
@@ -105,8 +107,12 @@ void writeEyeGazeDataToCsv(
     const std::string& outputFolder,
     std::shared_ptr<VrsDataProvider>& dataProvider,
     const vrs::StreamId& streamId) {
+  std::filesystem::path filePath =
+      std::filesystem::path(outputFolder) / "eye_gaze" / "generalized_eye_gaze.csv";
+  std::filesystem::create_directories(filePath.parent_path());
+
   MpvCsvWriter csvWriter;
-  csvWriter.openFile(outputFolder + "generalized_eye_gaze.csv");
+  csvWriter.openFile(filePath.string());
 
   // This function will read high frequency pose data from vrs, and write them to a csv file.
   int64_t numData = dataProvider->getNumData(streamId);
@@ -123,8 +129,12 @@ void writeVioHighFrequencyPoseDataToCsv(
     std::shared_ptr<VrsDataProvider>& dataProvider,
     const vrs::StreamId& streamId,
     int subsampleRate) {
+  std::filesystem::path filePath =
+      std::filesystem::path(outputFolder) / "slam" / "open_loop_trajectory.csv";
+  std::filesystem::create_directories(filePath.parent_path());
+
   MpvCsvWriter csvWriter;
-  csvWriter.openFile(outputFolder + "open_loop_trajectory.csv");
+  csvWriter.openFile(filePath.string());
 
   // This function will read high frequency pose data from vrs, and write them to a csv file.
   int64_t numData = dataProvider->getNumData(streamId);
@@ -143,8 +153,12 @@ void writeHandPoseDataToCsv(
     const std::string& outputFolder,
     std::shared_ptr<VrsDataProvider>& dataProvider,
     const vrs::StreamId& streamId) {
+  std::filesystem::path filePath =
+      std::filesystem::path(outputFolder) / "hand_tracking" / "hand_tracking_results.csv";
+  std::filesystem::create_directories(filePath.parent_path());
+
   MpvCsvWriter csvWriter;
-  csvWriter.openFile(outputFolder + "hand_tracking_results.csv");
+  csvWriter.openFile(filePath.string());
 
   // This function will read high frequency pose data from vrs, and write them to a csv file.
   int64_t numData = dataProvider->getNumData(streamId);
@@ -162,9 +176,12 @@ void writeOnlineCalibDataToJson(
     std::shared_ptr<VrsDataProvider>& dataProvider,
     const vrs::StreamId& streamId) {
   // Create a json writer
+  std::filesystem::path filePath =
+      std::filesystem::path(outputFolder) / "slam" / "online_calibration.jsonl";
+  std::filesystem::create_directories(filePath.parent_path());
+
   projectaria::tools::mps::MpvOnlineCalibJsonWriter jsonWriter;
-  const std::string fileName = outputFolder + "online_calibration.jsonl";
-  jsonWriter.openFile(fileName);
+  jsonWriter.openFile(filePath.string());
 
   // This function will read high frequency pose data from vrs, and write them to a csv file.
   const int64_t numData = dataProvider->getNumData(streamId);
@@ -195,7 +212,7 @@ void writeOnlineCalibDataToJson(
   }
   jsonWriter.closeFile();
 
-  fmt::print("Data from VRS has been written to {}\n", fileName);
+  fmt::print("Data from VRS has been written to {}\n", filePath.string());
 }
 
 } // namespace
