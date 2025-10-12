@@ -31,8 +31,15 @@ jobs:
       id: build
     - name: Get output time
       run: echo "The time was ${{ steps.build.outputs.time }}"
-    - name: Deploy
-      if: ${{ github.event_name == 'push' }}
+    - name: Upload build artifacts for preview
+      if: ${{ github.event_name != 'workflow_dispatch' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: website-build-preview
+        path: website/build
+        retention-days: 30
+    - name: Deploy to GitHub Pages
+      if: ${{ github.event_name == 'workflow_dispatch' }}
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
