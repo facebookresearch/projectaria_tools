@@ -11,12 +11,15 @@ on:
       - "**/website/**"
   workflow_dispatch:
 
+permissions:
+contents: write
+
 jobs:
   build_docs_job:
+    # Prevent overlapping publishes on rapid pushes
+    concurrency: ci-${{ github.ref }}
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.6]
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -40,9 +43,12 @@ jobs:
         retention-days: 30
     - name: Deploy to GitHub Pages
       if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
-      uses: JamesIves/github-pages-deploy-action@releases/v3
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
-          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages # The branch the action should deploy to.
-          FOLDER: website/build # The folder the action should deploy.
-          CLEAN: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        branch: gh-pages
+        folder: website/build
+        clean: true
+        single-commit: true
+        clean-exclude: |
+          gen2/**
