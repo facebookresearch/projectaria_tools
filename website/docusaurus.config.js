@@ -30,11 +30,11 @@ const config = {
   favicon: 'img/aria_logo.png',
 
   url: 'https://facebookresearch.github.io',
-  baseUrl: '/projectaria_tools_gen2/',
+  baseUrl: '/projectaria_tools/gen2/',
   trailingSlash: false,
 
   organizationName: 'Facebook Research',
-  projectName: 'projectaria_tools_gen2',
+  projectName: 'projectaria_tools',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
@@ -50,7 +50,7 @@ const config = {
           routeBasePath: '/',
           sidebarPath: false,
           editUrl:
-            'https://www.internalfb.com/code/fbsource/arvr/projects/ariane/aria_research_kit/projectaria_tools_gen2/website',
+            'https://www.internalfb.com/code/fbsource/arvr/projects/ariane/aria_research_kit/projectaria_tools/website',
           remarkPlugins: [math],
           rehypePlugins: [katex],
         },
@@ -89,7 +89,7 @@ const config = {
         routeBasePath: 'research-tools',
         sidebarPath: require.resolve('./sidebars-research-tools.js'),
         editUrl:
-          'https://www.internalfb.com/code/fbsource/arvr/projects/ariane/aria_research_kit/projectaria_tools_gen2/website',
+          'https://www.internalfb.com/code/fbsource/arvr/projects/ariane/aria_research_kit/projectaria_tools/website',
         remarkPlugins: [math],
         rehypePlugins: [katex],
       },
@@ -102,7 +102,7 @@ const config = {
         routeBasePath: 'ark',
         sidebarPath: require.resolve('./sidebars-ark.js'),
         editUrl:
-          'https://www.internalfb.com/code/fbsource/arvr/projects/ariane/aria_research_kit/projectaria_tools_gen2/website',
+          'https://www.internalfb.com/code/fbsource/arvr/projects/ariane/aria_research_kit/projectaria_tools/website',
         remarkPlugins: [math],
         rehypePlugins: [katex],
       },
@@ -115,7 +115,7 @@ const config = {
         routeBasePath: 'technical-specs',
         sidebarPath: require.resolve('./sidebars-technical-specs.js'),
         editUrl:
-          'https://www.internalfb.com/code/fbsource/arvr/projects/ariane/aria_research_kit/projectaria_tools_gen2/website',
+          'https://www.internalfb.com/code/fbsource/arvr/projects/ariane/aria_research_kit/projectaria_tools/website',
         remarkPlugins: [math],
         rehypePlugins: [katex],
       },
