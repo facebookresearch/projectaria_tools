@@ -39,9 +39,10 @@ jobs:
         path: website/build
         retention-days: 30
     - name: Deploy to GitHub Pages
-      if: ${{ github.event_name == 'workflow_dispatch' }}
+      if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages # The branch the action should deploy to.
+          TARGET_FOLDER: gen2 # The folder the action should deploy to.
           FOLDER: website/build # The folder the action should deploy.
