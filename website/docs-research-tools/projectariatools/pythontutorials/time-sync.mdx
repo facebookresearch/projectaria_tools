@@ -1,0 +1,350 @@
+---
+sidebar_position: 6
+title: Timestamp Alignment in Aria Gen2
+---
+
+import TutorialButtons from '@site/src/components/TutorialButtons';
+
+# Tutorial 6: Single and Multi Device Timestamp Alignment in Aria Gen2
+
+<TutorialButtons
+  notebookUrl="https://github.com/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_6_timestamp_alignment_in_aria_gen2.ipynb"
+  colabDisabled={true}
+/>
+
+## Introduction
+
+In Project Aria glasses, one of the key features is that it provides multi-sensor data that are **temporally aligned** to a shared, device-time domain for each single device, and also provide **multi-device Time Alignment** using SubGHz signals (Aria Gen2), TICSync (Aria Gen1), or TimeCode signals (Aria Gen1). In this tutorial, we will demonstrate how to use such temporal aligned data from Aria Gen2 recordings.
+
+**What you'll learn:**
+
+- How to access temporally aligned sensor data on a single VRS recording.
+- How to access temporally aligned sensor data across multiple recordings using SubGHz signals.
+
+**Prerequisites**
+- Complete Tutorial 1 (VrsDataProvider Basics) to understand basic data provider concepts
+- Complete Tutorial 3 (Sequential Access multi-sensor data) to understand how to create a queue of sensor data from VRS file.
+
+```python
+from projectaria_tools.core import data_provider
+
+# Load local VRS file
+vrs_file_path = "path/to/your/recording.vrs"
+vrs_data_provider = data_provider.create_vrs_data_provider(vrs_file_path)
+```
+
+## Single-Device Timestamp alignment
+
+In `projectaria_tools`, every timestamp is linked to a specific `TimeDomain`, which represents the time reference or clock used to generate that timestamp. Timestamps from different `TimeDomain`s are not directly comparable—only timestamps within the same `TimeDomain` are consistent and can be accurately compared or aligned.
+
+### Supported Time Domains
+
+> **Important: Use `DEVICE_TIME` for single-device Aria data analysis**
+
+The following table shows all supported time domains in `projectaria_tools`. **For single-device Aria data analysis, use `DEVICE_TIME` for accurate temporal alignment between sensors.**
+
+| Time Domain | Description | Usage |
+|--|--|--|
+| **DEVICE_TIME (Recommended)**| Capture time in device's time domain. Accurate and reliable. All sensors on the same Aria device share the same device time domain. | **Use this for single-device Aria data analysis** |
+| **RECORD_TIME** | Timestamps stored in the index of VRS files. For Aria glasses, these are equal to device timestamp converted to double-precision floating point. | Fast access, but use DEVICE_TIME for accuracy |
+| **HOST_TIME** | Timestamps when sensor data is saved to the device (not when captured). | Should not be needed for any purpose |
+| **--- Time Domains for Multi-device time alignment ---** |  | |
+| SUBGHZ | Multi-device time alignment option for Aria Gen2 | See next part in this tutorial |
+| UTC | Multi-device time alignment option  | See next part in this tutorial |
+| TIME_CODE | Multi-device time alignment option for Aria Gen1 | See [Gen1 multi-device tutorial](https://github.com/facebookresearch/projectaria_tools/blob/main/examples/Gen1/python_notebooks/ticsync_tutorial.ipynb) |
+| TIC_SYNC | Multi-device time alignment option for Aria Gen1 | See [Gen1 multi-device tutorial](https://github.com/facebookresearch/projectaria_tools/blob/main/examples/Gen1/python_notebooks/ticsync_tutorial.ipynb) |
+
+### Data API to query by timestamp
+
+The VRS data provider offers powerful timestamp-based data access through the `get_<SENSOR>_data_by_time_ns()` API family. This is the recommended approach for temporal alignment across sensors and precise timestamp-based data retrieval.
+
+For any sensor type, you can query data by timestamp using the `get_<SENSOR>_data_by_time_ns()` function, where `<SENSOR>` can be replaced by any sensor data type available in Aria VRS. See the [VrsDataProvider.h](https://github.com/facebookresearch/projectaria_tools/blob/main/core/data_provider/VrsDataProvider.h) for a complete list of supported sensor types.
+
+**TimeQueryOptions**
+
+This `TimeQueryOptions` parameter controls how the system finds data when your query timestamp doesn't exactly match a recorded timestamp:
+
+| Option | Behavior | Use Case |
+|--|--|--|
+| **BEFORE** | Returns the last valid data with `timestamp ≤ query_time` | **Default and most common** - Get the most recent data before or at the query time |
+| **AFTER** | Returns the first valid data with `timestamp ≥ query_time` | Get the next available data after or at the query time |
+| **CLOSEST** | Returns data with smallest `|timestamp - query_time|` | Get the temporally closest data regardless of direction |
+
+### Boundary Behavior
+
+The API handles edge cases automatically:
+
+| Query Condition | BEFORE | AFTER | CLOSEST |
+|--|--|--|--|
+| `query_time < first_timestamp` | Returns invalid data | Returns first data | Returns first data |
+| `first_timestamp ≤ query_time ≤ last_timestamp` | Returns data with `timestamp ≤ query_time` | Returns data with `timestamp ≥ query_time` | Returns temporally closest data |
+| `query_time > last_timestamp` | Returns last data | Returns invalid data | Returns last data |
+
+### Single VRS Timestamp-Based Query Example
+
+```python
+from projectaria_tools.core.sensor_data import SensorDataType, TimeDomain, TimeQueryOptions
+
+print("=== Single VRS timestamp based query ===")
+
+# Select RGB stream ID
+rgb_stream_id = vrs_data_provider.get_stream_id_from_label("camera-rgb")
+
+# Get a timestamp within the recording (3 seconds after start)
+start_timestamp_ns = vrs_data_provider.get_first_time_ns(rgb_stream_id, TimeDomain.DEVICE_TIME)
+selected_timestamp_ns = start_timestamp_ns + int(3e9)
+
+# Fetch the RGB frame that is CLOSEST to this selected timestamp_ns
+closest_rgb_data_and_record = vrs_data_provider.get_image_data_by_time_ns(
+    stream_id = rgb_stream_id,
+    time_ns = selected_timestamp_ns,
+    time_domain = TimeDomain.DEVICE_TIME,
+    time_query_options = TimeQueryOptions.CLOSEST
+)
+closest_timestamp_ns = closest_rgb_data_and_record[1].capture_timestamp_ns
+closest_frame_number = closest_rgb_data_and_record[1].frame_number
+print(f" The closest RGB frame to query timestamp {selected_timestamp_ns} is the {closest_frame_number}-th frame, with capture timestamp of {closest_timestamp_ns}")
+
+# Fetch the frame BEFORE this frame
+prev_rgb_data_and_record = vrs_data_provider.get_image_data_by_time_ns(
+    stream_id = rgb_stream_id,
+    time_ns = closest_timestamp_ns - 1,
+    time_domain = TimeDomain.DEVICE_TIME,
+    time_query_options = TimeQueryOptions.BEFORE
+)
+prev_timestamp_ns = prev_rgb_data_and_record[1].capture_timestamp_ns
+prev_frame_number = prev_rgb_data_and_record[1].frame_number
+print(f" The previous RGB frame is the {prev_frame_number}-th frame, with capture timestamp of {prev_timestamp_ns}")
+
+# Fetch the frame AFTER this frame
+next_rgb_data_and_record = vrs_data_provider.get_image_data_by_time_ns(
+    stream_id = rgb_stream_id,
+    time_ns = closest_timestamp_ns + 1,
+    time_domain = TimeDomain.DEVICE_TIME,
+    time_query_options = TimeQueryOptions.AFTER
+)
+next_timestamp_ns = next_rgb_data_and_record[1].capture_timestamp_ns
+next_frame_number = next_rgb_data_and_record[1].frame_number
+print(f" The next RGB frame is the {next_frame_number}-th frame, with capture timestamp of {next_timestamp_ns}")
+```
+
+### Visualizing Synchronized Multi-sensor Data
+
+In this additional example, we demonstrate how to query and visualize "groups" of RGB + SLAM images approximately at the same timestamp.
+
+```python
+import rerun as rr
+
+print("=== Single VRS timestamp-based query visualization examples ===")
+rr.init("rerun_viz_single_vrs_timestamp_based_query")
+rr.notebook_show()
+
+# Select RGB and SLAM stream IDs to visualize
+all_labels = vrs_data_provider.get_device_calibration().get_camera_labels()
+slam_labels = [label for label in all_labels if "slam" in label ]
+slam_stream_ids = [vrs_data_provider.get_stream_id_from_label(label) for label in slam_labels]
+rgb_stream_id = vrs_data_provider.get_stream_id_from_label("camera-rgb")
+
+# Starting from +3 seconds into the recording, and at 5Hz frequency
+target_period_ns = int(2e8)
+start_timestamp_ns = vrs_data_provider.get_first_time_ns(rgb_stream_id, TimeDomain.DEVICE_TIME) + int(3e9)
+
+# Plot 20 samples
+current_timestamp_ns = start_timestamp_ns
+for frame_i in range(20):
+    # Query and plot RGB image
+    rgb_image_data, rgb_image_record = vrs_data_provider.get_image_data_by_time_ns(
+        stream_id = rgb_stream_id,
+        time_ns = current_timestamp_ns,
+        time_domain = TimeDomain.DEVICE_TIME,
+        time_query_options = TimeQueryOptions.CLOSEST)
+    rr.set_time_nanos("device_time", rgb_image_record.capture_timestamp_ns)
+    rr.log("rgb_image", rr.Image(rgb_image_data.to_numpy_array()))
+
+    # Query and plot SLAM images
+    for slam_i in range(len(slam_labels)):
+        single_slam_label = slam_labels[slam_i]
+        single_slam_stream_id = slam_stream_ids[slam_i]
+
+        slam_image_data, slam_image_record = vrs_data_provider.get_image_data_by_time_ns(
+            stream_id = single_slam_stream_id,
+            time_ns = current_timestamp_ns,
+            time_domain = TimeDomain.DEVICE_TIME,
+            time_query_options = TimeQueryOptions.CLOSEST)
+        rr.set_time_nanos("device_time", slam_image_record.capture_timestamp_ns)
+        rr.log(single_slam_label, rr.Image(slam_image_data.to_numpy_array()))
+
+    # Increment query timestamp
+    current_timestamp_ns += target_period_ns
+
+```
+
+## Multi-Device Timestamp alignment
+
+While recording, multiple Aria-Gen2 glasses can enable a feature that allows their timestamps to be mapped across devices using SubGHz signals. Please refer to the multi-device recording wiki page from ARK (TODO: add link) to learn how to record with this feature.
+
+Basically, one pair of glasses acts as the **host** device, that actively broadcasts SubGHz signals to a specified channel;
+all other glasses act as **client** devices, that receives the SubGHz signals, and record a new `Time Domain Mapping` data streams in their VRS file.
+It is essentially a timestamp hash mapping from **host** `DEVICE_TIME` -> **client** `DEVICE_TIME`.
+Therefore this mapping data stream **only exists in client VRS**, but not **host VRS**.
+
+In `projectaria_tools`, we provide 2 types of APIs to easily perform timestamp-based query across multi-device recordings:
+
+1. **Converter APIs** provides direct convert functions that maps timestamps between any 2 `TimeDomain`.
+2. **Query APIs** that allows users to specifies `time_domain = TimeDomain.SUBGHZ` in a client VRS, to query "from timestamp of the host".
+
+The following code shows examples of using each type of API.
+Note that in the visualization example, the host and client windows will play intermittently.
+This is expected and correct, because the host and client devices' RGB cameras are NOT trigger aligned by nature.
+
+### Timestamp Converter APIs
+
+```python
+import rerun as rr
+from projectaria_tools.core.sensor_data import (
+    SensorData,
+    ImageData,
+    TimeDomain,
+    TimeQueryOptions,
+    TimeSyncMode,
+)
+
+# Create data providers for both host and client recordings
+host_recording = "path/to/host.vrs"
+host_data_provider = data_provider.create_vrs_data_provider(host_recording)
+
+client_recording = "path/to/client.vrs"
+client_data_provider = data_provider.create_vrs_data_provider(client_recording)
+
+print("======= Multi-VRS time mapping example: Timestamp converter APIs ======")
+
+# Because host and client recordings may start at different times,
+# we manually pick a timestamp in the middle of the host recording.
+# Note that for host, we always use DEVICE_TIME domain.
+selected_timestamp_host = (host_data_provider.get_first_time_ns_all_streams(time_domain = TimeDomain.DEVICE_TIME) +
+    host_data_provider.get_last_time_ns_all_streams(time_domain = TimeDomain.DEVICE_TIME)) // 2
+
+# Convert from host time to client time
+selected_timestamp_client = client_data_provider.convert_from_synctime_to_device_time_ns(selected_timestamp_host, TimeSyncMode.SUBGHZ)
+
+# Convert from client time back to host time. Note that there could be some small numerical differences compared
+selected_timestamp_host_roundtrip = client_data_provider.convert_from_device_time_to_synctime_ns(selected_timestamp_client, TimeSyncMode.SUBGHZ)
+
+print(f" Selected host timestamp is {selected_timestamp_host}; ")
+print(f" Converted to client timestamp is {selected_timestamp_client}; ")
+print(f" Then roundtrip convert back to host:{selected_timestamp_host_roundtrip}, "
+     f" And delta value from original host timestamp is {selected_timestamp_host_roundtrip - selected_timestamp_host}. This is mainly due to numerical errors. ")
+```
+
+### Multi-Device Query APIs
+
+```python
+print("======= Multi-VRS time mapping example: Query APIs ======")
+rr.init("rerun_viz_multi_vrs_time_mapping")
+
+# Set up sensor queue options in host VRS, only turn on RGB stream
+host_deliver_options = host_data_provider.get_default_deliver_queued_options()
+host_deliver_options.deactivate_stream_all()
+rgb_stream_id = host_data_provider.get_stream_id_from_label("camera-rgb")
+host_deliver_options.activate_stream(rgb_stream_id)
+
+# Select only a segment to plot
+host_vrs_start_timestamp = host_data_provider.get_first_time_ns_all_streams(time_domain = TimeDomain.DEVICE_TIME)
+host_segment_start = host_vrs_start_timestamp + int(20e9) # 20 seconds after start
+host_segment_duration = int(5e9)
+host_segment_end = host_segment_start + host_segment_duration
+host_vrs_end_timestamp = host_data_provider.get_last_time_ns_all_streams(time_domain = TimeDomain.DEVICE_TIME)
+host_deliver_options.set_truncate_first_device_time_ns(host_segment_start - host_vrs_start_timestamp)
+host_deliver_options.set_truncate_last_device_time_ns(host_vrs_end_timestamp - host_segment_end)
+
+# Plot RGB image data from both host and client
+for sensor_data in host_data_provider.deliver_queued_sensor_data(host_deliver_options):
+    # ---------
+    # Plotting in host.
+    # Everything is done in DEVICE_TIME domain.
+    # ---------
+    host_image_data, host_image_record = sensor_data.image_data_and_record()
+
+    # Set timestamps directly from host image record
+    host_timestamp_ns = host_image_record.capture_timestamp_ns
+    rr.set_time_nanos("device_time", host_timestamp_ns)
+
+    rr.log("rgb_image_in_host", rr.Image(host_image_data.to_numpy_array()))
+
+    # ---------
+    # Plotting in client.
+    # All the query APIs are done in SUBGHZ domain.
+    # ---------
+    # Query the closest RGB image from client VRS
+    client_image_data, client_image_record = client_data_provider.get_image_data_by_time_ns(
+        stream_id = rgb_stream_id,
+        time_ns = host_timestamp_ns,
+        time_domain = TimeDomain.SUBGHZ,
+        time_query_options = TimeQueryOptions.CLOSEST)
+
+    # Still need to convert client's device time back to host's time,
+    # because we want to log this image data on host's timeline in Rerun
+    client_timestamp_ns = client_image_record.capture_timestamp_ns
+    converted_client_timestamp_ns = client_data_provider.convert_from_device_time_to_synctime_ns(client_timestamp_ns, TimeSyncMode.SUBGHZ)
+    rr.set_time_nanos("device_time", converted_client_timestamp_ns)
+
+    # Plot client image
+    rr.log("rgb_image_in_client", rr.Image(client_image_data.to_numpy_array()))
+
+rr.notebook_show()
+```
+
+## Understanding Multi-Device Time Alignment
+
+### SubGHz Time Synchronization
+
+Aria Gen2 uses SubGHz signals for multi-device time synchronization:
+
+1. **Host Device**: Broadcasts SubGHz signals containing timing information
+2. **Client Devices**: Receive SubGHz signals and create time domain mappings
+3. **Time Domain Mapping**: Stored only in client VRS files, maps host device time to client device time
+
+### Key Concepts
+
+- **Host VRS**: Contains data only in `DEVICE_TIME` domain
+- **Client VRS**: Contains both `DEVICE_TIME` and `SUBGHZ` domain mappings
+- **Time Conversion**: Use converter APIs to translate timestamps between devices
+- **Query APIs**: Use `TimeDomain.SUBGHZ` to query client data using host timestamps
+
+### Best Practices
+
+1. **Always use DEVICE_TIME for single-device analysis**
+2. **Use SUBGHZ domain only for multi-device synchronization**
+3. **Check timestamp conversion accuracy** by performing round-trip conversions
+4. **Handle temporal misalignment** between host and client devices appropriately
+5. **Account for camera timing differences** - RGB cameras are not trigger-aligned
+
+## Temporal Alignment Use Cases
+
+### Single-Device Applications
+- **Sensor Fusion**: Combine data from multiple sensors at specific timestamps
+- **Event Analysis**: Analyze synchronized multi-modal data around events
+- **Temporal Interpolation**: Create smooth temporal sequences across sensors
+
+### Multi-Device Applications
+- **Multi-person Studies**: Analyze interactions between multiple Aria users
+- **Spatial Analysis**: Study spatial relationships using multiple viewpoints
+- **Collaborative Tasks**: Analyze coordinated activities across multiple users
+- **Social Interactions**: Study face-to-face interactions with synchronized data
+
+## Summary
+
+This tutorial covered essential time synchronization concepts for Aria Gen2:
+
+- **Single-Device Alignment**: Use `DEVICE_TIME` for accurate temporal alignment within one device
+- **Timestamp Query APIs**: Leverage `get_<SENSOR>_data_by_time_ns()` for precise data retrieval
+- **TimeQueryOptions**: Understand BEFORE, AFTER, and CLOSEST query behaviors
+- **Multi-Device Synchronization**: Use SubGHz signals to align data across multiple devices
+- **Converter APIs**: Transform timestamps between different time domains
+- **Query APIs**: Access multi-device data using synchronized timestamps
+
+Proper time synchronization is crucial for:
+- **Multi-sensor data fusion** requiring precise temporal alignment
+- **Multi-device studies** analyzing interactions between multiple users
+- **Event-based analysis** needing synchronized multi-modal data
+- **Real-time applications** requiring accurate temporal coordination

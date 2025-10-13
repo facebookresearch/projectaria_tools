@@ -1,0 +1,110 @@
+---
+sidebar_position: 3
+title: Customization - Override Check Thresholds
+---
+The VRS Health Check tool provides flexible ways to customize threshold values
+for your specific use case. This allows you to adapt the tool's validation
+criteria to match your project's requirements or handle edge cases in your VRS
+recordings.
+
+We provide 2 methods to override specific checks, either via a JSON file, or commandline strings, as demonstrated below:
+(Note that the 2 methods **CANNOT** be used at the same time!)
+
+## Method 1: JSON Override File
+
+Create a JSON file with your custom thresholds and use `--override-check-file`:
+
+**Example override file (`custom_thresholds.json`):**
+
+```json
+{
+  "configuration_name": "UserOverride",
+  "configuration_to_override": "AriaGen2_Default",
+  "checks_and_thresholds": {
+    "Camera Data (SLAM)": {
+      "ratio_dropped_over_expected": {
+        "fail_threshold": 0.05,
+        "warn_threshold": 0.02
+      }
+    },
+    "IMU Data (SLAM)": {
+      "non_monotonic": {
+        "ignore": true
+      }
+    }
+  }
+}
+```
+
+**Usage:**
+
+```bash
+run_vrs_health_check --path recording.vrs \
+  --output-json results.json \
+  --override-check-file custom_thresholds.json \
+  --choose-configuration UserOverride
+```
+
+## Method 2: Command Line Overrides
+
+For quick adjustments, use `--override-checks` with comma-separated overrides:
+
+**Syntax:**
+
+```bash
+--override-checks "stream_name.check_name.threshold_type=value,..."
+```
+
+**Examples:**
+
+```bash
+# Override camera drop threshold
+--override-checks "Camera Data (SLAM).ratio_dropped_over_expected.fail_threshold=0.05"
+
+# Multiple overrides
+--override-checks "Camera Data (SLAM).ratio_dropped_over_expected.fail_threshold=0.05,IMU Data (SLAM).non_monotonic.ignore=true"
+
+# Specify base configuration to override
+--configuration-to-override AriaGen2_Default --override-checks "..."
+```
+
+**Usage:**
+
+```bash
+run_vrs_health_check --path recording.vrs \
+    --output-json result.json \
+    --configuration-to-override AriaGen2_Default \
+    --override-checks "Pose Data Class (hand).non_monotonic.ignore=true" \
+    --choose-configuration UserOverride
+```
+
+
+### Disabling Checks
+
+To completely disable a check, set `ignore=true`:
+
+**JSON method:**
+
+```json
+"IMU Data (SLAM)": {
+  "non_monotonic": {
+    "ignore": true
+  }
+}
+```
+
+**Command line method:**
+
+```bash
+--override-checks "IMU Data (SLAM).non_monotonic.ignore=true"
+```
+
+# Best Practices for Overriding
+
+- **Use JSON files** for complex, reusable configuration changes
+- **Use command line overrides** for quick testing or one-off adjustments
+- **Document your custom thresholds** and the reasoning behind them
+- **Test your overrides** with known good and bad recordings to validate
+  effectiveness
+- **Start with existing configurations** as a base rather than creating from
+  scratch

@@ -1,0 +1,148 @@
+---
+sidebar_position: 0
+title: Visualization Tools (Python)
+---
+
+# Python Visualization Tools
+
+This page covers the Python-based visualization tools available in Project Aria Tools. These tools provide powerful ways to visualize and analyze Aria data using the Rerun visualization framework.
+
+## aria_rerun_viewer
+
+The `aria_rerun_viewer` is a Python tool that visualizes Aria VRS (Video Recording and Sensor) files using the Rerun visualization framework. It supports both Aria Gen1 and Gen2 devices and can display multiple sensor streams including cameras, IMU, audio, eye gaze, hand tracking, and more.
+
+### Basic Usage
+
+```bash
+aria_rerun_viewer --vrs path/to/your/file.vrs
+```
+
+### Command Line Options
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `--vrs` | string | Yes | Path to the VRS file you want to visualize |
+| `--skip-begin-sec` | float | No | Number of seconds to skip at the beginning of the VRS file |
+| `--skip-end-sec` | float | No | Number of seconds to skip at the end of the VRS file |
+| `--enabled-streams` | string list | No | Enable specific streams by their labels (space-separated). Available streams include: `camera-rgb`, `slam-front-left`, `slam-front-right`, `slam-side-left`, `slam-side-right`, `camera-et-left`, `camera-et-right`, `imu-left`, `imu-right`, `mic`, `baro0`, `mag0`, `gps`, `handtracking`, `eyegaze`, `vio`, `vio_high_frequency`. Default: all available streams |
+| `--subsample-rates` | string list | No | Specify subsampling rates for streams in the format `stream=rate` (space-separated pairs). Example: `camera-rgb=2 eyegaze=5`. Default: `vio_high_frequency=10` |
+
+### Examples
+
+#### Basic Visualization
+```bash
+aria_rerun_viewer --vrs recording.vrs
+```
+
+#### Visualize Only RGB Camera and Eye Gaze
+```bash
+aria_rerun_viewer \
+  --vrs recording.vrs \
+  --enabled-streams camera-rgb eyegaze
+```
+
+#### Skip Beginning and End of Recording
+```bash
+aria_rerun_viewer \
+  --vrs recording.vrs \
+  --skip-begin-sec 10 \
+  --skip-end-sec 5
+```
+
+#### Apply Custom Subsampling
+```bash
+aria_rerun_viewer \
+  --vrs recording.vrs \
+  --subsample-rates camera-rgb=3 vio_high_frequency=20
+```
+
+#### Complex Example with Multiple Options
+```bash
+aria_rerun_viewer \
+  --vrs recording.vrs \
+  --enabled-streams camera-rgb slam-front-left slam-front-right eyegaze handtracking \
+  --subsample-rates camera-rgb=2 handtracking=5 \
+  --skip-begin-sec 30 \
+  --skip-end-sec 10
+```
+
+### What You'll See
+
+The viewer displays data in an interactive 3D environment using Rerun:
+- **RGB & SLAM Camera stream**: RGB and SLAM camera images, with overlaid eye gaze and hand tracking results.
+- **1D Sensor Data**: IMU, audio, magnetometer, and barometer data plotted as 1D time series.
+- **3D World View**: 3D visualization of the VIO trajectory, eye gaze, and hand tracking results.
+- **Device calibration**: 3D representation of the sensor locations on Aria device.
+
+### Important Notes
+
+- **VIO High Frequency Subsampling**: The `vio_high_frequency` stream runs at 800Hz by default, which is automatically subsampled to 80Hz (subsample rate of 10) to improve visualization performance. You can adjust this using `--subsample-rates vio_high_frequency=<rate>`.
+
+- **Image Decoding Performance**: Image decoding is currently performed on CPU on Linux, so plotting speed might be slow depending on CPU load. To see smooth visualization, wait until Rerun caches some data then click play again, or use subsample options like `--subsample-rates camera-rgb=2` to reduce the frame rate.
+
+## viewer_mps
+
+The `viewer_mps` tool visualizes Aria data along with Machine Perception Services (MPS) outputs like SLAM trajectories, point clouds, eye gaze, and hand tracking results.
+
+### Basic Usage
+
+```bash
+viewer_mps --vrs path/to/recording.vrs
+```
+
+### Command Line Options
+
+#### Input Files
+- `--vrs`: Path to VRS file
+- `--trajectory`: Path(s) to MPS trajectory files (supports multiple files)
+- `--points`: Path(s) to MPS global point cloud files (supports multiple files)
+- `--eyegaze`: Path to MPS eye gaze file
+- `--hands`: Path to MPS wrist and palm poses file
+- `--hands_all`: Path to MPS full hand tracking results file
+- `--mps_folder`: Path to MPS folder (overrides default `<vrs_file>/mps` location)
+
+#### Visualization Options
+- `--no_rectify_image`: Show raw fisheye RGB images without undistortion
+- `--web`: Run viewer in web browser instead of desktop app
+
+### Examples
+
+#### Auto-detect MPS Data
+```bash
+# Automatically finds MPS data in <vrs_file>/mps folder
+viewer_mps --vrs recording.vrs
+```
+
+#### Specify Individual MPS Files
+```bash
+viewer_mps \
+  --vrs recording.vrs \
+  --trajectory trajectory/closed_loop_trajectory.csv \
+  --points global_points/global_points.csv.gz \
+  --eyegaze eye_gaze/general_eye_gaze.csv
+```
+
+#### Web Browser Mode
+```bash
+viewer_mps \
+  --vrs recording.vrs \
+  --web
+```
+
+#### Multiple Trajectories and Point Clouds
+```bash
+viewer_mps \
+  --trajectory trajectory1.csv trajectory2.csv \
+  --points points1.csv points2.csv
+```
+
+### What You'll See
+
+The MPS viewer provides:
+
+- **3D Scene**: SLAM trajectory, point clouds, and device poses in 3D space
+- **Camera Views**: RGB camera feeds with overlaid eye gaze and hand tracking projections
+- **Hand Tracking**: 3D hand landmarks, skeleton connections, and wrist/palm poses
+- **Eye Gaze**: 3D gaze vectors and their projections onto camera images
+
+This tool is particularly useful for validating MPS processing results and understanding the spatial relationships between different data modalities.

@@ -1,0 +1,112 @@
+---
+sidebar_position: 0
+title: Manual
+---
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import ThemedImage from '@theme/ThemedImage';
+
+# Aria Gen 2 Glasses Manual
+
+Aria Gen 2 glasses are equipped with a suite of hardware controls, visual indicators, and audio feedback to help you operate and understand the device’s status. This manual covers all essential features, device states, and operational procedures.
+
+<ThemedImage
+  alt="Docusaurus themed image"
+  sources={{
+    light: useBaseUrl('/img/docs-ark/device/overview.png'),
+    dark: useBaseUrl('/img/docs-ark/device/overview.png'),
+  }}
+/>
+
+---
+
+## Controls and Hardware Features
+
+The glasses include several built-in controls:
+
+- **Privacy Switch:** Controls whether the device can record data. When set to the rear and the red underneath is visible, recording is disabled and any ongoing recordings are deleted.
+- **Action Button:** Starts and ends recording sessions. This button can be customized to perform other actions (e.g., start a livestream).
+- **Power Button:** Turns the device on and off.
+- **USB Port:** Uses a standard USB-C cable.
+- **Volume Control:** Adjusts the speaker volume.
+
+---
+
+## Visual and Audio Indicators
+
+Aria Gen 2 uses LEDs and speakers to communicate device status to both the wearer and bystanders.
+
+### LED Indicators
+
+There are three main LEDs:
+
+- **Inner LED:** Visible only to the wearer, primarily communicates device state and events.
+- **Bystander LED:** Visible to bystanders, indicates when the device is recording or streaming data from sensors.
+- **Power LED:** Located above the power button on the inner right arm, indicates battery and charging status (not visible while wearing).
+
+### Audio Feedback
+
+- **Earcons:** Non-verbal sounds (e.g., camera shutter, error beeps) indicate device states.
+- **TTS (Text-to-Speech):** Spoken messages (e.g., “Glasses shutting down”, “Battery ten percent: charge soon”) provide status updates.
+
+---
+
+## Device States and Indicators
+
+The following table summarizes how Aria Gen 2 communicates its various states:
+
+| Inward LED           | Power LED           | Outward LED         | Device Status Explanation                                                                 |
+|----------------------|--------------------|---------------------|------------------------------------------------------------------------------------------|
+| Off                  | Off                | Off                 | Device is off or in standby                                                              |
+| Off                  | Solid blue         | Off                 | Battery charging or fully charged (system running)                                       |                                             |
+| Off                  | Solid orange       | Off                 | Fastboot mode                                                                            |
+| Off                  | Blinking red       | Off                 | Low battery if powering on or charging                                                   |
+| Off                  | Solid blue (1s)    | Off                 | Status check (short-press power button)                                                  |
+| Off                  | Pulsing blue       | Off                 | System shutting down (with earcon)                                                       |
+| Pulsing green        | Off                | Off                 | Uploading                                                                                |
+| Solid green (3s)     | Solid blue (3s)    | Off                 | Boot complete (both LEDs solid for 3s, then off if not charging)                         |
+| Blinking orange (4x) | Off                | Off                 | Warning: battery low ($<$20%), thermal throttling, low storage, or other warning           |
+| Blinking red (4x)    | Off                | Off                 | Error: battery critical ($≤$5%) or other error                                             |
+| Solid white (1s)     | Off                | Off                 | Device On Notification (DON): user puts on glasses, earcon plays                         |
+| Pulsing white        | Off                | Off                 | System warm booting (waking from sleep)                                                  |
+| Blinking white, then solid white | Off | Blinking white (2x), then solid white | Recording/Streaming active: inward LED blinks then solid; outward LED blinks then solid  |
+| Pulsing white        | Pulsing blue       | Off                 | OS booting up                                                                            |
+
+
+---
+
+## Power and Charging
+
+Only use a USB-C cable to charge your glasses. When first plugged in, a red flashing light inside the right arm indicates the battery is $<$5% but charging.
+
+To turn the device on, press and hold the power button for 3 seconds. When booting is complete, the power LED will turn solid blue for 3 seconds before fading. You can also turn on your glasses by plugging them into a power source; wait for the blue LED before disconnecting the charger.
+
+To turn the device off, hold the power button for 3 seconds and release it. The blue LED will start blinking and then turn off after a short delay, and you will hear an earcon confirming shutdown.
+
+---
+
+## Resetting the Device
+
+### Force Reset
+
+A force reset immediately reboots your device, preserving all data. Use this if the device is unresponsive.
+
+1. Toggle the privacy switch forward (orange not visible).
+2. Hold both the action and power buttons for 3 seconds.
+3. Wait for the device to reboot.
+
+### Factory Reset
+
+A factory reset erases all local data, including recordings.
+
+1. Toggle the privacy switch to the rear (orange visible).
+2. Tap (do not hold) the power and action buttons simultaneously.
+3. The device will reboot and the status LED will flash blue.
+4. The device is now ready to be paired.
+
+> **Warning:** Factory reset will delete all local data.
+
+---
+
+## Troubleshooting
+
+If you encounter unexpected behavior, use the rage shake feature from the mobile companion app to request support.

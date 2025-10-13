@@ -1,0 +1,190 @@
+---
+sidebar_position: 4
+title: Example - Streaming
+---
+
+Using aria.sdk_gen2 and aria.stream_receiver for Real-Time Device Streaming
+
+## Run streaming example
+How to Use This Script
+Connect your Aria device to your computer.
+Run the script from the command line:
+```bash
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_streaming.py --record-to-vrs /path/to/output.vrs
+```
+Omit --record-to-vrs if you do not want to save the stream.
+Watch the console for real-time data printouts from the callbacks.
+
+## Step-by-step walk through
+1. Import Required Modules
+
+The script uses several modules:
+```
+import argparse
+import signal
+import sys
+import aria.sdk_gen2 as sdk_gen2
+import aria.stream_receiver as receiver
+from projectaria_tools.core.mps import EyeGaze, hand_tracking, OpenLoopTrajectoryPose
+from projectaria_tools.core.sensor_data import (
+   AudioData, AudioDataRecord, FrontendOutput, ImageData, ImageDataRecord, MotionData,
+)
+```
+aria.sdk_gen2 and aria.stream_receiver are the main SDKs for device streaming control and receive data streaming.
+projectaria_tools.core modules provide data structures for interpreting streamed data.
+
+2. Parse Command-Line Arguments
+
+The script accepts an optional argument to specify where to save the streamed data as a VRS file:
+```python
+def parse_args() -> argparse.Namespace:
+   parser = argparse.ArgumentParser()
+   parser.add_argument(
+       "--record-to-vrs",
+       dest="record_to_vrs",
+       type=str,
+       default="",
+       required=False,
+       help="Output directory to save the received streaming into VRS",
+   )
+   return parser.parse_args()
+```
+Use --record-to-vrs `<path>` to save the streaming data into VRS to inspect the live streaming data.
+
+NOTE: Data drop could happen for poor streaming connections, the saved VRS from streaming data will reflect the data drop.
+
+3. Set Up and Connect to the Device
+
+The device is initialized and connected:
+
+```python
+# keep device_client as a global variable to allow connection to the device.
+device_client = sdk_gen2.DeviceClient()
+
+# establish connection to the device
+config = sdk_gen2.DeviceClientConfig()
+device_client.set_client_config(config)
+device = device_client.connect()
+
+# configure the streaming control
+streaming_config = sdk_gen2.HttpStreamingConfig()
+streaming_config.profile_name = "profile9"
+streaming_config.streaming_interface = sdk_gen2.StreamingInterface.USB_NCM
+device.set_streaming_config(streaming_config)
+
+# start streaming
+device.start_streaming()
+```
+The device is configured for streaming using profile9 and USB interface. We also provide WIFI and on-device hotspot for wireless streaming.
+For more details on profiles and streaming interface, please refer to technical specs.
+
+NOTE: Device could reach thermal throttle and shutdown due to overheating, especially when streaming wirelessly.
+
+
+4. Define Data Callbacks
+
+* image_callback: callbacks for all the cameras from the device including RGB (x1), SLAM camera (x4) and ET camera (x2)
+* audio_callback: audio callback for all 8 channels
+* imu_callback: callback to receive both imu-left and imu-right imu data in 800Hz
+
+```python
+def image_callback(image_data: ImageData, image_record: ImageDataRecord):
+    print(
+        f"Received image data of size {image_data.to_numpy_array().shape} with timestamp {image_record.capture_timestamp_ns} ns"
+    )
+
+
+def audio_callback(
+    audio_data: AudioData, audio_record: AudioDataRecord, num_channels: int
+):
+    print(
+        f"Received audio data with {len(audio_data.data)} samples and {len(audio_record.capture_timestamps_ns)} timestamps and num channels {num_channels}"
+    )
+
+
+def imu_callback(imu_data: MotionData, sensor_label: str):
+    print(
+        f"Received {sensor_label} accel data {imu_data.accel_msec2} and gyro {imu_data.gyro_radsec}"
+    )
+
+
+def eyegaze_callback(eyegaze_data: EyeGaze):
+    print(
+        f"Received EyeGaze data at timestamp {eyegaze_data.tracking_timestamp.total_seconds()} sec "
+        f"with yaw={eyegaze_data.yaw:.3f} rad, pitch={eyegaze_data.pitch:.3f} rad, "
+        f"depth={eyegaze_data.depth:.3f} m"
+    )
+
+
+def handtracking_callback(handtracking_data: hand_tracking.HandTrackingResult):
+    print(
+        f"Received HandTracking data at timestamp {handtracking_data.tracking_timestamp.total_seconds()} sec"
+    )
+
+    # Check left hand data
+    if handtracking_data.left_hand is not None:
+        left_hand = handtracking_data.left_hand
+        print(f"  Left hand confidence: {left_hand.confidence:.3f}")
+        print(f"  Left wrist position: {left_hand.get_wrist_position_device()}")
+        print(f"  Left palm position: {left_hand.get_palm_position_device()}")
+        if left_hand.wrist_and_palm_normal_device is not None:
+            normals = left_hand.wrist_and_palm_normal_device
+            print(f"  Left wrist normal: {normals.wrist_normal_device}")
+            print(f"  Left palm normal: {normals.palm_normal_device}")
+    else:
+        print("  Left hand: No data")
+
+    # Check right hand data
+    if handtracking_data.right_hand is not None:
+        right_hand = handtracking_data.right_hand
+        print(f"  Right hand confidence: {right_hand.confidence:.3f}")
+        print(f"  Right wrist position: {right_hand.get_wrist_position_device()}")
+        print(f"  Right palm position: {right_hand.get_palm_position_device()}")
+        if right_hand.wrist_and_palm_normal_device is not None:
+            normals = right_hand.wrist_and_palm_normal_device
+            print(f"  Right wrist normal: {normals.wrist_normal_device}")
+            print(f"  Right palm normal: {normals.palm_normal_device}")
+    else:
+        print("  Right hand: No data")
+
+
+def vio_callback(vio_data: FrontendOutput):
+    print(
+        f"Received VIO data at timestamp {vio_data.capture_timestamp_ns} with transform_odometry_bodyimu: {vio_data.transform_odometry_bodyimu.rotation().log()} and {vio_data.transform_odometry_bodyimu.translation()} ns"
+    )
+```
+
+5. Set Up the Streaming Receiver
+
+The receiver is configured to listen for data and register the callbacks:
+```python
+def setup_streaming_receiver(device, record_to_vrs):
+   config = sdk_gen2.HttpServerConfig()
+   config.address = "0.0.0.0"
+   config.port = 6768
+   stream_receiver = receiver.StreamReceiver()
+   stream_receiver.set_server_config(config)
+   if record_to_vrs != "":
+       stream_receiver.record_to_vrs(record_to_vrs)
+   stream_receiver.register_slam_callback(image_callback)
+   stream_receiver.register_rgb_callback(image_callback)
+   stream_receiver.register_audio_callback(audio_callback)
+   stream_receiver.register_eye_gaze_callback(eyegaze_callback)
+   stream_receiver.register_hand_pose_callback(handtracking_callback)
+   stream_receiver.register_vio_callback(vio_callback)
+   stream_receiver.start_server()
+```
+The server listens on all interfaces at port 6768. If record_to_vrs is set, the stream is saved to a VRS file. All relevant callbacks are registered.
+
+NOTE: Please ensure your port 6768 is open and VPN is disabled to allow streaming data to be received.
+
+6. Run the Script
+
+The main block ties everything together:
+
+```python
+if __name__ == "__main__":
+   args = parse_args()
+   device = device_streaming()
+   setup_streaming_receiver(device, args.record_to_vrs)
+```

@@ -1,0 +1,176 @@
+.card {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--ifm-background-color);
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+
+.header {
+  padding: 16px 18px;
+  background: linear-gradient(135deg, var(--ifm-color-primary) 0%, #7aa2ff 100%);
+  color: #fff;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.subtitle {
+  opacity: .9;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  opacity: .7;
+  margin-bottom: 8px;
+}
+
+.segmented {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 9999px;
+  background: var(--ifm-background-surface-color, #fff);
+  cursor: pointer;
+  user-select: none;
+  transition: all .15s ease;
+  font-size: 14px;
+}
+
+.option:hover {
+  border-color: var(--ifm-color-primary);
+}
+
+.option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.active {
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.helper {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: .7;
+}
+
+.commandWrap {
+  border-top: 1px solid var(--ifm-color-emphasis-300);
+  padding: 16px;
+}
+
+.commandHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.copyBtn {
+  border: 1px solid var(--ifm-color-primary);
+  background: var(--ifm-color-primary);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.copyBtn:hover {
+  filter: brightness(1.05);
+}
+
+.codeBox :global(pre) {
+  margin: 0; /* tighten spacing for CodeBlock */
+}
+
+.warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  margin: 0 16px 16px 16px;
+  background: #fff8e7;
+  border: 1px solid #f4c430;
+  border-radius: 8px;
+}
+
+.warningIcon {
+  font-size: 18px;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+.warningContent {
+  flex: 1;
+}
+
+.warningTitle {
+  font-weight: 600;
+  font-size: 14px;
+  color: #b8860b;
+  margin-bottom: 4px;
+}
+
+.warningText {
+  font-size: 13px;
+  color: #8b6914;
+  line-height: 1.4;
+}
+
+/* Dark mode styles */
+[data-theme='dark'] .warning {
+  background: #2c2520;
+  border-color: #665c3d;
+}
+
+[data-theme='dark'] .warningTitle {
+  color: #f4c430;
+}
+
+[data-theme='dark'] .warningText {
+  color: #d4c17f;
+}
+
+.notes {
+  border-top: 1px dashed var(--ifm-color-emphasis-300);
+  padding: 12px 16px 16px 16px;
+  font-size: 13px;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.notes code {
+  font-size: 12px;
+}

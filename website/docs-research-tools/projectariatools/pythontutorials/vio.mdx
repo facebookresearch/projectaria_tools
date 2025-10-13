@@ -1,0 +1,404 @@
+---
+sidebar_position: 5
+title: Using On-Device VIO Data
+---
+
+import TutorialButtons from '@site/src/components/TutorialButtons';
+
+# Tutorial 5: Using On-Device VIO Data
+
+<TutorialButtons
+  notebookUrl="https://github.com/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_5_on_device_vio.ipynb"
+  colabDisabled={true}
+/>
+
+## Introduction
+
+This tutorial focuses on on-device **Visual-Inertial Odometry (VIO)** data streams available in Aria Gen2 recordings. VIO provides real-time 6DOF pose estimation and tracking by combining visual information from cameras with inertial measurements from IMUs.
+
+**What you'll learn:**
+
+- How to access on-device VIO and VIO_high_frequency data from VRS files
+- How to visualize 3D trajectory from on-device VIO data.
+
+**Prerequisites**
+- Complete Tutorial 1 (VrsDataProvider Basics) to understand basic data provider concepts
+- Complete Tutorial 2 (Device Calibration) to understand how to properly use calibration in Aria data.
+
+```python
+from projectaria_tools.core import data_provider
+
+# Load VRS file
+vrs_file_path = "path/to/your/recording.vrs"
+vrs_data_provider = data_provider.create_vrs_data_provider(vrs_file_path)
+
+# Access device calibration
+device_calib = vrs_data_provider.get_device_calibration()
+```
+
+## Accessing On-Device VIO Data
+
+### Basic VIO Data Stream
+
+The on-device VIO algorithm provides real-time pose estimation at approximately **20Hz** frequency.
+
+```python
+from projectaria_tools.core.mps.utils import VioStatus, TrackingQuality
+
+# Query VIO stream
+vio_stream_id = vrs_data_provider.get_stream_id_from_label("vio")
+
+if vio_stream_id is None:
+    print("This VRS file does not contain on-device VIO data.")
+else:
+    print(f"Found VIO stream: {vio_stream_id}")
+
+    # Get total number of VIO samples
+    num_vio_samples = vrs_data_provider.get_num_data(vio_stream_id)
+    print(f"Total VIO samples: {num_vio_samples}")
+
+    # Access VIO data samples
+    print("\nFirst few VIO samples:")
+    for i in range(min(3, num_vio_samples)):
+        vio_data = vrs_data_provider.get_vio_data_by_index(vio_stream_id, i)
+
+        print(f"\nSample {i}:")
+        print(f"  Capture Timestamp: {vio_data.capture_timestamp_ns} ns")
+        print(f"  VIO Status: {vio_data.status}")
+        print(f"  Pose Quality: {vio_data.pose_quality}")
+        print(f"  Session UID: {vio_data.session_uid}")
+```
+
+### VIO Data Structure
+
+The VIO data contains comprehensive pose and motion information:
+
+#### Data Type: `VioData`
+
+| Field Name | Description |
+| -- | -- |
+| `capture_timestamp_ns` | Timestamp when the VIO pose was estimated, in nanoseconds |
+| `status` | VIO tracking status (VALID, INVALID) |
+| `pose_quality` | Quality of pose estimation (POOR, GOOD, GREAT) |
+| `transform_odometry_bodyimu` | Transformation from body IMU to odometry coordinate frame |
+| `transform_bodyimu_device` | Transformation from device to body IMU frame |
+| `linear_velocity_in_odometry` | Translational velocity in odometry frame, in m/s |
+| `angular_velocity_in_bodyimu` | Angular velocity in body IMU frame, in rad/s |
+| `gravity_in_odometry` | Earth gravity vector in odometry frame |
+| `session_uid` | Unique identifier for VIO tracking session |
+
+### Detailed VIO Data Inspection
+
+```python
+print("=== VIO Data Sample ===")
+
+# Find the first VIO data sample with high quality value
+first_valid_index = None
+for idx in range(num_vio_samples):
+    vio_data = vrs_data_provider.get_vio_data_by_index(vio_stream_id, idx)
+    if (
+        vio_data.status == VioStatus.VALID
+        and vio_data.pose_quality == TrackingQuality.GOOD
+    ):
+        first_valid_index = idx
+        break
+
+if first_valid_index is not None:
+    print("=" * 50)
+    print(f"First VIO Data Sample with good quality (Index: {first_valid_index})")
+    print("=" * 50)
+
+    # Session Information
+    print(f"Session UID: {vio_data.session_uid}")
+
+    # Timestamps
+    print(f"Capture Time: {vio_data.capture_timestamp_ns} ns")
+
+    # Quality
+    print(f"VIO Status: {vio_data.status}")
+    print(f"Pose Quality: {vio_data.pose_quality}")
+
+    # Transforms
+    print(f"Transform Odometry → Body IMU:\n{vio_data.transform_odometry_bodyimu.to_matrix()}")
+    print(f"Transform Body IMU → Device:\n{vio_data.transform_bodyimu_device.to_matrix()}")
+
+    # Motion
+    print(f"Linear Velocity: {vio_data.linear_velocity_in_odometry}")
+    print(f"Angular Velocity: {vio_data.angular_velocity_in_bodyimu}")
+    print(f"Gravity Vector: {vio_data.gravity_in_odometry}")
+else:
+    print("⚠️  No valid VIO sample found")
+```
+
+## On-Device VIO High Frequency Data Stream
+
+**VIO High Frequency** results are generated directly from the on-device VIO results by performing IMU integration between VIO poses, hence provides a much higher data rate at approximately **800Hz**.
+
+### Data Type: `OpenLoopTrajectoryPose`
+
+The **VioHighFrequency** stream **re-uses** the `OpenLoopTrajectoryPose` data structure [defined in MPS](https://github.com/facebookresearch/projectaria_tools/blob/main/core/mps/Trajectory.h).
+
+| Field Name | Description |
+| -- | -- |
+| `tracking_timestamp` | Timestamp in device time domain, in microseconds |
+| `transform_odometry_device` | Transformation from device to odometry coordinate frame, represented as a SE3 instance. |
+| `device_linear_velocity_odometry` | Translational velocity of device in odometry frame, in m/s |
+| `angular_velocity_device` | Angular velocity of device in device frame, in rad/s |
+| `quality_score` | Quality of pose estimation (higher = better) |
+| `gravity_odometry` | Earth gravity vector in odometry frame |
+| `session_uid` | Unique identifier for VIO tracking session |
+
+**Important Note**: Due to the high frequency nature of this data (~800Hz), consider subsampling for visualization to maintain performance.
+
+```python
+# Query VIO High Frequency stream
+vio_high_freq_stream_id = vrs_data_provider.get_stream_id_from_label("vio_high_frequency")
+
+if vio_high_freq_stream_id is None:
+    print("This VRS file does not contain VIO high frequency data.")
+else:
+    print(f"Found VIO High Frequency stream: {vio_high_freq_stream_id}")
+
+    print("=== VIO High-Frequency Data Sample ===")
+
+    # Find the first VIO high_frequency data sample with high quality value
+    num_vio_high_freq_samples = vrs_data_provider.get_num_data(vio_high_freq_stream_id)
+    first_valid_index = None
+    for idx in range(num_vio_high_freq_samples):
+        vio_high_freq_data = vrs_data_provider.get_vio_high_freq_data_by_index(vio_high_freq_stream_id, idx)
+        if (
+            vio_high_freq_data.quality_score > 0.5
+        ):
+            first_valid_index = idx
+            break
+
+    if first_valid_index is not None:
+        print("=" * 50)
+        print(f"First VIO High Freq Data Sample with good quality score (Index: {first_valid_index})")
+        print("=" * 50)
+
+        # Timestamps, convert timedelta to nanoseconds
+        capture_timestamp_ns = int(vio_high_freq_data.tracking_timestamp.total_seconds() * 1e9)
+
+        # Session Information
+        print(f"Session UID: {vio_high_freq_data.session_uid}")
+
+        # Timestamps
+        print(f"Tracking Time: {capture_timestamp_ns} ns")
+
+        # Quality
+        print(f"Quality Score: {vio_high_freq_data.quality_score:.3f}")
+
+        # Transform
+        print(f"Transform Odometry → Device:\n{vio_high_freq_data.transform_odometry_device.to_matrix()}")
+
+        # Motion
+        print(f"Linear Velocity: {vio_high_freq_data.device_linear_velocity_odometry}")
+        print(f"Angular Velocity: {vio_high_freq_data.angular_velocity_device}")
+        print(f"Gravity Vector: {vio_high_freq_data.gravity_odometry}")
+```
+
+## Visualizing On-Device VIO trajectory
+
+The following code snippets demonstrate how to visualize a VIO trajectory, along with glass frame + hand tracking results, in a 3D view.
+
+```python
+def plot_single_hand_3d(
+    hand_joints_in_device, hand_label
+):
+    """
+    A helper function to plot single hand data in 3D view
+    """
+    marker_color = [255,64,0] if hand_label == "left" else [255, 255, 0]
+
+    hand_skeleton_3d = create_hand_skeleton_from_landmarks(hand_joints_in_device)
+    rr.log(
+        f"world/device/handtracking/{hand_label}/landmarks",
+        rr.Points3D(
+            positions=hand_joints_in_device,
+            colors= marker_color,
+            radii=5e-3,
+        ),
+    )
+    rr.log(
+        f"world/device/handtracking/{hand_label}/hand_skeleton",
+        rr.LineStrips3D(
+            hand_skeleton_3d,
+            colors=[0, 255, 0],
+            radii=3e-3,
+        ),
+    )
+
+
+def plot_hand_pose_data_3d(hand_pose_data):
+    """
+    A helper function to plot hand pose data in 3D world view
+    """
+    # Clear the canvas (only if hand_tracking_label exists for this device version)
+    rr.log(
+        f"world/device/handtracking",
+        rr.Clear.recursive(),
+    )
+
+    # Plot both hands
+    if hand_pose_data.left_hand is not None:
+        plot_single_hand_3d(
+            hand_joints_in_device=hand_pose_data.left_hand.landmark_positions_device,
+            hand_label="left",
+        )
+    if hand_pose_data.right_hand is not None:
+        plot_single_hand_3d(
+            hand_joints_in_device=hand_pose_data.right_hand.landmark_positions_device,
+            hand_label="right",
+        )
+```
+
+### 3D Trajectory Visualization
+
+```python
+import rerun as rr
+from projectaria_tools.core.sensor_data import SensorDataType, TimeDomain, TimeQueryOptions
+from projectaria_tools.utils.rerun_helpers import (
+    create_hand_skeleton_from_landmarks,
+    AriaGlassesOutline,
+    ToTransform3D
+)
+
+print("\n=== Visualizing on-device VIO trajectory + HandTracking in 3D view ===")
+
+rr.init("rerun_viz_vio_trajectory")
+rr.notebook_show()
+
+device_calib = vrs_data_provider.get_device_calibration()
+handtracking_stream_id = vrs_data_provider.get_stream_id_from_label("handtracking")
+
+# Set up a data queue
+deliver_options = vrs_data_provider.get_default_deliver_queued_options()
+deliver_options.deactivate_stream_all()
+deliver_options.activate_stream(vio_stream_id)
+
+# Play for only 3 seconds
+total_length_ns = vrs_data_provider.get_last_time_ns_all_streams(TimeDomain.DEVICE_TIME) - vrs_data_provider.get_first_time_ns_all_streams(TimeDomain.DEVICE_TIME)
+skip_begin_ns = int(15 * 1e9) # Skip 15 seconds
+duration_ns = int(3 * 1e9) # 3 seconds
+skip_end_ns = max(total_length_ns - skip_begin_ns - duration_ns, 0)
+deliver_options.set_truncate_first_device_time_ns(skip_begin_ns)
+deliver_options.set_truncate_last_device_time_ns(skip_end_ns)
+
+# Plot VIO trajectory in 3D view.
+# Need to keep a cache to store already-loaded trajectory
+vio_traj_cached_full = []
+for sensor_data in vrs_data_provider.deliver_queued_sensor_data(deliver_options):
+    # Convert sensor data to VIO data
+    vio_data = sensor_data.vio_data()
+
+    # Check VIO data validity, only plot for valid data
+    if ( vio_data.status != VioStatus.VALID or vio_data.pose_quality != TrackingQuality.GOOD):
+        print(f"VIO data is invalid for timestamp {sensor_data.get_time_ns(TimeDomain.DEVICE_TIME)}")
+        continue
+
+    # Set timestamp
+    rr.set_time_nanos("device_time", vio_data.capture_timestamp_ns)
+
+    # Set and plot the Device pose for the current timestamp, as a RGB axis
+    T_World_Device = (
+        vio_data.transform_odometry_bodyimu @ vio_data.transform_bodyimu_device
+    )
+    rr.log(
+        "world/device",
+        ToTransform3D(
+            T_World_Device,
+            axis_length=0.05,
+        ),
+    )
+
+    # Also plot Aria glass outline for visualization
+    aria_glasses_point_outline = AriaGlassesOutline(
+        device_calib, use_cad_calib=True
+    )
+    rr.log(
+        "world/device/glasses_outline",
+        rr.LineStrips3D(
+            aria_glasses_point_outline,
+            colors=[200,200,200],
+            radii=5e-4,
+        ),
+    )
+
+    # Plot gravity direction vector
+    rr.log(
+        "world/vio_gravity",
+        rr.Arrows3D(
+            origins=[T_World_Device.translation()[0]],
+            vectors=[
+                vio_data.gravity_in_odometry * 1e-2
+            ],  # length converted from 9.8 meter -> 10 cm
+            colors=[101,67,33],
+            radii=1.5e-3,
+        ),
+        static=False,
+    )
+
+    # Plot VIO trajectory that are cached so far
+    vio_traj_cached_full.append(T_World_Device.translation()[0])
+    rr.log(
+        "world/vio_trajectory",
+        rr.LineStrips3D(
+            vio_traj_cached_full,
+            colors=[173, 216, 255],
+            radii=1.5e-3,
+        ),
+        static=False,
+    )
+
+    # For visualization purpose, also plot the hand tracking results
+    interpolated_hand_pose = vrs_data_provider.get_interpolated_hand_pose_data(handtracking_stream_id, vio_data.capture_timestamp_ns, TimeDomain.DEVICE_TIME)
+    if interpolated_hand_pose is not None:
+        plot_hand_pose_data_3d(hand_pose_data = interpolated_hand_pose)
+
+
+```
+
+## Understanding VIO Coordinate Systems
+
+On-device VIO uses several coordinate frames:
+
+1. **Odometry Frame**: The reference coordinate system for VIO tracking. This frame is typically initialized when VIO starts and remains fixed throughout the session.
+
+2. **Body IMU Frame**: The coordinate frame of the IMU sensor. This is one of the primary sensor frames used by the VIO algorithm.
+
+3. **Device Frame**: The reference coordinate frame for the Aria device (typically the left SLAM camera frame).
+
+The complete transformation from odometry to device frame is:
+```
+T_Odometry_Device = T_Odometry_BodyIMU @ T_BodyIMU_Device
+```
+
+## VIO Data Quality and Status
+
+### VIO Status
+- **VALID**: VIO tracking is working properly
+- **INVALID**: VIO tracking has failed or is unreliable
+
+### Pose Quality
+- **POOR**: Low confidence in pose estimation
+- **GOOD**: Moderate confidence in pose estimation
+- **GREAT**: High confidence in pose estimation
+
+**Best Practice**: Always check both status and quality before using VIO data for downstream applications.
+
+## Summary
+
+This tutorial covered the essential aspects of working with on-device VIO data:
+
+- **VIO Data Access**: How to retrieve VIO pose estimates at ~20Hz
+- **VIO High Frequency**: Accessing integrated IMU data at ~800Hz
+- **Data Quality**: Understanding VIO status and pose quality indicators
+- **3D Visualization**: Plotting VIO trajectories and device poses in 3D space
+- **Coordinate Frames**: Understanding the relationship between odometry, body IMU, and device frames
+
+On-device VIO provides real-time 6DOF tracking that can be used for:
+- **Spatial Analysis**: Understanding user movement patterns
+- **Multi-Modal Fusion**: Combining with other sensor data for comprehensive analysis
+- **Real-time Applications**: Enabling applications that require immediate pose feedback
+- **Motion Studies**: Analyzing user behavior and interaction patterns

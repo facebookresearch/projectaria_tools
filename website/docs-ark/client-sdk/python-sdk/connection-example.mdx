@@ -1,0 +1,67 @@
+---
+sidebar_position: 2
+title: Example - Connection
+---
+
+Using aria.sdk_gen2 to connect to an Aria Device.
+
+## Run connection example
+```bash
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_connect.py --serial IM0XXXXXXXXXXX
+```
+Replace IM0XXXXXXXXXXX with your device’s actual serial number.
+
+## Step-by-step walk through
+1. Import Required Modules
+
+Start by importing the necessary modules:
+```python
+import argparse
+import aria.sdk_gen2 as sdk_gen2
+```
+aria.sdk_gen2 is the SDK for interacting with Aria devices.
+
+2. Parse Command-Line Arguments
+
+Set up argument parsing to allow the user to specify the device serial number:
+```python
+def parse_args() -> argparse.Namespace:
+   parser = argparse.ArgumentParser()
+   parser.add_argument(
+       "--serial",
+       dest="serial",
+       type=str,
+       default="",
+       required=False,
+       help="Serial number of the device which will be connected. (e.g. 1M0YDB5H7B0020)",
+   )
+   return parser.parse_args()
+```
+The --serial argument lets the user specify which device to connect to.
+If not provided, it defaults to an empty string, and the first available device will be used.
+
+3. Set Up the Device Client and Configuration
+
+Create and configure the device client:
+
+```python
+def device_connect(serial):
+   device_client = sdk_gen2.DeviceClient()
+   config = sdk_gen2.DeviceClientConfig()
+   config.device_serial = serial
+   device_client.set_client_config(config)
+```
+* DeviceClient manages the authentication and device connection.
+* DeviceClientConfig is used to specify the target device by serial number or IP address.
+
+4. Connect to the Device
+
+Attempt to connect to the specified device:
+```python
+   try:
+       device = device_client.connect()
+       print(f"Successfully connected to device {device.connection_id()}")
+   except Exception:
+       print("Failed to connect to device.")
+```
+If the connection is successful, a confirmation message is printed.

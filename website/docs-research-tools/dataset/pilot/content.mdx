@@ -1,0 +1,29 @@
+---
+sidebar_position: 0
+title: Content
+---
+# Aria Gen 2 Pilot Dataset
+
+The Aria Gen 2 Pilot Dataset is a multi-participant, egocentric dataset collected using Aria Gen 2 glasses with four participants (a primary wearer and three co-participants) simultaneously recording a variety of daily activities, resulting in rich, time-synchronized multimodal data. The dataset is structured to demonstrate the Gen 2 device capability and potential applications in computer vision, multimodal learning, robotics, and contextual AI.
+
+---
+
+## Dataset Content
+The Aria Gen 2 pilot dataset comprises four primary data content types:
+1. raw sensor streams acquired directly from Aria Gen 2 devices and recorded by [Profile 8](/technical-specs/device/profile)
+2. real-time machine perception outputs generated on-device via embedded algorithms during data collection
+3. offline machine perception results produced by [Machine Perception Services (MPS)](/ark/mps/start) during post-processing; and
+4. outputs from additional offline perception algorithms. See below for details.
+
+Content (1) and (2) are obtained natively from the device, whereas (3) and (4) are derived through post-hoc processing.
+
+### Additional Perception Algorithms
+
+
+| Algorithm                        | Description                                                                                                   | Output                |
+|-----------------------------------|---------------------------------------------------------------------------------------------------------------|------------------------------------------|
+| **Directional Automatic Speech Recognition (ASR)** | Distinguishes between wearer and others, generating timestamped transcripts for all sequences. Enables analysis of conversational dynamics and social context. | Timestamped transcripts of speech. |
+| **Heart Rate Estimation**         | Uses PPG sensors to estimate continuous heart rate, reflecting physical activity and physiological state. Coverage for over 95% of recording duration. | Timestamped heart rate in beats per minute. |
+| **Hand-Object Interaction Recognition** | Segments left/right hands and interacted objects, enabling analysis of manipulation patterns and object usage. | Segmentation masks for hands and objects per RGB image. |
+| [**3D Object Detection (Egocentric Voxel Lifting)**](https://facebookresearch.github.io/projectaria_tools/docs/open_models/evl) | Detects 2D and 3D bounding boxes for objects in indoor scenes using multi-camera data. Supports spatial understanding and scene reconstruction. | 2D and 3D bounding boxes with class prediction. |
+| **Depth Estimation (Foundation Stereo)** | Generates depth maps from overlapping CV cameras, enabling research in 3D scene understanding and object localization. | Depth images, rectified CV images, and corresponding camera intrinsics/extrinsics. |

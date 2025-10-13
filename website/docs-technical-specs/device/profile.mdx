@@ -1,0 +1,42 @@
+---
+sidebar_position: 1
+title: Profiles
+---
+# Project Aria Gen 2 Profiles
+Project Aria Gen 2 glasses offer a range of profiles, allowing users to select the optimal configuration of sensors and settings for their research or application needs. Each profile defines a specific combination of sensor streams, data rates, resolutions, and encoding formats. These profiles are designed to balance data quality, device performance, and operational stability.
+Profiles are divided into two categories:
+- **Pre-defined profiles**: Thoroughly tested, stable, and fully supported. Recommended for most users.
+- **Custom profiles**: User-defined configurations for advanced or experimental use. These may not be stable and are not recommended for general use.
+
+The table below details the specifications of the currently supported pre-defined profiles. New profiles may be added as the platform evolves.
+
+| Feature / Sensor         | profile8                            | profile9                             | profile10                                        |
+|-------------------------|--------------------------------------|--------------------------------------|--------------------------------------------------|
+| **Description**         | General purpose recording profile    | General purpose streaming profile    | Recording profile with RGB 3MP 30Hz              |
+| **IMUs (Hz)**           | 800                                  | 800                                  | 800                                              |
+| **Magnetometer (Hz)**   | 100                                  | 100                                  | 100                                              |
+| **Barometer (Hz)**      | 50                                   | 50                                   | 50                                               |
+| **Audio Sample Rate (Hz)**   | 16K                           | 16K                              | 16K                                         |
+| **Audio Encoding Format** | OPUS                                 | OPUS                                 | OPUS                                             |
+| **Audio Bitrate**       | 256000                               | 256000                               | 256000                                           |
+| **GPS (Hz)**            | 1                                    | :x:                                    | 1                                                |
+| **BLE Period (ms)**     | 30000                                |:x:                                   | 30000                                            |
+| **BLE Duration (ms)**   | 2000                                 |:x:                                   | 2000                                             |
+| **WiFi Period (ms)**    | 30000                                |:x:                                   | 30000                                            |
+| **WiFi Scan Mode**      | ACTIVE                               |:x:                                   | ACTIVE                                           |
+| **SLAM Cameras (Hz)**   | 30                                   | 10                                   | 30                                               |
+| **SLAM Encoding**       | H265 (CQP QP=22)                     | H265 (CBR 900kbps)                   | H265 (CQP QP=22)                                 |
+| **RGB Camera (Hz)**     | 10                                   | 5                                    | 30                                               |
+| **RGB Resolution**      | 2560x1920                            | 2560x1920                            | 2016x1512                                      |
+| **RGB Encoding**        | H265 (CQP QP=22)                     | H265 (CBR 8Mbps), blur filter        | H265 (CQP QP=22)                                 |
+| **ET Cameras (Hz)**     | 5                                    |:x:                                   | 5                                                |
+| **ET Resolution**       | 200x200                              |:x:                                   | 200x200                                          |
+| **ET Encoding**         | H265 (CQP QP=22)                     |:x:                                   | H265 (CQP QP=22)                                 |
+| **ET (Hz)**             | 30                                   | 30                                   | 30                                               |
+| **HT (Hz)**             | 30                                   | 30                                   | 30                                               |
+| **VIO (Hz)**            | 10                                   | 10                                   | 10                                               |
+| **Device Info Period (ms)** | 30000                            | 10000                                | 30000                                            |
+| **PPG (Hz)**            | 128                                  | 128                                  | 128                                              |
+| **Temperature (Hz)**    | 1                                    | 1                                    | 1                                                |
+| **ALS (Hz)**            | 9.434                                | 9.434                                | 10                                               |
+| **ALS Exposure (us)**   | 3200                                 | 3200                                 | 3200                                             |

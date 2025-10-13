@@ -1,0 +1,151 @@
+---
+sidebar_position: 3
+title: Advanced Installation From Source Code
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+This page covers advanced installation options to build Project Aria Tools from source code, including:
+- [Build `projectaria_tools` lib using CMake without visualization](#cmake_no_viz)
+- [Build `projectaria_tools` lib using CMake with visualization](#cmake_with_viz)
+- [Build `projectaria_tools` python package from source code](#python_from_source)
+- [Build `projectaria_tools` python package with type hinting from source code](#python_from_source_type_hint)
+
+
+## Pre-requisites: install dependencies {#prerequisites}
+Before proceed to any of the advanced installation steps, please follow the command in [the installer widget on Quick Start page](/docs-research-tools/projectariatools/start.mdx#installing) to pull the correct branch from Github.
+
+Then install the following third party dependency lib:
+```mdx-code-block
+<Tabs groupId="operating-systems">
+<TabItem value="ubuntu" label="Ubuntu">
+```
+```bash
+# Deactivate CONDA / MAMBA virtual environment you may be in! This is IMPORTANT!
+conda deactivate
+
+# Install build essentials
+sudo apt install build-essential git cmake
+
+# Install VRS/Pangolin dependencies
+sudo apt install libgtest-dev libgmock-dev libgoogle-glog-dev libfmt-dev \
+liblz4-dev libzstd-dev libxxhash-dev libboost-all-dev libpng-dev \
+libjpeg-turbo8-dev libturbojpeg0-dev libglew-dev libgl1-mesa-dev libeigen3-dev
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="fedora" label="Fedora">
+```
+```bash
+# Deactivate CONDA / MAMBA virtual environment you may be in! This is IMPORTANT!
+conda deactivate
+
+# Install build essentials
+sudo dnf install -y git cmake gcc gcc-c++ make
+
+# Install VRS/Pangolin dependencies
+sudo dnf install -y gtest-devel gmock-devel glog-devel fmt-devel lz4-devel \
+libzstd-devel xxhash-devel boost-devel libpng-devel libjpeg-turbo-devel \
+turbojpeg-devel glew-devel eigen3
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="macos" label="MacOS">
+```
+If you don't have brew on your mac, here is the [_setup link_](https://brew.sh/).
+
+```bash
+# Deactivate CONDA / MAMBA virtual environment you may be in! This is IMPORTANT!
+conda deactivate
+
+# Install build essentials with Homebrew
+xcode-select --install
+
+brew install git cmake eigen python3 boost fmt googletest \
+glog lz4 zstd xxhash libpng jpeg-turbo glew
+
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+**Install FFmpeg**:
+Aria Gen2 image data is encoded with H.265 codec.
+`projectaria_tools` relies on the decoding functions in [the `vrs` library](https://github.com/facebookresearch/vrs) to decode H.265 image data.
+Here, we will build `FFmpeg` from source code with the exact same script from the `vrs` library:
+```bash
+# Set this to the root directory where you pulled the codebase
+SRC_DIR=${HOME}/Documents/projectaria_sandbox/projectaria_tools/
+cd ${SRC_DIR}
+
+# Remove previously installed ffmpeg
+rm -rf ~/vrs_third_party_libs/ffmpeg/
+
+# ffmpeg will be installed under ~/vrs_third_party_libs/ffmpeg/
+./build_third_party_libs/build_ffmpeg_linuxunix.sh
+```
+
+## Build `projectaria_tools` lib using CMake, without visualization {#cmake_no_viz}
+```bash
+cd ${SRC_DIR}
+cmake -B ./build/ -S ./
+cd build/
+make -j8
+```
+
+## Build `projectaria_tools` lib using CMake, with visualization {#cmake_with_viz}
+The C++ visualization binaries in `projectaria_tools` are built using [the Pangolin library](https://github.com/stevenlovegrove/Pangolin).
+Therefore, you need to install `Pangolin` as a system library first.
+```bash
+cd /tmp
+
+git clone --recursive https://github.com/stevenlovegrove/Pangolin.git
+
+mkdir -p Pangolin_Build && cd Pangolin_Build
+
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TOOLS=OFF -DBUILD_PANGOLIN_PYTHON=OFF \
+-DBUILD_EXAMPLES=OFF ../Pangolin/
+
+make -j8
+
+sudo make install
+```
+
+Then you can build `projectaria_tools` in CMake:
+```bash
+cd ${SRC_DIR}
+cmake -B ./build/ -S ./ -DPROJECTARIA_TOOLS_BUILD_TOOLS=ON
+cd build/
+make -j8
+```
+
+
+## Build `projectaria_tools` Python package from source code {#python_from_source}
+First, make sure you have [installed the dependencies libraries](#prerequisites) as pre-requisites.
+You can build a local version of `projectaria-tools` Python package by doing the following.
+We strongly recommend you build this within a Python virtual environment.
+```bash
+# Go to your check-out source code directory
+cd ${SRC_DIR}
+python3 -m pip install --upgrade pip
+
+python3 -m pip install .
+```
+
+## Build `projectaria_tools` Python package from source code with type hinting {#python_from_source_type_hint}
+1.
+2. Generate Python type hinting with generate_stubs.py script once projectaria_tools package is installed
+3. Install type hinting package for projectaria_tools
+```bash
+# Install pybind11-stubgen to generate the stub files
+python3 -m pip install pybind11-stubgen==1.1
+
+# Generate stubs
+cd $HOME/Documents/projectaria_sandbox/projectaria_tools
+python3 generate_stubs.py
+cp -r projectaria_tools-stubs/projectaria_tools .
+
+# Install projectaria-tools python package from source code.
+python3 -m pip install .
+```

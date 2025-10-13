@@ -1,0 +1,401 @@
+---
+sidebar_position: 4
+title: Using On-Device Eye-tracking and Hand-tracking
+---
+
+import TutorialButtons from '@site/src/components/TutorialButtons';
+
+# Tutorial 4: Using On-Device Eye-tracking and Hand-tracking
+
+<TutorialButtons
+  notebookUrl="https://github.com/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_4_on_device_eyetracking_handtracking.ipynb"
+  colabDisabled={true}
+/>
+
+## Introduction
+
+In Aria-Gen2 glasses, one of the key upgrade from Aria-Gen1 is the capability to run Machine Perception (MP) algorithms on the device during streaming / recording. Currently supported on-device MP algorithms include Eye-tracking, Hand-tracking, and VIO. These algorithm results are stored as separate data streams in the VRS file.
+
+This tutorial focuses on demonstration of how to use the **Eye-tracking and Hand-tracking** results.
+
+**What you'll learn:**
+
+- How to access on-device EyeGaze and HandTracking data from VRS files
+- Understanding the concept of interpolated hand tracking and why interpolation is needed
+- How to visualize EyeGaze and HandTracking data projected onto 2D camera images using DeviceCalibration
+- How to match MP data with camera frames using timestamps
+
+**Prerequisites**
+- Complete Tutorial 1 (VrsDataProvider Basics) to understand basic data provider concepts
+- Complete Tutorial 2 (Device Calibration) to understand how to properly use calibration in Aria data.
+
+```python
+from projectaria_tools.core import data_provider
+
+# Load VRS file
+vrs_file_path = "path/to/your/recording.vrs"
+vrs_data_provider = data_provider.create_vrs_data_provider(vrs_file_path)
+
+# Access device calibration
+device_calib = vrs_data_provider.get_device_calibration()
+```
+
+## Accessing Eye-tracking Data
+
+### Basic Eye-tracking Data Access
+
+Eye-tracking data provides gaze direction information from the Aria glasses.
+
+```python
+# Query EyeGaze stream
+eyegaze_stream_id = vrs_data_provider.get_stream_id_from_label("eyegaze")
+
+if eyegaze_stream_id is None:
+    print("This VRS file does not contain on-device eye-tracking data.")
+else:
+    print(f"Found eye-tracking stream: {eyegaze_stream_id}")
+
+    # Get total number of eye-tracking samples
+    num_eyegaze_samples = vrs_data_provider.get_num_data(eyegaze_stream_id)
+    print(f"Total eye-tracking samples: {num_eyegaze_samples}")
+
+    # Access a few eye-tracking data samples
+    print("\nFirst few eye-tracking samples:")
+    for i in range(min(5, num_eyegaze_samples)):
+        eyegaze_data = vrs_data_provider.get_eyegaze_data_by_index(eyegaze_stream_id, i)
+
+        print(f"Sample {i}:")
+        print(f"\tTimestamp: {eyegaze_data.tracking_timestamp}")
+        print(f"\tConfidence: {eyegaze_data.session_uid}")
+        print(f"\tYaw: {eyegaze_data.yaw} rad")
+        print(f"\tPitch: {eyegaze_data.pitch} rad")
+```
+
+### Eye-tracking Data Structure
+
+Eye-tracking data contains the following key information:
+
+- **Tracking Timestamp**: When the eye-tracking measurement was taken
+- **Yaw and Pitch**: Gaze direction in spherical coordinates
+- **Session UID**: Unique identifier for the eye-tracking session
+
+### Visualizing Eye-tracking Data
+
+```python
+import rerun as rr
+import numpy as np
+from projectaria_tools.core.sensor_data import TimeDomain, TimeQueryOptions
+
+def visualize_eyegaze_in_camera(camera_label, eyegaze_data, camera_calib, device_calib):
+    """
+    Project eye-tracking data onto camera image
+    """
+    # Convert gaze direction to 3D vector
+    yaw, pitch = eyegaze_data.yaw, eyegaze_data.pitch
+    gaze_vector_device = np.array([
+        np.cos(pitch) * np.sin(yaw),
+        np.sin(pitch),
+        np.cos(pitch) * np.cos(yaw)
+    ])
+
+    # Transform to camera coordinate system
+    T_device_camera = camera_calib.get_transform_device_camera()
+    gaze_vector_camera = T_device_camera.inverse().rotationMatrix() @ gaze_vector_device
+
+    # Project to image coordinates (assuming gaze origin at camera center)
+    gaze_distance = 2.0  # meters
+    gaze_point_camera = gaze_vector_camera * gaze_distance
+    gaze_pixel = camera_calib.project(gaze_point_camera)
+
+    # Visualize gaze point on image
+    if camera_calib.is_valid_projection(gaze_pixel):
+        rr.log(
+            f"{camera_label}/eyegaze",
+            rr.Points2D(
+                positions=[gaze_pixel],
+                colors=[255, 0, 0],  # Red color
+                radii=[5.0]
+            )
+        )
+
+# Example usage in visualization loop
+rr.init("rerun_viz_eyegaze")
+rr.notebook_show()
+
+if eyegaze_stream_id is not None:
+    rgb_stream_id = vrs_data_provider.get_stream_id_from_label("camera-rgb")
+    rgb_camera_calib = device_calib.get_camera_calib("camera-rgb")
+
+    # Visualize first few frames with eye-tracking data
+    for i in range(min(10, num_eyegaze_samples)):
+        eyegaze_data = vrs_data_provider.get_eyegaze_data_by_index(eyegaze_stream_id, i)
+
+        # Find closest RGB frame
+        eyegaze_timestamp_ns = int(eyegaze_data.tracking_timestamp.total_seconds() * 1e9)
+        rgb_data, rgb_record = vrs_data_provider.get_image_data_by_time_ns(
+            rgb_stream_id, eyegaze_timestamp_ns, TimeDomain.DEVICE_TIME, TimeQueryOptions.CLOSEST
+        )
+
+        if rgb_data.is_valid():
+            rr.set_time_nanos("device_time", rgb_record.capture_timestamp_ns)
+            rr.log("camera-rgb", rr.Image(rgb_data.to_numpy_array()))
+
+            # Overlay eye-tracking data
+            visualize_eyegaze_in_camera("camera-rgb", eyegaze_data, rgb_camera_calib, device_calib)
+
+```
+
+## Accessing Hand-tracking Data
+
+### Basic Hand-tracking Data Access
+
+Hand-tracking provides 3D pose estimation for both hands, including joint positions and hand poses.
+
+```python
+# Query HandTracking stream
+handtracking_stream_id = vrs_data_provider.get_stream_id_from_label("handtracking")
+
+if handtracking_stream_id is None:
+    print("This VRS file does not contain on-device hand-tracking data.")
+else:
+    print(f"Found hand-tracking stream: {handtracking_stream_id}")
+
+    # Get total number of hand-tracking samples
+    num_handtracking_samples = vrs_data_provider.get_num_data(handtracking_stream_id)
+    print(f"Total hand-tracking samples: {num_handtracking_samples}")
+
+    # Access hand-tracking data
+    print("\nFirst few hand-tracking samples:")
+    for i in range(min(3, num_handtracking_samples)):
+        hand_pose_data = vrs_data_provider.get_hand_pose_data_by_index(handtracking_stream_id, i)
+
+        print(f"\nSample {i}:")
+        print(f"\tTimestamp: {hand_pose_data.tracking_timestamp}")
+
+        # Check left hand
+        if hand_pose_data.left_hand is not None:
+            print(f"\tLeft hand detected:")
+            print(f"\tConfidence: {hand_pose_data.left_hand.confidence}")
+            print(f"\tNumber of landmarks: {len(hand_pose_data.left_hand.landmark_positions_device)}")
+        else:
+            print(f"\tLeft hand: Not detected")
+
+        # Check right hand
+        if hand_pose_data.right_hand is not None:
+            print(f"\tRight hand detected:")
+            print(f"\tConfidence: {hand_pose_data.right_hand.confidence}")
+            print(f"\tNumber of landmarks: {len(hand_pose_data.right_hand.landmark_positions_device)}")
+        else:
+            print(f"\tRight hand: Not detected")
+```
+
+### Hand-tracking Data Structure
+
+Hand-tracking data contains:
+
+- **Tracking Timestamp**: When the hand-tracking measurement was taken
+- **Left/Right Hand Data**: Each hand (when detected) includes:
+  - **Confidence**: Detection confidence score
+  - **Landmark Positions**: 3D positions of hand joints in device coordinate system
+  - **Wrist Transform**: 6DOF pose of the wrist
+  - **Palm Normal**: Normal vector of the palm
+
+### Interpolated Hand-tracking Data
+
+Since hand-tracking and camera data may not be perfectly synchronized, Aria provides interpolated hand-tracking data that can be queried at arbitrary timestamps.
+
+```python
+from projectaria_tools.core.sensor_data import SensorDataType, TimeDomain, TimeQueryOptions
+from datetime import timedelta
+
+print("\n=== Demonstrating query interpolated hand tracking results ===")
+
+# Demonstrate how to query interpolated handtracking results
+slam_stream_id = vrs_data_provider.get_stream_id_from_label("slam-front-left")
+rgb_stream_id = vrs_data_provider.get_stream_id_from_label("camera-rgb")
+
+# Retrieve a SLAM frame, use its timestamp as query
+slam_sample_index = min(10, vrs_data_provider.get_num_data(slam_stream_id) - 1)
+slam_data_and_record = vrs_data_provider.get_image_data_by_index(slam_stream_id, slam_sample_index)
+slam_timestamp_ns = slam_data_and_record[1].capture_timestamp_ns
+
+# Retrieve the closest RGB frame
+rgb_data_and_record = vrs_data_provider.get_image_data_by_time_ns(
+    rgb_stream_id, slam_timestamp_ns, TimeDomain.DEVICE_TIME, TimeQueryOptions.CLOSEST
+)
+rgb_timestamp_ns = rgb_data_and_record[1].capture_timestamp_ns
+
+# Retrieve the closest hand tracking data sample
+raw_ht_data = vrs_data_provider.get_hand_pose_data_by_time_ns(
+    handtracking_stream_id, slam_timestamp_ns, TimeDomain.DEVICE_TIME, TimeQueryOptions.CLOSEST
+)
+raw_ht_timestamp_ns = (raw_ht_data.tracking_timestamp // timedelta(microseconds=1)) * 1000
+
+# Check if hand tracking aligns with RGB or SLAM data
+print(f"SLAM timestamp: {slam_timestamp_ns}")
+print(f"RGB timestamp:  {rgb_timestamp_ns}")
+print(f"hand tracking timestamp:   {raw_ht_timestamp_ns}")
+print(f"hand tracking-SLAM time diff: {abs(raw_ht_timestamp_ns - slam_timestamp_ns) / 1e6:.2f} ms")
+print(f"hand tracking- RGB time diff: {abs(raw_ht_timestamp_ns - rgb_timestamp_ns) / 1e6:.2f} ms")
+
+# Now, query interpolated hand tracking data sample using RGB timestamp.
+interpolated_ht_data = vrs_data_provider.get_interpolated_hand_pose_data(
+    handtracking_stream_id, rgb_timestamp_ns
+)
+
+# Check that interpolated hand tracking now aligns with RGB data
+if interpolated_ht_data is not None:
+    interpolated_ht_timestamp_ns = (interpolated_ht_data.tracking_timestamp// timedelta(microseconds=1)) * 1000
+    print(f"Interpolated hand tracking timestamp: {interpolated_ht_timestamp_ns}")
+    print(f"Interpolated hand tracking-RGB time diff: {abs(interpolated_ht_timestamp_ns - rgb_timestamp_ns) / 1e6:.2f} ms")
+else:
+    print("Interpolated hand tracking data is None - interpolation failed")
+```
+
+### Visualizing Hand-tracking Results in Cameras
+
+```python
+import rerun as rr
+from projectaria_tools.utils.rerun_helpers import create_hand_skeleton_from_landmarks
+
+def plot_single_hand_in_camera(hand_joints_in_device, camera_label, camera_calib, hand_label):
+    """
+    A helper function to plot a single hand data in 2D camera view
+    """
+    # Setting different marker plot sizes for RGB and SLAM since they have different resolutions
+    plot_ratio = 3.0 if camera_label == "camera-rgb" else 1.0
+    marker_color = [255,64,0] if hand_label == "left" else [255, 255, 0]
+
+    # project into camera frame, and also create line segments
+    hand_joints_in_camera = []
+    for pt_in_device in hand_joints_in_device:
+        pt_in_camera = (
+            camera_calib.get_transform_device_camera().inverse() @ pt_in_device
+        )
+        pixel = camera_calib.project(pt_in_camera)
+        hand_joints_in_camera.append(pixel)
+
+    # Create hand skeleton in 2D image space
+    hand_skeleton = create_hand_skeleton_from_landmarks(hand_joints_in_camera)
+
+    # Remove "None" markers from hand joints in camera. This is intentionally done AFTER the hand skeleton creation
+    hand_joints_in_camera = list(
+        filter(lambda x: x is not None, hand_joints_in_camera)
+    )
+
+    rr.log(
+        f"{camera_label}/{hand_label}/landmarks",
+        rr.Points2D(
+            positions=hand_joints_in_camera,
+            colors= marker_color,
+            radii= [3.0 * plot_ratio]
+        ),
+    )
+    rr.log(
+        f"{camera_label}/{hand_label}/skeleton",
+        rr.LineStrips2D(
+            hand_skeleton,
+            colors=[0, 255, 0],
+            radii= [0.5 * plot_ratio],
+        ),
+    )
+
+def plot_handpose_in_camera(hand_pose, camera_label, camera_calib):
+    """
+    A helper function to plot hand tracking results into a camera image
+    """
+    # Plot both hands
+    if hand_pose.left_hand is not None:
+        plot_single_hand_in_camera(
+            hand_joints_in_device=hand_pose.left_hand.landmark_positions_device,
+            camera_label=camera_label,
+            camera_calib = camera_calib,
+            hand_label="left")
+    if hand_pose.right_hand is not None:
+        plot_single_hand_in_camera(
+            hand_joints_in_device=hand_pose.right_hand.landmark_positions_device,
+            camera_label=camera_label,
+            camera_calib = camera_calib,
+            hand_label="right")
+
+print("\n=== Visualizing on-device hand tracking in camera images ===")
+
+# First, query the RGB camera stream id
+device_calib = vrs_data_provider.get_device_calibration()
+rgb_camera_label = "camera-rgb"
+slam_camera_labels = ["slam-front-left", "slam-front-right", "slam-side-left", "slam-side-right"]
+rgb_stream_id = vrs_data_provider.get_stream_id_from_label(rgb_camera_label)
+slam_stream_ids = [vrs_data_provider.get_stream_id_from_label(label) for label in slam_camera_labels]
+
+rr.init("rerun_viz_ht_in_cameras")
+rr.notebook_show()
+
+# Set up a sensor queue with only RGB images.
+# Handtracking data will be queried with interpolated API.
+deliver_options = vrs_data_provider.get_default_deliver_queued_options()
+deliver_options.deactivate_stream_all()
+for stream_id in slam_stream_ids + [rgb_stream_id]:
+    deliver_options.activate_stream(stream_id)
+
+# Play for only 3 seconds
+total_length_ns = vrs_data_provider.get_last_time_ns_all_streams(TimeDomain.DEVICE_TIME) - vrs_data_provider.get_first_time_ns_all_streams(TimeDomain.DEVICE_TIME)
+skip_begin_ns = int(15 * 1e9) # Skip 15 seconds
+duration_ns = int(3 * 1e9) # 3 seconds
+skip_end_ns = max(total_length_ns - skip_begin_ns - duration_ns, 0)
+deliver_options.set_truncate_first_device_time_ns(skip_begin_ns)
+deliver_options.set_truncate_last_device_time_ns(skip_end_ns)
+
+# Plot image data, and overlay hand tracking data
+for sensor_data in vrs_data_provider.deliver_queued_sensor_data(deliver_options):
+    # --
+    # Only image data will be obtained.
+    # --
+    device_time_ns = sensor_data.get_time_ns(TimeDomain.DEVICE_TIME)
+    image_data_and_record = sensor_data.image_data_and_record()
+    stream_id = sensor_data.stream_id()
+    camera_label = vrs_data_provider.get_label_from_stream_id(stream_id)
+    camera_calib = device_calib.get_camera_calib(camera_label)
+
+
+    # Visualize the RGB images.
+    rr.set_time_nanos("device_time", device_time_ns)
+    rr.log(f"{camera_label}", rr.Image(image_data_and_record[0].to_numpy_array()))
+
+    # Query and plot interpolated hand tracking result
+    interpolated_hand_pose = vrs_data_provider.get_interpolated_hand_pose_data(handtracking_stream_id, device_time_ns, TimeDomain.DEVICE_TIME)
+    if interpolated_hand_pose is not None:
+        plot_handpose_in_camera(hand_pose = interpolated_hand_pose, camera_label = camera_label, camera_calib = camera_calib)
+
+# Wait for rerun to buffer 1 second of data
+import time
+time.sleep(1)
+
+```
+
+## Understanding Interpolation
+
+Hand-tracking interpolation is crucial for synchronizing hand data with camera frames:
+
+1. **Why Interpolation is Needed**: Hand-tracking algorithms may run at different frequencies than cameras, leading to temporal misalignment.
+
+2. **Interpolation Algorithm**: The system uses linear interpolation for 3D positions and SE3 interpolation for poses.
+
+3. **Interpolation Rules**:
+   - Both hands must be valid in both before/after samples for interpolation to work
+   - If either hand is missing in either sample, the interpolated result for that hand will be `None`
+   - Single-hand interpolation includes:
+     - Linear interpolation on 3D hand landmark positions
+     - SE3 interpolation on wrist 3D pose
+     - Re-calculated wrist and palm normal vectors
+     - Minimum confidence values
+
+## Summary
+
+This tutorial covered accessing and visualizing on-device eye-tracking and hand-tracking data:
+
+- **Eye-tracking Data**: Access gaze direction information and project onto camera images
+- **Hand-tracking Data**: Access 3D hand pose data including joint positions and confidence scores
+- **Interpolated Data**: Use interpolated hand-tracking for better temporal alignment with camera data
+- **Visualization**: Project MP data onto 2D camera images for analysis and debugging
+
+These on-device MP algorithms provide real-time insights into user behavior and can be combined with other sensor data for comprehensive analysis of user interactions and movements.
