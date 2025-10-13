@@ -2,3 +2,66 @@
 sidebar_position: 1
 title: Visualization Tools (C++)
 ---
+
+# C++ Visualization Tools
+
+This page covers the C++ visualization tools available in Project Aria Tools. These tools provide native performance visualization of Aria data using the Pangolin framework.
+
+## Prerequisites
+
+To use the C++ visualization tools, you need to build them from source using CMake. These tools are not included in the standard Python package installation.
+
+**Required build step**: Follow the "build using CMake from source code" instructions in the [Advanced Installation](/docs-research-tools/projectariatools/advanced-installation.mdx) guide to compile the C++ visualization tools.
+
+The C++ tools require the Pangolin library for visualization. If Pangolin is not found during compilation, the visualization tools will not be built.
+
+## `aria_viewer`
+
+The `aria_viewer` is a C++ binary that provides real-time visualization of Aria VRS (Video Recording and Sensor) data using the Pangolin framework. It offers native performance for visualizing multi-modal sensor data from Aria devices.
+
+### Basic Usage
+
+```bash
+aria_viewer --vrs path/to/your/file.vrs
+```
+
+### Command Line Options
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `--vrs` | string | Yes | Path to the VRS file you want to visualize |
+
+### What You'll See
+
+The C++ viewer provides an interactive visualization environment with multiple components:
+
+- **RGB & SLAM Camera Streams**: Real-time display of RGB and SLAM camera images with overlaid eye gaze and hand tracking results
+- **1D Sensor Data**: Time series plots of:
+  - **IMU signals** (accelerometer and gyroscope data)
+  - **Audio signals** (microphone waveforms)
+  - **Barometer signals** (pressure and temperature readings)
+- **3D Visualization**: Interactive 3D scene showing:
+  - **VIO trajectory** (Visual-Inertial Odometry path)
+  - **Eye gaze vectors** in 3D space
+  - **Hand tracking** results and poses
+  - **Device pose** and orientation
+
+### Interactive Controls
+
+The viewer includes real-time controls for:
+- **Play/Pause**: Start and stop data playback
+- **Speed Control**: Adjust playback speed using a slider
+- **Timestamp Navigation**: Jump to specific timestamps by dragging the timestamp slider
+- **Stream Toggles**: Enable/disable individual data streams for focused analysis
+- **3D Camera Controls**: Navigate and explore the 3D visualization
+
+### Known Issues and Workarounds
+
+**High-frequency sequence playback issue**: There is a known issue when playing high-frequency Aria-Gen2 data at real speed, where camera views may update asynchronously. This is due to CPU-based image decoding speed limitations.
+
+**Workarounds**:
+1. **Use Python viewer**: Fall back to the `aria_rerun_viewer` for smooth high-frequency playback
+2. **Reduce playback speed**: Use the speed control slider to play at slower speeds
+3. **Random access**: Dragging the timestamp slider for random access always works correctly
+
+The development team is actively working on a solution for this issue.
