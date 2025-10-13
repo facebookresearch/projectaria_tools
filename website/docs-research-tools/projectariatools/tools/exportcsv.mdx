@@ -2,3 +2,53 @@
 sidebar_position: 3
 title: Export Gen2 On-device Machine Perception data to CSV
 ---
+
+# Export Gen2 On-device Machine Perception data to CSV
+
+This page covers the Gen2 Machine Perception (MP) CSV exporter tool, `run_gen2_mp_csv_exporter`, which extracts on-device machine perception data from Gen2 Aria VRS files and exports them to CSV files compatible with the MPS (Machine Perception Service) data format.
+This enables seamless integration and comparison between on-device results and cloud-processed MPS data.
+
+## Basic Usage
+
+```bash
+run_gen2_mp_csv_exporter --vrs-path path/to/your/gen2_file.vrs \
+  --output-folder ./exported_mp_data/ \
+  --vio-high-freq-subsample-rate 80
+```
+
+## Command Line Options
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `--vrs-path` | string | Yes | Path to the Gen2 VRS file containing on-device MP data |
+| `--output-folder` | string | No | Folder to output MP CSV files. Default: current directory |
+| `--vio-high-freq-subsample-rate` | int | No | Subsample rate for VIO high frequency data. Default: 1 (no subsampling) |
+
+## Data Types Exported
+
+After running the tool, your output folder will contain the following files, with csv / JSONL formats that are compatible with MPS data formats:
+
+```bash
+output_folder/
+├── slam/
+│   ├── open_loop_trajectory.csv      # VIO high-frequency poses
+│   └── online_calibration.jsonl      # Online calibration updates
+├── eye_gaze/
+│   └── generalized_eye_gaze.csv      # Eye gaze data
+└── hand_tracking/
+    └── hand_tracking_results.csv     # Hand tracking results
+```
+
+| Data Type | Source VRS Data Stream | Output File | Content | Notes |
+|-----------|------------------------|-------------|---------|-------|
+| VIO High-Frequency Trajectory | `vio_high_frequency` | `${OUTPUT_FOLDER}/slam/open_loop_trajectory.csv` | High-frequency device trajectory poses from Visual-Inertial Odometry | Compatible with MPS open-loop trajectory format. Subsampling configurable via `--vio-high-freq-subsample-rate` parameter |
+| Eye Gaze Data | `eyegaze` | `${OUTPUT_FOLDER}/eye_gaze/generalized_eye_gaze.csv` | Eye gaze directions and fixation points | Compatible with MPS eye gaze format |
+| Hand Tracking Data | `handtracking` | `${OUTPUT_FOLDER}/hand_tracking/hand_tracking_results.csv` | Hand pose estimates, joint positions, and hand landmarks | Compatible with MPS hand tracking format |
+| Online Calibration Data | `vio` | `${OUTPUT_FOLDER}/slam/online_calibration.jsonl` | Online SLAM camera and IMU calibration updates computed on-device | Compatible with MPS online calibration format |
+
+## Important Notes
+
+- **Gen2 specific**: This tool only works with Gen2 Aria VRS files that contain on-device MP data
+- **Stream availability**: Not all Gen2 recordings may contain all MP data streams
+- **Data consistency**: The tool preserves original timestamps and coordinate systems from the on-device processing
+- **Calibration updates**: Online calibration data represents dynamic updates computed during recording, which may differ from factory calibration
