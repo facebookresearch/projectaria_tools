@@ -391,7 +391,11 @@ class AriaDataViewer:
             rrb.Tabs(
                 contents=[
                     rrb.Spatial3DView(
-                        origin="world", name="3D Scene"
+                        origin="world",
+                        name="3D Scene",
+                        line_grid=rrb.archetypes.LineGrid3D(
+                            visible=False,
+                        ),
                     ),  # Gen2-added world 3D view
                     _3d_view_container.contents[1],  # Device extrinsics
                 ]
