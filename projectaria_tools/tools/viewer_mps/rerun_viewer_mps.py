@@ -875,7 +875,7 @@ def log_mps_to_rerun(
         trajectory_data = mps.read_closed_loop_trajectory(str(trajectory_files[0]))
     else:
         trajectory_data = None
-    if len(trajectory_data) == 0:
+    if trajectory_data and len(trajectory_data) == 0:
         trajectory_data = mps.read_open_loop_trajectory(str(trajectory_files[0]))
     eyegaze_data = mps.read_eyegaze(eye_gaze_file) if eye_gaze_file else None
 
