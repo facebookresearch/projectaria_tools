@@ -1,0 +1,104 @@
+---
+sidebar_position: 3
+title: Example - Record and download VRS
+---
+
+Using aria.sdk_gen2 to Record and Download Data from an Aria Device
+
+## Run recording example
+Usage Example:
+```bash
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_record.py
+```
+
+## Step-by-step walk through
+1. Import Required Modules
+
+Start by importing the necessary modules:
+```python
+import argparse
+import time
+import aria.sdk_gen2 as sdk_gen2
+```
+aria.sdk_gen2 is the SDK for interacting with Aria devices.
+
+2. Parse Command-Line Arguments
+
+Set up argument parsing to allow the user to specify the recording duration and output directory:
+```python
+def parse_args() -> argparse.Namespace:
+   parser = argparse.ArgumentParser()
+   parser.add_argument(
+       "--output",
+       dest="output_path",
+       type=str,
+       default="",
+       required=False,
+       help="Output directory to save the recording",
+   )
+   parser.add_argument(
+       "--duration",
+       dest="duration",
+       type=int,
+       default=10,
+       required=False,
+       help="Recording duration in seconds (default: 10)",
+   )
+   return parser.parse_args()
+```
+* --output specifies where the recording will be saved.
+* --duration sets how long the recording will last (in seconds).
+
+3. Set Up the Device Client and Configuration
+
+Create and configure the device client:
+```python
+device_client = sdk_gen2.DeviceClient()
+config = sdk_gen2.DeviceClientConfig()
+device_client.set_client_config(config)
+```
+DeviceClient manages the authentication and device connection.
+DeviceClientConfig is used to specify the target device by serial number or IP address.
+
+4. Connect to the Device
+
+Attempt to connect to the device:
+```python
+device = device_client.connect()
+print(f"Successfully connected to device {device.connection_id()}")
+```
+If successful, you’ll see a confirmation message.
+
+5. Set Up Recording Configuration
+
+Configure the recording profile and type:
+```python
+recording_config = sdk_gen2.RecordingConfig()
+recording_config.profile_name = "profile9"
+recording_config.recording_type = sdk_gen2.RecordingType.RECORDING_TYPE_PROTOTYPE
+recording_config.recording_name = "example_recording"
+device.set_recording_config(recording_config)
+```
+* recording_name: User specified name of the recording.
+* profile_name: Profile9 is the official supported profile to recording and streaming.
+* RECORDING_TYPE_PROTOTYPE: This is the recording type that allows direct download from device to local PC for fast prototyping. For more details on RECORDING_TYPE, please refer to technical specs page.
+
+6. Start and Stop Recording
+
+Begin recording, wait for the specified duration, then stop:
+```
+uuid = device.start_recording()
+print(f"Start recording for {duration} seconds with uuid: {uuid}")
+time.sleep(duration)
+device.stop_recording()
+```
+The recording runs for the duration specified by the user. The uuid is needed to download the specific recording.
+
+7. List and Download Recordings
+
+List all recordings and download the one just created using the uuid:
+```
+device.list_recordings()
+device.download_recording(uuid=uuid, output_path=output_path)
+```
+This will save the recording to the specified output directory.

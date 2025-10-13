@@ -1,0 +1,217 @@
+---
+sidebar_position: 1
+title: VrsDataProvider Basics
+---
+
+import TutorialButtons from '@site/src/components/TutorialButtons';
+
+# Tutorial 1: VrsDataProvider Basics
+
+<TutorialButtons
+  notebookUrl="https://github.com/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_1_vrs_data_provider_basics.ipynb"
+  colabDisabled={true}
+/>
+
+## Introduction
+
+[Aria Gen2](https://www.projectaria.com/) glasses are Meta's dedicated research tool in an always-on glasses form factor. The data recorded by Aria Gen2 glasses are stored in VRS files, where each VRS file captures time-synchronized data streams from various sensors, such cameras, IMUs, audio, and more.
+The **VrsDataProvider** interface provides a unified way to access multimodal sensor data from these VRS files.
+
+**What you'll learn:**
+
+- How to create a `VrsDataProvider` from a VRS file.
+- Discover available sensor data streams, and check their configurations
+- Retrieve data using either sequential (index-based) or temporal (timestamp-based) access APIs.
+- Learn about timing domains and time query options
+
+**Prerequisites:** Basic Python knowledge and a general understanding of multimodal sensor data.
+
+## Basic File Loading
+
+The `create_vrs_data_provider($FILE_PATH)` factory function will create **a `vrs_data_provider` object**. This object is **your entry point** for accessing VRS data.
+
+```python
+from projectaria_tools.core import data_provider
+
+# Load local VRS file
+vrs_file_path = "path/to/your/recording.vrs"
+vrs_data_provider = data_provider.create_vrs_data_provider(vrs_file_path)
+```
+
+## Stream Discovery and Navigation
+
+### Understanding Stream IDs
+
+A VRS file contains multiple **streams**, each storing data from a specific sensor or on-device algorithm result.
+
+Each VRS stream is identified by a unique **`StreamId`** (e.g. `1201-1`), consisting `RecordableTypeId` (sensor type, e.g. `1201`, standing for "SLAM camera"), and an `instance_id` (for multiple sensors of the same type, e.g. `-1`, standing for "instance #1 of this sensor type"). Below are some common `RecordableTypeId` in Aria recordings. Full definitions of all Recordable Types are given in this wiki page (TODO: Add website page), or refer to [the `StreamId.h` file in the VRS repo](https://github.com/facebookresearch/vrs/blob/main/vrs/StreamId.h#L49).
+
+| RecordableTypeId | Description |
+| :---- | :---- |
+| 214 | RGB camera stream |
+| 1201 | SLAM camera stream |
+| 211 | EyeTracking camera stream |
+| 1202 | IMU sensor stream |
+| 231 | Audio sensor stream |
+| 373 | EyeGaze data stream from on-device EyeTracking algorithm. |
+
+### Query StreamId By Label
+
+```python
+# Get all available streams
+all_streams = vrs_data_provider.get_all_streams()
+print(f"Found {len(all_streams)} streams in the VRS file:")
+
+# Print out each stream id, and their corresponding sensor label
+for stream_id in all_streams:
+    label = vrs_data_provider.get_label_from_stream_id(stream_id)
+    print(f" --- Data stream {stream_id}'s label is: {label}")
+```
+
+```python
+# Find a specific stream's StreamId by sensor label
+print("Seeking RGB data stream...")
+rgb_stream_id = vrs_data_provider.get_stream_id_from_label("camera-rgb")
+if rgb_stream_id is not None:
+    print(f"Found camera-rgb stream in VRS file: {rgb_stream_id}")
+else:
+    print("Cannot find camera-rgb stream in VRS file.")
+```
+
+## Sensor Data Query APIs
+
+### 1. Query by index
+
+The query-by-index API allows you to retrieve the k-th data sample from a specific stream using the following syntax:
+
+```python
+get_<SENSOR>_data_by_index(stream_id, index)
+```
+
+where `<SENSOR>` can be replaced by any sensor data type available in Aria VRS. See here for [a full list of supported sensor types](https://github.com/facebookresearch/projectaria_tools/blob/main/core/data_provider/VrsDataProvider.h#L377)
+
+This API is commonly used for sequential processing—such as iterating through all frames of a single stream—or when you know the exact frame number you want to query within a specific stream.
+
+**Important Note:**
+The indices in each stream are independent and not correlated across different sensor streams. For example, the i-th RGB image does not necessarily correspond to the i-th SLAM image. This is because different sensors may operate at different frequencies or have missing frames, so their data streams are not synchronized by index.
+
+```python
+# Visualize with Rerun
+import rerun as rr
+rr.init("rerun_viz_query_by_index")
+rr.notebook_show()
+
+# Get number of samples in stream
+num_samples = vrs_data_provider.get_num_data(rgb_stream_id)
+print(f"RGB stream has a total of {num_samples} frames\n")
+
+# Access frames sequentially, and plot the first few frames
+first_few = min(10, num_samples)
+print(f"Printing the capture timestamps from the first {first_few} frames")
+for i in range(first_few):  # First 10 frames
+    image_data, image_record = vrs_data_provider.get_image_data_by_index(
+        rgb_stream_id, i
+    )
+
+    # Access image properties
+    timestamp_ns = image_record.capture_timestamp_ns
+    print(f"Frame {i}: timestamp = {timestamp_ns}")
+
+    # Process image data
+    if image_data.is_valid():
+        rr.set_time_nanos("device_time", timestamp_ns)
+        rr.log("camera_rgb", rr.Image(image_data.to_numpy_array()))
+
+```
+
+### 2. Query by Timestamp: TimeDomain and TimeQueryOptions
+
+A key feature of Aria devices is the ability to capture time-synchronized, multi-modal sensor data. To help you access this data with precise temporal control, `projectaria_tools` provides a comprehensive suite of time-based APIs.
+
+The most commonly used is the **timestamp-based query**:
+
+```python
+get_<SENSOR>_by_time_ns(stream_id, time_ns, time_domain=None, time_query_options=None)
+```
+
+where `<SENSOR>` can be replaced by any sensor data type available in Aria VRS. See here for [a full list of supported sensor types](https://github.com/facebookresearch/projectaria_tools/blob/main/core/data_provider/VrsDataProvider.h#L377)
+
+This API is often used to synchronize data across multiple sensor streams, fetch sensor data at specific timestamps, or perform temporal analysis.
+
+#### TimeDomain and TimeQueryOptions
+
+When querying sensor data by timestamp, two important concepts are:
+
+- **TimeDomain**: Specifies the time reference for your query.
+- **TimeQueryOptions**: Controls how the API selects data relative to your requested timestamp.
+
+Below are all available options for each:
+
+#### TimeDomain Options
+
+| Name        | Description                                                                                      | Typical Use Case                       |
+|-------------|--------------------------------------------------------------------------------------------------|---------------------------------------|
+| RECORD_TIME  | Timestamp stored directly in the VRS index. Fast access, but time domain may vary.               | Quick access, not recommended for sync. |
+| DEVICE_TIME  | Accurate device capture time. All sensors on the same Aria device share this domain.             | **Recommended for single-device data.** |
+| HOST_TIME    | Arrival time in the host computer's domain. May not be accurate.                                 | Debugging, host-side analysis.          |
+| TIME_CODE    | [Aria-Gen1 only] TimeSync server's domain using external time-code devices, accurate across devices in multi-device capture.                       | Multi-device synchronization.           |
+| TIC_SYNC     | [Aria-Gen1 only] TimeSync server's domain using tic-sync, accurate for multi-device capture.      | Multi-device synchronization.           |
+| SubGhz      | [Aria-Gen2 only] TimeSync server's domain using SubGhz signals, accurate for multi-device capture.           | Multi-device synchronization.           |
+| Utc         | UTC time domain, only seconds-level accuracy.                                                    | Coarse, global time reference.          |
+
+#### TimeQueryOptions
+
+| Name    | Description                                                                                                 |
+|---------|-------------------------------------------------------------------------------------------------------------|
+| Before  | Returns the last valid data with `timestamp <= t_query`.                                                    |
+| After   | Returns the first valid data with `timestamp >= t_query`.                                                   |
+| Closest | Returns the data sample closest to `t_query`. If two are equally close, returns the one **before** the query.   |
+
+> For detailed usage and best practices—especially for time-sync across multiple devices—see **Tutorial_6**.
+
+```python
+from projectaria_tools.core.sensor_data import TimeDomain, TimeQueryOptions
+
+rr.init("rerun_viz_query_by_timestamp")
+rr.notebook_show()
+
+# Get time bounds for RGB images
+first_timestamp_ns = vrs_data_provider.get_first_time_ns(rgb_stream_id, TimeDomain.DEVICE_TIME)
+last_timestamp_ns = vrs_data_provider.get_last_time_ns(rgb_stream_id, TimeDomain.DEVICE_TIME)
+
+# Query specific timestamp
+target_time_ns = first_timestamp_ns + int(1e9) # 1 second later
+image_data, image_record = vrs_data_provider.get_image_data_by_time_ns(
+    rgb_stream_id,
+    target_time_ns,
+    TimeDomain.DEVICE_TIME,
+    TimeQueryOptions.CLOSEST
+)
+
+actual_time_ns = image_record.capture_timestamp_ns
+print(f"Requested RGB data that is closest to: {target_time_ns} ns, Got closest sample at: {actual_time_ns} ns")
+
+# Plot RGB and SLAM images at approx 1 hz
+camera_label_list = ["camera-rgb", "slam-front-left", "slam-front-right", "slam-side-left", "slam-side-right"]
+camera_stream_ids = [vrs_data_provider.get_stream_id_from_label(camera_label) for camera_label in camera_label_list]
+
+query_timestamp_ns = first_timestamp_ns
+for _ in range(10):
+    for label, stream_id in zip(camera_label_list, camera_stream_ids):
+        # Query each camera's data according to query timestamp
+        image_data, image_record = vrs_data_provider.get_image_data_by_time_ns(
+            stream_id,
+            query_timestamp_ns,
+            TimeDomain.DEVICE_TIME,
+            TimeQueryOptions.CLOSEST)
+        # note that the actual timestamp of the image data is stored within image_record. It can be different from query_time.
+        capture_time_ns = image_record.capture_timestamp_ns
+
+        # Plot to Rerun
+        if image_data.is_valid():
+            rr.set_time_nanos("device_time", capture_time_ns)
+            rr.log(label, rr.Image(image_data.to_numpy_array()))
+
+    query_timestamp_ns = query_timestamp_ns + int(1e9) # 1 second
+
+```

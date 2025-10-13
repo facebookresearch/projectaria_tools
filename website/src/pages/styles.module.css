@@ -59,3 +59,59 @@
 [data-theme='dark'] .mainLogo {
   background-image: url("/img/logo_aria_negative.svg");
 }
+
+.quickLinks {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 3rem auto;
+  max-width: 1200px;
+  padding: 0 2rem;
+}
+
+.quickLinkCard {
+  flex: 1;
+  max-width: 300px;
+  padding: 2rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.quickLinkCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.quickLinkCard h3 {
+  margin-bottom: 1rem;
+  color: var(--ifm-color-primary);
+}
+
+.quickLinkCard p {
+  margin-bottom: 1.5rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.quickLinkCard a {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.quickLinkCard a:hover {
+  text-decoration: underline;
+}
+
+@media screen and (max-width: 996px) {
+  .quickLinks {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .quickLinkCard {
+    max-width: 400px;
+  }
+}

@@ -1,0 +1,93 @@
+---
+sidebar_position: 0
+title: Get Started
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import ThemedImage from '@theme/ThemedImage';
+
+# Introduction to ClientSDK
+ClientSDK is a comprehensive toolbox designed to facilitate control and interaction with Aria Gen2 devices. It is part of the Aria Research Kit and provides a set of libraries, utilities,
+and example code to streamline device management, authentication, recording and streaming.
+
+Key Features
+* Device Management: Core classes and utilities for connecting to, authenticating, and controlling Aria Gen2 devices.
+* Streaming Support: Components for starting and managing data streams, including on-device machine perception data (VIO, hand pose, and eye gaze) and other sensor data.
+* Recording Support: Components for starting and managing recording on-device.
+* Security: Built-in support for streaming certificates and security options.
+* Python & CLI Tools: Includes Python SDK and command-line utilities for scripting and automation.
+* Example Code: Ready-to-use examples to help developers get started quickly.
+
+To explore the SDK, please follow the installation guidance below.
+
+## Install via virtual environment
+### Step 1 : Install Python
+
+To use ClientSDK, you'll need Python 3.8 - 3.12.
+* [Python 3 download page](https://www.python.org/downloads/)
+* To check what what version of Python 3 you have use `python3 --version`
+
+### Step 2 : Create a virtual environment
+<Tabs groupId="operating-systems">
+<TabItem value="unix" label="Linux & macOS">
+```bash
+rm -rf $HOME/clientsdk_python_env
+python3 -m venv $HOME/clientsdk_python_env
+source $HOME/clientsdk_python_env/bin/activate
+```
+</TabItem>
+</Tabs>
+
+###  Step 3 : Install the required python packages
+
+```bash
+python3 -m pip install --upgrade pip
+
+# install projectaria-tools
+pip install projectaria-tools==2.0.0
+```
+
+###  Step 4 : Install client sdk python package.
+```
+pip install projectaria-client-sdk==2.0.0
+```
+
+## Authenticate your device with your PC
+You need to authenticate your device with your PC to allow secure connection and control. To pair your device with the PC, please first pair the device with your mobile
+Companion App.
+```bash
+# connect device to the computer and check if the device appears
+aria-gen2 device list
+
+# Authenticate device to connect with the PC
+aria-gen2 auth pair
+```
+
+You will need to approve the authentication from your mobile Companion App to allow connection as shown here.
+<ThemedImage
+  alt="Docusaurus themed image"
+  sources={{
+    light: useBaseUrl('/img/docs-ark/client-sdk/ca_approve.png'),
+    dark: useBaseUrl('/img/docs-ark/client-sdk/ca_approve.png'),
+  }}
+  style={{ width: '300px', height: 'auto' }}
+/>
+
+NOTE: You only need to do this once per device and PC.
+
+
+Once authenticated, you can check your authentication status using the command below.
+```bash
+# check if authentication
+aria-gen2 auth check
+```
+
+## CLI available controls
+You can use the packaged CLI to control the device to
+* Recording: control the device to start, stop, list and download recordings in VRS format.
+* Streaming: control the device to start and stop streaming.
+* Device: general device controls that includes obtain device information, connect to WIFI, sending text-to-speech, etc
+* Player: Receives device streaming data and perform health monitoring of the streaming data regard latency and data drops.
+
+For detailed instructions, you can refer to the Technical Specs page for more details.

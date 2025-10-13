@@ -1,0 +1,29 @@
+---
+sidebar_position: 1
+title: Recording control
+---
+
+To get started, you can use the following command to start/stop recording with the device
+```bash
+# start recording
+aria-gen2 recording start --profile profile8 --recording-name example_recording
+
+# stop recording
+aria-gen2 recording stop
+```
+
+To download the recording, you will need the uuid for the previous recording
+```bash
+# list existing recordings and uuid
+aria-gen2 recording list
+
+# download recording
+aria-gen2 recording download -u <uuid> -o ~/Downloads/
+
+# visualize recording
+aria_rerun_viewer --vrs ~/Downloads/<recording_name>.vrs
+```
+
+#### Example visualization
+
+For detailed instructions, you can refer to the Technical Specs page for more details.

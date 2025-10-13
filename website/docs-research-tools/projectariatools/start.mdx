@@ -1,0 +1,44 @@
+---
+sidebar_position: 0
+title: Get Started
+---
+
+import React, { useEffect, useMemo, useState } from "react";
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import CodeBlock from "@theme/CodeBlock";
+import InstallChooser from "@site/src/components/pat_installer_chooser";
+
+This page provides basic information about how to install the Project Aria Tools library as a Python package using `pip`.
+For more advanced installation options including installing CMake / Python package from source code, please refer to the
+[Advanced Installation](/docs-research-tools/projectariatools/advanced-installation.mdx) page.
+
+## Installing `projectaria-tools` {#installing}
+
+<InstallChooser />
+
+Use the above table to get the exact command to install `projectaria-tools` library.
+- We **strongly recommend** install `projectaria-tools` via `pip` packages within a Python virtual environment.
+- `stable` represents the most currently tested and supported version of PyTorch. This should be suitable for many users; `develop` is pushed continuously to the `main` branch on Github repo.
+- For users who wants to **build the library from source code (C++ or Python)**, please refer to instructions in [the advanced installation page](/docs-research-tools/projectariatools/advanced-installation.mdx).
+
+## Supported Platforms
+| OS / Platform                 | OS / Distro Details                                                | Aria Gen2 Support (projectaria-tools ≥2.0) | Supported Python Versions |
+| :---------------------------- | :----------------------------------------------------------------- | :----------------------------------------- | :------------------------ |
+| Linux (x64)                   | Fedora **40/41**; Ubuntu **20.04 LTS (focal)** / **22.04 LTS (jammy)** | ✅ Supported                              | 3.8 – 3.12               |
+| macOS (Apple Silicon / ARM64) | macOS **14+ (Sonoma or newer)** on M1/M2/M3                        | ✅ Supported                              | 3.10 – 3.12              |
+| macOS (Intel)                 | macOS **13+ (Ventura or newer)**                                   | ✅ Supported                              | 3.8 – 3.12               |
+| Windows (x64)                 | MSVC **2019/2022**                                                 | 🚧 Planned                               | 3.10 – 3.12              |
+
+
+
+## Python Notebook Tutorials
+
+Proceed to the following Python notebook tutorials to learn how to use the Python APIs to consume Aria data:
+- [Tutorial 1: VrsDataProvider Basics](/docs-research-tools/projectariatools/pythontutorials/dataprovider.mdx): how to perform basic operations in loading and access data in an Aria VRS file.
+- [Tutorial 2: Device Calibration](/docs-research-tools/projectariatools/pythontutorials/calibration.mdx): how to work with device calibration in Aria VRS.
+- [Tutorial 3: Queued Sensor Data](/docs-research-tools/projectariatools/pythontutorials/queue.mdx): how to use the unified queued API to efficiently “stream” multi-sensor data.
+- [Tutorial 4: On-Device Eye Tracking and Hand Tracking](/docs-research-tools/projectariatools/pythontutorials/eyetracking-handtracking.mdx): how to work with on-device-generated EyeGaze and Hand-tracking signals from Aria Gen2 glasses.
+- [Tutorial 5: On-Device VIO](/docs-research-tools/projectariatools/pythontutorials/vio.mdx): how to work with on-device-generated VIO data from Aria Gen2 glasses.
+- [Tutorial 6: Timestamp Mapping in Single- and Multi-Device Recordings](/docs-research-tools/projectariatools/pythontutorials/time-sync.mdx): understanding timestamp mapping in Aria data, and how to use timestamp mapping in multi-device recording.
+- [Tutorial 7: Machine Perception Services (MPS) Data Loading](/docs-research-tools/projectariatools/pythontutorials/mps.mdx): how to load and visualize output data from Aria MP.

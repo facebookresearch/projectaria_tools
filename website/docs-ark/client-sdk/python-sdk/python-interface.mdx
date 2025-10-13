@@ -1,0 +1,29 @@
+---
+sidebar_position: 0
+title: Python SDK with examples
+---
+
+We provide a set of example codes to demonstrate how to use the SDK interface that includes
+* Authenticate device with connected PC
+* Setup connection to device
+* Setup device recording and download
+* Setup device streaming and receiver with custom callback functions
+* Send TTS to device
+
+The examples code need to be exported using the following command
+```bash
+# Export examples codes
+python -m aria.extract_sdk_samples --output ~/Downloads/
+```
+
+You should be able to find the examples codes in the following directory `projectaria_client_sdk_samples_gen2`.
+```bash
+ls ~/Downloads/projectaria_client_sdk_samples_gen2
+
+device_auth.py
+device_connect.py
+device_record.py
+device_streaming.py
+```
+
+In the next few pages, we provide detailed explanations for each example code.

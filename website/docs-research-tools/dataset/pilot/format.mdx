@@ -1,0 +1,214 @@
+---
+sidebar_position: 1
+title: Format
+---
+# Aria Gen 2 Pilot Dataset Format
+The dataset contains 12 sequences in total. Each Aria glasses recording is stored as its own sequence with all data related to that recording self contained within that sequence folder. An example sequence folder would look like this:
+
+```
+└── sequence_name
+   ├── video.vrs
+   ├── vrs_health_check_results.json
+   ├── mps
+   │   ├── slam
+   │   │   ├── closed_loop_trajectory.csv
+   │   │   ├── open_loop_trajectory.csv
+   │   │   ├── semidense_observations.csv.gz
+   │   │   ├── semidense_points.csv.gz
+   │   │   ├── online_calibration.jsonl
+   │   │   └── summary.json
+   │   └── hand_tracking
+   │       ├── hand_tracking_results.csv
+   │       └── summary.json
+   ├── diarization
+   │   ├── diarization_results.csv
+   │   └── summary.json
+   ├── scene
+   │   ├── 2d_bounding_box.csv
+   │   ├── 3d_bounding_box.csv
+   │   ├── instances.json
+   │   ├── scene_objects.csv
+   │   └── summary.json
+   ├── heart_rate
+   │   ├── heart_rate_results.csv
+   │   └── summary.json
+   ├── depth
+   │   ├── depth
+   │   │   ├── depth_00000001.png
+   │   │   ├── …
+   │   │   └── depth_{:08d}.png
+   │   ├── rectified_images
+   │   │   ├── image_00000000.png
+   │   │   ├── …
+   │   │   └── image_{:08d}.png
+   │   ├── pinhole_camera_parameters.json
+   │   └── summary.json
+   └── hand_object_interaction
+       ├── hand_object_interaction_results.json
+       └── summary.json
+```
+
+## File format
+
+`closed_loop_trajectory.csv`, `open_loop_trajectory.csv`, `semidense_observations.csv.gz`, `semidense_points.csv.gz`, `online_calibration.jsonl` and `hand_tracking_results.csv` follow MPS data format.
+
+### `diarization_results.csv`
+
+| **Column** | Type | Description |
+| :---- | :---- | :---- |
+| start\_timestamp\_ns | int | Timestamp, in nanoseconds, in device time domain.  |
+| end\_timestamp\_ns | int | Timestamp, in nanoseconds, in device time domain.  |
+| speaker | string | Unique identifier of the speaker |
+| content | string | The ASR results in text. |
+
+### `2d_bounding_box.csv`
+
+| **Column** | Type | Description |
+| :---- | :---- | :---- |
+| stream\_id | string | camera stream id associated with the bounding box image |
+| object\_uid | uint64\_t | id of the object instance  |
+| timestamp\[ns\] | int64\_t | timestamp of the image in nanoseconds |
+| x\_min\[pixel\] | int | minimum dimension in the x axis |
+| x\_max\[pixel\] | int | maximum dimension in the x axis |
+| y\_min\[pixel\] | int | minimum dimension in the y axis |
+| y\_max\[pixel\] | int | maximum dimension in the y axis |
+| visibility\_ratio\[%\] | double | percentage of the object that is visible (0: not visible, 1: fully visible). **NOTE**: for EVL this is estimated from semidense points and is NOT accurate and fills \-1. |
+
+### `3d_bounding_box.csv`
+
+| **Column** | Type | Description |
+| :---- | :---- | :---- |
+| object\_uid | uint64\_t | id of the instance |
+| timestamp\[ns\] | int64\_t | timestamp of the image in nanoseconds. \-1 means the instance is static |
+| p\_local\_obj\_xmin\[m\] | double | minimum dimension in the x axis (in meters) of the bounding box |
+| p\_local\_obj\_xmax\[m\] | double | maximum dimension in the x axis (in meters) of the bounding box |
+| p\_local\_obj\_ymin\[m\] | double | minimum dimension in the y axis (in meters) of the bounding box |
+| p\_local\_obj\_ymax\[m\] | double | maximum dimension in the y axis (in meters) of the bounding box |
+| p\_local\_obj\_zmin\[m\] | double | minimum dimension in the z axis (in meters) of the bounding box |
+| p\_local\_obj\_zmax\[m\] | double | maximum dimension in the z axis (in meters) of the bounding box |
+
+### `instances.json`
+
+```json
+{
+    object_id:{
+        "canonical_pose":{"front_vector":unit_vector,"up_vector":unit_vector},
+        "category":xxx,
+        "category_uid":xxx,
+        "instance_id":xxx,
+        "instance_name":text description,
+        "instance_type":"object",
+        "motion_type":"static",
+        "prototype_name":text description,"rigidity": "rigid",
+        "rotational_symmetry":{"is_annotated":false}
+    },
+    ...
+    # example
+    "12":{
+        "canonical_pose":{"front_vector":[0,0,1],"up_vector":[0,1,0]},"
+        category":"Screen",
+        "category_uid":10,
+        "instance_id":12,
+        "instance_name":"screen, television, laptop screen (not keyboard), tablet screen, computer monitor, display, not mobile phone screen",
+        "instance_type":"object",
+        "motion_type":"static",
+        "prototype_name":"screen, television, laptop screen (not keyboard), tablet screen, computer monitor, display, not mobile phone screen",
+        "rigidity":"rigid",
+        "rotational_symmetry":{"is_annotated":false}
+    },
+    ...
+}
+```
+
+### `scene\_objects.csv`
+
+| Column | Type | Description |
+| :---- | :---- | :---- |
+| object\_uid | uint64\_t | id of the object instance  |
+| timestamp\[ns\] | int64\_t | timestamp of the image in nanoseconds. \-1 means the instance is static |
+| t\_wo\_x\[m\] | double | x translation from object frame to world (scene) frame (in meters) |
+| t\_wo\_y\[m\] | double | y translation from object frame to world (scene) frame (in meters) |
+| t\_wo\_z\[m\] | double | z translation from object frame to world (scene) frame (in meters) |
+| q\_wo\_w | double | w component of quaternion from object frame to world (scene) frame |
+| q\_wo\_x | double | x component of quaternion from object frame to world (scene) frame |
+| q\_wo\_y | double | y component of quaternion from object frame to world (scene) frame |
+| q\_wo\_z | double | z component of quaternion from object frame to world (scene) frame |
+
+
+### `heart_rate_results.csv`
+
+| **Column** | Type | Description |
+| :---- | :---- | :---- |
+| timestamp\_ns | int | Timestamp, in nanoseconds, in device time domain.  |
+| heart\_rate\_bpm | int | The estimated heart rate (beats per minutes) at the specific timestamp |
+
+
+### Depth Folder
+Depth output consists of the following files in a single directory named “depth”:
+
+- Rectified depth maps as 512 x 512, 16-bit grayscale PNG images. The pixel contents are integers expressing the depth along the pixel’s ray direction, in units of mm. This is the same format used in [ASE](https://facebookresearch.github.io/projectaria_tools/docs/open_datasets/aria_synthetic_environments_dataset).
+  - `depth_{:08d}.png`
+- Matching rectified front-left SLAM camera images as 8-bit grayscale PNGs.
+  - `image_{:08d}.png`
+- A JSON file containing camera transforms and intrinsics for the rectified pinhole camera, for each frame.
+  - `pinhole_camera_parameters.json`
+
+Example JSON:
+
+```json
+[
+  {
+    "T_world_camera": {
+      "QuaternionXYZW": [
+        -0.56967133283615112,
+        0.35075613856315613,
+        0.60195386409759521,
+        0.4360002875328064
+      ],
+      "Translation": [
+        -0.0005431128665804863,
+        0.0053895660676062107,
+        -0.0027622696943581104
+      ]
+    },
+    "camera": {
+      "ModelName": "Linear:fu,fv,u0,v0",
+      "Parameters": [
+        306.38043212890625,
+        306.38043212890625,
+        254.6942138671875,
+        257.29779052734375
+      ]
+    },
+    "index": 0,
+    "frameTimestampNs": 34234234234,
+  }
+]
+```
+
+###  `hand_object_interaction_results.json`
+
+Standard COCO json format, with category\_id 1 (left hand) 2 (right hand) 3 (hand interacting object). Example Json file:
+
+```json
+[
+  {
+        "segmentation": {
+            "size": [
+                1512,
+                2016
+            ],
+            "counts": "TUk`13U_10L8L0K7N0UJOYlN9eS1G[lN9aS11okN=mS1CSlN=kS1GokNa0a1kNRl0d0]ROa0a1kNnk0]1aPOhNSN`1Q5dNYl0T1cPOhNSN`1Q5dNYl0T1cPOhNSN`1Q5dNQl0T2mnNT3V1QMko0KonNT3V1QMio0Z7jnNRIVQ1n6jnNRIVQ1`:00N200L400M3000000N200N200N2000000N200000002N00000N4N0N200N4N0000002N00000N4N0000002N004L004L0000002N002N00000000000020N02N002N0020N02N0020N03M002N002N00f0ZO004L002N00000N4N000000000000000000000000000000000002L2000000000000000002N000N20000000000000000000000000000002N00000000000000000000N2000N20N20000000N2000000000N202N00000000000000000000000000000000000000000000000N20000000000000000N202N00000000000N20000000N200000000000000N200N20000000000000N02000000000000000000000N202N000N202L202L202L200N20000N200N200N202I504hNT102iNU103K202H606XOb004mJYmNTMPS1l2PmNTMRS1f2VmNRMnR1n2RmNRMPS1c2amNaLSS1_3mlNaLdU1^Ok50?VO;06^O<0de]n0"
+        },
+        "bbox": [
+            1050.1774193548385,
+            738.1073369565217,
+            325.16129032258095,
+            535.0801630434783
+        ],
+        "score": 1.0,
+        "image_id": 2620886, # timestamp_ns = image_id * 1e6
+        "category_id": 3
+    },
+  ...
+]```

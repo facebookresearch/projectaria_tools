@@ -1,0 +1,176 @@
+---
+sidebar_position: 1
+title: Installation and Quick Start
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+VRS Health Check is a comprehensive tool for analyzing and validating VRS (Virtual Reality System) recording files collected by Aria devices.
+It performs quality checks on data streams including Camera, IMU, VIO, and GPS, detects issues like dropped frames and sensor misalignments, and provides detailed statistics about recording health.
+
+## Installing VRS Health Check
+Vrs Health Check is available as a Python package on PyPI.
+You can install it using pip.
+And we strongly recommend installing it under a python virtual environment:
+<Tabs groupId="operating-systems">
+<TabItem value="unix" label="Linux & macOS">
+```bash
+rm -rf $HOME/projectaria_vhc_env
+python3 -m venv $HOME/projectaria_vhc_env
+source $HOME/projectaria_vhc_env/bin/activate
+
+python3 -m pip install projectaria-tools-vrs-health-check
+```
+</TabItem>
+<TabItem value="windows" label="Windows">
+Windows is not yet supported for Aria-Gen2.
+</TabItem>
+</Tabs>
+## Quick Start - Running the tool
+```bash
+run_vrs_health_check -- --path <VRS_FILE> --output-json <RESULTS_FILE> [OPTIONS]
+```
+Note that if the above command emits some error, please refer to the [following troubleshooting section](#troubleshoot).
+
+## **Available Options**:
+
+#### 📁 Basic Options
+| Option           | Description                                        |
+|------------------|---------------------------------------------------|
+| `--path`         | Path to VRS file or directory containing VRS files |
+| `--output-json`  | Path to save detailed JSON results
+
+
+#### 🖥️ Terminal Output Control
+| Option              | Description                                   |
+|---------------------|-----------------------------------------------|
+| `--print-stats`     | Print detailed statistics to console          |
+| `--disable-logging` | Suppress diagnostic log messages (quiet mode) |
+
+#### ⚙️ Configuration Management
+| Option                               | Description                                  |
+|---------------------------------------|----------------------------------------------|
+| `--list-configurations`               | List all available threshold configurations  |
+| `--show-configuration-json <CONFIG>`  | Show details of a specific configuration     |
+| `--choose-configuration <CONFIG>`     | Select a configuration to output its results |
+
+#### 🔧 Custom Threshold Overrides
+| Option                                 | Description                               |
+|-----------------------------------------|-------------------------------------------|
+| `--override-check-file <FILE>`          | JSON file with custom threshold overrides |
+| `--override-checks <OVERRIDES>`         | Comma-separated threshold overrides       |
+| `--configuration-to-override <CONFIG>`  | Base configuration for overrides          |
+
+
+
+## Expected Outputs
+
+The VRS Health Check tool provides two primary outputs:
+
+### 1. Exit Code
+
+The tool returns an exit code indicating the overall health check result:
+
+| Exit Code | Status         | Description                             |
+|-----------|---------------|-----------------------------------------|
+| 0         | **PASS**       | Health check passed successfully        |
+| 1         | **WARN**       | Health check passed with warnings       |
+| 2         | **FAIL**       | Health check failed                     |
+| Others    |               |                                         |
+| 64        | **EX_USAGE**   | Command line usage error                |
+| 66        | **EX_NOINPUT** | Cannot open input file or setup failure |
+
+### 2. JSON Results File
+
+The `--output-json` parameter creates a detailed JSON file containing:
+
+- **Overall status**: per-configuration check result : pass / warn / fail.
+- **Failed check list**: List of checks that result in `fail`.
+- **Warn check list**: List of checks that result in `warn`.
+- **Performed checks with details**: Complete list of all performed checks, with
+  details including value, threshold, and result.
+- **Unperformed checks**: List of VRS stream statistics that are computed, but
+  not used for threshold checking.
+- See the following for an example output json file:
+```JSON
+{
+    "AriaGen2_Default": {
+        "final_result": "fail",
+        "failed_checks": [
+            "RGB Camera Class #1.time_error"
+        ],
+        "warn_checks": [],
+        "performed_checks_with_details": {
+            "Ambient Light Sensor (ALS) Data Class #1": {
+                "bad": {
+                    "check_type": "LE",
+                    "fail_threshold": 0.0,
+                    "result": "pass",
+                    "value": 0.0
+                },
+                "end_offset_from_file_us": {
+                    "check_type": "LE",
+                    "fail_threshold": 3000000.0,
+                    "result": "pass",
+                    "value": 14221.0,
+                    "warn_threshold": 1500000.0
+                },
+                "non_monotonic": {
+                    "check_type": "LE",
+                    "fail_threshold": 0.0,
+                    "result": "pass",
+                    "value": 0.0
+                },
+                ...
+            },
+            "Barometer Data Class #1": {
+                "bad": {
+                    "check_type": "LE",
+                    "fail_threshold": 0.0,
+                    "result": "pass",
+                    "value": 0.0
+                },
+                ...
+            },
+            ...
+        },
+        "unperformed_checks": {
+            "Ambient Light Sensor (ALS) Data Class #1": {
+                "dropped": 0,
+                "expected": 368,
+                "largest_deviation_from_period_us": 1577,
+                "processed": 372,
+                "time_error": 0
+            },
+            ...
+        }
+    },
+    "AriaGen2_Location": {
+        "final_result": "fail",
+        "failed_checks": [
+            "RGB Camera Class #1.time_error"
+        ],
+        "warn_checks": [],
+        "performed_checks_with_details": {
+            ...
+        },
+        "unperformed_checks": {
+            ...
+        }
+    }
+}
+```
+
+## Troubleshoot {#troubleshoot}
+### `run_vrs_health_check` exists but running the command emits some error
+This is likely due to that you have previously installed `projectaria-tools` (version < 2.0) python package globally, instead installing in a virtual Python environment.
+This leads to that the Python tool with the same name `projectaria_tools` becoming a globally visible binary tool.
+
+
+This can be validated by running:
+```bash
+which run_vrs_health_check
+```
+if you see it pointing to **anywhere other than** `~/$YOUR_NEW_VHC_PYTHON_VENV/bin/run_vrs_health_check`, then this is the culprit.
+
+To resolve, simply upgrade `projectaria-tools` to >= 2.0.0, it will resolve this naming conflict.

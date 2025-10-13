@@ -1,0 +1,132 @@
+---
+sidebar_position: 2
+title: Configurations and Threshold Checks
+---
+# Configuration
+
+`VrsHealthCheck` has an important feature called
+**check configurations**. Each check configuration defines **a collection of
+check criteria and thresholds**.
+This feature allows a single, unified `VrsHealthCheck` binary to handle all
+divergent checks, simply by taking different configurations.
+
+Example configurations:
+
+1. **Default Configuration**: A baseline health check across all VRS streams,
+   focused on data completeness and detecting hardware, firmware, or OS-level
+   failures.
+2. **Algorithm-Specific Configurations**: For each algorithm workflow, such as
+   location, hand tracking, or eye tracking, a distinct set of checks can be
+   created to assess the suitability of the VRS for running the algorithm. For
+   example, the location configuration might impose stricter requirements on
+   SLAM and IMU sensors.
+
+## Listing Available Configurations
+
+To see all available threshold configurations:
+
+```bash
+run_vrs_health_check --list-configurations
+```
+
+Example output:
+
+```
+Available VrsHealthCheck configurations: AriaGen2_Default, AriaGen2_Location, AriaGen1_Default, AriaGen1_Location
+```
+
+## Viewing Configuration Details
+
+To see the detailed checks and thresholds for a specific configuration:
+
+```bash
+run_vrs_health_check --show-configuration-json AriaGen2_Default
+```
+
+This displays the complete JSON structure with all threshold values for that
+configuration.
+
+## Selecting Configuration for Output
+
+To control which configuration's results are reported as the final status, use
+the `--choose-configuration` flag:
+
+```bash
+run_vrs_health_check --path recording.vrs \
+  --output-json results.json \
+  --choose-configuration AriaGen2_Location
+```
+
+**⚠️ Important Note**: The `--choose-configuration` flag **does not** limit
+which configuration's checks are performed. **All available configurations are evaluated** during
+every run and the results are reported in the `output.json` file. This flag
+only controls:
+
+1. **Final Exit Code**: Which configuration's result determines the tool's exit
+   status (PASS/WARN/FAIL)
+2. **Terminal Output**: Which configuration's detailed results are displayed in
+   the console
+
+This design ensures you get comprehensive analysis data for all configurations
+while allowing you to focus on the specific threshold set most relevant to your
+use case.
+
+# Understanding Checks
+
+**Checks** are quality validation rules applied to VRS data streams. Each check
+evaluates a specific metric against predefined thresholds. There are two
+fundamental types of checks: **Numeric Checks** and **Boolean Checks**.
+
+## 1. Numeric Checks
+
+Numeric checks compare measured values (like frame rates, error counts, time
+intervals) against numerical thresholds.
+
+**Supported Check Types:**
+
+- `LE` (Less than or Equal): Pass if `measured_value <= threshold`
+- `LT` (Less than): Pass if `measured_value < threshold`
+- `GE` (Greater than or Equal): Pass if `measured_value >= threshold`
+- `GT` (Greater than): Pass if `measured_value > threshold`
+
+**Structure:**
+
+```json
+{
+  "check_type": "LE|LT|GE|GT",
+  "fail_threshold": <number>,     // Optional: value that triggers FAIL
+  "warn_threshold": <number>      // Optional: value that triggers WARN
+}
+```
+
+**Evaluation Logic:**
+
+1. **PASS**: Value meets all thresholds
+2. **WARN**: Value exceeds warn_threshold but not fail_threshold
+3. **FAIL**: Value exceeds fail_threshold
+
+## 2. Boolean Checks
+
+Boolean checks verify true/false conditions like calibration validity or file
+integrity.
+
+**Supported Check Types:**
+
+- `EQ_TRUE`: Pass if value is `true`
+- `EQ_FALSE`: Pass if value is `false`
+
+**Structure:**
+
+```json
+{
+  "check_type": "EQ_TRUE|EQ_FALSE",
+  "fail_if_mismatch": true|false    // Whether mismatch causes FAIL or WARN
+}
+```
+
+**Evaluation Logic:**
+
+- **PASS**: Value matches expected boolean
+- **FAIL/WARN**: Value doesn't match (severity depends on `fail_if_mismatch`)
+
+---

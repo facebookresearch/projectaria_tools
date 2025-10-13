@@ -1,0 +1,54 @@
+---
+sidebar_position: 2
+title: VRS to MP4 Converter
+---
+
+# VRS to MP4 Converter
+
+The `vrs_to_mp4` tool converts Aria VRS (Video Recording and Sensor) files to standard MP4 video format. This tool extracts camera streams and audio data from VRS files and creates MP4 videos that can be played by standard video players.
+
+:::info `vrs_to_mp4` generates compressed, lossy video!
+Note that the `vrs_to_mp4` tool generates compressed video using both `moviepy` and `FFmpeg`, and we do not have ways to control the exact compression used in the tool.
+Therefore we **strongly recommend [the `VrsDataProvider` APIs](/docs-research-tools/projectariatools/pythontutorials/dataprovider.mdx) in `projectaria-tools`** to fetch images for CV and AI applications.
+:::
+
+## Basic Usage
+
+```bash
+vrs_to_mp4 --vrs input.vrs --output_video output.mp4
+```
+
+## Command Line Options
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `--vrs` | string | Yes | Path to the VRS file to be converted to a video |
+| `--output_video` | string | Yes | Path to the MP4 video file you want to create |
+| `--stream_id` | string | No | Stream ID to convert to video. Options: `214-1` (RGB), `1201-1`, `1201-2`, `1201-3`, `1201-4` (SLAM cameras). Default: `214-1` |
+| `--log_folder` | string | No | Folder to store logs: `mp4_to_vrs_time_map.csv`, `vrs_to_mp4_log.json`, audio files |
+| `--downsample` | integer | No | Downsampling factor for VRS images (must be ≥1). Default: `1` |
+| `--audio_channels` | integer list | No | Audio channel indices to include in the MP4. Default: `[0, 2]` (the 2 mics on the lower frame of the glasses) |
+
+### Stream IDs Explained
+
+- **214-1**: RGB camera stream (default choice)
+- **1201-1, 1201-2, 1201-3, 1201-4**: SLAM camera streams (grayscale)
+
+The RGB stream (214-1) is typically what you want for creating viewable videos, while SLAM streams are useful for computer vision applications.
+
+
+
+## Examples
+
+### Basic RGB Video Conversion
+```bash
+vrs_to_mp4 --vrs recording.vrs --output_video output.mp4
+```
+
+### Select Specific Audio Channels
+```bash
+vrs_to_mp4 \
+  --vrs recording.vrs \
+  --output_video custom_audio.mp4 \
+  --audio_channels 0 1 3
+```

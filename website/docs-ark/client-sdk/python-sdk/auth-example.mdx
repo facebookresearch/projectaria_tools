@@ -1,0 +1,67 @@
+---
+sidebar_position: 1
+title: Example - Authentication
+---
+
+Using aria.sdk_gen2 to authenticate an Aria Gen2 device to the connected PC.
+
+## Run authentication example
+```bash
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_auth.py
+```
+
+## Step-by-step walk through
+1. Import Required Modules
+
+Start by importing the necessary modules:
+
+```python
+import time
+import aria.sdk_gen2 as sdk_gen2
+```
+aria.sdk_gen2 is the SDK for interacting with Aria Gen2 devices.
+
+
+2. Set Up the Device Client
+
+Create an instance of the device client:
+```python
+device_client = sdk_gen2.DeviceClient()
+```
+This object manages the connection and authentication process.
+
+3. Configure the Device Client
+
+Set up the configuration for the device client:
+```python
+config = sdk_gen2.DeviceClientConfig()
+device_client.set_client_config(config)
+```
+You can specify device details (e.g., serial number) in DeviceClientConfig.
+If default config is specified to set_client_config(), it will connect to the first available device connect through USB
+
+4. Initiate Device Authentication
+
+Prompt the user to open the Aria Companion app and accept the pairing request:
+```python
+print("Authenticating device. Please open the Aria app and accept the pairing request")
+device_client.authenticate()
+time.sleep(5)
+```
+The authenticate() method starts the authentication process.
+The script waits 5 seconds to allow the user to respond.
+
+5. Connect to the Device
+
+Attempt to establish a connection:
+```python
+try:
+   device = device_client.connect()
+   print(f"Device authentication successful to device {device.connection_id()}")
+except Exception:
+   print("Failed to authenticate and connect to device")
+   return
+```
+If authentication is successful, you’ll see a success message with the device connection ID.
+
+device = device_client.connect() will return a Device Class which can be used to control the device for more features such as recording, streaming, etc.
