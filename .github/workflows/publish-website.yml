@@ -1,4 +1,4 @@
-name: publish website (gen1_legacy)
+name: publish website
 
 on:
   push:
