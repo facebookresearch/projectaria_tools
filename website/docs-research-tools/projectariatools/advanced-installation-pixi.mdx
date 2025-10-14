@@ -2,4 +2,58 @@
 sidebar_position: 4
 title: Advanced Installation In Pixi
 ---
-To be added.
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Build projectaria_tools in isolation with Pixi
+
+You can build `projectaria_tools` in isolation using pixi on and for your local platform (Linux, macOS Intel/Silicon) using the exact same command lines.
+Pixi is a convenient package and environment manager that simplifies the logic to compile and run projects by defining dependencies and tasks in a single pixi.toml file for all platforms.
+
+:::note
+Aria-Gen2 support is not yet available for Windows users.
+:::
+
+### Step 1: Install Pixi
+
+```bash
+# Install Pixi
+curl -fsSL https://pixi.sh/install.sh | bash
+```
+
+### Step 2: Compile and test the code
+
+<Tabs groupId="language">
+  <TabItem value="cpp" label="C++">
+
+  ```bash
+  # When this command line first run, it will collect required dependencies, and then trigger the build and unit test
+  pixi run run_c
+  ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+  ```bash
+  # When this command line first run, it will collect required dependencies, and then trigger the build and unit test
+  pixi run run_python
+  ```
+
+  </TabItem>
+</Tabs>
+
+### Step 3: Access the compiled artifacts in C++
+
+```bash
+# Activate the environment
+pixi shell
+
+# You can now run and use things from the projects.
+
+# For example, with Python, you can import the projectaria_tools package and use it.
+python
+import projectaria_tools
+dir(projectaria_tools)
+# Will print
+>>>['__builtins__', '__cached__', '__doc__', '__file__', '__loader__', '__name__', '__package__', '__path__', '__spec__', 'core']
+```
