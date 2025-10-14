@@ -10,33 +10,33 @@ Profiles are divided into two categories:
 
 The table below details the specifications of the currently supported pre-defined profiles. New profiles may be added as the platform evolves.
 
-| Feature / Sensor         | profile8                            | profile9                             | profile10                                        |
-|-------------------------|--------------------------------------|--------------------------------------|--------------------------------------------------|
-| **Description**         | General purpose recording profile    | General purpose streaming profile    | Recording profile with RGB 3MP 30Hz              |
-| **IMUs (Hz)**           | 800                                  | 800                                  | 800                                              |
-| **Magnetometer (Hz)**   | 100                                  | 100                                  | 100                                              |
-| **Barometer (Hz)**      | 50                                   | 50                                   | 50                                               |
-| **Audio Sample Rate (Hz)**   | 16K                           | 16K                              | 16K                                         |
-| **Audio Encoding Format** | OPUS                                 | OPUS                                 | OPUS                                             |
-| **Audio Bitrate**       | 256000                               | 256000                               | 256000                                           |
-| **GPS (Hz)**            | 1                                    | :x:                                    | 1                                                |
-| **BLE Period (ms)**     | 30000                                |:x:                                   | 30000                                            |
-| **BLE Duration (ms)**   | 2000                                 |:x:                                   | 2000                                             |
-| **WiFi Period (ms)**    | 30000                                |:x:                                   | 30000                                            |
-| **WiFi Scan Mode**      | ACTIVE                               |:x:                                   | ACTIVE                                           |
-| **SLAM Cameras (Hz)**   | 30                                   | 10                                   | 30                                               |
-| **SLAM Encoding**       | H265 (CQP QP=22)                     | H265 (CBR 900kbps)                   | H265 (CQP QP=22)                                 |
-| **RGB Camera (Hz)**     | 10                                   | 5                                    | 30                                               |
-| **RGB Resolution**      | 2560x1920                            | 2560x1920                            | 2016x1512                                      |
-| **RGB Encoding**        | H265 (CQP QP=22)                     | H265 (CBR 8Mbps), blur filter        | H265 (CQP QP=22)                                 |
-| **ET Cameras (Hz)**     | 5                                    |:x:                                   | 5                                                |
-| **ET Resolution**       | 200x200                              |:x:                                   | 200x200                                          |
-| **ET Encoding**         | H265 (CQP QP=22)                     |:x:                                   | H265 (CQP QP=22)                                 |
-| **ET (Hz)**             | 30                                   | 30                                   | 30                                               |
-| **HT (Hz)**             | 30                                   | 30                                   | 30                                               |
-| **VIO (Hz)**            | 10                                   | 10                                   | 10                                               |
-| **Device Info Period (ms)** | 30000                            | 10000                                | 30000                                            |
-| **PPG (Hz)**            | 128                                  | 128                                  | 128                                              |
-| **Temperature (Hz)**    | 1                                    | 1                                    | 1                                                |
-| **ALS (Hz)**            | 9.434                                | 9.434                                | 10                                               |
-| **ALS Exposure (us)**   | 3200                                 | 3200                                 | 3200                                             |
+| Feature / Sensor         | profile8                            | profile9                             | profile10                                        | mp_streaming_demo                                 |
+|-------------------------|--------------------------------------|--------------------------------------|--------------------------------------------------|---------------------------------------------------|
+| **Description**         | General purpose recording profile    | General purpose streaming profile    | Recording profile with RGB 3MP 30Hz              | Machine perception streaming demo (streaming only) |
+| **IMUs (Hz)**           | 800                                  | 800                                  | 800                                              | 800                                               |
+| **Magnetometer (Hz)**   | 100                                  | 100                                  | 100                                              | :x:                                               |
+| **Barometer (Hz)**      | 50                                   | 50                                   | 50                                               | :x:                                               |
+| **Audio Sample Rate (Hz)**   | 16K                           | 16K                              | 16K                                         | 16K                                               |
+| **Audio Encoding Format** | OPUS                                 | OPUS                                 | OPUS                                             | OPUS                                              |
+| **Audio Bitrate**       | 256000                               | 256000                               | 256000                                           | 256000                                            |
+| **GPS (Hz)**            | 1                                    | :x:                                    | 1                                                | :x:                                               |
+| **BLE Period (ms)**     | 30000                                |:x:                                   | 30000                                            | :x:                                               |
+| **BLE Duration (ms)**   | 2000                                 |:x:                                   | 2000                                             | :x:                                               |
+| **WiFi Period (ms)**    | 30000                                |:x:                                   | 30000                                            | :x:                                               |
+| **WiFi Scan Mode**      | ACTIVE                               |:x:                                   | ACTIVE                                           | :x:                                               |
+| **SLAM Cameras (Hz)**   | 30                                   | 10                                   | 30                                               | 10                                                |
+| **SLAM Encoding**       | H265 (CQP QP=22)                     | H265 (CBR 900kbps)                   | H265 (CQP QP=22)                                 | H265 (CQP QP=30)                                  |
+| **RGB Camera (Hz)**     | 10                                   | 5                                    | 30                                               | 10                                                |
+| **RGB Resolution**      | 2560x1920                            | 2560x1920                            | 2016x1512                                        | 2016x1512                                         |
+| **RGB Encoding**        | H265 (CQP QP=22)                     | H265 (CBR 8Mbps), blur filter        | H265 (CQP QP=22)                                 | H265 (CBR 1.2Mbps), blur filter                   |
+| **ET Cameras (Hz)**     | 5                                    |:x:                                   | 5                                                | 5                                                 |
+| **ET Resolution**       | 200x200                              |:x:                                   | 200x200                                          | 200x200                                           |
+| **ET Encoding**         | H265 (CQP QP=22)                     |:x:                                   | H265 (CQP QP=22)                                 | H265 (CQP QP=30)                                  |
+| **ET (Hz)**             | 30                                   | 30                                   | 30                                               | 30                                                |
+| **HT (Hz)**             | 30                                   | 30                                   | 30                                               | 10                                                |
+| **VIO (Hz)**            | 10                                   | 10                                   | 10                                               | 10                                                |
+| **Device Info Period (ms)** | 30000                            | 10000                                | 30000                                            | 10000                                             |
+| **PPG (Hz)**            | 128                                  | 128                                  | 128                                              | 128                                               |
+| **Temperature (Hz)**    | 1                                    | 1                                    | 1                                                | 1                                                 |
+| **ALS (Hz)**            | 9.434                                | 9.434                                | 10                                               | :x:                                               |
+| **ALS Exposure (us)**   | 3200                                 | 3200                                 | 3200                                             | :x:                                               |
