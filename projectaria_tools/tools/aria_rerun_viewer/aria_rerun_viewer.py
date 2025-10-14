@@ -320,6 +320,7 @@ def main():
 
     # Step 3: Create config
     viewer_config = AriaDataViewerConfig()
+    viewer_config.enable_gps = True
 
     # Step 4: Get configured deliver options
     parsed_subsample_rates = (
