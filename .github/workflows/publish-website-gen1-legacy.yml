@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
-contents: write
+  contents: write
 
 jobs:
   build_docs_job:
