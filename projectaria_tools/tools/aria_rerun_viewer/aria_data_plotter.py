@@ -141,6 +141,8 @@ class AriaDataViewerConfig:
     # Used by rr.Image(...).compress(jpeg_quality=jpeg_quality) to control the trade-off between image quality and storage/bandwidth.
     jpeg_quality = 50
 
+    enable_gps = False
+
 
 class AriaDataViewer:
     """
@@ -245,6 +247,9 @@ class AriaDataViewer:
                 "Warning: device_calibration is None. Cannot create rerun blueprint during initialization."
             )
 
+    def set_viewer_config(self, config: AriaDataViewerConfig):
+        self.config = config
+
     def set_slam_to_rgb_plotting_ratio(self):
         """Calculate and set the scale ratio for converting plot sizes from RGB camera space to SLAM camera space.
 
@@ -317,13 +322,13 @@ class AriaDataViewer:
         )
 
         # Create 2D grid view with SLAM cameras, eye tracking cameras, and GPS
-        blueprint_2d_view = rrb.Grid(
-            contents=[
-                rrb.Spatial2DView(name=label, origin=label)
-                for label in self.sensor_labels.slam_labels
-                + self.sensor_labels.eye_tracking_camera_labels
-            ]
-            + [  # GPS map view
+        contents = [
+            rrb.Spatial2DView(name=label, origin=label)
+            for label in self.sensor_labels.slam_labels
+            + self.sensor_labels.eye_tracking_camera_labels
+        ]
+        if self.config.enable_gps:
+            contents = contents + [  # GPS map view
                 rrb.MapView(
                     name=self.sensor_labels.gps_label,
                     origin=self.sensor_labels.gps_label,
@@ -331,7 +336,7 @@ class AriaDataViewer:
                     background=rrb.MapProvider.OpenStreetMap,
                 )
             ]
-        )
+        blueprint_2d_view = rrb.Grid(contents=contents)
 
         # Create all 1D views (IMU, audio, and tabbed views)
         # IMU 1D view
