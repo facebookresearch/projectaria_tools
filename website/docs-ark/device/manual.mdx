@@ -7,7 +7,37 @@ import ThemedImage from '@theme/ThemedImage';
 
 # Aria Gen 2 Glasses Manual
 
-Aria Gen 2 glasses are equipped with a suite of hardware controls, visual indicators, and audio feedback to help you operate and understand the device’s status. This manual covers all essential features, device states, and operational procedures.
+## Sensors
+
+Aria Gen2 introduces a state-of-the-art sensor suite that expands the range of research applications:
+
+<ThemedImage
+  alt="Docusaurus themed image"
+  sources={{
+    light: useBaseUrl('/img/docs-ark/device/overview-sensor.jpg'),
+    dark: useBaseUrl('/img/docs-ark/device/overview-sensor.jpg'),
+  }}
+/>
+
+- CV Cameras: Four computer vision (CV) cameras  provide a wide field of view and high-dynamic-range (HDR) imaging, enabling robust scene understanding and perception even in challenging lighting conditions.
+- RGB Camera: RGB point-of-view (POV) camera for high-resolution egocentric vision and ML applications
+- Eye Tracking system: Enable precise gaze estimation and user intent modeling.
+- Spatial Microphones: Capture high-fidelity audio for spatial awareness and voice interaction.
+- Contact Microphone (Nosepad): Isolates the wearer’s voice from bystanders, improving voice command reliability in noisy environments.
+- IMU, Barometer, Magnetometer, GNSS: Support accurate localization, motion tracking, and environmental sensing.
+- Ambient Light Sensor (ALS) with UV Channel: Distinguishes between indoor and outdoor lighting, opening new avenues for context-aware research.
+- PPG Sensor (Nosepad): Measures heart rate, supporting physiological and affective computing studies.
+- Multi-device time alignment using SubGHz radio based custom protocols allow for multiple Aria Gen 2 device to align their timebases to 10’s of microseconds accuracy.
+
+These new sensors, especially the ALS with UV channel, contact-mics and the physiological sensors in the nosepad, unlock research opportunities in context-aware computing, health monitoring, and robust multimodal perception.
+
+For details, see the [Hardware Specifications](/technical-specs/device/hardware).
+
+---
+
+## Hardwares
+
+Aria Gen 2 glasses are equipped with a suite of hardware controls, visual indicators, and audio feedback to help you operate and understand the device’s status.
 
 <ThemedImage
   alt="Docusaurus themed image"
@@ -19,7 +49,7 @@ Aria Gen 2 glasses are equipped with a suite of hardware controls, visual indica
 
 ---
 
-## Controls and Hardware Features
+### Controls and Hardware Features
 
 The glasses include several built-in controls:
 
@@ -31,11 +61,11 @@ The glasses include several built-in controls:
 
 ---
 
-## Visual and Audio Indicators
+### Visual and Audio Indicators
 
 Aria Gen 2 uses LEDs and speakers to communicate device status to both the wearer and bystanders.
 
-### LED Indicators
+#### LED Indicators
 
 There are three main LEDs:
 
@@ -43,14 +73,14 @@ There are three main LEDs:
 - **Bystander LED:** Visible to bystanders, indicates when the device is recording or streaming data from sensors.
 - **Power LED:** Located above the power button on the inner right arm, indicates battery and charging status (not visible while wearing).
 
-### Audio Feedback
+#### Audio Feedback
 
 - **Earcons:** Non-verbal sounds (e.g., camera shutter, error beeps) indicate device states.
 - **TTS (Text-to-Speech):** Spoken messages (e.g., “Glasses shutting down”, “Battery ten percent: charge soon”) provide status updates.
 
 ---
 
-## Device States and Indicators
+### Device States and Indicators
 
 The following table summarizes how Aria Gen 2 communicates its various states:
 
@@ -74,7 +104,7 @@ The following table summarizes how Aria Gen 2 communicates its various states:
 
 ---
 
-## Power and Charging
+### Power and Charging
 
 Only use a USB-C cable to charge your glasses. When first plugged in, a red flashing light inside the right arm indicates the battery is $<$5% but charging.
 
@@ -84,9 +114,9 @@ To turn the device off, hold the power button for 3 seconds and release it. The 
 
 ---
 
-## Resetting the Device
+### Resetting the Device
 
-### Force Reset
+#### Force Reset
 
 A force reset immediately reboots your device, preserving all data. Use this if the device is unresponsive.
 
@@ -94,7 +124,7 @@ A force reset immediately reboots your device, preserving all data. Use this if 
 2. Hold both the action and power buttons for 3 seconds.
 3. Wait for the device to reboot.
 
-### Factory Reset
+#### Factory Reset
 
 A factory reset erases all local data, including recordings.
 
@@ -104,9 +134,3 @@ A factory reset erases all local data, including recordings.
 4. The device is now ready to be paired.
 
 > **Warning:** Factory reset will delete all local data.
-
----
-
-## Troubleshooting
-
-If you encounter unexpected behavior, use the rage shake feature from the mobile companion app to request support.
