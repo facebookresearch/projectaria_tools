@@ -1,0 +1,48 @@
+---
+sidebar_position: 1
+title: On-device Machine Perception
+---
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import ThemedImage from '@theme/ThemedImage';
+
+Aria Gen2 device has energy efficient hardware acceleration technology that enables on-device machine perception algorithms to be run with all-day wearability in mind. Machine perception algorithm output can be either recorded onto the device or streamed to a host PC. [Profiles](/technical-specs/device/profile) are used to precisely configure the frequency and types of machine perception algorithm calculations for a variety of research applications.
+
+At the time of the release of Aria Gen 2, the device is able to run visual-inertial odometry (VIO), 21-keypoint hand tracking, and eye gaze estimation. However, there is significant potential to expand what can be computed on-device in the future, such as algorithms for scene understanding, action recognition, human body pose estimation, and more. We will now describe the currently available machine perception algorithms in detail.
+
+<ThemedImage
+  alt="Docusaurus themed image"
+  sources={{
+    light: useBaseUrl('/img/docs-ark/device/on-device-mp.png'),
+    dark: useBaseUrl('/img/docs-ark/device/on-device-mp.png'),
+  }}
+/>
+
+## Visual Inertial Odometry (VIO)
+One of the key features of Aria Gen 2 is its ability to track the glasses in six degrees of freedom (6DOF) within a spatial frame of reference using Visual Inertial Odometry (VIO), by fusing the sensor data from four CV cameras and two IMUs. This allows for seamless navigation and mapping of the environment, opening up new possibilities for research in contextual AI and robotics.
+The VIO output is generated at 10Hz with the following output:
+- 3-DOF position
+- 3-DOF linear velocity
+- 3-DOF orientation in quaternion form
+- 3-DOF angular velocity
+- Estimated direction of gravity for the odometry frame
+
+Additionally, Aria Gen2 also produces high-frequency VIO output (the fields of the output are the same regular VIO) at IMU rate (800Hz), by performing IMU pre-integration on top of the regular 10Hz VIO output. The high-frequency VIO output can be useful for applications where low-latency VIO poses are needed.
+
+## Eye Tracking
+Aria Gen 2 also boasts an advanced camera-based eye tracking system that tracks the wearer’s gaze. The advanced gaze signal enables a deeper understanding of the wearer’s visual attention and intentions, unlocking new possibilities for human-computer interaction. This system generates the following eye tracking outputs for each eye, up to 90Hz:
+- The origin and direction of the individual gaze ray
+- The 3-DOF position of the entrance pupil
+- The diameter of the pupil
+- Whether the eye is blinking
+
+Additionally, the system also produces the following signals for the combined gaze estimated from both eyes, including:
+- The original and direction of the combined gaze ray
+- Vergence depth of the combined gaze
+- Distance between the left/right eye pupils, a.k.a, IPD (Inter Pupillary Distance)
+
+## Hand Tracking
+Aria Gen 2 also features a hand detection and tracking solution that tracks the wearer’s hand in 3D space. This produces articulated hand-joint poses in the device frame of reference, facilitating accurate hand annotations for datasets and enabling applications such as dexterous robot hand manipulation that require high precision.
+The hand tracking pipeline generates the following outputs at 30Hz for each hand (left and right):
+- 3-DOF position of the wrist
+- 3-DOF rotation of the wrist
+- 3-DOF positions of the 21 finger joint landmarks
