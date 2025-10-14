@@ -49,6 +49,25 @@ namespace projectaria::tools::mps {
 void exportMps(py::module& m) {
   // For submodule documentation, see: projectaria_tools/projectaria_tools/core/mps.py
 
+  m.def(
+      "interpolate_hand_tracking_result",
+      [](const HandTrackingResult& handPose1,
+         const HandTrackingResult& handPose2,
+         int64_t targetTimestampUs) {
+        auto result = mps::interpolateHandTrackingResult(
+            handPose1, handPose2, std::chrono::microseconds{targetTimestampUs});
+        return result;
+      },
+      py::arg("hand_pose1"),
+      py::arg("hand_pose2"),
+      py::arg("target_timestamp_ms"),
+      R"docdelimiter(Linear interpolation between two HandTrackingResult objects based on target timestamp.
+       1. A hand (left/right) is only interpolated if both input results have valid data for that
+  hand. If either input is missing a hand, the interpolated result will have nullopt for that hand.
+       2. Returns nullopt if the time difference between input results exceeds 100ms (interpolation
+  is considered unreliable beyond this threshold for landmark positions).
+  )docdelimiter");
+
   // gaze vergence fields
   py::class_<EyeGazeVergence>(m, "EyeGazeVergence")
       .def(py::init<>())
