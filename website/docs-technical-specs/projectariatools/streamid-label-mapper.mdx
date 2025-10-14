@@ -1,0 +1,64 @@
+---
+sidebar_position: 0
+title: Stream ID to Label Mapping
+---
+
+In Aria VRS files, each data stream is uniquely identified by a VRS `StreamId`.
+This page provides the mapping information between all the VRS `StreamId`s, and the corresponding readable sensor labels used in device calibration and `projectaria_tools` APIs.
+
+In VRS, data is organized by streams. Each stream stores the data measured by a specific sensor. The streams are identified by their stream ID. Each stream ID is composed of two parts, a recordable type ID to categorize the type of the sensor and a stream ID for identify the specific sensor instance.
+
+Streams can also be identified by a short label. Labels are used to identify sensors in calibration. If you use projectaria tools loaders, you do not have to memorize this mapping as there is an API that converts between Stream ID and labels.
+
+**Table 1:** *StreamID to label mapping for Aria Gen2*
+<table>
+<thead>
+<tr><th>        <b>Sensor</b>         </th><th>Stream ID  </th><th>Recordable Type ID            </th><th>label           </th></tr>
+</thead>
+<tbody>
+<tr><td>ET camera left   </td><td>211-1      </td><td>EyeCameraRecordableClass      </td><td>camera-et-left  </td></tr>
+<tr><td>ET camera right  </td><td>211-2      </td><td>EyeCameraRecordableClass      </td><td>camera-et-right </td></tr>
+<tr><td>RGB camera       </td><td>214-1      </td><td>RgbCameraRecordableClass      </td><td>camera-rgb      </td></tr>
+<tr><td>All microphones       </td><td>231-1      </td><td>StereoAudioRecordableClass    </td><td>mic             </td></tr>
+<tr><td>Temperature      </td><td>246-1      </td><td>TemperatureRecordableClass    </td><td>temperature     </td></tr>
+<tr><td>Barometer        </td><td>247-1      </td><td>BarometerRecordableClass      </td><td>baro0           </td></tr>
+<tr><td>Photoplethysmography sensor              </td><td>248-1      </td><td>PpgRecordableClass            </td><td>ppg             </td></tr>
+<tr><td>GPS (sensor)              </td><td>281-2      </td><td>GpsRecordableClass            </td><td>gps             </td></tr>
+<tr><td>GPS (from Companion App)         </td><td>281-1      </td><td>GpsRecordableClass            </td><td>gps-app         </td></tr>
+<tr><td>Wi-Fi            </td><td>282-1      </td><td>WifiBeaconRecordableClass     </td><td>wps             </td></tr>
+<tr><td>Bluetooth        </td><td>283-1      </td><td>BluetoothBeaconRecordableClass</td><td>bluetooth       </td></tr>
+<tr><td>Ambient light sensor              </td><td>500-1      </td><td>AlsRecordableClass            </td><td>als             </td></tr>
+<tr><td>SLAM camera front left </td><td>1201-1     </td><td>SlamCameraData                </td><td>slam-front-left </td></tr>
+<tr><td>SLAM camera front right</td><td>1201-2     </td><td>SlamCameraData                </td><td>slam-front-right</td></tr>
+<tr><td>SLAM camera side left  </td><td>1201-3     </td><td>SlamCameraData                </td><td>slam-side-left  </td></tr>
+<tr><td>SLAM camera side right </td><td>1201-4     </td><td>SlamCameraData                </td><td>slam-side-right </td></tr>
+<tr><td>IMU left         </td><td>1202-1     </td><td>SlamImuData                   </td><td>imu-left        </td></tr>
+<tr><td>IMU right        </td><td>1202-2     </td><td>SlamImuData                   </td><td>imu-right       </td></tr>
+<tr><td>Magnetometer     </td><td>1203-1     </td><td>SlamMagnetometerData          </td><td>mag0            </td></tr>
+<tr><td>Eye gaze (on-device MP)         </td><td>373-1      </td><td>EyeGazeRecordableClass        </td><td>eyegaze         </td></tr>
+<tr><td>Hand tracking (on-device MP)    </td><td>371-* (dynamic)      </td><td>PoseRecordableClass           </td><td>handtracking    </td></tr>
+<tr><td>VIO (on-device MP)              </td><td>371-* (dynamic)     </td><td>PoseRecordableClass           </td><td>vio             </td></tr>
+<tr><td>VIO high frequency (on-device MP)</td><td>371-* (dynamic)    </td><td>PoseRecordableClass           </td><td>vio_high_frequency</td></tr>
+</tbody>
+</table>
+
+:::note Dynamic Stream IDs
+The `handtracking`, `vio`, and `vio_high_frequency` streams have dynamic stream IDs that are determined at runtime by querying the VRS file.
+
+**Case 1: If handtracking stream exists**
+
+| VRS Stream ID | Sensor Label |
+|--------------|--------------|
+| `371-1` | `handtracking` |
+| `371-2` | `vio` |
+| `371-3` | `vio_high_frequency` |
+
+**Case 2: If handtracking stream does not exist**
+
+| VRS Stream ID | Sensor Label |
+|--------------|--------------|
+| `371-1` | `vio` |
+| `371-2` | `vio_high_frequency` |
+
+These streams are identified by their RecordableTypeId (`PoseRecordableClass`) and their specific flavor strings: `device/oatmeal/hand`, `device/oatmeal/vio`, and `device/oatmeal/vio_high_frequency`.
+:::
