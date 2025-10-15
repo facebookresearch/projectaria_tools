@@ -869,7 +869,9 @@ class AriaDataViewer:
         rr.set_time_nanos("device_time", gps_data.capture_timestamp_ns)
         # gps_data.provider is a string that can be "APP" or "GPS", indicating data source.
         gps_settings = self.PLOT_COLORS_AND_SIZES_2D[
-            "gps_sensor" if gps_data.provider != "APP" else "gps_app"
+            "gps_app"
+            if (gps_data.provider == "APP" or gps_data.provider == "app")
+            else "gps_sensor"
         ]
 
         rr.log(
