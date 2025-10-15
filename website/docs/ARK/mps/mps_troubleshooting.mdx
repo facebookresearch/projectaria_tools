@@ -10,11 +10,6 @@ This page covers:
 
 * General MPS questions
 * MPS CLI and Aria Studio specific troubleshooting and error codes
-* Desktop app specific troubleshooting and error codes
-
-:::tip
-The MPS CLI and the Desktop Companion app do not use the same error codes.
-:::
 
 ## General MPS questions
 
@@ -87,65 +82,3 @@ Some users have reported that the MPS CLI UI has display issues in Terminal. Usi
 | 115 | Error when checking the processing status of the MPS request. Check error logs for more information. |
 | 116 | Error when downloading the MPS results. Check error logs for more information. |
 | All other error codes | Server side failure. Reach out to support with the error code and log file. |
-
-
-## Desktop Companion app specific issues
-
-:::note
-Linux support for the Desktop app is limited (see [requirements](/ARK/about_ARK.mdx#desktop-companion-app)) and only v36 is available. Please use the [MPS CLI to](/ARK/mps/request_mps/mps_cli.mdx) request Hand Tracking MPS.
-:::
-
-### Requesting support
-
-If you need to contact user support about MPS issues while using the Desktop app we will need, if available:
-
-* Transaction ID of the request
-    * View from Recordings > Tools
-* `summary.json` file
-    * Included in any MPS outputs you download
-
-You may also wish to try requesting services using the MPS CLI, as this will produce more robust logging for us to investigate.
-
-:::important Please don’t send us any raw data
-Raw data is generally not necessary, but if it is, User Support will send you instructions for where to upload it.
-:::
-
-
-### **Can’t upload data to MPS/Upload keeps failing**
-
-If you cannot upload your data to MPS, it could be that your VRS file is timing out during upload. Trying a faster internet connection or reducing your VRS file’s size may help. If you are using the Desktop app, you may also wish to try the [MPS CLI](request_mps/mps_cli.mdx), which enables resumable uploads.
-
-* [MPS CLI](request_mps/mps_cli.mdx)
-* [How to Reduce VRS File Size](/ARK/troubleshooting/reduce_vrs_file_size.mdx)
-
-
-### Desktop app error codes
-
-#### Error uploading file, request too small
-
-This error usually occurs when the app is in a bad state. Restarting the app normally resolves this issue.
-
-
-#### **Unsupported Format**
-
-You may encounter this error message when trying to unzip a downloaded MPS output file, especially large trajectory files. “Unsupported Format” occurs when the zip file has not fully downloaded. Please wait and try again later.
-
-
-#### **Unsupported MPS Profile**
-
-_This recording profile does not support trajectory generation. \
-This recording profile does not support eye gaze generation._
-
-Trajectory and Eye Gaze derived data can only be generated if they have the necessary sensor data. Go to the [Recording Profiles](/tech_spec/recording_profiles.mdx) for information about supported profiles.
-
-
-#### **Recording duration not supported**
-
-_This recording duration is not supported by trajectory generation._
-
-If you encounter this error message, it is because the recording is too long or too short. Recordings need to be longer than 5 seconds and shorter than one hour.
-
-
-#### **Health checks failed (trajectory)**
-
-The health checks for this recording failed. Check the `summary.json` file for further information.

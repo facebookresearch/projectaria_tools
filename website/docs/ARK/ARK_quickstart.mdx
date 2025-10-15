@@ -19,7 +19,7 @@ This page provides a quick overview of what to do once you have received your Pr
 Once you've been approved and can receive your Aria glasses you will get the following emails:
 
 * Welcome to Aria
-    * Contains your account details, use these for signing into the Mobile and Desktop Companion apps
+    * Contains your account details, use these for signing into the Mobile app
 * [Academic Partners only] Join Project Aria Academic Partner Announcements, Feedback & Support
     * Follow the prompts to join Aria's research community space where researchers and engineers at Meta and all our Academic partners can connect, ask questions, share ideas and provide support.
     * See [How to join the Academic Partner Workplace group](workplacegroup.mdx) for further instructions.
@@ -77,7 +77,7 @@ Tap the Paired Glasses info card.
 
 ## Set your Default Recording Profile
 
-You can set the default recording profile via Mobile or Desktop Companion App. Once set, this is the default profile used when recording or streaming data.
+You can set the default recording profile via the mobile app. Once set, this is the default profile used when recording or streaming data.
 
 When you select **New Recording** in the Mobile Companion app, tap Recording profile to view sensor settings or to select a different recording profile. Recording profile options include a custom profile where you can alter which sensors are used and how.
 
@@ -94,17 +94,9 @@ Once you've set up your glasses with the Mobile Companion app, researchers can u
 
 Go to the [Client SDK and CLI section](/docs/ARK/sdk) for how to install the SDK and explore code samples.
 
-## Install the Desktop app (optional)
-
-The Desktop app is an alternative way to request Machine Perception Services or download data. The app provides a visualization of streaming data over Wi-Fi, but it doesn't have the capabilities of the Client SDK and you can't subscribe to the data. Go to the [Desktop app page](desktop_companion_app.mdx) for more information.
-
-Follow the instructions in the [ARK SW Downloads and Updates page](/docs/ARK/ark_downloads) to download and install the app (this is where you'll download updates as well).
-
 ## Record Data
 
 It's best to start and stop recording using the Capture button, Mobile Companion app, the [CLI or SDK](/docs/ARK/sdk).
-
-While you can start and stop recording using the Desktop app, one of the other methods will provide a smoother experience.
 
 ### General recording principles
 * If you start recording with one method, you can stop recording using a different method
@@ -147,7 +139,6 @@ Aria recordings are stored as a VRS file and an accompanying JSON file that incl
 Aria recordings are directly accessible from the glasses' storage. There are three ways you can download data to your local machine using:
 
 * MTP
-* Aria Desktop Companion App
 * ADB commands
 
 We recommend using MTP for a faster download experience.
@@ -175,10 +166,6 @@ MTP is not provided natively on MacOS, but there are lightweight tools that you 
 3. Open OpenMTP
 4. Drag & drop Aria recordings from Aria's internal storage
 
-### Use the Desktop App
-
-Go to the Recordings section in the Desktop app to download your data. See the [Desktop App page](/docs/ARK/desktop_companion_app.mdx) for further information.
-
 ### Use ADB
 
 [Android Debug Bridge](https://developer.android.com/studio/command-line/adb) (adb) is a command line tool that can be used with Aria glasses.
@@ -203,6 +190,4 @@ adb pull /sdcard/recording/myVrsFile.json /home/unixname/MyVRSFolder/
 Install the [Client SDK](/docs/ARK/sdk/sdk.mdx) to stream Aria data.
 
 ### Access basic visualization
-Through the Desktop app, you can view streaming data, however it does not have the capabilities of the Client SDK and you can't subscribe to the data. When streaming data, we recommend only using Profiles 12 and 18, which are optimized for streaming.
-
-Go to the [Desktop app page](/docs/ARK/desktop_companion_app.mdx#streaming) for detailed instructions.
+When streaming data, we recommend only using Profiles 12 and 18, which are optimized for streaming.
