@@ -2,4 +2,111 @@
 sidebar_position: 0
 title: Hardware Specification
 ---
-Hardware Specification
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import ThemedImage from '@theme/ThemedImage';
+
+| Category | Explanation / Capability |
+| ----- | ----- |
+| Sensors | 4 CV cameras, RGB camera, 2 eye tracking cameras, 7 spatial microphones, 2 IMUs, barometer, magnetometer, GNSS, ALS (with UV), PPG, contact microphone. |
+| Speakers | Two force cancelling speakers. |
+| Coprocessor | Features Meta’s custom, energy-efficient coprocessor optimized for low-power, on-device AI workloads. [Meta’s custom coprocessor blog](https://l.facebook.com/l.php?u=https%3A%2F%2Fwww.meta.com%2Fblog%2Forion-custom-silicon-chips-ip-blocks-accelerators-ar-algorithms-energy-efficiency-reality-labs%2F%3Fsrsltid%3DAfmBOoq4Vjv6esHFbv8o37XplbO4gevtB0uAFOTGJ6quMLtZsUgNgj6z&h=AT0mC5DIE66VmaG_IDLh2L8YcT60c50iBoUjBCZjjNWUh29srC6TaPCaxq8Ef_poTsOnu8k6U2raU9YvE18CM8ksbvwygDksfWKjT_xleuGh1jWuNiInUj3vLdRU8EG0UpJdyTPL4XzjicfasZ_XH7oi) |
+| Battery Life | Supports 6–8 hours of continuous recording use with a custom lithium-ion battery. |
+| Multi-device time alignment | Custom radio protocol based on Sub-GHz radio technology for multi-device time alignment. |
+| Connectivity | WiFi6E and BT 5.3 with 2 antenna chains. |
+
+
+## RGB camera
+The Aria Gen 2 features a high-resolution RGB camera with rolling shutter, integrating the Sony IMX681 sensor. This module provides a 133° horizontal and 99° vertical field of view, with a 12 megapixel, 1.0 μm pixel sensor capable of full-resolution (4032 × 3024\) capture at 24 fps. The RGB pipeline supports functions such as binning, downscaling, and cropping, enabling higher frame rates and diverse video formats and output resolutions. A dedicated on-device color ISP is included within the RGB pipeline, offering features like auto-exposure and auto-white balance.
+
+<ThemedImage
+  alt="FOV of RGB cameras"
+  sources={{
+    light: useBaseUrl('/img/docs-technical-specs/hardware/rgb-fov.png'),
+    dark: useBaseUrl('/img/docs-technical-specs/hardware/rgb-fov.png'),
+  }}
+/>
+*Figure: RGB Camera FOV*
+
+## Computer vision (CV) cameras
+Each of the CV cameras provides a field-of-view of 119°x119° and contains a custom-designed \[[ref1](https://ieeexplore.ieee.org/abstract/document/9684032), [ref2](https://imagesensors.org/Past%20Workshops/2023%20Workshop/2023%20Papers/P44.pdf)\], stacked digital pixel sensor with a global shutter. This sensor features 4.6 µm pixels in a 512 × 512 array and employs an overlapped triple quantization scheme to enable single-frame, single-exposure high dynamic range (HDR) imaging, with dynamic range capability exceeding 110 dB. Monochrome image data from each sensor is processed by a dedicated image signal processor (ISP), which performs noise reduction—including fixed pattern and defective pixel correction—and implements a tuneable HDR tonemapping scheme to map the high dynamic range output to standard 8-bit formats. The front-facing CV cameras form a stereo pair with significant overlap that enables off-device depth reconstruction of the scene.
+
+<ThemedImage
+  alt="FOV of CV cameras"
+  sources={{
+    light: useBaseUrl('/img/docs-technical-specs/hardware/cv-fov.png'),
+    dark: useBaseUrl('/img/docs-technical-specs/hardware/cv-fov.png'),
+  }}
+/>
+*Fig: FOV of the CV cameras on Aria Gen 2*
+
+<ThemedImage
+  alt="Dynamic range of CV cameras"
+  sources={{
+    light: useBaseUrl('/img/docs-technical-specs/hardware/dynamic-range.png'),
+    dark: useBaseUrl('/img/docs-technical-specs/hardware/dynamic-range.png'),
+  }}
+/>
+*Fig: Comparison of the dynamic range of the CV camera and RGB camera to showcase the HDR capability of the CV camera*
+
+
+## Spatial microphones
+The audio capture capabilities support 7 acoustic microphones at sampling rate of up to 48 KHz for each individual microphone. This high sampling rate ensures detailed and accurate audio recording, capable of capturing a broad spectrum of sounds with exceptional fidelity.
+
+## Contact microphone
+The Aria Gen 2 device incorporates a high-fidelity contact microphone, the Knowles V2S200D, embedded within the glasses' nosepad. This placement is critical for optimal audio capture, minimizing external noise interference and maximizing the clarity of the user's voice. The microphone samples audio at up to 48 KHz, enabling clear capture of the wearer's voice even in noisy, windy conditions.
+
+<ThemedImage
+  alt="Contact microphone in wind"
+  sources={{
+    light: useBaseUrl('/img/docs-technical-specs/hardware/contact-mic.png'),
+    dark: useBaseUrl('/img/docs-technical-specs/hardware/contact-mic.png'),
+  }}
+/>
+*Figure demonstrates the amplitude of wearer speech in a wind tunnel test. The top image, from a contact microphone, clearly shows the wearer's voice waveform isolated and ambient wind noise suppressed. In contrast, the corresponding response from the acoustic microphone, shown in the bottom image, indicates that it picks up the ambient noise.*
+
+## Eye tracking system
+The eye tracking system for each eye consists of a 400x400 pixel resolution infrared (IR) camera and 8 IR LEDs. The data from these cameras is processed on-device, yielding real-time, high quality gaze estimations at up to 90 Hz framerate. Alternatively, the data from the eye tracking cameras can be recorded and processed off-device.
+
+## PPG
+A photoplethysmography (PPG) sensor is integrated into the nosepad of the spectacles and enables recording the wearer’s heart rate. The PPG sampling rate is typically 128 Hz, with a maximum of 512 Hz.
+
+## Inertial measurement units (IMUs)
+Aria Gen 2 features dual 6-axis gyroscopes and accelerometers with a maximum sampling rate of 1600 Hz and a typical sampling rate of 800 Hz. The data is consumed by the on-device VIO system and can also be recorded.
+
+## Barometer
+The barometer on Aria Gen 2 is a low noise sensor for atmospheric pressure with a maximum sampling rate of 240 Hz max and a typical sampling rate of 100 Hz.
+
+## Magnetometer
+The magnetometer on Aria Gen 2 is an ultra-low noise sensor with a maximum sampling rate of 400 Hz and a typical sampling rate of 100 Hz.
+
+## Proximity Sensors
+A proximity sensor detects when the glasses are worn. This sensor uses a threshold-crossing interrupt mechanism to communicate with the integrated computing system.
+
+## GNSS
+Global Navigation Satellite System (GNSS) support across bands such as L1, L1 \+ L5, E1, and E1 \+ E5. The device supports  L1 \+ L5 (GPS) and E1 \+ E5 (Galileo) dual-frequency signals, which significantly improve acquisition speeds and positioning precision.
+
+## Ambient Light Sensor (ALS)
+The VD6281 sensor provides correlated color temperature (CCT) and lux measurements. It features 5 channels (red, green, blue, IR, UVA), with an additional clear channel for flicker detection. We provide an example of ALS data below, captured during a recording as the wearer moves through an office environment and onto an outdoor balcony. The data highlights three frames, demonstrating that the UV and IR channels of the ALS sensor exhibit distinct changes when transitioning to outdoor environments. These signals can be leveraged for classification of indoor/outdoor environments. We provide an example of ALS data below, captured during a recording as the wearer moves from an indoor office environment and onto an outdoor balcony. The data highlights three frames, demonstrating that the UV and IR channels of the ALS sensor exhibit distinct changes when transitioning to outdoor environments and can be used for classification of indoor/outdoor environments.
+
+<ThemedImage
+  alt="Ambient Light Sensor"
+  sources={{
+    light: useBaseUrl('/img/docs-technical-specs/hardware/als.png'),
+    dark: useBaseUrl('/img/docs-technical-specs/hardware/als.png'),
+  }}
+/>
+
+## On-device hardware accelerators
+The device’s coprocessor supports on-device compression for image/video using H265 HEVC and audio data using OPUS encoders. It also features hardware-accelerated support for machine perception, including 3D articulated hand tracking, eye-tracking with gaze per eye output, and advanced signals such as pupil diameter and blink detection, as well as 6DoF localization.
+
+## Multi-device time alignment
+A SubGHz radio facilitates the transmission of device timestamps between devices. One broadcaster device transmits its time, while other devices receive this broadcast and subsequently compute time alignment (difference) between the broadcaster and receiver. (Note that this does not synchronize the devices.) This approach circumvents the need for round-trip communication typically associated with TicSync. The system operates under the assumption of negligible time-of-flight within its 30m indoor and 100m outdoor operating ranges. The measured time offset error has been observed to be less than 10 μs. Methodologies for integrating Aria Gen2's time alignment capabilities with other systems may be made available in the future.
+
+<ThemedImage
+  alt="Ambient Light Sensor"
+  sources={{
+    light: useBaseUrl('/img/docs-technical-specs/hardware/time-alignment.png'),
+    dark: useBaseUrl('/img/docs-technical-specs/hardware/time-alignment.png'),
+  }}
+/>
+*Fig: The figure illustrates a pair of Aria Gen2 devices observing a common timing panel and the level of alignment in the camera frames from the two devices Top: The test setup consists of two Aria Gen 2 devices co-observing a timing board. Both Aria Gen 2 devices are time-aligned using a SubGHz radio. Bottom: These images were captured from the front left CV camera on each device. Based on the timing board content as observed on each camera, the real-world timing difference between the two images (and therefore the trigger times of their respective CV cameras) is 57.325 ms. The timing inaccuracy between the two time-aligned devices as reported by the timestamps is measured to be 2.18 μs, with a measurement precision of ±5 μs.*
