@@ -3,6 +3,9 @@ sidebar_position: 0
 title: Visualization Tools (Python)
 ---
 
+import ThemedImage from '@theme/ThemedImage';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
 # Python Visualization Tools
 
 This page covers the Python-based visualization tools available in Project Aria Tools. These tools provide powerful ways to visualize and analyze Aria data using the Rerun visualization framework.
@@ -10,6 +13,14 @@ This page covers the Python-based visualization tools available in Project Aria 
 ## aria_rerun_viewer
 
 The `aria_rerun_viewer` is a Python tool that visualizes Aria VRS (Video Recording and Sensor) files using the Rerun visualization framework. It supports both Aria Gen1 and Gen2 devices and can display multiple sensor streams including cameras, IMU, audio, eye gaze, hand tracking, and more.
+
+<ThemedImage
+  alt="Docusaurus themed image"
+  sources={{
+    light: useBaseUrl('/img/docs-research-tools/projectariatools/aria_rerun_viewer.png'),
+    dark: useBaseUrl('/img/docs-research-tools/projectariatools/aria_rerun_viewer.png'),
+  }}
+/>
 
 ### Basic Usage
 
@@ -83,6 +94,14 @@ The viewer displays data in an interactive 3D environment using Rerun:
 ## viewer_mps
 
 The `viewer_mps` tool visualizes Aria data along with Machine Perception Services (MPS) outputs like SLAM trajectories, point clouds, eye gaze, and hand tracking results.
+
+<ThemedImage
+  alt="Docusaurus themed image"
+  sources={{
+    light: useBaseUrl('/img/docs-research-tools/projectariatools/mps_viewer.png'),
+    dark: useBaseUrl('/img/docs-research-tools/projectariatools/mps_viewer.png'),
+  }}
+/>
 
 ### Basic Usage
 
