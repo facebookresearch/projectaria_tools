@@ -5,7 +5,7 @@ title: Timestamp Alignment in Aria Gen2
 
 import TutorialButtons from '@site/src/components/TutorialButtons';
 
-# Tutorial 6: Single and Multi Device Timestamp Alignment in Aria Gen2
+# Tutorial 6: Device Time Alignment in Aria Gen2
 
 <TutorialButtons
   notebookUrl="https://github.com/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_6_timestamp_alignment_in_aria_gen2.ipynb"
@@ -293,58 +293,3 @@ for sensor_data in host_data_provider.deliver_queued_sensor_data(host_deliver_op
 
 rr.notebook_show()
 ```
-
-## Understanding Multi-Device Time Alignment
-
-### SubGHz Time Synchronization
-
-Aria Gen2 uses SubGHz signals for multi-device time synchronization:
-
-1. **Host Device**: Broadcasts SubGHz signals containing timing information
-2. **Client Devices**: Receive SubGHz signals and create time domain mappings
-3. **Time Domain Mapping**: Stored only in client VRS files, maps host device time to client device time
-
-### Key Concepts
-
-- **Host VRS**: Contains data only in `DEVICE_TIME` domain
-- **Client VRS**: Contains both `DEVICE_TIME` and `SUBGHZ` domain mappings
-- **Time Conversion**: Use converter APIs to translate timestamps between devices
-- **Query APIs**: Use `TimeDomain.SUBGHZ` to query client data using host timestamps
-
-### Best Practices
-
-1. **Always use DEVICE_TIME for single-device analysis**
-2. **Use SUBGHZ domain only for multi-device synchronization**
-3. **Check timestamp conversion accuracy** by performing round-trip conversions
-4. **Handle temporal misalignment** between host and client devices appropriately
-5. **Account for camera timing differences** - RGB cameras are not trigger-aligned
-
-## Temporal Alignment Use Cases
-
-### Single-Device Applications
-- **Sensor Fusion**: Combine data from multiple sensors at specific timestamps
-- **Event Analysis**: Analyze synchronized multi-modal data around events
-- **Temporal Interpolation**: Create smooth temporal sequences across sensors
-
-### Multi-Device Applications
-- **Multi-person Studies**: Analyze interactions between multiple Aria users
-- **Spatial Analysis**: Study spatial relationships using multiple viewpoints
-- **Collaborative Tasks**: Analyze coordinated activities across multiple users
-- **Social Interactions**: Study face-to-face interactions with synchronized data
-
-## Summary
-
-This tutorial covered essential time synchronization concepts for Aria Gen2:
-
-- **Single-Device Alignment**: Use `DEVICE_TIME` for accurate temporal alignment within one device
-- **Timestamp Query APIs**: Leverage `get_<SENSOR>_data_by_time_ns()` for precise data retrieval
-- **TimeQueryOptions**: Understand BEFORE, AFTER, and CLOSEST query behaviors
-- **Multi-Device Synchronization**: Use SubGHz signals to align data across multiple devices
-- **Converter APIs**: Transform timestamps between different time domains
-- **Query APIs**: Access multi-device data using synchronized timestamps
-
-Proper time synchronization is crucial for:
-- **Multi-sensor data fusion** requiring precise temporal alignment
-- **Multi-device studies** analyzing interactions between multiple users
-- **Event-based analysis** needing synchronized multi-modal data
-- **Real-time applications** requiring accurate temporal coordination

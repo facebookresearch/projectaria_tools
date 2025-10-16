@@ -80,14 +80,12 @@ else:
 
 ## Sensor Data Query APIs
 
-### 1. Query by index
+1. ### Query by index
 
 The query-by-index API allows you to retrieve the k-th data sample from a specific stream using the following syntax:
-
 ```python
 get_<SENSOR>_data_by_index(stream_id, index)
 ```
-
 where `<SENSOR>` can be replaced by any sensor data type available in Aria VRS. See here for [a full list of supported sensor types](https://github.com/facebookresearch/projectaria_tools/blob/main/core/data_provider/VrsDataProvider.h#L377)
 
 This API is commonly used for sequential processing—such as iterating through all frames of a single stream—or when you know the exact frame number you want to query within a specific stream.
@@ -124,8 +122,7 @@ for i in range(first_few):  # First 10 frames
 
 ```
 
-### 2. Query by Timestamp: TimeDomain and TimeQueryOptions
-
+2. ### Query by Timestamp: TimeDomain and TimeQueryOptions
 A key feature of Aria devices is the ability to capture time-synchronized, multi-modal sensor data. To help you access this data with precise temporal control, `projectaria_tools` provides a comprehensive suite of time-based APIs.
 
 The most commonly used is the **timestamp-based query**:
@@ -133,7 +130,6 @@ The most commonly used is the **timestamp-based query**:
 ```python
 get_<SENSOR>_by_time_ns(stream_id, time_ns, time_domain=None, time_query_options=None)
 ```
-
 where `<SENSOR>` can be replaced by any sensor data type available in Aria VRS. See here for [a full list of supported sensor types](https://github.com/facebookresearch/projectaria_tools/blob/main/core/data_provider/VrsDataProvider.h#L377)
 
 This API is often used to synchronize data across multiple sensor streams, fetch sensor data at specific timestamps, or perform temporal analysis.

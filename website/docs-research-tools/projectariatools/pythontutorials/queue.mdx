@@ -5,7 +5,7 @@ title: Access Multi-Sensor Data Sequentially
 
 import TutorialButtons from '@site/src/components/TutorialButtons';
 
-# Tutorial 3: Access Multi-Sensor Data Sequentially
+# Tutorial 3: Sequential Accessing Multi-sensor Data
 
 <TutorialButtons
   notebookUrl="https://github.com/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_3_sequential_access_multi_sensor_data.ipynb"
@@ -152,9 +152,9 @@ print("\n=== Customizing Data Access with DeliverQueuedOptions ===")
 
 customized_deliver_options = vrs_data_provider.get_default_deliver_queued_options()
 
-# --
+# -----------------
 # 1. Stream selection feature - only select RGB, 1 SLAM camera, and 1 ET camera data.
-# --
+# -----------------
 rgb_to_select = vrs_data_provider.get_stream_id_from_label("camera-rgb")
 slam_to_select = vrs_data_provider.get_stream_id_from_label("slam-front-right")
 et_to_select = vrs_data_provider.get_stream_id_from_label("camera-et-right")
@@ -164,9 +164,9 @@ customized_deliver_options.deactivate_stream_all()
 for selected_stream_id in [rgb_to_select,slam_to_select,et_to_select]:
     customized_deliver_options.activate_stream(selected_stream_id)
 
-# --
+# -----------------
 # 2. Time windowing feature - Skip first 2 seconds, and play for 3 seconds, if possible
-# --
+# -----------------
 total_length_ns = vrs_data_provider.get_last_time_ns_all_streams(TimeDomain.DEVICE_TIME) - vrs_data_provider.get_first_time_ns_all_streams(TimeDomain.DEVICE_TIME)
 skip_begin_ns = int(2 * 1e9) # 2 seconds
 duration_ns = int(3 * 1e9) # 3 seconds
@@ -174,15 +174,15 @@ skip_end_ns = max(total_length_ns - skip_begin_ns - duration_ns, 0)
 customized_deliver_options.set_truncate_first_device_time_ns(skip_begin_ns)
 customized_deliver_options.set_truncate_last_device_time_ns(skip_end_ns)
 
-# --
+# -----------------
 # 3. Per-stream sub-sampling feature - subsample slam camera at rate of 3
-# --
+# -----------------
 slam_subsample_rate = 3
 customized_deliver_options.set_subsample_rate(stream_id = slam_to_select, rate = slam_subsample_rate)
 
-# --
+# -----------------
 # 4. Deliver customized data queue, and visualize
-# --
+# -----------------
 print(f"Start visualizing customized sensor data queue")
 
 rr.init("rerun_viz_customized_sensor_data_queue")
@@ -200,20 +200,3 @@ for sensor_data in vrs_data_provider.deliver_queued_sensor_data(customized_deliv
     rr.log(stream_label, rr.Image(image_data_and_record[0].to_numpy_array()))
 
 ```
-
-## Summary
-
-This tutorial demonstrated how to efficiently access multi-sensor data from Aria VRS files using the queued API:
-
-- **Sequential Access**: Use `deliver_queued_sensor_data()` to iterate through all sensor data in timestamp order
-- **Unified Interface**: Handle different sensor types consistently using the `SensorData` interface
-- **Customization**: Control data access with stream selection, time windowing, and subsampling options
-- **Processing Efficiency**: Focus on specific sensors, time ranges, or reduce data rates as needed
-
-The queued API is particularly powerful for:
-- **Multi-sensor fusion** algorithms that need synchronized data
-- **Streaming processing** of large VRS files
-- **Selective analysis** of specific sensors or time periods
-- **Memory-efficient** processing by controlling data rates
-
-Next, you can explore sensor-specific tutorials to learn about working with specific data types like eye tracking, VIO, or MPS data.

@@ -40,44 +40,99 @@ vrs_data_provider = data_provider.create_vrs_data_provider(vrs_file_path)
 device_calib = vrs_data_provider.get_device_calibration()
 ```
 
-## Accessing Eye-tracking Data
-
-### Basic Eye-tracking Data Access
-
-Eye-tracking data provides gaze direction information from the Aria glasses.
-
 ```python
-# Query EyeGaze stream
-eyegaze_stream_id = vrs_data_provider.get_stream_id_from_label("eyegaze")
-
+# Query EyeGaze data streams
+eyegaze_label = "eyegaze"
+eyegaze_stream_id = vrs_data_provider.get_stream_id_from_label(eyegaze_label)
 if eyegaze_stream_id is None:
-    print("This VRS file does not contain on-device eye-tracking data.")
-else:
-    print(f"Found eye-tracking stream: {eyegaze_stream_id}")
+    raise RuntimeError(
+        f"{eyegaze_label} data stream does not exist! Please use a VRS that contains valid eyegaze data for this tutorial."
+    )
 
-    # Get total number of eye-tracking samples
-    num_eyegaze_samples = vrs_data_provider.get_num_data(eyegaze_stream_id)
-    print(f"Total eye-tracking samples: {num_eyegaze_samples}")
-
-    # Access a few eye-tracking data samples
-    print("\nFirst few eye-tracking samples:")
-    for i in range(min(5, num_eyegaze_samples)):
-        eyegaze_data = vrs_data_provider.get_eyegaze_data_by_index(eyegaze_stream_id, i)
-
-        print(f"Sample {i}:")
-        print(f"\tTimestamp: {eyegaze_data.tracking_timestamp}")
-        print(f"\tConfidence: {eyegaze_data.session_uid}")
-        print(f"\tYaw: {eyegaze_data.yaw} rad")
-        print(f"\tPitch: {eyegaze_data.pitch} rad")
+# Query HandTracking data streams
+handtracking_label = "handtracking"
+handtracking_stream_id = vrs_data_provider.get_stream_id_from_label(handtracking_label)
+if handtracking_stream_id is None:
+    raise RuntimeError(
+        f"{handtracking_label} data stream does not exist! Please use a VRS that contains valid handtracking data for this tutorial."
+    )
 ```
 
-### Eye-tracking Data Structure
+## On-Device Eye-tracking results
 
-Eye-tracking data contains the following key information:
+### EyeGaze Data Structure
 
-- **Tracking Timestamp**: When the eye-tracking measurement was taken
-- **Yaw and Pitch**: Gaze direction in spherical coordinates
-- **Session UID**: Unique identifier for the eye-tracking session
+The EyeGaze data type represents on-device eye tracking results.
+**Importantly, it directly reuses [the EyeGaze data structure](https://github.com/facebookresearch/projectaria_tools/blob/main/core/mps/EyeGaze.h)
+ from MPS (Machine Perception Services)**, providing guaranteed compatibility across VRS and MPS.
+
+**Key `EyeGaze` fields**
+
+| Field Name                    |  Description                                                             |
+| :---------------------------- | :---------------------------------------------------------------------- |
+| `session_uid`                 |  Unique ID for the eyetracking session                                   |
+| `tracking_timestamp`          |  Timestamp of the eye tracking camera frame in device time domain, in us.       |
+| `yaw`                         |  Gaze direction in yaw (horizontal) in radians                          |
+| `pitch`                       |  Gaze direction in pitch (vertical) in radians                          |
+| `depth`                       |  Estimated gaze depth distance, in meters                               |
+| `combined_gaze_origin_in_cpf` | Combined gaze origin in CPF frame (Gen2 only)                           |
+| `spatial_gaze_point_in_cpf`   | 3D spatial gaze point in CPF frame                                      |
+| `vergence.[left,right]_entrance_pupil_position_meter`   |  Entrance pupil positions for each eye                                      |
+| `vergence.[left,right]_pupil_diameter_meter`   |  Entrance pupil diameter for each eye                                      |
+| `vergence.[left,right]_blink`   | Blink detection for left and right eyes                                      |
+| `*_valid`    | Boolean flags to indicating if the corresponding data field in EyeGaze is valid                          |
+
+### EyeGaze API Reference
+
+In `vrs_data_provider`, EyeGaze is treated the same way as any other sensor data, and share similar query APIs covered in `Tutorial_1_vrs_data_provider_basics`:
+- `vrs_data_provider.get_eye_gaze_data_by_index(stream_id, index)`: Query by index.
+- `vrs_data_provider.get_eye_gaze_data_by_time_ns(stream_id, timestamp, time_domain, query_options)`: Query by timestamp.
+
+```python
+from projectaria_tools.core.mps import get_unit_vector_from_yaw_pitch
+from datetime import timedelta
+
+print("=== EyeGaze Data Sample ===")
+num_eyegaze_samples = vrs_data_provider.get_num_data(eyegaze_stream_id)
+selected_index = min(5, num_eyegaze_samples)
+print(f"Sample {selected_index}:")
+
+eyegaze_data = vrs_data_provider.get_eye_gaze_data_by_index(eyegaze_stream_id, selected_index)
+
+# Eyegaze timestamp is in format of datetime.deltatime in microseconds, convert it to integer
+eyegaze_timestamp_ns = (eyegaze_data.tracking_timestamp // timedelta(microseconds=1)) * 1000
+print(f"\tTracking timestamp: {eyegaze_timestamp_ns}")
+
+# check if combined gaze is valid, if so, print out the gaze direction
+print(f"\tCombined gaze valid: {eyegaze_data.combined_gaze_valid}")
+if eyegaze_data.combined_gaze_valid:
+    print(f"\tYaw: {eyegaze_data.yaw:.3f} rad")
+    print(f"\tPitch: {eyegaze_data.pitch:.3f} rad")
+    print(f"\tDepth: {eyegaze_data.depth:.3f} m")
+    # Can also print gaze direction in unit vector
+    gaze_direction_in_unit_vec = get_unit_vector_from_yaw_pitch(eyegaze_data.yaw, eyegaze_data.pitch)
+    print(f"\tGaze direction in unit vec [xyz]: {gaze_direction_in_unit_vec}")
+
+# Check if spatial gaze point is valid, if so, print out the spatial gaze point
+print(
+    f"\tSpatial gaze point valid: {eyegaze_data.spatial_gaze_point_valid}"
+)
+if eyegaze_data.spatial_gaze_point_valid:
+    print(
+        f"\tSpatial gaze point in CPF: {eyegaze_data.spatial_gaze_point_in_cpf}"
+    )
+```
+
+### EyeGaze visualization in camera images
+
+To visualize EyeGaze in camera images, you just need to project eye tracking results into the camera images using the camera's calibration. But please note the coordinate frame difference, entailed below.
+
+**EyeGaze Coordinate System - Central Pupil Frame (CPF)**
+
+All Eyetracking results in Aria are stored in a reference coordinates system called **Central Pupil Frame (`CPF`)**, which is approximately the center of user's two eye positions. Note that this **`CPF` frame is DIFFERENT from the `Device` frame in device calibration**, where the latter is essentially the `slam-front-left` (for Gen2) or `camera-slam-left` (for Gen1) camera. To transform between `CPF` and `Device`, we provide the following API to query their relative pose, and see the following code cell for usage:
+```
+device_calibration.get_transform_device_cpf()
+```
 
 ### Visualizing Eye-tracking Data
 

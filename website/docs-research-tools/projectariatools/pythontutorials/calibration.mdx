@@ -5,7 +5,7 @@ title: Using Device Calibration Data from VRS
 
 import TutorialButtons from '@site/src/components/TutorialButtons';
 
-# Tutorial 2: Using Device Calibration Data from VRS
+# Tutorial 2: Device calibration
 
 <TutorialButtons
   notebookUrl="https://github.com/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_2_device_calibration.ipynb"
@@ -14,25 +14,17 @@ import TutorialButtons from '@site/src/components/TutorialButtons';
 
 ## Introduction
 
-This tutorial provides essential guidance on leveraging device calibration data in Aria. Device calibration contains crucial metadata needed for:
+Most sensors in Aria glasses are calibrated both extrinsically and intrinsically, allowing you to rectify sensor measurements to real-world quantities. Calibration is performed per device, and the information is stored in the VRS file. This tutorial demonstrates how to work with device calibration in Project Aria using `projectaria_tools`.
 
-- **Camera Operations**: Projecting 3D world points to 2D image coordinates and vice versa
-- **IMU Data Processing**: Rectifying raw sensor measurements to obtain accurate acceleration and angular velocity
-- **Multi-Sensor Coordination**: Transforming data between different sensor coordinate systems
-- **Spatial Understanding**: Comprehending the device geometry and sensor relationships
+### What You'll Learn
 
-**What you'll learn:**
+- How to obtain each sensor's calibration data
+- Camera calibration: projection and unprojection, and how to post-process images according to calibration (distort).
+- IMU calibration: measurement rectification.
+- Multi-sensor coordination and sensor poses, and the concept of the "Device" frame.
 
-- How to access device calibration content for cameras and IMUs
-- Camera projection/unprojection operations for 3D-2D coordinate transformations
-- IMU measurement rectification to compensate for sensor biases and scaling
-- Sensor extrinsics for multi-sensor data alignment
-- Understanding the "Device" reference frame concept in Aria
-
-**Prerequisites:**
-- Complete Tutorial 1 (VrsDataProvider Basics) to understand basic data provider concepts
-
-## Device Calibration Fundamentals
+**Pre-requisite:**
+Familiarity with VRS basics from `Tutorial_1_vrs_Data_provider_basics.ipynb`.
 
 ### Obtaining Device Calibration Content
 
@@ -41,121 +33,203 @@ Each VRS file's device calibration can be accessed as a `DeviceCalibration` inst
 ```python
 from projectaria_tools.core import data_provider
 
-# Load VRS file and access device calibration
+# Load local VRS file
 vrs_file_path = "path/to/your/recording.vrs"
 vrs_data_provider = data_provider.create_vrs_data_provider(vrs_file_path)
 
-# Access device calibration
+# Obtain device calibration
 device_calib = vrs_data_provider.get_device_calibration()
+if device_calib is None:
+    raise RuntimeError(
+        "device calibration does not exist! Please use a VRS that contains valid device calibration for this tutorial. "
+    )
+
+# You can obtain device version (Aria Gen1 vs Gen2), or device subtype (DVT with small/large frame width + short/long temple arms, etc) information from calibration
+if device_calib is not None:
+    device_version = device_calib.get_device_version()
+    device_subtype = device_calib.get_device_subtype()
+    print(f"Aria Device Version: {device_version}")
+    print(f"Device Subtype: {device_subtype}")
 ```
 
-### Querying Available Sensor Labels
+### Accessing Individual Sensor Calibration
 
-Device calibration contains information for all sensors present in the recording.
+`DeviceCalibration` provides APIs to query the intrinsics and extrinsics of each calibrated sensor.
 
-```python
-# Get labels of all sensors
-all_sensor_labels = device_calib.get_all_labels()
-print(f"All sensor labels: {all_sensor_labels}")
-
-# Get labels of cameras specifically
-camera_labels = device_calib.get_camera_labels()
-print(f"Camera labels: {camera_labels}")
-
-# Get labels of IMUs specifically
-imu_labels = device_calib.get_imu_labels()
-print(f"IMU labels: {imu_labels}")
-```
-
-## Camera Calibration
-
-### Camera Intrinsics and Distortion Model
-
-Aria Gen2 devices use the **Kannala-Brandt (KB4)** fisheye camera model to handle the wide field-of-view cameras.
+#### 1. Camera calibration content
 
 ```python
-# Access camera calibration for RGB camera
+# Get sensor labels within device calibration
+all_labels = device_calib.get_all_labels()
+print(f"All sensors within device calibration: {all_labels}")
+print(f"Cameras: {device_calib.get_camera_labels()}")
+
+# Query a specific camera's calibration
 rgb_camera_label = "camera-rgb"
 camera_calib = device_calib.get_camera_calib(rgb_camera_label)
 
 if camera_calib is None:
-    raise RuntimeError(f"Camera calibration for {rgb_camera_label} is not available!")
+    raise RuntimeError(
+        "camera-rgb calibration does not exist! Please use a VRS that contains valid RGB camera calibration for this tutorial. "
+    )
 
-# Query camera intrinsics
-focal_lengths = camera_calib.get_focal_lengths()
-principal_point = camera_calib.get_principal_point()
-image_size = camera_calib.get_image_size()
+print(f"-------------- camera calibration for {rgb_camera_label} ----------------")
+print(f"Image Size: {camera_calib.get_image_size()}")
+print(f"Camera Model Type: {camera_calib.get_model_name()}")
+print(
+    f"Camera Intrinsics Params: {camera_calib.get_projection_params()}, \n"
+    f"where focal is {camera_calib.get_focal_lengths()}, "
+    f"and principal point is {camera_calib.get_principal_point()}\n"
+)
 
-print(f"Focal lengths: {focal_lengths}")
-print(f"Principal point: {principal_point}")
-print(f"Image size: {image_size}")
-
-# Access distortion parameters
-distortion_coeffs = camera_calib.get_distortion_coeffs()
-print(f"Distortion coefficients: {distortion_coeffs}")
+# Get extrinsics (device to camera transformation)
+T_device_camera = camera_calib.get_transform_device_camera()
+print(f"Camera Extrinsics T_Device_Camera:\n{T_device_camera.to_matrix()}")
 ```
 
-### Camera Projection and Unprojection
+#### 2. IMU calibration content
 
-The camera calibration enables transformations between 3D world coordinates and 2D image coordinates.
+```python
+imu_label = "imu-right"
+imu_calib = device_calib.get_imu_calib(imu_label)
 
-#### Project 3D to 2D
+if imu_calib is None:
+    raise RuntimeError(
+        "imu-right calibration does not exist! Please use a VRS that contains valid IMU calibration for this tutorial. "
+    )
+
+print(f"-------------- IMU calibration for {imu_label} ----------------")
+
+# Get IMU intrinsics parameters
+accel_bias = imu_calib.get_accel_model().get_bias()
+accel_rectification_matrix = imu_calib.get_accel_model().get_rectification()
+gyro_bias = imu_calib.get_gyro_model().get_bias()
+gyro_rectification_matrix = imu_calib.get_gyro_model().get_rectification()
+
+print(f"Accelerometer Intrinsics:")
+print(f"  Bias: {accel_bias}")
+print(f"  Rectification Matrix:\n{accel_rectification_matrix}")
+
+print(f"Gyroscope Intrinsics:")
+print(f"  Bias: {gyro_bias}")
+print(f"  Rectification Matrix:\n{gyro_rectification_matrix}")
+
+# Get extrinsics (device to IMU transformation)
+T_device_imu = imu_calib.get_transform_device_imu()
+print(f"IMU Extrinsics T_Device_IMU:\n{T_device_imu.to_matrix()}")
+
+print(f"  \n ------IMPORTANT----- \n "
+      f"Please use .raw_to_rectified_[accel,gyro]() and .rectified_to_raw_[accel,gyro]() APIs to apply IMU calibration! \n")
+```
+
+#### 3. Magnetometer, barometer, and microphone calibration content
+
+```python
+print(f"Magnetometers: {device_calib.get_magnetometer_labels()}")
+print(f"Barometers: {device_calib.get_barometer_labels()}")
+print(f"Microphones: {device_calib.get_microphone_labels()}")
+
+# ----------------
+# Magnetometer calibration
+# ----------------
+magnetometer_label = "mag0"
+magnetometer_calib = device_calib.get_magnetometer_calib(magnetometer_label)
+
+if magnetometer_calib is None:
+    raise RuntimeError(
+        f"{magnetometer_label} calibration does not exist! Please use a VRS that contains valid magnetometer calibration for this tutorial."
+    )
+
+# Get magnetometer intrinsics parameters
+mag_bias = magnetometer_calib.get_model().get_bias()
+mag_rectification_matrix = magnetometer_calib.get_model().get_rectification()
+
+print(f"Magnetometer calibration for {magnetometer_label} only have intrinsics:")
+print(f"  Bias: {mag_bias}")
+print(f"  Rectification Matrix:\n{mag_rectification_matrix}")
+
+# ----------------
+# Barometer calibration
+# ----------------
+baro_label = "baro0"
+baro_calib = device_calib.get_barometer_calib(baro_label)
+
+if baro_calib is None:
+    raise RuntimeError(
+        f"{baro_label} calibration does not exist! Please use a VRS that contains valid barometer calibration for this tutorial."
+    )
+
+print(f"Barometer calibration for {baro_label} only have intrinsics:")
+print(f"  Slope: {baro_calib.get_slope()}")
+print(f"  Offset in Pascal:\n{baro_calib.get_offset_pa()}")
+
+# ----------------
+# Microphone calibration, containing both mic and speaker calibrations.
+# ----------------
+microphone_labels = device_calib.get_microphone_labels()
+speaker_labels = device_calib.get_speaker_labels()
+audio_sensor_labels = device_calib.get_audio_labels()
+print(f"Both mic and speakers are calibrated. \n"
+f"List of mics that are calibrated: {microphone_labels} \n"
+f"List of speakers that are calibrated: {speaker_labels}")
+
+for audio_label in audio_sensor_labels:
+    audio_calib = device_calib.get_microphone_calib(audio_label)
+    if audio_calib is None:
+        print(f"Audio sensor calibration for {audio_label} is not available.")
+        continue
+
+    print(f"Audio sensor calibration for {audio_label} only has intrinsics:")
+    print(f"  sensitivity delta: {audio_calib.get_d_sensitivity_1k_dbv()}")
+
+print(f"  \n ------IMPORTANT----- \n "
+    f"Please use .raw_to_rectified() and .rectified_to_raw() APIs to apply magnetometer, barometer, and microphone calibration!\n")
+```
+
+### Camera Intrinsics: Project and Unproject
+
+A camera intrinsic model maps between a 3D point in the camera coordinate system and its corresponding 2D pixel on the sensor. This supports:
+
+- **Projection:** 3D point → 2D pixel
+- **Unprojection:** 2D pixel → 3D ray
 
 ```python
 import numpy as np
 
-# Define some 3D points in camera coordinate system
-points_3d_camera = np.array([
-    [0.0, 0.0, 1.0],    # Point 1 meter in front of camera
-    [0.5, 0.3, 2.0],    # Point at (0.5, 0.3, 2.0) meters
-    [-0.2, -0.1, 1.5],  # Point at (-0.2, -0.1, 1.5) meters
-])
+# Project 3D point to pixel
+point_3d = np.array([0.1, 0.05, 1.0])  # Point in camera frame (meters)
+pixel = camera_calib.project(point_3d)
+if pixel is not None:
+    print(f"3D point {point_3d} projected to -> pixel {pixel}")
+else:
+    print(f"3D point {point_3d} projected out of camera sensor plane")
 
-print("3D to 2D Projection:")
-for i, point_3d in enumerate(points_3d_camera):
-    # Project 3D point to 2D pixel coordinates
-    pixel_coords = camera_calib.project(point_3d)
-
-    # Check if projection is valid (within image bounds)
-    is_valid = camera_calib.is_valid_projection(pixel_coords)
-
-    print(f"Point {i+1}: 3D {point_3d} -> 2D {pixel_coords}, Valid: {is_valid}")
+# Unproject pixel to 3D ray.
+test_pixel = np.array([400, 300])
+ray_3d = camera_calib.unproject(test_pixel)
+print(f"Pixel {test_pixel} unprojected to -> 3D ray {ray_3d}")
 ```
 
-#### Unproject 2D to 3D
+## Camera Intrinsics: undistortion
 
-```python
-# Define some 2D pixel coordinates
-pixel_coords = np.array([
-    [640, 480],   # Center of a typical image
-    [100, 200],   # Some other pixel location
-    [800, 600],   # Another location
-])
+Camera calibration enables post-processing of Aria images, such as undistorting images from a fisheye to a linear camera model. Steps:
 
-print("\n2D to 3D Unprojection:")
-for i, pixel in enumerate(pixel_coords):
-    # Unproject 2D pixel to 3D ray direction (unit vector)
-    ray_direction = camera_calib.unproject(pixel)
-
-    print(f"Pixel {i+1}: 2D {pixel} -> 3D ray direction {ray_direction}")
-    print(f"  Ray magnitude: {np.linalg.norm(ray_direction):.6f}")
-```
-
-### Image Rectification and Undistortion
-
-Fisheye cameras introduce significant distortion. You can undistort images by transforming them to a different camera model.
+1. Use `vrs_data_provider` to access the camera image and calibration.
+2. Create a linear camera model using `get_linear_camera_calibration` function.
+3. Apply `distort_by_calibration` to distort or undistort the image from the actual Fisheye camera model to linear camera model.
 
 ```python
 import rerun as rr
-from projectaria_tools.core.calibration import CameraCalibration, LinearCameraCalibration
+from projectaria_tools.core import calibration
 
-rr.init("rerun_viz_undistortion")
+rr.init("rerun_viz_image_undistortion")
 rr.notebook_show()
 
-# Create a linear camera model for undistortion target
-image_width, image_height = camera_calib.get_image_size()
-linear_camera_model = LinearCameraCalibration(
-    image_size=[image_width, image_height],
+# We already obtained RGB camera calibration as `camera_calib`.
+# Now, create a linear camera model that is similar to camera_calib
+linear_camera_model = calibration.get_linear_camera_calibration(
+    image_width=camera_calib.get_image_size()[0],
+    image_height=camera_calib.get_image_size()[1],
     focal_length=camera_calib.get_focal_lengths()[0],
     label="test_linear_camera",
 )
@@ -185,10 +259,7 @@ for i in range(first_few):
         srcCalib=camera_calib,
     )
     rr.log("undistorted_camera_rgb", rr.Image(undistorted_image))
-
 ```
-
-## IMU Calibration
 
 ### IMU Intrinsics: Measurement Rectification
 
@@ -318,32 +389,27 @@ for i in range(0, first_few, 50):
 
     # Plot compensated IMU readings in a separate plot
     _plot_imu_signals(compensated_accel, compensated_gyro, "imu_right_compensated")
-
 ```
 
-## Accessing Sensor Extrinsics
+### 5. Accessing Sensor Extrinsics
 
 The core API to query sensor extrinsics is:
-
 ```
 get_transform_device_sensor(label = sensor_label, use_cad_calib = False)
 ```
-
-This API returns the extrinsics of the sensor, represented as a `Sophus::SE3` (translation + rotation) in the reference coordinate frame of `Device`.
-
+This API returns the extrinsics of the sensor, represented as a `Sophus::SE3` (translation + rotation).  in the reference coordinate frame of `Device`.
 - The `Device` frame is the reference coordinate system for all sensors.
 - For Aria-Gen2, the "Device" frame is the left front-facing SLAM camera (`slam-front-left`).
 - All sensor extrinsics are defined relative to this frame.
 
 The optional parameter `use_cad_calib` controls the "source" of the sensor extrinsics.
-
-- `use_cad_calib=False` (default): this will return the sensor extrinsics from factory calibration, if the sensor's extrinsics is factory-calibrated. This includes:
-  - Cameras
-  - IMUs
-- `use_cad_calib=True`: this will return the sensor's extrinsics in their designed location in CAD. This is useful for sensors without factory-calibrated extrinsics, including:
-  - Magnetometer
-  - Barometer
-  - Microphones
+- `use_cad_calib=False` (default): this will return the sensor extrinsics from factory calibration, if the sensor's extrinsics is factory-calibrated. This include:
+    - Cameras
+    - IMUs
+- `use_cad_calib=True`: this will return the sensor's extrinsics in their designed location in CAD.  This is useful for sensors without factory-calibrated extrinsics, including:
+    - Magnetometer
+    - Barometer
+    - Microphones
 
 ```python
 from projectaria_tools.utils.rerun_helpers import (
@@ -397,16 +463,4 @@ for sensor in sensor_labels:
             ),
             static=True,
         )
-
 ```
-
-## Summary
-
-This tutorial covered the essential aspects of working with device calibration in Aria:
-
-- **Camera Calibration**: Understanding fisheye distortion models, projection/unprojection operations, and image rectification
-- **IMU Calibration**: Rectifying raw sensor measurements to obtain accurate physical quantities
-- **Sensor Extrinsics**: Understanding the Device coordinate frame and transforming between different sensor coordinate systems
-- **Multi-Sensor Coordination**: Using calibration data to align and correlate data from different sensors
-
-These calibration concepts are fundamental for any multi-sensor data processing, 3D reconstruction, or spatial analysis tasks with Aria devices.
