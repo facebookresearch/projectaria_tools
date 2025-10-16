@@ -1,0 +1,10 @@
+---
+sidebar_position: 2
+title: Useful VRS Tools
+---
+
+# Useful VRS Tools
+
+* The most intuitive way to access Aria VRS files is via the tools (and APIs) shipped in [`projectaria-tools` library](/research-tools/projectariatools/start), which includes tools to [visualize Aria VRS](/research-tools/projectariatools/tools/pythonviz), [convert to MP4](/research-tools/projectariatools/tools/vrstomp4), and [export to other data format](/research-tools/projectariatools/tools/exportcsv).
+* Users can inspect the data quality of Aria VRS file using [`VrsHealthCheck`](/ark/vrs_health_check/installation), which is a tool that we specially tailored for Aria VRS recordings.
+* Users can also choose to use [the native tool provided by the `VRS` library](https://facebookresearch.github.io/vrs/) to perform some simple actions on the VRS file, including inspecting basic data information, extracting to images or audio files, etc. But please note that the `VRS` library needs to be [built with H.265 decoding support](https://github.com/facebookresearch/vrs#build--run-with-h265-hevc-decoding-support-macos--linux) in order to properly handle Aria Gen2 VRS files.

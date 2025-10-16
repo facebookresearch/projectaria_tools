@@ -1,8 +1,8 @@
 ---
 sidebar_position: 0
-title: VRS Format
+title: VRS Data Format
 ---
-# Project Aria VRS Format
+# Project Aria VRS Data Format
 
 Project Aria data is stored in [VRS](https://facebookresearch.github.io/vrs/), which is optimized to record and playback streams of multi-modal sensor data, such as images, audio, and other discrete sensors (IMU, temperature, etc.).
 In this page, we will introduce some basic concepts of `VRS` file format in Aria recordings.
@@ -15,7 +15,7 @@ The VRS streams are uniquely identified by their `StreamId`, each consisting of 
 For example, the first SLAM camera is identified with `StreamId = 1201-1`, where `1201` is the numerical ID for SLAM camera data type, and `-1` identifies the first of all the SLAM cameras.
 
 For convenience, we also provide a short label for each stream within our library `projectaria-tools`, which provides a human-readable way to access the data.
-See [this page](/docs-technical-specs/projectariatools/streamid-label-mapper.mdx) to learn more.
+See [this page](/docs-technical-specs/vrs/streamid-label-mapper.mdx) to learn more.
 
 ## Aria sensor data and configuration
 Sensor data includes:
@@ -43,9 +43,3 @@ Stream-specific information, such as image resolution, is also stored in configu
 
 Go to this [python tutorial](/research-tools/projectariatools/pythontutorials/queue) to learn how to access and use the sensor data using Python data utilities.
 Go to the [source code](https://github.com/facebookresearch/projectaria_tools/blob/main/core/data_provider/players) for the detailed implementation of sensor data and configurations.
-
-## Useful VRS tools
-
-* The most intuitive way to access Aria VRS files is via the tools (and APIs) shipped in [`projectaria-tools` library](/research-tools/projectariatools/start), which includes tools to [visualize Aria VRS](/research-tools/projectariatools/tools/pythonviz), [convert to MP4](/research-tools/projectariatools/tools/vrstomp4), and [export to other data format](/research-tools/projectariatools/tools/exportcsv).
-* Users can inspect the data quality of Aria VRS file using [`VrsHealthCheck`](/ark/vrs_health_check/installation), which is a tool that we specially tailored for Aria VRS recordings.
-* Users can also choose to use [the native tool provided by the `VRS` library](https://facebookresearch.github.io/vrs/) to perform some simple actions on the VRS file, including inspecting basic data information, extracting to images or audio files, etc. But please note that the `VRS` library needs to be [built with H.265 decoding support](https://github.com/facebookresearch/vrs#build--run-with-h265-hevc-decoding-support-macos--linux) in order to properly handle Aria Gen2 VRS files.
