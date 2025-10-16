@@ -19,6 +19,7 @@
 #include "Stream.h"
 
 #include <data_provider/players/BluetoothBeaconPlayer.h>
+#include <string_view>
 
 namespace projectaria::tools::vrs_check {
 
@@ -40,7 +41,7 @@ class Bluetooth : public Stream {
   }
 
  private:
-  static constexpr char kNilUuid[] = "00000000-0000-0000-0000-000000000000";
+  static constexpr std::string_view kNilUuid = "00000000-0000-0000-0000-000000000000";
   void processData(const data_provider::BluetoothBeaconData& data);
   std::unique_ptr<data_provider::BluetoothBeaconPlayer> bluetoothPlayer_;
   BluetoothStats stats_;
