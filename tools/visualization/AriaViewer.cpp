@@ -319,7 +319,11 @@ void AriaViewer::updateImages() {
       continue;
     }
 
-    auto imageVariant = imageData.imageVariant().value();
+    auto maybeImageVariant = imageData.imageVariant();
+    if (!maybeImageVariant.has_value()) {
+      continue;
+    }
+    auto imageVariant = maybeImageVariant.value();
     int width = getWidth(imageVariant);
     int height = getHeight(imageVariant);
     imageView->SetImage(
