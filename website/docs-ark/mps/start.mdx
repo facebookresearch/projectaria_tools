@@ -1,5 +1,123 @@
 ---
-sidebar_position: 0
-title: Get Started
+sidebar_position: 1
+title: Getting Started
 ---
-Get started - What is MPS & MPS CLI installation & data life cycle
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+
+## Overview
+
+The Project Aria Machine Perceptions Services Command Line Interface (MPS CLI) is a command line tool used to request and receive [Machine Perception Services](/ark/mps). [MPS CLI Guide](/technical-specs/mps/mps_cli_guide) page provides basic information to get you started with the MPS CLI.
+
+The MPS inputs can be a file or directory, and multiple inputs can be listed in a single command.
+
+The MPS CLI has two modes:
+
+* Single
+    * Process each recording individually
+    * Output is always saved next to the input VRS file
+    * The most common way to request MPS
+* Multi
+    * This mode is only available for Aria Gen1 at this time. Support for Aria Gen2 is coming soon.
+
+
+:::tip Non-UI options available
+This tutorial uses the the MPS CLI UI, but all processes also work without using the UI and can be integrated into automated workflows. See the [Command Line Reference](/technical-specs/mps/mps_cli_guide) in the Technical Specs for more details.
+:::
+
+
+## Install Project Aria MPS
+
+Aria MPS is available as a Python package on PyPI.
+You can install it using pip.
+And we strongly recommend installing it under a python virtual environment:
+<Tabs groupId="operating-systems">
+<TabItem value="unix" label="Linux & macOS">
+```bash
+rm -rf $HOME/projectaria_tools_python_env
+python3 -m venv $HOME/projectaria_tools_python_env
+source $HOME/projectaria_tools_python_env/bin/activate
+
+python3 -m pip install projectaria-mps
+```
+</TabItem>
+<TabItem value="windows" label="Windows">
+Windows is not yet supported for Aria-Gen2.
+</TabItem>
+</Tabs>
+## Quick Start - Running the tool
+```bash
+aria_mps single -i <path to vrs file or directory> [options]
+```
+Note that if the above command emits some error, please refer to the [troubleshooting section](/technical-specs/mps/troubleshoot).
+
+Project Aria MPS CLI is only available if you install the pip installation version of Project Aria MPS. This installation has been designed to be simple to use, even if you are not familiar with programming languages.
+:::info Dependencies
+Project Aria MPS pypi package automatically installs the [projectaria-tools](/research-tools/projectariatools/start#installing) package and [projectaria-vrs-health-check](/ark/vrs_health_check/installation#installing-vrs-health-check) package
+:::
+
+## Supported Platforms
+| OS / Platform                 | OS / Distro Details                                                | Aria Gen2 Support (projectaria-tools ≥2.0) | Supported Python Versions |
+| :---------------------------- | :----------------------------------------------------------------- | :----------------------------------------- | :------------------------ |
+| Linux (x64)                   | Fedora **40/41**; Ubuntu **20.04 LTS (focal)** / **22.04 LTS (jammy)** / **24.04 LTS ( Noble Numbat)**| ✅ Supported                              | 3.9 – 3.12               |
+| macOS (Apple Silicon / ARM64) | macOS **14+ (Sonoma or newer)** on M1/M2/M3                        | ✅ Supported                              | 3.10 – 3.12              |
+| macOS (Intel)                 | macOS **13+ (Ventura or newer)**                                   | ✅ Supported                              | 3.9 – 3.12               |
+| Windows (x64)                 | MSVC **2019/2022**                                                 | 🚧 Planned                               | 3.10 – 3.12              |
+
+## Download the MPS CLI sample dataset
+> **TODO:** Create a sample dataset for Aria gen2, run through MPS and update the instructions to use the new dataset.
+
+To try out the following commands on VRS files:
+
+1. Download the sample files:
+    * [Sample 1](https://www.projectaria.com/async/sample/download/?bucket=mps&filename=sample_multi_slam_1.vrs) - single VRS file
+    * [Sample 2](https://www.projectaria.com/async/sample/download/?bucket=mps&filename=sample_multi_slam_2.vrs) - single VRS file
+2. Move them to a directory called Example in your downloads directory
+
+:::info
+You may also wish to use your own recordings.
+:::
+
+## Request MPS for all VRS files in the “Example” directory and it’s subdirectories:
+
+```
+aria_mps single -i ~/Downloads/Example/
+```
+
+You'll be prompted to enter your username and then authenticate either via password on managed accout login. Use the Project Aria credentials you use to sign into the Mobile Companion app.
+
+![MPS CLI UI for single mode](/img/docs-ark/mps/mps_cli_ui_single.png)
+
+Once the request has been processed, the MPS output will be downloaded next to the original VRS file. In this example, a recording in the Example directory called sample2_gen2.vrs was used to generate MPS.
+
+```
+    └── Example
+        ├── mps_sample2_gen2_vrs
+        │   ├── slam
+        │   │   ├── closed_loop_trajectory.csv
+        │   │   ├── online_calibration.jsonl
+        │   │   ├── open_loop_trajectory.csv
+        │   │   ├── semidense_observations.csv.gz
+        │   │   ├── semidense_points.csv.gz
+        │   │   └── summary.json
+        │   └── vrs_health_check.json
+        └── mps_sample2_gen2_vrs
+```
+Go to [MPS Data Format Basics](/technical-specs/mps/data_formats/basics) for more details about the folder structure.
+
+## Exit the MPS CLI
+
+To quit the MPS CLI, press `CTRL + Q`. The CLI will ask for confirmation before quitting.
+
+* If you quit the request tool while the files are uploading the uploads will stop.
+* If you resubmit the request the uploads will resume where they left off, progress won’t be lost for upto 24 hrs.
+
+If you quit the request tool once the files have been uploaded, the MPS processes will continue. Once processing is complete, and the request tool is open, MPS files will be automatically downloaded to your VRS files’ location.
+
+
+## Working with MPS data
+
+You may find the following resources helpful when working with MPS data:
+* [MPS Data Formats](/technical-specs/mps/data_formats/basics)
+* [Visualize MPS Using Python](/research-tools/projectariatools/pythontutorials/mps)

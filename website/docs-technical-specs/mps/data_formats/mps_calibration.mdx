@@ -1,0 +1,16 @@
+---
+sidebar_position: 50
+title: Calibration Data
+---
+
+# MPS Output - Calibration
+
+Online calibration is generated as part of SLAM [MPS requests](/ark/mps).
+
+* `online_calibration.jsonl` file
+
+## Online calibration
+
+`online_calibration.jsonl` contains one json online calibration record per line. Each record is a json dict object that contains timestamp metadata and the result of online calibration for the cameras and IMUs.
+
+The calibration parameters contain intrinsics and extrinsics parameters for each sensor as well as a time offsets which best temporally align their data.

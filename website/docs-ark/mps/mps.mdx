@@ -1,0 +1,50 @@
+---
+sidebar_position: 2
+title: Machine Perception Services (MPS)
+---
+
+# Project Aria Machine Perception Services
+
+To accelerate research with Project Aria gen2, we provide Spatial AI machine perception capabilities that help form the foundation for future Contextualized AI applications and analysis of egocentric data. These capabilities are powered by a set of proprietary machine perception algorithms, designed for Project Aria glasses, that provide superior accuracy and robustness on Aria gen2 data compared to off-the-shelf open source algorithms.
+
+For research partners with access to the Aria Research Kit, Machine Perception Services (MPS) are offered as post-processing of VRS files via a cloud service. Use the MPS CLI, to request derived data from any VRS file that contains necessary sensor data.
+
+:::note
+When research partners submit data for processing, the data is only used to serve MPS requests. Partner data is not made available to Meta researchers or Meta’s affiliates. Go to [MPS Data Lifecycle](mps_data_lifecycle.mdx) for more details about how partner data is processed and stored.
+:::
+
+
+## Current MPS offerings
+
+The following MPS can be requested, as long as the data has been recorded with a compatible Recording Profile. Go to the [Recording Profiles](/technical-specs/device/profile) for information about each profile.
+
+MPS offerings are grouped into SLAM and Hand Tracking services.
+
+## SLAM services
+
+To get these outputs the [recording profile](/technical-specs/device/profile) must have CV cameras + IMU enabled.
+
+### 6DoF trajectory
+MPS provides two types of high frequency (1kHz) trajectories:
+* [Open loop trajectory](/technical-specs/mps/data_formats/mps_trajectory#open-loop-trajectory) - local odometry estimation from visual-inertial odometry (VIO)
+* [Closed loop trajectory](/technical-specs/mps/data_formats/mps_trajectory#closed-loop-trajectory) - created via batch optimization, using multi-sensors' input (SLAM, IMU, barometer, Wi-Fi and GPS), fully optimized and provides poses in a consistent frame of reference.
+
+### Semi-dense point cloud
+
+[Semi-dense point cloud](/technical-specs/mps/data_formats/mps_pointcloud) data supports researchers who need static scene 3D reconstructions, reliable 2D images tracks or a representative visualization of the environment.
+
+### Online sensor calibration
+The [time-varying intrinsic and extrinsic calibrations](/technical-specs/mps/data_formats/mps_calibration) of cameras and IMUs are estimated at the frequency of the SLAM (mono scene) cameras by our multi-sensor state estimation pipeline.
+
+## Hand Tracking services
+> **Coming Soon.**
+
+Cloud Hand Tracking service is currently available for Aria gen1 devices only. For Aria Gen2, please refer to [On device Hand Tracking](on_device_mp#hand-tracking).
+
+## About MPS Data Loader APIs
+
+Please refer to our [MPS data loader APIs](/research-tools/projectariatools/pythontutorials/mps) in python, to load and visualize the MPS outputs into your application.
+
+## Questions & Feedback
+
+If you have feedback you'd like to provide, be it overall trends and experiences or where we can improve, we'd love to hear from you. Go to our [Support page](support.mdx) for different ways to get in touch.
