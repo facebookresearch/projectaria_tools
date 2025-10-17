@@ -17,10 +17,10 @@ Before starting a recording, you need to select a recording profile that defines
 * **[profile8](/technical-specs/device/profile)**: General purpose recording profile - Recommended for most use cases with balanced sensor configuration
 * **[profile9](/technical-specs/device/profile)**: General purpose streaming profile - Optimized for real-time streaming with lower bandwidth
 * **[profile10](/technical-specs/device/profile)**: Recording profile with RGB 3MP 30Hz - Higher quality RGB capture for detailed visual data
+* **[mp_streaming_demo](/technical-specs/device/profile)**: Streaming profile for visualization - Optimized for real-time streaming visualization
 
+You can also create [custom recording profiles](/technical-specs/device/profile#custom_profile_example) to define your own sensor configurations.
 For detailed specifications of each profile including sensor rates, resolutions, and encoding formats, visit the [Profiles Technical Specification](/technical-specs/device/profile) page.
-
----
 
 ## Recording Commands
 
@@ -255,6 +255,18 @@ The viewer provides an interactive visualization of all sensor streams including
   style={{ width: '900px', height: 'auto' }}
 />
 
+---
+
+## Advanced features
+### Custom Recording Profiles
+
+In addition to the pre-defined profiles, you can create and use **[custom recording profiles](/technical-specs/device/profile#custom_profile_example)** to define your own sensor configurations, data rates, tailored to your specific research needs.
+
+**Using a Custom Profile:**
+
+```bash
+aria_gen2 recording start --json-profile <path_to_custom_profile.json> --recording-name <name>
+```
 ---
 
 ## Best Practices

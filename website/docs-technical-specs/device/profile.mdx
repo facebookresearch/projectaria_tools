@@ -6,7 +6,7 @@ title: Profiles
 Project Aria Gen 2 glasses offer a range of profiles, allowing users to select the optimal configuration of sensors and settings for their research or application needs. Each profile defines a specific combination of sensor streams, data rates, resolutions, and encoding formats. These profiles are designed to balance data quality, device performance, and operational stability.
 Profiles are divided into two categories:
 - **Pre-defined profiles**: Thoroughly tested, stable, and fully supported. Recommended for most users.
-- **Custom profiles**: User-defined configurations for advanced or experimental use. These may not be stable and are not recommended for general use.
+- **Custom profiles**: User-defined configurations for advanced or experimental use. These may not be stable and are not recommended for general use. A [custom profile example](#custom_profile_example) is provided below.
 
 The table below details the specifications of the currently supported pre-defined profiles. New profiles may be added as the platform evolves.
 
@@ -41,3 +41,108 @@ The table below details the specifications of the currently supported pre-define
 | **Temperature (Hz)**    | 1                                    | 1                                    | 1                                                | 1                                                 |
 | **ALS (Hz)**            | 9.434                                | 9.434                                | 10                                               | :x:                                               |
 | **ALS Exposure (us)**   | 3200                                 | 3200                                 | 3200                                             | :x:                                               |
+
+---
+
+## Custom profile example {#custom_profile_example}
+Here is an example of custom profile. This profile is a modified based on profile8 with reduced frame rate.
+
+```json
+{
+   "name": "custom_profile",
+   "description": "Custom profile based on profile8: Reduced RGB frame rate from 10Hz to 5Hz. Reduced SLAM frame rate from 30Hz to 10Hz. Reduced HT from 30Hz to 10Hz",
+   "imus": {
+    "rate_hz": 800
+   },
+   "magnetometer": {
+    "rate_hz": 100
+   },
+   "barometer": {
+    "rate_hz": 50
+   },
+   "audio": {
+    "sample_rate": "R_16KHZ",
+    "frame_period": "P_20MS",
+    "sample_format": "S16",
+    "encoding_format": "OPUS",
+    "opus_config": {
+     "complexity": 10,
+     "bitrate": 256000
+    }
+   },
+   "gps": {
+    "rate_hz": 1
+   },
+   "ble": {
+    "period_ms": 30000,
+    "duration_ms": 2000
+   },
+   "wifi": {
+    "period_ms": 30000,
+    "scan_mode": "ACTIVE"
+   },
+   "slam_cameras": {
+    "rate_hz": 10,
+    "auto_exposure": {},
+    "encoding": "H265",
+    "video_config": {
+     "cqp": {
+      "qp": 22
+     }
+    }
+   },
+   "et_cameras": {
+    "rate_hz": 5,
+    "auto_exposure": {},
+    "encoding": "H265",
+    "video_config": {
+     "cqp": {
+      "qp": 22
+     }
+    },
+    "resolution": "R_200x200",
+    "ir_led": "TRUE"
+   },
+   "rgb_camera": {
+    "rate_hz": 5,
+    "auto_exposure": {},
+    "encoding": "H265",
+    "video_config": {
+     "cqp": {
+      "qp": 22
+     }
+    },
+    "resolution": "R_4032x3024",
+    "width": 2560,
+    "height": 1920
+   },
+   "et": {
+    "rate_hz": 30
+   },
+   "ht": {
+    "rate_hz": 10
+   },
+   "vio": {
+    "rate_hz": 10
+   },
+   "device_info": {
+    "period_ms": 30000
+   },
+   "ppg": {
+    "rate_hz": 128
+   },
+   "temperature": {
+    "rate_hz": 1
+   },
+   "als": {
+    "rate_hz": 9.434,
+    "exposure_time_us": 3200
+   },
+   "vio_high_frequency_pose": {
+    "rate_hz": 800
+   },
+   "tags": [
+    ""
+   ]
+  }
+```
