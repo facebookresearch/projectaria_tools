@@ -15,9 +15,9 @@ And we strongly recommend installing it under a python virtual environment:
 <Tabs groupId="operating-systems">
 <TabItem value="unix" label="Linux & macOS">
 ```bash
-rm -rf $HOME/projectaria_vhc_env
-python3 -m venv $HOME/projectaria_vhc_env
-source $HOME/projectaria_vhc_env/bin/activate
+rm -rf $HOME/projectaria_gen2_python_env
+python3 -m venv $HOME/projectaria_gen2_python_env
+source $HOME/projectaria_gen2_python_env/bin/activate
 
 python3 -m pip install projectaria-tools-vrs-health-check
 ```
@@ -28,7 +28,7 @@ Windows is not yet supported for Aria-Gen2.
 </Tabs>
 ## Quick Start - Running the tool
 ```bash
-run_vrs_health_check -- --path <VRS_FILE> --output-json <RESULTS_FILE> [OPTIONS]
+run_vrs_health_check --path <VRS_FILE> --output-json <RESULTS_FILE> [OPTIONS]
 ```
 Note that if the above command emits some error, please refer to the [following troubleshooting section](#troubleshoot).
 
