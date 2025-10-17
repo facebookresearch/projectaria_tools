@@ -250,15 +250,7 @@ class Authenticator:
             except Exception as e:
                 logger.error(f"Failed to get encryption key from keyring: {e}")
         # Fallback to the local file if keyring is not available
-        if ENCRYPTION_KEY_FILE.exists():
-            with ENCRYPTION_KEY_FILE.open("rb") as f:
-                return f.read()
-        else:
-            key = get_random_bytes(32)
-            with ENCRYPTION_KEY_FILE.open("wb") as f:
-                f.write(key)
-            os.chmod(ENCRYPTION_KEY_FILE, stat.S_IRUSR | stat.S_IWUSR)
-            return key
+        return get_random_bytes(32)
 
     async def login(self, username: str, password: str, save_token: bool) -> bool:
         """
