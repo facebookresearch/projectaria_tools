@@ -1,70 +1,231 @@
 ---
 sidebar_position: 5
-title: Example - Text-to-speech
+title: Text-to-Speech Example
 ---
 
-Using aria.sdk_gen2 to Render Text-to-Speech (TTS) on an Aria Gen2 device.
+# Text-to-Speech Example
 
-## Run TTS example
+This example demonstrates how to programmatically send text-to-speech (TTS) commands to your Aria Gen2 device using the Python SDK. You can use TTS to provide audio feedback, instructions, or notifications to the device wearer.
+
+## Quick Start
+
+Run the text-to-speech example script:
+
 ```bash
-python ~/Downloads/projectaria_client_sdk_samples_gen2/device_tts.py --text `hello world, my name is Aria Gen 2`
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_tts.py --text "Hello from Aria"
 ```
 
-## Step-by-step walk through
+The device will speak the text through its built-in speakers.
 
-1. Import Required Modules
+---
 
-Start by importing the necessary modules:
+## What This Example Does
+
+The script performs the following operations:
+1. Connects to the device
+2. Sends a text-to-speech command with your specified text
+3. The device converts the text to speech and plays it through the speakers
+4. Returns once the command is sent (device plays audio asynchronously)
+
+---
+
+## Code Walkthrough
+
+### Step 1: Import Required Modules
+
 ```python
 import argparse
 import aria.sdk_gen2 as sdk_gen2
 ```
-aria.sdk_gen2 is the SDK for interacting with Aria devices.
 
-2. Parse Command-Line Arguments
+---
 
-Set up argument parsing to allow the user to specify the TTS text:
+### Step 2: Parse Command-Line Arguments
+
 ```python
 def parse_args() -> argparse.Namespace:
-   parser = argparse.ArgumentParser()
-   parser.add_argument(
-       "--text",
-       dest="text",
-       type=str,
-       default="",
-       required=True,
-       help="TTS text to rendered by the device.",
-   )
-   return parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--text",
+        dest="text",
+        type=str,
+        default="",
+        required=True,
+        help="TTS text to rendered by the device.",
+    )
+    return parser.parse_args()
 ```
-The --text argument lets the user specify the text to be rendered as speech by the device.
-This argument is required.
 
-3. Set Up the Device Client and Configuration
+**Required Argument:**
+* `--text`: The text string you want the device to speak
 
-Create and configure the device client:
+---
+
+### Step 3: Connect to Device
+
 ```python
 device_client = sdk_gen2.DeviceClient()
 config = sdk_gen2.DeviceClientConfig()
 device_client.set_client_config(config)
+
+try:
+    device = device_client.connect()
+    print(f"Connected to device {device.connection_id()}")
+except Exception as e:
+    print(f"Failed to connect: {e}")
+    return
 ```
-* DeviceClient manages the authentication and device connection.
-* DeviceClientConfig is used to specify the target device by serial number or IP address.
 
-4. Connect to the Device
+This establishes a connection to the first available device.
 
-Attempt to connect to the device:
+---
+
+### Step 4: Send Text-to-Speech Command
+
 ```python
-device = device_client.connect()
-print(f"Connected to device: {device.connection_id()}")
+text = args.text
+print(f"Sending text-to-speech: '{text}'")
+device.render_tts(text)
+print("Text-to-speech command sent successfully")
 ```
-If successful, you’ll see a confirmation message with the device connection ID.
 
-5. Render Text-to-Speech (TTS)
+**How it works:**
+* The `render_tts(text)` method sends the text to the device
+* The device processes the text and generates speech
+* Audio is played through the device's built-in speakers
+* The function returns immediately (audio plays asynchronously)
 
-Send the TTS command to the device:
+---
+
+## Complete Example Code
+
+Here's the full text-to-speech script:
+
 ```python
-print(f"Rendering TTS: {args.text}")
-device.render_tts(text=args.text)
+import argparse
+import aria.sdk_gen2 as sdk_gen2
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--text",
+        dest="text",
+        type=str,
+        default="",
+        required=True,
+        help="TTS text to rendered by the device.",
+    )
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    args = parse_args()
+
+    # Set up the device client to initiate connection to the device
+    device_client = sdk_gen2.DeviceClient()
+    # Set up the device client config to specify the device to be connected to e.g. device serial number.
+    # If nothing is specified, the first device in the list of connected devices will be connected to
+    config = sdk_gen2.DeviceClientConfig()
+
+    device_client.set_client_config(config)
+    device = device_client.connect()
+    print(f"Connected to device: {device.connection_id()}")
+    print(f"Rendering TTS: {args.text}")
+    device.render_tts(text=args.text)
 ```
-The device will render the specified text as speech.
+
+---
+
+## Usage Examples
+
+### Simple Message
+
+```bash
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_tts.py --text "Recording started"
+```
+
+---
+
+### Multi-Word Message
+
+```bash
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_tts.py --text "Please look at the target"
+```
+
+---
+
+### Instructions
+
+```bash
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_tts.py --text "Turn left at the next intersection"
+```
+
+---
+
+### Numbers and Punctuation
+
+```bash
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_tts.py --text "You have 3 notifications. Check your device."
+```
+
+The TTS engine handles numbers and punctuation naturally.
+
+---
+
+
+## Troubleshooting
+
+### TTS Command Sent But No Audio
+
+**Problem:** The `render_tts()` command succeeds but device doesn't speak.
+
+**Solutions:**
+1. **Check device volume:**
+   * Ensure device audio is not muted
+   * Check volume level in Companion App
+
+2. **Check device status:**
+   * Verify device is powered on and functioning
+   * Check battery level (low battery may affect audio)
+
+3. **Verify connection:**
+   ```python
+   device = device_client.connect()
+   print(f"Connected: {device.connection_id()}")
+   ```
+
+4. **Test with simple message:**
+   ```python
+   device.render_tts("Test")
+   ```
+
+---
+
+### Connection Lost During TTS
+
+**Problem:** Device disconnects when sending TTS.
+
+**Solutions:**
+1. **Verify USB connection** is stable
+2. **Check authentication:**
+   ```bash
+   aria_gen2 auth check
+   ```
+3. **Reconnect if needed:**
+   ```python
+   try:
+       device.render_tts(text)
+   except Exception as e:
+       print(f"Connection lost: {e}")
+       device = device_client.connect()  # Reconnect
+       device.render_tts(text)  # Retry
+   ```
+---
+
+## Next Steps
+
+* Review [all Python SDK examples](/ark/client-sdk/python-sdk/python-interface)
+* Learn about [recording control](/ark/client-sdk/python-sdk/recording-example)
+* Explore [streaming with callbacks](/ark/client-sdk/python-sdk/streaming-example)
+* Check [troubleshooting](/ark/client-sdk/troubleshoot) for common issues

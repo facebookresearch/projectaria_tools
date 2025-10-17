@@ -1,5 +1,567 @@
 ---
 sidebar_position: 6
-title: Trouble Shooting
+title: Troubleshooting
 ---
-Trouble Shooting
+
+# Troubleshooting
+
+This page provides solutions to common issues when using the ClientSDK with your Aria Gen2 device. Issues are organized by category for easy navigation.
+
+## Quick Diagnostic Commands
+
+Before diving into specific issues, use these commands to check your device status:
+
+```bash
+# Check device connectivity
+aria_gen2 device list
+
+# Check authentication status
+aria_gen2 auth check
+
+# Verify system configuration
+aria_doctor
+```
+
+---
+
+## Device Connection Issues
+
+### Device Not Detected
+
+If your device is not showing up when running `aria_gen2 device list`, follow these solutions in order:
+
+#### Solution 1: Run aria_doctor
+
+The `aria_doctor` command configures your system for device communication:
+
+```bash
+aria_doctor
+```
+
+This command will:
+* Open required ports on your PC for device discovery
+* Configure your system to allow proper USB Ethernet connection
+* Set up internet access when connected via USB
+
+:::tip
+If you cannot connect to the internet when connected to the device via USB, running `aria_doctor` typically resolves this issue.
+:::
+
+---
+
+#### Solution 2: Update USB Ethernet Security Settings
+
+When connecting via USB, the connection appears as an Ethernet configuration. You may need to adjust security settings:
+
+**Linux Instructions:**
+
+1. Check network connections:
+   ```bash
+   nmcli device status
+   ```
+2. Look for a new USB or Ethernet device
+3. Ensure NetworkManager is managing the connection
+4. Disable Security in USB networking interface
+
+---
+
+#### Solution 3: Disable VPN
+
+VPNs can interfere with the USB network interface used by the device:
+
+**Steps to resolve:**
+1. Disconnect from any active VPN or Lighthouse connections
+2. Run `aria_gen2 device list` to check if the device is detected
+3. If successful, streaming and device control should work
+
+```bash
+# After disabling VPN, verify device connection
+aria_gen2 device list
+```
+
+:::warning
+Some corporate VPNs may automatically reconnect. You may need to temporarily disable auto-connect features while working with the device.
+:::
+
+---
+
+#### Solution 4: Check USB Connection
+
+**Try these steps:**
+* **Different USB Port**: Use a different USB port on your computer, preferably USB 3.0+
+* **Different USB Cable**: Use a high-quality USB cable that supports data transfer
+* **Direct Connection**: Avoid USB hubs if possible - connect directly to computer
+* **Check Cable**: Ensure the cable supports data transfer (not just charging)
+
+---
+
+#### Solution 5: Restart and Reset
+
+If the above solutions don't work:
+
+1. **Disconnect and reconnect USB cable** - Wait a few seconds between disconnect and reconnect
+2. **Restart the device** - Power off and restart your Aria Gen2 device from Companion App
+3. **Restart your computer** - Sometimes a system restart resolves network configuration issues
+4. **Run aria_doctor again** after restart
+
+```bash
+# After restart, verify setup
+aria_doctor
+aria_gen2 device list
+```
+
+---
+
+#### Solution 6: Check Device Status
+
+* **Battery**: Ensure your device has sufficient battery charge
+* **Power State**: Verify the device is powered on
+* **Firmware**: Check if device firmware is up to date via Companion App
+
+---
+
+## Authentication Issues
+
+### Cannot Authenticate Device
+
+If authentication is failing when running `aria_gen2 auth pair`:
+
+#### Solution 1: Verify Device Connection
+
+Ensure the device is properly connected and detected:
+
+```bash
+# Check if device is listed
+aria_gen2 device list
+
+# If not listed, run aria_doctor
+aria_doctor
+```
+
+If device is not listed, see [Device Connection Issues](#device-connection-issues) above.
+
+---
+
+#### Solution 2: Check Companion App Connection
+
+Authentication requires approval through the Companion App. Verify:
+
+* Companion App is running on your mobile device
+* Device is paired with the Companion App
+* Mobile device has an active internet connection
+* Companion App is running in the foreground (not background)
+* Notifications are enabled for the Companion App
+
+---
+
+#### Solution 3: Retry Authentication
+
+```bash
+# Stop any existing authentication attempts
+# Press Ctrl+C if a command is hanging
+
+# Retry authentication
+aria_gen2 auth pair
+```
+
+**When the command runs:**
+1. Check your Companion App for the authentication request
+2. Verify the hash code shown matches between PC and Companion App
+3. Approve the authentication in the Companion App
+4. Wait for confirmation on PC
+
+---
+
+#### Solution 4: Reset Connection
+
+If authentication continues to fail:
+
+```bash
+# 1. Disconnect and reconnect the USB cable
+# Wait a few seconds after reconnecting
+
+# 2. Run aria_doctor again
+aria_doctor
+
+# 3. Check device connection
+aria_gen2 device list
+
+# 4. Retry authentication
+aria_gen2 auth pair
+```
+
+---
+
+#### Solution 5: Check Authentication Status
+
+If you've previously authenticated, verify the status:
+
+```bash
+aria_gen2 auth check
+
+# Expected output if authenticated:
+# [AriaGen2Cli:App][INFO]: Device <serial> is successfully authenticated.
+```
+
+:::tip
+You only need to authenticate once per device and PC combination. If already authenticated, you don't need to authenticate again.
+:::
+
+---
+
+## Recording Issues
+
+### Cannot Start Recording
+
+**Symptoms:** Recording fails to start or returns an error
+
+**Solutions:**
+
+1. **Check device connection:**
+   ```bash
+   aria_gen2 device list
+   ```
+
+2. **Stop existing recording:**
+   ```bash
+   aria_gen2 recording stop
+   ```
+
+3. **Check storage space:**
+   ```bash
+   aria_gen2 recording list
+   ```
+   If device is full, download and delete old recordings
+
+4. **Verify authentication:**
+   ```bash
+   aria_gen2 auth check
+   ```
+
+5. **Try a different profile:**
+   ```bash
+   # A wrong profile name might be provided, try profile8
+   aria_gen2 recording start --profile profile8 --recording-name test_recording
+   ```
+
+---
+
+### Cannot Download Recording
+
+**Symptoms:** Download fails or hangs
+
+**Solutions:**
+
+1. **Verify USB connection:**
+   ```bash
+   aria_gen2 device list
+   ```
+
+2. **Check recording UUID:**
+   ```bash
+   aria_gen2 recording list
+   ```
+   Ensure you're using the correct UUID
+
+3. **Verify output directory exists:**
+   ```bash
+   # Create directory if it doesn't exist
+   ```
+
+4. **Check disk space** on your computer
+
+5. **Try downloading to a different location:**
+   ```bash
+   aria_gen2 recording download -u <uuid> -o /path/to/different/folder/
+   ```
+
+6. **For large files:** Be patient - downloads can take several minutes depending on recording size
+
+---
+
+### Cannot Delete Recording
+
+**Symptoms:** Delete command fails
+
+**Solutions:**
+
+1. **Stop any active recording:**
+   ```bash
+   aria_gen2 recording stop
+   ```
+
+2. **Verify device connection:**
+   ```bash
+   aria_gen2 device list
+   ```
+
+3. **Check recording UUID:**
+   ```bash
+   aria_gen2 recording list
+   ```
+
+4. **Retry delete command:**
+   ```bash
+   aria_gen2 recording delete -u <uuid>
+   ```
+
+---
+
+## USB Streaming Issues
+
+### Streaming Won't Start
+
+**Common Causes:**
+* Device is recording
+* Another streaming session is active
+* Device battery is low
+* USB connection issue
+
+**Solutions:**
+
+```bash
+# 1. Stop any active recording
+aria_gen2 recording stop
+
+# 2. Stop any active streaming
+aria_gen2 streaming stop
+
+# 3. Check device status
+aria_gen2 device list
+
+# 4. Try starting streaming again
+aria_gen2 streaming start
+```
+
+---
+
+### Poor USB Streaming Performance
+
+**Symptoms:**
+* Dropped frames
+* High latency
+* Choppy visualization
+
+**Solutions:**
+
+1. **USB Connection:**
+   * Use a high-quality USB 3.0+ cable
+   * Try a different USB port, preferably USB 3.0+ (usually blue-colored)
+   * Avoid USB hubs - connect directly to computer
+   * Try a different USB cable
+
+2. **System Resources:**
+   * Close unnecessary applications to free up CPU and memory
+   * Disable other programs using camera/video (Zoom, Teams, etc.)
+   * Check system resource usage (CPU, RAM)
+
+3. **Device Temperature:**
+   * If device is hot, take a break to let it cool down
+   * Ensure good ventilation around the device
+
+4. **Profile Selection:**
+   * Use `mp_streaming_demo` profile for smooth performance:
+     ```bash
+     aria_gen2 streaming start --profile mp_streaming_demo
+     ```
+
+---
+
+### Viewer Not Showing Data (USB)
+
+**Common Causes:**
+* Streaming not started on device
+* Viewer started before streaming began
+* Port configuration issue
+
+**Solutions:**
+
+```bash
+# 1. Ensure streaming is running
+aria_gen2 streaming stop
+aria_gen2 streaming start
+
+# 2. Restart the viewer
+# Press Ctrl+C to stop the current viewer, then:
+aria_streaming_viewer
+```
+
+**Additional Steps:**
+* Ensure `aria_doctor` has been run
+* Check firewall settings aren't blocking viewer
+* Try restarting both streaming and viewer with fresh terminals
+
+---
+
+## General Issues
+
+### Cannot Stop Streaming/Recording
+
+**Symptoms:** Stop command hangs or doesn't respond
+
+**Solutions:**
+
+1. **Connect device via USB** (if streaming wirelessly)
+
+2. **Force stop:**
+   * Press Ctrl+C to interrupt the hanging command
+   * Try the stop command again:
+     ```bash
+     aria_gen2 streaming stop
+     # or
+     aria_gen2 recording stop
+     ```
+
+3. **Restart device:**
+   * Power off and restart the device
+   * Reconnect via USB
+   * Try stop command again
+
+---
+
+### Commands Hang or Timeout
+
+**Symptoms:** CLI commands don't complete or timeout
+
+**Solutions:**
+
+1. **Check device connection:**
+   ```bash
+   aria_gen2 device list
+   ```
+
+2. **Run aria_doctor:**
+   ```bash
+   aria_doctor
+   ```
+
+3. **Check for VPN:**
+   * Disable VPN
+   * Retry command
+
+4. **Restart device and computer:**
+   * Sometimes network state needs reset
+   * Reconnect after restart
+
+5. **Check USB connection:**
+   * Try different USB port
+   * Try different USB cable
+
+---
+
+### High Device Temperature
+
+**Symptoms:** Device feels hot to touch
+
+**When This Happens:**
+* During long recording sessions
+* During high frame rate profiles (e.g. profile8)
+* In warm environments
+
+**Solutions:**
+
+1. **Stop streaming/recording:**
+   ```bash
+   aria_gen2 streaming stop
+   # or
+   aria_gen2 recording stop
+   ```
+
+2. **Let device cool:**
+   * Remove from hot environments
+   * Ensure good ventilation
+   * Wait 10-15 minutes
+
+3. **Switch to USB for streaming:**
+   * USB streaming generates less heat
+   * Better for extended sessions
+
+4. **Reduce session length:**
+   * Keep wireless streaming under 30 minutes
+   * Take breaks between sessions
+
+:::tip
+This is normal behavior during intensive operations. The device has thermal protection that will automatically stop operations if it gets too hot. This protects the device hardware.
+:::
+
+---
+
+### Cannot Update ClientSDK
+
+**Symptoms:** `pip install` fails or hangs
+
+**Solutions:**
+
+1. **Ensure virtual environment is activated:**
+   ```bash
+   source $HOME/projectaria_gen2_python_env/bin/activate
+   ```
+
+2. **Update pip first:**
+   ```bash
+   python3 -m pip install --upgrade pip
+   ```
+
+3. **Clear pip cache:**
+   ```bash
+   pip cache purge
+   ```
+
+4. **Reinstall:**
+   ```bash
+   pip uninstall projectaria-client-sdk
+   pip install projectaria-client-sdk==2.0.0
+   ```
+
+5. **Check internet connection:**
+   * Ensure you can access PyPI
+   * Try with VPN disabled
+   * Check firewall settings
+
+---
+
+## Getting Additional Help
+
+If you've tried the solutions above and still experience issues:
+
+### Gather Diagnostic Information
+
+Before seeking help, gather this information:
+
+```bash
+# Device information
+aria_gen2 device list
+
+# Authentication status
+aria_gen2 auth check
+
+# System configuration
+aria_doctor
+
+# Python and package versions
+python3 --version
+pip list | grep projectaria
+
+# run diagnostic to collect error logs
+aria_diagnostics
+```
+
+:::tip Linux Users
+If `aria_diagnostics` fails to run, you may need to install `net-tools`:
+```bash
+sudo apt install net-tools
+```
+:::
+
+### Contact Support
+
+* Include diagnostic information when reporting issues
+* Describe steps to reproduce the problem
+* Include diagnostics.log
+
+### Additional Resources
+
+* [Get Started Guide](/ark/client-sdk/start) - Initial setup and authentication
+* [Recording Guide](/ark/client-sdk/recording) - Recording troubleshooting
+* [Streaming Guide](/ark/client-sdk/streaming) - Streaming troubleshooting
+* [CLI Technical Specs](/technical-specs/client-sdk/cli) - Complete command reference
