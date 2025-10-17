@@ -39,17 +39,17 @@ export default function PatInstallerChooser() {
   // venv bootstrap snippets
   const venvUnix = useMemo(
     () =>
-      String.raw`rm -rf $HOME/projectaria_tools_python_env
-python3.12 -m venv $HOME/projectaria_tools_python_env
-source $HOME/projectaria_tools_python_env/bin/activate`,
+      String.raw`rm -rf $HOME/projectaria_gen2_python_env
+python3.12 -m venv $HOME/projectaria_gen2_python_env
+source $HOME/projectaria_gen2_python_env/bin/activate`,
     [],
   );
 
   const venvWin = useMemo(
     () =>
-      String.raw`Remove-Item -Recurse -Force $HOME\projectaria_tools_python_env
-py -3 -m venv $HOME\projectaria_tools_python_env
-& $HOME\projectaria_tools_python_env\Scripts\Activate.ps1`,
+      String.raw`Remove-Item -Recurse -Force $HOME\projectaria_gen2_python_env
+py -3 -m venv $HOME\projectaria_gen2_python_env
+& $HOME\projectaria_gen2_python_env\Scripts\Activate.ps1`,
     [],
   );
 
