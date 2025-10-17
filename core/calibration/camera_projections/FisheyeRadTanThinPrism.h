@@ -71,11 +71,14 @@ class FisheyeRadTanThinPrism {
   static constexpr bool kIsFisheye = true;
   static constexpr bool kHasAnalyticalProjection = true;
 
-  template <class D, class DP, class DJ = Eigen::Matrix<typename D::Scalar, 2, 3>>
+  template <class D, class DP,
+      class DJ1 = Eigen::Matrix<typename D::Scalar, 2, 3>,
+      class DJ2 = Eigen::Matrix<typename D::Scalar, 2, kNumParams>>
   static Eigen::Matrix<typename D::Scalar, 2, 1> project(
       const Eigen::MatrixBase<D>& pointOptical,
       const Eigen::MatrixBase<DP>& params,
-      Eigen::MatrixBase<DJ>* d_point = nullptr) {
+      Eigen::MatrixBase<DJ1>* d_point = nullptr,
+      Eigen::MatrixBase<DJ2>* d_param = nullptr) {
     using T = typename D::Scalar;
 
     validateProjectInput<D, DP, kNumParams>();
@@ -138,41 +141,90 @@ class FisheyeRadTanThinPrism {
     }
 
     // Maybe compute point jacobian
-    if (d_point) {
+    if (d_param || d_point) {
       Eigen::Matrix<T, 2, 2> duvDistorted_dxryr;
       compute_duvDistorted_dxryr(xr_yr, xr_yr_squaredNorm, params, duvDistorted_dxryr);
 
       // compute jacobian wrt point
-      Eigen::Matrix<T, 2, 2> duvDistorted_dab;
-      if (r == static_cast<T>(0.0)) {
-        duvDistorted_dab.setIdentity();
-      } else {
-        T dthD_dth = static_cast<T>(1.0);
-        T theta2i = thetaSq;
-        for (size_t i = 0; i < numK; ++i) {
-          dthD_dth += T(2 * i + 3) * params[startK + i] * theta2i;
-          theta2i *= thetaSq;
+      if (d_point) {
+        Eigen::Matrix<T, 2, 2> duvDistorted_dab;
+        if (r == static_cast<T>(0.0)) {
+          duvDistorted_dab.setIdentity();
+        } else {
+          T dthD_dth = static_cast<T>(1.0);
+          T theta2i = thetaSq;
+          for (size_t i = 0; i < numK; ++i) {
+            dthD_dth += T(2 * i + 3) * params[startK + i] * theta2i;
+            theta2i *= thetaSq;
+          }
+
+          const T w1 = dthD_dth / (r_sq + r_sq * r_sq);
+          const T w2 = th_radial * th_divr / r_sq;
+          const T ab10 = ab[0] * ab[1];
+          Eigen::Matrix<T, 2, 2> temp1;
+          temp1(0, 0) = w1 * ab_squared[0] + w2 * ab_squared[1];
+          temp1(0, 1) = (w1 - w2) * ab10;
+          temp1(1, 0) = temp1(0, 1);
+          temp1(1, 1) = w1 * ab_squared[1] + w2 * ab_squared[0];
+          duvDistorted_dab.noalias() = duvDistorted_dxryr * temp1;
         }
 
-        const T w1 = dthD_dth / (r_sq + r_sq * r_sq);
-        const T w2 = th_radial * th_divr / r_sq;
-        const T ab10 = ab[0] * ab[1];
-        Eigen::Matrix<T, 2, 2> temp1;
-        temp1(0, 0) = w1 * ab_squared[0] + w2 * ab_squared[1];
-        temp1(0, 1) = (w1 - w2) * ab10;
-        temp1(1, 0) = temp1(0, 1);
-        temp1(1, 1) = w1 * ab_squared[1] + w2 * ab_squared[0];
-        duvDistorted_dab.noalias() = duvDistorted_dxryr * temp1;
+        // compute the derivative of the projection wrt the point:
+        if (useSingleFocalLength) {
+          d_point->template leftCols<2>() = params[0] * inv_z * duvDistorted_dab;
+        } else {
+          d_point->template leftCols<2>() =
+              params.template head<2>().asDiagonal() * duvDistorted_dab * inv_z;
+        }
+        d_point->template rightCols<1>().noalias() = -d_point->template leftCols<2>() * ab;
       }
 
-      // compute the derivative of the projection wrt the point:
-      if (useSingleFocalLength) {
-        d_point->template leftCols<2>() = params[0] * inv_z * duvDistorted_dab;
-      } else {
-        d_point->template leftCols<2>() =
-            params.template head<2>().asDiagonal() * duvDistorted_dab * inv_z;
+      if (d_param) {
+        if constexpr (useSingleFocalLength) {
+          d_param->template leftCols<1>() = uvDistorted;
+        } else {
+          d_param->template leftCols<2>() = uvDistorted.asDiagonal();
+        }
+
+        d_param->template middleCols<2>(kPrincipalPointColIdx).setIdentity();
+
+        if (numK > 0) {
+          Eigen::Matrix<T, 2, 1> temp;
+          if constexpr (useSingleFocalLength) {
+            temp = (params[kFocalXIdx] * th_divr) * duvDistorted_dxryr * ab;
+          } else {
+            temp = params.template head<2>().cwiseProduct(th_divr * (duvDistorted_dxryr * ab));
+          }
+          T theta2i = thetaSq;
+          for (size_t i = 0; i < numK; ++i) {
+            d_param->col(startK + i) = theta2i * temp;
+            theta2i *= thetaSq;
+          }
+        }
+
+        // tangential terms
+        if (useTangential) {
+          if constexpr (useSingleFocalLength) {
+            d_param->template middleCols<2>(startP).noalias() =
+                T(2) * params[kFocalXIdx] * xr_yr * xr_yr.transpose();
+            const T temp3 = params[kFocalXIdx] * xr_yr_squaredNorm;
+            (*d_param)(0, startP) += temp3;
+            (*d_param)(1, startP + 1) += temp3;
+          } else {
+            d_param->template middleCols<2>(startP).noalias() =
+                T(2) * xr_yr.cwiseProduct(params.template head<2>()) * xr_yr.transpose();
+            (*d_param)(0, startP) += params[kFocalXIdx] * xr_yr_squaredNorm;
+            (*d_param)(1, startP + 1) += params[kFocalYIdx] * xr_yr_squaredNorm;
+          }
+        }
+
+        if (useThinPrism) {
+          d_param->template block<1, 2>(0, startS) = params[kFocalXIdx] * radialPowers2And4;
+          d_param->template block<1, 2>(1, startS).setZero();
+          d_param->template block<1, 2>(0, startS + 2).setZero();
+          d_param->template block<1, 2>(1, startS + 2) = params[kFocalYIdx] * radialPowers2And4;
+        }
       }
-      d_point->template rightCols<1>().noalias() = -d_point->template leftCols<2>() * ab;
     }
 
     // compute the return value

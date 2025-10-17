@@ -251,8 +251,24 @@ nlohmann::json magnetometerCalibrationToJson(
 
   magJson["Label"] = magCalib.getLabel();
 
-  auto magMatForJson = magCalib.getModel().getRectification();
-  auto biasForJson = magCalib.getModel().getBias();
+  const auto& magMat = magCalib.getModel().getRectification();
+  const auto& biasInTesla = magCalib.getModel().getBias();
+
+  // For Gen1 device, in factory calibration json:
+  //    `rectified_in_T = magMatFromJson * (raw_in_uT - bias_in_uT). `.
+  // We want to align to the following to match IMU convention:
+  //    `rectified_in_T = magMat.inv() * (raw_in_T - bias_in_T)`.
+  // Therefore we need to do some patches as follows:
+  // 1. Note that `raw_in_uT` has been transformed to `raw_in_T` in
+  // ${PROJECT}/core/data_provider/RecordReaderInterface.cpp
+  //
+  // 2. `magMatFromJson`: Gen1: muT -> T, Gen2: T -> T.
+  double rectificationMatrixScale = deviceVersion == DeviceVersion::Gen1 ? 1e-6 : 1.0;
+  // 3. `biasFromJson`: Gen1: muT -> T, Gen2: Gauss -> T.
+  double biasScale = deviceVersion == DeviceVersion::Gen1 ? 1e-6 : 1e-4;
+
+  Eigen::Matrix3d magMatForJson = -magMat.inverse() * rectificationMatrixScale;
+  Eigen::Vector3d biasForJson = biasInTesla / biasScale;
 
   magJson["SerialNumber"] = "";
   magJson["Model"]["Name"] = "Linear";

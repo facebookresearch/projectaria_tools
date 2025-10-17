@@ -77,7 +77,8 @@ struct CameraProjectionTemplated {
    */
   Eigen::Matrix<Scalar, 2, 1> project(
       const Eigen::Matrix<Scalar, 3, 1>& pointInCamera,
-      Eigen::Matrix<Scalar, 2, 3>* jacobianWrtPoint = nullptr) const;
+      Eigen::Matrix<Scalar, 2, 3>* jacobianWrtPoint = nullptr,
+      Eigen::Matrix<Scalar, 2, 3>* jacobianWrtParams = nullptr) const;
 
   /**
    * @brief unprojects a 2d pixel in the image space to a 3d world point in homogenous coordinate.
