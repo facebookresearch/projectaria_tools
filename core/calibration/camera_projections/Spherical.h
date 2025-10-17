@@ -49,12 +49,16 @@ class SphericalProjection {
   //
   // Return 2-point in the image plane.
   //
-  template <class D, class DP, class DJ = Eigen::Matrix<typename D::Scalar, 2, 3>>
+  template <class D,
+            class DP,
+            class DJ1 = Eigen::Matrix<typename D::Scalar, 2, 3>,
+            class DJ2 = Eigen::Matrix<typename D::Scalar, 2, kNumParams>>
   static Eigen::Matrix<typename D::Scalar, 2, 1> project(
       const Eigen::MatrixBase<D>& pointOptical,
       const Eigen::MatrixBase<DP>& params,
-      Eigen::MatrixBase<DJ>* d_point = nullptr) {
-    if (d_point != nullptr) {
+      Eigen::MatrixBase<DJ1>* d_point = nullptr,
+      Eigen::MatrixBase<DJ2>* d_params = nullptr) {
+    if (d_point != nullptr || d_params != nullptr) {
       throw std::runtime_error("Jacobians not implemented in Spherical projection model");
     }
 
