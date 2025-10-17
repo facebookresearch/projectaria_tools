@@ -40,7 +40,7 @@ export default function PatInstallerChooser() {
   const venvUnix = useMemo(
     () =>
       String.raw`rm -rf $HOME/projectaria_gen2_python_env
-python3.12 -m venv $HOME/projectaria_gen2_python_env
+python3 -m venv $HOME/projectaria_gen2_python_env
 source $HOME/projectaria_gen2_python_env/bin/activate`,
     [],
   );
@@ -64,7 +64,7 @@ python3 -m pip install projectaria-tools'[all]'==1.7.0`;
       }
       return String.raw`${venv}
 
-python3.12 -m pip install projectaria-tools'[all]'==2.0.0`;
+python3 -m pip install projectaria-tools'[all]'==2.0.0`;
     }
 
     // source
