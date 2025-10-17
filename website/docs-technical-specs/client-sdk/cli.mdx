@@ -2,4 +2,531 @@
 sidebar_position: 0
 title: Command Line Interface
 ---
-CLI
+
+# Aria Gen2 CLI Reference
+
+The Aria Gen2 CLI (`aria_gen2`) provides command-line access to device control, streaming, recording, and authentication operations for Aria devices.
+
+## Global Options
+
+These options apply to all commands:
+
+### `--serial <serial_number>`
+
+Connect to a specific device by serial number. Mandatory when multiple devices are connected via USB.
+
+```bash
+aria_gen2 --serial IM0XXXXXXX device status
+```
+
+---
+
+## Authentication Commands
+
+Manage device authentication and pairing.
+
+### `auth pair`
+
+Pair the SDK on this host with a device connected over USB.
+
+```bash
+aria_gen2 auth pair
+```
+
+### `auth check`
+
+Check if the SDK is authenticated with the device.
+
+```bash
+aria_gen2 auth check
+```
+
+### `auth unpair`
+
+Unpair the SDK from the device.
+
+```bash
+aria_gen2 auth unpair
+```
+
+### `auth remove-certs`
+
+Remove locally stored SDK authentication certificates (does not require a connected device).
+
+```bash
+aria_gen2 auth remove-certs
+```
+
+---
+
+## Device Commands
+
+Control and query device information.
+
+### `device list`
+
+List all connected USB devices.
+
+```bash
+aria_gen2 device list
+```
+
+### `device status`
+
+Get current device status.
+
+```bash
+aria_gen2 device status
+```
+
+### Device Profile Commands
+
+#### `device profile list`
+
+List available device profiles.
+
+```bash
+aria_gen2 device profile list
+```
+
+### Text-to-Speech Commands
+
+#### `device tts start --tts-text <text>`
+
+Start text-to-speech rendering on the device.
+
+**Options:**
+- `--tts-text` (required): Text to convert to speech
+
+```bash
+aria_gen2 device tts start --tts-text "Hello, this is a test"
+```
+
+#### `device tts stop`
+
+Stop text-to-speech rendering.
+
+```bash
+aria_gen2 device tts stop
+```
+
+### WiFi Commands
+
+#### `device wifi scan`
+
+Scan for nearby WiFi networks.
+
+```bash
+aria_gen2 device wifi scan
+```
+
+#### `device wifi connect`
+
+Connect to a WiFi network.
+
+**Options:**
+- `--ssid <ssid>` (required): WiFi network SSID
+- `--password <password>`: WiFi network password
+- `--auth <type>`: Authentication type (default: `wpa`)
+  - Values: `none`, `eap`, `wpa`, `wep`
+- `--hidden`: Connect to hidden network
+- `--username <username>`: Username for enterprise mode (EAP)
+- `--disable-other`: Disable other WiFi networks
+- `--skip-internet-check`: Skip internet connectivity check
+
+```bash
+# Connect to WPA network
+aria_gen2 device wifi connect --ssid MyNetwork --password mypassword
+
+# Connect to open network
+aria_gen2 device wifi connect --ssid OpenNetwork --auth none
+
+# Connect to enterprise network
+aria_gen2 device wifi connect --ssid CorpNetwork --auth eap \
+  --username user@example.com --password mypassword
+```
+
+#### `device wifi forget --ssid <ssid>`
+
+Forget a WiFi network.
+
+```bash
+aria_gen2 device wifi forget --ssid MyNetwork
+```
+
+#### `device wifi keep-on --set <0|1>`
+
+Configure WiFi keep-on setting.
+
+**Options:**
+- `--set` (required): `0` to disable, `1` to enable
+
+```bash
+aria_gen2 device wifi keep-on --set 1
+```
+
+### WiFi Hotspot Commands
+
+#### `device hotspot start`
+
+Start WiFi hotspot on the device.
+
+**Options:**
+- `--wifi-band <band>`: WiFi frequency band (default: `BAND_5GHZ`)
+  - Values: `BAND_2GHZ`, `BAND_5GHZ`, `BAND_6GHZ`
+- `--channel-bandwidth <bandwidth>`: Channel bandwidth (default: `BW_40MHZ`)
+  - Values: `BW_20MHZ`, `BW_40MHZ`, `BW_80MHZ`, `BW_160MHZ`
+
+```bash
+aria_gen2 device hotspot start --wifi-band BAND_5GHZ --channel-bandwidth BW_80MHZ
+```
+
+#### `device hotspot stop`
+
+Stop WiFi hotspot.
+
+```bash
+aria_gen2 device hotspot stop
+```
+
+#### `device hotspot status`
+
+Get WiFi hotspot status.
+
+```bash
+aria_gen2 device hotspot status
+```
+
+---
+
+## Recording Commands
+
+Control on-device recording and manage recordings.
+
+### `recording start`
+
+Start recording on the device.
+
+**Options:**
+- `--profile <profile_name>`: Recording profile name (default: `profile8`)
+- `--json-profile <custom profile json>`: [Custom profile json file](/technical-specs/device/profile#custom_profile_example)
+- `--recording-name <name>`: Name for the recording file
+
+```bash
+# Start recording with default profile
+aria_gen2 recording start
+
+# Start recording with a different profile
+aria_gen2 recording start --profile profile10
+
+# Start recording with a custom profile
+aria_gen2 recording start --json-profile custom_profile.json
+
+# Start recording with custom name
+aria_gen2 recording start --recording-name my_recording_001
+
+```
+
+### `recording stop`
+
+Stop the current recording.
+
+```bash
+aria_gen2 recording stop
+```
+
+### `recording list`
+
+List all recordings on the device.
+
+```bash
+aria_gen2 recording list
+```
+
+### `recording info --uuid <uuid>`
+
+Get information about a specific recording.
+
+**Options:**
+- `--uuid, -u` (required): Recording UUID
+
+```bash
+aria_gen2 recording info --uuid 123e4567-e89b-12d3-a456-426614174000
+```
+
+### `recording delete --uuid <uuid>`
+
+Delete a specific recording.
+
+**Options:**
+- `--uuid, -u` (required): Recording UUID to delete
+
+```bash
+aria_gen2 recording delete --uuid 123e4567-e89b-12d3-a456-426614174000
+```
+
+### `recording download --uuid <uuid>`
+
+Download a specific recording.
+
+**Options:**
+- `--uuid, -u` (required): Recording UUID to download
+- `--output, -o`: Output path for the recording file
+
+```bash
+# Download to current directory
+aria_gen2 recording download --uuid 123e4567-e89b-12d3-a456-426614174000
+
+# Download to specific path
+aria_gen2 recording download --uuid 123e4567-e89b-12d3-a456-426614174000 \
+  --output /path/to/recordings/
+```
+
+### `recording download-all`
+
+Download all recordings from the device.
+
+**Options:**
+- `--output, -o`: Output directory for recording files
+
+```bash
+aria_gen2 recording download-all --output /path/to/recordings/
+```
+
+### `recording delete-all`
+
+Delete all recordings from the device.
+
+```bash
+aria_gen2 recording delete-all
+```
+
+---
+
+## Streaming Commands
+
+Control device streaming and manage streaming certificates.
+
+### `streaming start`
+
+Start streaming from the device.
+
+**Options:**
+- `--url <url>`: Streaming endpoint URL (default: `https://oatmeal_server.local:6768`)
+- `--profile <profile_name>`: Streaming profile name (default: `mp_streaming_demo`)
+- `--streaming-cert-name <name>`: Pre-installed streaming certificate name
+- `--verify-server-certs` / `--no-verify-server-certs`: Verify server certificates (default: no verification)
+- `--use-ephemeral-certs`: Use ephemeral streaming certificates
+- `--local-certs-dir <path>`: Local streaming certificates directory
+- `--keep-streaming-on-disconnection`: Continue streaming after WiFi disconnection
+
+```bash
+# Start streaming over USB
+aria_gen2 streaming start
+
+# Start streaming with custom URL
+aria_gen2 streaming start --url https://192.168.1.100:8080
+```
+
+### `streaming stop`
+
+Stop streaming.
+
+**Options:**
+- `--remove-ephemeral-certs`: Remove ephemeral streaming certificates from local host
+- `--local-certs-dir <path>`: Local streaming certificates directory
+
+```bash
+aria_gen2 streaming stop
+aria_gen2 streaming stop --remove-ephemeral-certs
+```
+
+### Streaming Certificate Commands
+
+#### `streaming install-certs`
+
+Install streaming certificates on both device and local host.
+
+**Options:**
+- `--use-ephemeral-certs`: Generate and install ephemeral certificates
+- `--local-certs-dir <path>`: Local streaming certificates directory
+
+```bash
+aria_gen2 streaming install-certs --use-ephemeral-certs
+```
+
+#### `streaming install-certs user-defined-certs`
+
+Install user-defined streaming certificates.
+
+**Options:**
+- `--cert <file>`: Certificate file (PEM format)
+- `--key <file>`: Private key file (PEM format)
+- `--key-password <file>`: Private key password file
+- `--ca-root <file>`: CA root certificate file
+- `--cert-name <name>`: Certificate name
+
+```bash
+aria_gen2 streaming install-certs user-defined-certs \
+  --cert publisher.crt \
+  --key publisher.key \
+  --key-password key_password.txt \
+  --ca-root ca_root.crt \
+  --cert-name my_streaming_cert
+```
+
+#### `streaming uninstall-certs`
+
+Remove streaming certificates from both device and local host.
+
+**Options:**
+- `--local-certs-dir <path>`: Local streaming certificates directory
+
+```bash
+aria_gen2 streaming uninstall-certs
+```
+
+---
+
+## Diagnostic and Utility Tools
+
+The following standalone CLI tools help with device setup, troubleshooting, and data visualization.
+
+### `aria_doctor`
+
+Resolve internet connectivity issues and configure open ports when first connecting to the device.
+
+This tool helps troubleshoot and fix common networking problems when setting up a new device connection.
+
+```bash
+aria_doctor
+```
+
+### `aria_diagnostics`
+
+Collect error logs and diagnostic information from the device and save them to `diagnostics.zip`.
+
+This tool is useful for troubleshooting device issues and gathering logs for support.
+
+```bash
+aria_diagnostics
+```
+
+The diagnostic archive will be saved as `diagnostics.zip` in the current directory.
+
+:::tip Linux Users
+If `aria_diagnostics` fails to run, you may need to install `net-tools`:
+```bash
+sudo apt install net-tools
+```
+:::
+
+### `aria_streaming_viewer`
+
+Visualize real-time streaming data from the device.
+
+This tool provides a live view of sensor data streams, including images, IMU data, and other sensor outputs.
+
+**Options:**
+- `--real-time`: Enable real-time streaming mode with reduced queue sizes to minimize latency (default: disabled)
+- `--interpolate`: Interpolate hand pose data for smoother visualization (default: use closest data point)
+- `--jpeg-quality <quality>`: Set JPEG quality for image visualization, range 1-100 (default: 50)
+
+```bash
+# Basic usage
+aria_streaming_viewer
+
+# Enable real-time mode with minimal latency
+aria_streaming_viewer --real-time
+
+# Enable hand pose interpolation
+aria_streaming_viewer --interpolate
+
+# Set custom JPEG quality
+aria_streaming_viewer --jpeg-quality 80
+
+# Combine options
+aria_streaming_viewer --real-time --interpolate --jpeg-quality 75
+```
+
+:::info
+The device must be streaming data before launching the viewer. Use `aria_gen2 streaming start` to begin streaming. If you encounter issues, see the [Viewer Not Showing Data](/ark/client-sdk/troubleshoot#viewer-not-showing-data-usb) troubleshooting guide.
+:::
+
+---
+
+## Common Usage Examples
+
+### Quick Start: Stream from Device
+
+```bash
+# 1. Authenticate
+aria_gen2 auth pair
+
+# 2. Start streaming
+aria_gen2 streaming start
+
+# 3. Stop streaming
+aria_gen2 streaming stop
+```
+
+### Record Data on Device
+
+```bash
+# Start recording
+aria_gen2 recording start --recording-name experiment_001
+
+# ... wait for recording to complete ...
+
+# Stop recording
+aria_gen2 recording stop
+
+# List recordings
+aria_gen2 recording list
+
+# Download recording
+aria_gen2 recording download -u <uuid> -o ./recordings/
+```
+
+### Connect Device to WiFi
+
+```bash
+# Scan for networks
+aria_gen2 device wifi scan
+
+# Connect to WiFi
+aria_gen2 device wifi connect --ssid MyNetwork --password mypassword
+```
+
+### Work with Multiple Devices
+
+```bash
+# List devices
+aria_gen2 device list
+
+# Connect to specific device by serial
+aria_gen2 --serial 1M0XXXXXXX device status
+```
+
+### Debug Issues
+
+```bash
+# Check authentication
+aria_gen2 auth check
+
+# Get device status
+aria_gen2 device status
+```
+
+---
+
+## Additional Resources
+
+For troubleshooting common issues with device connection, authentication, recording, or streaming, please refer to the [Troubleshooting Guide](/ark/client-sdk/troubleshoot).
+
+**Key points:**
+- Most commands require a connected device (via USB)
+- Authentication (`auth pair`) must be performed before first use
+- Recording and streaming cannot run simultaneously
+- If you encounter connection issues, run `aria_doctor` to resolve networking problems
+- For detailed troubleshooting steps, see the [Troubleshooting Guide](/ark/client-sdk/troubleshoot)
