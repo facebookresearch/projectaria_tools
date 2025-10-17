@@ -24,7 +24,11 @@ Most sensors in Aria glasses are calibrated both extrinsically and intrinsically
 - Multi-sensor coordination and sensor poses, and the concept of the "Device" frame.
 
 **Pre-requisite:**
-Familiarity with VRS basics from `Tutorial_1_vrs_Data_provider_basics.ipynb`.
+- Familiarity with VRS basics from `Tutorial_1_vrs_Data_provider_basics.ipynb`.
+- Download Aria Gen2 sample data from [link](https://www.projectaria.com/async/sample/download/?bucket=core&filename=aria_gen2_sample_data_1.vrs)
+
+**Note on Visualization**
+If visualization window is not showing up, this is due to `Rerun` lib's caching issue. Just rerun the specific code cell.
 
 ### Obtaining Device Calibration Content
 
@@ -223,7 +227,6 @@ import rerun as rr
 from projectaria_tools.core import calibration
 
 rr.init("rerun_viz_image_undistortion")
-rr.notebook_show()
 
 # We already obtained RGB camera calibration as `camera_calib`.
 # Now, create a linear camera model that is similar to camera_calib
@@ -259,6 +262,8 @@ for i in range(first_few):
         srcCalib=camera_calib,
     )
     rr.log("undistorted_camera_rgb", rr.Image(undistorted_image))
+
+rr.notebook_show()
 ```
 
 ### IMU Intrinsics: Measurement Rectification
@@ -347,7 +352,6 @@ def _plot_imu_signals(accel_data, gyro_data, rerun_plot_label):
 
 
 rr.init("rerun_viz_imu_rectification")
-rr.notebook_show()
 
 imu_label = "imu-right"
 imu_calib = device_calib.get_imu_calib(imu_label)
@@ -389,6 +393,8 @@ for i in range(0, first_few, 50):
 
     # Plot compensated IMU readings in a separate plot
     _plot_imu_signals(compensated_accel, compensated_gyro, "imu_right_compensated")
+
+rr.notebook_show()
 ```
 
 ### 5. Accessing Sensor Extrinsics
@@ -419,7 +425,6 @@ from projectaria_tools.utils.rerun_helpers import (
 )
 
 rr.init("rerun_viz_sensor_extrinsics")
-rr.notebook_show()
 
 # Obtain a glass outline for visualization. This outline uses factory calibration extrinsics if possible, uses CAD extrinsics if factory calibration is not available.
 glass_outline = AriaGlassesOutline(device_calib, use_cad_calib=False)
@@ -463,4 +468,5 @@ for sensor in sensor_labels:
             ),
             static=True,
         )
+rr.notebook_show()
 ```

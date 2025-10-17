@@ -29,6 +29,11 @@ This tutorial focuses on demonstration of how to use the **on-device VIO and VIO
 **Prerequisites**
 - Complete Tutorial 1 (VrsDataProvider Basics) to understand basic data provider concepts
 - Complete Tutorial 2 (Device Calibration) to understand how to properly use calibration in Aria data.
+- Download Aria Gen2 sample data from [link](https://www.projectaria.com/async/sample/download/?bucket=core&filename=aria_gen2_sample_data_1.vrs)
+
+
+**Note on visualization:**
+If visualization window is not showing up, this is due to `Rerun` lib's caching issue. Just rerun the specific code cell.
 
 ```python
 from projectaria_tools.core import data_provider
@@ -264,7 +269,6 @@ from projectaria_tools.utils.rerun_helpers import (
 print("\n=== Visualizing on-device VIO trajectory + HandTracking in 3D view ===")
 
 rr.init("rerun_viz_vio_trajectory")
-rr.notebook_show()
 
 device_calib = vrs_data_provider.get_device_calibration()
 handtracking_stream_id = vrs_data_provider.get_stream_id_from_label("handtracking")
@@ -353,5 +357,6 @@ for sensor_data in vrs_data_provider.deliver_queued_sensor_data(deliver_options)
     if interpolated_hand_pose is not None:
         plot_hand_pose_data_3d(hand_pose_data = interpolated_hand_pose)
 
+rr.notebook_show()
 
 ```
