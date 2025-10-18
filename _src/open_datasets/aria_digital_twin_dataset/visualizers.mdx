@@ -1,0 +1,73 @@
+---
+sidebar_position: 60
+title: Visualizers
+---
+
+# ADT Visualizers
+
+To help you visualize and debug your algorithms when using the Aria Digital Twin (ADT) dataset, we’ve provided the following visualizers:
+
+- [Python based](#python)
+- [C++ based](#C++)
+
+---
+
+<div id="python"></div>
+
+## Python Visualizer
+
+`viewer_projects_adt` displays an interactive view of an ADT sequence with [Rerun](/data_utilities/visualization/visualization_python.mdx#rerun). It allows to see all data in 3D context.
+
+```
+viewer_projects_adt --sequence_path Apartment_release_multiskeleton_party_seq104
+```
+![ADT Viewer Screenshot](/img/open_datasets/aria_digital_twin_dataset/rerun-adt.png)
+
+:::tip
+* The timeline enables you to see when a given object is being moved
+* The 3D world view is clickable, you can quickly select an object and see its instance name
+
+* You can quickly see where an object has been moved all along the sequence using the “Visible Time Range” feature in the RIGHT panel.
+![ADT Viewer Screenshot](/img/open_datasets/aria_digital_twin_dataset/rerun-adt-time-window.png)
+:::
+
+<div id="C++"></div>
+
+## C++ Visualizer
+
+`AriaDigitalTwinViewer` is a C++ binary written to visualize ADT data with toggles for each ground truth data type and a slider bar for frame selection. The image below shows an example screenshot of the viewer.
+
+![AriaDigitalTwinViewer](/img/open_datasets/aria_digital_twin_dataset/AdtViewer.png)
+
+### Step 1 : Download Sample Sequence:
+
+Download the sample Aria Digital Twin (ADT) sequence
+[follow this guide](dataset_download.mdx#download-the-sample-aria-digital-twin-adt-sequence).
+
+### Step 2 : Build projectaria_tools C++ libraries
+
+Follow the [entire C++ installation](/data_utilities/installation/installation_cpp.mdx) to build projectaria_tools C++ libraries with visualization.
+
+### Step 3 : Build AriaDigitalTwinViewer
+
+```bash
+cd $HOME/Documents/projectaria_sandbox/build
+
+cmake ../projectaria_tools  -DPROJECTARIA_TOOLS_BUILD_PROJECTS=ON -DPROJECTARIA_TOOLS_BUILD_PROJECTS_ADT=ON
+
+make -j2
+```
+
+### Step 4 : Run AriaDigitalTwinViewer
+
+```bash
+cd $HOME/Documents/projectaria_sandbox/build
+
+./projects/AriaDigitalTwinDatasetTools/visualization/AriaDigitalTwinViewer \
+--sequence-path $HOME/Documents/projectaria_tools_adt_data/Apartment_release_golden_skeleton_seq100_10s_sample/ \
+--device-num 0 --skeleton-flag 0
+```
+
+## Troubleshooting
+
+Go to [Data Utilities Troubleshooting](/data_utilities/installation/troubleshooting.mdx) if you experience any issues.
