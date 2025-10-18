@@ -520,6 +520,42 @@ This is normal behavior during intensive operations. The device has thermal prot
 
 ---
 
+### GLIBCXX Error on Ubuntu 22 (Linux)
+
+**Symptoms:** When running CLI commands on Ubuntu 22, you may see an error like:
+
+```
+GLIBCXX_3.4.31 not found
+```
+
+**Cause:** The system's C++ standard library (`libstdc++6`) is outdated and doesn't have the required version.
+
+**Solution:**
+
+Update the C++ standard library by installing a newer compiler toolchain:
+
+```bash
+# 1. Check current libstdc++6 version
+sudo apt list --installed | grep libstdc++6
+
+# 2. Add the Ubuntu toolchain PPA repository
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+
+# 3. Update package list
+sudo apt update
+
+# 4. Install the newer g++ compiler (which includes the updated library)
+sudo apt install g++-13
+```
+
+After installation, try running your CLI command again. The updated `libstdc++6` library should now be available.
+
+:::info
+This issue is specific to Ubuntu 22.04 and earlier versions. Ubuntu 24 and later typically have the required library version by default.
+:::
+
+---
+
 ## Getting Additional Help
 
 If you've tried the solutions above and still experience issues:

@@ -23,11 +23,22 @@ ClientSDK is a comprehensive toolbox designed to facilitate control and interact
 ## Prerequisites
 
 Before getting started, ensure you have:
-* **Operating System**: Ubuntu 22.04 or 24.04
-* **Python**: Version 3.10, 3.11, or 3.12
 * **Hardware**: Aria Gen2 device
 * **Mobile App**: Aria Companion App (installed and paired with your device)
 * **Connection**: USB cable for device-to-PC connection
+
+## Supported Platforms
+| OS / Platform                 | OS / Distro Details                                                | Aria Gen2 Support (projectaria-tools ≥2.0) | Supported Python Versions |
+| :---------------------------- | :----------------------------------------------------------------- | :----------------------------------------- | :------------------------ |
+| Linux (x64)                   | Fedora **40/41**; Ubuntu **22.04 LTS (jammy)** / **24.04 LTS ( Noble Numbat)**| ✅ Supported                  | 3.10 – 3.12              |
+| macOS (Apple Silicon / ARM64) | macOS **14+ (Sonoma or newer)** on M1/M2/M3                        | 🚧 Planned                               | 3.10 – 3.12              |
+| macOS (Intel)                 | macOS **13+ (Ventura or newer)**                                   | 🚧 Planned                               | 3.10 – 3.12              |
+| Windows (x64)                 | MSVC **2019/2022**                                                 | 🚧 Planned                               | 3.10 – 3.12              |
+
+:::warning Ubuntu 22.04 Known Issue
+If you encounter a `GLIBCXX_3.4.31 not found` error when running CLI commands on Ubuntu 22.04, you'll need to update your C++ standard library.
+See the [GLIBCXX troubleshooting guide](/ark/client-sdk/troubleshoot#glibcxx-error-on-ubuntu-22-linux) for the solution.
+:::
 
 ---
 
