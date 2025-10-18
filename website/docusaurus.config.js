@@ -151,7 +151,7 @@ const config = {
             sidebarId: 'technicalSpecsSidebar',
             docsPluginId: 'technical-specs',
             position: 'left',
-            label: 'Technical Specs',
+            label: 'Technical Insights & Specs',
           },
           {
             href: 'https://www.projectaria.com/',

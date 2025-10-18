@@ -3,3 +3,89 @@ sidebar_position: 0
 title: Technical Specifications
 slug: /
 ---
+
+# Technical Specifications Reference
+
+Quick reference for Aria Gen 2 technical specifications.
+
+## Specifications by Category
+
+- **[Device](/technical-specs/device/hardware)** - Hardware specs, profiles, calibration, CAD models
+- **[VRS Format](/technical-specs/vrs/data-format)** - File format, streams, tools
+- **[MPS](/technical-specs/mps/data_formats/basics)** - MPS output formats and data structures
+- **[Client SDK](/technical-specs/client-sdk/api)** - API and CLI reference
+- **[Coordinate Systems](/technical-specs/coordinate/3d-coor)** - 3D/2D frames, transformations, projections
+
+---
+
+## Quick Reference Tables
+
+### Recording Profiles
+
+| Profile | RGB | CV Cameras | ET | HT | VIO | GPS |
+|---------|-----|------------|----|----|-----|-----|
+| **profile8** | 10Hz, 2560×1920 | 30Hz | 30Hz | 30Hz | 10Hz | ✓ |
+| **profile9** | 5Hz, 2560×1920 | 10Hz | 30Hz | 30Hz | 10Hz | ✗ |
+| **profile10** | 30Hz, 2016×1512 | 30Hz | 30Hz | 30Hz | 10Hz | ✓ |
+
+[Full profile specs →](/technical-specs/device/profile)
+
+### Sensor Specifications
+
+| Sensor | Quantity | Rate | Resolution/Range |
+|--------|----------|------|------------------|
+| CV Cameras | 4 | 30 Hz | 512×512 |
+| RGB Camera | 1 | 10-30 Hz | 2016×1512 - 2560×1920 |
+| ET Cameras | 2 | 5 Hz | 200×200 |
+| IMU | 2 | 800 Hz | - |
+| Microphones | 7+1 | 16 kHz | - |
+| GPS | 1 | 1 Hz | - |
+| Magnetometer | 1 | 100 Hz | - |
+| Barometer | 1 | 50 Hz | - |
+| PPG | 1 | 128 Hz | - |
+| ALS | 1 | ~9.4 Hz | - |
+
+[Full hardware specs →](/technical-specs/device/hardware)
+
+### Common Stream IDs
+
+| Stream Label | StreamId | Type |
+|--------------|----------|------|
+| rgb | 214-1 | Camera |
+| slam-left | 1201-1 | Camera |
+| slam-right | 1201-2 | Camera |
+| imu-left | 1202-1 | IMU |
+| imu-right | 1202-2 | IMU |
+| eyetracking | 231-1 | MP Output |
+| handtracking | 232-1 | MP Output |
+
+[Full stream ID mapper →](/technical-specs/vrs/streamid-label-mapper)
+
+### Coordinate Conventions
+
+| Convention | Value |
+|------------|-------|
+| Coordinate system | Right-handed |
+| Quaternion order | (x, y, z, w) |
+| Rotation matrix | Row-major |
+| Transform notation | `T_dest_source` |
+
+[Coordinate system details →](/technical-specs/coordinate/3d-coor)
+
+---
+
+## Common Abbreviations
+
+| Term | Meaning |
+|------|---------|
+| VRS | Video Recording Storage |
+| MPS | Machine Perception Services |
+| VIO | Visual Inertial Odometry |
+| SLAM | Simultaneous Localization and Mapping |
+| CV | Computer Vision (cameras) |
+| ET | Eye Tracking |
+| HT | Hand Tracking |
+| IMU | Inertial Measurement Unit |
+| PPG | Photoplethysmography |
+| ALS | Ambient Light Sensor |
+| CPF | Central Pupil Frame |
