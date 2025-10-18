@@ -34,6 +34,7 @@ The following table shows which calibration data is available for each sensor ty
 | **Speakers** | `LSPK`, `RSPK` | ✅ Sensitivity (dBV) | ❌ |
 
 ### Camera Projection Models
+Details of the camera intrinsics model can be found in [calibration insight](/technical-specs/device/calibration_insights/camera_intrinsics_models)
 
 - **FisheyeRadTanThinPrism**: Used for RGB and SLAM cameras
   - Parameters: focal length (f), principal point (cx, cy), radial distortion (k0-k5), tangential distortion (p0, p1), thin prism (s0-s2)
@@ -42,6 +43,7 @@ The following table shows which calibration data is available for each sensor ty
   - Parameters: focal lengths (fx, fy), principal point (cx, cy), Kannala-Brandt distortion coefficients (kb0-kb3)
 
 ### IMU Calibration Components
+Details of the IMU models can be found in [calibration insight](/technical-specs/device/calibration_insights/sensor_measurement_model)
 
 - **Accelerometer**: Bias offset (m/s²) and 3x3 rectification matrix for scale/cross-axis corrections
 - **Gyroscope**: Bias offset (rad/s), rectification matrix, and G-sensitivity matrix
