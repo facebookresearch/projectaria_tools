@@ -144,7 +144,7 @@ const config = {
             sidebarId: 'researchToolsSidebar',
             docsPluginId: 'research-tools',
             position: 'left',
-            label: 'Research and Tools',
+            label: 'Open Science Initiative',
           },
           {
             type: 'docSidebar',
