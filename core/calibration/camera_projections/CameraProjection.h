@@ -54,16 +54,23 @@ struct CameraProjectionTemplated {
   CameraProjectionTemplated() = default;
 
   /**
+   * @brief Default copy constructor.
+   */
+  CameraProjectionTemplated(const CameraProjectionTemplated&) = default;
+
+  /**
    * @brief Constructor with a list of parameters for CameraProjectionTemplated.
    * @param type The type of projection model, e.g. ModelType::Linear.
    * @param projectionParams The projection parameters.
    */
   CameraProjectionTemplated(
       const ModelType& type,
-      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1>& projectionParams);
+      const Eigen::Vector<Scalar, Eigen::Dynamic>& projectionParams);
 
   ModelType modelName() const;
-  Eigen::Matrix<Scalar, Eigen::Dynamic, 1> projectionParams() const;
+  const Eigen::Vector<Scalar, Eigen::Dynamic>& projectionParams() const;
+  Eigen::Vector<Scalar, Eigen::Dynamic>& projectionParamsMut();
+  int numProjectionParameters() const;
 
   /**
    * @brief projects a 3d world point in the camera space to a 2d pixel in the image space. No
@@ -72,28 +79,30 @@ struct CameraProjectionTemplated {
    * @param pointInCamera The 3D point in camera space to be projected.
    * @param jacobianWrtPoint Optional, if not null, will store the Jacobian of the projection
    * with respect to the point in camera space.
+   * @param jacobianWrtParams Optional, if not null, will store the Jacobian of the projection
+   * with respect to the projection parameters.
    *
    * @return The 2D pixel coordinates of the projected point in the image space.
    */
-  Eigen::Matrix<Scalar, 2, 1> project(
-      const Eigen::Matrix<Scalar, 3, 1>& pointInCamera,
+  Eigen::Vector<Scalar, 2> project(
+      const Eigen::Vector<Scalar, 3>& pointInCamera,
       Eigen::Matrix<Scalar, 2, 3>* jacobianWrtPoint = nullptr,
-      Eigen::Matrix<Scalar, 2, 3>* jacobianWrtParams = nullptr) const;
+      Eigen::Matrix<Scalar, 2, Eigen::Dynamic>* jacobianWrtParams = nullptr) const;
 
   /**
    * @brief unprojects a 2d pixel in the image space to a 3d world point in homogenous coordinate.
    * No checks performed in this process.
    */
-  Eigen::Matrix<Scalar, 3, 1> unproject(const Eigen::Matrix<Scalar, 2, 1>& cameraPixel) const;
+  Eigen::Vector<Scalar, 3> unproject(const Eigen::Vector<Scalar, 2>& cameraPixel) const;
 
   /**
    * @brief returns principal point location as {cx, cy}
    */
-  Eigen::Matrix<Scalar, 2, 1> getPrincipalPoint() const;
+  Eigen::Vector<Scalar, 2> getPrincipalPoint() const;
   /**
    * @brief returns focal lengths as {fx, fy}
    */
-  Eigen::Matrix<Scalar, 2, 1> getFocalLengths() const;
+  Eigen::Vector<Scalar, 2> getFocalLengths() const;
 
   /**
    * @brief scales the projection parameters as the image scales without the offset changing
@@ -121,7 +130,7 @@ struct CameraProjectionTemplated {
 
  private:
   ModelType modelName_;
-  Eigen::Matrix<Scalar, Eigen::Dynamic, 1> projectionParams_;
+  Eigen::Vector<Scalar, Eigen::Dynamic> projectionParams_;
   ProjectionVariant projectionVariant_;
 };
 using CameraProjection = CameraProjectionTemplated<double>;
