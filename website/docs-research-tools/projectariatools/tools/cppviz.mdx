@@ -5,6 +5,8 @@ title: Visualization Tools (C++)
 
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # C++ Visualization Tools
 
@@ -32,8 +34,34 @@ The `aria_viewer` is a C++ binary that provides real-time visualization of Aria 
 
 ### Basic Usage
 
+First, navigate to the built directory:
+```bash
+cd ${SRC}/build/tools/visualization/
+```
+
+Then run the viewer command:
+
+```mdx-code-block
+<Tabs groupId="operating-systems">
+<TabItem value="linux" label="Linux">
+```
+
 ```bash
 aria_viewer --vrs path/to/your/file.vrs
+```
+
+```mdx-code-block
+</TabItem>
+<TabItem value="macos" label="macOS">
+```
+
+```bash
+DYLD_LIBRARY_PATH=/usr/local/lib aria_viewer --vrs path/to/your/file.vrs
+```
+
+```mdx-code-block
+</TabItem>
+</Tabs>
 ```
 
 ### Command Line Options

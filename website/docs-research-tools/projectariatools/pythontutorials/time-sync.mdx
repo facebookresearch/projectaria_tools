@@ -24,6 +24,11 @@ In Project Aria glasses, one of the key features is that it provides multi-senso
 **Prerequisites**
 - Complete Tutorial 1 (VrsDataProvider Basics) to understand basic data provider concepts
 - Complete Tutorial 3 (Sequential Access multi-sensor data) to understand how to create a queue of sensor data from VRS file.
+- Download Aria Gen2 sample data: [host recording](https://www.projectaria.com/async/sample/download/?bucket=core&filename=aria_gen2_sample_data_host_1.vrs) and [client recording](https://www.projectaria.com/async/sample/download/?bucket=core&filename=aria_gen2_sample_data_client_1.vrs)
+
+
+**Note on visualization:**
+If visualization window is not showing up, this is due to `Rerun` lib's caching issue. Just rerun the specific code cell, or restart the Python kernel.
 
 ```python
 from projectaria_tools.core import data_provider
@@ -137,7 +142,6 @@ import rerun as rr
 
 print("=== Single VRS timestamp-based query visualization examples ===")
 rr.init("rerun_viz_single_vrs_timestamp_based_query")
-rr.notebook_show()
 
 # Select RGB and SLAM stream IDs to visualize
 all_labels = vrs_data_provider.get_device_calibration().get_camera_labels()
@@ -177,6 +181,7 @@ for frame_i in range(20):
     # Increment query timestamp
     current_timestamp_ns += target_period_ns
 
+rr.notebook_show()
 ```
 
 ## Multi-Device Timestamp alignment

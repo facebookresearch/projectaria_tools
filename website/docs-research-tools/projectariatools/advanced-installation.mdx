@@ -6,14 +6,15 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 This page covers advanced installation options to build Project Aria Tools from source code, including:
-- [Build `projectaria_tools` lib using CMake without visualization](#cmake_no_viz)
-- [Build `projectaria_tools` lib using CMake with visualization](#cmake_with_viz)
-- [Build `projectaria_tools` python package from source code](#python_from_source)
-- [Build `projectaria_tools` python package with type hinting from source code](#python_from_source_type_hint)
+- [Pre-requisites: install dependencies](#prerequisites)
+- [Build `projectaria_tools` lib using CMake, without visualization](#cmake_no_viz)
+- [Build `projectaria_tools` lib using CMake, with visualization](#cmake_with_viz)
+- [Build `projectaria_tools` Python package from source code](#python_from_source)
+- [Build `projectaria_tools` Python package from source code with type hinting](#python_from_source_type_hint)
 
 
 ## Pre-requisites: install dependencies {#prerequisites}
-Before proceed to any of the advanced installation steps, please follow the command in [the installer widget on Quick Start page](/docs-research-tools/projectariatools/start.mdx#installing) to pull the correct branch from Github.
+Before proceed to any of the advanced installation steps, please follow the command in [the installer widget on Quick Start page](/docs-research-tools/projectariatools/installation.mdx#installing) to pull the correct branch from Github.
 
 Then install the following third party dependency lib:
 ```mdx-code-block
@@ -30,7 +31,8 @@ sudo apt install build-essential git cmake
 # Install VRS/Pangolin dependencies
 sudo apt install libgtest-dev libgmock-dev libgoogle-glog-dev libfmt-dev \
 liblz4-dev libzstd-dev libxxhash-dev libboost-all-dev libpng-dev \
-libjpeg-turbo8-dev libturbojpeg0-dev libglew-dev libgl1-mesa-dev libeigen3-dev
+libjpeg-turbo8-dev libturbojpeg0-dev libglew-dev libgl1-mesa-dev libeigen3-dev \
+libepoxy-dev libopus-dev
 ```
 ```mdx-code-block
 </TabItem>
@@ -46,7 +48,7 @@ sudo dnf install -y git cmake gcc gcc-c++ make
 # Install VRS/Pangolin dependencies
 sudo dnf install -y gtest-devel gmock-devel glog-devel fmt-devel lz4-devel \
 libzstd-devel xxhash-devel boost-devel libpng-devel libjpeg-turbo-devel \
-turbojpeg-devel glew-devel eigen3
+turbojpeg-devel glew-devel eigen3 libepoxy-devel opus-devel
 ```
 ```mdx-code-block
 </TabItem>
@@ -62,7 +64,7 @@ conda deactivate
 xcode-select --install
 
 brew install git cmake eigen python3 boost fmt googletest \
-glog lz4 zstd xxhash libpng jpeg-turbo glew
+glog lz4 zstd xxhash libpng jpeg-turbo glew libepoxy opus
 
 ```
 ```mdx-code-block
@@ -89,7 +91,7 @@ rm -rf ~/vrs_third_party_libs/ffmpeg/
 ## Build `projectaria_tools` lib using CMake, without visualization {#cmake_no_viz}
 ```bash
 cd ${SRC_DIR}
-cmake -B ./build/ -S ./
+cmake -B ./build/ -S ./ -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 cd build/
 make -j8
 ```
@@ -110,12 +112,15 @@ cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TOOLS=OFF -DBUILD_PANGOLIN_PYTHON=OFF \
 make -j8
 
 sudo make install
+
+# For Linux systems, you may need to run the following command to update the dynamic linker cache so the Pangolin library can be found
+sudo ldconfig
 ```
 
 Then you can build `projectaria_tools` in CMake:
 ```bash
 cd ${SRC_DIR}
-cmake -B ./build/ -S ./ -DPROJECTARIA_TOOLS_BUILD_TOOLS=ON
+cmake -B ./build/ -S ./ -DPROJECTARIA_TOOLS_BUILD_TOOLS=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 cd build/
 make -j8
 ```

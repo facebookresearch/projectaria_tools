@@ -8,63 +8,116 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import ThemedImage from '@theme/ThemedImage';
 
 # Introduction to ClientSDK
-ClientSDK is a comprehensive toolbox designed to facilitate control and interaction with Aria Gen2 devices. It is part of the Aria Research Kit and provides a set of libraries, utilities,
-and example code to streamline device management, authentication, recording and streaming.
 
-Key Features
-* Device Management: Core classes and utilities for connecting to, authenticating, and controlling Aria Gen2 devices.
-* Streaming Support: Components for starting and managing data streams, including on-device machine perception data (VIO, hand pose, and eye gaze) and other sensor data.
-* Recording Support: Components for starting and managing recording on-device.
-* Security: Built-in support for streaming certificates and security options.
-* Python & CLI Tools: Includes Python SDK and command-line utilities for scripting and automation.
-* Example Code: Ready-to-use examples to help developers get started quickly.
+ClientSDK is a comprehensive toolbox designed to facilitate control and interaction with Aria Gen2 devices. It is part of the Aria Research Kit and provides a set of libraries, utilities, and example code to streamline device management, authentication, recording, and streaming.
 
-To explore the SDK, please follow the installation guidance below.
+## Key Features
 
-## Install via virtual environment
-### Step 1 : Install Python
+* **Device Management**: Core classes and utilities for connecting to, authenticating, and controlling Aria Gen2 devices
+* **Streaming Support**: Components for starting and managing data streams, including on-device machine perception data (VIO, hand pose, and eye gaze) and other sensor data
+* **Recording Support**: Components for starting and managing recording on-device
+* **Security**: Built-in support for streaming certificates and security options
+* **Python & CLI Tools**: Includes Python SDK and command-line utilities for scripting and automation
+* **Example Code**: Ready-to-use examples to help developers get started quickly
 
-To use ClientSDK, you'll need Python 3.8 - 3.12.
+## Prerequisites
+
+Before getting started, ensure you have:
+* **Hardware**: Aria Gen2 device
+* **Mobile App**: Aria Companion App (installed and paired with your device)
+* **Connection**: USB cable for device-to-PC connection
+
+## Supported Platforms
+| OS / Platform                 | OS / Distro Details                                                | Aria Gen2 Support (projectaria-tools ≥2.0) | Supported Python Versions |
+| :---------------------------- | :----------------------------------------------------------------- | :----------------------------------------- | :------------------------ |
+| Linux (x64)                   | Fedora **40/41**; Ubuntu **22.04 LTS (jammy)** / **24.04 LTS ( Noble Numbat)**| ✅ Supported                  | 3.10 – 3.12              |
+| macOS (Apple Silicon / ARM64) | macOS **14+ (Sonoma or newer)** on M1/M2/M3                        | 🚧 Planned                               | 3.10 – 3.12              |
+| macOS (Intel)                 | macOS **13+ (Ventura or newer)**                                   | 🚧 Planned                               | 3.10 – 3.12              |
+| Windows (x64)                 | MSVC **2019/2022**                                                 | 🚧 Planned                               | 3.10 – 3.12              |
+
+:::warning Ubuntu 22.04 Known Issue
+If you encounter a `GLIBCXX_3.4.31 not found` error when running CLI commands on Ubuntu 22.04, you'll need to update your C++ standard library.
+See the [GLIBCXX troubleshooting guide](/ark/support/sdk#glibcxx-error-on-ubuntu-22-linux) for the solution.
+:::
+
+---
+
+## Installation
+
+### Step 1: Install Python
+
+To use ClientSDK, you'll need Python 3.10 - 3.12.
 * [Python 3 download page](https://www.python.org/downloads/)
-* To check what what version of Python 3 you have use `python3 --version`
+* To check what version of Python 3 you have, use `python3 --version`
 
-### Step 2 : Create a virtual environment
+### Step 2: Create a Virtual Environment
+
 <Tabs groupId="operating-systems">
 <TabItem value="unix" label="Linux & macOS">
+
 ```bash
-rm -rf $HOME/clientsdk_python_env
-python3 -m venv $HOME/clientsdk_python_env
-source $HOME/clientsdk_python_env/bin/activate
+rm -rf $HOME/projectaria_gen2_python_env
+python3 -m venv $HOME/projectaria_gen2_python_env
+source $HOME/projectaria_gen2_python_env/bin/activate
 ```
+
 </TabItem>
 </Tabs>
 
-###  Step 3 : Install the required python packages
+### Step 3: Install ClientSDK Python Package
 
 ```bash
-python3 -m pip install --upgrade pip
-
-# install projectaria-tools
-pip install projectaria-tools==2.0.0
-```
-
-###  Step 4 : Install client sdk python package.
-```
 pip install projectaria-client-sdk==2.0.0
 ```
 
-## Authenticate your device with your PC
-You need to authenticate your device with your PC to allow secure connection and control. To pair your device with the PC, please first pair the device with your mobile
-Companion App.
-```bash
-# connect device to the computer and check if the device appears
-aria-gen2 device list
+## Device Authentication
 
-# Authenticate device to connect with the PC
-aria-gen2 auth pair
+You need to authenticate your device with your PC to allow secure connection via USB. Before proceeding, ensure you have [paired the device with your mobile Companion App](/ark/companion-app/start).
+
+### Step 1: Verify Device Setup
+
+After setting up the device with the Companion App, connect your device via USB and run the following command to ensure the device can be reached:
+
+```bash
+aria_doctor
 ```
 
-You will need to approve the authentication from your mobile Companion App to allow connection as shown here.
+:::info
+This step opens the necessary ports on your PC for device discovery and configures your system to allow unblocked internet connection.
+:::
+
+### Step 2: Check Device Connection
+
+Verify the device connection to the PC via USB network interface:
+
+```bash
+# Connect device to the computer and check if the device appears
+aria_gen2 device list
+
+# Expected output
+[AriaGen2Cli:App][INFO]: 1M0YDB5H7B0020
+```
+
+:::warning
+If you cannot see your device listed in the terminal, please visit the [troubleshooting](/ark/support/sdk) page for help.
+:::
+
+### Step 3: Authenticate Device
+
+Authenticate your device to this PC to start using ClientSDK:
+
+```bash
+# Authenticate device to connect with the PC
+aria_gen2 auth pair
+
+# Expected output
+[AriaGen2SDK:DeviceClient][INFO]: Client hash is: f30a36a9f3842bd3fc16c75b525.... please check against the companion app pairing request
+[AriaGen2Cli:App][INFO]: Waiting for authentication approval on your mobile Companion App...
+[AriaGen2Cli:App][INFO]: Successfully authenticated the device
+```
+
+You will need to approve the authentication from your mobile Companion App to allow the connection, as shown here:
+
 <ThemedImage
   alt="Docusaurus themed image"
   sources={{
@@ -74,20 +127,187 @@ You will need to approve the authentication from your mobile Companion App to al
   style={{ width: '300px', height: 'auto' }}
 />
 
-NOTE: You only need to do this once per device and PC.
 
+:::warning
+If you cannot see the authentication request in your Companion App, please visit the [troubleshooting](/ark/support/sdk) page for help.
+:::
 
-Once authenticated, you can check your authentication status using the command below.
+### Step 4: Verify Authentication
+
+Once authenticated, you can check your authentication status using the command below:
+
 ```bash
-# check if authentication
-aria-gen2 auth check
+# Check authentication status
+aria_gen2 auth check
+
+# Expected output
+[AriaGen2Cli:App][INFO]: Setting up connection to device ...
+[AriaGen2Cli:App][INFO]: Connected to device 1M0YDB5H7B0020
+[AriaGen2Cli:App][INFO]: Device 1M0YDB5H7B0020 is successfully authenticated.
 ```
 
-## CLI available controls
-You can use the packaged CLI to control the device to
-* Recording: control the device to start, stop, list and download recordings in VRS format.
-* Streaming: control the device to start and stop streaming.
-* Device: general device controls that includes obtain device information, connect to WIFI, sending text-to-speech, etc
-* Player: Receives device streaming data and perform health monitoring of the streaming data regard latency and data drops.
+:::tip
+You only need to authenticate once per device and PC combination.
+:::
 
-For detailed instructions, you can refer to the Technical Specs page for more details.
+---
+
+## Troubleshooting Connection and Authentication
+
+If you're experiencing issues connecting to your device or authenticating, try the following solutions:
+
+### Device Not Detected
+
+If your device is not showing up when running `aria_gen2 device list`, follow these steps:
+
+#### 1. Enable Ports Using aria_doctor
+
+Run `aria_doctor` to configure your system and enable the necessary ports:
+
+```bash
+aria_doctor
+```
+
+This command will:
+* Open required ports on your PC for device discovery
+* Configure your system to allow proper USB Ethernet connection
+* Set up internet access when connected via USB
+
+:::info
+If you cannot connect to the internet when connected to the device via USB, running `aria_doctor` will typically resolve this issue.
+:::
+
+#### 2. Check USB Network in Companion App
+
+Ensure USB network is enabled in the Companion App:
+
+1. Open the Aria Companion App on your mobile device
+2. Navigate to your paired device settings
+3. Verify that **USB Network** is toggled **ON**
+4. If it's off, enable it and reconnect the USB cable
+
+:::tip
+The USB Network toggle must be enabled for the device to communicate with your PC over USB.
+:::
+
+#### 3. Update USB Ethernet Security Settings
+
+When streaming via USB, the USB connection appears as an Ethernet configuration. You may need to adjust the security settings for this connection:
+
+**Linux:**
+1. Check network connections with `nmcli device status`
+2. Look for a new USB or Ethernet device
+3. Ensure NetworkManager is managing the connection
+4. In Security tab, disable 802-1x Security for the USB Network
+
+#### 4. Disable VPN
+
+Your local PC may be connected to a VPN that blocks the connection. VPNs can interfere with the USB network interface used by the device.
+
+**Steps to resolve:**
+1. Disconnect from any active VPN connections
+2. Run `aria_gen2 device list` again to check if the device is detected
+3. If streaming, restart the streaming viewer after disabling VPN
+
+```bash
+# After disabling VPN, verify device connection
+aria_gen2 device list
+```
+
+:::warning
+Some corporate VPNs may automatically reconnect. You may need to temporarily disable auto-connect features while working with the device.
+:::
+
+---
+
+### Authentication Issues
+
+If authentication is failing or you cannot see the authentication request in the Companion App:
+
+#### 1. Verify Device Connection
+
+Ensure the device is properly connected and detected:
+
+```bash
+# Check if device is listed
+aria_gen2 device list
+
+# If not listed, run aria_doctor
+aria_doctor
+```
+
+#### 2. Check Companion App Connection
+
+* Ensure the Companion App is running on your mobile device
+* Verify the device is paired with the Companion App
+* Check that your mobile device has an active internet connection
+* Make sure the Companion App is running in the foreground
+
+#### 3. Retry Authentication
+
+```bash
+# Stop any existing authentication attempts
+# Press Ctrl+C if a command is hanging
+
+# Retry authentication
+aria_gen2 auth pair
+```
+
+#### 4. Reset Connection
+
+If authentication continues to fail, try resetting the connection:
+
+```bash
+# Disconnect and reconnect the USB cable
+# Wait a few seconds after reconnecting
+
+# Run aria_doctor again
+aria_doctor
+
+# Check device connection
+aria_gen2 device list
+
+# Retry authentication
+aria_gen2 auth pair
+```
+
+---
+
+### Additional Troubleshooting Steps
+
+If you're still experiencing issues:
+
+1. **Try a Different USB Port**: Use a different USB port on your computer, preferably USB 3.0+
+2. **Try a Different USB Cable**: Use a high-quality USB cable that supports data transfer
+3. **Restart the Device**: Power off and restart your Aria Gen2 device
+4. **Restart Your Computer**: Sometimes a system restart can resolve network configuration issues
+5. **Check Device Battery**: Ensure your device has sufficient battery charge
+6. **Update ClientSDK**: Ensure you have the latest version of the ClientSDK installed
+
+```bash
+# Update ClientSDK to the latest version
+pip install --upgrade projectaria-client-sdk
+```
+
+For more detailed troubleshooting, visit the [troubleshooting page](/ark/support/sdk).
+
+---
+
+## Available CLI Controls
+
+The ClientSDK provides a powerful CLI to control your Aria Gen2 device. You can use the packaged CLI to:
+
+* **Recording**: Control the device to start, stop, list, and download recordings in VRS format
+* **Streaming**: Control the device to start and stop streaming
+* **Device**: General device controls including obtaining device information, connecting to Wi-Fi, sending text-to-speech, and more
+
+For detailed instructions and command reference, refer to the [Technical Specs](/technical-specs/client-sdk/cli) page.
+
+## Next Steps
+
+Now that you have the ClientSDK installed and your device authenticated, you can:
+
+1. Explore the [Recording](/ark/client-sdk/recording) guide to learn how to capture data
+2. Check out the [Streaming](/ark/client-sdk/streaming) documentation to stream data in real-time
+3. Visit the [Technical Specs](/technical-specs/client-sdk/cli) for comprehensive CLI command reference
+4. Review the [Python SDK API Reference](/technical-specs/client-sdk/api) for detailed Python SDK API documentation

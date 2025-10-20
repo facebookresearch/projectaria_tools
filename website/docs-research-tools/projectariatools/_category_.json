@@ -1,4 +1,8 @@
 {
   "label": "Project Aria Tools",
-  "position": 0
+  "position": 0,
+  "link": {
+    "type": "doc",
+    "id": "projectariatools/overview"
+  }
 }

@@ -2,4 +2,689 @@
 sidebar_position: 1
 title: Application Programming Interface
 ---
-API
+
+# Client SDK Python API Reference
+
+This page provides a comprehensive reference for the Aria Client SDK Python API, which enables control and data streaming from Aria devices.
+
+## Core Classes
+
+### DeviceClient
+
+The `DeviceClient` class manages connections to Aria devices and handles device discovery.
+
+#### Constructor
+
+```python
+DeviceClient()
+```
+
+Creates a new DeviceClient instance.
+
+#### Methods
+
+##### `authenticate()`
+
+Authenticate with the device using credentials.
+
+**Returns:** Certificate hash pushed to the device (str)
+
+**Raises:** `RuntimeError` if authentication fails
+
+##### `connect()`
+
+Establish a connection to an Aria device.
+
+**Returns:** `Device` object representing the connected device
+
+**Raises:** `RuntimeError` if connection fails
+
+##### `is_connected(device: Device) -> bool`
+
+Check if a device is currently connected.
+
+**Parameters:**
+- `device` (Device): The device to check connection status for
+
+**Returns:** `bool` - True if connected, False otherwise
+
+##### `usb_network_devices()`
+
+Get a list of devices available via USB network connection.
+
+**Returns:** List of available USB network devices
+
+**Raises:** `RuntimeError` if unable to query devices
+
+##### `active_connections() -> List[Device]`
+
+Get a list of all currently active device connections.
+
+**Returns:** List of `Device` objects
+
+##### `disconnect(device: Device) -> None`
+
+Disconnect from a specific device.
+
+**Parameters:**
+- `device` (Device): The device to disconnect from
+
+##### `disconnect_all() -> None`
+
+Disconnect from all connected devices.
+
+##### `set_client_config(config: DeviceClientConfig) -> None`
+
+Configure the device client settings.
+
+**Parameters:**
+- `config` (DeviceClientConfig): Configuration object for the client
+
+---
+
+### Device
+
+The `Device` class represents a connected Aria device and provides methods to control it.
+
+#### Methods
+
+##### `connection_id() -> str`
+
+Get the unique connection identifier for this device.
+
+**Returns:** String connection ID
+
+##### `status()`
+
+Get current device status.
+
+**Returns:** Device status object
+
+**Raises:** `RuntimeError` if unable to retrieve device status
+
+##### `serial()`
+
+Get the device serial number.
+
+**Returns:** String serial number
+
+**Raises:** `RuntimeError` if unable to retrieve serial number
+
+#### Streaming Methods
+
+##### `start_streaming()`
+
+Start streaming data from the device.
+
+**Returns:** None
+
+**Raises:** `RuntimeError` if unable to start streaming
+
+##### `stop_streaming()`
+
+Stop streaming data from the device.
+
+**Returns:** None
+
+**Raises:** `RuntimeError` if unable to stop streaming
+
+##### `set_streaming_config(streaming_config: HttpStreamingConfig) -> None`
+
+Configure streaming settings.
+
+**Parameters:**
+- `streaming_config` (HttpStreamingConfig): Streaming configuration object
+
+##### `install_streaming_certs()`
+
+Install default streaming certificates on the device.
+
+**Returns:** None
+
+**Raises:** `RuntimeError` if certificate installation fails
+
+##### `install_streaming_certs(streaming_certificates: StreamingCertsPem)`
+
+Install custom streaming certificates on the device.
+
+**Parameters:**
+- `streaming_certificates` (StreamingCertsPem): Custom certificates in PEM format
+
+**Returns:** None
+
+**Raises:** `RuntimeError` if certificate installation fails
+
+##### `uninstall_streaming_certs()`
+
+Remove streaming certificates from the device.
+
+**Returns:** None
+
+**Raises:** `RuntimeError` if certificate removal fails
+
+#### Recording Methods
+
+##### `set_recording_config(recording_config: RecordingConfig) -> None`
+
+Configure recording settings.
+
+**Parameters:**
+- `recording_config` (RecordingConfig): Recording configuration object
+
+##### `start_recording()`
+
+Start recording on the device.
+
+**Returns:** UUID of the recording (str)
+
+**Raises:** `RuntimeError` if unable to start recording
+
+##### `stop_recording()`
+
+Stop the current recording.
+
+**Returns:** None
+
+**Raises:** `RuntimeError` if unable to stop recording
+
+##### `list_recordings()`
+
+Print a list of all recordings on the device.
+
+**Returns:** None
+
+**Raises:** `RuntimeError` if unable to list recordings
+
+##### `recording_info(uuid: str)`
+
+Print detailed information about a specific recording.
+
+**Parameters:**
+- `uuid` (str): Recording UUID
+
+**Returns:** None
+
+**Raises:** `RuntimeError` if recording not found or unable to retrieve info
+
+##### `delete_recording(uuid: str)`
+
+Delete a specific recording from the device.
+
+**Parameters:**
+- `uuid` (str): Recording UUID to delete
+
+**Returns:** None
+
+**Raises:** `RuntimeError` if unable to delete recording
+
+##### `download_recording(uuid: str, output_path: str = "")`
+
+Download a specific recording from the device.
+
+**Parameters:**
+- `uuid` (str): Recording UUID to download
+- `output_path` (str, optional): Local path to save the recording. Defaults to current directory.
+
+**Returns:** None
+
+**Raises:** `RuntimeError` if download fails
+
+##### `download_all_recordings(output_path: str = "")`
+
+Download all recordings from the device.
+
+**Parameters:**
+- `output_path` (str, optional): Local directory to save recordings. Defaults to current directory.
+
+**Returns:** None
+
+**Raises:** `RuntimeError` if download fails
+
+##### `delete_all_recordings()`
+
+Delete all recordings from the device.
+
+**Returns:** None
+
+**Raises:** `RuntimeError` if unable to delete recordings
+
+#### Text-to-Speech Methods
+
+##### `render_tts(text: str)`
+
+Render text-to-speech on the device.
+
+**Parameters:**
+- `text` (str): Text to convert to speech
+
+**Returns:** None
+
+**Raises:** `RuntimeError` if TTS rendering fails
+
+##### `stop_tts()`
+
+Stop current text-to-speech playback.
+
+**Returns:** None
+
+**Raises:** `RuntimeError` if unable to stop TTS
+
+---
+
+### StreamDataInterface
+
+The `StreamDataInterface` class handles receiving and processing streaming data from the device.
+
+#### Constructor
+
+```python
+StreamDataInterface(enable_image_decoding: bool, enable_raw_stream: bool)
+```
+
+**Parameters:**
+- `enable_image_decoding` (bool): Enable automatic image decoding
+- `enable_raw_stream` (bool): Enable raw stream data access
+
+#### Methods
+
+##### `record_to_vrs(vrs_path: str) -> None`
+
+Save streaming data to a VRS file.
+
+**Parameters:**
+- `vrs_path` (str): Path where VRS file from received streaming data will be saved
+
+##### Callback Registration Methods
+
+The following methods register callbacks for different data types:
+
+##### `register_imu_callback(callback: Callable)`
+
+Register callback for IMU (Inertial Measurement Unit) data.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(motion_data: projectaria_tools.core.sensor_data.MotionData, sensor_label: str)` called for each IMU sample
+
+##### `register_imu_batch_callback(callback: Callable)`
+
+Register callback for batched IMU data.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(motion_data_batch: List[projectaria_tools.core.sensor_data.MotionData], sensor_label: str)` called for IMU batches
+
+##### `register_eye_gaze_callback(callback: Callable)`
+
+Register callback for eye gaze tracking data.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(eye_gaze_data: projectaria_tools.core.mps.EyeGaze)` called for eye gaze samples
+
+##### `register_hand_pose_callback(callback: Callable)`
+
+Register callback for hand pose tracking data.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(hand_pose_data: projectaria_tools.core.mps.hand_tracking)` called for hand pose samples
+
+##### `register_audio_callback(callback: Callable)`
+
+Register callback for audio data.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(audio_data: projectaria_tools.core.sensor_data.AudioData, audio_record: projectaria_tools.core.sensor_data.AudioDataRecord, num_channels: int)` called for audio samples
+
+##### `register_rgb_callback(callback: Callable)`
+
+Register callback for RGB camera data.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(image_data: projectaria_tools.core.sensor_data.ImageData, image_record: projectaria_tools.core.sensor_data.ImageDataRecord)` called for RGB images
+
+##### `register_slam_callback(callback: Callable)`
+
+Register callback for SLAM camera data.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(image_data: projectaria_tools.core.sensor_data.ImageData, image_record: projectaria_tools.core.sensor_data.ImageDataRecord)` called for SLAM images
+
+##### `register_et_callback(callback: Callable)`
+
+Register callback for eye tracking camera data.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(image_data: projectaria_tools.core.sensor_data.ImageData, image_record: projectaria_tools.core.sensor_data.ImageDataRecord)` called for ET images
+
+##### `register_barometer_callback(callback: Callable)`
+
+Register callback for barometer data.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(barometer_data: projectaria_tools.core.sensor_data.BarometerData)` called for barometer samples
+
+##### `register_magnetometer_callback(callback: Callable)`
+
+Register callback for magnetometer data.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(motion_data: projectaria_tools.core.sensor_data.MotionData, sensor_label: str)` called for magnetometer samples
+
+##### `register_vio_callback(callback: Callable)`
+
+Register callback for Visual-Inertial Odometry (VIO) data.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(frontend_output: projectaria_tools.core.sensor_data.FrontendOutput)` called for VIO updates
+
+##### `register_vio_high_frequency_callback(callback: Callable)`
+
+Register callback for high-frequency VIO data.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(vio_data: projectaria_tools.core.mps.OpenLoopTrajectoryPose)` called for high-frequency VIO updates
+
+##### `register_device_calib_callback(callback: Callable)`
+
+Register callback for device calibration updates.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(device_calibration: projectaria_tools.core.calibration.DeviceCalibration)` called when calibration is received
+
+##### Queue Size Configuration Methods
+
+The following methods configure queue sizes for different data streams:
+
+##### `set_rgb_queue_size(size: int) -> None`
+
+Set the queue size for RGB image data.
+
+**Parameters:**
+- `size` (int): Queue size
+
+##### `set_slam_queue_size(size: int) -> None`
+
+Set the queue size for SLAM image data.
+
+**Parameters:**
+- `size` (int): Queue size
+
+##### `set_et_queue_size(size: int) -> None`
+
+Set the queue size for eye tracking image data.
+
+**Parameters:**
+- `size` (int): Queue size
+
+##### `set_imu_queue_size(size: int) -> None`
+
+Set the queue size for IMU data.
+
+**Parameters:**
+- `size` (int): Queue size
+
+##### `set_imu_batch_queue_size(size: int) -> None`
+
+Set the queue size for batched IMU data.
+
+**Parameters:**
+- `size` (int): Queue size
+
+##### `set_vio_high_freq_queue_size(size: int) -> None`
+
+Set the queue size for high-frequency VIO data.
+
+**Parameters:**
+- `size` (int): Queue size
+
+##### `set_vio_high_freq_batch_queue_size(size: int) -> None`
+
+Set the queue size for batched high-frequency VIO data.
+
+**Parameters:**
+- `size` (int): Queue size
+
+##### `set_eye_gaze_queue_size(size: int) -> None`
+
+Set the queue size for eye gaze data.
+
+**Parameters:**
+- `size` (int): Queue size
+
+##### `set_hand_pose_queue_size(size: int) -> None`
+
+Set the queue size for hand pose data.
+
+**Parameters:**
+- `size` (int): Queue size
+
+##### `set_vio_queue_size(size: int) -> None`
+
+Set the queue size for VIO data.
+
+**Parameters:**
+- `size` (int): Queue size
+
+##### Queue Size Getter Methods
+
+The following methods retrieve queue sizes for different data streams:
+
+##### `get_rgb_queue_size() -> int`
+
+Get the queue size for RGB image data.
+
+**Returns:** Queue size (int)
+
+##### `get_slam_queue_size() -> int`
+
+Get the queue size for SLAM image data.
+
+**Returns:** Queue size (int)
+
+##### `get_imu_queue_size() -> int`
+
+Get the queue size for IMU data.
+
+**Returns:** Queue size (int)
+
+##### `get_imu_batch_queue_size() -> int`
+
+Get the queue size for batched IMU data.
+
+**Returns:** Queue size (int)
+
+##### `get_et_queue_size() -> int`
+
+Get the queue size for eye tracking image data.
+
+**Returns:** Queue size (int)
+
+##### `get_vio_queue_size() -> int`
+
+Get the queue size for VIO data.
+
+**Returns:** Queue size (int)
+
+##### `get_vio_high_freq_queue_size() -> int`
+
+Get the queue size for high-frequency VIO data.
+
+**Returns:** Queue size (int)
+
+##### `get_vio_high_freq_batch_queue_size() -> int`
+
+Get the queue size for batched high-frequency VIO data.
+
+**Returns:** Queue size (int)
+
+##### `get_eye_gaze_queue_size() -> int`
+
+Get the queue size for eye gaze data.
+
+**Returns:** Queue size (int)
+
+##### `get_hand_pose_queue_size() -> int`
+
+Get the queue size for hand pose data.
+
+**Returns:** Queue size (int)
+
+---
+
+## Configuration Classes
+
+### HttpStreamingConfig
+
+Configuration for HTTP-based streaming.
+
+**Attributes:**
+- `profile_name` (str): Name of the streaming profile to use
+- `streaming_cert_name` (str): Name of the streaming certificate
+- `streaming_interface` (StreamingInterface): Network interface to use for streaming
+- `security_options` (StreamingSecurityOptions): Security settings for streaming
+- `advanced_config` (HttpStreamerConfig): Advanced streaming configuration
+- `keep_streaming_on_disconnection` (bool): Continue streaming if disconnected
+
+### RecordingConfig
+
+Configuration for on-device recording.
+
+**Attributes:**
+- `profile_name` (str): Name of the recording profile to use
+- `custom_profile` (str): Custom recording profile in JSON format
+- `recording_name` (str): Name for the recording
+
+### StreamingCertsPem
+
+Streaming certificates in PEM format.
+
+**Attributes:**
+- `root_ca_cert` (str): Root CA certificate in PEM format
+- `publisher_cert` (str): Publisher certificate in PEM format
+- `publisher_key` (str): Publisher private key in PEM format
+- `key_password` (str): Password for the private key
+- `cert_name` (str): Name for this certificate set
+
+### HttpStreamerConfig
+
+Advanced HTTP streamer configuration.
+
+**Attributes:**
+- `endpoint` (Endpoint): Streaming endpoint configuration
+
+### Endpoint
+
+HTTP endpoint configuration.
+
+**Attributes:**
+- `url` (str): Endpoint URL
+- `verify_server_certificates` (bool): Whether to verify server certificates
+- `auth` (SslAuthentication): SSL authentication credentials
+
+---
+
+## HTTP Server Classes
+
+### AriaGen2HttpServer
+
+HTTP server for receiving streaming data from devices.
+
+#### Constructor
+
+```python
+AriaGen2HttpServer(config: HttpServerConfig, handler_factory: AriaGen2HandlerFactory)
+```
+
+**Parameters:**
+- `config` (HttpServerConfig): Server configuration
+- `handler_factory` (AriaGen2HandlerFactory): Factory for creating stream handlers
+
+#### Methods
+
+##### `stop() -> None`
+
+Stop the HTTP server.
+
+##### `join() -> None`
+
+Wait for the server to finish.
+
+### HttpServerConfig
+
+Configuration for the HTTP server.
+
+**Attributes:**
+- `address` (str): Server bind address
+- `port` (int): Server port
+- `use_ssl` (bool): Enable SSL/TLS
+- `mdns_hostname` (str): mDNS hostname for discovery
+- `certificate` (Certificate): Server SSL certificate
+- `ca_root` (str): CA root certificate
+- `threads` (int): Number of server threads
+- `idel_timeout_sec` (int): Idle timeout in seconds
+
+### Certificate
+
+Server SSL certificate configuration.
+
+**Attributes:**
+- `cert` (str): Certificate in PEM format
+- `key` (str): Private key in PEM format
+- `key_password` (str): Password for the private key
+
+### AriaGen2HandlerFactory
+
+Factory for creating stream data handlers.
+
+#### Methods
+
+##### `create_factory_handler(handler_object: StreamDataInterface) -> AriaGen2HandlerFactory`
+
+Create a handler factory from a StreamDataInterface object.
+
+**Parameters:**
+- `handler_object` (StreamDataInterface): Stream data interface instance
+
+**Returns:** AriaGen2HandlerFactory instance
+
+---
+
+## Enumerations
+
+### StreamingInterface
+
+Available network interfaces for streaming.
+
+**Values:**
+- `WIFI_STA` - WiFi Station mode
+- `USB_RNDIS` - USB RNDIS (Windows)
+- `USB_NCM` - USB NCM (Linux/Mac)
+- `WIFI_SAP` - WiFi Soft Access Point mode
+
+### RecordingType
+
+Types of recordings.
+
+**Values:**
+- `RECORDING_TYPE_PROTOTYPE` - Prototype recording
+
+---
+
+## Message Types
+
+### SharedMessage
+
+Low-level message data structure.
+
+**Attributes:**
+- `id` (int, read-only): Message ID
+- `payload` (IBuffer, read-only): Message payload
+
+**Methods:**
+- `size() -> int`: Get message size in bytes
+
+### IBuffer
+
+Buffer interface for binary data.
+
+**Methods:**
+- `data() -> bytes`: Get buffer data as bytes
+- `as_memoryview() -> memoryview`: Get buffer as Python memoryview

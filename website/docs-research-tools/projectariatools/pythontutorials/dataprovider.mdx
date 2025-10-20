@@ -24,7 +24,12 @@ The **VrsDataProvider** interface provides a unified way to access multimodal se
 - Retrieve data using either sequential (index-based) or temporal (timestamp-based) access APIs.
 - Learn about timing domains and time query options
 
-**Prerequisites:** Basic Python knowledge and a general understanding of multimodal sensor data.
+**Prerequisites:**
+- Basic Python knowledge and a general understanding of multimodal sensor data.
+- Download Aria Gen2 sample data from [link](https://www.projectaria.com/async/sample/download/?bucket=core&filename=aria_gen2_sample_data_1.vrs)
+
+**Note on Visualization**
+If visualization window is not showing up, this is due to `Rerun` lib's caching issue. Just rerun the specific code cell.
 
 ## Basic File Loading
 
@@ -97,7 +102,6 @@ The indices in each stream are independent and not correlated across different s
 # Visualize with Rerun
 import rerun as rr
 rr.init("rerun_viz_query_by_index")
-rr.notebook_show()
 
 # Get number of samples in stream
 num_samples = vrs_data_provider.get_num_data(rgb_stream_id)
@@ -120,6 +124,7 @@ for i in range(first_few):  # First 10 frames
         rr.set_time_nanos("device_time", timestamp_ns)
         rr.log("camera_rgb", rr.Image(image_data.to_numpy_array()))
 
+rr.notebook_show()
 ```
 
 2. ### Query by Timestamp: TimeDomain and TimeQueryOptions
@@ -169,7 +174,6 @@ Below are all available options for each:
 from projectaria_tools.core.sensor_data import TimeDomain, TimeQueryOptions
 
 rr.init("rerun_viz_query_by_timestamp")
-rr.notebook_show()
 
 # Get time bounds for RGB images
 first_timestamp_ns = vrs_data_provider.get_first_time_ns(rgb_stream_id, TimeDomain.DEVICE_TIME)
@@ -210,4 +214,5 @@ for _ in range(10):
 
     query_timestamp_ns = query_timestamp_ns + int(1e9) # 1 second
 
+rr.notebook_show()
 ```

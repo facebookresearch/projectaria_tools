@@ -95,3 +95,8 @@ tr:nth-child(even) .headcol:first-child {
 [data-theme='dark'] tr:nth-child(even) .headcol:first-child {
   background-color: #2d2d2d;
 }
+
+article img {
+  max-height: 700px;
+  width: auto;
+}

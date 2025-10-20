@@ -1,0 +1,41 @@
+---
+sidebar_position: 4
+title: Data Lifecycle
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+# MPS Data Lifecycle
+
+## Overview
+
+Researchers can upload data collected by Project Aria glasses to Meta for cloud-based Machine Perception Services (MPS) processing.
+
+This page provides information about how all Aria sequences submitted to Meta for MPS are processed, handled and stored.
+
+## How sequences are processed
+
+1. Raw Aria sequences (VRS files) are uploaded to secure cloud storage via MPS CLI.
+2. The data is only uploaded to Meta servers to serve MPS requests and is deleted after 30 days
+3. The MPS output is saved in the cloud
+   * User account that requested the MPS gets the token necessary to access MPS outputs
+   * This derived data is persisted in the cloud
+4. Raw data is deleted from the cloud
+   * Meta’s data management processes mandate that this raw data cannot be stored for more than 30 days
+
+<div style={{textAlign: 'center'}}>
+<img width="100%" src={useBaseUrl('/img/docs-ark/mps/mps_data_lifecycle.png')} alt="Diagram of MPS Processing lifecycle, as described above"/>
+
+**Figure 1:** *MPS Processing Lifecycle*
+</div>
+
+
+
+## Data storage and use
+
+* Partner data is only used to serve MPS requests. Partner data is not available to Meta researchers or Meta’s affiliates.
+* Raw partner data (VRS files) is stored for no more than 30 days.
+* The whole process is automated and only engineers in the core MPS team can access the pipeline under explicit permission from the customer.
+* All [MPS output](/technical-specs/mps/data_formats) (trajectories, semi-dense point clouds etc.) continue to be stored in secure cloud storage, so that users can re-download the data at any time. MPS output is not available to Meta researchers or Meta’s affiliates.
+   * Only the user account that requested the MPS output gets the token necessary to download the derived data
+* The MPS pipeline generates statistics about how the algorithms are performing as well as the console logs from processing. These aggregated statistics are used by the Project Aria MPS team to help improve our offerings.

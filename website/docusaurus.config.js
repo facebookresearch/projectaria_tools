@@ -144,14 +144,14 @@ const config = {
             sidebarId: 'researchToolsSidebar',
             docsPluginId: 'research-tools',
             position: 'left',
-            label: 'Research and Tools',
+            label: 'Open Science Initiative',
           },
           {
             type: 'docSidebar',
             sidebarId: 'technicalSpecsSidebar',
             docsPluginId: 'technical-specs',
             position: 'left',
-            label: 'Technical Specs',
+            label: 'Technical Insights & Specs',
           },
           {
             href: 'https://www.projectaria.com/',

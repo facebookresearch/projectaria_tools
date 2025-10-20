@@ -24,7 +24,11 @@ This tutorial demonstrates how to access and visualize **Machine Perception Serv
 
 **Prerequisites**
 - Complete Tutorial 1 (VrsDataProvider Basics) to understand basic data provider concepts
-- Access to MPS processed data (SLAM outputs)
+- Complete Tutorial 2 (Device Calibration) to understand how to properly use calibration in Aria data.
+- Download Aria Gen2 sample data: [VRS](https://www.projectaria.com/async/sample/download/?bucket=core&filename=aria_gen2_sample_data_1.vrs) and [MPS output zip file](https://www.projectaria.com/async/sample/download/?bucket=core&filename=aria_gen2_sample_data_1_mps_output.zip).
+
+**Note on Visualization**
+If visualization window is not showing up, this is due to `Rerun` lib's caching issue. Just rerun the specific code cell.
 
 ```python
 import os
@@ -317,7 +321,6 @@ print("=== Visualizing MPS SLAM Results in 3D ===")
 
 # Initialize Rerun
 rr.init("MPS SLAM Visualization")
-rr.notebook_show()
 
 # Set up the 3D scene
 rr.log("world", rr.ViewCoordinates.RIGHT_HAND_Z_UP, static=True)
@@ -410,6 +413,7 @@ for closed_loop_pose in trajectory_segment:
         static=False,
     )
 
+rr.notebook_show()
 ```
 
 ## Understanding MPS Data Structures
