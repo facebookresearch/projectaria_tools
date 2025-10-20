@@ -1,21 +1,204 @@
 ---
 sidebar_position: 2
-title: Streaming control
+title: Streaming Control
+---
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import ThemedImage from '@theme/ThemedImage';
+
+
+# Streaming Control
+
+The ClientSDK provides powerful streaming capabilities that allow you to receive real-time data from your Aria Gen2 device. You can stream sensor data including camera feeds, IMU data, eye tracking, hand tracking, and machine perception outputs.
+
+## Overview
+
+Streaming enables you to access real-time data from your device:
+* **Real-time Data Access**: Receive sensor data as it's captured
+* **Machine Perception**: Access on-device VIO (Visual Inertial Odometry), eye gaze, and hand pose data
+* **Live Visualization**: View streaming data in real-time using the streaming viewer
+* **Custom Processing**: Build applications that process streaming data
+
 ---
 
-To get started, you can use the following command to start/stop streaming with the device
+## Choose Your Streaming Method
+
+Select the streaming method that best fits your use case:
+
+| Method | Best For | Pros | Cons |
+|--------|----------|------|------|
+| **[USB Streaming](#usb-streaming)** | Extended sessions, highest quality | Most reliable, no thermal issues | Requires cable connection |
+
+:::tip Getting Started
+**New to streaming?** Start with [USB Streaming](#usb-streaming) - it's the simplest and most reliable method.
+:::
+
+---
+
+## USB Streaming
+
+Stream data over USB connection for maximum bandwidth and reliability. This is the recommended method for getting started and for extended streaming sessions.
+
+### When to Use USB Streaming
+
+* **Extended sessions**: No thermal concerns - stream as long as you need
+* **Highest quality**: Maximum bandwidth and lowest latency
+* **Simple setup**: Just connect and stream, no network configuration
+* **Development**: Best for testing and development work
+
+### Quick Start
+
 ```bash
-# start streaming
-aria-gen2 streaming start
+# 1. Connect device via USB and verify connection
+aria_gen2 device list
 
-# visualize streaming
-aria-streaming-viewer
+# 2. Start streaming
+aria_gen2 streaming start
 
-# stop streaming
-aria-gen2 streaming stop
+# 3. In another terminal, visualize the stream
+aria_streaming_viewer --real-time --interpolate
+
+# 4. When done, stop streaming
+aria_gen2 streaming stop
 ```
 
-#### Example visualization
+### USB Streaming Details
+
+**Requirements:**
+* Device connected via USB
+* Device authenticated (see [Get Started](/ark/client-sdk/start) guide)
+* High-quality USB 3.0+ cable recommended
+
+**Command:**
+```bash
+aria_gen2 streaming start
+```
+
+**Default Profile:**
+The `mp_streaming_demo` profile is used by default, which provides smooth visualization with VIO, eye gaze, and hand pose data.
+
+### USB Troubleshooting
+
+**Device Not Found:**
+```bash
+# Check device connectivity
+aria_gen2 device list
+
+# If not found, ensure device is authenticated
+aria_gen2 auth check
+```
+
+**Common Issues:**
+* **USB cable**: Try a different high-quality USB 3.0+ cable
+* **USB port**: Try a different USB port on your computer
+* **Authentication**: Run `aria_gen2 auth pair` if device is not authenticated
+* **Recording active**: Stop any active recording with `aria_gen2 recording stop`
+
+---
+
+## Streaming Commands Reference
+
+### Start Streaming
+
+```bash
+aria_gen2 streaming start [OPTIONS]
+```
+
+**Options:**
+
+| Option | Values | Default | Description |
+|--------|--------|---------|-------------|
+| `--profile` | Profile name | `mp_streaming_demo` | Streaming profile |
+
+**Examples:**
+```bash
+# USB streaming (default)
+aria_gen2 streaming start
+```
+
+### Stop Streaming
+
+Connect device via USB, then stop streaming:
+
+```bash
+aria_gen2 streaming stop
+```
+
+### Visualize Streaming Data
+
+Open the streaming viewer in a separate terminal while streaming is active:
+
+```bash
+aria_streaming_viewer --real-time --interpolate
+```
+
+The viewer shows:
+* Live camera feeds (RGB, SLAM, eye tracking)
+* Machine perception data (VIO trajectory, eye gaze, hand pose)
+* Sensor readings (IMU, magnetometer, etc.)
+* Performance metrics (frame rates, latency)
 
 
-For detailed instructions, you can refer to the Technical Specs page for more details.
+#### Example Visualization
+
+<ThemedImage
+  alt="Docusaurus themed image"
+  sources={{
+    light: useBaseUrl('/img/docs-ark/client-sdk/aria_streaming_viewer.png'),
+    dark: useBaseUrl('/img/docs-ark/client-sdk/aria_streaming_viewer.png'),
+  }}
+  style={{ width: '900px', height: 'auto' }}
+/>
+
+
+---
+
+## Streaming vs Recording
+
+Choose the right tool for your needs:
+
+| Feature | Streaming | Recording |
+|---------|-----------|-----------|
+| **Real-time Access** | Yes | No |
+| **Data Saved on Device** | No | Yes |
+| **Machine Perception** | VIO, Eye Gaze, Hand Pose | VIO, Eye Gaze, Hand Pose |
+| **Connection Required** | During capture | No |
+| **Use Case** | Live monitoring, real-time processing | Data collection for offline analysis |
+| **Best For** | Development, live demos, debugging | Research data collection, post-processing |
+
+:::tip
+* Use **streaming** when you need to see data in real-time or process it live
+* Use **recording** when you need to save data for later analysis or offline processing
+:::
+
+---
+
+## Best Practices
+
+### Choosing the Right Method
+
+* **Development & Testing**: Use USB streaming for reliability and ease
+* **Demos & Monitoring**: Use USB streaming with long cables for mobility during short sessions
+* **Field Work**: Use hotspot streaming when no network is available
+* **Long Sessions**: Always use USB streaming (no thermal concerns)
+
+### General Tips
+
+* **Start Simple**: Begin with USB streaming to verify everything works
+* **Test First**: Run a short streaming session before important captures
+* **Monitor Temperature**: Watch for device heating during wireless streaming
+* **Keep Device Charged**: Wireless streaming consumes more battery
+* **Close Applications**: Free up system resources for better performance
+* **Use Quality Cables**: USB 3.0+ cables for best USB streaming performance
+
+### Thermal Management
+
+* **If device gets hot**: Stop streaming and let it cool before continuing
+* **Extended sessions**: Always prefer USB streaming
+
+---
+
+## Next Steps
+
+* Learn about [Recording](/ark/client-sdk/recording) to save data for offline analysis
+* Check out [Streaming Examples](/ark/client-sdk/python-sdk/streaming-example) to build custom streaming applications
+* Visit the [CLI Technical Specs](/technical-specs/client-sdk/cli) for complete command reference

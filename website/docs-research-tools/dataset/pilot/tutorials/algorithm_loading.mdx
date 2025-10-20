@@ -1,0 +1,979 @@
+---
+sidebar_position: 2
+title: Aria Gen2 Pilot Dataset Tutorial - Algorithm Data Loading
+---
+
+import TutorialButtons from '@site/src/components/TutorialButtons';
+
+<TutorialButtons
+  notebookUrl="https://github.com/facebookresearch/projectaria_gen2_pilot_dataset/blob/main/examples/tutorial_3_algorithm_data_loading.ipynb"
+  colabDisabled={true}
+/>
+
+This tutorial demonstrates how to load and visualize algorithm output data from the Aria Gen2 Pilot Dataset using the `AriaGen2PilotDataProvider`.
+
+## What You'll Learn
+
+- Load and visualize Heart Rate monitoring data
+- Access Diarization (speaker identification) results
+- Work with Hand-Object Interaction segmentation data
+- Explore Egocentric Voxel Lifting 3D scene reconstruction
+- Process Foundation Stereo depth estimation data
+- Understand data structures and API patterns for algorithm outputs
+
+## Algorithm Data Overview
+
+The Aria Gen2 Pilot Dataset includes 5 types of algorithm outputs. Please find the introduction to algorithms [here](TODO: updata link)
+
+1. **Heart Rate Monitoring**
+2. **Diarization**
+3. **Hand-Object Interaction**
+4. **Egocentric Voxel Lifting**
+5. **Foundation Stereo**
+
+**Important Notes:**
+- These are **algorithm outputs** (post-processed results), distinct from raw VRS sensor data
+- Algorithm data availability varies by sequence - not all sequences contain all algorithm outputs
+- Each algorithm has its own data structure and query patterns
+
+## Import Required Libraries
+
+The following libraries are required for this tutorial:
+
+```python
+# Standard library imports
+import numpy as np
+import os
+from pathlib import Path
+from datetime import timedelta
+
+# Project Aria Tools imports
+from projectaria_tools.core.stream_id import StreamId
+from projectaria_tools.core.sensor_data import TimeDomain, TimeQueryOptions
+from projectaria_tools.core.calibration import DeviceCalibration
+from projectaria_tools.utils.rerun_helpers import (
+    create_hand_skeleton_from_landmarks,
+    AriaGlassesOutline,
+    ToTransform3D
+)
+
+# Aria Gen2 Pilot Dataset imports
+from aria_gen2_pilot_dataset import AriaGen2PilotDataProvider
+from aria_gen2_pilot_dataset.data_provider.aria_gen2_pilot_dataset_data_types import (
+    HeartRateData,
+    DiarizationData,
+    HandObjectInteractionData,
+    BoundingBox3D,
+    BoundingBox2D,
+    CameraIntrinsicsAndPose
+)
+
+# Visualization library
+import rerun as rr
+```
+
+## Initialize Data Provider
+
+The `AriaGen2PilotDataProvider` is the main interface for accessing data from the Aria Gen2 Pilot Dataset. It provides methods to query algorithm data, check availability, and access device calibration information.
+
+**⚠️ Important:** Update the `sequence_path` below to point to your downloaded Aria Gen2 Pilot Dataset sequence folder.
+
+```python
+# Replace with the actual path to your downloaded sequence folder
+sequence_path = "path/to/your/sequence_folder"
+
+# Initialize the data provider
+pilot_data_provider = AriaGen2PilotDataProvider(sequence_path)
+```
+
+## Check Available Algorithm Data
+
+Each Aria Gen2 Pilot dataset sequence may contain different algorithm outputs. Let's check what's available in this sequence.
+
+```python
+# Check what algorithm data types are available in this sequence
+print("Algorithm Data Availability in This Sequence:")
+print("=" * 60)
+print(f"Heart Rate Monitoring:      {'✅' if pilot_data_provider.has_heart_rate_data() else '❌'}")
+print(f"Diarization:               {'✅' if pilot_data_provider.has_diarization_data() else '❌'}")
+print(f"Hand-Object Interaction:    {'✅' if pilot_data_provider.has_hand_object_interaction_data() else '❌'}")
+print(f"Egocentric Voxel Lifting:   {'✅' if pilot_data_provider.has_egocentric_voxel_lifting_data() else '❌'}")
+print(f"Foundation Stereo:         {'✅' if pilot_data_provider.has_stereo_depth_data() else '❌'}")
+print("=" * 60)
+
+# Count available algorithms
+available_algorithms = [
+    pilot_data_provider.has_heart_rate_data(),
+    pilot_data_provider.has_diarization_data(),
+    pilot_data_provider.has_hand_object_interaction_data(),
+    pilot_data_provider.has_egocentric_voxel_lifting_data(),
+    pilot_data_provider.has_stereo_depth_data()
+]
+available_count = sum(available_algorithms)
+print(f"\nTotal available algorithms: {available_count}/5")
+```
+
+## Heart Rate Monitoring
+
+Heart rate monitoring provides physiological data extracted from PPG (Photoplethysmography) sensors in the Aria glasses.
+
+### Heart Rate Data Structure
+
+The `HeartRateData` class contains:
+
+| Field Name | Type | Description |
+|------------|------|-------------|
+| `timestamp_ns` | int | Timestamp in device time domain (nanoseconds) |
+| `heart_rate_bpm` | int | Heart rate in beats per minute |
+
+### Heart Rate API Reference
+
+- `has_heart_rate_data()`: Check if heart rate data is available
+- `get_heart_rate_by_index(index)`: Get heart rate data by index
+- `get_heart_rate_by_timestamp_ns(timestamp_ns, time_domain, time_query_options)`: Get heart rate data by timestamp
+- `get_heart_rate_total_number()`: Get total number of heart rate entries
+
+```python
+# Heart Rate Data Loading and Analysis
+if pilot_data_provider.has_heart_rate_data():
+    print("✅ Heart Rate data is available")
+
+    # Get total number of heart rate entries
+    total_heart_rate = pilot_data_provider.get_heart_rate_total_number()
+    print(f"Total heart rate entries: {total_heart_rate}")
+
+    # Sample first few heart rate entries
+    print("\n=== Heart Rate Data Sample ===")
+    sample_count = min(5, total_heart_rate)
+    for i in range(sample_count):
+        heart_rate_data = pilot_data_provider.get_heart_rate_by_index(i)
+        if heart_rate_data is not None:
+            print(f"Entry {i}: timestamp={heart_rate_data.timestamp_ns} ns, heart_rate={heart_rate_data.heart_rate_bpm} bpm")
+
+    # Query heart rate data by timestamp
+    if total_heart_rate > 0:
+        # Get a sample timestamp from the middle of the sequence
+        sample_heart_rate = pilot_data_provider.get_heart_rate_by_index(total_heart_rate // 2)
+        if sample_heart_rate is not None:
+            query_timestamp = sample_heart_rate.timestamp_ns
+
+            # Query heart rate at this timestamp
+            heart_rate_at_time = pilot_data_provider.get_heart_rate_by_timestamp_ns(
+                query_timestamp, TimeDomain.DEVICE_TIME, TimeQueryOptions.CLOSEST
+            )
+
+            if heart_rate_at_time is not None:
+                print(f"\nHeart rate at timestamp {query_timestamp}: {heart_rate_at_time.heart_rate_bpm} bpm")
+else:
+    print("❌ Heart Rate data is not available in this sequence")
+```
+
+```python
+# Heart Rate Visualization
+if pilot_data_provider.has_heart_rate_data():
+    print("\n=== Visualizing Heart Rate Data ===")
+
+    # Initialize Rerun for visualization
+    rr.init("rerun_viz_heart_rate")
+    rr.notebook_show()
+
+    # Get all heart rate data for time series visualization
+    total_heart_rate = pilot_data_provider.get_heart_rate_total_number()
+
+    # Sample heart rate data (every 10th entry for performance)
+    sample_indices = range(0, total_heart_rate, max(1, total_heart_rate // 50))
+
+    for i in sample_indices:
+        heart_rate_data = pilot_data_provider.get_heart_rate_by_index(i)
+        if heart_rate_data is not None:
+            # Convert timestamp to seconds for visualization
+            timestamp_seconds = heart_rate_data.timestamp_ns / 1e9
+
+            # Set time and log heart rate as scalar (following visualizer pattern)
+            rr.set_time_seconds("device_time", timestamp_seconds)
+            rr.log("heart_rate_bpm", rr.Scalar(heart_rate_data.heart_rate_bpm))
+else:
+    print("Skipping heart rate visualization - no heart rate data available.")
+```
+
+## Diarization
+
+Diarization provides speaker identification and voice activity detection from audio data.
+
+### Diarization Data Structure
+
+The `DiarizationData` class contains:
+
+| Field Name | Type | Description |
+|------------|------|-------------|
+| `start_timestamp_ns` | int | Start timestamp in device time domain (nanoseconds) |
+| `end_timestamp_ns` | int | End timestamp in device time domain (nanoseconds) |
+| `speaker` | str | Unique identifier of the speaker |
+| `content` | str | ASR transcription text |
+
+### Diarization API Reference
+
+- `has_diarization_data()`: Check if diarization data is available
+- `get_diarization_data_by_index(index)`: Get diarization data by index
+- `get_diarization_data_by_timestamp_ns(timestamp_ns, time_domain)`: Get diarization data containing timestamp (returns list)
+- `get_diarization_data_by_start_and_end_timestamps(start_ns, end_ns, time_domain)`: Get diarization data in time range
+- `get_diarization_data_total_number()`: Get total number of diarization entries
+
+```python
+# Diarization Data Loading and Analysis
+if pilot_data_provider.has_diarization_data():
+    print("✅ Diarization data is available")
+
+    # Get total number of diarization entries
+    total_diarization = pilot_data_provider.get_diarization_data_total_number()
+    print(f"Total diarization entries: {total_diarization}")
+
+    # Sample first few diarization entries
+    print("\n=== Diarization Data Sample ===")
+    sample_count = min(3, total_diarization)
+    for i in range(sample_count):
+        diarization_data = pilot_data_provider.get_diarization_data_by_index(i)
+        if diarization_data is not None:
+            duration_ms = (diarization_data.end_timestamp_ns - diarization_data.start_timestamp_ns) / 1e6
+            print(f"Entry {i}:")
+            print(f"  Speaker: {diarization_data.speaker}")
+            print(f"  Duration: {duration_ms:.1f} ms")
+            print(f"  Content: {diarization_data.content[:100]}{'...' if len(diarization_data.content) > 100 else ''}")
+            print()
+
+    # Query diarization data by timestamp
+    if total_diarization > 0:
+        # Get a sample timestamp from the middle of the sequence
+        sample_diarization = pilot_data_provider.get_diarization_data_by_index(total_diarization // 2)
+        if sample_diarization is not None:
+            query_timestamp = sample_diarization.start_timestamp_ns
+
+            # Query diarization at this timestamp
+            diarization_at_time = pilot_data_provider.get_diarization_data_by_timestamp_ns(
+                query_timestamp, TimeDomain.DEVICE_TIME
+            )
+
+            print(f"Diarization entries at timestamp {query_timestamp}: {len(diarization_at_time)}")
+            for entry in diarization_at_time[:2]:  # Show first 2 entries
+                print(f"  Speaker: {entry.speaker}, Content: {entry.content[:50]}...")
+else:
+    print("❌ Diarization data is not available in this sequence")
+```
+
+```python
+# Diarization Visualization
+if pilot_data_provider.has_diarization_data():
+    print("\n=== Visualizing Diarization Data ===")
+
+    # Initialize Rerun for visualization
+    rr.init("rerun_viz_diarization")
+    rr.notebook_show()
+
+    # Get RGB camera stream for overlay
+    rgb_stream_id = pilot_data_provider.get_vrs_stream_id_from_label("camera-rgb")
+
+    if rgb_stream_id is not None:
+        # Get time bounds for RGB images
+        first_timestamp_ns = pilot_data_provider.get_vrs_timestamps_ns(rgb_stream_id, TimeDomain.DEVICE_TIME)[0]
+
+        # Sample a few RGB frames for visualization
+        sample_timestamps = []
+        for i in range(50, min(100, pilot_data_provider.get_vrs_num_data(rgb_stream_id)), 2):
+            rgb_data, rgb_record = pilot_data_provider.get_vrs_image_data_by_index(rgb_stream_id, i)
+            sample_timestamps.append(rgb_record.capture_timestamp_ns)
+
+        # Visualize RGB images with diarization overlay
+        for timestamp_ns in sample_timestamps:
+            # Get RGB image
+            rgb_data, rgb_record = pilot_data_provider.get_vrs_image_data_by_time_ns(
+                rgb_stream_id, timestamp_ns, TimeDomain.DEVICE_TIME, TimeQueryOptions.CLOSEST
+            )
+
+            if rgb_data.is_valid():
+                # Visualize the RGB image
+                rr.set_time_nanos("device_time", rgb_record.capture_timestamp_ns)
+                rr.log("camera_rgb", rr.Image(rgb_data.to_numpy_array()))
+
+                # Get diarization data for this timestamp
+                diarization_entries = pilot_data_provider.get_diarization_data_by_timestamp_ns(
+                    timestamp_ns, TimeDomain.DEVICE_TIME
+                )
+
+                # Add diarization text overlay (following visualizer pattern)
+                if diarization_entries:
+                    # Get image dimensions for positioning (following visualizer logic)
+                    width, height = rgb_data.get_width(), rgb_data.get_height()
+
+                    # Clear previous diarization overlays
+                    rr.log("camera_rgb/diarization", rr.Clear.recursive())
+
+                    # Plot each diarization entry (following visualizer pattern exactly)
+                    for i, conv_data in enumerate(diarization_entries[:3]):  # Show first 3 entries
+                        text_content = f"{conv_data.speaker}: {conv_data.content}"
+                        text_x = width // 2  # Center horizontally
+                        text_y = height - height // 15 - (i * 10 * 7)  # Bottom positioning with vertical spacing
+
+                        rr.log(
+                            f"camera_rgb/diarization/conversation_text_{i}",
+                            rr.Points2D(
+                                positions=[[text_x, text_y]],
+                                labels=[text_content],
+                                colors=[255, 255, 255],  # White text from plot_style.py DIARIZATION_TEXT
+                                radii=10  # Text size from plot_style.py
+                            )
+                        )
+else:
+    print("Skipping diarization visualization - no diarization data available.")
+```
+
+## Hand-Object Interaction
+
+Hand-Object Interaction provides segmentation masks for hands and interacting objects, enabling analysis of hand-object relationships.
+
+### Hand-Object Interaction Data Structure
+
+The `HandObjectInteractionData` class contains:
+
+| Field Name | Type | Description |
+|------------|------|-------------|
+| `timestamp_ns` | int | Timestamp in device time domain (nanoseconds) |
+| `category_id` | int | Category: 1=left_hand, 2=right_hand, 3=interacting_object |
+| `masks` | List[np.ndarray] | List of decoded binary masks (height, width) uint8 arrays |
+| `bboxes` | List[List[float]] | List of bounding boxes [x, y, width, height] for each mask |
+| `scores` | List[float] | List of confidence scores [0.0, 1.0] for each mask |
+
+### Hand-Object Interaction API Reference
+
+- `has_hand_object_interaction_data()`: Check if HOI data is available
+- `get_hoi_data_by_timestamp_ns(timestamp_ns, time_domain, time_query_options)`: Get HOI data by timestamp (returns list)
+- `get_hoi_data_by_index(index)`: Get HOI data by index
+- `get_hoi_total_number()`: Get total number of HOI timestamps
+
+```python
+# Hand-Object Interaction Data Loading and Analysis
+if pilot_data_provider.has_hand_object_interaction_data():
+    print("✅ Hand-Object Interaction data is available")
+
+    # Get total number of HOI entries
+    total_hoi = pilot_data_provider.get_hoi_total_number()
+    print(f"Total HOI timestamps: {total_hoi}")
+
+    # Sample first few HOI entries
+    print("\n=== Hand-Object Interaction Data Sample ===")
+    sample_count = min(3, total_hoi)
+    for i in range(sample_count):
+        hoi_data_list = pilot_data_provider.get_hoi_data_by_index(i)
+        if hoi_data_list is not None and len(hoi_data_list) > 0:
+            print(f"Timestamp {i}: {len(hoi_data_list)} HOI entries")
+            for j, hoi_data in enumerate(hoi_data_list[:2]):  # Show first 2 entries
+                category_names = {1: "left_hand", 2: "right_hand", 3: "interacting_object"}
+                category_name = category_names.get(hoi_data.category_id, "unknown")
+                print(f"  Entry {j}: {category_name}, {len(hoi_data.masks)} masks, avg_score={np.mean(hoi_data.scores):.3f}")
+                if len(hoi_data.masks) > 0:
+                    print(f"    Mask shape: {hoi_data.masks[0].shape}")
+
+    # Query HOI data by timestamp
+    if total_hoi > 0:
+        # Get a sample timestamp from the middle of the sequence
+        sample_hoi_list = pilot_data_provider.get_hoi_data_by_index(total_hoi // 2)
+        if sample_hoi_list is not None and len(sample_hoi_list) > 0:
+            query_timestamp = sample_hoi_list[0].timestamp_ns
+
+            # Query HOI at this timestamp
+            hoi_at_time = pilot_data_provider.get_hoi_data_by_timestamp_ns(
+                query_timestamp, TimeDomain.DEVICE_TIME, TimeQueryOptions.CLOSEST
+            )
+
+            if hoi_at_time is not None:
+                print(f"\nHOI entries at timestamp {query_timestamp}: {len(hoi_at_time)}")
+                for entry in hoi_at_time[:2]:  # Show first 2 entries
+                    category_names = {1: "left_hand", 2: "right_hand", 3: "interacting_object"}
+                    category_name = category_names.get(entry.category_id, "unknown")
+                    print(f"  {category_name}: {len(entry.masks)} masks, scores={[f'{s:.2f}' for s in entry.scores[:3]]}")
+else:
+    print("❌ Hand-Object Interaction data is not available in this sequence")
+```
+
+```python
+# Hand-Object Interaction Visualization
+if pilot_data_provider.has_hand_object_interaction_data():
+    print("\n=== Visualizing Hand-Object Interaction Data ===")
+
+    # Initialize Rerun for visualization
+    rr.init("rerun_viz_hoi")
+    rr.notebook_show()
+
+    # Get RGB camera stream for overlay
+    rgb_stream_id = pilot_data_provider.get_vrs_stream_id_from_label("camera-rgb")
+
+    if rgb_stream_id is not None:
+        # Get time bounds for RGB images
+        first_timestamp_ns = pilot_data_provider.get_vrs_timestamps_ns(rgb_stream_id, TimeDomain.DEVICE_TIME)[0]
+
+        # Sample a few RGB frames for visualization
+        sample_timestamps = []
+        for i in range(0, min(10, pilot_data_provider.get_vrs_num_data(rgb_stream_id)), 2):
+            rgb_data, rgb_record = pilot_data_provider.get_vrs_image_data_by_index(rgb_stream_id, i)
+            sample_timestamps.append(rgb_record.capture_timestamp_ns)
+
+        # Visualize RGB images with HOI overlay
+        for timestamp_ns in sample_timestamps:
+            # Get RGB image
+            rgb_data, rgb_record = pilot_data_provider.get_vrs_image_data_by_time_ns(
+                rgb_stream_id, timestamp_ns, TimeDomain.DEVICE_TIME, TimeQueryOptions.CLOSEST
+            )
+
+            if rgb_data.is_valid():
+                # Visualize the RGB image
+                rr.set_time_nanos("device_time", rgb_record.capture_timestamp_ns)
+                rr.log("camera_rgb", rr.Image(rgb_data.to_numpy_array()))
+
+                # Get HOI data for this timestamp
+                hoi_entries = pilot_data_provider.get_hoi_data_by_timestamp_ns(
+                    timestamp_ns, TimeDomain.DEVICE_TIME, TimeQueryOptions.CLOSEST
+                )
+
+                # Visualize HOI masks as overlays (following visualizer pattern exactly)
+                if hoi_entries:
+                    # Clear previous HOI overlays (following visualizer pattern)
+                    rr.log("camera_rgb/hoi_overlay", rr.Clear.recursive())
+
+                    # Filter out HOI data too far away from the current frame (following visualizer logic)
+                    rgb_frame_interval_ns = 33_333_333  # ~30 FPS
+                    if abs(hoi_entries[0].timestamp_ns - timestamp_ns) > rgb_frame_interval_ns / 2:
+                        continue
+
+                    # Color mapping from plot_style.py (following visualizer pattern)
+                    category_to_plot_style = {
+                        1: [119, 172, 48, 128],    # Green for left hand (HOI_LEFT_HAND)
+                        2: [217, 83, 255, 128],    # Purple for right hand (HOI_RIGHT_HAND)
+                        3: [237, 177, 32, 128]     # Orange for interacting object (HOI_INTERACTING_OBJECT)
+                    }
+
+                    # Determine mask shape from the first valid mask (following visualizer logic)
+                    mask_shape = next(
+                        (
+                            mask.shape
+                            for hoi_data in hoi_entries
+                            for mask in hoi_data.masks
+                            if mask is not None and mask.size > 0
+                        ),
+                        None,
+                    )
+                    if mask_shape is None:
+                        continue
+
+                    # Initialize combined RGBA overlay (following visualizer pattern)
+                    combined_rgba_overlay = np.zeros((*mask_shape, 4), dtype=np.uint8)
+
+                    # Overlay each category's mask with its color (following visualizer logic)
+                    for hoi_data in hoi_entries:
+                        category_id = hoi_data.category_id
+                        plot_style_color = category_to_plot_style.get(category_id, None)
+                        if not plot_style_color:
+                            continue
+
+                        for mask in hoi_data.masks:
+                            if mask is None or mask.size == 0:
+                                continue
+                            foreground_pixels = mask > 0
+                            combined_rgba_overlay[foreground_pixels] = plot_style_color
+
+                    # Log the combined segmentation overlay as an image (following visualizer pattern)
+                    rr.log(
+                        "camera_rgb/hoi_overlay/combined",
+                        rr.Image(combined_rgba_overlay)
+                    )
+else:
+    print("Skipping HOI visualization - no HOI data available.")
+```
+
+## Egocentric Voxel Lifting
+
+Egocentric Voxel Lifting provides 3D scene reconstruction from egocentric view, including 3D bounding boxes and object instance information.
+
+### Egocentric Voxel Lifting Data Structure
+
+The EVL system provides two main data types:
+
+**BoundingBox3D** (3D world coordinates):
+| Field Name | Type | Description |
+|------------|------|-------------|
+| `start_timestamp_ns` | int | Timestamp in device time domain (nanoseconds) |
+| `bbox3d` | BoundingBox3dData | 3D bounding box data (AABB, transform, etc.) |
+
+**BoundingBox3dData** structure:
+| Field Name | Type | Description |
+|------------|------|-------------|
+| `transform_scene_object` | SE3 | Object 6DoF pose in the scene (world), where: point_in_scene = T_Scene_Object * point_in_object |
+| `aabb` | List[float] | Object AABB (axes-aligned-bounding-box) in the object's local coordinate frame, represented as [xmin, xmax, ymin, ymax, zmin, zmax] |
+
+**BoundingBox2D** (2D camera projections):
+| Field Name | Type | Description |
+|------------|------|-------------|
+| `start_timestamp_ns` | int | Timestamp in device time domain (nanoseconds) |
+| `bbox2d` | BoundingBox2dData | 2D bounding box data |
+
+**BoundingBox2dData** structure:
+| Field Name | Type | Description |
+|------------|------|-------------|
+| `box_range` | List[float] | 2D bounding box range as [xmin, xmax, ymin, ymax] |
+| `visibility_ratio` | float | Visibility ratio calculated by occlusion between objects. visibility_ratio = 1: object is not occluded, visibility_ratio = 0: object is fully occluded |
+
+**InstanceInfo** (object metadata):
+- `category`: Object category name
+- `name`: Specific object name
+
+### Egocentric Voxel Lifting API Reference
+
+- `has_egocentric_voxel_lifting_data()`: Check if EVL data is available
+- `get_evl_3d_bounding_boxes_by_timestamp_ns(timestamp_ns, time_domain, time_query_options)`: Get 3D bounding boxes (returns Dict[int, BoundingBox3D])
+- `get_evl_2d_bounding_boxes_by_timestamp_ns(timestamp_ns, time_domain, camera_label)`: Get 2D bounding boxes for specific camera
+- `get_evl_instance_info_by_id(instance_id)`: Get object category/name information
+
+```python
+# Egocentric Voxel Lifting Data Loading and Analysis
+if pilot_data_provider.has_egocentric_voxel_lifting_data():
+    print("✅ Egocentric Voxel Lifting data is available")
+
+    # Get RGB camera stream for 2D projection
+    rgb_stream_id = pilot_data_provider.get_vrs_stream_id_from_label("camera-rgb")
+
+    if rgb_stream_id is not None:
+        # Get a sample timestamp from RGB stream
+        first_timestamp_ns = pilot_data_provider.get_vrs_timestamps_ns(rgb_stream_id, TimeDomain.DEVICE_TIME)[0]
+        sample_timestamp = first_timestamp_ns + int(5e9)  # 5 seconds into sequence
+
+        # Query 3D bounding boxes
+        evl_3d_bboxes = pilot_data_provider.get_evl_3d_bounding_boxes_by_timestamp_ns(
+            sample_timestamp, TimeDomain.DEVICE_TIME, TimeQueryOptions.CLOSEST
+        )
+
+        if evl_3d_bboxes is not None:
+            print(f"\n=== EVL 3D Bounding Boxes at timestamp {sample_timestamp} ===")
+            print(f"Found {len(evl_3d_bboxes)} 3D bounding boxes")
+
+            for instance_id, bbox_3d in list(evl_3d_bboxes.items())[:3]:  # Show first 3
+                # Get instance info
+                instance_info = pilot_data_provider.get_evl_instance_info_by_id(instance_id)
+                if instance_info is not None:
+                    print(f"Instance {instance_id}: {instance_info.category} - {instance_info.name}")
+                    print(f"  AABB: {bbox_3d.bbox3d.aabb}")
+                    print(f"  Transform: {bbox_3d.bbox3d.transform_scene_object.to_matrix()[:3, 3]}")
+
+        # Query 2D bounding boxes for RGB camera
+        evl_2d_bboxes = pilot_data_provider.get_evl_2d_bounding_boxes_by_timestamp_ns(
+            sample_timestamp, TimeDomain.DEVICE_TIME, "camera-rgb"
+        )
+
+        if evl_2d_bboxes is not None:
+            print(f"\n=== EVL 2D Bounding Boxes for RGB camera ===")
+            print(f"Found {len(evl_2d_bboxes)} 2D bounding boxes")
+
+            for instance_id, bbox_2d in list(evl_2d_bboxes.items())[:3]:  # Show first 3
+                print(f"Instance {instance_id}: 2D bbox {bbox_2d.bbox2d.box_range}")
+else:
+    print("❌ Egocentric Voxel Lifting data is not available in this sequence")
+```
+
+```python
+from aria_gen2_pilot_dataset.visualization.plot_utils import extract_bbox_projection_data, project_3d_bbox_to_2d_camera
+# Egocentric Voxel Lifting Visualization
+if pilot_data_provider.has_egocentric_voxel_lifting_data():
+    print("\n=== Visualizing Egocentric Voxel Lifting Data ===")
+
+    # Initialize Rerun for visualization
+    rr.init("rerun_viz_evl")
+    rr.notebook_show()
+
+    # Get RGB camera stream for 2D projection
+    rgb_stream_id = pilot_data_provider.get_vrs_stream_id_from_label("camera-rgb")
+
+    if rgb_stream_id is not None:
+        # Get time bounds for RGB images
+        first_timestamp_ns = pilot_data_provider.get_vrs_timestamps_ns(rgb_stream_id, TimeDomain.DEVICE_TIME)[0]
+
+        # Sample a few RGB frames for visualization
+        sample_timestamps = []
+        for i in range(0, min(10, pilot_data_provider.get_vrs_num_data(rgb_stream_id)), 2):
+            rgb_data, rgb_record = pilot_data_provider.get_vrs_image_data_by_index(rgb_stream_id, i)
+            sample_timestamps.append(rgb_record.capture_timestamp_ns)
+
+        # Visualize RGB images with EVL 2D and 3D bounding boxes
+        for timestamp_ns in sample_timestamps:
+            # Get RGB image
+            rgb_data, rgb_record = pilot_data_provider.get_vrs_image_data_by_time_ns(
+                rgb_stream_id, timestamp_ns, TimeDomain.DEVICE_TIME, TimeQueryOptions.CLOSEST
+            )
+
+            if rgb_data.is_valid():
+                # Visualize the RGB image
+                rr.set_time_nanos("device_time", rgb_record.capture_timestamp_ns)
+                rr.log("camera_rgb", rr.Image(rgb_data.to_numpy_array()))
+
+                # Get EVL 3D bounding boxes for this timestamp
+                evl_3d_bboxes = pilot_data_provider.get_evl_3d_bounding_boxes_by_timestamp_ns(
+                    timestamp_ns, TimeDomain.DEVICE_TIME, TimeQueryOptions.CLOSEST
+                )
+
+                # Visualize projected 3D bounding boxes (following visualizer pattern)
+                if evl_3d_bboxes is not None:
+                    # Clear previous EVL overlays (following visualizer pattern)
+                    rr.log("camera_rgb/evl_3d_bboxes_projected", rr.Clear.recursive())
+
+                    # Get trajectory pose from MPS data (following visualizer pattern exactly)
+                    trajectory_pose = pilot_data_provider.get_mps_closed_loop_pose(
+                        timestamp_ns, TimeDomain.DEVICE_TIME
+                    )
+
+                    if trajectory_pose is not None:
+                        # Get RGB camera calibration for projection
+                        device_calibration = pilot_data_provider.get_vrs_device_calibration()
+                        rgb_camera_calibration = device_calibration.get_camera_calib("camera-rgb")
+
+                        if rgb_camera_calibration is not None:
+                            # Get transforms and image dimensions (following visualizer pattern exactly)
+                            T_world_device = trajectory_pose.transform_world_device
+                            T_device_camera = rgb_camera_calibration.get_transform_device_camera()
+                            T_world_camera = T_world_device @ T_device_camera
+
+                            # Get image dimensions
+                            image_width, image_height = rgb_camera_calibration.get_image_size()
+
+                            # Extract bbox data for projection using utility function (following visualizer pattern)
+                            projection_data = extract_bbox_projection_data(pilot_data_provider, evl_3d_bboxes)
+
+                            # Collect all projection results for batching
+                            all_projected_lines = []
+                            all_line_colors = []
+                            label_positions = []
+                            label_texts = []
+                            label_colors = []
+
+                            # Project each bounding box using utility function (following visualizer pattern)
+                            for data in projection_data:
+                                projection_result = project_3d_bbox_to_2d_camera(
+                                    corners_in_world=data["corners_world"],
+                                    T_world_camera=T_world_camera,
+                                    camera_calibration=rgb_camera_calibration,
+                                    image_width=image_width,
+                                    image_height=image_height,
+                                    label=data["label"],
+                                )
+
+                                if projection_result:
+                                    projected_lines, line_colors, label_position = projection_result
+
+                                    # Collect projection data for batching
+                                    if projected_lines:
+                                        all_projected_lines.extend(projected_lines)
+                                        if line_colors and len(line_colors) >= len(projected_lines):
+                                            all_line_colors.extend(line_colors[:len(projected_lines)])
+                                        else:
+                                            all_line_colors.extend([0, 255, 0] * len(projected_lines))  # Green color
+
+                                        if label_position and data["label"]:
+                                            label_positions.append(label_position)
+                                            label_texts.append(data["label"])
+                                            label_colors.append([0, 255, 0])  # Green text
+
+                            # Log all projected lines in batch (following visualizer pattern)
+                            if all_projected_lines:
+                                rr.log(
+                                    "camera_rgb/evl_3d_bboxes_projected/wireframes",
+                                    rr.LineStrips2D(
+                                        all_projected_lines,
+                                        colors=all_line_colors,
+                                        radii=1.5  # Match plot_style.py EVL line thickness
+                                    )
+                                )
+
+                            # Log all labels in batch (following visualizer pattern)
+                            if label_positions:
+                                rr.log(
+                                    "camera_rgb/evl_3d_bboxes_projected/labels",
+                                    rr.Points2D(
+                                        positions=label_positions,
+                                        labels=label_texts,
+                                        colors=label_colors,
+                                        radii=10  # Text size from plot_style.py
+                                    )
+                                )
+
+                # Visualize 3D bounding boxes in world coordinates (following visualizer pattern exactly)
+                if evl_3d_bboxes is not None:
+                    # Clear previous 3D bounding boxes (following visualizer pattern)
+                    rr.log("world/evl_3d_bboxes", rr.Clear.recursive())
+
+                    bb3d_sizes = []
+                    bb3d_centers = []
+                    bb3d_quats_xyzw = []
+                    bb3d_labels = []
+
+                    for instance_id, boundingBox3d in evl_3d_bboxes.items():
+                        # Extract BoundingBox3dData from our BoundingBox3D wrapper (following visualizer logic)
+                        bbox3d_data = boundingBox3d.bbox3d
+
+                        # Get AABB in object's local coordinates: [xmin, xmax, ymin, ymax, zmin, zmax]
+                        aabb = bbox3d_data.aabb
+
+                        # Calculate dimensions (following visualizer logic)
+                        object_dimensions = np.array([
+                            aabb[1] - aabb[0],  # width (xmax - xmin)
+                            aabb[3] - aabb[2],  # height (ymax - ymin)
+                            aabb[5] - aabb[4],  # depth (zmax - zmin)
+                        ])
+
+                        # Get world center and rotation from transform_scene_object (following visualizer logic)
+                        T_scene_object = bbox3d_data.transform_scene_object
+                        quat_and_translation = np.squeeze(T_scene_object.to_quat_and_translation())
+                        quaternion_wxyz = quat_and_translation[0:4]  # [w, x, y, z]
+                        world_center = quat_and_translation[4:7]  # [x, y, z]
+
+                        # Convert quaternion to ReRun format [x, y, z, w] (following visualizer logic)
+                        quat_xyzw = [
+                            quaternion_wxyz[1],
+                            quaternion_wxyz[2],
+                            quaternion_wxyz[3],
+                            quaternion_wxyz[0],
+                        ]
+
+                        # Get label (following visualizer logic)
+                        label = f"instance_{instance_id}"
+                        instance_info = pilot_data_provider.get_evl_instance_info_by_id(instance_id)
+                        if instance_info:
+                            if hasattr(instance_info, "category") and instance_info.category:
+                                label = instance_info.category
+                            elif hasattr(instance_info, "name") and instance_info.name:
+                                label = instance_info.name
+
+                        # Add to lists (following visualizer pattern)
+                        bb3d_centers.append(world_center)
+                        bb3d_sizes.append(object_dimensions)
+                        bb3d_quats_xyzw.append(quat_xyzw)
+                        bb3d_labels.append(label)
+
+                    # Visualize using ReRun Boxes3D with plot style (following visualizer pattern exactly)
+                    if bb3d_sizes:
+                        # Split into batches of 20 (ReRun limitation, following visualizer logic)
+                        MAX_BOXES_PER_BATCH = 20
+                        batch_id = 0
+
+                        while batch_id * MAX_BOXES_PER_BATCH < len(bb3d_sizes):
+                            start_idx = batch_id * MAX_BOXES_PER_BATCH
+                            end_idx = min(len(bb3d_sizes), start_idx + MAX_BOXES_PER_BATCH)
+                            rr.log(
+                                f"world/evl_3d_bboxes/batch_{batch_id}",
+                                rr.Boxes3D(
+                                    sizes=bb3d_sizes[start_idx:end_idx],
+                                    centers=bb3d_centers[start_idx:end_idx],
+                                    rotations=bb3d_quats_xyzw[start_idx:end_idx],
+                                    labels=bb3d_labels[start_idx:end_idx],
+                                    colors=[0, 255, 0, 70],  # Green with alpha from plot_style.py EVL_BBOX_3D
+                                    radii=0.005,  # From plot_style.py EVL_BBOX_3D plot_3d_size
+                                    show_labels=False,
+                                )
+                            )
+                            batch_id += 1
+else:
+    print("Skipping EVL visualization - no EVL data available.")
+```
+
+## Foundation Stereo Depth
+
+Foundation Stereo provides depth estimation from stereo camera pairs, including depth maps and rectified images.
+
+### Foundation Stereo Data Structure
+
+The `CameraIntrinsicsAndPose` class contains:
+
+| Field Name | Type | Description |
+|------------|------|-------------|
+| `timestamp_ns` | int | Timestamp in device time domain (nanoseconds) |
+| `camera_projection` | CameraProjection | Camera intrinsics and model information |
+| `transform_world_camera` | SE3 | Camera pose in world coordinates |
+
+**Depth Map Format:**
+- Rectified depth maps of slam-front-left camera, 512 x 512, 16-bit grayscale PNG(1 unit = 1mm).
+
+**Rectified SLAM Image:**
+- Matching rectified slam-front-left camera images, 8-bit grayscale PNG.
+
+### Foundation Stereo API Reference
+
+- `has_stereo_depth_data()`: Check if stereo depth data is available
+- `get_stereo_depth_depth_map_by_index(index)`: Get depth map by index
+- `get_stereo_depth_depth_map_by_timestamp_ns(timestamp_ns, time_domain, time_query_option)`: Get depth map by timestamp
+- `get_stereo_depth_rectified_slam_front_left_by_index(index)`: Get rectified image by index
+- `get_stereo_depth_rectified_slam_front_left_by_timestamp_ns(timestamp_ns, time_domain, time_query_option)`: Get rectified image by timestamp
+- `get_stereo_depth_camera_intrinsics_and_pose_by_index(index)`: Get camera info by index
+- `get_stereo_depth_camera_intrinsics_and_pose_by_timestamp_ns(timestamp_ns, time_domain, time_query_option)`: Get camera info by timestamp
+- `get_stereo_depth_data_total_number()`: Get total number of depth entries
+
+```python
+# Foundation Stereo Depth Data Loading and Analysis
+if pilot_data_provider.has_stereo_depth_data():
+    print("✅ Foundation Stereo data is available")
+
+    # Get total number of stereo depth entries
+    total_stereo = pilot_data_provider.get_stereo_depth_data_total_number()
+    print(f"Total stereo depth entries: {total_stereo}")
+
+    # Sample first few stereo depth entries
+    print("\n=== Foundation Stereo Data Sample ===")
+    sample_count = min(3, total_stereo)
+    for i in range(sample_count):
+        # Get depth map
+        depth_map = pilot_data_provider.get_stereo_depth_depth_map_by_index(i)
+
+        # Get rectified image
+        rectified_image = pilot_data_provider.get_stereo_depth_rectified_slam_front_left_by_index(i)
+
+        # Get camera info
+        camera_info = pilot_data_provider.get_stereo_depth_camera_intrinsics_and_pose_by_index(i)
+
+        if depth_map is not None:
+            print(f"Entry {i}:")
+            print(f"  Depth map shape: {depth_map.shape}, dtype: {depth_map.dtype}")
+            print(f"  Depth range: {depth_map[depth_map > 0].min()}-{depth_map[depth_map > 0].max()} mm")
+            print(f"  Valid pixels: {np.sum(depth_map > 0)}/{depth_map.size} ({100*np.sum(depth_map > 0)/depth_map.size:.1f}%)")
+
+            if rectified_image is not None:
+                print(f"  Rectified image shape: {rectified_image.shape}")
+
+            if camera_info is not None:
+                print(f"  Camera model: {camera_info.camera_projection.model_name()}")
+                print(f"  Focal lengths: {camera_info.camera_projection.get_focal_lengths()}")
+                print(f"  Principal point: {camera_info.camera_projection.get_principal_point()}")
+                print(f"  Projection params: {camera_info.camera_projection.projection_params()}")
+
+    # Query stereo depth data by timestamp
+    if total_stereo > 0:
+        slam_front_left_stream_id = pilot_data_provider.get_vrs_stream_id_from_label("slam-front-left")
+        sample_timestamps = []
+        for i in range(50, min(100, pilot_data_provider.get_vrs_num_data(slam_front_left_stream_id)), 2):
+            rgb_data, rgb_record = pilot_data_provider.get_vrs_image_data_by_index(rgb_stream_id, i)
+            sample_timestamps.append(rgb_record.capture_timestamp_ns)
+
+        if sample_timestamp is not None:
+            # Query depth map at this timestamp
+            depth_at_time = pilot_data_provider.get_stereo_depth_depth_map_by_timestamp_ns(
+                sample_timestamp, TimeDomain.DEVICE_TIME, TimeQueryOptions.CLOSEST
+            )
+
+            if depth_at_time is not None:
+                print(f"\nDepth map at timestamp {sample_timestamp}:")
+                print(f"  Shape: {depth_at_time.shape}")
+                print(f"  Valid depth range: {depth_at_time[depth_at_time > 0].min()}-{depth_at_time[depth_at_time > 0].max()} mm")
+else:
+    print("❌ Foundation Stereo data is not available in this sequence")
+```
+
+```python
+# Foundation Stereo Depth Visualization
+if pilot_data_provider.has_stereo_depth_data():
+    print("\n=== Visualizing Foundation Stereo Depth Data ===")
+
+    # Initialize Rerun for visualization
+    rr.init("rerun_viz_stereo_depth")
+    rr.notebook_show()
+
+    # Get total number of stereo depth entries
+    total_stereo = pilot_data_provider.get_stereo_depth_data_total_number()
+
+    slam_front_left_stream_id = pilot_data_provider.get_vrs_stream_id_from_label("slam-front-left")
+    sample_timestamps = []
+    for i in range(50, min(100, pilot_data_provider.get_vrs_num_data(slam_front_left_stream_id)), 2):
+        rgb_data, rgb_record = pilot_data_provider.get_vrs_image_data_by_index(rgb_stream_id, i)
+        sample_timestamps.append(rgb_record.capture_timestamp_ns)
+
+    for query_timestamp_ns in sample_timestamps:
+        # Get depth map
+        depth_map = pilot_data_provider.get_stereo_depth_depth_map_by_timestamp_ns(timestamp_ns=query_timestamp_ns, time_domain=TimeDomain.DEVICE_TIME, time_query_option=TimeQueryOptions.CLOSEST)
+
+        # Get rectified image
+        rectified_image = pilot_data_provider.get_stereo_depth_rectified_slam_front_left_by_timestamp_ns(timestamp_ns=query_timestamp_ns, time_domain=TimeDomain.DEVICE_TIME, time_query_option=TimeQueryOptions.CLOSEST)
+
+        # Get camera info
+        camera_info = pilot_data_provider.get_stereo_depth_camera_intrinsics_and_pose_by_timestamp_ns(timestamp_ns=query_timestamp_ns, time_domain=TimeDomain.DEVICE_TIME, time_query_option=TimeQueryOptions.CLOSEST)
+
+        if depth_map is not None and rectified_image is not None and camera_info is not None:
+            # Set timestamp
+            rr.set_time_nanos("device_time", camera_info.timestamp_ns)
+
+            # Clear previous depth visualizations
+            rr.log("depth_image", rr.Clear.recursive())
+            rr.log("rectified_slam_front_left", rr.Clear.recursive())
+            rr.log("world/stereo_depth_depth_camera", rr.Clear.recursive())
+
+            # Visualize rectified SLAM image (following visualizer pattern)
+            if rectified_image is not None:
+                rr.log("rectified_slam_front_left", rr.Image(rectified_image))
+
+            # Visualize depth as 3D point cloud
+            # Get original camera intrinsics
+            original_fx, original_fy = camera_info.camera_projection.get_focal_lengths()
+            original_ux, original_uy = camera_info.camera_projection.get_principal_point()
+
+            # Apply downsampling factor (following visualizer logic)
+            factor = 4  # depth_image_downsample_factor
+            scaled_fx = original_fx / factor
+            scaled_fy = original_fy / factor
+            scaled_ux = original_ux / factor
+            scaled_uy = original_uy / factor
+
+            # Resize depth map (following visualizer pattern)
+            subsampled_depth_map = depth_map[::factor, ::factor] if factor > 1 else depth_map
+
+            # Set up depth camera in world coordinate system (following visualizer pattern)
+            rr.log(
+                "world/stereo_depth",
+                rr.Pinhole(
+                    resolution=[subsampled_depth_map.shape[1], subsampled_depth_map.shape[0]],
+                    focal_length=[scaled_fx, scaled_fy],
+                    principal_point=[scaled_ux, scaled_uy],
+                ),
+                static=True,
+            )
+
+            # Log camera transform (following visualizer pattern)
+            rr.log(
+                "world/stereo_depth",
+                ToTransform3D(camera_info.transform_world_camera, axis_length=0.02)
+            )
+
+            # Log depth image with proper scaling (following visualizer pattern exactly)
+            DEPTH_IMAGE_SCALING = 1000  # mm to meters
+            rr.log(
+                "world/stereo_depth",
+                rr.DepthImage(
+                    subsampled_depth_map,
+                    meter=DEPTH_IMAGE_SCALING,
+                    colormap="Magma",
+                    point_fill_ratio=0.3
+                )
+            )
+
+else:
+    print("Skipping stereo depth visualization - no stereo depth data available.")
+```
+
+## Summary
+
+This tutorial has demonstrated how to use the `AriaGen2PilotDataProvider` to access and visualize algorithm output data from the Aria Gen2 Pilot Dataset:
+
+### Key Concepts Covered
+
+1. **Heart Rate Monitoring** - Physiological data from PPG sensors with time series visualization
+2. **Diarization** - Speaker identification and voice activity detection with text overlay
+3. **Hand-Object Interaction** - Segmentation masks for hands and objects with colored overlays
+4. **Egocentric Voxel Lifting** - 3D scene reconstruction with 2D/3D bounding box visualization
+5. **Foundation Stereo** - Depth estimation with 2D depth maps and 3D point clouds
+
+### Important Notes
+
+- **Data Availability**: Algorithm data availability varies by sequence - always check availability before processing
+- **Data Structures**: Each algorithm has its own data structure with specific fields and formats
+- **Query Patterns**: Use index-based queries for sequential processing, timestamp-based queries for synchronization
+- **Visualization**: Use appropriate visualization methods for each data type (scalars, images, bounding box, etc.)
+- **Performance**: Consider subsampling for large datasets and high-frequency data

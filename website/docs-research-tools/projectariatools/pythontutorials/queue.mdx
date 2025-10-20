@@ -27,6 +27,10 @@ In this tutorial, we will learn:
 
 **Prerequisites**
 - Complete Tutorial 1 (VrsDataProvider Basics) to understand basic data provider concepts
+- Download Aria Gen2 sample data from [link](https://www.projectaria.com/async/sample/download/?bucket=core&filename=aria_gen2_sample_data_1.vrs)
+
+**Note on Visualization**
+If visualization window is not showing up, this is due to `Rerun` lib's caching issue. Just rerun the specific code cell.
 
 ```python
 from projectaria_tools.core import data_provider
@@ -186,7 +190,6 @@ customized_deliver_options.set_subsample_rate(stream_id = slam_to_select, rate =
 print(f"Start visualizing customized sensor data queue")
 
 rr.init("rerun_viz_customized_sensor_data_queue")
-rr.notebook_show()
 
 for sensor_data in vrs_data_provider.deliver_queued_sensor_data(customized_deliver_options):
     stream_id = sensor_data.stream_id()
@@ -199,4 +202,5 @@ for sensor_data in vrs_data_provider.deliver_queued_sensor_data(customized_deliv
     rr.set_time_nanos("device_time", device_time_ns)
     rr.log(stream_label, rr.Image(image_data_and_record[0].to_numpy_array()))
 
+rr.notebook_show()
 ```

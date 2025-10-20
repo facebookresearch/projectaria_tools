@@ -28,6 +28,10 @@ This tutorial focuses on demonstration of how to use the **Eye-tracking and Hand
 **Prerequisites**
 - Complete Tutorial 1 (VrsDataProvider Basics) to understand basic data provider concepts
 - Complete Tutorial 2 (Device Calibration) to understand how to properly use calibration in Aria data.
+- Download Aria Gen2 sample data from [link](https://www.projectaria.com/async/sample/download/?bucket=core&filename=aria_gen2_sample_data_1.vrs)
+
+**Note on Visualization**
+If visualization window is not showing up, this is due to `Rerun` lib's caching issue. Just rerun the specific code cell, or restart the python kernel.
 
 ```python
 from projectaria_tools.core import data_provider
@@ -175,7 +179,6 @@ def visualize_eyegaze_in_camera(camera_label, eyegaze_data, camera_calib, device
 
 # Example usage in visualization loop
 rr.init("rerun_viz_eyegaze")
-rr.notebook_show()
 
 if eyegaze_stream_id is not None:
     rgb_stream_id = vrs_data_provider.get_stream_id_from_label("camera-rgb")
@@ -198,6 +201,7 @@ if eyegaze_stream_id is not None:
             # Overlay eye-tracking data
             visualize_eyegaze_in_camera("camera-rgb", eyegaze_data, rgb_camera_calib, device_calib)
 
+rr.notebook_show()
 ```
 
 ## Accessing Hand-tracking Data
@@ -383,7 +387,6 @@ rgb_stream_id = vrs_data_provider.get_stream_id_from_label(rgb_camera_label)
 slam_stream_ids = [vrs_data_provider.get_stream_id_from_label(label) for label in slam_camera_labels]
 
 rr.init("rerun_viz_ht_in_cameras")
-rr.notebook_show()
 
 # Set up a sensor queue with only RGB images.
 # Handtracking data will be queried with interpolated API.
@@ -425,6 +428,7 @@ for sensor_data in vrs_data_provider.deliver_queued_sensor_data(deliver_options)
 import time
 time.sleep(1)
 
+rr.notebook_show()
 ```
 
 ## Understanding Interpolation

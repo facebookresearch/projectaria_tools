@@ -3,3 +3,86 @@ sidebar_position: 0
 title: Aria Research Kit (ARK)
 slug: /
 ---
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import ThemedImage from '@theme/ThemedImage';
+
+# Welcome to Aria Research Kit
+
+Aria Research Kit (ARK) is a comprehensive development platform for the **Aria Gen 2 glasses**, designed to empower researchers and developers to build cutting-edge applications in egocentric AI, contextual AI, robotics, spatial computing, and human-computer interaction. ARK provides everything you need to capture, process, and analyze data from Aria's advanced sensor suite.
+
+## What is Aria Gen 2?
+
+Aria Gen 2 is a state-of-the-art research device featuring an advanced sensor suite that includes:
+
+- **Four computer vision (CV) cameras** with wide field of view and HDR imaging
+- **RGB point-of-view (POV) camera** for high-resolution egocentric vision
+- **On-device VIO** for real-time 3D tracking and mapping
+- **On-device Eye tracking system** for precise gaze estimation and attention modeling
+- **On-device 21-keypoint hand tracking** for articulated hand pose estimation
+- **Spatial and contact microphones** for high-fidelity audio capture
+- **IMU, barometer, magnetometer, and GNSS** for accurate localization and motion tracking
+- **Ambient Light Sensor (ALS) with UV channel** for indoor/outdoor context awareness
+- **PPG sensor** for heart rate monitoring
+
+See [Hardware Specifications](/technical-specs/device/hardware) for more details.
+
+## What You Can Do with ARK
+
+### 🎮 Control Your Device
+Use the **Client SDK** to programmatically control Aria Gen 2 devices:
+- Start and stop recordings
+- Stream sensor data in real-time
+- Access on-device machine perception outputs (VIO, hand tracking, eye gaze)
+- Configure recording profiles for different research applications
+- Automate device workflows with Python scripts or CLI tools
+
+### 📱 Mobile Companion App
+Pair your device with the **Companion App** to:
+- Configure and manage your Aria Gen 2 glasses
+- Start recordings with a simple interface
+- Monitor device status and battery life
+- Manage recordings from your phone
+
+### 🔍 On-Device Machine Perception
+Run real-time algorithms directly on Aria Gen 2:
+- **Visual Inertial Odometry (VIO)** at 10Hz (and 800Hz high-frequency output)
+- **Eye gaze tracking** at up to 90Hz with pupil diameter and vergence depth
+- **Hand tracking** at 30Hz with 21 joint landmarks per hand
+
+### 🧠 Machine Perception Services (MPS)
+Leverage cloud-based processing to generate rich outputs from your recordings:
+- 3D trajectory and semi-dense point cloud
+- Hand tracking
+
+All optimized for all-day wearability with energy-efficient hardware acceleration.
+
+### 🛠️ Data Analysis & Visualization
+Use the comprehensive toolset to:
+- Validate recording quality with VRS Health Check
+- Visualize sensor data streams
+- Export data in standard formats
+- Build custom analysis pipelines
+
+## Getting Started
+
+Choose your path based on your role and objectives:
+
+### For Developers
+Start with the [Client SDK](/ark/client-sdk/start) to control your device programmatically. Install the Python SDK, authenticate your device, and begin streaming or recording data within minutes.
+
+### For Researchers
+Explore the [Device Manual](/ark/device/manual) to understand the hardware capabilities and sensor specifications. Learn about recording profiles and on-device machine perception in the [On-Device Machine Perception](/ark/on_device_mp) guide.
+
+### For First-Time Users
+Begin with the [Companion App](/ark/companion-app/start) for a simple way to set up and use your Aria Gen 2 glasses. Then explore the Client SDK when you're ready for more advanced control.
+
+### For Data Scientists
+Check out [Machine Perception Services (MPS)](/ark/mps/start) to learn how to process your recordings and generate rich perception signals for your research datasets.
+
+## Need Help?
+
+Visit the [Support](/ark/support) page for troubleshooting guides, FAQs, and contact information.
+
+---
+
+**Ready to dive in?** Pick a section from the navigation menu to begin your journey with Aria Research Kit.

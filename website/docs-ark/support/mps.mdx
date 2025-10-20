@@ -1,0 +1,76 @@
+---
+sidebar_position: 2
+title: MPS Troubleshooting
+---
+## Overview
+
+This page provides troubleshooting support for issues relating to Project Aria's [Machine Perception Services (MPS)](/ark/mps). If you can't find a solution for your problem on this page, go to the [Support page](/ark/support) for how to contact our team.
+
+This page covers:
+
+* General MPS questions
+* MPS CLI specific troubleshooting and error codes
+
+## General MPS questions
+
+### How do I learn more about MPS data?
+
+The [MPS Data Formats section](/technical-specs/mps/data_formats) of the wiki provides more information about each MPS output and links to visualizers you can use with this data.
+
+## MPS CLI specific issues
+### How do I request support?
+
+When requesting [support](/ark/support), please include:
+
+* Log file
+    * MPS CLI logs
+        * File path is shown on the bottom left side of the MPS CLI UI
+        * Stored in /tmp/logs/projectaria/mps/ by default
+* Supplemental debugging files, if available. These will be stored in output folders:
+    * `vrs_health_check.json`
+    * `summary.json`
+* Screenshot showing the error codes
+
+:::important Please don’t send us any raw data
+Raw data is generally not necessary, but if it is, User Support will send you instructions for where to upload it.
+:::
+
+
+### **Authentication issue on macOS**
+
+If you encounter a permissions error while trying to sign in to the MPS CLI, try the following command (updated with your Python version):
+
+```
+export SSL_CERT_FILE=/etc/ssl/cert.pem
+```
+
+### **Terminal display issues in macOS**
+
+Some users have reported that the MPS CLI UI has display issues in Terminal. Using a different terminal app may help. [Why doesn't Textual look good on macOS](https://textual.textualize.io/FAQ/#why-doesnt-textual-look-good-on-macos) provides further information about this issue.
+
+
+### MPS CLI error codes
+
+### **Error codes**
+
+| **Error Code** | Description |
+|--------|-------------------------------------------|
+| | *All 1xx codes are local client errors* |
+| 100 | Multi-Recording processing error. Another recording in the group had a failure, so the processing was halted. We need the full group of recordings to successfully process and generate multi-slam MPS output. The recording that fails will show its own error code, processing then stops and and sets the other recordings to this error code. |
+| 101 | Something failed on your computer. When you see this error, we suggest inspecting the local log for this run. If you need to reach out to support, please include this log file. |
+| 102 | There were health check failures during processing. Check the vrs_health_check.json and vrs_health_check_slam.json for more information about what went wrong. |
+| 103 | Multi-Recording processing error. Duplicate file detected. Duplicate recordings are not allowed for multi-SLAM processing. |
+| 104 | MPS CLI failed to encrypt the file. Check error logs for more information. |
+| 105 | Input-output mismatch error. This error happens when you try to run multi-SLAM processing but pass an output directory that already contains output or intermediate artifacts from a different multi-SLAM job. |
+| 106 | The output directory used for multi-SLAM processing is not empty. Non-empty output directory is only allowed if the output directory contains output or artifacts from a previous run of the same group of recordings. |
+| 108 | The server failed to query the status of the request. Retrying should usually fix this issue. |
+| 109 | Error during computing the hash id of the file. Check error logs for more information. |
+| 110 | Error when checking existing outputs on the disk. Check error logs for more information. |
+| 111 | Error when checking previously submitted MPS requests for a file. Check error logs for more information. |
+| 112 | Error when checking if the recording was previously uploaded. Check error logs for more information. |
+| 113 | Error uploading the VRS file. Check error logs for more information. |
+| 114 | Error submitting MPS request to the server. Check error logs for more information. Retrying should fix the issue. |
+| 115 | Error when checking the processing status of the MPS request. Check error logs for more information. |
+| 116 | Error when downloading the MPS results. Check error logs for more information. |
+| 117 | The requested service is not supported on the device generation where the recording was made. |
+| All other error codes | Server side failure. Reach out to support with the error code and log file. |

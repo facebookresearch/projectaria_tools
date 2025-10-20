@@ -1,0 +1,53 @@
+---
+sidebar_position: 20
+title: Trajectory
+---
+
+# MPS output - Trajectory
+
+6DoF trajectory data is generated as part of SLAM Machine Perception Services (MPS) requests:
+
+* `open_loop_trajectory.csv` file
+* `closed_loop_trajectory.csv` file
+
+This data can be visualized using the MPS Viewer in [Python](/research-tools/projectariatools/pythontutorials/mps).
+
+## Open loop trajectory
+
+Open loop trajectory is the high frequency (IMU rate, which is 1kHz) odometry estimation output by the visual-inertial odometry (VIO), in an arbitrary odometry coordinate frame. The estimation includes pose and dynamics (translational and angular velocities).
+
+The open loop trajectory has good “relative” and “local” accuracy: the relative transformation between two poses is accurate when the time span between two frames is short (within a few minutes). However, the open loop trajectory has increased drift error accumulated over time spent and travel distance. Consider using closed loop trajectory if you are looking for trajectory without drift error.
+
+For the utility function to load the open loop trajectory in Python, please check the [python notebook tutorial](/research-tools/projectariatools/pythontutorials/mps#loading-closed-loop-trajectory)
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|`tracking_timestamp_us`	|int	|Aria device timestamp in microseconds	|
+|`utc_timestamp_ns`	|int	|Wall clock UTC time in nanoseconds. If not available, the value will be -1	|
+|`session_uid`	|string	|Unique identifier of the odometry coordinate frame. When the session_uid is the same, poses and velocities are defined in the same coordinate frame	|
+|`{tx,ty,tz,qx,qy,qz,qw}_odometry_device`	|float	|Pose of the device coordinate frame in odometry frame T_odometry_device, include translation (tx, ty, tz) in meters and rotation quaternion (qx, qy, qz, qw)	|
+|`device_linear_velocity_{x,y,z}_odometry`	|float	|Velocity of device coordinate frame in odometry frame, (x, y, z) in meter/s	|
+|`angular_velocity_{x,y,z}_device`	|float	|Angular velocity of device coordinate frame in device frame, (x, y, z) in rad/s	|
+|`gravity_{x,y,z}_odometry`	|float	|Earth gravity vector in odometry frame, (x, y, z) in meter/s^2. This vector is pointing toward the ground, and includes gravitation and centrifugal forces from earth rotation	|
+|`quality_score`	|float	|A quality score between 0.0 to 1.0. The larger the score is, the higher confidence the estimation has higher quality	|
+
+## Closed loop trajectory
+
+Closed loop trajectory is the high frequency (IMU rate, which is 1kHz) pose estimation output by our mapping process, in an arbitrary gravity aligned world coordinate frame. The estimation includes pose and dynamics (translational and angular velocities).
+
+Closed loop trajectories are fully bundle adjusted with detected loop closures, reducing the VIO drift which is present in the open loop trajectories. However, due to the loop closure correction, the “relative” and “local” trajectory accuracy within a short time span (i.e. seconds) might be worse compared to open loop trajectories.
+
+In some open datasets we also share and use this format for trajectory pose ground truth from simulation or Optitrack, and the files will be called in a different file name aria_gt_trajectory.csv.
+
+For the utility function to load the closed loop trajectory in Python and C++, please check the [code examples](/research-tools/projectariatools/pythontutorials/mps#loading-open-loop-trajectory)
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|`graph_uid`	|string	|Unique identifier of the world coordinate frame	|
+|`tracking_timestamp_us`	|int	|Aria device timestamp in microsecond	|
+|`utc_timestamp_ns`	|int	|Wall clock UTC time in nanosecond. If not available, the value will be -1	|
+|`{tx,ty,tz,qx,qy,qz,qw}_world_device`	|float	|Pose of the device coordinate frame in world frame T_world_device, translation (tx, ty, tz) in meters and rotation quaternion (qx, qy, qz, qw)	|
+|`device_linear_velocity_{x,y,z}_device`	|float	|Velocity of device coordinate frame in device frame, (x, y, z) in meter/s	|
+|`angular_velocity_{x,y,z}_device`	|float	|Angular velocity of device coordinate frame in device frame, (x, y, z) in rad/s	|
+|`gravity_{x,y,z}_world`	|float	|Gravity vector (x, y, z) in the world frame, in meter/s^2. MPS output will all have fixed value` [0, 0, -9.81]’, while other source (e.g. simulation or Optitrack ground truth) may give different values	|
+|`quality_score`	|float	|A quality score between 0.0 to 1.0. The larger the score is, the higher confidence the estimation has higher quality`	|

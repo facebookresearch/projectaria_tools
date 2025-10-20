@@ -2,4 +2,74 @@
 sidebar_position: 2
 title: Device Calibration
 ---
-Device Calibration
+
+# Aria Gen2 Device Calibration
+
+Each Aria Gen2 device is individually calibrated in the factory to ensure accurate sensor measurements and proper spatial relationships between sensors.
+
+## Overview
+
+Aria Gen2 devices contain multiple sensors with factory calibration data. Depending on the sensor type, calibration may include:
+
+- **Intrinsic calibration**: Corrects for sensor-specific distortions and biases (e.g., camera lens distortion, IMU bias, microphone sensitivity)
+- **Extrinsic calibration**: Defines spatial relationships (position and orientation) between sensors in the device coordinate frame (available for cameras, IMUs, and LED rings)
+
+The calibration data is stored in a standardized JSON format and is accessible as Python `DeviceCalibration` objects through [`Client SDK`](/technical-specs/client-sdk/api#register_device_calib_callbackcallback-callable) or from [Project Aria Tools](/research-tools/projectariatools/pythontutorials/calibration).
+
+---
+
+## Sensor Calibration Availability
+
+The following table shows which calibration data is available for each sensor type:
+
+| Sensor Type | Sensor Label(s) | Intrinsics | Extrinsics |
+|-------------|----------------|------------|------------|
+| **RGB Camera** | `camera-rgb` | ✅ FisheyeRadTanThinPrism | ✅ T_Device_Camera |
+| **SLAM Cameras** | `slam-front-left`<br/>`slam-front-right`<br/>`slam-side-left`<br/>`slam-side-right` | ✅ FisheyeRadTanThinPrism | ✅ T_Device_Camera |
+| **Eye Tracking Cameras** | `camera-et-left`<br/>`camera-et-right` | ✅ KannalaBrandtK3 | ✅ T_Device_Camera |
+| **IMU** | `imu-left`<br/>`imu-right` | ✅ Accelerometer + Gyroscope<br/>(Bias, Rectification) | ✅ T_Device_Imu |
+| **Magnetometer** | `mag0` | ✅ Bias + Rectification | ❌ |
+| **Barometer** | `baro0` | ✅ Offset + Slope | ❌ |
+| **Microphones** | `mic0` - `mic5`, `mic6` (contact mic) | ✅ Sensitivity (dBV @ 1kHz) | ❌ |
+| **Speakers** | `LSPK`, `RSPK` | ✅ Sensitivity (dBV) | ❌ |
+
+### Camera Projection Models
+Details of the camera intrinsics model can be found in [calibration insight](/technical-specs/device/calibration_insights/camera_intrinsics_models)
+
+- **FisheyeRadTanThinPrism**: Used for RGB and SLAM cameras
+  - Parameters: focal length (f), principal point (cx, cy), radial distortion (k0-k5), tangential distortion (p0, p1), thin prism (s0-s2)
+
+- **KannalaBrandtK3**: Used for eye tracking cameras
+  - Parameters: focal lengths (fx, fy), principal point (cx, cy), Kannala-Brandt distortion coefficients (kb0-kb3)
+
+### IMU Calibration Components
+Details of the IMU models can be found in [calibration insight](/technical-specs/device/calibration_insights/sensor_measurement_model)
+
+- **Accelerometer**: Bias offset (m/s²) and 3x3 rectification matrix for scale/cross-axis corrections
+- **Gyroscope**: Bias offset (rad/s), rectification matrix, and G-sensitivity matrix
+
+---
+
+## Device Coordinate System
+
+### Origin Specification
+
+By default, the origin is located at the `slam-front-left` camera. All sensor transformations (`T_Device_Sensor`) defines device (i.e. origin) to be `slam-front-left`.
+
+### Coordinate Frame Convention
+
+Aria Gen2 uses a right-handed coordinate system:
+- **X-axis**: Points to the right when viewing from behind the glasses
+- **Y-axis**: Points downward
+- **Z-axis**: Points forward (out from the front of the glasses)
+
+For more details on coordinate frame convention, please visit [Coordinate Convention](/technical-specs/coordinate/3d-coor).
+
+---
+
+## Additional Resources
+
+- [Coordinate Frame Conventions](/technical-specs/coordinate/3d-coor) - 3D Coordinate Frame Conventions for Project Aria Glasses
+- [Client SDK API Reference](/technical-specs/client-sdk/api) - Complete API documentation
+- [Calibration Tutorial](/research-tools/projectariatools/pythontutorials/calibration) - Working with calibration data
+- [Device Profiles](/technical-specs/device/profile) - Sensor configurations and profiles

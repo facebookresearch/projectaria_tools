@@ -1,5 +1,126 @@
 ---
 sidebar_position: 2
-title: Download
+title: Download and Usage
 ---
-install and download
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+This page provides instructions for previewing, downloading, and installing the tools needed to work with the Aria Gen 2 Pilot Dataset.
+
+## Preview the Dataset
+
+Before downloading, you can explore the dataset using our interactive Dataset Explorer:
+
+**🔗 [Dataset Explorer: https://explorer.projectaria.com/gen2pilot](https://explorer.projectaria.com/gen2pilot)**
+
+### What You Can Preview
+
+The Dataset Explorer provides:
+
+- **MP4 Video Previews**: Watch video clips from RGB camera stream
+- **Interactive 3D Visualization**: Explore 30-second segments with [Rerun](https://rerun.io/) visualization showing:
+  - Raw sensor data from all cameras
+  - On-device machine perception outputs (VIO, eye gaze, hand tracking)
+  - MPS results (3D trajectories, semi-dense point clouds)
+  - Additional algorithm outputs (ASR, heart rate, depth, etc.)
+
+This allows you to understand the data structure and quality before downloading the full dataset.
+
+## Download the Dataset
+
+### Via Dataset Explorer (Recommended)
+
+1. Visit [https://explorer.projectaria.com/gen2pilot](https://explorer.projectaria.com/gen2pilot)
+2. Browse the available sequences
+3. Follow the download instructions provided on the explorer page
+4. Accept the license agreement and terms of use
+
+The Dataset Explorer provides detailed instructions for downloading individual sequences or the entire dataset.
+
+### Dataset Size
+
+The complete Aria Gen 2 Pilot Dataset includes:
+- 12 sequences (4 participants per sequence)
+- Raw VRS files with all sensor streams
+- On-device machine perception outputs
+- Offline MPS results
+- Additional perception algorithm outputs (ASR, heart rate, depth, etc.)
+
+Please ensure you have sufficient storage space before downloading.
+
+## Install the Dataset Tools
+
+To work with the Aria Gen 2 Pilot Dataset, install the `projectaria-gen2-pilot-dataset` Python package.
+
+### System Requirements
+
+- **Python**: 3.8 - 3.12 (Python 3.12 recommended)
+- **Operating Systems**:
+  - Linux (x64): Fedora 40/41, Ubuntu 20.04/22.04 LTS
+  - macOS (ARM64): macOS 14+ (Apple Silicon)
+  - macOS (Intel): macOS 13+
+
+### Installation Steps
+
+<Tabs groupId="operating-systems">
+<TabItem value="unix" label="Linux & macOS">
+
+```bash
+# Deactivate conda if active
+conda deactivate
+
+# Remove existing environment if it exists
+rm -rf ~/projectaria_gen2_python_env
+
+# Create new Python virtual environment
+python3.12 -m venv ~/projectaria_gen2_python_env
+
+# Activate the environment
+source ~/projectaria_gen2_python_env/bin/activate
+
+# Upgrade pip
+python3 -m pip install --upgrade pip
+
+# Install the package with all dependencies
+python3 -m pip install 'projectaria-gen2-pilot-dataset[all]'
+```
+
+</TabItem>
+</Tabs>
+
+### What Gets Installed
+
+The `projectaria-gen2-pilot-dataset[all]` package includes:
+
+- **Core data loaders**: Access VRS files, MPS outputs, and algorithm results
+- **Visualization tools**: Rerun integration for 3D visualization
+- **All dependencies**: Including `projectaria-tools` for working with Aria data
+- **Tutorial notebooks**: Example code for loading and analyzing the dataset
+
+### Verify Installation
+
+After installation, verify it works by checking the package version:
+
+```bash
+python3 -c "import projectaria_gen2_pilot_dataset"
+```
+
+## Source Code
+
+The dataset tools are open-source and available on GitHub:
+
+**🔗 [GitHub Repository](https://github.com/facebookresearch/projectaria_gen2_pilot_dataset)**
+
+You can:
+- View the source code
+- Report issues
+- Contribute improvements
+- Access example scripts and notebooks
+
+## Dataset License
+
+Please review and comply with the dataset license agreement available on the Dataset Explorer. By downloading and using this dataset, you agree to the terms of use.
+
+## Citation
+
+If you use the Aria Gen 2 Pilot Dataset in your research, please cite: To be updated.

@@ -1,29 +1,185 @@
 ---
 sidebar_position: 0
-title: Python SDK with examples
+title: Python SDK Examples
 ---
 
-We provide a set of example codes to demonstrate how to use the SDK interface that includes
-* Authenticate device with connected PC
-* Setup connection to device
-* Setup device recording and download
-* Setup device streaming and receiver with custom callback functions
-* Send TTS to device
+# Python SDK Examples
 
-The examples code need to be exported using the following command
+The ClientSDK provides a comprehensive Python interface for programmatic control of your Aria Gen2 device. This page introduces the Python SDK and guides you through setting up the example code.
+
+## Overview
+
+The Python SDK enables you to:
+* **Authenticate devices** programmatically with your PC
+* **Establish connections** to devices via USB or wirelessly
+* **Control recording** - Start, stop, and download recordings
+* **Manage streaming** - Stream data with custom callbacks for real-time processing
+* **Send commands** - Control device features like text-to-speech
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+Before using the Python SDK, ensure you have:
+* Installed the ClientSDK (see [Get Started](/ark/client-sdk/start) guide)
+* Activated your virtual environment
+* Your device connected and authenticated
+
+### Export Example Code
+
+The SDK includes example scripts that demonstrate common use cases. Extract them using:
+
 ```bash
-# Export examples codes
+# Export example codes
 python -m aria.extract_sdk_samples --output ~/Downloads/
 ```
 
-You should be able to find the examples codes in the following directory `projectaria_client_sdk_samples_gen2`.
+This creates a `projectaria_client_sdk_samples_gen2` directory containing all example scripts:
+
 ```bash
 ls ~/Downloads/projectaria_client_sdk_samples_gen2
 
-device_auth.py
-device_connect.py
-device_record.py
-device_streaming.py
+device_auth.py          # Authentication example
+device_connect.py       # Connection example
+device_record.py        # Recording example
+device_streaming.py     # Streaming example
+device_tts.py           # Text-to-speech example
 ```
 
-In the next few pages, we provide detailed explanations for each example code.
+---
+
+## Available Examples
+
+The following example pages provide detailed walkthroughs of each script:
+
+### 1. [Authentication Example](/ark/client-sdk/python-sdk/auth-example)
+
+Learn how to programmatically authenticate your device with your PC. This is the first step before using any device features.
+
+**Topics covered:**
+* Setting up DeviceClient
+* Initiating authentication
+* Handling authentication confirmation
+
+---
+
+### 2. [Connection Example](/ark/client-sdk/python-sdk/connection-example)
+
+Understand how to establish a connection to a specific device using serial numbers or IP addresses.
+
+**Topics covered:**
+* Configuring device selection
+* Establishing connections
+* Handling connection errors
+
+---
+
+### 3. [Recording Example](/ark/client-sdk/python-sdk/recording-example)
+
+Learn how to control recording operations, including starting, stopping, and downloading recordings.
+
+**Topics covered:**
+* Setting up recording configurations
+* Managing recording sessions
+* Downloading recordings to your local machine
+
+---
+
+### 4. [Streaming Example](/ark/client-sdk/python-sdk/streaming-example)
+
+Explore real-time data streaming with custom callback functions for processing sensor data.
+
+**Topics covered:**
+* Configuring streaming profiles and interfaces
+* Implementing data callbacks (image, audio, IMU, eye gaze, hand tracking, VIO)
+* Recording streaming data to VRS files
+
+---
+
+### 5. [Text-to-Speech Example](/ark/client-sdk/python-sdk/text-to-speech-example)
+
+Learn how to send text-to-speech commands to your device for audio feedback.
+
+**Topics covered:**
+* Sending TTS commands
+* Controlling device audio output
+
+---
+
+## Common Python SDK Patterns
+
+### Basic Device Connection Pattern
+
+Most scripts follow this basic pattern:
+
+```python
+import aria.sdk_gen2 as sdk_gen2
+
+# Create device client
+device_client = sdk_gen2.DeviceClient()
+
+# Configure client (optional - defaults to first available device)
+config = sdk_gen2.DeviceClientConfig()
+config.device_serial = "1M0YDB5H7B0020"  # Optional: specify device
+device_client.set_client_config(config)
+
+# Connect to device
+device = device_client.connect()
+print(f"Connected to device: {device.connection_id()}")
+
+# Use device for recording, streaming, etc.
+```
+
+---
+
+### Error Handling Pattern
+
+Always wrap device operations in try-except blocks:
+
+```python
+try:
+    device = device_client.connect()
+    print(f"Successfully connected to device {device.connection_id()}")
+except Exception as e:
+    print(f"Failed to connect: {e}")
+    return
+```
+
+---
+
+### Configuration Pattern
+
+Device operations (recording, streaming) typically require configuration:
+
+```python
+# Recording configuration
+recording_config = sdk_gen2.RecordingConfig()
+recording_config.profile_name = "profile8"
+recording_config.recording_name = "my_recording"
+device.set_recording_config(recording_config)
+
+# Streaming configuration
+streaming_config = sdk_gen2.HttpStreamingConfig()
+streaming_config.profile_name = "mp_streaming_demo"
+device.set_streaming_config(streaming_config)
+```
+
+---
+
+## Next Steps
+
+1. **Start with basics**: Begin with the [Authentication Example](/ark/client-sdk/python-sdk/auth-example)
+2. **Progress through examples**: Work through each example in order
+3. **Experiment**: Modify the examples to fit your use case
+4. **Build custom applications**: Use the patterns to create your own scripts
+
+---
+
+## Additional Resources
+
+* [CLI Commands](/technical-specs/client-sdk/cli) - Command-line interface reference
+* [Recording Guide](/ark/client-sdk/recording) - Detailed recording documentation
+* [Streaming Guide](/ark/client-sdk/streaming) - Detailed streaming documentation
+* [Troubleshooting](/ark/support/sdk) - Common issues and solutions

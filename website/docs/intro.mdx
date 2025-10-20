@@ -3,83 +3,102 @@ sidebar_position: 1
 title: Welcome to Project Aria
 slug: /
 ---
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import ThemedImage from '@theme/ThemedImage';
 
-# Welcome to Project Aria Documentation
+# Welcome to Aria Gen 2 Documentation
 
-Project Aria is a research platform designed to advance the fields of augmented reality (AR), machine perception, and artificial intelligence. This documentation provides comprehensive guides, tools, and resources to help researchers and developers work with Project Aria technologies.
+<ThemedImage
+  alt="Aria Gen1 and Gen2 comparison"
+  sources={{
+    light: useBaseUrl('/img/comparison_gen1_gen2.svg'),
+    dark: useBaseUrl('/img/comparison_gen1_gen2.svg'),
+  }}
+/>
 
-## What is Project Aria?
+## Introduction
 
-Project Aria is an open research initiative that provides tools and datasets to support cutting-edge research in egocentric AI, computer vision, and human understanding. The platform includes specialized hardware, software tools, and rich datasets collected from real-world scenarios.
+**Project Aria** is a research platform developed by Meta Reality Labs Research to enable both internal teams at Meta and external researchers to push the state of the art in egocentric AI research. Project Aria supports a wide range of research in computer vision, robotics, contextual AI, and more, by providing access to advanced wearable devices, open datasets, and robust software tools.
 
-## Getting Started
-
-This documentation is organized into three main sections:
-
-### 🔬 [Aria Research Kit](/ark)
-
-Complete guides for using the Aria Research Kit hardware and software components:
-
-- **[Device Setup](/ark/device/manual)** - Learn how to set up and use Aria glasses
-- **[Client SDK](/ark/client-sdk/start)** - Develop applications with the Client SDK
-- **[Companion App](/ark/companion-app/start)** - Use the mobile companion application
-- **[Vrs Health Check Tool](/ark/mps/start)** - Validate and sanity-check on the quality of collected data
-- **[Machine Perception Services (MPS)](/ark/mps/start)** - Process and analyze collected data
-- **[Support & Troubleshooting](/ark/support)** - Get help and resolve common issues
-
-### 🛠️ [Research Tools & Datasets](/research-tools)
-
-Access datasets, models, and research tools:
-
-- **[Open Datasets](/research-tools/dataset/pilot/content)** - Explore available research datasets
-- **Pre-trained Models** - Use existing ML models and checkpoints
-- **[Project Aria Tools](/research-tools/projectariatools/start)** - Python libraries and utilities
-
-### 📚 [Technical Specifications](/technical-specs)
-
-Detailed technical documentation and API references:
-
-- **[Hardware Specifications](/technical-specs/device/hardware)** - Device technical details
-- **[Software APIs](/technical-specs/client-sdk/api)** - Complete API documentation
-- **[Data Formats & Standards](/technical-specs/vrs/data-format)** - File formats and data structures
-- **[Coordinate Systems](/technical-specs/coordinate/2d-coor)** - Spatial reference systems
-
-## Quick Links
-
-### External Resources
-
-- 🌐 [Project Aria Website](https://www.projectaria.com/) - Main project homepage
-- 📁 [GitHub Repository](https://github.com/facebookresearch/projectaria_tools) - Open source tools and examples
-- 📊 [Open Datasets](https://www.projectaria.com/datasets/) - Download research datasets
-- 🏆 [Research Challenges](https://www.projectaria.com/challenges/) - Participate in research competitions
-- 🤝 [Research Partner Program](https://www.projectaria.com/research-kit/) - Join the research community
-
-### Support & Community
-
-- 📖 [Documentation](/ark/support) - Comprehensive guides and tutorials
-- 🔧 [Troubleshooting](/ark/support) - Common issues and solutions
-- ⚖️ Terms & Conditions - Usage terms and guidelines
-- 🔒 Security Guidelines - Best practices for secure usage
-
-## Research Applications
-
-Project Aria enables research across multiple domains:
-
-- **Egocentric Computer Vision** - First-person perspective AI systems
-- **Human Behavior Understanding** - Analysis of daily activities and interactions
-- **Augmented Reality** - Next-generation AR applications and interfaces
-- **Multimodal AI** - Systems that understand vision, audio, and motion together
-- **Privacy-Preserving AI** - Techniques for on-device processing and data protection
-
-## Getting Help
-
-If you need assistance:
-
-1. Check the [troubleshooting guides](/ark/support) for common issues
-2. Review the [technical specifications](/technical-specs) for detailed information
-3. Visit the [GitHub repository](https://github.com/facebookresearch/projectaria_tools) for code examples
-4. Join the research community through the [Partner Program](https://www.projectaria.com/research-kit/)
+This documentation is dedicated to the **Aria Gen 2 glasses** and their associated tools, data, and models. If you are looking to work with the latest generation of Aria hardware and software, you are in the right place.
 
 ---
 
-Ready to get started? Choose the section that best matches your needs from the navigation above, or explore the [Aria Research Kit](/ark) to begin with the core platform.
+## What’s New with Aria Gen 2 Glasses?
+
+Aria Gen 2 glasses introduce significant improvements over the first generation, including:
+
+- **Longer battery life** (6–8 hours)
+- **Upgraded sensors:**
+  - 12MP RGB camera
+  - 4 computer vision cameras (wider FOV, front-facing stereo pair, HDR)
+  - Eye tracking, dual 6-axis IMUs, barometer, magnetometer, 7 spatial microphones, GNSS
+  - **New:** Proximity sensor, contact microphone, PPG health sensor, ambient light sensor
+- **Real-time on-device machine perception** with a custom Meta co-processor
+- **Direct interactivity** via contact microphone and open air speakers
+- **Foldable form factor** for improved portability
+- **Enhanced streaming:** Sensor data and on-device perception signals can be streamed to a local PC via USB or wirelessly
+
+*For a detailed technical breakdown, see [Hardware Specifications](/technical-specs/device/hardware).*
+
+---
+
+## Project Aria Platform Overview
+
+Project Aria’s offering to the research community is organized into two major pillars:
+
+- **Open Science Initiatives:**
+  Access open-source egocentric datasets, models, and tools for working with Aria data. Participate in research challenges and contribute to the advancement of egocentric AI.
+
+- **Aria Research Kit:**
+  A specialized toolkit for egocentric data collection and real-time protytpe, including the Aria Gen 2 glasses, mobile companion app, dataset management tools, command-line utilities, Machine Perception Services (MPS), and a Client SDK for custom development. Qualified research partners can apply for access to the [Aria Research Kit](https://www.projectaria.com/research-kit/).
+
+---
+
+## Getting Started
+
+- **[Device Setup](/ark/device/manual):** Learn how to set up and use your Aria Gen 2 glasses
+- **[Client SDK](/ark/client-sdk/start):** Develop custom applications and integrations
+- **[Companion App](/ark/companion-app/start):** Operate and manage your device
+- **[Machine Perception Services (MPS)](/ark/mps/start):** Process and analyze collected data
+- **[Support & Troubleshooting](/ark/support):** Get help and resolve issues
+
+---
+
+## Research Tools & Datasets
+
+- **[Open Datasets](/research-tools/dataset/pilot/content):** Explore and download egocentric datasets
+- **Pre-trained Models:** Use and fine-tune state-of-the-art models for your research. Coming soon
+- **[Project Aria Tools](/research-tools/projectariatools/installation):** Python libraries and utilities for working with Aria data
+
+---
+
+## Technical Specifications
+
+- **[Hardware Specifications](/technical-specs/device/hardware):** Detailed specs for Gen 2 glasses
+- **[Software APIs](/technical-specs/client-sdk/api):** Full API documentation
+- **[Data Formats & Standards](/technical-specs/vrs/data-format):** VRS and other data formats
+
+---
+
+## Quick Links
+
+- 🌐 [Project Aria Website](https://www.projectaria.com/)
+- 📁 [GitHub Repository](https://github.com/facebookresearch/projectaria_tools)
+- 📊 [Open Datasets](https://www.projectaria.com/datasets/)
+- 🏆 [Research Challenges](https://www.projectaria.com/challenges/)
+- 🤝 [Research Partner Program](https://www.projectaria.com/research-kit/)
+
+---
+
+## Need Help?
+
+1. Check the [Support & Troubleshooting](/ark/support) section
+2. Review [Technical Specifications](/technical-specs)
+3. Visit our [GitHub repository](https://github.com/facebookresearch/projectaria_tools)
+4. Join the [Research Partner Program](https://www.projectaria.com/research-kit/)
+
+---
+
+**Ready to get started?**
+Explore the [Aria Research Kit](/ark) or dive into our [Research Tools & Datasets](/research-tools) to begin your journey with Aria Gen 2 glasses.

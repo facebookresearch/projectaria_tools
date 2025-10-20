@@ -39,17 +39,17 @@ export default function PatInstallerChooser() {
   // venv bootstrap snippets
   const venvUnix = useMemo(
     () =>
-      String.raw`rm -rf $HOME/projectaria_tools_python_env
-python3.12 -m venv $HOME/projectaria_tools_python_env
-source $HOME/projectaria_tools_python_env/bin/activate`,
+      String.raw`rm -rf $HOME/projectaria_gen2_python_env
+python3 -m venv $HOME/projectaria_gen2_python_env
+source $HOME/projectaria_gen2_python_env/bin/activate`,
     [],
   );
 
   const venvWin = useMemo(
     () =>
-      String.raw`Remove-Item -Recurse -Force $HOME\projectaria_tools_python_env
-py -3 -m venv $HOME\projectaria_tools_python_env
-& $HOME\projectaria_tools_python_env\Scripts\Activate.ps1`,
+      String.raw`Remove-Item -Recurse -Force $HOME\projectaria_gen2_python_env
+py -3 -m venv $HOME\projectaria_gen2_python_env
+& $HOME\projectaria_gen2_python_env\Scripts\Activate.ps1`,
     [],
   );
 
@@ -60,11 +60,11 @@ py -3 -m venv $HOME\projectaria_tools_python_env
       if (os === 'windows') {
         return String.raw`${venv}
 
-python3 -m pip install projectaria-tools'[all]'==1.6.0`;
+python3 -m pip install projectaria-tools'[all]'==1.7.0`;
       }
       return String.raw`${venv}
 
-python3.12 -m pip install projectaria-tools'[all]'==2.0.0rc1`;
+python3 -m pip install projectaria-tools'[all]'==2.0.0`;
     }
 
     // source
@@ -73,7 +73,7 @@ python3.12 -m pip install projectaria-tools'[all]'==2.0.0rc1`;
         return String.raw`${venv}
 
 # Clone the correct branch of projectaria_tools
-git clone https://github.com/facebookresearch/projectaria_tools.git -b 1.6.0
+git clone https://github.com/facebookresearch/projectaria_tools.git -b 1.7.0
 
 # Then follow instructions in "Advanced Installation From Source Code" to build from source.`;
       }

@@ -1,0 +1,47 @@
+---
+sidebar_position: 0
+title: Project Aria Tools Overview
+---
+
+# Project Aria Tools
+
+`projectaria-tools` is the official library for accessing and processing data recorded by **Project Aria glasses**.
+It provides a unified interface to load VRS files and access all associated sensor and machine perception data through high-level, easy-to-use APIs.
+The library supports efficient operations such as random access, timestamp-based queries, and synchronized multi-sensor data retrieval, with a consistent set of **C++ and Python APIs** seamlessly bridged via Pybind11.
+
+Project Aria glasses record its data in **VRS** (Visual Recordings System) format, which is a general-purpose recording format from Meta.
+Properly interpreting Project Aria VRS requires detailed understanding of the device’s sensor configurations, calibration models, and on-device perception outputs.
+`projectaria-tools` abstracts these complexities, ensuring that all data is correctly parsed, aligned, and represented for research and development workflows.
+
+In addition to data access, the library includes visualization and conversion utilities that allow users to inspect and export selected streams to standard formats such as CSV and MP4, making it easier to analyze and share Aria data across diverse toolchains.
+
+## Getting Started
+
+If you're new to `proejctaria-tools`, start here:
+
+- **[Quick Start Installation Guide](./installation.mdx)** - Learn how to install `projectaria-tools` on your system
+- **[Advanced Installation](./advanced-installation.mdx)** - Advanced installation options and configurations
+- **[Pixi Installation](./advanced-installation-pixi.mdx)** - Install using Pixi package manager
+
+
+## Python Notebook Tutorials
+
+Explore our comprehensive Python tutorials to learn how to work with Aria data:
+
+- [Tutorial 1: VrsDataProvider Basics](/docs-research-tools/projectariatools/pythontutorials/dataprovider.mdx): how to perform basic operations in loading and access data in an Aria VRS file.
+- [Tutorial 2: Device Calibration](/docs-research-tools/projectariatools/pythontutorials/calibration.mdx): how to work with device calibration in Aria VRS.
+- [Tutorial 3: Queued Sensor Data](/docs-research-tools/projectariatools/pythontutorials/queue.mdx): how to use the unified queued API to efficiently “stream” multi-sensor data.
+- [Tutorial 4: On-Device Eye Tracking and Hand Tracking](/docs-research-tools/projectariatools/pythontutorials/eyetracking-handtracking.mdx): how to work with on-device-generated EyeGaze and Hand-tracking signals from Aria Gen2 glasses.
+- [Tutorial 5: On-Device VIO](/docs-research-tools/projectariatools/pythontutorials/vio.mdx): how to work with on-device-generated VIO data from Aria Gen2 glasses.
+- [Tutorial 6: Timestamp Mapping in Single- and Multi-Device Recordings](/docs-research-tools/projectariatools/pythontutorials/time-sync.mdx): understanding timestamp mapping in Aria data, and how to use timestamp mapping in multi-device recording.
+- [Tutorial 7: Machine Perception Services (MPS) Data Loading](/docs-research-tools/projectariatools/pythontutorials/mps.mdx): how to load and visualize output data from Aria MP.
+
+
+## Visualization Tools
+
+Tools for visualizing and exploring Aria data:
+
+- **[Python Visualization](./tools/pythonviz.mdx)** - Python-based visualization
+- **[C++ Visualization](./tools/cppviz.mdx)** - C++ visualization tool
+- **[VRS to MP4](./tools/vrstomp4.mdx)** - Convert VRS recordings to MP4 video
+- **[Export to CSV](./tools/exportcsv.mdx)** - Export sensor data to CSV format

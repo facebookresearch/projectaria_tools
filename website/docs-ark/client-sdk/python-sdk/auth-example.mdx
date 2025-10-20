@@ -1,67 +1,218 @@
 ---
 sidebar_position: 1
-title: Example - Authentication
+title: Authentication Example
 ---
 
-Using aria.sdk_gen2 to authenticate an Aria Gen2 device to the connected PC.
+# Authentication Example
 
-## Run authentication example
+This example demonstrates how to programmatically authenticate your Aria Gen2 device with your PC using the Python SDK. Authentication is required before you can control the device or access its features.
+
+## Quick Start
+
+Run the authentication example script:
+
 ```bash
 python ~/Downloads/projectaria_client_sdk_samples_gen2/device_auth.py
 ```
 
-## Step-by-step walk through
-1. Import Required Modules
+When prompted, open the Companion App on your mobile device and approve the authentication request.
 
-Start by importing the necessary modules:
+---
+
+## What This Example Does
+
+The script performs the following steps:
+1. Creates a device client to manage connections
+2. Configures the client to connect to the first available device
+3. Initiates the authentication process
+4. Waits for user approval via the Companion App
+5. Establishes a connection to verify authentication
+
+---
+
+## Code Walkthrough
+
+### Step 1: Import Required Modules
 
 ```python
 import time
 import aria.sdk_gen2 as sdk_gen2
 ```
-aria.sdk_gen2 is the SDK for interacting with Aria Gen2 devices.
 
+The `aria.sdk_gen2` module provides all the classes and functions needed to interact with Aria Gen2 devices.
 
-2. Set Up the Device Client
+---
 
-Create an instance of the device client:
+### Step 2: Create Device Client
+
 ```python
 device_client = sdk_gen2.DeviceClient()
 ```
-This object manages the connection and authentication process.
 
-3. Configure the Device Client
+The `DeviceClient` object manages authentication and device connections. It handles the communication between your PC and the device.
 
-Set up the configuration for the device client:
+---
+
+### Step 3: Configure the Client
+
 ```python
 config = sdk_gen2.DeviceClientConfig()
 device_client.set_client_config(config)
 ```
-You can specify device details (e.g., serial number) in DeviceClientConfig.
-If default config is specified to set_client_config(), it will connect to the first available device connect through USB
 
-4. Initiate Device Authentication
+**What this does:**
+* Creates a default configuration that connects to the first available device
+* If you want to connect to a specific device, you can set `config.device_serial` to the device's serial number
 
-Prompt the user to open the Aria Companion app and accept the pairing request:
+**Example with specific device:**
+```python
+config = sdk_gen2.DeviceClientConfig()
+config.device_serial = "1M0YDB5H7B0020"  # Replace with your device serial
+device_client.set_client_config(config)
+```
+
+---
+
+### Step 4: Initiate Authentication
+
 ```python
 print("Authenticating device. Please open the Aria app and accept the pairing request")
 device_client.authenticate()
 time.sleep(5)
 ```
-The authenticate() method starts the authentication process.
-The script waits 5 seconds to allow the user to respond.
 
-5. Connect to the Device
+**What happens here:**
+* The `authenticate()` method starts the authentication process
+* The device sends a pairing request to the Companion App on your mobile device
+* The script waits 5 seconds to give you time to approve the request
 
-Attempt to establish a connection:
+**Important:**
+* Keep the Companion App open and in the foreground
+* Check for a notification or prompt in the app
+* Verify the hash code matches between your PC terminal and the Companion App
+* Approve the authentication request
+
+---
+
+### Step 5: Connect and Verify
+
 ```python
 try:
-   device = device_client.connect()
-   print(f"Device authentication successful to device {device.connection_id()}")
+    device = device_client.connect()
+    print(f"Device authentication successful to device {device.connection_id()}")
 except Exception:
-   print("Failed to authenticate and connect to device")
-   return
+    print("Failed to authenticate and connect to device")
+    return
 ```
-If authentication is successful, you’ll see a success message with the device connection ID.
 
-device = device_client.connect() will return a Device Class which can be used to control the device for more features such as recording, streaming, etc.
+**What this does:**
+* Attempts to establish a connection to the authenticated device
+* If successful, returns a `Device` object that you can use for recording, streaming, etc.
+* The `device.connection_id()` provides the device identifier
+
+---
+
+## Complete Example Code
+
+Here's the full authentication script:
+
+```python
+import time
+import aria.sdk_gen2 as sdk_gen2
+
+
+def device_auth():
+    device_client = sdk_gen2.DeviceClient()
+    config = sdk_gen2.DeviceClientConfig()
+    device_client.set_client_config(config)
+
+    print(
+        "Authenticating device. Please open the Aria app and accept the pairing request"
+    )
+    device_client.authenticate()
+    time.sleep(5)
+
+    try:
+        device = device_client.connect()
+        print(f"Device authentication successful to device {device.connection_id()}")
+    except Exception:
+        print(f"Failed to authenticate and connect to device")
+        return
+
+
+if __name__ == "__main__":
+    device_auth()
+```
+
+---
+
+## Expected Output
+
+When running the script, you should see output similar to:
+
+```
+Authenticating device. Please open the Aria app and accept the pairing request
+[AriaGen2SDK:DeviceClient][INFO]: Client hash is: f30a36a9f3842bd3fc16c75b525...
+[AriaGen2SDK:DeviceClient][INFO]: Waiting for authentication approval...
+Device authentication successful to device 1M0YDB5H7B0020
+```
+
+---
+
+## Troubleshooting
+
+### Authentication Times Out
+
+**Problem:** The script waits but never completes authentication.
+
+**Solutions:**
+* Ensure the Companion App is running in the foreground
+* Check that your mobile device has an active internet connection
+* Verify notifications are enabled for the Companion App
+* Check that you approved the correct pairing request (hash codes should match)
+
+---
+
+### Device Not Found
+
+**Problem:** Error message indicates no device found.
+
+**Solutions:**
+* Verify the device is connected via USB
+* Run `aria-gen2 device list` to check connectivity
+* Ensure `aria-doctor` has been run
+* Check USB cable and port connections
+
+---
+
+## Key Concepts
+
+### Authentication vs Connection
+
+* **Authentication**: A one-time security handshake between device and PC (requires Companion App approval)
+* **Connection**: Establishing a session with an already-authenticated device (no approval needed)
+
+Once authenticated, you can connect to the device repeatedly without re-authenticating.
+
+### Device Object
+
+The `Device` object returned by `connect()` is your interface for all device operations:
+
+```python
+device = device_client.connect()
+
+# Now you can use device for:
+# - Recording: device.start_recording()
+# - Streaming: device.start_streaming()
+# - Commands: device.render_tts("Hello")
+# - Info: device.connection_id()
+```
+
+---
+
+## Next Steps
+
+* Learn how to [connect to a specific device](/ark/client-sdk/python-sdk/connection-example)
+* Start [recording data](/ark/client-sdk/python-sdk/recording-example) from your device
+* Explore [real-time streaming](/ark/client-sdk/python-sdk/streaming-example)
+* Review [all Python SDK examples](/ark/client-sdk/python-sdk/python-interface)

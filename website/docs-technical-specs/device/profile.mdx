@@ -6,7 +6,7 @@ title: Profiles
 Project Aria Gen 2 glasses offer a range of profiles, allowing users to select the optimal configuration of sensors and settings for their research or application needs. Each profile defines a specific combination of sensor streams, data rates, resolutions, and encoding formats. These profiles are designed to balance data quality, device performance, and operational stability.
 Profiles are divided into two categories:
 - **Pre-defined profiles**: Thoroughly tested, stable, and fully supported. Recommended for most users.
-- **Custom profiles**: User-defined configurations for advanced or experimental use. These may not be stable and are not recommended for general use.
+- **Custom profiles**: User-defined configurations for advanced or experimental use. These may not be stable and are not recommended for general use. A [custom profile example](#custom_profile_example) is provided below.
 
 The table below details the specifications of the currently supported pre-defined profiles. New profiles may be added as the platform evolves.
 
@@ -24,8 +24,9 @@ The table below details the specifications of the currently supported pre-define
 | **BLE Duration (ms)**   | 2000                                 |:x:                                   | 2000                                             | :x:                                               |
 | **WiFi Period (ms)**    | 30000                                |:x:                                   | 30000                                            | :x:                                               |
 | **WiFi Scan Mode**      | ACTIVE                               |:x:                                   | ACTIVE                                           | :x:                                               |
-| **SLAM Cameras (Hz)**   | 30                                   | 10                                   | 30                                               | 10                                                |
-| **SLAM Encoding**       | H265 (CQP QP=22)                     | H265 (CBR 900kbps)                   | H265 (CQP QP=22)                                 | H265 (CQP QP=30)                                  |
+| **CV Cameras (Hz)**   | 30                                   | 10                                   | 30                                               | 10                                                |
+| **CV Resolution**   | 512x512                                   | 512x512                                  | 512x512                                      | 512x512                                             |
+| **CV Encoding**       | H265 (CQP QP=22)                     | H265 (CBR 900kbps)                   | H265 (CQP QP=22)                                 | H265 (CQP QP=30)                                  |
 | **RGB Camera (Hz)**     | 10                                   | 5                                    | 30                                               | 10                                                |
 | **RGB Resolution**      | 2560x1920                            | 2560x1920                            | 2016x1512                                        | 2016x1512                                         |
 | **RGB Encoding**        | H265 (CQP QP=22)                     | H265 (CBR 8Mbps), blur filter        | H265 (CQP QP=22)                                 | H265 (CBR 1.2Mbps), blur filter                   |
@@ -40,3 +41,295 @@ The table below details the specifications of the currently supported pre-define
 | **Temperature (Hz)**    | 1                                    | 1                                    | 1                                                | 1                                                 |
 | **ALS (Hz)**            | 9.434                                | 9.434                                | 10                                               | :x:                                               |
 | **ALS Exposure (us)**   | 3200                                 | 3200                                 | 3200                                             | :x:                                               |
+
+---
+
+## Profile Usage Recommendations
+
+### When to Use Pre-defined Profiles
+
+**Pre-defined profiles (profile8, profile9, profile10, mp_streaming_demo)** are:
+- ✅ Thoroughly tested and validated
+- ✅ Optimized for device stability and thermal performance
+- ✅ Fully supported by all downstream tools
+- ✅ Guaranteed to work reliably
+- ✅ Recommended for production use and research studies
+
+**Recommended for:**
+- Production deployments
+- Large-scale data collection
+- Research studies requiring reliable data
+- Users who want maximum compatibility
+- First-time Aria users
+
+### When to Consider Custom Profiles
+
+**Custom profiles** may be appropriate for:
+- Advanced research with specific sensor requirements
+- Prototyping new applications
+- Experimental configurations
+- Specialized use cases not covered by pre-defined profiles
+
+**⚠️ Important:** Custom profiles should only be used by advanced users who understand the risks and limitations.
+
+---
+
+## Custom Profiles {#custom_profile_example}
+
+### Overview
+
+Custom profiles allow advanced users to define their own sensor configurations for specialized research needs. However, **custom profiles come with significant risks and limitations** and should be used with caution.
+
+### ⚠️ Important Considerations and Risks
+
+Before creating a custom profile, understand these critical limitations:
+
+#### 1. Device Stability and Data Quality
+
+**Thermal and Power Issues:**
+- Custom profiles that push sensor settings (e.g., high frame rates, high resolutions, enabling many sensors simultaneously) can cause the device to **overheat** or **drain the battery rapidly**
+- This can lead to **unexpected shutdowns** or **reduced recording/streaming times**
+- Some combinations may trigger warnings in the Aria Companion App, but **not all edge cases are covered automatically**
+- Using extreme values or not basing your custom profile on a tested template **significantly increases these risks**
+
+**Data Quality Risks:**
+- Unusual sensor configurations may result in:
+  - Poor data quality
+  - Synchronization issues between sensors
+  - Missing data streams
+  - Inconsistent sensor performance
+- **These issues may not be immediately apparent** and could compromise your research data
+
+**Fragmented Datasets:**
+- Custom profiles can lead to fragmented datasets, making it harder to:
+  - Compare data across different studies
+  - Aggregate data from multiple users
+  - Reproduce research results
+- This **reduces the overall utility** of the data for broader research purposes
+
+#### 2. Compatibility and Downstream Tooling
+
+**Tooling Incompatibility:**
+- Downstream tools (e.g., Project Aria Tools, MPS, analytics pipelines) **may not be fully compatible** with all custom profile configurations
+- Data recorded with custom profiles may:
+  - Not be processed correctly by standard tools
+  - Require additional engineering work to support new formats
+  - Be incompatible with existing analysis pipelines
+
+**Lack of Standardization:**
+- Custom profiles are **not as thoroughly tested or supported** as pre-defined profiles
+- This can lead to:
+  - Unexpected issues when using standard tools
+  - Difficulties sharing data with collaborators
+  - Limited community support
+
+#### 3. Known Bugs and Open Issues
+
+**Sensor Data Retrieval:**
+- There have been reports of **issues retrieving certain sensor data** (e.g., GPS) when using custom profiles
+- These issues may not be present with recommended pre-defined profiles
+
+**Parameter Guardrails:**
+- While the Companion App includes some guardrails, **not all problematic combinations are blocked**
+- Users may still encounter hardware or data quality issues when defining profiles via the SDK
+
+**⚠️ Use at Your Own Risk:**
+Custom profiles are provided as-is for advanced users. Meta does not guarantee stability, data quality, or tool compatibility for custom profile configurations.
+
+---
+
+### Custom Profile Template
+
+Below is a template for creating custom profiles. **It is strongly recommended** to base your custom profile on one of the pre-defined profiles (e.g., profile8) rather than starting from scratch.
+
+This example is based on **profile8** with the following modifications:
+- **RGB frame rate**: Reduced from 10Hz to 5Hz
+- **SLAM camera frame rate**: Reduced from 30Hz to 10Hz
+- **Hand tracking**: Reduced from 30Hz to 10Hz
+
+```json
+{
+   "name": "custom_profile",
+   "description": "Custom profile based on profile8: Reduced RGB frame rate from 10Hz to 5Hz. Reduced SLAM frame rate from 30Hz to 10Hz. Reduced HT from 30Hz to 10Hz",
+   "imus": {
+    "rate_hz": 800
+   },
+   "magnetometer": {
+    "rate_hz": 100
+   },
+   "barometer": {
+    "rate_hz": 50
+   },
+   "audio": {
+    "sample_rate": "R_16KHZ",
+    "frame_period": "P_20MS",
+    "sample_format": "S16",
+    "encoding_format": "OPUS",
+    "opus_config": {
+     "complexity": 10,
+     "bitrate": 256000
+    }
+   },
+   "gps": {
+    "rate_hz": 1
+   },
+   "ble": {
+    "period_ms": 30000,
+    "duration_ms": 2000
+   },
+   "wifi": {
+    "period_ms": 30000,
+    "scan_mode": "ACTIVE"
+   },
+   "slam_cameras": {
+    "rate_hz": 10,
+    "auto_exposure": {},
+    "encoding": "H265",
+    "video_config": {
+     "cqp": {
+      "qp": 22
+     }
+    }
+   },
+   "et_cameras": {
+    "rate_hz": 5,
+    "auto_exposure": {},
+    "encoding": "H265",
+    "video_config": {
+     "cqp": {
+      "qp": 22
+     }
+    },
+    "resolution": "R_200x200",
+    "ir_led": "TRUE"
+   },
+   "rgb_camera": {
+    "rate_hz": 5,
+    "auto_exposure": {},
+    "encoding": "H265",
+    "video_config": {
+     "cqp": {
+      "qp": 22
+     }
+    },
+    "resolution": "R_4032x3024",
+    "width": 2560,
+    "height": 1920
+   },
+   "et": {
+    "rate_hz": 30
+   },
+   "ht": {
+    "rate_hz": 10
+   },
+   "vio": {
+    "rate_hz": 10
+   },
+   "device_info": {
+    "period_ms": 30000
+   },
+   "ppg": {
+    "rate_hz": 128
+   },
+   "temperature": {
+    "rate_hz": 1
+   },
+   "als": {
+    "rate_hz": 9.434,
+    "exposure_time_us": 3200
+   },
+   "vio_high_frequency_pose": {
+    "rate_hz": 800
+   },
+   "tags": [
+    ""
+   ]
+  }
+```
+
+### Template Notes
+
+This example demonstrates a **conservative approach** to customization: making minimal changes to a tested profile (profile8) to reduce power consumption while maintaining core functionality.
+
+---
+
+## Best Practices for Custom Profiles
+
+If you must use a custom profile, follow these guidelines:
+
+### 1. Start from a Pre-defined Profile
+- ✅ Base your custom profile on profile8, profile9, or profile10
+- ✅ Make incremental changes rather than dramatic modifications
+- ❌ Avoid starting with a blank profile or extreme parameter values
+
+### 2. Test Thoroughly
+- Test the profile with short recordings first
+- Monitor device temperature during use
+- Check battery consumption rates
+- Verify all expected sensor streams are present
+- Validate data quality before large-scale data collection
+
+### 3. Monitor Device Health
+- Watch for thermal warnings in the Companion App
+- Note any unexpected shutdowns or errors
+- Track recording duration vs. battery life
+- Monitor data completeness and quality
+
+### 4. Conservative Parameter Selection
+- **Frame rates**: Lower rates reduce power and thermal load
+- **Resolution**: Higher resolutions increase data size and processing
+- **Encoding quality**: Lower QP values (higher quality) increase bitrate
+- **Sensor combinations**: Enabling all sensors simultaneously increases load
+
+### 5. Validate Data Compatibility
+- Test with Project Aria Tools to ensure data can be loaded
+- Verify compatibility with your analysis pipeline
+- Check that all required sensor streams are accessible
+- Consider data sharing and reproducibility needs
+
+### 6. Document Your Configuration
+- Keep detailed records of custom profile parameters
+- Document the rationale for each modification
+- Note any issues or limitations encountered
+- Share configuration details with collaborators
+
+---
+
+## Parameter Guidelines
+
+When modifying parameters, consider these general guidelines:
+
+| Parameter Type | Considerations |
+|---------------|---------------|
+| **Frame Rates** | Higher rates = more data, higher power consumption, thermal load |
+| **Resolution** | Higher resolution = larger files, more processing, better quality |
+| **Encoding Quality (QP)** | Lower QP (e.g., 18) = higher quality, larger files; Higher QP (e.g., 30) = lower quality, smaller files |
+| **Sensor Combinations** | More active sensors = higher power draw, more thermal stress |
+| **Bitrate** | Fixed bitrate (CBR) for consistent file sizes; Variable rate (CQP) for consistent quality |
+
+---
+
+## Using Custom Profiles
+
+Custom profiles can be loaded via the Client SDK. See the [Client SDK documentation](/ark/client-sdk/start) for detailed API usage and examples.
+
+---
+
+## Support and Troubleshooting
+
+### For Pre-defined Profiles
+- Full support available through standard channels
+- Issues will be investigated and resolved
+- Documentation is comprehensive and maintained
+
+### For Custom Profiles
+- ⚠️ Limited support available
+- Community forum may provide assistance
+- Users are responsible for validating their configurations
+- No guarantee of compatibility with tools or services
+
+### Getting Help
+
+For questions about profiles:
+- Pre-defined profiles: Contact support via [support channels](/ark/support)
+- Custom profiles: Check the community forum and [known issues](https://github.com/facebookresearch/projectaria_tools/issues)

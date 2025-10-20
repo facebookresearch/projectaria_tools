@@ -1,67 +1,292 @@
 ---
 sidebar_position: 2
-title: Example - Connection
+title: Connection Example
 ---
 
-Using aria.sdk_gen2 to connect to an Aria Device.
+# Connection Example
 
-## Run connection example
+This example demonstrates how to establish a connection to your Aria Gen2 device using the Python SDK. Once authenticated, you can connect to devices by their serial number or IP address.
+
+## Quick Start
+
+Run the connection example script:
+
 ```bash
-python ~/Downloads/projectaria_client_sdk_samples_gen2/device_connect.py --serial IM0XXXXXXXXXXX
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_connect.py
 ```
-Replace IM0XXXXXXXXXXX with your device’s actual serial number.
 
-## Step-by-step walk through
-1. Import Required Modules
+The script connects to the first available device and displays its information.
 
-Start by importing the necessary modules:
+---
+
+## What This Example Does
+
+The script performs the following steps:
+1. Creates a device client
+2. Configures the client to connect to a specific device (or first available)
+3. Establishes a connection
+4. Displays device information
+
+---
+
+## Code Walkthrough
+
+### Step 1: Import Required Modules
+
 ```python
 import argparse
 import aria.sdk_gen2 as sdk_gen2
 ```
-aria.sdk_gen2 is the SDK for interacting with Aria devices.
 
-2. Parse Command-Line Arguments
+---
 
-Set up argument parsing to allow the user to specify the device serial number:
+### Step 2: Parse Command-Line Arguments
+
 ```python
 def parse_args() -> argparse.Namespace:
-   parser = argparse.ArgumentParser()
-   parser.add_argument(
-       "--serial",
-       dest="serial",
-       type=str,
-       default="",
-       required=False,
-       help="Serial number of the device which will be connected. (e.g. 1M0YDB5H7B0020)",
-   )
-   return parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--serial",
+        dest="serial",
+        type=str,
+        default="",
+        required=False,
+        help="Serial number of the device which will be connected. (e.g. 1M0YDB5H7B0020)",
+    )
+    return parser.parse_args()
 ```
-The --serial argument lets the user specify which device to connect to.
-If not provided, it defaults to an empty string, and the first available device will be used.
 
-3. Set Up the Device Client and Configuration
+**Available Options:**
+* `--serial`: Specify a device by its serial number (e.g., `1M0YDB5H7B0020`)
+* If nothing is specified, connects to the first available device
 
-Create and configure the device client:
+---
+
+### Step 3: Create and Configure Device Client
 
 ```python
+device_client = sdk_gen2.DeviceClient()
+config = sdk_gen2.DeviceClientConfig()
+
+config.device_serial = serial
+
+device_client.set_client_config(config)
+```
+
+**How Configuration Works:**
+* **Default (no arguments)**: Connects to the first available device
+* **By Serial**: Targets a specific device by its unique serial number
+
+---
+
+### Step 4: Establish Connection
+
+```python
+try:
+    device = device_client.connect()
+    print(f"Successfully connected to device {device.connection_id()}")
+except Exception as e:
+    print(f"Failed to connect to device: {e}")
+    return
+```
+
+**What Happens:**
+* The `connect()` method establishes a session with the device
+* Returns a `Device` object that provides access to all device features
+* Throws an exception if connection fails
+
+---
+
+## Complete Example Code
+
+Here's the full connection script:
+
+```python
+import argparse
+import aria.sdk_gen2 as sdk_gen2
+
 def device_connect(serial):
-   device_client = sdk_gen2.DeviceClient()
-   config = sdk_gen2.DeviceClientConfig()
-   config.device_serial = serial
-   device_client.set_client_config(config)
+    # Set up the device client to initiate connection to the device
+    device_client = sdk_gen2.DeviceClient()
+    # Set up the device client config to specify the device to be connected to e.g. device serial number.
+    # If nothing is specified, the first device in the list of connected devices will be connected to
+    config = sdk_gen2.DeviceClientConfig()
+    config.device_serial = serial
+    device_client.set_client_config(config)
+
+    # try to connect to the device
+    try:
+        device = device_client.connect()
+        print(f"Successfully connected to device {device.connection_id()}")
+    except Exception:
+        print("Failed to connect to device.")
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--serial",
+        dest="serial",
+        type=str,
+        default="",
+        required=False,
+        help="Serial number of the device which will be connected. (e.g. 1M0YDB5H7B0020)",
+    )
+
+    return parser.parse_args()
+
+if __name__ == "__main__":
+    args = parse_args()
+    device_connect(args.serial)
 ```
-* DeviceClient manages the authentication and device connection.
-* DeviceClientConfig is used to specify the target device by serial number or IP address.
 
-4. Connect to the Device
+---
 
-Attempt to connect to the specified device:
+## Usage Examples
+
+### Connect to First Available Device
+
+```bash
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_connect.py
+```
+
+**Output:**
+```
+Successfully connected to device 1M0YDB5H7B0020
+```
+
+---
+
+### Connect by Serial Number
+
+```bash
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_connect.py --serial 1M0YDB5H7B0020
+```
+
+**When to Use:**
+* Multiple devices are connected
+* You need to ensure you're using a specific device
+* Scripts that require consistent device selection
+
+---
+
+## Finding Device Information
+
+### Get Device Serial Number
+
+Use the CLI to list all available devices:
+
+```bash
+aria-gen2 device list
+
+# Output example:
+# [AriaGen2Cli:App][INFO]: 1M0YDB5H7B0020
+```
+
+---
+
+## Troubleshooting
+
+### Connection Failed: Device Not Found
+
+**Problem:** Script cannot find or connect to the device.
+
+**Solutions:**
+1. **Check device is connected:**
+   ```bash
+   aria-gen2 device list
+   ```
+
+2. **Verify authentication:**
+   ```bash
+   aria-gen2 auth check
+   ```
+
+3. **Run aria-doctor:**
+   ```bash
+   aria-doctor
+   ```
+
+4. **Check USB connection:**
+   * Try a different USB port
+   * Use a high-quality USB cable
+   * Ensure device is powered on
+
+---
+
+### Connection Failed: Wrong Serial Number
+
+**Problem:** Specified serial number doesn't match any device.
+
+**Solutions:**
+* List available devices:
+  ```bash
+  aria-gen2 device list
+  ```
+* Use the correct serial number from the output
+* Serial numbers are case-sensitive
+
+---
+
+## Connection Modes
+
+### USB Connection (Default)
+
+**How it works:**
+* Device connected via USB cable
+* Most reliable connection method
+
+**Usage:**
 ```python
-   try:
-       device = device_client.connect()
-       print(f"Successfully connected to device {device.connection_id()}")
-   except Exception:
-       print("Failed to connect to device.")
+# Connects via USB to first available device
+config = sdk_gen2.DeviceClientConfig()
 ```
-If the connection is successful, a confirmation message is printed.
+
+---
+
+## Key Concepts
+
+### DeviceClientConfig
+
+The configuration object controls how the client connects to devices:
+
+```python
+config = sdk_gen2.DeviceClientConfig()
+
+# Option 1: Connect to first available device (default)
+# Leave config empty
+
+# Option 2: Connect by serial number
+config.device_serial = "1M0YDB5H7B0020"
+
+# Apply configuration
+device_client.set_client_config(config)
+```
+
+---
+
+### Device Object
+
+Once connected, the `Device` object provides:
+
+```python
+device = device_client.connect()
+
+# Device information
+device.connection_id()    # Get connection identifier
+
+# Device operations (covered in other examples)
+device.start_recording()  # Start recording
+device.start_streaming()  # Start streaming
+device.render_tts(text)   # Text-to-speech
+```
+
+---
+
+
+## Next Steps
+
+* Learn how to [control recording](/ark/client-sdk/python-sdk/recording-example) with your connected device
+* Explore [real-time streaming](/ark/client-sdk/python-sdk/streaming-example)
+* Send [text-to-speech commands](/ark/client-sdk/python-sdk/text-to-speech-example)
+* Review [all Python SDK examples](/ark/client-sdk/python-sdk/python-interface)
