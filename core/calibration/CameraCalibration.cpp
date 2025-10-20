@@ -126,8 +126,16 @@ Eigen::VectorXd& CameraCalibration::projectionParamsMut() {
   return projectionModel_.projectionParamsMut();
 }
 
+int CameraCalibration::numParameters() const {
+  return projectionModel_.numParameters();
+}
+
 int CameraCalibration::numProjectionParameters() const {
   return projectionModel_.numProjectionParameters();
+}
+
+int CameraCalibration::numDistortionParameters() const {
+  return projectionModel_.numDistortionParameters();
 }
 
 Eigen::Vector2d CameraCalibration::getPrincipalPoint() const {

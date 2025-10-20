@@ -62,8 +62,33 @@ Eigen::Vector<Scalar, Eigen::Dynamic>& CameraProjectionTemplated<Scalar>::projec
 }
 
 template <typename Scalar>
+int CameraProjectionTemplated<Scalar>::numParameters() const {
+  return std::visit(
+      [this](auto&& projection) -> int {
+        using T = std::decay_t<decltype(projection)>;
+        return T::kNumParams;
+      },
+      projectionVariant_);
+}
+
+template <typename Scalar>
 int CameraProjectionTemplated<Scalar>::numProjectionParameters() const {
-  return projectionParams_.size();
+  return std::visit(
+      [this](auto&& projection) -> int {
+        using T = std::decay_t<decltype(projection)>;
+        return T::kNumParams - T::kNumDistortionParams;
+      },
+      projectionVariant_);
+}
+
+template <typename Scalar>
+int CameraProjectionTemplated<Scalar>::numDistortionParameters() const {
+  return std::visit(
+      [this](auto&& projection) -> int {
+        using T = std::decay_t<decltype(projection)>;
+        return T::kNumDistortionParams;
+      },
+      projectionVariant_);
 }
 
 template <typename Scalar>
@@ -138,7 +163,7 @@ template <typename Scalar>
 template <typename OtherScalar>
 [[nodiscard]] CameraProjectionTemplated<OtherScalar> CameraProjectionTemplated<Scalar>::cast()
     const {
-  Eigen::Matrix<OtherScalar, Eigen::Dynamic, 1> castedParams =
+  Eigen::Vector<OtherScalar, Eigen::Dynamic> castedParams =
       projectionParams_.template cast<OtherScalar>();
   auto castedModelName =
       static_cast<typename CameraProjectionTemplated<OtherScalar>::ModelType>(modelName_);

@@ -70,7 +70,9 @@ struct CameraProjectionTemplated {
   ModelType modelName() const;
   const Eigen::Vector<Scalar, Eigen::Dynamic>& projectionParams() const;
   Eigen::Vector<Scalar, Eigen::Dynamic>& projectionParamsMut();
-  int numProjectionParameters() const;
+  int numParameters() const; // return number of parameters
+  int numProjectionParameters() const; // return number of projection parameters
+  int numDistortionParameters() const; // return number of distortion parameters
 
   /**
    * @brief projects a 3d world point in the camera space to a 2d pixel in the image space. No

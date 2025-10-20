@@ -94,7 +94,9 @@ class CameraCalibration {
   Eigen::Vector2d getFocalLengths() const; // return focal length in x and y
   const Eigen::VectorXd& projectionParams() const; // return full calibration parameters
   Eigen::VectorXd& projectionParamsMut();
+  int numParameters() const; // return number of parameters
   int numProjectionParameters() const; // return number of projection parameters
+  int numDistortionParameters() const; // return number of distortion parameters
 
   /**
    * @brief Function to project a 3d point (in camera frame) to a 2d camera pixel location. In this
