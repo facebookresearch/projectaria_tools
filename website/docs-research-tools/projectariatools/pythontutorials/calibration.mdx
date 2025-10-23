@@ -453,7 +453,7 @@ for sensor in sensor_labels:
         static=True,
     )
 
-    # For cameras, also plot camera frustrum
+    # For cameras, also plot camera frustum
     if sensor in camera_labels:
         camera_calibration = device_calib.get_camera_calib(sensor)
         rr.log(f"device/{sensor}_frustum", ToTransform3D(T_device_sensor), static=True)

@@ -268,6 +268,7 @@ nlohmann::json magnetometerCalibrationToJson(
   double biasScale = deviceVersion == DeviceVersion::Gen1 ? 1e-6 : 1e-4;
 
   Eigen::Matrix3d magMatForJson = -magMat.inverse() * rectificationMatrixScale;
+  Eigen::Matrix3d magMatForJson = magMat.inverse() * rectificationMatrixScale;
   Eigen::Vector3d biasForJson = biasInTesla / biasScale;
 
   magJson["SerialNumber"] = "";

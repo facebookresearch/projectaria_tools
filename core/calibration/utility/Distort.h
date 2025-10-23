@@ -48,7 +48,7 @@ image::ManagedImageVariant distortByCalibrationAndApplyRotation(
     const CameraCalibration& dstCalib,
     const CameraCalibration& srcCalib,
     const Sophus::SO3d& so3_srcCalib_dstCalib,
-    const image::InterpolationMethod method = image::InterpolationMethod::Bilinear);
+    image::InterpolationMethod method = image::InterpolationMethod::Bilinear);
 
 /**
  * @brief Distorts an input depth image using InterpolationMethod::Bilinear to swap its underlying
