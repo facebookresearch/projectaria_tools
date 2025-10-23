@@ -86,9 +86,12 @@ ImuCalibration parseImuCalibrationFromJson(const nlohmann::json& json) {
   const auto& label = json["Label"];
   const auto [accelMat, accelBias] = parseRectModelFromJson(json["Accelerometer"]);
   const auto [gyroMat, gyroBias] = parseRectModelFromJson(json["Gyroscope"]);
+  const double timeOffsetSecDeviceAccel = static_cast<double>(json["Accelerometer"]["TimeOffsetSec_Device_Accel"]);
+  const double timeOffsetSecDeviceGyro = static_cast<double>(json["Gyroscope"]["TimeOffsetSec_Device_Gyro"]);
   const auto T_Device_Imu = se3FromJson<double>(json["T_Device_Imu"]);
 
-  return ImuCalibration(label, accelMat, accelBias, gyroMat, gyroBias, T_Device_Imu);
+  return ImuCalibration(label, accelMat, accelBias, gyroMat, gyroBias, T_Device_Imu,
+      timeOffsetSecDeviceAccel, timeOffsetSecDeviceGyro);
 }
 
 MagnetometerCalibration parseMagnetometerCalibrationFromJson(
