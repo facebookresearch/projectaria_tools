@@ -5,13 +5,13 @@ title: Export Gen2 On-device Machine Perception data to CSV
 
 # Export Gen2 On-device Machine Perception data to CSV
 
-This page covers the Gen2 Machine Perception (MP) CSV exporter tool, `run_gen2_mp_csv_exporter`, which extracts on-device machine perception data from Gen2 Aria VRS files and exports them to CSV files compatible with the MPS (Machine Perception Service) data format.
+This page covers the Gen2 Machine Perception (MP) CSV exporter tool, `gen2_mp_csv_exporter`, which extracts on-device machine perception data from Gen2 Aria VRS files and exports them to CSV files compatible with the MPS (Machine Perception Service) data format.
 This enables seamless integration and comparison between on-device results and cloud-processed MPS data.
 
 ## Basic Usage
 
 ```bash
-run_gen2_mp_csv_exporter --vrs-path path/to/your/gen2_file.vrs \
+gen2_mp_csv_exporter --vrs-path path/to/your/gen2_file.vrs \
   --output-folder ./exported_mp_data/ \
   --vio-high-freq-subsample-rate 80
 ```

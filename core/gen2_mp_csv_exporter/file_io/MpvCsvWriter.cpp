@@ -56,10 +56,10 @@ std::string getHandPoseCsvHeader() {
   }
   // Other fields
   header +=
-      ",tx_left_device_wrist,ty_left_device_wrist,tz_left_device_wrist, "
-      "qx_left_device_wrist, qy_left_device_wrist, qz_left_device_wrist, qw_left_device_wrist,"
+      ",tx_left_device_wrist,ty_left_device_wrist,tz_left_device_wrist,"
+      "qx_left_device_wrist,qy_left_device_wrist,qz_left_device_wrist,qw_left_device_wrist,"
       "tx_right_device_wrist,ty_right_device_wrist,tz_right_device_wrist,"
-      "qx_right_device_wrist, qy_right_device_wrist, qz_right_device_wrist, qw_right_device_wrist,"
+      "qx_right_device_wrist,qy_right_device_wrist,qz_right_device_wrist,qw_right_device_wrist,"
       "nx_left_palm_device,ny_left_palm_device,nz_left_palm_device,nx_left_wrist_device,ny_left_wrist_device,nz_left_wrist_device,"
       "nx_right_palm_device,ny_right_palm_device,nz_right_palm_device,nx_right_wrist_device,ny_right_wrist_device,nz_right_wrist_device\n";
   return header;
