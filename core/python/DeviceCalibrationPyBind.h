@@ -88,6 +88,7 @@ inline void declareCameraCalibration(py::module& m) {
           &CameraProjection::project,
           py::arg("point_in_camera"),
           py::arg("jacobian_wrt_point") = nullptr,
+          py::arg("jacobian_wrt_params") = nullptr,
           "projects a 3d world point in the camera space to a 2d pixel in the image space."
           " No checks performed in this process.")
       .def(
@@ -277,12 +278,16 @@ inline void declareCameraCalibration(py::module& m) {
           "project_no_checks",
           &CameraCalibration::projectNoChecks,
           py::arg("point_in_camera"),
+          py::arg("jacobian_wrt_point") = nullptr,
+          py::arg("jacobian_wrt_params") = nullptr,
           "Function to project a 3d point (in camera frame) to a 2d camera pixel location. In this"
           " function, no check is performed.")
       .def(
           "project",
           &CameraCalibration::project,
           py::arg("point_in_camera"),
+          py::arg("jacobian_wrt_point") = nullptr,
+          py::arg("jacobian_wrt_params") = nullptr,
           "Function to project a 3d point (in camera frame) to a 2d camera pixel location, with a"
           " number of validity checks to ensure the point is visible.")
       .def(

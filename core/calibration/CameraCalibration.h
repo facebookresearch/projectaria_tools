@@ -72,7 +72,7 @@ class CameraCalibration {
       double maxSolidAngle,
       const std::string& serialNumber = "",
       double timeOffsetSecDeviceCamera = 0.0,
-      std::optional<double> maybeReadOutTimeSec = {});
+      const std::optional<double>& maybeReadOutTimeSec = {});
 
   std::string getLabel() const;
   std::string getSerialNumber() const;

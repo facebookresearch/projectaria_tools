@@ -30,7 +30,7 @@ CameraCalibration::CameraCalibration(
     const double maxSolidAngle,
     const std::string& serialNumber,
     const double timeOffsetSecDeviceCamera,
-    const std::optional<double> maybeReadOutTimeSec)
+    const std::optional<double>& maybeReadOutTimeSec)
     : label_(label),
       projectionModel_(projectionModelType, projectionParams),
       T_Device_Camera_(T_Device_Camera),
