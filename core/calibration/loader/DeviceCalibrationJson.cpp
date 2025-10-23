@@ -267,7 +267,6 @@ nlohmann::json magnetometerCalibrationToJson(
   // 3. `biasFromJson`: Gen1: muT -> T, Gen2: Gauss -> T.
   double biasScale = deviceVersion == DeviceVersion::Gen1 ? 1e-6 : 1e-4;
 
-  Eigen::Matrix3d magMatForJson = -magMat.inverse() * rectificationMatrixScale;
   Eigen::Matrix3d magMatForJson = magMat.inverse() * rectificationMatrixScale;
   Eigen::Vector3d biasForJson = biasInTesla / biasScale;
 
