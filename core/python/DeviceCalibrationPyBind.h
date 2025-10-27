@@ -312,13 +312,14 @@ inline void declareImuCalibration(py::module& m) {
       "ImuCalibration",
       "A class representing an IMU calibration model, including both accelerometer and gyroscope."
       " We assume the accelerometer and gyroscope for each IMU are co-located and thus they share the same extrinsic.")
-      .def(py::init<
-           const std::string&,
-           const Eigen::Matrix3d&,
-           const Eigen::Vector3d&,
-           const Eigen::Matrix3d&,
-           const Eigen::Vector3d&,
-           const Sophus::SE3d&>())
+      .def(
+          py::init<
+              const std::string&,
+              const Eigen::Matrix3d&,
+              const Eigen::Vector3d&,
+              const Eigen::Matrix3d&,
+              const Eigen::Vector3d&,
+              const Sophus::SE3d&>())
       .def("get_label", &ImuCalibration::getLabel)
       .def(
           "raw_to_rectified_accel",

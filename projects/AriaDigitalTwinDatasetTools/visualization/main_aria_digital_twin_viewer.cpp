@@ -49,15 +49,16 @@ int main(int argc, const char* argv[]) {
       renderPath,
       "If this path is set, then the viewer will run in headless mode and render all frames to the this path.");
 
-  app.footer(fmt::format(
-      "------ Aria Digital Twin Viewer Help ------\n"
-      "Summary: \n"
-      "This viewer loads and displays all Aria Digital Twin data from a single device "
-      "in a data collection sequence. This includes displaying images with GT 2D/3D "
-      "bounding boxes and eye gaze projected into the images. We also optionally display "
-      "skeleton projected into the images, and display with segmentation and depth images "
-      "if they exist in the input GT folder (i.e., if the user decided to download this "
-      "data)\n\n"));
+  app.footer(
+      fmt::format(
+          "------ Aria Digital Twin Viewer Help ------\n"
+          "Summary: \n"
+          "This viewer loads and displays all Aria Digital Twin data from a single device "
+          "in a data collection sequence. This includes displaying images with GT 2D/3D "
+          "bounding boxes and eye gaze projected into the images. We also optionally display "
+          "skeleton projected into the images, and display with segmentation and depth images "
+          "if they exist in the input GT folder (i.e., if the user decided to download this "
+          "data)\n\n"));
 
   CLI11_PARSE(app, argc, argv);
 

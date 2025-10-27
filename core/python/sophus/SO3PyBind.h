@@ -62,8 +62,9 @@ struct type_caster<Sophus::SO3<double>> {
     try {
       sophus::SO3Group<double>& ref = src.cast<sophus::SO3Group<double>&>();
       if (ref.size() != 1) {
-        throw std::domain_error(fmt::format(
-            "A element of size 1 is required here. Input has {} elements.", ref.size()));
+        throw std::domain_error(
+            fmt::format(
+                "A element of size 1 is required here. Input has {} elements.", ref.size()));
       }
       value = ref[0];
       return true;
@@ -121,10 +122,11 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
       [](const std::vector<Scalar>& x_vec,
          const Eigen::Matrix<Scalar, -1, 3>& xyz_vec) -> SO3Group<Scalar> {
         if (x_vec.size() != xyz_vec.rows()) {
-          throw std::runtime_error(fmt::format(
-              "Size of the real and imagery part is not the same: {} {}",
-              x_vec.size(),
-              xyz_vec.rows()));
+          throw std::runtime_error(
+              fmt::format(
+                  "Size of the real and imagery part is not the same: {} {}",
+                  x_vec.size(),
+                  xyz_vec.rows()));
         }
         SO3Group<Scalar> output;
         output.reserve(x_vec.size());

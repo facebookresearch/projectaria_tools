@@ -49,15 +49,16 @@ MPSData3DGui::MPSData3DGui(
     const StaticCameraCalibrations& camCalibs)
     : clouds_world_(clouds_world), fullTrajsWorld_(fullTrajs_world), camCalibs_(camCalibs) {
   pangolin::CreateWindowAndBind(kWindowTitle.data(), kWindowWidth, kWindowHeight);
-  visualization3dState_ = pangolin::OpenGlRenderState(pangolin::ProjectionMatrixRDF_TopLeft(
-      kMapPanelWidth,
-      kWindowHeight,
-      1000,
-      1000,
-      kMapPanelWidth / 2,
-      kWindowHeight / 2,
-      0.02,
-      1000));
+  visualization3dState_ = pangolin::OpenGlRenderState(
+      pangolin::ProjectionMatrixRDF_TopLeft(
+          kMapPanelWidth,
+          kWindowHeight,
+          1000,
+          1000,
+          kMapPanelWidth / 2,
+          kWindowHeight / 2,
+          0.02,
+          1000));
   vis3dState_ = std::make_unique<pangolin::Handler3D>(visualization3dState_);
   mapView_ =
       &pangolin::CreateDisplay()

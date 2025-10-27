@@ -458,12 +458,13 @@ inline void declareSensorData(py::module& m) {
 
   // SensorData Class
   py::class_<SensorData>(m, "SensorData")
-      .def(py::init<
-           const vrs::StreamId&,
-           const SensorData::SensorDataVariant&,
-           const SensorDataType&,
-           const int64_t,
-           const std::map<TimeSyncMode, int64_t>&>())
+      .def(
+          py::init<
+              const vrs::StreamId&,
+              const SensorData::SensorDataVariant&,
+              const SensorDataType&,
+              const int64_t,
+              const std::map<TimeSyncMode, int64_t>&>())
       .def("stream_id", &SensorData::streamId)
       .def("sensor_data_type", &SensorData::sensorDataType)
       .def("image_data_and_record", &SensorData::imageDataAndRecord)

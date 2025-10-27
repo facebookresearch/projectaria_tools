@@ -72,10 +72,11 @@ int64_t getAlignmentToleranceUs(const std::string& sensor1, const std::string& s
       return alignmentTolerance.second;
     }
   }
-  throw std::runtime_error(fmt::format(
-      "Alignment tolerance isn't defined for sensor {} and sensor {}",
-      sensor1.c_str(),
-      sensor2.c_str()));
+  throw std::runtime_error(
+      fmt::format(
+          "Alignment tolerance isn't defined for sensor {} and sensor {}",
+          sensor1.c_str(),
+          sensor2.c_str()));
 }
 
 } // namespace
