@@ -55,8 +55,9 @@ OnlineCalibration frontendoutputToOnlineCalibration(
       const std::string& label = kTrackerToSlamCameraLabels.at(i);
       const auto maybeOriginalCalib = deviceCalib.getCameraCalib(label);
       if (!maybeOriginalCalib.has_value()) {
-        throw std::runtime_error(fmt::format(
-            "Cannot find slam calibration for {} in original device calibration \n", label));
+        throw std::runtime_error(
+            fmt::format(
+                "Cannot find slam calibration for {} in original device calibration \n", label));
       }
       const auto& originalCalib = maybeOriginalCalib.value();
 

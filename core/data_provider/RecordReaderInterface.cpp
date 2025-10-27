@@ -276,8 +276,9 @@ std::optional<VrsMetadata> RecordReaderInterface::getMetadata() const {
       fillMetadataForGen2(metadata, metadataJson);
       break;
     default:
-      throw std::runtime_error(fmt::format(
-          "Unsupported device version for loading metadata: {}", getName(deviceVersion_)));
+      throw std::runtime_error(
+          fmt::format(
+              "Unsupported device version for loading metadata: {}", getName(deviceVersion_)));
   }
 
   return metadata;

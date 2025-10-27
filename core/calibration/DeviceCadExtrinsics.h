@@ -47,7 +47,7 @@ class DeviceCadExtrinsics {
   [[deprecated(
       "This constructor will be removed in the future. Use the constructor with explicit device version instead: \n DeviceCadExtrinsics(DeviceVersion, deviceSubType, originSensorLabel).")]]
   DeviceCadExtrinsics(const std::string& deviceSubType, const std::string& originSensorLabel)
-      : DeviceCadExtrinsics(DeviceVersion::Gen1, deviceSubType, originSensorLabel){};
+      : DeviceCadExtrinsics(DeviceVersion::Gen1, deviceSubType, originSensorLabel) {};
 
   DeviceVersion getDeviceVersion() const {
     return deviceVersion_;

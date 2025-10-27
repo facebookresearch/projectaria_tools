@@ -723,8 +723,10 @@ void AriaViewer::update3dView() {
       glLineWidth(3.0);
       pangolin::glDrawVertices(
           previousTrajIndex + 1, entireHighFreqTrajectory_.data(), GL_LINE_STRIP);
-      pangolin::glDrawLineStrip(std::vector<Eigen::Vector3d>(
-          {entireHighFreqTrajectory_.at(previousTrajIndex), T_World_DeviceHighFreq.translation()}));
+      pangolin::glDrawLineStrip(
+          std::vector<Eigen::Vector3d>(
+              {entireHighFreqTrajectory_.at(previousTrajIndex),
+               T_World_DeviceHighFreq.translation()}));
     }
   }
 

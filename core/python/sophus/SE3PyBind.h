@@ -66,8 +66,9 @@ struct type_caster<Sophus::SE3<double>> {
     try {
       sophus::SE3Group<double>& ref = src.cast<sophus::SE3Group<double>&>();
       if (ref.size() != 1) {
-        throw std::domain_error(fmt::format(
-            "A element of size 1 is required here. Input has {} elements.", ref.size()));
+        throw std::domain_error(
+            fmt::format(
+                "A element of size 1 is required here. Input has {} elements.", ref.size()));
       }
       value = ref[0];
       return true;
@@ -92,8 +93,9 @@ struct type_caster<Sophus::SE3<float>> {
     try {
       sophus::SE3Group<float>& ref = src.cast<sophus::SE3Group<float>&>();
       if (ref.size() != 1) {
-        throw std::domain_error(fmt::format(
-            "A element of size 1 is required here. Input has {} elements.", ref.size()));
+        throw std::domain_error(
+            fmt::format(
+                "A element of size 1 is required here. Input has {} elements.", ref.size()));
       }
       value = ref[0];
       return true;
@@ -128,18 +130,21 @@ PybindSE3Type<Scalar> exportSE3Transformation(
       }),
       " Default Constructor initializing a group containing 1 identity element");
   type.def(pybind11::init<const Sophus::SE3<Scalar>&>(), "Copy constructor from single element");
-  type.def(py::pickle(
-      [](const SE3Group<Scalar>& transformations) { // __getstate__
-        return py::make_tuple(transformations[0].so3().params(), transformations[0].translation());
-      },
-      [](py::tuple t) { // __setstate__
-        if (t.size() != 2) {
-          throw std::runtime_error("Invalid state!");
-        }
-        return SE3Group<Scalar>{Sophus::SE3<Scalar>(
-            Sophus::SO3<Scalar>(Eigen::Quaternion<Scalar>(t[0].cast<Sophus::Vector<Scalar, 4>>())),
-            t[1].cast<Eigen::Matrix<Scalar, 3, 1>>())};
-      }));
+  type.def(
+      py::pickle(
+          [](const SE3Group<Scalar>& transformations) { // __getstate__
+            return py::make_tuple(
+                transformations[0].so3().params(), transformations[0].translation());
+          },
+          [](py::tuple t) { // __setstate__
+            if (t.size() != 2) {
+              throw std::runtime_error("Invalid state!");
+            }
+            return SE3Group<Scalar>{Sophus::SE3<Scalar>(
+                Sophus::SO3<Scalar>(
+                    Eigen::Quaternion<Scalar>(t[0].cast<Sophus::Vector<Scalar, 4>>())),
+                t[1].cast<Eigen::Matrix<Scalar, 3, 1>>())};
+          }));
 
   type.def_static("from_matrix", [](const Eigen::Matrix<Scalar, 4, 4>& matrix) -> SE3Group<Scalar> {
     return SE3Group<Scalar>{Sophus::SE3<Scalar>::fitToSE3(matrix)};
@@ -177,9 +182,10 @@ PybindSE3Type<Scalar> exportSE3Transformation(
         for (size_t i = 0; i < matrices.shape(0); ++i) {
           Eigen::Map<const Eigen::Matrix<Scalar, 3, 4, Eigen::RowMajor>> mat(
               matrices.data(i, 0, 0));
-          output.push_back(Sophus::SE3<Scalar>(
-              Sophus::SO3<Scalar>::fitToSO3(mat.template block<3, 3>(0, 0)),
-              mat.template block<3, 1>(0, 3)));
+          output.push_back(
+              Sophus::SE3<Scalar>(
+                  Sophus::SO3<Scalar>::fitToSO3(mat.template block<3, 3>(0, 0)),
+                  mat.template block<3, 1>(0, 3)));
         }
         return output;
       });
@@ -235,11 +241,12 @@ PybindSE3Type<Scalar> exportSE3Transformation(
          const Eigen::Matrix<Scalar, -1, 3>& xyz_vec,
          const Eigen::Matrix<Scalar, -1, 3>& translations) -> SE3Group<Scalar> {
         if (w_vec.size() != xyz_vec.rows() || w_vec.size() != translations.rows()) {
-          throw std::domain_error(fmt::format(
-              "Size of the input variables are not the same: x_vec = {}, xyz_vec = {}, translation = {}",
-              w_vec.size(),
-              xyz_vec.rows(),
-              translations.rows()));
+          throw std::domain_error(
+              fmt::format(
+                  "Size of the input variables are not the same: x_vec = {}, xyz_vec = {}, translation = {}",
+                  w_vec.size(),
+                  xyz_vec.rows(),
+                  translations.rows()));
         }
         SE3Group<Scalar> output;
         output.reserve(w_vec.size());

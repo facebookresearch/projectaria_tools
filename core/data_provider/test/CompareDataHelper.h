@@ -264,10 +264,11 @@ inline void compare(
   EXPECT_TRUE(pose1.T_odometry_device.translation().isApprox(
       pose2.T_odometry_device.translation(), tolerance));
 
-  EXPECT_TRUE(compareQuaternion<double>(
-      pose1.T_odometry_device.unit_quaternion(),
-      pose2.T_odometry_device.unit_quaternion(),
-      tolerance));
+  EXPECT_TRUE(
+      compareQuaternion<double>(
+          pose1.T_odometry_device.unit_quaternion(),
+          pose2.T_odometry_device.unit_quaternion(),
+          tolerance));
 
   // Compare velocities
   EXPECT_TRUE(
@@ -346,8 +347,11 @@ inline void compare(
   // Compare wrist pose
   EXPECT_TRUE(
       hand1.T_Device_Wrist.translation().isApprox(hand2.T_Device_Wrist.translation(), tolerance));
-  EXPECT_TRUE(compareQuaternion<double>(
-      hand1.T_Device_Wrist.unit_quaternion(), hand2.T_Device_Wrist.unit_quaternion(), tolerance));
+  EXPECT_TRUE(
+      compareQuaternion<double>(
+          hand1.T_Device_Wrist.unit_quaternion(),
+          hand2.T_Device_Wrist.unit_quaternion(),
+          tolerance));
 
   // Compare landmarks
   for (int i = 0; i < kNumHandLandmarks; ++i) {

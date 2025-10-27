@@ -54,8 +54,9 @@ class ImageMutationFilter : public RecordFilterCopier {
     if (verbatimCopyIter != verbatimCopy_.end()) {
       return verbatimCopyIter->second;
     }
-    const auto& decoders = readers_.find(tuple<StreamId, Record::Type, uint32_t>(
-        record.streamId, record.recordType, record.formatVersion));
+    const auto& decoders = readers_.find(
+        tuple<StreamId, Record::Type, uint32_t>(
+            record.streamId, record.recordType, record.formatVersion));
     bool verbatimCopy = decoders == readers_.end() ||
         (record.recordType == Record::Type::DATA &&
          decoders->second.recordFormat.getBlocksOfTypeCount(ContentType::IMAGE) == 0);

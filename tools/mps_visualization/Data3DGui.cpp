@@ -73,8 +73,16 @@ Data3DGui::Data3DGui(
   lastTraj_.reserve(kLastTrajLength + 1);
 
   pangolin::CreateWindowAndBind("MPS 3D Replay Viewer", kWindowWidth, kWindowHeight);
-  visualization3dState_ = pangolin::OpenGlRenderState(pangolin::ProjectionMatrixRDF_TopLeft(
-      kMapPanelWidth, kWindowHeight, 1000, 1000, kMapPanelWidth / 2, kWindowHeight / 2, 0.1, 1000));
+  visualization3dState_ = pangolin::OpenGlRenderState(
+      pangolin::ProjectionMatrixRDF_TopLeft(
+          kMapPanelWidth,
+          kWindowHeight,
+          1000,
+          1000,
+          kMapPanelWidth / 2,
+          kWindowHeight / 2,
+          0.1,
+          1000));
   vis3dState = std::make_unique<pangolin::Handler3D>(visualization3dState_);
   mapView = &pangolin::CreateDisplay()
                  .SetBounds(0.0, 1.0, pangolin::Attach::Pix(UI_WIDTH), 1.0)

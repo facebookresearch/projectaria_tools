@@ -219,12 +219,13 @@ inline void declareVrsDataProvider(py::module& m) {
       m,
       "VrsDataProvider",
       "Given a vrs file that contains data collected from Aria devices, createVrsDataProvider will create and return a new VrsDataProvider object. A VrsDataProvider object can be used to access sensor data from a vrs file including image data, IMU data, calibration data and more.")
-      .def(py::init<
-           const std::shared_ptr<RecordReaderInterface>&,
-           const std::shared_ptr<StreamIdConfigurationMapper>&,
-           const std::shared_ptr<TimeSyncMapper>&,
-           const std::shared_ptr<StreamIdLabelMapper>&,
-           const std::optional<calibration::DeviceCalibration>&>())
+      .def(
+          py::init<
+              const std::shared_ptr<RecordReaderInterface>&,
+              const std::shared_ptr<StreamIdConfigurationMapper>&,
+              const std::shared_ptr<TimeSyncMapper>&,
+              const std::shared_ptr<StreamIdLabelMapper>&,
+              const std::optional<calibration::DeviceCalibration>&>())
       .def(
           "get_all_streams",
           [](const VrsDataProvider& self) {

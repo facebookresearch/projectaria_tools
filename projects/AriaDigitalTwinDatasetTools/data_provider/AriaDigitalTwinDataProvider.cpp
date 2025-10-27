@@ -750,11 +750,12 @@ void AriaDigitalTwinDataProvider::loadObject3dBoundingBoxes() {
         std::stod(tokens.at(2)), std::stod(tokens.at(3)), std::stod(tokens.at(4))};
 
     // w, x, y, z
-    object3dBoundingBoxdata.T_Scene_Object.setQuaternion(Eigen::Quaternion<double>(
-        std::stod(tokens.at(5)),
-        std::stod(tokens.at(6)),
-        std::stod(tokens.at(7)),
-        std::stod(tokens.at(8))));
+    object3dBoundingBoxdata.T_Scene_Object.setQuaternion(
+        Eigen::Quaternion<double>(
+            std::stod(tokens.at(5)),
+            std::stod(tokens.at(6)),
+            std::stod(tokens.at(7)),
+            std::stod(tokens.at(8))));
 
     // Env objects are in object traj but not in aabb
     if (objectIdToAabb_.find(objId) == objectIdToAabb_.end()) {

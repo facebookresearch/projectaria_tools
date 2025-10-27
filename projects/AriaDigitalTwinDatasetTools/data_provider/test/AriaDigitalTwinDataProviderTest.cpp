@@ -206,8 +206,9 @@ void InterpolationFunctionTester::run() {
   auto interpPoseMiddle = getInterpolatedAria3dPoseAtTimestampNs(*provider_, middleTimestamp);
   EXPECT_TRUE(interpPoseMiddle.isValid());
   EXPECT_EQ(interpPoseMiddle.dtNs(), 0);
-  const auto maybeAvgPose = Sophus::average(std::vector<Sophus::SE3d>{
-      ariaPoseBefore.data().T_Scene_Device, ariaPoseAfter.data().T_Scene_Device});
+  const auto maybeAvgPose = Sophus::average(
+      std::vector<Sophus::SE3d>{
+          ariaPoseBefore.data().T_Scene_Device, ariaPoseAfter.data().T_Scene_Device});
   EXPECT_TRUE(maybeAvgPose);
   EXPECT_TRUE(SE3IsApproximatelyEqual(*maybeAvgPose, interpPoseMiddle.data().T_Scene_Device, 1e-2));
 }

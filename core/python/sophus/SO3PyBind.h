@@ -64,8 +64,9 @@ struct type_caster<Sophus::SO3<double>> {
     try {
       sophus::SO3Group<double>& ref = src.cast<sophus::SO3Group<double>&>();
       if (ref.size() != 1) {
-        throw std::domain_error(fmt::format(
-            "A element of size 1 is required here. Input has {} elements.", ref.size()));
+        throw std::domain_error(
+            fmt::format(
+                "A element of size 1 is required here. Input has {} elements.", ref.size()));
       }
       value = ref[0];
       return true;
@@ -90,8 +91,9 @@ struct type_caster<Sophus::SO3<float>> {
     try {
       sophus::SO3Group<float>& ref = src.cast<sophus::SO3Group<float>&>();
       if (ref.size() != 1) {
-        throw std::domain_error(fmt::format(
-            "A element of size 1 is required here. Input has {} elements.", ref.size()));
+        throw std::domain_error(
+            fmt::format(
+                "A element of size 1 is required here. Input has {} elements.", ref.size()));
       }
       value = ref[0];
       return true;
@@ -122,17 +124,18 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
       }),
       " Default Constructor initializing a group containing 1 identity element");
   type.def(pybind11::init<const Sophus::SO3<Scalar>&>(), "Copy constructor from single element");
-  type.def(py::pickle(
-      [](const SO3Group<Scalar>& rotations) { // __getstate__
-        return pybind11::make_tuple(rotations[0].params());
-      },
-      [](const pybind11::tuple& t) { // __setstate__
-        if (t.size() != 1) {
-          throw std::runtime_error("Invalid state!");
-        }
-        return SO3Group<Scalar>{
-            Sophus::SO3<Scalar>(Eigen::Quaternion<Scalar>(t[0].cast<Sophus::Vector<Scalar, 4>>()))};
-      }));
+  type.def(
+      py::pickle(
+          [](const SO3Group<Scalar>& rotations) { // __getstate__
+            return pybind11::make_tuple(rotations[0].params());
+          },
+          [](const pybind11::tuple& t) { // __setstate__
+            if (t.size() != 1) {
+              throw std::runtime_error("Invalid state!");
+            }
+            return SO3Group<Scalar>{Sophus::SO3<Scalar>(
+                Eigen::Quaternion<Scalar>(t[0].cast<Sophus::Vector<Scalar, 4>>()))};
+          }));
 
   type.def_static(
       "exp",
@@ -160,10 +163,11 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
       [](const std::vector<Scalar>& x_vec,
          const Eigen::Matrix<Scalar, -1, 3>& xyz_vec) -> SO3Group<Scalar> {
         if (x_vec.size() != xyz_vec.rows()) {
-          throw std::runtime_error(fmt::format(
-              "Size of the real and imagery part is not the same: {} {}",
-              x_vec.size(),
-              xyz_vec.rows()));
+          throw std::runtime_error(
+              fmt::format(
+                  "Size of the real and imagery part is not the same: {} {}",
+                  x_vec.size(),
+                  xyz_vec.rows()));
         }
         SO3Group<Scalar> output;
         output.reserve(x_vec.size());

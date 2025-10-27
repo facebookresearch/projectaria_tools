@@ -99,9 +99,10 @@ std::optional<HandTrackingResult> interpolateHandTrackingResult(
   // Validate that the provided timestamp is consistent with the alpha value
   if (timestamp1 != timestamp2) { // Only check if timestamps are different
     auto totalDuration = timestamp2 - timestamp1;
-    auto expectedTimestamp = timestamp1 +
-        std::chrono::microseconds(static_cast<int64_t>(
-            alpha * static_cast<double>(totalDuration.count())));
+    auto expectedTimestamp =
+        timestamp1 +
+        std::chrono::microseconds(
+            static_cast<int64_t>(alpha * static_cast<double>(totalDuration.count())));
 
     // Allow small tolerance for floating point precision (±1 microsecond)
     auto tolerance = std::chrono::microseconds(1);

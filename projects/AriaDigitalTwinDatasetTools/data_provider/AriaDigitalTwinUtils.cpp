@@ -72,16 +72,17 @@ std::vector<Eigen::Vector2d> bbox2dToImageCoordinates(const Eigen::Vector4f& box
 }
 
 std::vector<Eigen::Vector3d> bbox3dToCoordinates(const Vector6d& bbox) {
-  return {// bottom
-          {bbox[0], bbox[2], bbox[4]},
-          {bbox[0], bbox[3], bbox[4]},
-          {bbox[1], bbox[3], bbox[4]},
-          {bbox[1], bbox[2], bbox[4]},
-          // top
-          {bbox[0], bbox[2], bbox[5]},
-          {bbox[0], bbox[3], bbox[5]},
-          {bbox[1], bbox[3], bbox[5]},
-          {bbox[1], bbox[2], bbox[5]}};
+  return {
+      // bottom
+      {bbox[0], bbox[2], bbox[4]},
+      {bbox[0], bbox[3], bbox[4]},
+      {bbox[1], bbox[3], bbox[4]},
+      {bbox[1], bbox[2], bbox[4]},
+      // top
+      {bbox[0], bbox[2], bbox[5]},
+      {bbox[0], bbox[3], bbox[5]},
+      {bbox[1], bbox[3], bbox[5]},
+      {bbox[1], bbox[2], bbox[5]}};
   ;
 }
 
@@ -95,25 +96,26 @@ std::vector<Eigen::Vector2d> bbox2dToImageLineCoordinates(const Eigen::Vector4f&
 }
 
 std::vector<Eigen::Vector3d> bbox3dToLineCoordinates(const Vector6d& bbox) {
-  return {// bottom
-          {bbox[0], bbox[2], bbox[4]},
-          {bbox[0], bbox[3], bbox[4]},
-          {bbox[1], bbox[3], bbox[4]},
-          {bbox[1], bbox[2], bbox[4]},
-          {bbox[0], bbox[2], bbox[4]},
-          // top
-          {bbox[0], bbox[2], bbox[5]},
-          {bbox[0], bbox[3], bbox[5]},
-          {bbox[1], bbox[3], bbox[5]},
-          {bbox[1], bbox[2], bbox[5]},
-          {bbox[0], bbox[2], bbox[5]},
-          // side
-          {bbox[0], bbox[3], bbox[5]},
-          {bbox[0], bbox[3], bbox[4]},
-          {bbox[1], bbox[3], bbox[4]},
-          {bbox[1], bbox[3], bbox[5]},
-          {bbox[1], bbox[2], bbox[5]},
-          {bbox[1], bbox[2], bbox[4]}};
+  return {
+      // bottom
+      {bbox[0], bbox[2], bbox[4]},
+      {bbox[0], bbox[3], bbox[4]},
+      {bbox[1], bbox[3], bbox[4]},
+      {bbox[1], bbox[2], bbox[4]},
+      {bbox[0], bbox[2], bbox[4]},
+      // top
+      {bbox[0], bbox[2], bbox[5]},
+      {bbox[0], bbox[3], bbox[5]},
+      {bbox[1], bbox[3], bbox[5]},
+      {bbox[1], bbox[2], bbox[5]},
+      {bbox[0], bbox[2], bbox[5]},
+      // side
+      {bbox[0], bbox[3], bbox[5]},
+      {bbox[0], bbox[3], bbox[4]},
+      {bbox[1], bbox[3], bbox[4]},
+      {bbox[1], bbox[3], bbox[5]},
+      {bbox[1], bbox[2], bbox[5]},
+      {bbox[1], bbox[2], bbox[4]}};
 }
 
 void logErrorAndThrow(const std::string& message) {

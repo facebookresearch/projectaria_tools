@@ -41,8 +41,10 @@ std::string loadCameraConfigJsonAsString(const DeviceVersion& deviceVersion) {
   // This is the implementation for BUCK build
   const auto& strIter = kCameraConfigStringMapping.find(deviceVersion);
   if (strIter == kCameraConfigStringMapping.end()) {
-    throw std::runtime_error(fmt::format(
-        "Unsupported device version to load camera config json file: {}", getName(deviceVersion)));
+    throw std::runtime_error(
+        fmt::format(
+            "Unsupported device version to load camera config json file: {}",
+            getName(deviceVersion)));
   }
   return strIter->second;
 }
@@ -70,10 +72,11 @@ std::string loadDeviceCadExtrinsicsCsvAsString(
       kDeviceCadExtrinsicsStringMapping.find(std::make_pair(deviceVersion, deviceSubtype));
 
   if (strIter == kDeviceCadExtrinsicsStringMapping.end()) {
-    throw std::runtime_error(fmt::format(
-        "Unsupported device version and subtype to load device CAD extrinsics csv file: {},{}",
-        getName(deviceVersion),
-        deviceSubtype));
+    throw std::runtime_error(
+        fmt::format(
+            "Unsupported device version and subtype to load device CAD extrinsics csv file: {},{}",
+            getName(deviceVersion),
+            deviceSubtype));
   }
   return strIter->second;
 }

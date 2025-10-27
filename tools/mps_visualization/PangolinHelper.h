@@ -76,16 +76,17 @@ inline void centerViewOnMap(
   const Eigen::VectorXf distances = krDirectionsFromCenter * focalLength / (windowWidth / 2);
   const float distance = distances.maxCoeff();
   const Eigen::Vector3f eye = center - distance * viewDir;
-  glcam.SetModelViewMatrix(pangolin::ModelViewLookAtRDF(
-      eye.x(),
-      eye.y(),
-      eye.z(),
-      center.x(),
-      center.y(),
-      center.z(),
-      -gdir.x(),
-      -gdir.y(),
-      -gdir.z()));
+  glcam.SetModelViewMatrix(
+      pangolin::ModelViewLookAtRDF(
+          eye.x(),
+          eye.y(),
+          eye.z(),
+          center.x(),
+          center.y(),
+          center.z(),
+          -gdir.x(),
+          -gdir.y(),
+          -gdir.z()));
 }
 
 inline void updateIndividualFlagsByCentralFlag(

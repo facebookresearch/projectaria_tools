@@ -91,57 +91,58 @@ void exportMps(py::module& m) {
       .def_readwrite("right_gaze_valid", &EyeGazeVergence::right_gaze_valid)
       .def_readwrite("left_blink_valid", &EyeGazeVergence::left_blink_valid)
       .def_readwrite("right_blink_valid", &EyeGazeVergence::right_blink_valid)
-      .def(py::pickle(
-          [](const EyeGazeVergence& vergence) { // __getstate__
-            return py::make_tuple(
-                vergence.left_yaw,
-                vergence.right_yaw,
-                vergence.left_yaw_low,
-                vergence.right_yaw_low,
-                vergence.left_yaw_high,
-                vergence.right_yaw_high,
-                vergence.tx_left_eye,
-                vergence.ty_left_eye,
-                vergence.tz_left_eye,
-                vergence.tx_right_eye,
-                vergence.ty_right_eye,
-                vergence.tz_right_eye,
-                vergence.left_pitch,
-                vergence.right_pitch,
-                vergence.left_blink,
-                vergence.right_blink,
-                vergence.left_gaze_valid,
-                vergence.right_gaze_valid,
-                vergence.left_blink_valid,
-                vergence.right_blink_valid);
-          },
-          [](py::tuple t) { // __setstate__
-            if (t.size() != 20) {
-              throw std::runtime_error("Invalid state!");
-            }
-            EyeGazeVergence vergence;
-            vergence.left_yaw = t[0].cast<float>();
-            vergence.right_yaw = t[1].cast<float>();
-            vergence.left_yaw_low = t[2].cast<float>();
-            vergence.right_yaw_low = t[3].cast<float>();
-            vergence.left_yaw_high = t[4].cast<float>();
-            vergence.right_yaw_high = t[5].cast<float>();
-            vergence.tx_left_eye = t[6].cast<float>();
-            vergence.ty_left_eye = t[7].cast<float>();
-            vergence.tz_left_eye = t[8].cast<float>();
-            vergence.tx_right_eye = t[9].cast<float>();
-            vergence.ty_right_eye = t[10].cast<float>();
-            vergence.tz_right_eye = t[11].cast<float>();
-            vergence.left_pitch = t[12].cast<float>();
-            vergence.right_pitch = t[13].cast<float>();
-            vergence.left_blink = t[14].cast<bool>();
-            vergence.right_blink = t[15].cast<bool>();
-            vergence.left_gaze_valid = t[16].cast<bool>();
-            vergence.right_gaze_valid = t[17].cast<bool>();
-            vergence.left_blink_valid = t[18].cast<bool>();
-            vergence.right_blink_valid = t[19].cast<bool>();
-            return vergence;
-          }));
+      .def(
+          py::pickle(
+              [](const EyeGazeVergence& vergence) { // __getstate__
+                return py::make_tuple(
+                    vergence.left_yaw,
+                    vergence.right_yaw,
+                    vergence.left_yaw_low,
+                    vergence.right_yaw_low,
+                    vergence.left_yaw_high,
+                    vergence.right_yaw_high,
+                    vergence.tx_left_eye,
+                    vergence.ty_left_eye,
+                    vergence.tz_left_eye,
+                    vergence.tx_right_eye,
+                    vergence.ty_right_eye,
+                    vergence.tz_right_eye,
+                    vergence.left_pitch,
+                    vergence.right_pitch,
+                    vergence.left_blink,
+                    vergence.right_blink,
+                    vergence.left_gaze_valid,
+                    vergence.right_gaze_valid,
+                    vergence.left_blink_valid,
+                    vergence.right_blink_valid);
+              },
+              [](py::tuple t) { // __setstate__
+                if (t.size() != 20) {
+                  throw std::runtime_error("Invalid state!");
+                }
+                EyeGazeVergence vergence;
+                vergence.left_yaw = t[0].cast<float>();
+                vergence.right_yaw = t[1].cast<float>();
+                vergence.left_yaw_low = t[2].cast<float>();
+                vergence.right_yaw_low = t[3].cast<float>();
+                vergence.left_yaw_high = t[4].cast<float>();
+                vergence.right_yaw_high = t[5].cast<float>();
+                vergence.tx_left_eye = t[6].cast<float>();
+                vergence.ty_left_eye = t[7].cast<float>();
+                vergence.tz_left_eye = t[8].cast<float>();
+                vergence.tx_right_eye = t[9].cast<float>();
+                vergence.ty_right_eye = t[10].cast<float>();
+                vergence.tz_right_eye = t[11].cast<float>();
+                vergence.left_pitch = t[12].cast<float>();
+                vergence.right_pitch = t[13].cast<float>();
+                vergence.left_blink = t[14].cast<bool>();
+                vergence.right_blink = t[15].cast<bool>();
+                vergence.left_gaze_valid = t[16].cast<bool>();
+                vergence.right_gaze_valid = t[17].cast<bool>();
+                vergence.left_blink_valid = t[18].cast<bool>();
+                vergence.right_blink_valid = t[19].cast<bool>();
+                return vergence;
+              }));
 
   // gaze (Gen1 + Gen2)
   py::class_<EyeGaze>(m, "EyeGaze", "An object representing single Eye gaze output.")
@@ -198,45 +199,46 @@ void exportMps(py::module& m) {
           "spatial_gaze_point_valid",
           &EyeGaze::spatial_gaze_point_valid,
           "A flag to indicate if the spatial gaze point is valid.")
-      .def(py::pickle(
-          [](const EyeGaze& gaze) { // __getstate__
-            return py::make_tuple(
-                int64_t(gaze.trackingTimestamp.count()),
-                gaze.yaw,
-                gaze.vergence,
-                gaze.pitch,
-                gaze.depth,
-                gaze.yaw_low,
-                gaze.pitch_low,
-                gaze.yaw_high,
-                gaze.pitch_high,
-                gaze.session_uid,
-                gaze.combined_gaze_origin_in_cpf,
-                gaze.combined_gaze_valid,
-                gaze.spatial_gaze_point_in_cpf,
-                gaze.spatial_gaze_point_valid);
-          },
-          [](py::tuple t) { // __setstate__
-            if (t.size() != 14) {
-              throw std::runtime_error("Invalid state!");
-            }
-            EyeGaze gaze;
-            gaze.trackingTimestamp = std::chrono::microseconds(t[0].cast<int64_t>());
-            gaze.yaw = t[1].cast<float>();
-            gaze.vergence = t[2].cast<EyeGazeVergence>();
-            gaze.pitch = t[3].cast<float>();
-            gaze.depth = t[4].cast<float>();
-            gaze.yaw_low = t[5].cast<float>();
-            gaze.pitch_low = t[6].cast<float>();
-            gaze.yaw_high = t[7].cast<float>();
-            gaze.pitch_high = t[8].cast<float>();
-            gaze.session_uid = t[9].cast<std::string>();
-            gaze.combined_gaze_origin_in_cpf = t[10].cast<Eigen::Vector3f>();
-            gaze.combined_gaze_valid = t[11].cast<bool>();
-            gaze.spatial_gaze_point_in_cpf = t[12].cast<Eigen::Vector3f>();
-            gaze.spatial_gaze_point_valid = t[13].cast<bool>();
-            return gaze;
-          }))
+      .def(
+          py::pickle(
+              [](const EyeGaze& gaze) { // __getstate__
+                return py::make_tuple(
+                    int64_t(gaze.trackingTimestamp.count()),
+                    gaze.yaw,
+                    gaze.vergence,
+                    gaze.pitch,
+                    gaze.depth,
+                    gaze.yaw_low,
+                    gaze.pitch_low,
+                    gaze.yaw_high,
+                    gaze.pitch_high,
+                    gaze.session_uid,
+                    gaze.combined_gaze_origin_in_cpf,
+                    gaze.combined_gaze_valid,
+                    gaze.spatial_gaze_point_in_cpf,
+                    gaze.spatial_gaze_point_valid);
+              },
+              [](py::tuple t) { // __setstate__
+                if (t.size() != 14) {
+                  throw std::runtime_error("Invalid state!");
+                }
+                EyeGaze gaze;
+                gaze.trackingTimestamp = std::chrono::microseconds(t[0].cast<int64_t>());
+                gaze.yaw = t[1].cast<float>();
+                gaze.vergence = t[2].cast<EyeGazeVergence>();
+                gaze.pitch = t[3].cast<float>();
+                gaze.depth = t[4].cast<float>();
+                gaze.yaw_low = t[5].cast<float>();
+                gaze.pitch_low = t[6].cast<float>();
+                gaze.yaw_high = t[7].cast<float>();
+                gaze.pitch_high = t[8].cast<float>();
+                gaze.session_uid = t[9].cast<std::string>();
+                gaze.combined_gaze_origin_in_cpf = t[10].cast<Eigen::Vector3f>();
+                gaze.combined_gaze_valid = t[11].cast<bool>();
+                gaze.spatial_gaze_point_in_cpf = t[12].cast<Eigen::Vector3f>();
+                gaze.spatial_gaze_point_valid = t[13].cast<bool>();
+                return gaze;
+              }))
       .def("__repr__", [](EyeGaze const& self) { return fmt::to_string(self); });
 
   m.def(
