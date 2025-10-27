@@ -390,8 +390,8 @@ bool VrsHealthCheck::getResult() {
     }
   }
   // Print the result as text:
-  const char* beginColor = "";
-  const char* endColor = "";
+  std::string_view beginColor = "";
+  std::string_view endColor = "";
   if (settings_.isInteractive) {
     beginColor = (result ? Utils::kGreenStr : Utils::kRedStr);
     endColor = Utils::kResetStr;

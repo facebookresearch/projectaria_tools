@@ -19,6 +19,7 @@
 #include "VrsHealthCheck.h"
 
 #include <string>
+#include <string_view>
 
 namespace projectaria::tools::vrs_check {
 
@@ -31,7 +32,7 @@ class Utils {
   static void logScore(const std::string& streamName, float score, float minScore);
   // Print a progress bar as an ASCII drawing
   static void printBar(const std::string& name, float progress);
-  static int runVrsHealthCheck(int argc, char* argv[]);
+  static int runVrsHealthCheck(int argc, char* argv[]); // NOLINT(modernize-avoid-c-arrays)
 
   static int runVrsHealthCheck(
       const std::string& path,
@@ -41,19 +42,19 @@ class Utils {
       bool printStats = false,
       bool disableLogging = false);
 
-  static constexpr char kGreenStr[] = "\033[0;32m";
-  static constexpr char kYellowStr[] = "\033[0;33m";
-  static constexpr char kRedStr[] = "\033[0;31m";
-  static constexpr char kResetStr[] = "\033[0m";
-  static constexpr char kMoveUpStr[] = "\x1b[A";
-  static constexpr char kClearStr[] = "\r\x1b[2K";
+  static constexpr std::string_view kGreenStr = "\033[0;32m";
+  static constexpr std::string_view kYellowStr = "\033[0;33m";
+  static constexpr std::string_view kRedStr = "\033[0;31m";
+  static constexpr std::string_view kResetStr = "\033[0m";
+  static constexpr std::string_view kMoveUpStr = "\x1b[A";
+  static constexpr std::string_view kClearStr = "\r\x1b[2K";
 
  private:
   static bool doColor_;
   static constexpr int kProgressBarMaxLength = 60;
   static constexpr int kMinWidth = 10;
   static constexpr int kProgressBarPadding = 30;
-  static constexpr char kColumnsEnv[] = "COLUMNS";
+  static constexpr std::string_view kColumnsEnv = "COLUMNS";
 };
 
 } // namespace projectaria::tools::vrs_check

@@ -45,8 +45,8 @@ bool Utils::doColor_ = true;
 void Utils::logScore(const std::string& streamName, const float score, const float minScore) {
   std::cout << streamName << ": score ";
   std::cout << std::setprecision(3) << std::fixed;
-  const char* beginColor = "";
-  const char* endColor = "";
+  std::string_view beginColor = "";
+  std::string_view endColor = "";
   if (Utils::doColor_) {
     // Show warning color if below halfway point between minScore and 100%
     if (score >= (minScore + 100.0) / 2) {
@@ -63,7 +63,7 @@ void Utils::logScore(const std::string& streamName, const float score, const flo
 
 void Utils::printBar(const std::string& streamName, float progress) {
   int progressBarLength = kProgressBarMaxLength;
-  if (const char* envCols = std::getenv(kColumnsEnv)) {
+  if (const char* envCols = std::getenv(kColumnsEnv.data())) {
     const int tempLength = std::stoi(envCols) - kProgressBarPadding - 5;
     if (tempLength > kMinWidth) {
       progressBarLength = tempLength;
@@ -139,7 +139,7 @@ int Utils::runVrsHealthCheck(
   return healthCheck.getResult() ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int Utils::runVrsHealthCheck(int argc, char* argv[]) {
+int Utils::runVrsHealthCheck(int argc, char* argv[]) { // NOLINT(modernize-avoid-c-arrays)
   CLI::App app{"VrsHealthCheckTool"};
   Settings settings;
   std::string path;
