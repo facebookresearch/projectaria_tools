@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <cstring>
 
@@ -39,7 +40,7 @@ struct alignas(8) Uuid {
   static Uuid createFromIds(std::uint64_t id1, std::uint64_t id2);
 
   /// This function is added to easy conversion between vision uuid and a lot uuid
-  static Uuid createFromBytes(const std::uint8_t bytes[kStaticSize]);
+  static Uuid createFromBytes(const std::array<std::uint8_t, kStaticSize>& bytes);
 
   /// Returns an invalid UUID (all zeros).
   // Note: Consider making default constructor private once we move away from cereal.
@@ -58,7 +59,7 @@ struct alignas(8) Uuid {
     return !isValid();
   }
 
-  std::uint8_t value[kStaticSize] = {0};
+  std::array<std::uint8_t, kStaticSize> value = {};
 
 }; // struct Uuid
 
@@ -171,17 +172,17 @@ std::pair<Uuid<Purpose>, bool> Uuid<Purpose>::createFromString(const std::string
 template <typename Purpose>
 Uuid<Purpose> Uuid<Purpose>::createFromIds(std::uint64_t id1, std::uint64_t id2) {
   Uuid<Purpose> output;
-  auto* val64Ptr = reinterpret_cast<std::uint64_t*>(output.value);
+  auto* val64Ptr = reinterpret_cast<std::uint64_t*>(output.value.data());
   val64Ptr[0] = id1;
   val64Ptr[1] = id2;
   return output;
 }
 
 template <typename Purpose>
-Uuid<Purpose> Uuid<Purpose>::createFromBytes(const std::uint8_t bytes[kStaticSize]) {
+Uuid<Purpose> Uuid<Purpose>::createFromBytes(const std::array<std::uint8_t, kStaticSize>& bytes) {
   Uuid<Purpose> output;
-  auto* val64Ptr = reinterpret_cast<std::uint64_t*>(output.value);
-  const auto* inPtr = (const uint64_t*)(bytes);
+  auto* val64Ptr = reinterpret_cast<std::uint64_t*>(output.value.data());
+  const auto* inPtr = (const uint64_t*)(bytes.data());
   val64Ptr[0] = inPtr[0];
   val64Ptr[1] = inPtr[1];
   return output;
@@ -226,7 +227,7 @@ Uuid<NewPurpose> Uuid<Purpose>::repurposedClone() const {
 
 template <typename Purpose>
 inline bool Uuid<Purpose>::isValid() const {
-  const auto* ptr = reinterpret_cast<const std::uint64_t*>(this->value);
+  const auto* ptr = reinterpret_cast<const std::uint64_t*>(this->value.data());
   return ptr[0] != 0 || ptr[1] != 0;
 }
 
@@ -234,8 +235,8 @@ template <typename Purpose>
 inline bool operator==(Uuid<Purpose> a, Uuid<Purpose> b) {
   // Using explicit cast to 64-bit numbers yields slightly better assembly code than relying on the
   // compiler to optimize std::memcmp (tested with godbolt.org for both x86_64 and arm64).
-  const auto* aPtr = reinterpret_cast<const std::uint64_t*>(a.value);
-  const auto* bPtr = reinterpret_cast<const std::uint64_t*>(b.value);
+  const auto* aPtr = reinterpret_cast<const std::uint64_t*>(a.value.data());
+  const auto* bPtr = reinterpret_cast<const std::uint64_t*>(b.value.data());
   return (aPtr[0] == bPtr[0] && aPtr[1] == bPtr[1]);
 }
 
@@ -250,8 +251,8 @@ inline bool operator<(Uuid<Purpose> a, Uuid<Purpose> b) {
   // not big endian. The actual order doesn't matter as long as it's consistent, hence we simply
   // cast to 64-bit numbers.
   // godbolt.org shows that this results in quite few instructions on both x86_64 and arm64.
-  const auto* aPtr = reinterpret_cast<const std::uint64_t*>(a.value);
-  const auto* bPtr = reinterpret_cast<const std::uint64_t*>(b.value);
+  const auto* aPtr = reinterpret_cast<const std::uint64_t*>(a.value.data());
+  const auto* bPtr = reinterpret_cast<const std::uint64_t*>(b.value.data());
   if (aPtr[0] == bPtr[0]) {
     return aPtr[1] < bPtr[1];
   }
@@ -279,10 +280,10 @@ struct hash<projectaria::tools::data_provider::Uuid<Purpose>> {
         "std::size_t is neither 8 nor 4 bytes wide.");
 
     if (sizeof(std::size_t) == 8) {
-      const auto* ptr = reinterpret_cast<const std::uint64_t*>(uuid.value);
+      const auto* ptr = reinterpret_cast<const std::uint64_t*>(uuid.value.data());
       return ptr[0] ^ ptr[1];
     } else {
-      const auto* ptr = reinterpret_cast<const std::uint32_t*>(uuid.value);
+      const auto* ptr = reinterpret_cast<const std::uint32_t*>(uuid.value.data());
       return ptr[0] ^ ptr[1] ^ ptr[2] ^ ptr[3];
     }
   }

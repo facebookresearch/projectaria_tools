@@ -27,7 +27,7 @@
 #include <iostream>
 
 // font defined in pangolin
-extern const unsigned char AnonymousPro_ttf[];
+extern const unsigned char AnonymousPro_ttf[]; // NOLINT(modernize-avoid-c-arrays)
 
 using namespace projectaria::tools::data_provider;
 using namespace projectaria::tools::calibration;
