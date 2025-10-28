@@ -50,13 +50,13 @@ void Utils::logScore(const std::string& streamName, const float score, const flo
   if (Utils::doColor_) {
     // Show warning color if below halfway point between minScore and 100%
     if (score >= (minScore + 100.0) / 2) {
-      beginColor = kGreenStr;
+      beginColor = kGreenStr.data();
     } else if (score >= minScore) {
-      beginColor = kYellowStr;
+      beginColor = kYellowStr.data();
     } else {
-      beginColor = kRedStr;
+      beginColor = kRedStr.data();
     }
-    endColor = kResetStr;
+    endColor = kResetStr.data();
   }
   std::cout << beginColor << score << "%" << endColor << std::endl;
 }

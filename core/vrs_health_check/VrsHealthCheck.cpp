@@ -393,8 +393,8 @@ bool VrsHealthCheck::getResult() {
   std::string_view beginColor = "";
   std::string_view endColor = "";
   if (settings_.isInteractive) {
-    beginColor = (result ? Utils::kGreenStr : Utils::kRedStr);
-    endColor = Utils::kResetStr;
+    beginColor = (result ? Utils::kGreenStr.data() : Utils::kRedStr.data());
+    endColor = Utils::kResetStr.data();
   }
   const char* const resultText = result ? "PASS" : "FAIL";
   std::cout << "VRS validation result: " << beginColor << resultText << endColor << std::endl;
