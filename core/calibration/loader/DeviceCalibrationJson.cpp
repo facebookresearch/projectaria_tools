@@ -219,26 +219,23 @@ nlohmann::json imuCalibrationToJson(const ImuCalibration& imuCalib) {
   imuJson["T_Device_Imu"] = json::se3ToJson(imuCalib.getT_Device_Imu());
 
   // Accelerometer calibration
-  imuJson["Accelerometer"]["TimeOffsetSec_Device_Accel"] = 0;
-  imuJson["Accelerometer"]["Model"]["Name"] = "UpperTriagonalLinear";
-  imuJson["Accelerometer"]["Model"]["RectificationMatrix"] =
-      json::eigenMatrixToJson(imuCalib.getAccelModel().getRectification());
   imuJson["Accelerometer"]["Bias"]["Offset"] =
       json::eigenVectorToJson(imuCalib.getAccelModel().getBias());
   imuJson["Accelerometer"]["Bias"]["Name"] = "Constant";
+  imuJson["Accelerometer"]["Model"]["Name"] = "UpperTriagonalLinear";
+  imuJson["Accelerometer"]["Model"]["RectificationMatrix"] =
+      json::eigenMatrixToJson(imuCalib.getAccelModel().getRectification());
+  imuJson["Accelerometer"]["TimeOffsetSec_Device_Accel"] = imuCalib.getTimeOffsetSecDeviceAccel();
 
   // Gyroscope calibration
   imuJson["Gyroscope"]["Bias"]["Name"] = "Constant";
 
   imuJson["Gyroscope"]["Bias"]["Offset"] =
       json::eigenVectorToJson(imuCalib.getGyroModel().getBias());
+  imuJson["Gyroscope"]["Model"]["Name"] = "Linear";
   imuJson["Gyroscope"]["Model"]["RectificationMatrix"] =
       json::eigenMatrixToJson(imuCalib.getGyroModel().getRectification());
-  imuJson["Gyroscope"]["Model"]["Name"] = "LinearGSensitivity";
-  auto zeroMat = Eigen::Matrix<double, 3, 3>();
-  zeroMat.setZero();
-  imuJson["Gyroscope"]["Model"]["GSensitivityMatrix"] = json::eigenMatrixToJson(zeroMat);
-  imuJson["Gyroscope"]["TimeOffsetSec_Device_Gyro"] = 0;
+  imuJson["Gyroscope"]["TimeOffsetSec_Device_Gyro"] = imuCalib.getTimeOffsetSecDeviceGyro();
 
   return imuJson;
 }
