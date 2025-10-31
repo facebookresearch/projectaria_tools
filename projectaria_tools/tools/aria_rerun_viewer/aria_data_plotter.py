@@ -278,8 +278,8 @@ class AriaDataViewer:
 
     def set_device_calibration(self, device_calibration):
         if self.device_calibration is not None:
-            raise RuntimeError(
-                "device_calibration is already set. Cannot set device_calibration again."
+            print(
+                "Warning: device_calibration is already set. Setting device_calibration again."
             )
         self.device_calibration = device_calibration
         self.sensor_labels = SensorLabels.from_device_version(
