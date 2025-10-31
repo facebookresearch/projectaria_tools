@@ -1,0 +1,793 @@
+---
+sidebar_position: 3
+title: Aria Gen2 Pilot Dataset Tutorial - Multi-Sequence Timestamp Alignment
+---
+
+import TutorialButtons from '@site/src/components/TutorialButtons';
+
+<TutorialButtons
+  notebookUrl="https://github.com/facebookresearch/projectaria_gen2_pilot_dataset/blob/main/examples/tutorial_4_multi_sequences_timestamp_alignment.ipynb"
+  colabDisabled={true}
+/>
+
+This tutorial demonstrates how to work with timestamp-aligned multi-device Aria Gen2 recordings. When multiple Aria Gen2 glasses record simultaneously with SubGHz timestamp alignment enabled, their timestamps can be mapped across devices, enabling multi-person activity analysis, multi-view reconstruction, and collaborative tasks.
+
+## What You'll Learn
+
+- Understanding SubGHz time timestamp alignment between multiple Aria Gen2 devices
+- Converting timestamps between host and client devices
+- Querying timestamp-aligned sensor data across multiple recordings
+- Visualizing timestamp-aligned RGB frames from multiple devices
+- Plotting trajectories and hand tracking from multiple devices in a shared world coordinate frame
+
+## Prerequisites
+
+- Complete Tutorial 1 (VRS Data Loading) to understand basic data provider concepts
+- Complete Tutorial 2 (MPS Data Loading) to understand MPS trajectories and hand tracking
+- Download a multi-device sequence from the Aria Gen2 Pilot Dataset
+
+## SubGHz Timestamp Alignment Overview
+
+During multi-device recording, Aria Gen2 glasses use SubGHz radio signals for timestamp alignment:
+
+- **Host Device**: One device acts as the host, actively broadcasting SubGHz signals to a specified channel
+- **Client Device(s)**: Other devices act as clients, receiving SubGHz signals and recording a `Time Domain Mapping` data stream in their VRS file
+
+**Important Notes:**
+- The time domain mapping stream **only exists in client VRS files**, not in the host VRS
+- This mapping enables converting timestamps: host `DEVICE_TIME` ↔ client `DEVICE_TIME`
+- MPS trajectories from timestamp-aligned recordings share the same world coordinate frame
+
+## Import Required Libraries
+
+The following libraries are required for this tutorial:
+
+```python
+# Standard library imports
+import numpy as np
+import os
+from pathlib import Path
+
+# Project Aria Tools imports
+from projectaria_tools.core.stream_id import StreamId
+from projectaria_tools.core.sensor_data import TimeDomain, TimeQueryOptions, TimeSyncMode
+from projectaria_tools.core import mps
+from projectaria_tools.utils.rerun_helpers import (
+    create_hand_skeleton_from_landmarks,
+    ToTransform3D
+)
+
+# Aria Gen2 Pilot Dataset imports
+from aria_gen2_pilot_dataset import AriaGen2PilotDataProvider
+from aria_gen2_pilot_dataset.visualization.plot_style import get_plot_style, PlotEntity
+
+# Visualization library
+import rerun as rr
+import rerun.blueprint as rrb
+```
+
+## Part 1: Single-Device Timestamp Alignment
+
+Before diving into multi-device synchronization, let's understand how timestamp alignment works within a single Aria Gen2 device.
+
+### Understanding Time Domains
+
+In `projectaria_tools`, every timestamp is linked to a specific `TimeDomain`, which represents the time reference or clock used to generate that timestamp. Timestamps from different `TimeDomain`s are not directly comparable—only timestamps within the same `TimeDomain` are consistent and can be accurately compared or aligned.
+
+#### Supported Time Domains for Aria Gen2
+
+**Important: Use `DEVICE_TIME` for single-device Aria data analysis**
+
+| Time Domain | Description | Usage |
+|-------------|-------------|-------|
+| **DEVICE_TIME (Recommended)**| Capture time in device's time domain. Accurate and reliable. All sensors on the same Aria device share the same device time domain. | **Use this for single-device Aria data analysis** |
+| **RECORD_TIME** | Timestamps stored in the index of VRS files. For Aria glasses, these are equal to device timestamp converted to double-precision floating point. | Fast access, but use DEVICE_TIME for accuracy |
+| **HOST_TIME** | Timestamps when sensor data is saved to the device (not when captured). | Should not be needed for any purpose |
+
+**For multi-device time alignment** (covered in Part 2), we use:
+- **SUBGHZ**: Multi-device time alignment for Aria Gen2 using SubGHz signals
+
+### Load a Single Sequence
+
+Let's start by loading a single Aria Gen2 sequence to demonstrate timestamp-based queries:
+
+**⚠️ Important:** Update the path below to point to your downloaded sequence folder.
+
+```python
+# TODO: Update this path to your dataset location
+sequence_path = "path/to/your/sequence_folder"
+
+# Initialize data provider
+print("Loading sequence data...")
+pilot_data_provider = AriaGen2PilotDataProvider(sequence_path)
+
+print("\n" + "="*60)
+print("Data Loaded Successfully!")
+print("="*60)
+```
+
+### Data API to Query by Timestamp
+
+The data provider offers powerful timestamp-based data access through the `get_vrs_$SENSOR_data_by_time_ns()` API family. This is the recommended approach for temporal alignment across sensors and precise timestamp-based data retrieval.
+
+For any sensor type, you can query data by timestamp using these functions:
+- `get_vrs_image_data_by_time_ns()` - Query image data (RGB, SLAM cameras)
+- `get_vrs_imu_data_by_time_ns()` - Query IMU data
+- `get_vrs_audio_data_by_time_ns()` - Query audio data
+- And more...
+
+#### TimeQueryOptions
+
+The `TimeQueryOptions` parameter controls how the system finds data when your query timestamp doesn't exactly match a recorded timestamp:
+
+| Option | Behavior | Use Case |
+|--------|----------|----------|
+| **BEFORE** | Returns the last valid data with `timestamp ≤ query_time` | **Default and most common** - Get the most recent data before or at the query time |
+| **AFTER** | Returns the first valid data with `timestamp ≥ query_time` | Get the next available data after or at the query time |
+| **CLOSEST** | Returns data with smallest `|timestamp - query_time|` | Get the temporally closest data regardless of direction |
+
+#### Boundary Behavior
+
+The API handles edge cases automatically:
+
+| Query Condition | BEFORE | AFTER | CLOSEST |
+|-----------------|--------|-------|---------|
+| `query_time < first_timestamp` | Returns invalid data | Returns first data | Returns first data |
+| `first_timestamp ≤ query_time ≤ last_timestamp` | Returns data with `timestamp ≤ query_time` | Returns data with `timestamp ≥ query_time` | Returns temporally closest data |
+| `query_time > last_timestamp` | Returns last data | Returns invalid data | Returns last data |
+
+Let's demonstrate timestamp-based queries:
+
+```python
+print("="*60)
+print("Single Device Timestamp-Based Query Example")
+print("="*60)
+
+# Select RGB stream ID
+rgb_stream_id = pilot_data_provider.get_vrs_stream_id_from_label("camera-rgb")
+
+# Get a timestamp within the recording (3 seconds after start)
+start_timestamp_ns = pilot_data_provider.vrs_data_provider.get_first_time_ns(rgb_stream_id, TimeDomain.DEVICE_TIME)
+selected_timestamp_ns = start_timestamp_ns + int(3e9)
+
+print(f"\nQuery timestamp: {selected_timestamp_ns} ns (3 seconds after start)")
+
+# Fetch the RGB frame that is CLOSEST to this selected timestamp_ns
+closest_rgb_data, closest_rgb_record = pilot_data_provider.get_vrs_image_data_by_time_ns(
+    stream_id=rgb_stream_id,
+    time_ns=selected_timestamp_ns,
+    time_domain=TimeDomain.DEVICE_TIME,
+    time_query_options=TimeQueryOptions.CLOSEST
+)
+closest_timestamp_ns = closest_rgb_record.capture_timestamp_ns
+closest_frame_number = closest_rgb_record.frame_number
+print(f"\n✅ CLOSEST frame to query timestamp:")
+print(f"   Frame #{closest_frame_number}")
+print(f"   Capture timestamp: {closest_timestamp_ns} ns")
+print(f"   Time difference: {abs(closest_timestamp_ns - selected_timestamp_ns) / 1e6:.2f} ms")
+
+# Fetch the frame BEFORE this frame
+prev_rgb_data, prev_rgb_record = pilot_data_provider.get_vrs_image_data_by_time_ns(
+    stream_id=rgb_stream_id,
+    time_ns=closest_timestamp_ns - 1,
+    time_domain=TimeDomain.DEVICE_TIME,
+    time_query_options=TimeQueryOptions.BEFORE
+)
+prev_timestamp_ns = prev_rgb_record.capture_timestamp_ns
+prev_frame_number = prev_rgb_record.frame_number
+print(f"\n⬅️ BEFORE frame:")
+print(f"   Frame #{prev_frame_number}")
+print(f"   Capture timestamp: {prev_timestamp_ns} ns")
+
+# Fetch the frame AFTER this frame
+next_rgb_data, next_rgb_record = pilot_data_provider.get_vrs_image_data_by_time_ns(
+    stream_id=rgb_stream_id,
+    time_ns=closest_timestamp_ns + 1,
+    time_domain=TimeDomain.DEVICE_TIME,
+    time_query_options=TimeQueryOptions.AFTER
+)
+next_timestamp_ns = next_rgb_record.capture_timestamp_ns
+next_frame_number = next_rgb_record.frame_number
+print(f"\n➡️ AFTER frame:")
+print(f"   Frame #{next_frame_number}")
+print(f"   Capture timestamp: {next_timestamp_ns} ns")
+```
+
+### Visualizing Timestamp-Aligned Multi-Sensor Data
+
+A common use case is to query and visualize data from multiple sensors at approximately the same timestamp. Let's demonstrate querying RGB and SLAM camera images at the same time:
+
+**Use Case:** Get RGB + SLAM images at 5Hz to see timestamp-aligned multi-camera views
+
+```python
+print("="*60)
+print("Multi-Sensor Synchronized Query Example")
+print("="*60)
+
+# Initialize a simple Rerun viewer for single-device visualization
+rr.init("single_device_sync_demo", spawn=False)
+
+# Get stream IDs for RGB and SLAM cameras
+all_labels = pilot_data_provider.vrs_data_provider.get_device_calibration().get_camera_labels()
+slam_labels = [label for label in all_labels if "slam" in label]
+slam_stream_ids = [pilot_data_provider.get_vrs_stream_id_from_label(label) for label in slam_labels]
+rgb_stream_id = pilot_data_provider.get_vrs_stream_id_from_label("camera-rgb")
+
+# Starting from +3 seconds into the recording, sample at 5Hz for 10 frames
+target_period_ns = int(2e8)  # 200ms = 5 Hz
+start_timestamp_ns = pilot_data_provider.vrs_data_provider.get_first_time_ns(rgb_stream_id, TimeDomain.DEVICE_TIME) + int(3e9)
+
+print(f"\nQuerying RGB + SLAM images at 5Hz...")
+print(f"Starting from +3 seconds, sampling 10 frames\n")
+
+# Plot 10 samples
+current_timestamp_ns = start_timestamp_ns
+for frame_i in range(10):
+    # Set time for Rerun
+    rr.set_time_nanos("device_time", current_timestamp_ns)
+
+    # Query and log RGB image
+    rgb_image_data, rgb_image_record = pilot_data_provider.get_vrs_image_data_by_time_ns(
+        stream_id=rgb_stream_id,
+        time_ns=current_timestamp_ns,
+        time_domain=TimeDomain.DEVICE_TIME,
+        time_query_options=TimeQueryOptions.CLOSEST
+    )
+    rr.log("single_device/rgb_image", rr.Image(rgb_image_data.to_numpy_array()))
+
+    # Query and log SLAM images
+    for slam_i, (slam_label, slam_stream_id) in enumerate(zip(slam_labels, slam_stream_ids)):
+        slam_image_data, slam_image_record = pilot_data_provider.get_vrs_image_data_by_time_ns(
+            stream_id=slam_stream_id,
+            time_ns=current_timestamp_ns,
+            time_domain=TimeDomain.DEVICE_TIME,
+            time_query_options=TimeQueryOptions.CLOSEST
+        )
+        rr.log(f"single_device/{slam_label}", rr.Image(slam_image_data.to_numpy_array()))
+
+    if frame_i == 0:
+        print(f"Frame {frame_i}: RGB timestamp {rgb_image_record.capture_timestamp_ns} ns")
+
+    # Increment query timestamp
+    current_timestamp_ns += target_period_ns
+rr.notebook_show()
+print(f"\n✅ Successfully queried and logged 10 frames of synchronized multi-sensor data!")
+```
+
+## Part 2: Multi-Device Time Alignment
+
+Now that we understand single-device timestamp alignment, let's explore how to align timestamps across multiple Aria Gen2 devices using SubGHz signals.
+
+### Understanding Pilot Dataset Multi-Device Naming Convention
+
+In the Aria Gen2 Pilot Dataset, timestamp-aligned multi-device sequences share the same base name with different numeric suffixes:
+
+- **Host Device**: Sequences ending with `_0` (e.g., `eat_0`, `play_0`, `walk_0`)
+- **Client Devices**: Sequences ending with `_1`, `_2`, `_3`, etc. (e.g., `eat_1`, `eat_2`, `eat_3`)
+
+**Example:**
+- `eat_0` → Host device recording
+- `eat_1` → Client device 1 recording
+- `eat_2` → Client device 2 recording
+- `eat_3` → Client device 3 recording
+
+All sequences with the same base name (e.g., all `eat_*`, `play_*`, `walk_*` sequences) share a SubGHz timestamp mapping and can be aligned using the time domain mapping.
+
+### Load Multiple Sequences
+
+We'll need data from both host and client devices. Make sure you have downloaded a multi-device sequence from the Aria Gen2 Pilot Dataset.
+
+**⚠️ Important:** Update the paths below to point to your downloaded host and client sequence folders.
+
+```python
+# TODO: Update these paths to your multi-device dataset location
+host_sequence_path = "/path/to/host_sequence"
+client_sequence_path = "/path/to/client_sequence"
+
+# Initialize data providers for both devices
+print("Loading host device data...")
+host_data_provider = AriaGen2PilotDataProvider(host_sequence_path)
+
+print("Loading client device data...")
+client_data_provider = AriaGen2PilotDataProvider(client_sequence_path)
+
+print("\n" + "="*60)
+print("Multi-Device Data Loaded Successfully!")
+print("="*60)
+print(f"Host has MPS data: {'✅' if host_data_provider.has_mps_data() else '❌'}")
+print(f"Client has MPS data: {'✅' if client_data_provider.has_mps_data() else '❌'}")
+```
+
+### Understanding SubGHz Timestamp Conversion
+
+The SubGHz synchronization creates a mapping between host and client device times. We can convert timestamps bidirectionally:
+
+- **Host → Client**: `client_vrs_provider.convert_from_synctime_to_device_time_ns(host_time, TimeSyncMode.SUBGHZ)`
+- **Client → Host**: `client_vrs_provider.convert_from_device_time_to_synctime_ns(client_time, TimeSyncMode.SUBGHZ)`
+
+**Important**: Both conversion functions are called on the **client's VRS data provider**, since only the client has the time domain mapping data.
+
+Let's demonstrate timestamp conversion:
+
+```python
+print("="*60)
+print("Multi-Device Timestamp Conversion Example")
+print("="*60)
+
+# Get RGB stream ID from host
+rgb_stream_id = host_data_provider.get_vrs_stream_id_from_label("camera-rgb")
+
+# Pick a timestamp in the middle of the host recording
+host_start_time = host_data_provider.vrs_data_provider.get_first_time_ns_all_streams(TimeDomain.DEVICE_TIME)
+host_end_time = host_data_provider.vrs_data_provider.get_last_time_ns_all_streams(TimeDomain.DEVICE_TIME)
+selected_host_timestamp_ns = (host_start_time + host_end_time) // 2
+
+print(f"\nSelected host timestamp: {selected_host_timestamp_ns} ns")
+print(f"  (Host recording spans {(host_end_time - host_start_time) / 1e9:.2f} seconds)")
+
+# Convert from host time to client time
+converted_client_timestamp_ns = client_data_provider.vrs_data_provider.convert_from_synctime_to_device_time_ns(
+    selected_host_timestamp_ns,
+    TimeSyncMode.SUBGHZ
+)
+print(f"\nConverted to client timestamp: {converted_client_timestamp_ns} ns")
+
+# Convert back from client time to host time (roundtrip)
+roundtrip_host_timestamp_ns = client_data_provider.vrs_data_provider.convert_from_device_time_to_synctime_ns(
+    converted_client_timestamp_ns,
+    TimeSyncMode.SUBGHZ
+)
+print(f"\nRoundtrip back to host timestamp: {roundtrip_host_timestamp_ns} ns")
+
+# Calculate numerical difference
+roundtrip_error_ns = roundtrip_host_timestamp_ns - selected_host_timestamp_ns
+print(f"\nRoundtrip error: {roundtrip_error_ns} ns ({roundtrip_error_ns / 1e3:.3f} μs)")
+print("  Note: Small numerical differences are expected due to interpolation")
+```
+
+### Query APIs with TimeDomain.SUBGHZ
+
+Instead of manually converting timestamps, you can directly query client data using host timestamps by specifying `time_domain=TimeDomain.SUBGHZ`. This is more convenient when querying multiple data types.
+
+The following example shows how to query client RGB images using host timestamps:
+
+```python
+print("="*60)
+print("Query Client Data Using Host Timestamps")
+print("="*60)
+
+# Query host RGB image at the selected timestamp
+host_image_data, host_image_record = host_data_provider.get_vrs_image_data_by_time_ns(
+    stream_id=rgb_stream_id,
+    time_ns=selected_host_timestamp_ns,
+    time_domain=TimeDomain.DEVICE_TIME,
+    time_query_options=TimeQueryOptions.CLOSEST
+)
+
+print(f"\nHost RGB frame:")
+print(f"  Query timestamp: {selected_host_timestamp_ns} ns")
+print(f"  Actual capture timestamp: {host_image_record.capture_timestamp_ns} ns")
+print(f"  Frame number: {host_image_record.frame_number}")
+print(f"  Image shape: {host_image_data.to_numpy_array().shape}")
+
+# Query client RGB image using the SAME host timestamp, but with TimeDomain.SUBGHZ
+client_image_data, client_image_record = client_data_provider.get_vrs_image_data_by_time_ns(
+    stream_id=rgb_stream_id,
+    time_ns=selected_host_timestamp_ns,  # Using host timestamp!
+    time_domain=TimeDomain.SUBGHZ,  # Specify SUBGHZ domain
+    time_query_options=TimeQueryOptions.CLOSEST
+)
+
+print(f"\nClient RGB frame (queried with host timestamp):")
+print(f"  Query timestamp (host domain): {selected_host_timestamp_ns} ns")
+print(f"  Actual capture timestamp (client device time): {client_image_record.capture_timestamp_ns} ns")
+print(f"  Frame number: {client_image_record.frame_number}")
+print(f"  Image shape: {client_image_data.to_numpy_array().shape}")
+
+print("\n✅ Successfully queried synchronized frames from both devices!")
+```
+
+## Part 3: Timestamp-Aligned Trajectory and Hand Tracking Visualization
+
+Now we'll visualize timestamp-aligned data from both devices in 3D. Since MPS processes multi-device recordings together, the trajectories from both devices are already in the same world coordinate frame.
+
+### Load MPS Data
+
+First, let's load the MPS trajectories and hand tracking data from both devices:
+
+```python
+print("="*60)
+print("Loading MPS Data")
+print("="*60)
+
+# Load closed loop trajectories
+host_trajectory = host_data_provider.get_mps_closed_loop_trajectory()
+client_trajectory = client_data_provider.get_mps_closed_loop_trajectory()
+
+print(f"\nHost trajectory: {len(host_trajectory)} poses")
+print(f"  Duration: {(host_trajectory[-1].tracking_timestamp - host_trajectory[0].tracking_timestamp).total_seconds():.2f} seconds")
+
+print(f"\nClient trajectory: {len(client_trajectory)} poses")
+print(f"  Duration: {(client_trajectory[-1].tracking_timestamp - client_trajectory[0].tracking_timestamp).total_seconds():.2f} seconds")
+
+# Load hand tracking results
+host_hand_tracking = host_data_provider.get_mps_hand_tracking_result_list()
+client_hand_tracking = client_data_provider.get_mps_hand_tracking_result_list()
+
+print(f"\nHost hand tracking: {len(host_hand_tracking)} frames")
+print(f"Client hand tracking: {len(client_hand_tracking)} frames")
+
+print("\n✅ MPS data loaded successfully!")
+print("\n⚠️ Note: Both trajectories are in the same world coordinate frame")
+```
+
+### Visualization Setup
+
+We'll create a Rerun visualization with two views:
+1. **RGB View**: Synchronized RGB frames from both host and client devices
+2. **3D World View**: Trajectories and hand tracking from both devices in the shared world coordinate frame
+
+Let's define helper functions for plotting:
+
+```python
+# Cache for accumulated trajectory points
+host_trajectory_cache = []
+client_trajectory_cache = []
+
+def plot_device_pose_and_trajectory(device_label: str, pose: mps.ClosedLoopTrajectoryPose, trajectory_cache: list, color: list):
+    """
+    Plot device pose and accumulated trajectory in 3D world view.
+
+    Args:
+        device_label: Label for the device (e.g., "host" or "client")
+        pose: ClosedLoopTrajectoryPose object
+        trajectory_cache: List to accumulate trajectory points
+        color: RGB color for trajectory line
+    """
+    if pose is None:
+        return
+
+    # Get transform and add to trajectory cache
+    T_world_device = pose.transform_world_device
+    trajectory_cache.append(T_world_device.translation()[0])
+
+    # Plot device pose
+    rr.log(
+        f"world/{device_label}/device",
+        ToTransform3D(T_world_device, axis_length=0.05),
+    )
+
+    # Plot accumulated trajectory
+    if len(trajectory_cache) > 1:
+        rr.log(
+            f"world/{device_label}/trajectory",
+            rr.LineStrips3D(
+                [trajectory_cache],
+                colors=[color],
+                radii=0.005,
+            ),
+        )
+
+def plot_hand_tracking(device_label: str, hand_tracking_result: mps.hand_tracking.HandTrackingResult):
+    """
+    Plot hand tracking landmarks and skeleton in 3D world view.
+
+    Args:
+        device_label: Label for the device (e.g., "host" or "client")
+        hand_tracking_result: HandTrackingResult object
+    """
+    # Clear previous hand tracking data
+    rr.log(f"world/{device_label}/device/hand-tracking", rr.Clear.recursive())
+
+    if hand_tracking_result is None:
+        return
+
+    # Plot left hand if available
+    if hand_tracking_result.left_hand is not None:
+        landmarks = hand_tracking_result.left_hand.landmark_positions_device
+        skeleton = create_hand_skeleton_from_landmarks(landmarks)
+
+        landmarks_style = get_plot_style(PlotEntity.HAND_TRACKING_LEFT_HAND_LANDMARKS)
+        skeleton_style = get_plot_style(PlotEntity.HAND_TRACKING_LEFT_HAND_SKELETON)
+
+        rr.log(
+            f"world/{device_label}/device/hand-tracking/left/landmarks",
+            rr.Points3D(
+                positions=landmarks,
+                colors=[landmarks_style.color],
+                radii=landmarks_style.plot_3d_size,
+            ),
+        )
+        rr.log(
+            f"world/{device_label}/device/hand-tracking/left/skeleton",
+            rr.LineStrips3D(
+                skeleton,
+                colors=[skeleton_style.color],
+                radii=skeleton_style.plot_3d_size,
+            ),
+        )
+
+    # Plot right hand if available
+    if hand_tracking_result.right_hand is not None:
+        landmarks = hand_tracking_result.right_hand.landmark_positions_device
+        skeleton = create_hand_skeleton_from_landmarks(landmarks)
+
+        landmarks_style = get_plot_style(PlotEntity.HAND_TRACKING_RIGHT_HAND_LANDMARKS)
+        skeleton_style = get_plot_style(PlotEntity.HAND_TRACKING_RIGHT_HAND_SKELETON)
+
+        rr.log(
+            f"world/{device_label}/device/hand-tracking/right/landmarks",
+            rr.Points3D(
+                positions=landmarks,
+                colors=[landmarks_style.color],
+                radii=landmarks_style.plot_3d_size,
+            ),
+        )
+        rr.log(
+            f"world/{device_label}/device/hand-tracking/right/skeleton",
+            rr.LineStrips3D(
+                skeleton,
+                colors=[skeleton_style.color],
+                radii=skeleton_style.plot_3d_size,
+            ),
+        )
+
+def plot_rgb_image(device_label: str, image_data, image_record):
+    """
+    Plot RGB image in the RGB view.
+
+    Args:
+        device_label: Label for the device (e.g., "host" or "client")
+        image_data: ImageData object
+        image_record: ImageDataRecord object
+    """
+    if image_data is None:
+        return
+
+    rr.log(
+        f"{device_label}",
+        rr.Image(image_data.to_numpy_array())
+    )
+
+print("✅ Helper functions defined!")
+```
+
+### Visualization Part 1: Timestamp-Aligned RGB Frames
+
+Let's first visualize the timestamp-aligned RGB frames from both devices side-by-side.
+
+```python
+# Initialize RGB Rerun viewer
+rr.init("rgb_viewer", spawn=False)
+print("✅ RGB viewer initialized")
+# Get RGB stream ID
+rgb_stream_id = host_data_provider.get_vrs_stream_id_from_label("camera-rgb")
+
+# Define sampling parameters
+sampling_period_ns = int(2e8)  # 200ms = 5 Hz (adjust for different frame rates)
+start_offset_ns = int(3e9)     # Start 3 seconds into recording (skip initial setup)
+duration_ns = int(10e9)        # Visualize 10 seconds (adjust as needed)
+
+# Get host recording time range
+host_start_time_ns = host_data_provider.vrs_data_provider.get_first_time_ns_all_streams(TimeDomain.DEVICE_TIME)
+host_end_time_ns = host_data_provider.vrs_data_provider.get_last_time_ns_all_streams(TimeDomain.DEVICE_TIME)
+
+# Calculate query range
+query_start_ns = host_start_time_ns + start_offset_ns
+query_end_ns = min(query_start_ns + duration_ns, host_end_time_ns)
+
+# Clear trajectory caches for fresh visualization
+host_trajectory_cache.clear()
+client_trajectory_cache.clear()
+
+print("Visualization Configuration:")
+print("=" * 60)
+print(f"Host recording duration: {(host_end_time_ns - host_start_time_ns) / 1e9:.2f} seconds")
+print(f"Visualization start: {start_offset_ns / 1e9:.1f}s into recording")
+print(f"Visualization duration: {(query_end_ns - query_start_ns) / 1e9:.2f} seconds")
+print(f"Sampling rate: {1e9 / sampling_period_ns:.1f} Hz")
+print(f"Expected frames: ~{int((query_end_ns - query_start_ns) / sampling_period_ns)}")
+print("=" * 60)
+
+print("⏳ Logging RGB frames...\n")
+
+current_timestamp_ns = query_start_ns
+frame_count = 0
+
+while current_timestamp_ns <= query_end_ns:
+    # Query host RGB image
+    host_image_data, host_image_record = host_data_provider.get_vrs_image_data_by_time_ns(
+        stream_id=rgb_stream_id,
+        time_ns=current_timestamp_ns,
+        time_domain=TimeDomain.DEVICE_TIME,
+        time_query_options=TimeQueryOptions.CLOSEST
+    )
+
+    # Query client RGB image using host timestamp with SUBGHZ
+    client_image_data, client_image_record = client_data_provider.get_vrs_image_data_by_time_ns(
+        stream_id=rgb_stream_id,
+        time_ns=current_timestamp_ns,  # Host timestamp!
+        time_domain=TimeDomain.SUBGHZ,  # SUBGHZ domain for cross-device query
+        time_query_options=TimeQueryOptions.CLOSEST
+    )
+
+    # Set Rerun timestamp to the host's actual capture timestamp
+    rr.set_time_nanos("device_time", host_image_record.capture_timestamp_ns)
+
+    # Plot RGB images with the correct timestamp
+    rr.log("rgb_image_in_host", rr.Image(host_image_data.to_numpy_array()))
+    rr.log("rgb_image_in_client", rr.Image(client_image_data.to_numpy_array()))
+
+    # Move to next timestamp
+    current_timestamp_ns += sampling_period_ns
+    frame_count += 1
+
+    # Print progress every 10 frames
+    if frame_count % 10 == 0:
+        print(f"  Processed {frame_count} RGB frames...")
+
+print(f"\n✅ RGB data logging complete! Processed {frame_count} frames.")
+# Display RGB viewer
+rr.notebook_show()
+
+print("\n💡 RGB Viewer - What to observe:")
+print("  - Top: Host device RGB frames")
+print("  - Bottom: Client device RGB frames")
+print("  - Frames are synchronized using SubGHz time alignment")
+print("  - May have slight timing differences (cameras not trigger-aligned)")
+```
+
+### Visualization Part 2: 3D World View
+
+Now let's visualize the 3D trajectories, hand tracking, and point cloud in a shared world coordinate frame.
+
+```python
+# Initialize 3D World Rerun viewer
+rr.init("world_3d_viewer", spawn=False)
+world_blueprint = rrb.Blueprint(
+    rrb.Spatial3DView(
+        origin="world",
+        name="3D World View",
+        background=[0, 0, 0],
+    ),
+    collapse_panels=True,
+)
+
+print("✅ 3D world viewer initialized")
+
+# Load filtered point cloud from host
+print("Loading filtered point cloud from host...")
+host_point_cloud_filtered = host_data_provider.get_mps_semidense_point_cloud_filtered(
+    filter_confidence=True,
+    max_point_count=50000  # Limit to 50k points for performance
+)
+
+# Convert to numpy array for plotting
+if host_point_cloud_filtered:
+    points_array = np.array([point.position_world for point in host_point_cloud_filtered])
+
+    # Plot point cloud as static data
+    plot_style = get_plot_style(PlotEntity.SEMI_DENSE_POINT_CLOUD)
+    rr.log(
+        f"world/{plot_style.label}",
+        rr.Points3D(
+            positions=points_array,
+            colors=[plot_style.color] * len(points_array),
+            radii=plot_style.plot_3d_size,
+        ),
+        static=True,
+    )
+    print(f"✅ Plotted {len(points_array)} filtered points from host")
+else:
+    print("⚠️ No point cloud data available")
+
+# Clear trajectory caches for fresh visualization
+host_trajectory_cache.clear()
+client_trajectory_cache.clear()
+
+print("⏳ Logging 3D trajectories and hand tracking...\n")
+
+current_timestamp_ns = query_start_ns
+frame_count = 0
+
+while current_timestamp_ns <= query_end_ns:
+    # Query host MPS pose and hand tracking
+    host_pose = host_data_provider.get_mps_interpolated_closed_loop_pose(
+        timestamp_ns=current_timestamp_ns,
+        time_domain=TimeDomain.DEVICE_TIME
+    )
+
+    host_hand = host_data_provider.get_mps_interpolated_hand_tracking_result(
+        timestamp_ns=current_timestamp_ns,
+        time_domain=TimeDomain.DEVICE_TIME
+    )
+
+    # Query client MPS pose and hand tracking using host timestamp with SUBGHZ
+    client_pose = client_data_provider.get_mps_interpolated_closed_loop_pose(
+        timestamp_ns=current_timestamp_ns,  # Host timestamp!
+        time_domain=TimeDomain.SUBGHZ  # SUBGHZ domain for cross-device query
+    )
+
+    client_hand = client_data_provider.get_mps_interpolated_hand_tracking_result(
+        timestamp_ns=current_timestamp_ns,  # Host timestamp!
+        time_domain=TimeDomain.SUBGHZ  # SUBGHZ domain for cross-device query
+    )
+
+    # Set Rerun timestamp to the host's actual pose timestamp (if available)
+    if host_pose is not None:
+        rr.set_time_nanos("device_time", int(host_pose.tracking_timestamp.total_seconds() * 1e9))
+    else:
+        rr.set_time_nanos("device_time", current_timestamp_ns)
+
+    # Plot host trajectory and pose (blue color) with correct timestamp
+    plot_device_pose_and_trajectory(
+        "host",
+        host_pose,
+        host_trajectory_cache,
+        color=[0, 100, 255]
+    )
+    plot_hand_tracking("host", host_hand)
+
+    # Plot client trajectory and pose (red color) with the same timestamp
+    plot_device_pose_and_trajectory(
+        "client",
+        client_pose,
+        client_trajectory_cache,
+        color=[255, 100, 0]
+    )
+    plot_hand_tracking("client", client_hand)
+
+    # Move to next timestamp
+    current_timestamp_ns += sampling_period_ns
+    frame_count += 1
+
+    # Print progress every 10 frames
+    if frame_count % 10 == 0:
+        print(f"  Processed {frame_count} 3D frames...")
+
+print(f"\n✅ 3D data logging complete! Processed {frame_count} frames.")
+print(f"\n📊 Trajectory Statistics:")
+print(f"  Host trajectory points: {len(host_trajectory_cache)}")
+print(f"  Client trajectory points: {len(client_trajectory_cache)}")
+# Display 3D world viewer
+rr.notebook_show(blueprint=world_blueprint)
+
+print("\n💡 3D World Viewer - What to observe:")
+print("  - Gray points: Filtered semi-dense point cloud from host")
+print("  - Blue trajectory: Host device path")
+print("  - Red trajectory: Client device path")
+print("  - Hand skeletons: Real-time hand tracking from both devices")
+print("  - Both trajectories share the same world coordinate frame")
+```
+
+## Summary
+
+This tutorial covered multi-device timestamp alignment in the Aria Gen2 Pilot Dataset:
+
+### Key Takeaways
+
+1. **SubGHz timestamp alignment**: Understanding the host/client model for multi-device time alignment
+   - Host broadcasts SubGHz signals
+   - Client records time domain mapping (only in client VRS)
+   - Enables bidirectional timestamp conversion
+
+2. **Timestamp Conversion APIs**:
+   - `convert_from_synctime_to_device_time_ns()`: Host time → Client device time
+   - `convert_from_device_time_to_synctime_ns()`: Client device time → Host time
+   - Both functions called on client's VRS data provider
+
+3. **Query APIs with TimeDomain.SUBGHZ**:
+   - Query client data directly using host timestamps
+   - Specify `time_domain=TimeDomain.SUBGHZ` in query functions
+   - More convenient than manual timestamp conversion
+
+4. **Shared World Coordinate Frame**:
+   - MPS trajectories from multi-device recordings are in the same world coordinate frame
+   - Enables direct comparison and multi-view analysis
+   - No additional alignment needed
+
+5. **Visualization Best Practices**:
+   - Break large visualization code into manageable steps
+   - Use different colors for different devices
+   - Show timestamp-aligned RGB frames side-by-side
+   - Display trajectories and hand tracking in unified 3D world view
