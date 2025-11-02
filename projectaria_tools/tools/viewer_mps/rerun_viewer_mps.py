@@ -851,13 +851,7 @@ def log_mps_to_rerun(
         else:
             camera_calibration = rgb_linear_camera_calibration
     else:  # No rectification
-        if should_rotate_image:
-            raise NotImplementedError(
-                "Showing upright-rotated image without rectification is not currently supported.\n"
-                "Please use --no_rotate_image_upright and --no_rectify_image together."
-            )
-        else:
-            camera_calibration = rgb_camera_calibration
+        camera_calibration = rgb_camera_calibration
 
     def post_process_image(img):
         if should_rectify_image:

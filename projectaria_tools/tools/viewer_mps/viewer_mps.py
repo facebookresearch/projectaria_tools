@@ -91,6 +91,8 @@ def parse_args():
     )
     # User can choose to run the viewer in the web browser
     parser.add_argument("--web", action="store_true", help="Run viewer in web browser")
+    parser.add_argument("--web_port", type=int, default=0, help="Web server port")
+    parser.add_argument("--ws_port", type=int, default=0, help="WebSocket server port")
 
     return parser.parse_args()
 
@@ -167,7 +169,7 @@ def main() -> None:
 
     # Run the viewer in the web browser or desktop app
     if args.web:
-        rr.serve_web()
+        rr.serve_web(web_port=args.web_port, ws_port=args.ws_port)
     else:
         rr.spawn()
 
