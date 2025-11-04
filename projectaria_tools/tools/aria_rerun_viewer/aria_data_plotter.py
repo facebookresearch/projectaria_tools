@@ -58,8 +58,10 @@ class SensorLabels:
     magnetometer_label: str
     barometer_labels: List[str]
     microphone_label: str
-    contact_microphone_label: str
     gps_label: str
+
+    # Contact mic label (Gen2 only)
+    contact_microphone_label: Optional[str] = None
 
     # Machine perception data labels (Gen2 only)
     eye_gaze_label: Optional[str] = None
