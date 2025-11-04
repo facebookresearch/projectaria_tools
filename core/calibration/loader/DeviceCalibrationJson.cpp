@@ -82,7 +82,7 @@ std::optional<DeviceCalibration> deviceCalibrationFromJson(const std::string& ca
     deviceSubtype = json["DeviceClassInfo"]["BuildVersion"];
   }
 
-  // Create a Camera Config builder to parse in camera config information
+  // Create a Camera Config builder to parse in camera default config information
   CameraConfigBuilder cameraConfigBuilder(deviceVersion);
 
   std::map<std::string, CameraCalibration> cameraCalibs;
@@ -204,6 +204,15 @@ nlohmann::json cameraCalibrationToJson(const CameraCalibration& camCalib) {
   // Time offset if non-zero
   if (camCalib.getTimeOffsetSecDeviceCamera() != 0.0) {
     camJson["TimeOffsetSec_Device_Camera"] = camCalib.getTimeOffsetSecDeviceCamera();
+  }
+
+  // Store config, so we can correctly load an already configured camera without re-applying
+  auto& jsonConfig = camJson["ConfigData"];
+  jsonConfig["ImageWidth"] = camCalib.getImageSize().x();
+  jsonConfig["ImageHeight"] = camCalib.getImageSize().y();
+  jsonConfig["MaxSolidAngle"] = camCalib.getMaxSolidAngle();
+  if (camCalib.getValidRadius().has_value()) {
+    jsonConfig["ValidRadius"] = *camCalib.getValidRadius();
   }
 
   return camJson;

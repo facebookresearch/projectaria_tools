@@ -53,11 +53,24 @@ CameraCalibration parseCameraCalibrationFromJson(
       ? static_cast<double>(json["TimeOffsetSec_Device_Camera"])
       : 0.0;
 
-  // Obtain camera config from builder
-  const auto maybeConfig = configBuilder.getCameraConfigData(label);
-  if (!maybeConfig.has_value()) {
-    throw std::runtime_error(
-        fmt::format("No config found for camera {} from Config builder", label));
+  // load saved config, if available - if not, then defaults will be loaded
+  std::optional<CameraConfigData> maybeConfig;
+  if (json.contains("ConfigData")) {
+    auto jsonConfig = json["ConfigData"];
+    maybeConfig = CameraConfigData{
+        .imageWidth = jsonConfig["ImageWidth"],
+        .imageHeight = jsonConfig["ImageHeight"],
+        .maxSolidAngle = jsonConfig["MaxSolidAngle"],
+    };
+    if (jsonConfig.contains("ValidRadius")) {
+      maybeConfig->maybeValidRadius = static_cast<double>(jsonConfig["ValidRadius"]);
+    }
+  } else { // Obtain default camera config from builder
+    maybeConfig = configBuilder.getCameraConfigData(label);
+    if (!maybeConfig.has_value()) {
+      throw std::runtime_error(
+          fmt::format("No config found for camera {} from Config builder", label));
+    }
   }
 
   CameraCalibration camCalib(
