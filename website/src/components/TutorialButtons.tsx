@@ -18,11 +18,13 @@ import React from 'react';
 
 interface TutorialButtonsProps {
   notebookUrl: string;
+  colabUrl?: string;
   colabDisabled?: boolean;
 }
 
 const TutorialButtons: React.FC<TutorialButtonsProps> = ({
   notebookUrl,
+  colabUrl,
   colabDisabled = false,
 }) => {
   const handleColabClick = () => {
@@ -30,6 +32,15 @@ const TutorialButtons: React.FC<TutorialButtonsProps> = ({
       'Google Colab integration is not available yet. Please download the notebook and run it locally.',
     );
   };
+
+  const ColabIcon = () => (
+    <svg
+      style={{marginRight: '8px', width: '16px', height: '16px'}}
+      fill="currentColor"
+      viewBox="0 0 24 24">
+      <path d="M16.9414 4.9757a7.033 7.033 0 0 0-4.9308 2.0324 7.033 7.033 0 0 0-.1232 9.8068l2.395-2.395a3.6455 3.6455 0 0 1 5.1497-5.1478l2.397-2.3989a7.033 7.033 0 0 0-4.8877-1.9175zM7.07 4.9855a7.033 7.033 0 0 0-4.8878 1.9175l2.395 2.3989a3.6434 3.6434 0 0 1 5.1497 5.1478l2.395 2.395a7.033 7.033 0 0 0-.1232-9.8068A7.033 7.033 0 0 0 7.07 4.9855zm15.0191 2.5923l-2.395 2.395a3.6455 3.6455 0 0 1-5.1497 5.1497l-2.395 2.395a7.033 7.033 0 0 0 9.9397-.123z" />
+    </svg>
+  );
 
   return (
     <div
@@ -71,39 +82,53 @@ const TutorialButtons: React.FC<TutorialButtonsProps> = ({
         View Notebook on GitHub
       </a>
 
-      <button
-        onClick={handleColabClick}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          padding: '8px 16px',
-          backgroundColor: colabDisabled ? '#f6f8fa' : '#f9ab00',
-          border: '1px solid #d0d7de',
-          borderRadius: '6px',
-          color: colabDisabled ? '#656d76' : '#fff',
-          fontSize: '14px',
-          fontWeight: '500',
-          cursor: colabDisabled ? 'not-allowed' : 'pointer',
-          transition: 'background-color 0.2s',
-        }}
-        onMouseEnter={(e) => {
-          if (!colabDisabled) {
+      {!colabDisabled && colabUrl ? (
+        <a
+          href={colabUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            padding: '8px 16px',
+            backgroundColor: '#f9ab00',
+            border: '1px solid #d0d7de',
+            borderRadius: '6px',
+            textDecoration: 'none',
+            color: '#fff',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'background-color 0.2s',
+          }}
+          onMouseEnter={(e) => {
             (e.target as HTMLElement).style.backgroundColor = '#e8a500';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!colabDisabled) {
+          }}
+          onMouseLeave={(e) => {
             (e.target as HTMLElement).style.backgroundColor = '#f9ab00';
-          }
-        }}>
-        <svg
-          style={{marginRight: '8px', width: '16px', height: '16px'}}
-          fill="currentColor"
-          viewBox="0 0 24 24">
-          <path d="M16.9414 4.9757a7.033 7.033 0 0 0-4.9308 2.0324 7.033 7.033 0 0 0-.1232 9.8068l2.395-2.395a3.6455 3.6455 0 0 1 5.1497-5.1478l2.397-2.3989a7.033 7.033 0 0 0-4.8877-1.9175zM7.07 4.9855a7.033 7.033 0 0 0-4.8878 1.9175l2.395 2.3989a3.6434 3.6434 0 0 1 5.1497 5.1478l2.395 2.395a7.033 7.033 0 0 0-.1232-9.8068A7.033 7.033 0 0 0 7.07 4.9855zm15.0191 2.5923l-2.395 2.395a3.6455 3.6455 0 0 1-5.1497 5.1497l-2.395 2.395a7.033 7.033 0 0 0 9.9397-.123z" />
-        </svg>
-        {colabDisabled ? 'Colab (Coming Soon)' : 'Run in Google Colab'}
-      </button>
+          }}>
+          <ColabIcon />
+          Run in Google Colab
+        </a>
+      ) : (
+        <button
+          onClick={handleColabClick}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            padding: '8px 16px',
+            backgroundColor: '#f6f8fa',
+            border: '1px solid #d0d7de',
+            borderRadius: '6px',
+            color: '#656d76',
+            fontSize: '14px',
+            fontWeight: '500',
+            cursor: 'not-allowed',
+            transition: 'background-color 0.2s',
+          }}>
+          <ColabIcon />
+          Colab (Coming Soon)
+        </button>
+      )}
     </div>
   );
 };
