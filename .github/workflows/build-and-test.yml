@@ -71,7 +71,7 @@ jobs:
         run: |
           mkdir build
           cmake -DCMAKE_BUILD_TYPE=RELEASE -S . -B build \
-            -DBUILD_UNIT_TEST=OFF \
+            -DBUILD_UNIT_TEST=ON \
             -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: C++ - Build and Test
@@ -79,7 +79,7 @@ jobs:
         run: |
           cd build
           make -j8
-          # ctest -j # TODO: renable after including test data
+          ctest -j
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -93,11 +93,11 @@ jobs:
           CMAKE_BUILD_PARALLEL_LEVEL=4 pip3 install .
 
           # Run Python unit tests
-          #export TEST_FOLDER="./data/gen1/"
-          #export TEST_FOLDER_GEN2="./data/gen2/"
-          #python3 -m unittest core/python/test/corePyBindTest.py
-          #python3 -m unittest core/python/test/mpsPyBindTest.py
-          #python3 -m unittest core/python/sophus/test/sophusPybindTest.py
+          export TEST_FOLDER="./data/gen1/"
+          export TEST_FOLDER_GEN2="./data/gen2/"
+          python3 -m unittest core/python/test/corePyBindTest.py
+          python3 -m unittest core/python/test/mpsPyBindTest.py
+          python3 -m unittest core/python/sophus/test/sophusPybindTest.py
 
       - name: Test Python Notebooks
         shell: bash
