@@ -1121,6 +1121,14 @@ class AriaDataViewer:
                 hand_label="right",
             )
 
+    def clear_hand_pose_data_2d(self, camera_label: str):
+        if self.sensor_labels.hand_tracking_label:
+            # Clear the canvas first
+            rr.log(
+                f"{camera_label}/{self.sensor_labels.hand_tracking_label}",
+                rr.Clear.recursive(),
+            )
+
     def plot_hand_pose_data_2d(self, hand_pose_data, camera_label: str):
         """
         Plot hand pose data in 2D camera view
@@ -1140,10 +1148,7 @@ class AriaDataViewer:
             )
 
             # Clear the canvas first
-            rr.log(
-                f"{camera_label}/{self.sensor_labels.hand_tracking_label}",
-                rr.Clear.recursive(),
-            )
+            self.clear_hand_pose_data_2d(camera_label=camera_label)
 
             # Plot both hands
             if hand_pose_data.left_hand is not None:
