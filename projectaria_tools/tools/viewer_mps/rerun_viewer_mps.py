@@ -852,10 +852,10 @@ def log_mps_to_rerun(
             camera_calibration = rgb_linear_camera_calibration
     else:  # No rectification
         if should_rotate_image:
-            raise NotImplementedError(
-                "Showing upright-rotated image without rectification is not currently supported.\n"
-                "Please use --no_rotate_image_upright and --no_rectify_image together."
+            rgb_rotated_camera_calibration = calibration.rotate_camera_calib_cw90deg(
+                rgb_camera_calibration
             )
+            camera_calibration = rgb_rotated_camera_calibration
         else:
             camera_calibration = rgb_camera_calibration
 
@@ -866,8 +866,8 @@ def log_mps_to_rerun(
                 rgb_linear_camera_calibration,
                 rgb_camera_calibration,
             )
-            if should_rotate_image:
-                img = np.rot90(img, k=3)
+        if should_rotate_image:
+            img = np.rot90(img, k=3)
         return img
 
     # Load Trajectory, Eye Gaze, and Wrist and Palm Pose data - corresponding to this specific VRS file
@@ -901,7 +901,7 @@ def log_mps_to_rerun(
 
     # Log Aria Glasses outline
     log_RGB_camera_calibration(
-        rgb_camera_calibration, rgb_stream_label, down_sampling_factor
+        camera_calibration, rgb_stream_label, down_sampling_factor
     )
 
     log_Aria_glasses_outline(device_calibration)
