@@ -62,8 +62,8 @@ struct ImageConfigRecord {
   uint32_t imageHeight; ///< @brief number of height
   uint32_t imageStride; ///< @brief number of bytes per row
   uint32_t pixelFormat; ///< @brief format of the pixel
-  double exposureDurationMin; ///< @brief longest exposure time allowed by the camera
-  double exposureDurationMax; ///< @brief shortest exposure time allowed by the camera
+  double exposureDurationMin; ///< @brief longest exposure time allowed by the camera (seconds)
+  double exposureDurationMax; ///< @brief shortest exposure time allowed by the camera (seconds)
   double gainMin; ///< @brief lowest gain setting allowed by the camera
   double gainMax; ///< @brief highest gain setting allowed by the camera
   double gammaFactor; ///< @brief gamma correction factor
@@ -82,7 +82,7 @@ struct ImageDataRecord {
   uint64_t groupId;
   uint64_t groupMask;
   uint64_t frameNumber; ///< @brief index of the frame
-  double exposureDuration; ///< @brief length of exposure time
+  double exposureDuration; ///< @brief length of exposure time (seconds)
   double gain; ///< @brief gain settings
   int64_t captureTimestampNs; ///< @brief capture time in device domain
   int64_t arrivalTimestampNs; ///< @brief arrival time in host domain
