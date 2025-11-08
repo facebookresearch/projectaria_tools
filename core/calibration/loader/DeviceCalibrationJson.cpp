@@ -156,6 +156,12 @@ std::string deviceCalibrationToJson(const DeviceCalibration& deviceCalib) {
   json["CalibrationSource"] = "Unknown";
   json["Serial"] = ""; // TODO add serial number in DeviceCalibration
 
+  // FileFormat information with placeholder values
+  json["FileFormat"]["Tags"] = nlohmann::json::array();
+  json["FileFormat"]["Timestamp"] = "";
+  json["FileFormat"]["UnixTime"] = 0;
+  json["FileFormat"]["Version"] = 3;
+
   // Device class information
   json["DeviceClassInfo"]["BuildVersion"] = deviceCalib.getDeviceSubtype();
   json["DeviceClassInfo"]["DeviceClass"] = deviceVersionToString(deviceCalib.getDeviceVersion());
