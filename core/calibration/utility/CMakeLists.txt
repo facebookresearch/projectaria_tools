@@ -15,3 +15,8 @@
 add_library(calibration_distort Distort.cpp Distort.h)
 target_include_directories(calibration_distort PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 target_link_libraries(calibration_distort PUBLIC device_calibration image_distort)
+
+add_library(calibration_nullref INTERFACE)
+target_sources(calibration_nullref INTERFACE NullRef.h)
+target_link_libraries(calibration_nullref INTERFACE Eigen3::Eigen)
+target_include_directories(calibration_nullref INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>)

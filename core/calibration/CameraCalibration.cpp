@@ -30,7 +30,7 @@ CameraCalibration::CameraCalibration(
     const double maxSolidAngle,
     const std::string& serialNumber,
     const double timeOffsetSecDeviceCamera,
-    const std::optional<double> maybeReadOutTimeSec)
+    const std::optional<double>& maybeReadOutTimeSec)
     : label_(label),
       projectionModel_(projectionModelType, projectionParams),
       T_Device_Camera_(T_Device_Camera),
@@ -70,7 +70,15 @@ double CameraCalibration::getTimeOffsetSecDeviceCamera() const {
   return timeOffsetSecDeviceCamera_;
 }
 
+double& CameraCalibration::getTimeOffsetSecDeviceCameraMut() {
+  return timeOffsetSecDeviceCamera_;
+}
+
 std::optional<double> CameraCalibration::getReadOutTimeSec() const {
+  return maybeReadOutTimeSec_;
+}
+
+std::optional<double>& CameraCalibration::getReadOutTimeSecMut() {
   return maybeReadOutTimeSec_;
 }
 
@@ -110,8 +118,24 @@ CameraProjection::ModelType CameraCalibration::modelName() const {
   return projectionModel_.modelName();
 }
 
-Eigen::VectorXd CameraCalibration::projectionParams() const {
+const Eigen::VectorXd& CameraCalibration::projectionParams() const {
   return projectionModel_.projectionParams();
+}
+
+Eigen::VectorXd& CameraCalibration::projectionParamsMut() {
+  return projectionModel_.projectionParamsMut();
+}
+
+int CameraCalibration::numParameters() const {
+  return projectionModel_.numParameters();
+}
+
+int CameraCalibration::numProjectionParameters() const {
+  return projectionModel_.numProjectionParameters();
+}
+
+int CameraCalibration::numDistortionParameters() const {
+  return projectionModel_.numDistortionParameters();
 }
 
 Eigen::Vector2d CameraCalibration::getPrincipalPoint() const {
@@ -122,15 +146,21 @@ Eigen::Vector2d CameraCalibration::getFocalLengths() const {
   return projectionModel_.getFocalLengths();
 }
 
-Eigen::Vector2d CameraCalibration::projectNoChecks(const Eigen::Vector3d& pointInCamera) const {
-  return projectionModel_.project(pointInCamera);
+Eigen::Vector2d CameraCalibration::projectNoChecks(
+    const Eigen::Vector3d& pointInCamera,
+    Eigen::Ref<Eigen::Matrix<double, 2, 3>> jacobianWrtPoint,
+    Eigen::Ref<Eigen::Matrix<double, 2, Eigen::Dynamic>> jacobianWrtParams) const {
+  return projectionModel_.project(pointInCamera, jacobianWrtPoint, jacobianWrtParams);
 }
 
 std::optional<Eigen::Vector2d> CameraCalibration::project(
-    const Eigen::Vector3d& pointInCamera) const {
+    const Eigen::Vector3d& pointInCamera,
+    Eigen::Ref<Eigen::Matrix<double, 2, 3>> jacobianWrtPoint,
+    Eigen::Ref<Eigen::Matrix<double, 2, Eigen::Dynamic>> jacobianWrtParams) const {
   // check point is in front of camera
   if (checkPointInVisibleCone(pointInCamera, maxSolidAngle_)) {
-    const Eigen::Vector2d cameraPixel = projectNoChecks(pointInCamera);
+    const Eigen::Vector2d cameraPixel =
+        projectNoChecks(pointInCamera, jacobianWrtPoint, jacobianWrtParams);
     if (isVisible(cameraPixel)) {
       return cameraPixel;
     }

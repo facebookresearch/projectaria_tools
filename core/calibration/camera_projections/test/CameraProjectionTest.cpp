@@ -136,7 +136,6 @@ TEST(CameraProjectionTest, FloatDoubleParamsComparison) {
 
 TEST(CameraProjectionTest, Jacobian) {
   // Set up problem
-  Eigen::Matrix<double, 2, 3> dProj_dPointCam;
   const double max_norm = 1e-4;
 
   for (const auto& [modelType, projectionParams] : kTestProjectionParams) {
@@ -148,8 +147,10 @@ TEST(CameraProjectionTest, Jacobian) {
     CameraProjectionTemplated<double> cameraProjectionDouble(modelType, projectionParams);
 
     // Project at X and compute Jacobian
+    Eigen::Matrix<double, 2, 3> dProj_dPointCam;
+    Eigen::MatrixXd dProj_dCalib(2, cameraProjectionDouble.numParameters());
     Eigen::Matrix<double, 2, 1> fX0 =
-        cameraProjectionDouble.project(kPtInCameraDouble, &dProj_dPointCam);
+        cameraProjectionDouble.project(kPtInCameraDouble, dProj_dPointCam, dProj_dCalib);
 
     // Check Jacobian with finite difference approximation
     double eps = 1e-8;
@@ -171,5 +172,24 @@ TEST(CameraProjectionTest, Jacobian) {
     // We expect the approximate derivative to be close to the actual derivative
     double norm = (J - dProj_dPointCam).norm();
     EXPECT_NEAR(norm, 0.0, max_norm);
+
+    // do the same for calibration jacobian
+    Eigen::MatrixXd J_calib(2, cameraProjectionDouble.numParameters());
+    for (int i = 0; i < J_calib.cols(); ++i) {
+      CameraProjectionTemplated<double> cameraProjectionDoubleP = cameraProjectionDouble;
+      CameraProjectionTemplated<double> cameraProjectionDoubleN = cameraProjectionDouble;
+
+      cameraProjectionDoubleP.projectionParamsMut()[i] += eps;
+      cameraProjectionDoubleN.projectionParamsMut()[i] -= eps;
+
+      const Eigen::Matrix<double, 2, 1> fxp = cameraProjectionDoubleP.project(kPtInCameraDouble);
+      const Eigen::Matrix<double, 2, 1> fxn = cameraProjectionDoubleN.project(kPtInCameraDouble);
+
+      J_calib.col(i) = (fxp - fxn) / (2 * eps);
+    }
+
+    // We expect the approximate derivative to be close to the actual derivative
+    double normCalib = (J_calib - dProj_dCalib).norm();
+    EXPECT_NEAR(normCalib, 0.0, max_norm);
   }
 }

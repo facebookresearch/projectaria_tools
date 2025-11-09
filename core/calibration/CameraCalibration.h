@@ -38,6 +38,26 @@ class CameraCalibration {
   CameraCalibration() = default;
 
   /**
+   * @brief Default copy constructor.
+   */
+  CameraCalibration(const CameraCalibration&) = default;
+
+  /**
+   * @brief Default move constructor.
+   */
+  CameraCalibration(CameraCalibration&&) = default;
+
+  /**
+   * @brief Default copy assignment.
+   */
+  CameraCalibration& operator=(const CameraCalibration&) = default;
+
+  /**
+   * @brief Default move assignment.
+   */
+  CameraCalibration& operator=(CameraCalibration&&) = default;
+
+  /**
    * @brief Constructor with a list of parameters for CameraCalibration.
    * @param label The label of the camera, e.g. "camera-slam-left".
    * @param projectionModelType The type of camera projection model, e.g. ModelType::Linear
@@ -67,7 +87,7 @@ class CameraCalibration {
       double maxSolidAngle,
       const std::string& serialNumber = "",
       double timeOffsetSecDeviceCamera = 0.0,
-      std::optional<double> maybeReadOutTimeSec = {});
+      const std::optional<double>& maybeReadOutTimeSec = {});
 
   std::string getLabel() const;
   std::string getSerialNumber() const;
@@ -76,7 +96,9 @@ class CameraCalibration {
   double getMaxSolidAngle() const;
   std::optional<double> getValidRadius() const;
   double getTimeOffsetSecDeviceCamera() const;
+  double& getTimeOffsetSecDeviceCameraMut();
   std::optional<double> getReadOutTimeSec() const;
+  std::optional<double>& getReadOutTimeSecMut();
   /**
    * @brief Function to check whether a pixel is within the valid area of the sensor plane.
    */
@@ -85,22 +107,41 @@ class CameraCalibration {
   CameraProjection::ModelType modelName() const; // return KB3 or Fisheye624
   Eigen::Vector2d getPrincipalPoint() const; // return optical center
   Eigen::Vector2d getFocalLengths() const; // return focal length in x and y
-  Eigen::VectorXd projectionParams() const; // return full calibration parameters
+  const Eigen::VectorXd& projectionParams() const; // return full calibration parameters
+  Eigen::VectorXd& projectionParamsMut();
+  int numParameters() const; // return number of parameters
+  int numProjectionParameters() const; // return number of projection parameters
+  int numDistortionParameters() const; // return number of distortion parameters
 
   /**
    * @brief Function to project a 3d point (in camera frame) to a 2d camera pixel location. In this
    * function, no check is performed.
    * @param pointInCamera 3d point in camera frame.
+   * @param jacobianWrtPoint Optional, if not null, will store the Jacobian of the projection
+   * with respect to the point in camera space.
+   * @param jacobianWrtParams Optional, if not null, will store the Jacobian of the projection
+   * with respect to the projection parameters.
    * @return 2d pixel location in image plane.
    */
-  Eigen::Vector2d projectNoChecks(const Eigen::Vector3d& pointInCamera) const;
+  Eigen::Vector2d projectNoChecks(
+      const Eigen::Vector3d& pointInCamera,
+      Eigen::Ref<Eigen::Matrix<double, 2, 3>> jacobianWrtPoint = NullRef(),
+      Eigen::Ref<Eigen::Matrix<double, 2, Eigen::Dynamic>> jacobianWrtParams = NullRef()) const;
+
   /**
    * @brief Function to project a 3d point (in camera frame) to a 2d camera pixel location, with a
    * number of validity checks to ensure the point is visible.
    * @param pointInCamera 3d point in camera frame.
+   * @param jacobianWrtPoint Optional, if not null, will store the Jacobian of the projection
+   * with respect to the point in camera space.
+   * @param jacobianWrtParams Optional, if not null, will store the Jacobian of the projection
+   * with respect to the projection parameters.
    * @return 2d pixel location in image plane. If any of the check failed, return std::nullopt.
    */
-  std::optional<Eigen::Vector2d> project(const Eigen::Vector3d& pointInCamera) const;
+  std::optional<Eigen::Vector2d> project(
+      const Eigen::Vector3d& pointInCamera,
+      Eigen::Ref<Eigen::Matrix<double, 2, 3>> jacobianWrtPoint = NullRef(),
+      Eigen::Ref<Eigen::Matrix<double, 2, Eigen::Dynamic>> jacobianWrtParams = NullRef()) const;
 
   /**
    * @brief Function to unproject a 2d pixel location to a 3d ray in camera frame. In this function,
@@ -109,6 +150,7 @@ class CameraCalibration {
    * @return 3d ray, in camera frame.
    */
   Eigen::Vector3d unprojectNoChecks(const Eigen::Vector2d& cameraPixel) const;
+
   /**
    * @brief Function to unproject a 2d pixel location to a 3d ray, in camera frame, with a number of
    * validity checks to ensure the unprojection is valid.
