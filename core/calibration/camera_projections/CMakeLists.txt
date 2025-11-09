@@ -27,5 +27,6 @@ target_link_libraries(camera_models INTERFACE common)
 target_include_directories(camera_models INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>)
 
 add_library(camera_projection CameraProjection.cpp CameraProjection.h CameraProjectionFormat.h)
+target_link_libraries(camera_projection INTERFACE calibration_nullref)
 target_include_directories(camera_projection PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>)
 target_link_libraries(camera_projection PUBLIC camera_models format Eigen3::Eigen Sophus::Sophus)

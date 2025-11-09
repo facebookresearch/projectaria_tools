@@ -50,11 +50,16 @@ class KannalaBrandtK3Projection {
   static constexpr bool kIsFisheye = true;
   static constexpr bool kHasAnalyticalProjection = true;
 
-  template <class D, class DP, class DJ = Eigen::Matrix<typename D::Scalar, 2, 3>>
+  template <
+      class D,
+      class DP,
+      class DJ1 = Eigen::Matrix<typename D::Scalar, 2, 3>,
+      class DJ2 = Eigen::Matrix<typename D::Scalar, 2, kNumParams>>
   static Eigen::Matrix<typename D::Scalar, 2, 1> project(
       const Eigen::MatrixBase<D>& pointOptical,
       const Eigen::MatrixBase<DP>& params,
-      Eigen::MatrixBase<DJ>* d_point = nullptr) {
+      Eigen::MatrixBase<DJ1>* d_point = nullptr,
+      Eigen::MatrixBase<DJ2>* d_params = nullptr) {
     validateProjectInput<D, DP, kNumParams>();
 
     using T = typename D::Scalar;
@@ -107,14 +112,61 @@ class KannalaBrandtK3Projection {
         (*d_point) = ff.asDiagonal().toDenseMatrix() * (*d_point);
       }
 
+      if (d_params) {
+        const T xScaled = pointOptical[0] * params[0] * radiusInverse;
+        const T yScaled = pointOptical[1] * params[1] * radiusInverse;
+
+        const T theta3 = theta * theta2;
+        const T theta5 = theta3 * theta2;
+        const T theta7 = theta5 * theta2;
+        const T theta9 = theta7 * theta2;
+
+        (*d_params)(0, 0) = pointOptical[0] * scaling;
+        (*d_params)(0, 1) = T(0.0);
+        (*d_params)(0, 2) = T(1.0);
+        (*d_params)(0, 3) = T(0.0);
+        (*d_params)(0, 4) = xScaled * theta3;
+        (*d_params)(0, 5) = xScaled * theta5;
+        (*d_params)(0, 6) = xScaled * theta7;
+        (*d_params)(0, 7) = xScaled * theta9;
+        (*d_params)(1, 0) = T(0.0);
+        (*d_params)(1, 1) = pointOptical[1] * scaling;
+        (*d_params)(1, 2) = T(0.0);
+        (*d_params)(1, 3) = T(1.0);
+        (*d_params)(1, 4) = yScaled * theta3;
+        (*d_params)(1, 5) = yScaled * theta5;
+        (*d_params)(1, 6) = yScaled * theta7;
+        (*d_params)(1, 7) = yScaled * theta9;
+      }
+
       const Eigen::Matrix<T, 2, 1> px =
           scaling * ff.cwiseProduct(pointOptical.template head<2>()) + pp;
 
       return px;
     } else {
+      const T zInv = T(1.0) / pointOptical[2];
+      const Eigen::Matrix<T, 2, 1> pointUnitPlane = pointOptical.template head<2>() * zInv;
+
       // linearize r around radius=0
-      const Eigen::Matrix<T, 2, 1> px =
-          ff.cwiseProduct(pointOptical.template head<2>()) / pointOptical(2) + pp;
+      if (d_point) {
+        // clang-format off
+          (*d_point) << ff.x() * zInv, T(0.0), -ff.x() * pointUnitPlane(0) * zInv,
+                      T(0.0), ff.y() * zInv, -ff.y() * pointUnitPlane(1) * zInv;
+        // clang-format on
+      }
+      if (d_params) {
+        (*d_params)(0, 0) = pointUnitPlane(0);
+        (*d_params)(0, 1) = T(0.0);
+        (*d_params)(0, 2) = T(1.0);
+        (*d_params)(0, 3) = T(0.0);
+
+        (*d_params)(1, 0) = T(0.0);
+        (*d_params)(1, 1) = pointUnitPlane(1);
+        (*d_params)(1, 2) = T(0.0);
+        (*d_params)(1, 3) = T(1.0);
+        (*d_params).template rightCols<4>().setZero();
+      }
+      const Eigen::Matrix<T, 2, 1> px = ff.cwiseProduct(pointUnitPlane) + pp;
 
       return px;
     }

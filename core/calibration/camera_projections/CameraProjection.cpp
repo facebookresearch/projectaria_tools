@@ -39,7 +39,7 @@ typename CameraProjectionTemplated<Scalar>::ProjectionVariant getProjectionVaria
 template <typename Scalar>
 CameraProjectionTemplated<Scalar>::CameraProjectionTemplated(
     const ModelType& type,
-    const Eigen::Matrix<Scalar, Eigen::Dynamic, 1>& projectionParams)
+    const Eigen::Vector<Scalar, Eigen::Dynamic>& projectionParams)
     : modelName_(type),
       projectionParams_(projectionParams),
       projectionVariant_(getProjectionVariant<Scalar>(type)) {}
@@ -51,15 +51,50 @@ typename CameraProjectionTemplated<Scalar>::ModelType CameraProjectionTemplated<
 }
 
 template <typename Scalar>
-Eigen::Matrix<Scalar, Eigen::Dynamic, 1> CameraProjectionTemplated<Scalar>::projectionParams()
+const Eigen::Vector<Scalar, Eigen::Dynamic>& CameraProjectionTemplated<Scalar>::projectionParams()
     const {
   return projectionParams_;
 }
 
 template <typename Scalar>
-Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::getFocalLengths() const {
+Eigen::Vector<Scalar, Eigen::Dynamic>& CameraProjectionTemplated<Scalar>::projectionParamsMut() {
+  return projectionParams_;
+}
+
+template <typename Scalar>
+int CameraProjectionTemplated<Scalar>::numParameters() const {
   return std::visit(
-      [this](auto&& projection) -> Eigen::Matrix<Scalar, 2, 1> {
+      [](auto&& projection) -> int {
+        using T = std::decay_t<decltype(projection)>;
+        return T::kNumParams;
+      },
+      projectionVariant_);
+}
+
+template <typename Scalar>
+int CameraProjectionTemplated<Scalar>::numProjectionParameters() const {
+  return std::visit(
+      [](auto&& projection) -> int {
+        using T = std::decay_t<decltype(projection)>;
+        return T::kNumParams - T::kNumDistortionParams;
+      },
+      projectionVariant_);
+}
+
+template <typename Scalar>
+int CameraProjectionTemplated<Scalar>::numDistortionParameters() const {
+  return std::visit(
+      [](auto&& projection) -> int {
+        using T = std::decay_t<decltype(projection)>;
+        return T::kNumDistortionParams;
+      },
+      projectionVariant_);
+}
+
+template <typename Scalar>
+Eigen::Vector<Scalar, 2> CameraProjectionTemplated<Scalar>::getFocalLengths() const {
+  return std::visit(
+      [this](auto&& projection) -> Eigen::Vector<Scalar, 2> {
         using T = std::decay_t<decltype(projection)>;
         int focalXIdx = T::kFocalXIdx;
         int focalYIdx = T::kFocalYIdx;
@@ -69,9 +104,9 @@ Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::getFocalLengths()
 }
 
 template <typename Scalar>
-Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::getPrincipalPoint() const {
+Eigen::Vector<Scalar, 2> CameraProjectionTemplated<Scalar>::getPrincipalPoint() const {
   return std::visit(
-      [this](auto&& projection) -> Eigen::Matrix<Scalar, 2, 1> {
+      [this](auto&& projection) -> Eigen::Vector<Scalar, 2> {
         using T = std::decay_t<decltype(projection)>;
         int principalPointColIdx = T::kPrincipalPointColIdx;
         int principalPointRowIdx = T::kPrincipalPointRowIdx;
@@ -81,20 +116,25 @@ Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::getPrincipalPoint
 }
 
 template <typename Scalar>
-Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::project(
-    const Eigen::Matrix<Scalar, 3, 1>& pointInCamera,
-    Eigen::Matrix<Scalar, 2, 3>* jacobianWrtPoint) const {
+Eigen::Vector<Scalar, 2> CameraProjectionTemplated<Scalar>::project(
+    const Eigen::Vector<Scalar, 3>& pointInCamera,
+    Eigen::Ref<Eigen::Matrix<Scalar, 2, 3>> jacobianWrtPoint,
+    Eigen::Ref<Eigen::Matrix<Scalar, 2, Eigen::Dynamic>> jacobianWrtParams) const {
   return std::visit(
       [&](auto&& projection) {
         using T = std::decay_t<decltype(projection)>;
-        return T::project(pointInCamera, projectionParams_, jacobianWrtPoint);
+        return T::project(
+            pointInCamera,
+            projectionParams_,
+            isNull(jacobianWrtPoint) ? nullptr : &jacobianWrtPoint,
+            isNull(jacobianWrtParams) ? nullptr : &jacobianWrtParams);
       },
       projectionVariant_);
 }
 
 template <typename Scalar>
-Eigen::Matrix<Scalar, 3, 1> CameraProjectionTemplated<Scalar>::unproject(
-    const Eigen::Matrix<Scalar, 2, 1>& cameraPixel) const {
+Eigen::Vector<Scalar, 3> CameraProjectionTemplated<Scalar>::unproject(
+    const Eigen::Vector<Scalar, 2>& cameraPixel) const {
   return std::visit(
       [&](auto&& projection) {
         using T = std::decay_t<decltype(projection)>;
@@ -127,7 +167,7 @@ template <typename Scalar>
 template <typename OtherScalar>
 [[nodiscard]] CameraProjectionTemplated<OtherScalar> CameraProjectionTemplated<Scalar>::cast()
     const {
-  Eigen::Matrix<OtherScalar, Eigen::Dynamic, 1> castedParams =
+  Eigen::Vector<OtherScalar, Eigen::Dynamic> castedParams =
       projectionParams_.template cast<OtherScalar>();
   auto castedModelName =
       static_cast<typename CameraProjectionTemplated<OtherScalar>::ModelType>(modelName_);

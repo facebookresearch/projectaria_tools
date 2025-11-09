@@ -86,11 +86,23 @@ inline void declareCameraCalibration(py::module& m) {
       .def("projection_params", &CameraProjection::projectionParams)
       .def(
           "project",
-          &CameraProjection::project,
+          [](const CameraProjection& proj,
+             const Eigen::Vector3d& point,
+             std::optional<Eigen::Ref<Eigen::Matrix<double, 2, 3>>> jPoint,
+             std::optional<Eigen::Ref<Eigen::Matrix<double, 2, Eigen::Dynamic>>> jCalib)
+              -> std::optional<Eigen::Vector2d> {
+            return proj.project(point, jPoint ? *jPoint : NullRef(), jCalib ? *jCalib : NullRef());
+          },
           py::arg("point_in_camera"),
-          py::arg("jacobian_wrt_point") = nullptr,
+          py::arg("jacobian_wrt_point") = py::none(),
+          py::arg("jacobian_wrt_params") = py::none(),
           "projects a 3d world point in the camera space to a 2d pixel in the image space."
-          " No checks performed in this process.")
+          " No checks performed in this process. Jacobian arguments, if specified, must be"
+          " in Fortran style (ie. column-major order):\n"
+          "\n"
+          "jacPoint = numpy.empty((3,4),  dtype=np.float64, order='F')\n"
+          "jacParams = numpy.empty((2, camera.num_parameters()), dtype=np.float64, order='F'))\n"
+          "pixel = camera.project_no_checks(world_pt, jacPoint, jacParams)")
       .def(
           "unproject",
           &CameraProjection::unproject,
@@ -278,16 +290,47 @@ inline void declareCameraCalibration(py::module& m) {
       .def("get_projection_params", &CameraCalibration::projectionParams)
       .def(
           "project_no_checks",
-          &CameraCalibration::projectNoChecks,
+          [](const CameraCalibration& calib,
+             const Eigen::Vector3d& point,
+             std::optional<Eigen::Ref<Eigen::Matrix<double, 2, 3>>> jPoint,
+             std::optional<Eigen::Ref<Eigen::Matrix<double, 2, Eigen::Dynamic>>> jCalib)
+              -> std::optional<Eigen::Vector2d> {
+            return calib.projectNoChecks(
+                point, jPoint ? *jPoint : NullRef(), jCalib ? *jCalib : NullRef());
+          },
           py::arg("point_in_camera"),
+          py::arg("jacobian_wrt_point") = py::none(),
+          py::arg("jacobian_wrt_params") = py::none(),
           "Function to project a 3d point (in camera frame) to a 2d camera pixel location. In this"
-          " function, no check is performed.")
+          " function, no check is performed. Jacobian arguments, if specified, must be"
+          " in Fortran style (ie. column-major order):\n"
+          "\n"
+          "jacPoint = numpy.empty((3,4),  dtype=np.float64, order='F')\n"
+          "jacParams = numpy.empty((2, camera.num_parameters()), dtype=np.float64, order='F'))\n"
+          "pixel = camera.project_no_checks(world_pt, jacPoint, jacParams)")
       .def(
           "project",
-          &CameraCalibration::project,
+          [](const CameraCalibration& calib,
+             const Eigen::Vector3d& point,
+             std::optional<Eigen::Ref<Eigen::Matrix<double, 2, 3>>> jPoint,
+             std::optional<Eigen::Ref<Eigen::Matrix<double, 2, Eigen::Dynamic>>> jCalib)
+              -> std::optional<Eigen::Vector2d> {
+            return calib.project(point, jPoint ? *jPoint : NullRef(), jCalib ? *jCalib : NullRef());
+          },
           py::arg("point_in_camera"),
+          py::arg("jacobian_wrt_point") = py::none(),
+          py::arg("jacobian_wrt_params") = py::none(),
           "Function to project a 3d point (in camera frame) to a 2d camera pixel location, with a"
-          " number of validity checks to ensure the point is visible.")
+          " number of validity checks to ensure the point is visible. Jacobian arguments, if specified,"
+          " must be in Fortran style (ie. column-major order):\n"
+          "\n"
+          "jacPoint = numpy.empty((3,4),  dtype=np.float64, order='F')\n"
+          "jacParams = numpy.empty((2, camera.num_parameters()), dtype=np.float64, order='F'))\n"
+          "pixel = camera.project(world_pt, jacPoint, jacParams)")
+      .def(
+          "num_parameters",
+          &CameraCalibration::numParameters,
+          "Return number of calibration parameters.")
       .def(
           "unproject_no_checks",
           &CameraCalibration::unprojectNoChecks,
