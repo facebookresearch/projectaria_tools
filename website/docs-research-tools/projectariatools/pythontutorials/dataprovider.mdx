@@ -8,8 +8,8 @@ import TutorialButtons from '@site/src/components/TutorialButtons';
 # Tutorial 1: VrsDataProvider Basics
 
 <TutorialButtons
-  notebookUrl="https://github.com/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_1_vrs_data_provider_basics.ipynb"
-  colabUrl="https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_1_vrs_data_provider_basics.ipynb"
+  notebookUrl="https://github.com/facebookresearch/projectaria_tools/blob/2.1.0/examples/Gen2/python_notebooks/Tutorial_1_vrs_data_provider_basics.ipynb"
+  colabUrl="https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.1.0/examples/Gen2/python_notebooks/Tutorial_1_vrs_data_provider_basics.ipynb"
 />
 
 ## Introduction
@@ -49,7 +49,7 @@ vrs_data_provider = data_provider.create_vrs_data_provider(vrs_file_path)
 
 A VRS file contains multiple **streams**, each storing data from a specific sensor or on-device algorithm result.
 
-Each VRS stream is identified by a unique **`StreamId`** (e.g. `1201-1`), consisting `RecordableTypeId` (sensor type, e.g. `1201`, standing for "SLAM camera"), and an `instance_id` (for multiple sensors of the same type, e.g. `-1`, standing for "instance #1 of this sensor type"). Below are some common `RecordableTypeId` in Aria recordings. Full definitions of all Recordable Types are given in this wiki page (TODO: Add website page), or refer to [the `StreamId.h` file in the VRS repo](https://github.com/facebookresearch/vrs/blob/main/vrs/StreamId.h#L49).
+Each VRS stream is identified by a unique **`StreamId`** (e.g. `1201-1`), consisting `RecordableTypeId` (sensor type, e.g. `1201`, standing for "SLAM camera"), and an `instance_id` (for multiple sensors of the same type, e.g. `-1`, standing for "instance #1 of this sensor type"). Below are some common `RecordableTypeId` in Aria recordings. Full definitions of all Recordable Types are given in this wiki page (TODO: Add website page), or refer to [the `StreamId.h` file in the VRS repo](https://github.com/facebookresearch/vrs/blob/2.1.0/vrs/StreamId.h#L49).
 
 | RecordableTypeId | Description |
 | :---- | :---- |
@@ -91,7 +91,7 @@ The query-by-index API allows you to retrieve the k-th data sample from a specif
 ```python
 get_<SENSOR>_data_by_index(stream_id, index)
 ```
-where `<SENSOR>` can be replaced by any sensor data type available in Aria VRS. See here for [a full list of supported sensor types](https://github.com/facebookresearch/projectaria_tools/blob/main/core/data_provider/VrsDataProvider.h#L377)
+where `<SENSOR>` can be replaced by any sensor data type available in Aria VRS. See here for [a full list of supported sensor types](https://github.com/facebookresearch/projectaria_tools/blob/2.1.0/core/data_provider/VrsDataProvider.h#L377)
 
 This API is commonly used for sequential processing—such as iterating through all frames of a single stream—or when you know the exact frame number you want to query within a specific stream.
 
@@ -135,7 +135,7 @@ The most commonly used is the **timestamp-based query**:
 ```python
 get_<SENSOR>_by_time_ns(stream_id, time_ns, time_domain=None, time_query_options=None)
 ```
-where `<SENSOR>` can be replaced by any sensor data type available in Aria VRS. See here for [a full list of supported sensor types](https://github.com/facebookresearch/projectaria_tools/blob/main/core/data_provider/VrsDataProvider.h#L377)
+where `<SENSOR>` can be replaced by any sensor data type available in Aria VRS. See here for [a full list of supported sensor types](https://github.com/facebookresearch/projectaria_tools/blob/2.1.0/core/data_provider/VrsDataProvider.h#L377)
 
 This API is often used to synchronize data across multiple sensor streams, fetch sensor data at specific timestamps, or perform temporal analysis.
 

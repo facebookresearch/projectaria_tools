@@ -8,8 +8,8 @@ import TutorialButtons from '@site/src/components/TutorialButtons';
 # Tutorial 6: Device Time Alignment in Aria Gen2
 
 <TutorialButtons
-  notebookUrl="https://github.com/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_6_timestamp_alignment_in_aria_gen2.ipynb"
-  colabUrl="https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_6_timestamp_alignment_in_aria_gen2.ipynb"
+  notebookUrl="https://github.com/facebookresearch/projectaria_tools/blob/2.1.0/examples/Gen2/python_notebooks/Tutorial_6_timestamp_alignment_in_aria_gen2.ipynb"
+  colabUrl="https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.1.0/examples/Gen2/python_notebooks/Tutorial_6_timestamp_alignment_in_aria_gen2.ipynb"
 />
 
 ## Introduction
@@ -56,14 +56,14 @@ The following table shows all supported time domains in `projectaria_tools`. **F
 | **--- Time Domains for Multi-device time alignment ---** |  | |
 | SUBGHZ | Multi-device time alignment option for Aria Gen2 | See next part in this tutorial |
 | UTC | Multi-device time alignment option  | See next part in this tutorial |
-| TIME_CODE | Multi-device time alignment option for Aria Gen1 | See [Gen1 multi-device tutorial](https://github.com/facebookresearch/projectaria_tools/blob/main/examples/Gen1/python_notebooks/ticsync_tutorial.ipynb) |
-| TIC_SYNC | Multi-device time alignment option for Aria Gen1 | See [Gen1 multi-device tutorial](https://github.com/facebookresearch/projectaria_tools/blob/main/examples/Gen1/python_notebooks/ticsync_tutorial.ipynb) |
+| TIME_CODE | Multi-device time alignment option for Aria Gen1 | See [Gen1 multi-device tutorial](https://github.com/facebookresearch/projectaria_tools/blob/2.1.0/examples/Gen1/python_notebooks/ticsync_tutorial.ipynb) |
+| TIC_SYNC | Multi-device time alignment option for Aria Gen1 | See [Gen1 multi-device tutorial](https://github.com/facebookresearch/projectaria_tools/blob/2.1.0/examples/Gen1/python_notebooks/ticsync_tutorial.ipynb) |
 
 ### Data API to query by timestamp
 
 The VRS data provider offers powerful timestamp-based data access through the `get_<SENSOR>_data_by_time_ns()` API family. This is the recommended approach for temporal alignment across sensors and precise timestamp-based data retrieval.
 
-For any sensor type, you can query data by timestamp using the `get_<SENSOR>_data_by_time_ns()` function, where `<SENSOR>` can be replaced by any sensor data type available in Aria VRS. See the [VrsDataProvider.h](https://github.com/facebookresearch/projectaria_tools/blob/main/core/data_provider/VrsDataProvider.h) for a complete list of supported sensor types.
+For any sensor type, you can query data by timestamp using the `get_<SENSOR>_data_by_time_ns()` function, where `<SENSOR>` can be replaced by any sensor data type available in Aria VRS. See the [VrsDataProvider.h](https://github.com/facebookresearch/projectaria_tools/blob/2.1.0/core/data_provider/VrsDataProvider.h) for a complete list of supported sensor types.
 
 **TimeQueryOptions**
 
