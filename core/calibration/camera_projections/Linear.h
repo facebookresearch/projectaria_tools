@@ -17,6 +17,7 @@
 #pragma once
 
 #include <cmath>
+#include <string_view>
 
 #include <calibration/camera_projections/Common.h>
 
@@ -32,8 +33,8 @@ class LinearProjection {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   static constexpr int kNumParams = 4;
-  static constexpr char kName[] = "Linear";
-  static constexpr char kDescription[] = "fx, fy, cx, cy";
+  static constexpr std::string_view kName = "Linear";
+  static constexpr std::string_view kDescription = "fx, fy, cx, cy";
   static constexpr int kNumDistortionParams = 0;
   static constexpr int kFocalXIdx = 0;
   static constexpr int kFocalYIdx = 1;
