@@ -60,11 +60,11 @@ py -3 -m venv $HOME\projectaria_gen2_python_env
       if (os === 'windows') {
         return String.raw`${venv}
 
-python3 -m pip install projectaria-tools'[all]'==1.7.0`;
+python3 -m pip install projectaria-tools'[all]'==1.7.1`;
       }
       return String.raw`${venv}
 
-python3 -m pip install projectaria-tools'[all]'==2.0.0`;
+python3 -m pip install projectaria-tools'[all]'==2.1.0`;
     }
 
     // source
@@ -73,7 +73,7 @@ python3 -m pip install projectaria-tools'[all]'==2.0.0`;
         return String.raw`${venv}
 
 # Clone the correct branch of projectaria_tools
-git clone https://github.com/facebookresearch/projectaria_tools.git -b 1.7.0
+git clone https://github.com/facebookresearch/projectaria_tools.git -b 1.7.1
 
 # Then follow instructions in "Advanced Installation From Source Code" to build from source.`;
       }
@@ -89,7 +89,7 @@ git clone https://github.com/facebookresearch/projectaria_tools.git -b gen1_lega
         return String.raw`${venv}
 
 # Clone the correct branch of projectaria_tools
-git clone https://github.com/facebookresearch/projectaria_tools.git -b 2.0.0
+git clone https://github.com/facebookresearch/projectaria_tools.git -b 2.1.0
 
 # Then follow instructions in "Advanced Installation From Source Code" to build from source.`;
       }
