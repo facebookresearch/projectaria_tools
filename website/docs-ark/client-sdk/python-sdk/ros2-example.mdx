@@ -1,0 +1,831 @@
+---
+sidebar_position: 6
+title: ROS2 Example (Advanced Users)
+---
+
+# ROS2 Integration Example (Advanced Users)
+
+This example demonstrates how to integrate Aria SDK with ROS2 to publish and subscribe to Aria device data using custom ROS2 messages. You'll learn how to create custom ROS2 message types, stream Aria sensor data through ROS2 topics, and process the data in subscriber nodes.
+
+## Overview
+
+The ROS2 integration allows you to:
+- Stream raw Aria sensor data through ROS2 topics
+- Share device calibration data across ROS2 nodes
+- Process sensor data using standard ROS2 tools and workflows
+- Build distributed robotics systems using Aria sensors
+
+## Prerequisites
+
+- ROS2 installed (Humble or later)
+- Aria SDK Python package installed
+- Basic familiarity with ROS2 concepts (nodes, topics, messages)
+- C++ compiler for building custom message types
+
+---
+
+## Setup Steps
+
+:::caution ROS2 Environment Setup Required
+Before proceeding, ensure you have ROS2 properly installed and configured in your development environment. You should have a ROS2 workspace set up (e.g., `~/ros2_ws`) and be able to source the ROS2 setup files. If you haven't set up ROS2 yet, please follow the [ROS2 installation guide](https://docs.ros.org/en/humble/Installation.html) for your operating system.
+:::
+
+### Step 1: Extract SDK Examples and Create Custom ROS2 Message Type
+
+#### Extract SDK Example Code
+
+First, extract the ROS2 example code from the Aria SDK:
+
+```bash
+python3 -m aria.extract_sdk_samples --out ~/Downloads
+```
+
+**What this does:**
+* Extracts all SDK example scripts to `~/Downloads/projectaria_client_sdk_samples_gen2/`
+* Includes `AriaRaw.msg`, `ros2_publisher_example.py` and `ros2_subscriber_example.py`
+* Also includes other example scripts (device_streaming.py, etc.)
+
+---
+
+#### Understanding the Custom Message Type
+
+**What is AriaRaw?**
+
+`AriaRaw` is a custom ROS2 message type specifically designed to transport Aria sensor data through ROS2 topics. Unlike standard ROS2 messages (like `sensor_msgs/Image` or `sensor_msgs/Imu`), AriaRaw is a minimal wrapper that carries raw binary sensor data in its native format.
+
+**Why do we need a custom message type?**
+
+1. **Preserves original data format**: Aria devices stream data in FlatBuffer format, which is highly efficient and compact. Using a custom message preserves this efficiency rather than converting to standard ROS2 formats.
+
+2. **Handles diverse sensor types**: Aria devices have many sensors (4 SLAM cameras, 2 ET cameras, 1 RGB camera, IMU, magnetometer, barometer, etc.). A single flexible message type can carry data from all sensors rather than creating publisher/subscriber pairs for each sensor type.
+
+3. **Future-proof**: New sensor types or perception outputs (VIO, eye gaze, hand tracking) can be added without changing the ROS2 message interface.
+
+4. **Maintains timing accuracy**: Raw binary transport ensures nanosecond-precision timestamps aren't lost in format conversions.
+
+The subscriber side uses the Aria SDK's data converter to decode the raw payload into typed Python objects (NumPy arrays for images, structured data for IMU, etc.).
+
+---
+
+**Custom message:** `AriaRaw.msg`
+
+```msg
+int64 id
+uint8[] payload
+```
+
+**Message Fields:**
+* `id`: The message type identifier from the Aria SDK (indicates sensor type)
+* `payload`: Raw binary data containing the sensor information in Flatbuffer format
+
+AriaRaw.msg is prepackaged into the example code and can be accessed from
+
+```bash
+cat ~/Downloads/projectaria_client_sdk_samples_gen2/AriaRaw.msg
+```
+
+#### Create the Custom Message Package
+
+Follow the [ROS2 tutorial for creating custom messages](https://docs.ros.org/en/foxy/Tutorials/Beginner-Client-Libraries/Single-Package-Define-And-Use-Interface.html) to create a C++ package for the custom message definition.
+
+**Important: The package MUST be named `aria_data_types`**
+
+This exact package name is required because the publisher and subscriber example code import the custom message using:
+```python
+from aria_data_types.msg import AriaRaw
+```
+
+If you use a different package name, the example code will fail with import errors.
+
+:::tip Build Order
+Build the `aria_data_types` message package first before building the Python publisher/subscriber package. The Python package depends on the custom message types being available.
+:::
+
+---
+
+### Step 2: Create Your Python ROS2 Package
+
+Create your own Python ROS2 package for publisher and subscriber nodes following the [ROS2 Python publisher/subscriber tutorial](https://docs.ros.org/en/foxy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html), then replace the default code with the Aria ROS2 examples.
+
+#### Replace Publisher and Subscriber Code
+
+After creating your Python ROS2 package (e.g., `py_pubsub`) with publisher and subscriber nodes, replace the default code with the Aria ROS2 examples:
+
+```bash
+# Navigate to your ROS2 package
+cd ~/ros2_ws/src/py_pubsub/py_pubsub
+
+# Copy the ROS2 publisher example
+cp ~/Downloads/projectaria_client_sdk_samples_gen2/ros2_publisher_example.py publisher_member_function.py
+
+# Copy the ROS2 subscriber example
+cp ~/Downloads/projectaria_client_sdk_samples_gen2/ros2_subscriber_example.py subscriber_member_function.py
+```
+
+**Note:** The file names `publisher_member_function.py` and `subscriber_member_function.py` should match the entry points defined in your `setup.py` when you created the package.
+
+---
+
+### Step 3: Configure Dependencies
+
+Before building, configure the package dependencies to include the custom `aria_data_types` message package.
+
+#### Update package.xml
+
+Edit the `package.xml` file in your `py_pubsub` package to add the dependency on `aria_data_types`:
+
+```bash
+cd ~/ros2_ws/src/py_pubsub
+```
+
+Add the following line to `package.xml` in the dependencies section:
+
+```xml
+<exec_depend>aria_data_types</exec_depend>
+```
+
+**Why this is needed:**
+* Declares that `py_pubsub` depends on the `aria_data_types` message package
+* Ensures ROS2 can find the custom `AriaRaw` message type at runtime
+* Without this dependency, the nodes will fail to import the custom message
+---
+
+### Step 4: Build and Run the Example
+
+#### Build the Python Package
+
+```bash
+# Return to workspace root
+cd ~/ros2_ws
+
+# Build the package
+colcon build --packages-select py_pubsub
+```
+
+This compiles the package and prepares it for execution.
+
+---
+
+Now that the packages are built, you can run the publisher and subscriber nodes to stream and process Aria sensor data.
+
+**Important:** Before running the nodes, ensure both terminals use the same ROS_DOMAIN_ID so they can communicate with each other:
+
+```bash
+export ROS_DOMAIN_ID=0
+```
+
+Add this command to both terminals before running the nodes. This ensures the publisher and subscriber are on the same ROS2 domain and can discover each other.
+
+#### Run the Talker (Publisher)
+
+In another terminal, start the talker:
+
+```bash
+source install/setup.bash
+ros2 run py_pubsub talker
+```
+
+**What happens:**
+* Connects to Aria device via USB
+* Starts streaming sensor data
+* Publishes calibration and raw sensor messages to ROS2 topics
+* Subscriber receives and processes the data
+
+**Example Publisher Output:**
+
+```
+[INFO] [1746238590305.2341235] [minimal_publisher]: Received message: ID=SLAM_CAMERA_FRAME, payload length=114353
+[INFO] [1746238590315.4567890] [minimal_publisher]: Received message: ID=IMU_EVENT, payload length=4896
+[INFO] [1746238590335.1234567] [minimal_publisher]: Received message: ID=MP_VIO_RESULT, payload length=2048
+```
+
+**Log Explanation:**
+* **Payload length**: Size of the raw sensor data in bytes
+* Messages are logged as they arrive from the Aria device and published to ROS2
+
+---
+
+#### Run the Listener (Subscriber)
+
+In one terminal, start the listener:
+
+```bash
+source install/setup.bash
+ros2 run py_pubsub listener
+```
+
+**What happens:**
+* Subscriber node starts and waits for messages
+* Listens on `aria_raw_message` and `calibration` topics
+* Will begin processing data once publisher starts
+
+**Example Listener Output:**
+
+```
+[Calibration] Received device calibration
+[Calibration] Calibration set in converter - VIO, eye gaze, and hand pose decoding enabled
+[IMU] Accel: [9.594, 2.151, 0.401] m/s², Gyro: [-0.001, 0.003, 0.002] rad/s, Timestamp: 5045688456090 ns, Count: 16 samples
+[SLAM Camera] Size: 512x512, Timestamp: 5046068223788 ns, Camera ID: 4
+[VIO] timestamp 5048468222100 with transform_odometry_bodyimu: [[-2.9847002e-01 -1.5660522e+00  6.5189652e-04]] and [[ 0.00011986 -0.00025058  0.00013689]] ns
+[RGB Camera] Size: 2016x1512, Timestamp: 5048213203431 ns, Camera ID: 64
+[IMU] Accel: [9.601, 2.148, 0.405] m/s², Gyro: [-0.002, 0.002, 0.001] rad/s, Timestamp: 5045788456090 ns, Count: 16 samples
+[SLAM Camera] Size: 512x512, Timestamp: 5046168223788 ns, Camera ID: 1
+[Eye Gaze] Yaw: 0.124 rad, Pitch: -0.056 rad, Depth: 1.234 m, Timestamp: 5048.468 s
+[Hand Tracking] Left hand: detected, Right hand: not detected, Timestamp: 5048.512 s
+```
+
+**Output Explanation:**
+* **Calibration**: First message received, enables VIO/eye gaze/hand tracking conversion
+* **IMU**: High-frequency accelerometer (m/s²) and gyroscope (rad/s) measurements
+* **SLAM Camera**: Monochrome tracking camera frames with Camera ID (4 cameras total)
+* **RGB Camera**: Color camera frames at high resolution
+* **VIO**: Visual-Inertial Odometry with rotation (log space) and translation vectors
+* **Eye Gaze**: Gaze direction in yaw/pitch angles and focus depth
+* **Hand Tracking**: Hand detection status for left and right hands
+
+
+---
+
+## Code Walkthrough
+
+This section provides a detailed explanation of how the publisher and subscriber code works.
+
+### Publisher Code Explanation
+
+The publisher node connects to an Aria device, receives streaming data, and publishes it to ROS2 topics.
+
+#### 1. Import Required Modules
+
+```python
+import aria.sdk_gen2 as sdk_gen2
+import aria.stream_receiver as receiver
+import rclpy
+
+from aria_data_types.msg import AriaRaw
+from projectaria_tools.core import calibration
+from rclpy.node import Node
+from std_msgs.msg import String
+```
+
+**What these imports do:**
+- `aria.sdk_gen2`: Core SDK for device connection and configuration
+- `aria.stream_receiver`: Receives streaming data from Aria device over HTTP
+- `rclpy`: ROS2 Python client library
+- `aria_data_types.msg.AriaRaw`: Custom ROS2 message type for raw sensor data
+- `projectaria_tools.core.calibration`: Tools for working with device calibration
+- `std_msgs.msg.String`: Standard ROS2 string message for calibration data
+
+---
+
+#### 2. Setup Device Streaming Function
+
+```python
+def device_streaming():
+    # Set up the device client config
+    config = sdk_gen2.DeviceClientConfig()
+    device_client.set_client_config(config)
+    device = device_client.connect()
+
+    # Set streaming config with profile name
+    streaming_config = sdk_gen2.HttpStreamingConfig()
+    streaming_config.profile_name = "profile9"
+    streaming_config.streaming_interface = sdk_gen2.StreamingInterface.USB_NCM
+    device.set_streaming_config(streaming_config)
+
+    # Start streaming
+    device.start_streaming()
+    return device
+```
+
+**What this function does:**
+- **Connects to Aria device** via USB (first available device if not specified)
+- **Configures streaming profile** ("profile9" - a predefined sensor configuration)
+- **Sets interface to USB_NCM** (Network Control Model for USB communication)
+- **Starts streaming** and returns the device handle
+
+**Streaming Profiles:** Different profiles capture different combinations of sensors (cameras, IMU, etc.) at varying frequencies.
+
+---
+
+#### 3. MinimalPublisher Class - Initialization
+
+```python
+class MinimalPublisher(Node):
+    def __init__(self):
+        super().__init__("minimal_publisher")
+        self.event_pub = self.create_publisher(AriaRaw, "aria_raw_message", 1000)
+        self.timer_pub = self.create_publisher(String, "calibration", 100)
+        self.timer_period = 0.1  # 10 Hz
+        self.timer = self.create_timer(self.timer_period, self.calib_publisher_callback)
+        self.calib_msg = None
+        self.setup_streaming_receiver()
+```
+
+**What happens during initialization:**
+- **Creates ROS2 node** named "minimal_publisher"
+- **Creates two publishers:**
+  - `event_pub`: Publishes raw sensor data on topic `aria_raw_message` (queue size: 1000)
+  - `timer_pub`: Publishes calibration on topic `calibration` (queue size: 100)
+- **Sets up periodic timer** at 10 Hz to republish calibration data
+- **Initializes calibration message** as `None` (will be set when received from device)
+- **Sets up streaming receiver** to receive data from Aria device
+
+**Why publish calibration periodically?** Ensures late-joining subscribers receive calibration data needed to decode sensor messages.
+
+---
+
+#### 4. Calibration Publisher Callback
+
+```python
+def calib_publisher_callback(self):
+    # publish calibration periodically
+    if self.calib_msg is not None:
+        self.timer_pub.publish(self.calib_msg)
+        self.get_logger().info(
+            f"Published calibration on periodic_topic: /calibration"
+        )
+```
+
+**What this does:**
+- **Runs every 100ms** (10 Hz) via timer
+- **Checks if calibration received** from device
+- **Publishes calibration** to `/calibration` topic if available
+- **Logs publication** for debugging
+
+---
+
+#### 5. Device Calibration Callback
+
+```python
+def stream_receiver_device_calib_callback(self, device_calib):
+    # set the calibration message
+    self.calib_msg = String()
+    self.calib_msg.data = calibration.device_calibration_to_json_string(
+        device_calib
+    )
+```
+
+**What this does:**
+- **Called once** when device sends calibration data (usually on first connection)
+- **Converts calibration object to JSON string** using ProjectAria tools
+- **Stores in ROS2 String message** for publishing
+
+**Calibration data includes:** Camera intrinsics/extrinsics, IMU calibration, sensor-to-sensor transformations
+
+---
+
+#### 6. Raw Message Callback
+
+```python
+def stream_receiver_raw_message_callback(self, message, offset):
+    ros2_msg = AriaRaw()
+    ros2_msg.id = message.id
+    ros2_msg.payload = message.payload.as_memoryview()
+    self.event_pub.publish(ros2_msg)
+    self.get_logger().info(
+        f"Received and published message: ID={sdk_gen2.MessageType.to_string(ros2_msg.id)}, payload length={len(ros2_msg.payload)}"
+    )
+```
+
+**What this does:**
+- **Called for every sensor message** from device (images, IMU, etc.)
+- **Creates AriaRaw ROS2 message** with message ID and payload
+- **Converts payload to memoryview** for efficient data transfer
+- **Publishes to aria_raw_message topic**
+- **Logs message type and size** using message ID lookup
+
+**Message IDs:** Each sensor has a unique ID (e.g., `0x8010` = SLAM camera, `0x8020` = IMU)
+
+---
+
+#### 7. Setup Streaming Receiver
+
+```python
+def setup_streaming_receiver(self):
+    # setup the server to receive streaming data from the device
+    config = sdk_gen2.HttpServerConfig()
+    config.address = "0.0.0.0"  # Listen on all interfaces
+    config.port = 6768
+
+    # setup the receiver
+    stream_receiver = receiver.StreamReceiver(
+        enable_image_decoding=True, enable_raw_stream=True
+    )
+    stream_receiver.set_server_config(config)
+
+    # register callbacks for each type of data
+    stream_receiver.register_device_calib_callback(
+        self.stream_receiver_device_calib_callback
+    )
+    stream_receiver.register_raw_message_callback(
+        self.stream_receiver_raw_message_callback
+    )
+    # start the server
+    stream_receiver.start_server()
+```
+
+**What this does:**
+- **Creates HTTP server** listening on port 6768 (all network interfaces)
+- **Enables image decoding** for camera frames
+- **Enables raw stream** to receive all message types
+- **Registers callbacks:**
+  - Device calibration → `stream_receiver_device_calib_callback`
+  - Raw messages → `stream_receiver_raw_message_callback`
+- **Starts server** to begin receiving data from device
+
+**Data flow:** Aria device → HTTP POST to localhost:6768 → Callbacks triggered → Data published to ROS2
+
+---
+
+#### 8. Main Function
+
+```python
+def main(args=None):
+    rclpy.init(args=args)
+    device = device_streaming()
+    minimal_publisher = MinimalPublisher()
+    rclpy.spin(minimal_publisher)
+    minimal_publisher.destroy_node()
+    rclpy.shutdown()
+```
+
+**Execution order:**
+1. **Initialize ROS2** Python client library
+2. **Connect to device and start streaming** via `device_streaming()`
+3. **Create publisher node** which sets up HTTP server
+4. **Spin node** - keeps node running and processing callbacks
+5. **Cleanup** when interrupted (Ctrl+C)
+
+---
+
+### Subscriber Code Explanation
+
+The subscriber node receives sensor data from ROS2 topics, converts raw messages to typed data, and processes them.
+
+#### 1. Import Required Modules
+
+```python
+import aria.oss_data_converter as data_converter
+import aria.sdk_gen2 as sdk_gen2
+import rclpy
+
+from aria_data_types.msg import AriaRaw
+from rclpy.node import Node
+from std_msgs.msg import String
+```
+
+**What these imports do:**
+- `aria.oss_data_converter`: Converts raw flatbuffer messages to Python objects
+- `aria.sdk_gen2`: SDK for message type constants
+- Other imports same as publisher
+
+---
+
+#### 2. Setup Data Converter and Global State
+
+```python
+converter = data_converter.OssDataConverter()
+calibration_received = False
+```
+
+**What this does:**
+- **Creates converter instance** to decode raw sensor data
+- **Tracks calibration state** - must receive calibration before processing VIO/eye gaze/hand tracking
+
+**Why global?** Shared between callback functions to coordinate calibration state
+
+---
+
+#### 3. Raw Message Processing Function
+
+The `raw_message_callback` function is the core processing logic. It handles different message types:
+
+```python
+def raw_message_callback(raw_message: AriaRaw):
+    if raw_message.payload is None:
+        print("No payload received, cannot decode this message")
+        return
+
+    message = sdk_gen2.SharedMessage(raw_message.id, raw_message.payload)
+    message_id = raw_message.id
+```
+
+**Initial processing:**
+- **Checks for valid payload** (some message types may have empty payloads)
+- **Reconstructs SharedMessage** from ROS2 AriaRaw message
+- **Extracts message ID** for type checking
+
+---
+
+#### 4. Image Data Processing
+
+```python
+if message_id == sdk_gen2.MessageType.SLAM_CAMERA_FRAME:
+    image_data, image_record = converter.to_image_data_and_record(message)
+    if image_data is not None:
+        print(
+            f"[SLAM Camera] Size: {image_data.get_width()}x{image_data.get_height()}, "
+            f"Timestamp: {image_record.capture_timestamp_ns} ns, "
+            f"Camera ID: {image_record.camera_id}"
+        )
+```
+
+**Handles three camera types:**
+- **SLAM cameras** (4 monochrome tracking cameras at 512x512)
+- **ET cameras** (2 eye-tracking cameras)
+- **POV/RGB camera** (single color camera at 2016x1512)
+
+**Conversion result:**
+- `image_data`: NumPy array with pixel data
+- `image_record`: Metadata (timestamp, camera ID, exposure, etc.)
+
+---
+
+#### 5. IMU Data Processing
+
+```python
+elif message_id == sdk_gen2.MessageType.IMU_EVENT:
+    imu_data_list = converter.to_imu(message)
+    if imu_data_list is not None and len(imu_data_list) > 0:
+        imu_data = imu_data_list[0]
+        print(
+            f"[IMU] Accel: [{imu_data.accel_msec2[0]:.3f}, {imu_data.accel_msec2[1]:.3f}, {imu_data.accel_msec2[2]:.3f}] m/s², "
+            f"Gyro: [{imu_data.gyro_radsec[0]:.3f}, {imu_data.gyro_radsec[1]:.3f}, {imu_data.gyro_radsec[2]:.3f}] rad/s, "
+            f"Timestamp: {imu_data.capture_timestamp_ns} ns, "
+            f"Count: {len(imu_data_list)} samples"
+        )
+```
+
+**IMU messages contain:**
+- **Accelerometer data** in m/s² (3-axis)
+- **Gyroscope data** in rad/s (3-axis)
+- **Multiple samples** per message (batched for efficiency)
+- **High frequency:** ~1kHz sampling rate
+
+---
+
+#### 6. Other Sensor Types
+
+The callback also handles:
+
+**Environmental sensors:**
+```python
+# Barometer - atmospheric pressure and temperature
+elif message_id == sdk_gen2.MessageType.BARO_EVENT:
+    baro_data = converter.to_barometer(message)
+    # pressure in Pascals, temperature in Celsius
+
+# Magnetometer - magnetic field
+elif message_id == sdk_gen2.MessageType.MAG_EVENT:
+    mag_data_list = converter.to_magnetometer(message)
+    # magnetic field in Tesla (3-axis)
+```
+
+**Location sensors:**
+```python
+# GNSS - GPS position data
+elif message_id == sdk_gen2.MessageType.GNSS_EVENT:
+    gnss_data = converter.to_gnss(message)
+    # latitude, longitude, altitude, accuracy
+
+# Phone location - companion phone position
+elif message_id == sdk_gen2.MessageType.PHONE_LOCATION_DATA:
+    phone_location = converter.to_phone_location(message)
+```
+
+**Perception outputs:**
+```python
+# Eye gaze - where user is looking
+elif message_id == sdk_gen2.MessageType.MP_ET_RESULT:
+    eyegaze_data = converter.to_eye_gaze(message)
+    # yaw, pitch angles and depth
+
+# Hand tracking - hand pose detection
+elif message_id == sdk_gen2.MessageType.MP_HT_RESULT:
+    handtracking_data = converter.to_hand_pose(message)
+    # left/right hand detection and pose
+
+# VIO - visual-inertial odometry (device pose)
+elif message_id == sdk_gen2.MessageType.MP_VIO_RESULT:
+    vio_data = converter.to_vio_result(message)
+    # 6-DOF pose (rotation + translation)
+```
+
+**Wireless beacons:**
+```python
+# Bluetooth beacons
+elif message_id == sdk_gen2.MessageType.BLE_BEACONS:
+    ble_beacons = converter.to_bluetooth_beacon(message)
+
+# WiFi access points
+elif message_id == sdk_gen2.MessageType.WIFI_BEACONS:
+    wifi_beacons = converter.to_wifi_beacon(message)
+```
+
+---
+
+#### 7. MinimalSubscriber Class
+
+```python
+class MinimalSubscriber(Node):
+    def __init__(self):
+        super().__init__("minimal_subscriber")
+        self.subscription = self.create_subscription(
+            AriaRaw, "aria_raw_message", self.listener_callback, 10
+        )
+        self.calib_sub = self.create_subscription(
+            String, "calibration", self.calib_callback, 10
+        )
+```
+
+**What happens during initialization:**
+- **Creates ROS2 node** named "minimal_subscriber"
+- **Subscribes to two topics:**
+  - `aria_raw_message`: Raw sensor data (queue size: 10)
+  - `calibration`: Device calibration (queue size: 10)
+- **Registers callbacks** for each topic
+
+---
+
+#### 8. Listener Callback
+
+```python
+def listener_callback(self, msg):
+    if calibration_received:
+        raw_message_callback(msg)
+```
+
+**What this does:**
+- **Called for each AriaRaw message** received from publisher
+- **Waits for calibration** before processing (required for VIO/eye gaze/hand tracking)
+- **Delegates to raw_message_callback** for actual processing
+
+**Why wait for calibration?** Some conversions (VIO, eye gaze, hand pose) require calibration data to properly transform coordinates.
+
+---
+
+#### 9. Calibration Callback
+
+```python
+def calib_callback(self, msg):
+    global calibration_received
+
+    print("[Calibration] Received device calibration")
+
+    converter.set_calibration(msg.data)
+    calibration_received = True
+
+    print(
+        "[Calibration] Calibration set in converter - VIO, eye gaze, and hand pose decoding enabled"
+    )
+```
+
+**What this does:**
+- **Receives calibration JSON string** from publisher
+- **Sets calibration in converter** - required for coordinate transformations
+- **Updates global flag** to enable message processing
+- **Logs confirmation** that calibration is ready
+
+**This runs once** (usually) when subscriber first starts or when late-joining
+
+---
+
+#### 10. Main Function
+
+```python
+def main(args=None):
+    rclpy.init(args=args)
+    minimal_subscriber = MinimalSubscriber()
+    rclpy.spin(minimal_subscriber)
+    minimal_subscriber.destroy_node()
+    rclpy.shutdown()
+```
+
+**Execution flow:**
+1. **Initialize ROS2** Python client library
+2. **Create subscriber node** and register topic subscriptions
+3. **Spin node** - processes incoming messages via callbacks
+4. **Cleanup** when interrupted
+
+---
+
+## Data Flow
+
+1. **Publisher** connects to Aria device and starts streaming
+2. Device sends calibration data → **Publisher** publishes to `calibration` topic
+3. **Subscriber** receives calibration → Sets up data converter
+4. Device sends sensor data → **Publisher** receives via HTTP server
+5. **Publisher** converts to ROS2 messages → Publishes to `aria_raw_message` topic
+6. **Subscriber** receives messages → Converts to typed data → Processes/displays
+
+---
+
+## Troubleshooting
+
+### No Data in Subscriber
+
+**Problem:** Subscriber node runs but receives no messages.
+
+**Solutions:**
+1. **Check publisher is running:**
+   ```bash
+   ros2 node list
+   ```
+   Should show both `minimal_publisher` and `minimal_subscriber`
+
+2. **Check topics:**
+   ```bash
+   ros2 topic list
+   ros2 topic echo /aria_raw_message
+   ```
+
+3. **Verify Aria device connection:**
+   - Ensure device is connected via USB
+   - Check device is streaming (check publisher logs)
+
+---
+
+### Port 6768 Already in Use
+
+**Problem:** Publisher fails to start HTTP server.
+
+**Solutions:**
+1. **Check what's using the port:**
+   ```bash
+   sudo lsof -i :6768
+   ```
+
+2. **Kill existing process:**
+   ```bash
+   kill -9 <PID>
+   ```
+
+3. **Or change port in code:**
+   ```python
+   config.port = 6769  # Use different port
+   ```
+
+---
+
+### Subscriber Not Processing Messages
+
+**Problem:** Subscriber receives messages but doesn't process them.
+
+**Reason:** Calibration not received yet. The subscriber waits for calibration before processing sensor data.
+
+**Solution:** Ensure publisher successfully connects to device and sends calibration. Check publisher logs for calibration callback.
+
+---
+
+### High Message Drop Rate
+
+**Problem:** Some messages not being received.
+
+**Solutions:**
+* **Increase queue sizes** in publisher/subscriber
+* **Check network bandwidth** if using WiFi
+* **Reduce callback processing time**
+* **Use wired USB connection** instead of wireless
+
+---
+
+### Publisher and Subscriber Cannot Communicate
+
+**Problem:** Publisher and subscriber are running but not communicating (subscriber receives no messages).
+
+**Reason:** ROS2 nodes can only communicate if they're using the same ROS_DOMAIN_ID. By default, ROS2 uses domain ID 0, but if you have multiple ROS2 systems on the same network or have previously set a different domain ID, they may not be able to see each other.
+
+**Solution:** Ensure both terminals use the same ROS_DOMAIN_ID:
+
+```bash
+# Terminal 1 (Subscriber)
+export ROS_DOMAIN_ID=0
+source install/setup.bash
+ros2 run py_pubsub listener
+
+# Terminal 2 (Publisher)
+export ROS_DOMAIN_ID=0
+source install/setup.bash
+ros2 run py_pubsub talker
+```
+
+**Check current domain ID:**
+```bash
+echo $ROS_DOMAIN_ID
+```
+
+**Verify nodes can see each other:**
+```bash
+ros2 node list
+```
+Should show both `minimal_publisher` and `minimal_subscriber`.
+
+**Note:** ROS_DOMAIN_ID can be any value from 0 to 101. Use different IDs to isolate different ROS2 systems on the same network.
+
+---
+
+## Related Resources
+
+- [ROS2 Custom Messages Tutorial](https://docs.ros.org/en/foxy/Tutorials/Beginner-Client-Libraries/Single-Package-Define-And-Use-Interface.html)
+- [ROS2 Python Publisher/Subscriber Tutorial](https://docs.ros.org/en/foxy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html)
+- [Streaming Example](/ark/client-sdk/python-sdk/streaming-example)
