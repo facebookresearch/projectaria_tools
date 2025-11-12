@@ -1,0 +1,30 @@
+---
+sidebar_position: 4
+title: Changelog
+---
+
+# Changelog
+
+---
+## Version 1.1.0
+
+### Configuration Updates
+
+#### `AriaGen2_Default` configuration:
+- Updated BLE RSSI valid range from `< 0.0` to `[-127.0, 20.0]` or `== +127.0`
+- Changed GPS drop ratio warn threshold from 5% to 2%
+- Increased longest repeating gyro fail threshold from 10 to 15
+- Relaxed VIO drop ratio fail threshold from 2% to 5%, added warn threshold at 2%
+- Relaxed hand tracking drop ratio fail threshold from 2% to 5%, added warn threshold at 2%
+
+#### `AriaGen1_*` configuration:
+- Updated Aria Gen1 SLAM camera exposure valid range from `[0.10ms, 48ms]` to `[0.019ms, 14ms]`
+
+### New Features
+
+- Added `streams_match_profile` check to verify expected stream counts match recording profile (Aria Gen2 only)
+
+---
+## Version 1.0.0
+
+- Initial release
