@@ -670,6 +670,96 @@ Types of recordings.
 
 ## Message Types
 
+### MessageType
+
+The `MessageType` class provides constants and utility functions for working with message type identifiers.
+
+#### Message Type Constants
+
+Message IDs are organized by category:
+
+**Camera Frames (0x8010-0x8012):**
+- `SLAM_CAMERA_FRAME` (0x8010) - SLAM camera image data
+- `ET_CAMERA_FRAME` (0x8011) - Eye tracking camera image data
+- `POV_CAMERA_FRAME` (0x8012) - RGB/POV camera image data
+
+**Sensor Events (0x8020-0x8028):**
+- `IMU_EVENT` (0x8020) - IMU (accelerometer/gyroscope) data
+- `BARO_EVENT` (0x8021) - Barometer data
+- `MAG_EVENT` (0x8022) - Magnetometer data
+- `TEMP_EVENT` (0x8023) - Temperature sensor data
+- `PPG_EVENT` (0x8024) - Photoplethysmogram (heart rate) data
+- `GNSS_EVENT` (0x8025) - GPS/GNSS location data
+- `SUBGHZ_EVENT` (0x8026) - Sub-GHz radio data
+- `ALS_EVENT` (0x8027) - Ambient light sensor data
+- `GNSS_VISIBLE_SATELLITES_EVENT` (0x8028) - Visible GPS satellites
+
+**Machine Perception (0x8030-0x8033):**
+- `MP_ET_RESULT` (0x8030) - Eye gaze tracking result
+- `MP_HT_RESULT` (0x8031) - Hand tracking result
+- `MP_VIO_RESULT` (0x8032) - Visual-Inertial Odometry result
+- `MP_VIO_HIGH_FREQUENCY_POSE` (0x8033) - High-frequency VIO pose updates
+
+**Data and Utilities (0x8000-0x800A):**
+- `ERROR` (0x8000) - Error message
+- `AUDIO_REC_DATA` (0x8001) - Audio recording data
+- `WIFI_BEACONS` (0x8005) - WiFi beacon scan results
+- `BLE_BEACONS` (0x8006) - Bluetooth beacon scan results
+- `PHONE_LOCATION_DATA` (0x8007) - Companion phone location
+- `BATTERY_STATUS_DATA` (0x8008) - Device battery status
+- `ASR_DATA` (0x8009) - Automatic speech recognition data
+- `FACTORY_CALIBRATION` (0x800A) - Factory calibration data
+
+**Status Messages (0x8100-0x8105):**
+- `ACRO_INFO` (0x8100) - ACRO system information
+- `OK` (0x8105) - Success/acknowledgment message
+
+#### Methods
+
+##### `to_string(message_id: int) -> str`
+
+Convert a message ID to its string name.
+
+**Parameters:**
+- `message_id` (int): Numeric message ID (e.g., 0x8010)
+
+**Returns:** String name of the message type (e.g., "SLAM_CAMERA_FRAME")
+
+**Example:**
+```python
+import aria.sdk_gen2 as sdk_gen2
+
+name = sdk_gen2.MessageType.to_string(0x8010)
+print(name)  # "SLAM_CAMERA_FRAME"
+
+# Using constant
+name = sdk_gen2.MessageType.to_string(sdk_gen2.MessageType.IMU_EVENT)
+print(name)  # "IMU_EVENT"
+```
+
+##### `from_string(name: str) -> Optional[int]`
+
+Convert a message type name to its numeric ID.
+
+**Parameters:**
+- `name` (str): String name of the message type (e.g., "SLAM_CAMERA_FRAME")
+
+**Returns:** Numeric message ID (int) if found, None otherwise
+
+**Example:**
+```python
+import aria.sdk_gen2 as sdk_gen2
+
+msg_id = sdk_gen2.MessageType.from_string("SLAM_CAMERA_FRAME")
+print(hex(msg_id))  # "0x8010"
+
+# Unknown type returns None
+unknown = sdk_gen2.MessageType.from_string("INVALID_TYPE")
+print(unknown)  # None
+```
+
+---
+
 ### SharedMessage
 
 Low-level message data structure.
@@ -680,6 +770,34 @@ Low-level message data structure.
 
 **Methods:**
 - `size() -> int`: Get message size in bytes
+- `timestamp() -> int`: Get message timestamp in nanoseconds
+- `arrival_timestamp_ns() -> int`: Get arrival timestamp in nanoseconds (returns -1 if not set)
+
+**Constructor:**
+```python
+SharedMessage(id: int, payload: bytes, timestampNs: int = 0)
+```
+
+**Parameters:**
+- `id` (int): Message type ID
+- `payload` (bytes): Message payload data
+- `timestampNs` (int, optional): Timestamp in nanoseconds. Defaults to 0.
+
+**Example:**
+```python
+import aria.sdk_gen2 as sdk_gen2
+
+# Create a message
+msg = sdk_gen2.SharedMessage(
+    id=sdk_gen2.MessageType.IMU_EVENT,
+    payload=b'\x00\x01\x02\x03',
+    timestampNs=1234567890
+)
+
+print(f"Message ID: {hex(msg.id)}")
+print(f"Payload size: {msg.size()}")
+print(f"Timestamp: {msg.timestamp()} ns")
+```
 
 ### IBuffer
 
@@ -687,4 +805,357 @@ Buffer interface for binary data.
 
 **Methods:**
 - `data() -> bytes`: Get buffer data as bytes
-- `as_memoryview() -> memoryview`: Get buffer as Python memoryview
+- `size() -> int`: Get buffer size in bytes
+- `as_memoryview() -> Optional[memoryview]`: Get buffer as Python memoryview (returns None if buffer is empty or null)
+
+**Example:**
+```python
+# Access payload data
+if message.payload is not None:
+    # Get as memoryview for zero-copy access
+    mem_view = message.payload.as_memoryview()
+    if mem_view is not None:
+        print(f"Payload size: {len(mem_view)} bytes")
+```
+
+---
+
+## Data Converter
+
+### OssDataConverter
+
+The `OssDataConverter` class converts raw FlatBuffer messages to typed Python data structures. This is essential for processing sensor data from SharedMessage payloads.
+
+#### Constructor
+
+```python
+OssDataConverter(enable_image_decoding: bool = True, decoder_class = None)
+```
+
+**Parameters:**
+- `enable_image_decoding` (bool, optional): Enable automatic image decoding. Defaults to True.
+- `decoder_class` (optional): Custom decoder class (not currently supported). Defaults to None.
+
+**Example:**
+```python
+import aria.oss_data_converter as data_converter
+
+# Create converter with image decoding enabled
+converter = data_converter.OssDataConverter(enable_image_decoding=True)
+```
+
+#### Configuration Methods
+
+##### `set_calibration(calibration_json: str) -> None`
+
+Set device calibration from JSON string. Required for converting VIO, eye gaze, and hand tracking data.
+
+**Parameters:**
+- `calibration_json` (str): Device calibration in JSON format
+
+**Example:**
+```python
+# Set calibration (required for VIO/eye gaze/hand tracking)
+converter.set_calibration(calibration_json_string)
+```
+
+##### `set_python_image_decoding(enable: bool) -> None`
+
+Enable or disable Python-based image decoding.
+
+**Parameters:**
+- `enable` (bool): True to enable Python decoding, False otherwise
+
+##### `get_python_image_decoding() -> bool`
+
+Get current Python image decoding status.
+
+**Returns:** bool - True if Python decoding is enabled
+
+---
+
+#### Image Conversion Methods
+
+##### `to_image_data_and_record(shared_message: SharedMessage) -> Tuple[ImageData, ImageDataRecord]`
+
+Convert camera frame message to image data and metadata.
+
+**Parameters:**
+- `shared_message` (SharedMessage): Message with image payload
+
+**Returns:** Tuple of (ImageData, ImageDataRecord) or (None, None) if conversion fails
+
+**Supported Message Types:**
+- `SLAM_CAMERA_FRAME` - SLAM camera images
+- `ET_CAMERA_FRAME` - Eye tracking camera images
+- `POV_CAMERA_FRAME` - RGB camera images
+
+**Example:**
+```python
+if message.id == sdk_gen2.MessageType.SLAM_CAMERA_FRAME:
+    image_data, image_record = converter.to_image_data_and_record(message)
+    if image_data is not None:
+        print(f"Image size: {image_data.get_width()}x{image_data.get_height()}")
+        print(f"Timestamp: {image_record.capture_timestamp_ns} ns")
+        print(f"Camera ID: {image_record.camera_id}")
+```
+
+---
+
+#### Sensor Conversion Methods
+
+##### `to_imu(shared_message: SharedMessage) -> List[MotionData]`
+
+Convert IMU event message to motion data list.
+
+**Parameters:**
+- `shared_message` (SharedMessage): Message with IMU payload
+
+**Returns:** List of MotionData objects or None if conversion fails
+
+**Example:**
+```python
+if message.id == sdk_gen2.MessageType.IMU_EVENT:
+    imu_data_list = converter.to_imu(message)
+    if imu_data_list:
+        for imu_data in imu_data_list:
+            print(f"Accel: {imu_data.accel_msec2} m/s²")
+            print(f"Gyro: {imu_data.gyro_radsec} rad/s")
+```
+
+##### `to_magnetometer(shared_message: SharedMessage) -> List[MotionData]`
+
+Convert magnetometer event message to motion data list.
+
+**Parameters:**
+- `shared_message` (SharedMessage): Message with magnetometer payload
+
+**Returns:** List of MotionData objects or None if conversion fails
+
+**Example:**
+```python
+if message.id == sdk_gen2.MessageType.MAG_EVENT:
+    mag_data_list = converter.to_magnetometer(message)
+    if mag_data_list:
+        mag_data = mag_data_list[0]
+        print(f"Magnetic field: {mag_data.mag_tesla} T")
+```
+
+##### `to_barometer(shared_message: SharedMessage) -> BarometerData`
+
+Convert barometer event message to barometer data.
+
+**Parameters:**
+- `shared_message` (SharedMessage): Message with barometer payload
+
+**Returns:** BarometerData object or None if conversion fails
+
+**Example:**
+```python
+if message.id == sdk_gen2.MessageType.BARO_EVENT:
+    baro_data = converter.to_barometer(message)
+    if baro_data:
+        print(f"Pressure: {baro_data.pressure} Pa")
+        print(f"Temperature: {baro_data.temperature} °C")
+```
+
+##### `to_audio(shared_message: SharedMessage) -> Tuple[AudioData, AudioDataRecord]`
+
+Convert audio message to audio data and record.
+
+**Parameters:**
+- `shared_message` (SharedMessage): Message with audio payload
+
+**Returns:** Tuple of (AudioData, AudioDataRecord) or (None, None) if conversion fails
+
+**Example:**
+```python
+if message.id == sdk_gen2.MessageType.AUDIO_REC_DATA:
+    audio_data, audio_record = converter.to_audio(message)
+    if audio_data:
+        print(f"Audio samples: {len(audio_data.data)}")
+        print(f"Sample rate: {audio_record.sample_rate} Hz")
+```
+
+---
+
+#### Location Conversion Methods
+
+##### `to_gnss(shared_message: SharedMessage) -> GpsData`
+
+Convert GNSS event message to GPS data.
+
+**Parameters:**
+- `shared_message` (SharedMessage): Message with GNSS payload
+
+**Returns:** GpsData object or None if conversion fails
+
+**Example:**
+```python
+if message.id == sdk_gen2.MessageType.GNSS_EVENT:
+    gnss_data = converter.to_gnss(message)
+    if gnss_data:
+        print(f"Location: {gnss_data.latitude}°, {gnss_data.longitude}°")
+        print(f"Altitude: {gnss_data.altitude} m")
+        print(f"Accuracy: {gnss_data.accuracy} m")
+```
+
+##### `to_phone_location(shared_message: SharedMessage) -> GpsData`
+
+Convert phone location message to GPS data.
+
+**Parameters:**
+- `shared_message` (SharedMessage): Message with phone location payload
+
+**Returns:** GpsData object or None if conversion fails
+
+**Example:**
+```python
+if message.id == sdk_gen2.MessageType.PHONE_LOCATION_DATA:
+    phone_loc = converter.to_phone_location(message)
+    if phone_loc:
+        print(f"Phone location: {phone_loc.latitude}°, {phone_loc.longitude}°")
+```
+
+---
+
+#### Machine Perception Conversion Methods
+
+##### `to_eye_gaze(shared_message: SharedMessage) -> EyeGaze`
+
+Convert eye gaze result message to eye gaze data. **Requires calibration to be set.**
+
+**Parameters:**
+- `shared_message` (SharedMessage): Message with eye gaze payload
+
+**Returns:** EyeGaze object or None if conversion fails
+
+**Example:**
+```python
+if message.id == sdk_gen2.MessageType.MP_ET_RESULT:
+    eye_gaze = converter.to_eye_gaze(message)
+    if eye_gaze:
+        print(f"Gaze: yaw={eye_gaze.yaw} rad, pitch={eye_gaze.pitch} rad")
+        print(f"Depth: {eye_gaze.depth} m")
+```
+
+##### `to_hand_pose(shared_message: SharedMessage) -> HandTrackingResult`
+
+Convert hand tracking result message to hand pose data. **Requires calibration to be set.**
+
+**Parameters:**
+- `shared_message` (SharedMessage): Message with hand tracking payload
+
+**Returns:** HandTrackingResult object or None if conversion fails
+
+**Example:**
+```python
+if message.id == sdk_gen2.MessageType.MP_HT_RESULT:
+    hand_pose = converter.to_hand_pose(message)
+    if hand_pose:
+        if hand_pose.left_hand:
+            print("Left hand detected")
+        if hand_pose.right_hand:
+            print("Right hand detected")
+```
+
+##### `to_vio_result(shared_message: SharedMessage) -> FrontendOutput`
+
+Convert VIO result message to VIO data. **Requires calibration to be set.**
+
+**Parameters:**
+- `shared_message` (SharedMessage): Message with VIO payload
+
+**Returns:** FrontendOutput object or None if conversion fails
+
+**Example:**
+```python
+if message.id == sdk_gen2.MessageType.MP_VIO_RESULT:
+    vio_data = converter.to_vio_result(message)
+    if vio_data:
+        pose = vio_data.transform_odometry_bodyimu
+        print(f"Position: {pose.translation()}")
+        print(f"Rotation: {pose.rotation().log()}")
+```
+
+##### `to_vio_high_freq_pose(shared_message: SharedMessage) -> List[OpenLoopTrajectoryPose]`
+
+Convert high-frequency VIO pose message to pose list. **Requires calibration to be set.**
+
+**Parameters:**
+- `shared_message` (SharedMessage): Message with high-frequency VIO payload
+
+**Returns:** List of OpenLoopTrajectoryPose objects or None if conversion fails
+
+**Example:**
+```python
+if message.id == sdk_gen2.MessageType.MP_VIO_HIGH_FREQUENCY_POSE:
+    vio_poses = converter.to_vio_high_freq_pose(message)
+    if vio_poses:
+        for pose in vio_poses:
+            translation = pose.transform_odometry_device.translation()
+            print(f"Position: {translation}")
+```
+
+---
+
+#### Wireless Beacon Conversion Methods
+
+##### `to_bluetooth_beacon(shared_message: SharedMessage) -> List[BluetoothBeaconData]`
+
+Convert Bluetooth beacon message to beacon data list.
+
+**Parameters:**
+- `shared_message` (SharedMessage): Message with Bluetooth beacon payload
+
+**Returns:** List of BluetoothBeaconData objects or None if conversion fails
+
+**Example:**
+```python
+if message.id == sdk_gen2.MessageType.BLE_BEACONS:
+    ble_beacons = converter.to_bluetooth_beacon(message)
+    if ble_beacons:
+        for beacon in ble_beacons:
+            print(f"ID: {beacon.unique_id}, RSSI: {beacon.rssi} dBm")
+```
+
+##### `to_wifi_beacon(shared_message: SharedMessage) -> List[WifiBeaconData]`
+
+Convert WiFi beacon message to beacon data list.
+
+**Parameters:**
+- `shared_message` (SharedMessage): Message with WiFi beacon payload
+
+**Returns:** List of WifiBeaconData objects or None if conversion fails
+
+**Example:**
+```python
+if message.id == sdk_gen2.MessageType.WIFI_BEACONS:
+    wifi_beacons = converter.to_wifi_beacon(message)
+    if wifi_beacons:
+        for beacon in wifi_beacons:
+            print(f"SSID: {beacon.ssid}, RSSI: {beacon.rssi} dBm")
+```
+
+---
+
+#### Other Sensor Conversion Methods
+
+##### `to_ppg(shared_message: SharedMessage) -> PpgData`
+
+Convert PPG (photoplethysmogram) event message to PPG data.
+
+**Parameters:**
+- `shared_message` (SharedMessage): Message with PPG payload
+
+**Returns:** PpgData object or None if conversion fails
+
+**Example:**
+```python
+if message.id == sdk_gen2.MessageType.PPG_EVENT:
+    ppg_data = converter.to_ppg(message)
+    if ppg_data:
+        print(f"PPG value: {ppg_data.value}")
+```
+
+---
