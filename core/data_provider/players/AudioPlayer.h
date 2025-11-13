@@ -70,6 +70,7 @@ class AudioPlayer : public vrs::RecordFormatStreamPlayer {
   AudioPlayer& operator=(const AudioPlayer&) = delete;
   AudioPlayer& operator=(AudioPlayer&&) = delete;
   AudioPlayer(AudioPlayer&&) = default;
+  ~AudioPlayer() override = default;
 
   void setCallback(AudioCallback callback) {
     callback_ = std::move(callback);
