@@ -1,0 +1,61 @@
+---
+sidebar_position: 10
+title: Changelog
+---
+
+# Changelog
+
+---
+## Version 2.1.0
+
+### New Features
+
+- Enabled Google Colab support for all Gen2 Python notebook tutorials — including "Open in Colab" links in the documentation website
+- Added external CI support for the newly-added Gen2 unit-test datasets to improve test coverage
+- Introduced Jacobian computation APIs for camera calibration workflows
+
+### Improvements
+
+- Enhanced the `viewer_mps` tool for Gen1 data: now supports rotated, non-rectified images
+- Fixed `toJson()` serialization issues in `SensorCalibration`, and added full serialization support for the `CameraConfig` field
+
+### Bug Fixes
+
+- Corrected contact-mic sensor labels
+- Fixed the binary name for `gen2_mp_csv_exporter`
+- Addressed other minor stability issues
+
+---
+## Version 2.0.0
+
+🚀 **Major Version Release**
+
+We're excited to announce a major update of the library — now supporting both Aria Gen1 and Gen2 VRS data with the same C++ and Python APIs you already know. This release also introduces full access to On-Device Machine Perception (MP) data in Aria Gen2 VRS.
+
+### API & Data Compatibility
+
+- **Unified Interface**: The C++ and Python APIs remain unchanged — your existing Gen1 code continues to work seamlessly
+- **Extended Capabilities**: Added APIs to access On-Device Machine Perception data streams available in Gen2 recordings
+- **Cross-Generation Support**: A single codebase now handles Gen1 and Gen2 VRS data without modification
+
+### New & Enhanced Tools
+
+#### New Tools
+
+- **`aria_rerun_viewer`**: A Python-based visualizer for Aria VRS files, built on Rerun for interactive multi-modal exploration
+- **`gen2_mp_csv_exporter`**: A Python tool to export On-Device MP data from VRS to CSV, fully compatible with the Machine Perception Service (MPS) format
+
+#### Upgraded Tools
+
+- **`vrs_health_check`**: Completely re-engineered and released as a standalone Python package for easier installation & use
+
+### Documentation
+
+- **New Python Tutorials**: Our Python tutorials have been completely rewritten into seven focused guides, covering topics such as:
+  - Queued multi-sensor data
+  - Device calibration usage
+  - Multi-device time alignment
+  - ...and more
+- **Updated Documentation Websites**: We now maintain dedicated documentation portals for each generation:
+  - Aria Gen2 Documentation Website — new APIs, tools, and data formats
+  - Aria Gen1 Documentation Website — original docs for Gen1 workflows
