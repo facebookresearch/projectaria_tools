@@ -91,7 +91,8 @@ class CameraCalibration {
 
   std::string getLabel() const;
   std::string getSerialNumber() const;
-  Sophus::SE3d getT_Device_Camera() const;
+  const Sophus::SE3d& getT_Device_Camera() const;
+  Sophus::SE3d& getT_Device_CameraMut();
   Eigen::Vector2i getImageSize() const;
   double getMaxSolidAngle() const;
   std::optional<double> getValidRadius() const;

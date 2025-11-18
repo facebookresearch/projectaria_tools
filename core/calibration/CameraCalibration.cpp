@@ -50,7 +50,11 @@ std::string CameraCalibration::getSerialNumber() const {
   return serialNumber_;
 }
 
-Sophus::SE3d CameraCalibration::getT_Device_Camera() const {
+const Sophus::SE3d& CameraCalibration::getT_Device_Camera() const {
+  return T_Device_Camera_;
+}
+
+Sophus::SE3d& CameraCalibration::getT_Device_CameraMut() {
   return T_Device_Camera_;
 }
 
