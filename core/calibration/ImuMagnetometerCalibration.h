@@ -80,6 +80,8 @@ class ImuCalibration {
    * @param rectificationMatrixGyro The rectification matrix for gyroscope intrinsics.
    * @param biasGyro The bias of gyroscope intrinsics.
    * @param T_Device_Imu The extrinsics of the IMU in Device frame.
+   * @param timeOffsetSecDeviceAccel Time offset from accelerometer to reference.
+   * @param timeOffsetSecDeviceGyro Time offset from gyroscope to reference.
    */
   ImuCalibration(
       const std::string& label,
@@ -87,7 +89,9 @@ class ImuCalibration {
       const Eigen::Vector3d& biasAccel,
       const Eigen::Matrix3d& rectificationMatrixGyro,
       const Eigen::Vector3d& biasGyro,
-      const Sophus::SE3d& T_Device_Imu);
+      const Sophus::SE3d& T_Device_Imu,
+      double timeOffsetSecDeviceAccel = 0.0,
+      double timeOffsetSecDeviceGyro = 0.0);
 
   std::string getLabel() const;
   Sophus::SE3d getT_Device_Imu() const;
@@ -120,11 +124,23 @@ class ImuCalibration {
    */
   LinearRectificationModel3d getGyroModel() const;
 
+  /**
+   * @brief return time offset between device and accelerometer
+   */
+  double getTimeOffsetSecDeviceAccel() const;
+
+  /**
+   * @brief return time offset between device and gyroscope
+   */
+  double getTimeOffsetSecDeviceGyro() const;
+
  private:
   std::string label_;
   LinearRectificationModel3d accel_;
   LinearRectificationModel3d gyro_;
   Sophus::SE3d T_Device_Imu_;
+  double timeOffsetSecDeviceAccel_;
+  double timeOffsetSecDeviceGyro_;
 };
 
 /**

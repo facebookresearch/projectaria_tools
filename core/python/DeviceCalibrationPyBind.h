@@ -454,7 +454,17 @@ inline void declareImuCalibration(py::module& m) {
               const Eigen::Vector3d&,
               const Eigen::Matrix3d&,
               const Eigen::Vector3d&,
-              const Sophus::SE3d&>())
+              const Sophus::SE3d&,
+              double,
+              double>(),
+          py::arg("label"),
+          py::arg("rectification_matrix_accel"),
+          py::arg("bias_accel"),
+          py::arg("rectification_matrix_gyro"),
+          py::arg("bias_gyro"),
+          py::arg("T_device_imu"),
+          py::arg("time_offset_sec_device_accel") = 0.0,
+          py::arg("time_offset_sec_device_gyro") = 0.0)
       .def("get_label", &ImuCalibration::getLabel)
       .def(
           "raw_to_rectified_accel",
@@ -488,6 +498,14 @@ inline void declareImuCalibration(py::module& m) {
           "get_gyro_model",
           &ImuCalibration::getGyroModel,
           "Get gyroscope intrinsics model that contains rectification matrix and bias vector.")
+      .def(
+          "get_time_offset_sec_device_accel",
+          &ImuCalibration::getTimeOffsetSecDeviceAccel,
+          "Get time offset device to accelerometer, in seconds.")
+      .def(
+          "get_time_offset_sec_device_gyro",
+          &ImuCalibration::getTimeOffsetSecDeviceGyro,
+          "Get time offset device to gyroscope, in seconds.")
       .def("get_transform_device_imu", &ImuCalibration::getT_Device_Imu)
       .def(
           py::pickle(
@@ -498,10 +516,12 @@ inline void declareImuCalibration(py::module& m) {
                     calib.getAccelModel().getBias(),
                     calib.getGyroModel().getRectification(),
                     calib.getGyroModel().getBias(),
-                    calib.getT_Device_Imu());
+                    calib.getT_Device_Imu(),
+                    calib.getTimeOffsetSecDeviceAccel(),
+                    calib.getTimeOffsetSecDeviceGyro());
               },
               [](py::tuple t) { // __setstate__
-                if (t.size() != 6) {
+                if (t.size() != 6 && t.size() != 8) {
                   throw std::runtime_error("Invalid state!");
                 }
 
@@ -511,7 +531,9 @@ inline void declareImuCalibration(py::module& m) {
                     t[2].cast<Eigen::Vector3d>(),
                     t[3].cast<Eigen::Matrix3d>(),
                     t[4].cast<Eigen::Vector3d>(),
-                    t[5].cast<Sophus::SE3d>());
+                    t[5].cast<Sophus::SE3d>(),
+                    t.size() >= 8 ? t[6].cast<double>() : 0.0,
+                    t.size() >= 8 ? t[7].cast<double>() : 0.0);
               }))
       .def("__repr__", [](const ImuCalibration& self) { return fmt::to_string(self); });
 }

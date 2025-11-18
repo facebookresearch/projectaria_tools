@@ -47,11 +47,15 @@ ImuCalibration::ImuCalibration(
     const Eigen::Vector3d& biasAccel,
     const Eigen::Matrix3d& rectificationMatrixGyro,
     const Eigen::Vector3d& biasGyro,
-    const Sophus::SE3d& T_Device_Imu)
+    const Sophus::SE3d& T_Device_Imu,
+    double timeOffsetSecDeviceAccel,
+    double timeOffsetSecDeviceGyro)
     : label_(label),
       accel_(rectificationMatrixAccel, biasAccel),
       gyro_(rectificationMatrixGyro, biasGyro),
-      T_Device_Imu_(T_Device_Imu) {}
+      T_Device_Imu_(T_Device_Imu),
+      timeOffsetSecDeviceAccel_(timeOffsetSecDeviceAccel),
+      timeOffsetSecDeviceGyro_(timeOffsetSecDeviceGyro) {}
 
 std::string ImuCalibration::getLabel() const {
   return label_;
@@ -82,6 +86,14 @@ LinearRectificationModel3d ImuCalibration::getAccelModel() const {
 
 LinearRectificationModel3d ImuCalibration::getGyroModel() const {
   return gyro_;
+}
+
+double ImuCalibration::getTimeOffsetSecDeviceAccel() const {
+  return timeOffsetSecDeviceAccel_;
+}
+
+double ImuCalibration::getTimeOffsetSecDeviceGyro() const {
+  return timeOffsetSecDeviceGyro_;
 }
 
 /* MagnetometerCalibration */
