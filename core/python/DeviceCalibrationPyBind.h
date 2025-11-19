@@ -688,7 +688,7 @@ inline void declareSensorCalibration(py::module& m) {
           "get the type of this sensor calibration as an enum.")
       .def(
           py::pickle(
-              [](const SensorCalibration& calib) {
+              [](const SensorCalibration& calib) -> py::tuple {
                 switch (calib.sensorCalibrationType()) {
                   case SensorCalibrationType::CameraCalibration:
                     return py::make_tuple(
