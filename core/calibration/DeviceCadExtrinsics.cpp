@@ -86,7 +86,9 @@ std::optional<std::pair<std::string, Sophus::SE3d>> readSingleCsvLine(const std:
   rot.col(1) = unitY;
   rot.col(2) = unitZ;
   rot.col(0) = rot.col(1).cross(rot.col(2));
-  XR_CHECK_GE(rot.determinant(), 0.99);
+  if (rot.determinant() < 0.99) {
+    throw std::runtime_error("Rotation matrix determinant must be >= 0.99");
+  }
 
   return std::make_pair(label, Sophus::SE3d(Sophus::makeRotationMatrix(rot), translation));
 }

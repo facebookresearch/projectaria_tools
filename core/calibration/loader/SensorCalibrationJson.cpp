@@ -140,7 +140,9 @@ MagnetometerCalibration parseMagnetometerCalibrationFromJson(
 
   auto biasInTesla = biasFromJson * biasScale;
 
-  XR_CHECK(magMat.determinant() > 0, "Magnetometer calibration matrix should have >0 determinant.");
+  if (!(magMat.determinant() > 0)) {
+    throw std::runtime_error("Magnetometer calibration matrix should have >0 determinant.");
+  }
 
   return {label, magMat, biasInTesla};
 }

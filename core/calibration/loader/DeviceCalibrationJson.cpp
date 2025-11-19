@@ -47,7 +47,9 @@ std::string getOriginSensorLabel(const nlohmann::json& originSpecJson) {
 } // namespace
 
 void patchSyntheticHomeCalib(nlohmann::json& json) {
-  XR_CHECK(json.contains("DeviceClassInfo"));
+  if (!json.contains("DeviceClassInfo")) {
+    throw std::runtime_error("DeviceClassInfo field is missing in JSON");
+  }
   // fix device class info
   if (json["DeviceClassInfo"]["BuildVersion"] == std::string("SimulatedDevice")) {
     json["DeviceClassInfo"]["DeviceClass"] = "Aria";
@@ -63,7 +65,9 @@ void patchSyntheticHomeCalib(nlohmann::json& json) {
   // fix imu label
   if (json.contains("ImuCalibrations")) {
     auto jsonArray = json["ImuCalibrations"];
-    XR_CHECK(jsonArray.size() == 1);
+    if (jsonArray.size() != 1) {
+      throw std::runtime_error("ImuCalibrations array must have exactly 1 element");
+    }
     for (auto& imuJson : jsonArray) {
       imuJson["Label"] = "imu-left";
     }

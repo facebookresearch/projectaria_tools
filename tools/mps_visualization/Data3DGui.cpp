@@ -67,8 +67,9 @@ Data3DGui::Data3DGui(
   for (const auto& camCalib : camCalibs) {
     worldGraphUids.insert(camCalib.graphUid);
   }
-  XR_CHECK_LE(
-      worldGraphUids.size(), 1, "Input static camera poses are not in the same world frame");
+  if (worldGraphUids.size() > 1) {
+    throw std::runtime_error("Input static camera poses are not in the same world frame");
+  }
 
   lastTraj_.reserve(kLastTrajLength + 1);
 
@@ -406,11 +407,15 @@ void Data3DGui::draw(
 
   // plot frame only image view is init
   if (rgbImageData && slamLeftImageData && slamRightImageData) {
-    XR_CHECK(plot2DView_);
+    if (!plot2DView_) {
+      throw std::runtime_error("plot2DView_ is not initialized");
+    }
     const auto& slamLeftImage = slamLeftImageData.value().imageVariant();
     const auto& slamRightImage = slamRightImageData.value().imageVariant();
     const auto& rgbImage = rgbImageData.value().imageVariant();
-    XR_CHECK(slamLeftImage && slamRightImage && rgbImage);
+    if (!(slamLeftImage && slamRightImage && rgbImage)) {
+      throw std::runtime_error("Image data is missing");
+    }
 
     // Update cached data for plot
     leftPtObs_ = leftPtObs;
@@ -757,7 +762,9 @@ void Data3DGui::drawRightPointObs() const {
 void Data3DGui::drawEyeGazePoint() const {
   const float scaleX = (float)rgbWidth_ / (float)camCalib_.getImageSize().x();
   const float scaleY = (float)rgbHeight_ / (float)camCalib_.getImageSize().y();
-  XR_CHECK_EQ(scaleX, scaleY);
+  if (scaleX != scaleY) {
+    throw std::runtime_error("scaleX and scaleY must be equal");
+  }
   glLineWidth(20);
   if (generalizedEyeGazeProj_ && uiPlotGeneralizedGaze) {
     glColor3f(

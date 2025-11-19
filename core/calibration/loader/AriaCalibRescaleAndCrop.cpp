@@ -127,15 +127,14 @@ RescaleParam getRescaleParam(const RescaleInput& rescaleInput) {
 
   // Check if input is supported
   const auto rescaleIter = kSupportedRescaleMapping.find(rescaleInput);
-  XR_CHECK(
-      rescaleIter != kSupportedRescaleMapping.end(),
-      "Unsupported camera rescale input of {}:{}, from {},{} to {},{}",
-      getName(rescaleInput.deviceVersion),
-      rescaleInput.cameraLabel,
-      rescaleInput.originalResolution[0],
-      rescaleInput.originalResolution[1],
-      rescaleInput.newResolution[0],
-      rescaleInput.newResolution[1]);
+  if (rescaleIter == kSupportedRescaleMapping.end()) {
+    throw std::runtime_error(
+        "Unsupported camera rescale input of " + getName(rescaleInput.deviceVersion) + ":" +
+        rescaleInput.cameraLabel + ", from " + std::to_string(rescaleInput.originalResolution[0]) +
+        "," + std::to_string(rescaleInput.originalResolution[1]) + " to " +
+        std::to_string(rescaleInput.newResolution[0]) + "," +
+        std::to_string(rescaleInput.newResolution[1]));
+  }
   return rescaleIter->second;
 }
 
@@ -165,10 +164,10 @@ void tryCropAndScaleCameraCalibration(
   for (const auto& [label, resolution] : labelToImageResolution) {
     std::optional<CameraCalibration> maybeCamCalib = deviceCalibration.getCameraCalib(label);
     // obtain if specified camera exists in DeviceCalibration
-    XR_CHECK(
-        maybeCamCalib,
-        "specified camera {} does not exist in cameraCalibs. No rescaling performed.",
-        label);
+    if (!maybeCamCalib) {
+      throw std::runtime_error(
+          "specified camera " + label + " does not exist in cameraCalibs. No rescaling performed.");
+    }
     CameraCalibration camCalib = *maybeCamCalib;
     camCalib = rescaleSingleCamera(camCalib, resolution, deviceVersion);
     deviceCalibration.setCameraCalibration(label, camCalib);
