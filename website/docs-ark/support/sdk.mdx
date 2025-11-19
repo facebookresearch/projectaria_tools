@@ -5,6 +5,45 @@ title: ClientSDK Troubleshooting
 
 This page provides solutions to common issues when using the ClientSDK with your Aria Gen2 device. Issues are organized by category for easy navigation.
 
+---
+
+## First Steps: Update to Latest Versions
+
+:::tip Always Start Here
+Before troubleshooting any issues, ensure you're running the latest versions of both the ClientSDK and your device firmware. Many common issues are resolved in newer releases.
+:::
+
+### Update ClientSDK
+
+Update to the latest ClientSDK version using pip:
+
+```bash
+pip install --upgrade projectaria-client-sdk
+```
+
+After updating, verify the installed version:
+
+```bash
+pip show projectaria-client-sdk
+```
+
+### Update Device OS
+
+Ensure your Aria Gen2 device is running the latest firmware version:
+
+1. Open the **Companion App** on your mobile device
+2. Navigate to your paired device settings
+3. Check for available updates on the Companion App **Check for Updates**
+4. If an update is available, follow the prompts to install it
+
+:::info Version Compatibility
+Different SDK versions may have specific requirements for device OS versions. Check the [Changelog](/ark/client-sdk/changelog) for version-specific compatibility information.
+:::
+
+**After updating both the SDK and device OS**, proceed with the diagnostic commands below if you still experience issues.
+
+---
+
 ## Quick Diagnostic Commands
 
 Before diving into specific issues, use these commands to check your device status:
