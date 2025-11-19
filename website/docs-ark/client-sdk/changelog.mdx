@@ -1,0 +1,174 @@
+---
+sidebar_position: 10
+title: Changelog
+---
+
+# ClientSDK Changelog
+
+This page tracks the version history and changes made to the Aria Gen2 ClientSDK.
+
+---
+
+## Version 2.1.0
+
+**Release Date:** Nov 2025
+
+### ⚠️ Breaking Changes
+
+:::danger Breaking Change
+**Device OS V14 (version: 51021960009400500) and V15 (version: 51041610004100500) Compatibility Update**
+
+ClientSDK 2.1.0 introduces a breaking change for recording operations with devices running **OS V14 only**:
+
+- **Recording commands now require the `--disable-tls` flag** when interacting with Aria devices running OS V14
+- Existing scripts and workflows that perform recording operations must be updated to include this flag
+- This change only affects recording functionality; streaming and other operations remain unchanged
+
+**OS V15 Compatibility:** Devices running OS V15 are fully compatible with ClientSDK 2.1.0 and **do not require** the `--disable-tls` flag. Recording commands work normally without any modifications.
+
+**Example (OS V14 only):**
+```bash
+# Old command (will fail with OS V14 devices)
+aria_gen2 recording list
+
+# New command (required for OS V14 devices)
+aria_gen2 recording list --disable-tls
+
+# OS V15 devices (no flag needed)
+aria_gen2 recording list
+```
+
+**Migration:**
+- **OS V14 devices**: Update all recording-related CLI commands and Python scripts to include the `--disable-tls` flag
+- **OS V15 devices**: No changes required - all commands work as before
+:::
+
+
+### New Features
+
+#### ROS2 Integration Examples
+
+Added comprehensive ROS2 integration support for advanced users, enabling seamless integration of Aria device data with ROS2 robotics workflows.
+
+**Key additions:**
+- Custom ROS2 message type (`AriaRaw`) for transporting raw Aria sensor data
+- Publisher example for streaming Aria data to ROS2 topics
+- Subscriber example for receiving and processing Aria data in ROS2 nodes
+- Support for all sensor types (SLAM cameras, RGB camera, IMU, VIO, eye gaze, hand tracking, etc.)
+- Device calibration sharing across ROS2 nodes
+
+**Resources:**
+- See the [ROS2 Integration Example](/ark/client-sdk/python-sdk/ros2-example) for detailed setup instructions and code walkthrough
+
+#### Enhanced Data Converter API
+
+Expanded the `OssDataConverter` class with additional functionality for converting raw FlatBuffer messages to typed Python data structures.
+
+**New capabilities:**
+- **Message Type Utilities**: Added `MessageType.to_string()` and `MessageType.from_string()` methods for converting between message IDs and their string representations
+  ```python
+  # Convert message ID to string
+  name = sdk_gen2.MessageType.to_string(0x8010)  # "SLAM_CAMERA_FRAME"
+
+  # Convert string to message ID
+  msg_id = sdk_gen2.MessageType.from_string("IMU_EVENT")  # 0x8020
+  ```
+
+- **SharedMessage Constructor**: Enhanced `SharedMessage` class with constructor for creating messages programmatically
+  ```python
+  msg = sdk_gen2.SharedMessage(
+      id=sdk_gen2.MessageType.IMU_EVENT,
+      payload=b'\x00\x01\x02\x03',
+      timestampNs=1234567890
+  )
+  ```
+
+- **Additional Sensor Conversions**: Expanded support for converting various sensor message types:
+  - Location sensors: GNSS, phone location
+  - Environmental sensors: barometer, magnetometer
+  - Wireless beacons: bluetooth (BLE) and WiFi
+  - Machine perception: eye gaze, hand tracking, VIO (Visual-Inertial Odometry)
+  - Other sensors: audio, PPG (photoplethysmogram)
+
+**Resources:**
+- See the [Python API Reference](/technical-specs/client-sdk/api#data-converter) for detailed API documentation
+
+### Improvements
+
+#### Data Converter Performance Optimization
+
+Significantly improved data processing efficiency by leveraging native FlatBuffer serialization from Aria Gen2 devices:
+
+- **Reduced serialization overhead**: The data converter now directly processes FlatBuffer-serialized data from the device, eliminating redundant serialization/deserialization steps
+
+This optimization maintains full API compatibility while delivering better performance across all sensor data types.
+
+#### Documentation & Developer Experience
+
+- Enhanced documentation with detailed code walkthroughs for ROS2 examples
+- Added troubleshooting guides for common ROS2 integration issues
+- Improved message type handling with string conversion utilities
+
+---
+
+## Version 2.0.0
+
+**Release Date:** Oct 2025
+
+### Initial Release
+
+ClientSDK is a comprehensive toolbox designed to facilitate control and interaction with Aria Gen2 devices. This initial release provides a complete set of libraries, utilities, and example code to streamline device management, authentication, recording, and streaming.
+
+### Key Features
+
+**Device Management**
+- Core classes and utilities for connecting to, authenticating, and controlling Aria Gen2 devices
+- USB network connection support via Companion App pairing
+- Device discovery and connection management
+
+**Streaming Support**
+- Components for starting and managing data streams from Aria Gen2 devices
+- On-device machine perception data streaming (VIO, hand pose, eye gaze)
+- Raw sensor data streaming from all device sensors (cameras, IMU, audio, etc.)
+- HTTP-based streaming architecture with certificate support
+
+**Recording Support**
+- Components for starting and managing on-device recording
+- Recording configuration with predefined profiles
+- Recording management (list, download, delete)
+- VRS (Virtual Reality Storage) format output
+
+**Security**
+- Built-in support for streaming certificates and security options
+- Secure device authentication via mobile Companion App
+- SSL/TLS support for streaming connections
+
+**Python & CLI Tools**
+- Python SDK with intuitive APIs for device control and data streaming
+- Command-line utilities for scripting and automation (`aria_gen2`, `aria_doctor`)
+- Comprehensive device control commands (authentication, recording, streaming, device info)
+
+**Example Code**
+- Ready-to-use Python examples demonstrating common workflows
+- Sample code for device connection, authentication, recording, streaming, and text-to-speech
+- Comprehensive documentation with setup guides and tutorials
+
+### Prerequisites
+
+- **Hardware**: Aria Gen2 device
+- **Mobile App**: Aria Companion App (installed and paired with device)
+- **Connection**: USB cable for device-to-PC connection
+
+### Supported Platforms
+
+- **Linux (x64)**: Fedora 40/41, Ubuntu 22.04 LTS, Ubuntu 24.04 LTS
+- **Python versions**: 3.10 - 3.12
+
+---
+
+## Support
+
+For issues, questions, or feature requests, please visit:
+- [SDK Support & Troubleshooting](/ark/support/sdk)
+- [Technical Specifications](/technical-specs/client-sdk/cli)
+- [Python API Reference](/technical-specs/client-sdk/api)
