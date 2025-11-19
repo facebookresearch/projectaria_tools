@@ -90,9 +90,10 @@ int main(int argc, char* argv[]) {
   }
   if (globalPointCloudPaths.empty()) {
     XR_LOGW("Global point cloud file(s) is not provided");
-    XR_CHECK(
-        pointObservationPath.empty(),
-        "Point observation file is provided without corresponding global point cloud file");
+    if (!pointObservationPath.empty()) {
+      throw std::runtime_error(
+          "Point observation file is provided without corresponding global point cloud file");
+    }
   }
   if (pointObservationPath.empty()) {
     XR_LOGW("Point observation file is not provided");
@@ -103,9 +104,10 @@ int main(int argc, char* argv[]) {
   if (calibratedEyeGazePath.empty()) {
     XR_LOGW("Eye gaze file is not provided");
   }
-  XR_CHECK(
-      wristAndPalmPosesPath.empty() || handTrackingResultsPath.empty(),
-      "Only one of hand tracking files (wrist and palm poses csv or hand tracking results csv) can be used at a time");
+  if (!(wristAndPalmPosesPath.empty() || handTrackingResultsPath.empty())) {
+    throw std::runtime_error(
+        "Only one of hand tracking files (wrist and palm poses csv or hand tracking results csv) can be used at a time");
+  }
 
   // Create vrs provider
   auto vrsProvider = *data_provider::createVrsDataProvider(vrsPath);
@@ -114,15 +116,25 @@ int main(int argc, char* argv[]) {
   const auto rgb_streamId = vrsProvider.getStreamIdFromLabel("camera-rgb");
   const auto slam_left_streamId = vrsProvider.getStreamIdFromLabel("camera-slam-left");
   const auto slam_right_streamId = vrsProvider.getStreamIdFromLabel("camera-slam-right");
-  XR_CHECK(rgb_streamId);
-  XR_CHECK(slam_left_streamId);
-  XR_CHECK(slam_right_streamId);
+  if (!rgb_streamId) {
+    throw std::runtime_error("Failed to get rgb_streamId");
+  }
+  if (!slam_left_streamId) {
+    throw std::runtime_error("Failed to get slam_left_streamId");
+  }
+  if (!slam_right_streamId) {
+    throw std::runtime_error("Failed to get slam_right_streamId");
+  }
 
   // Get number of frames from the vrs provider
   size_t numRgbData = vrsProvider.getNumData(rgb_streamId.value());
   size_t numSlamData = vrsProvider.getNumData(slam_left_streamId.value());
-  XR_CHECK(numSlamData == vrsProvider.getNumData(slam_right_streamId.value()));
-  XR_CHECK(numRgbData <= numSlamData);
+  if (numSlamData != vrsProvider.getNumData(slam_right_streamId.value())) {
+    throw std::runtime_error("SLAM left and right frame counts do not match");
+  }
+  if (numRgbData > numSlamData) {
+    throw std::runtime_error("RGB frame count exceeds SLAM frame count");
+  }
   XR_LOGI("Loaded RGB camera frames: {}", numRgbData);
   XR_LOGI("Loaded SLAM left/right camera frames: {}", numSlamData);
 
@@ -155,7 +167,9 @@ int main(int argc, char* argv[]) {
 
   // Get RGB camera's factory calibration from vis
   auto sensorCalib = vrsProvider.getSensorCalibration(rgb_streamId.value());
-  XR_CHECK(sensorCalib);
+  if (!sensorCalib) {
+    throw std::runtime_error("Failed to get sensor calibration");
+  }
   auto camCalibs = {sensorCalib.value().cameraCalibration()};
 
   // Get gopro's calibration
@@ -224,10 +238,10 @@ int main(int argc, char* argv[]) {
   HandTrackingResultsProvider handTrackingResultsProvider(handTrackingResults);
   XR_LOGI("Loaded and cached hand tracking results: {}", handTrackingResultsProvider.size());
 
-  XR_CHECK_LE(
-      allWorldFrameUids.size(),
-      1,
-      "There are more than one world coordinate frames exist in the input closed loop trajectory / global point cloud / static cameras, so they cannot be visualized together in a single coordinate frame.");
+  if (allWorldFrameUids.size() > 1) {
+    throw std::runtime_error(
+        "There are more than one world coordinate frames exist in the input closed loop trajectory / global point cloud / static cameras, so they cannot be visualized together in a single coordinate frame.");
+  }
 
   // Set 3D boundary based on multiple inputs
   Boundary boundary(replayTraj, fullTrajs);

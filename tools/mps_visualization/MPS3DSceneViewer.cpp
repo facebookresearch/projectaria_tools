@@ -57,11 +57,12 @@ int mps3dSceneViewerCli(int argc, const char** argv) {
 
   CLI11_PARSE(app, argc, argv);
 
-  XR_CHECK(
-      openLoopTrajPath.empty() ||
-          (closedLoopTrajPaths.empty() && globalPointCloudPaths.empty() &&
-           staticCamerasPaths.empty()),
-      "Open loop trajectory should not be visualized together with closed loop trajectory / global point cloud / static cameras, since open loop trajectory is defined on odometry frame, which is different from world frame.");
+  if (!openLoopTrajPath.empty() &&
+      !(closedLoopTrajPaths.empty() && globalPointCloudPaths.empty() &&
+        staticCamerasPaths.empty())) {
+    throw std::runtime_error(
+        "Open loop trajectory should not be visualized together with closed loop trajectory / global point cloud / static cameras, since open loop trajectory is defined on odometry frame, which is different from world frame.");
+  }
 
   std::vector<std::vector<Eigen::Vector3f>> fullTrajs_world;
 
@@ -125,10 +126,10 @@ int mps3dSceneViewerCli(int argc, const char** argv) {
     staticCams.insert(staticCams.end(), cams.begin(), cams.end());
   }
 
-  XR_CHECK_LE(
-      allWorldFrameUids.size(),
-      1,
-      "There are more than one world coordinate frames exist in the input closed loop trajectory / global point cloud / static cameras, so they cannot be visualized together in a single coordinate frame.");
+  if (allWorldFrameUids.size() > 1) {
+    throw std::runtime_error(
+        "There are more than one world coordinate frames exist in the input closed loop trajectory / global point cloud / static cameras, so they cannot be visualized together in a single coordinate frame.");
+  }
 
   // GUI
   MPSData3DGui gui3d(ptClouds, fullTrajs_world, staticCams);

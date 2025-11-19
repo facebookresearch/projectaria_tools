@@ -197,7 +197,9 @@ class PointAndObservationProvider {
     const int64_t timestampNs =
         std::chrono::duration_cast<std::chrono::nanoseconds>(obs.frameCaptureTimestamp).count();
     if (timestampNs > startTimestampNs_ && timestampNs < endTimestampNs_) {
-      XR_CHECK(obs.cameraSerial == leftCameraSerial_ || obs.cameraSerial == rightCameraSerial_);
+      if (!(obs.cameraSerial == leftCameraSerial_ || obs.cameraSerial == rightCameraSerial_)) {
+        throw std::runtime_error("Camera serial must match either left or right camera serial");
+      }
 
       const auto iter = uidPoints_.find(obs.pointUid);
       if (iter == uidPoints_.end()) {

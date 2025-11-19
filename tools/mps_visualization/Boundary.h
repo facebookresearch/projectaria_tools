@@ -25,7 +25,9 @@ class Boundary {
   Boundary(
       const ClosedLoopTrajectory& singleSessionTraj,
       const std::vector<std::vector<Eigen::Vector3f>>& fullTrajs) {
-    XR_CHECK(!singleSessionTraj.empty());
+    if (singleSessionTraj.empty()) {
+      throw std::runtime_error("singleSessionTraj cannot be empty");
+    }
     for (const auto& pose : singleSessionTraj) {
       const auto p = pose.T_world_device.translation().cast<float>();
       updateBoundary(p);
