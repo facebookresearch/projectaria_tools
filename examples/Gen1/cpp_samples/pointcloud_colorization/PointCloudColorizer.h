@@ -28,6 +28,7 @@ namespace {
 // Generic Abstract base class for all GlobalPointCloud colorizers
 class PointCloudColorizer {
  public:
+  // NOLINTNEXTLINE(clang-diagnostic-unused-member-function)
   explicit PointCloudColorizer(
       const projectaria::tools::mps::ClosedLoopTrajectory& trajectory,
       const projectaria::tools::mps::GlobalPointCloud& globalPointCloud,
