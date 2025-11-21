@@ -45,10 +45,10 @@ from tqdm import tqdm
 
 
 WRIST_PALM_TIME_DIFFERENCE_THRESHOLD_NS: int = 2e8
-WRIST_PALM_COLOR: List[int] = [255, 64, 0]
+WRIST_PALM_COLOR: List[int] = [255, 255, 0]
 NORMAL_VIS_LEN = 0.03  # in meters
 NORMAL_VIS_LEN_2D = 120.0  # in pixels
-HAND_LANDMARK_COLORS: Tuple[List[int]] = ([255, 165, 0], [255, 255, 0])
+HAND_LANDMARK_COLORS: Tuple[List[int]] = ([255, 0, 0], [0, 255, 255])
 
 
 def get_camera_projection_from_device_point(
@@ -278,6 +278,7 @@ def log_hand_tracking(
     #
     # Hand Tracking (wrist and palm 3D pose and image projections)
     #
+    assert down_sampling_factor > 0
     logged_hand_tracking_2D_points: bool = False
     logged_hand_tracking_2D_links: bool = False
     logged_hand_tracking_3D: bool = False
@@ -476,6 +477,7 @@ def log_single_hand_landmarks(
     rgb_stream_label: str,
     down_sampling_factor: int,
 ) -> None:
+    assert down_sampling_factor > 0
     handedness = 0 if hand_label == "left" else 1
     ################# Plot single hand in 3D views #################
     # Plot 3D hand markers and skeleton
@@ -543,6 +545,7 @@ def log_wrist_and_palm(
     rgb_stream_label: str,
     down_sampling_factor: int,
 ) -> None:
+    assert down_sampling_factor > 0
     ## Draw wrist and palm 3D points we collected from both hands above.
     if wrist_points and palm_points:
         # Log wrist and palm 3D points
