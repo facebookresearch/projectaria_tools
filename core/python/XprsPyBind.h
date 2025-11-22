@@ -56,24 +56,22 @@ inline bool xprsFrameToImageData(xprs::Frame& xprsFrame, ImageData& imageData) {
   }
 
   // SW decoder returns YUV420P, HW decoder returns NV12 for RGB image
+  std::vector<uint8_t> outDecodedFrame;
+  outDecodedFrame.resize(static_cast<size_t>(width) * height * 3);
   if (xprsFrame.fmt == xprs::PixelFormat::YUV420P) {
-    std::vector<uint8_t> outDecodedFrame;
-    outDecodedFrame.resize(static_cast<size_t>(width) * height * 3);
     convertDecodedYuv420ToRgb8(xprsFrame, outDecodedFrame, width, height);
-
-    // Copy to pixel frame
-    auto outputPixelFrame =
-        std::make_shared<vrs::utils::PixelFrame>(vrs::PixelFormat::RGB8, width, height, width * 3);
-
-    std::copy(
-        outDecodedFrame.begin(), outDecodedFrame.end(), outputPixelFrame->getBuffer().begin());
-    imageData.pixelFrame = std::move(outputPixelFrame);
-
-    return true;
+  } else if (xprsFrame.fmt == xprs::PixelFormat::NV12) {
+    convertDecodedNv12ToRgb8(xprsFrame, outDecodedFrame, width, height);
   } else {
     fmt::print("Unsupported pixel format\n");
     return false;
   }
+  // Copy to pixel frame
+  auto outputPixelFrame =
+      std::make_shared<vrs::utils::PixelFrame>(vrs::PixelFormat::RGB8, width, height, width * 3);
+  std::copy(outDecodedFrame.begin(), outDecodedFrame.end(), outputPixelFrame->getBuffer().begin());
+  imageData.pixelFrame = std::move(outputPixelFrame);
+  return true;
 }
 
 void declareXprsDecoding(py::module& module) {

@@ -24,17 +24,26 @@
 
 namespace projectaria::tools::data_provider {
 
-/** @brief A helper function to convert RGB frame from YUV420 to RGB format, using Ocean library */
+/** @brief A helper function to convert RGB frame from YUV420 (SW decoding) to RGB format, using
+ * Ocean library */
 void convertDecodedYuv420ToRgb8(
     const vrs::utils::PixelFrame& inputFrame,
     vrs::utils::PixelFrame& outConvertedFrame,
     uint32_t w,
     uint32_t h);
 
-/** @brief A helper function to convert RGB frame from YUV420 to RGB format, using Ocean library.
- Overload with output data type being std::vector<uint8_t>. */
+/** @brief A helper function to convert RGB frame from YUV420 (SW decoding) to RGB format, using
+ Ocean library. Overload with output data type being std::vector<uint8_t>. */
 void convertDecodedYuv420ToRgb8(
     const xprs::Frame& inputXprsFrame,
+    std::vector<uint8_t>& outConvertedFrame,
+    uint32_t w,
+    uint32_t h);
+
+/** @brief A helper function to convert RGB frame from NV12 (HW decoding) to RGB format, using Ocean
+library. Overload with output data type being std::vector<uint8_t>. */
+void convertDecodedNv12ToRgb8(
+    const xprs::Frame& xprsFrame,
     std::vector<uint8_t>& outConvertedFrame,
     uint32_t w,
     uint32_t h);
