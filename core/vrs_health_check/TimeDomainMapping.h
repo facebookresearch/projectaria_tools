@@ -18,7 +18,7 @@
 
 #include "Periodic.h"
 
-#include <data_provider/players/TimeSyncPlayer.h>
+#include <players/TimeSyncPlayer.h>
 
 namespace projectaria::tools::vrs_check {
 
