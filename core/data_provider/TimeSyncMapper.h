@@ -22,7 +22,7 @@
 #include <vrs/MultiRecordFileReader.h>
 #include <vrs/StreamId.h>
 
-#include <data_provider/players/TimeSyncPlayer.h>
+#include <players/TimeSyncPlayer.h>
 
 namespace projectaria::tools::data_provider {
 // maps between device time and timecode time

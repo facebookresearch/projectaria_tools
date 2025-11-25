@@ -29,12 +29,12 @@
 #include <data_provider/players/MotionSensorPlayer.h>
 #include <data_provider/players/PpgPlayer.h>
 #include <data_provider/players/TemperaturePlayer.h>
-#include <data_provider/players/TimeSyncPlayer.h>
 #include <data_provider/players/VioPlayer.h>
 #include <data_provider/players/WifiBeaconPlayer.h>
 #include <mps/EyeGaze.h>
 #include <mps/HandTracking.h>
 #include <mps/Trajectory.h>
+#include <players/TimeSyncPlayer.h>
 
 #include <vrs/StreamId.h>
 
