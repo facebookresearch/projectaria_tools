@@ -101,4 +101,23 @@ void convertDecodedYuv420ToRgb8(
       sourceFrameType, sourcePlaneInitializers, outConvertedFrame.data(), w, h);
 }
 
+void convertDecodedNv12ToRgb8(
+    const xprs::Frame& xprsFrame,
+    std::vector<uint8_t>& outConvertedFrame,
+    uint32_t w,
+    uint32_t h) {
+  Ocean::FrameType sourceFrameType(
+      w, h, Ocean::FrameType::FORMAT_Y_UV12, Ocean::FrameType::ORIGIN_UPPER_LEFT); // NV12
+  Ocean::Frame::PlaneInitializers<uint8_t> sourcePlaneInitializers = {
+      {xprsFrame.planes[0],
+       Ocean::Frame::CM_USE_KEEP_LAYOUT,
+       static_cast<uint32_t>(xprsFrame.stride[0] - xprsFrame.width)},
+      {xprsFrame.planes[1],
+       Ocean::Frame::CM_USE_KEEP_LAYOUT,
+       static_cast<uint32_t>(xprsFrame.stride[1] - xprsFrame.width)},
+  };
+  convertToRgbAndCopyToRawPtr(
+      sourceFrameType, sourcePlaneInitializers, outConvertedFrame.data(), w, h);
+}
+
 } // namespace projectaria::tools::data_provider
