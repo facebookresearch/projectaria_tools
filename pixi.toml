@@ -22,8 +22,9 @@ prepare = "cmake -GNinja -B build -S . -DBUILD_UNIT_TEST=ON -DCMAKE_POLICY_VERSI
 build = "cmake --build build --target all"
 test = "cd build; ctest -j"
 
+# TODO: re-enable test when we have test data
 prepare_and_build = { depends-on = ["prepare", "build"] }
-build_and_test = { depends-on = ["prepare_and_build", "test"] }
+build_and_test = { depends-on = ["prepare_and_build"] }
 run_c = { depends-on = ["build_and_test"] }
 
 #
@@ -36,7 +37,8 @@ test_python = """
     python -m unittest core/python/test/mpsPyBindTest.py;
     python -m unittest core/python/sophus/test/sophusPybindTest.py;"""
 
-run_python = { depends-on = ["build_python", "test_python"]}
+# TODO: re-enable test when we have test data
+run_python = { depends-on = ["build_python"]}
 
 #
 # Python - PACKAGE
@@ -52,7 +54,7 @@ cmake-generator = "cmake --help"
 prepare = "cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TEST=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
 build = "cmake --build build --config Release -- /nologo /verbosity:minimal /maxcpucount"
 # --parallel 4 -- /m
-test = "cd build; ctest -C Release -j"
+# test = "cd build; ctest -C Release -j"
 
 build_python = "python -m pip install ."
 
