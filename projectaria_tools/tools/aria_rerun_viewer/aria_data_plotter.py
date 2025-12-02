@@ -145,6 +145,9 @@ class AriaDataViewerConfig:
 
     enable_gps = False
 
+    # rerun memory limit (default parameter is 75% of available memory)
+    rerun_memory_limit = "75%"
+
 
 class AriaDataViewer:
     """
@@ -219,11 +222,6 @@ class AriaDataViewer:
         """
         Initialization - supports both streaming and recording modes
         """
-        if rrd_output_path:
-            rr.init("AriaDataViewer", spawn=False)
-            rr.save(rrd_output_path)
-        else:
-            rr.init("AriaDataViewer", spawn=True)
 
         self.config = config if config is not None else AriaDataViewerConfig()
         # A variable to cache full VIO high frequency trajectory
@@ -231,6 +229,13 @@ class AriaDataViewer:
         # A variable to cache full VIO trajectory
         self.vio_traj_cached_full = []
         # Scale ratio to convert plot sizes from RGB camera space to SLAM camera space (based on camera resolution ratio)
+
+        if rrd_output_path:
+            rr.init("AriaDataViewer", spawn=False)
+            rr.save(rrd_output_path)
+        else:
+            rr.init("AriaDataViewer")
+            rr.spawn(memory_limit=config.rerun_memory_limit)
 
         if device_calibration is not None:
             self.device_calibration = device_calibration
