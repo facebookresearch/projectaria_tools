@@ -106,7 +106,7 @@ Then we use Newton method to inverse the function $r(\theta)$ to compute $\theta
 
 ## The Fisheye62 model
 
-The Fisheye62 model adds tangential distortion on top of the KB3 model parametrized by two new coefficients: p_0 p_1.
+The Fisheye62 model adds two more radial distortion parameters, resulting in 6 radial distortation parameters in total, and tangential distortion on top of the KB3 model parametrized by two new coefficients: p_0 p_1.
 $$
     u = f_x . (u_r + t_x(u_r, v_r))  + c_x, \\
     v = f_y . (v_r + t_y(u_r, v_r))  + c_y.
