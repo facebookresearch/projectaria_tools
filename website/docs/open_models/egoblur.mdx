@@ -9,8 +9,7 @@ title: EgoBlur
 
 EgoBlur is an open source AI model from Meta to preserve privacy by detecting and blurring PII from images. We provide two FasterRCNN-based detector models, for face blurring and license plates, and perform consistently across the full range of ‘responsible AI labels’, as defined by the [CCV2 dataset](https://ai.meta.com/datasets/casual-conversations-v2-dataset/).
 
-### Gen 1 models
-Gen1 models are on-par with the other publicly available anonymization models on non-egocentric data, while significantly outperforming other models on egocentric data that is collected using Project Aria glasses.
+Our models are on-par with the other publicly available anonymization models on non-egocentric data, while significantly outperforming other models on egocentric data that is collected using Project Aria glasses.
 
 * Trained on 23M images, 790M bounding boxes.
 * The EgoBlur face and license plate models are approximately 400 MB each and have ~104 million parameters.
@@ -18,18 +17,6 @@ Gen1 models are on-par with the other publicly available anonymization models on
 * Benchmarked against the [Aria Pilot Dataset](https://www.projectaria.com/datasets/apd/) and the [CCV2 Dataset](https://ai.meta.com/datasets/casual-conversations-v2-dataset/).
 * EgoBlur models are only trained to locate the position of faces and license plates of vehicles within color or grayscale images. The models are not used to track or identify individual faces or license plates.
 * EgoBlur tooling is available to apply the models to PNG, JPEG, MP4 and VRS files.
-
-### Gen 2 models
-* Face model is fine-tuned on the Gen1 face model with 250k images, 316k bounding boxes
-  * 90k images with 292k bounding boxes from non-egocentric data. 160k images with 24k bounding boxes from Aria Gen2 data.
-* License plate model is trained on 622k images, 676k bounding boxes
-  * 584k images with 629k bounding boxes from non-egocentric data. 38k images with 47k bounding boxes from Aria Gen1 data.
-* The EgoBlur face and license plate models are approximately 400 MB each and have ~104 million parameters.
-* Based on the Faster RCNN model with a ResNext backbone. The models are trained using Meta’s publicly available [Detectron2](https://ai.meta.com/tools/detectron2/) and [Detectron2go](https://ai.meta.com/blog/d2go-brings-detectron2-to-mobile/) libraries.
-* Benchmarked against internal Aria Gen2 Evaluation Dataset.
-* EgoBlur models are only trained to locate the position of faces and license plates of vehicles within color or grayscale images. The models are not used to track or identify individual faces or license plates.
-* EgoBlur tooling is available to apply the models to PNG, JPEG and MP4 files.
-
 
 ### Further reading
 
@@ -41,9 +28,9 @@ Gen1 models are on-par with the other publicly available anonymization models on
 
 To demonstrate how EgoBlur models can be applied and to support privacy preserving research we provide:
 
-* EgoBlur Demo - Python3 tool for working with PNG, JPEG or MP4 files - Both Gen1 and Gen2 models are supported.
-    * Go to the [EgoBlur Readme](https://github.com/facebookresearch/EgoBlur/blob/main/README.md) for detailed instructions.
-* EgoBlur VRS Utilities - C++ tool for working with Aria VRS files - Only Gen1 models are supported.
-    * Go to the [EgoBlur VRS Utilities Readme](https://github.com/facebookresearch/EgoBlur/blob/main/gen1/tools/tools/README.md) for detailed instructions.
+* EgoBlur VRS Utilities - C++ tool for working with Aria VRS files
+    * Go to the [EgoBlur VRS Utilities Readme](https://github.com/facebookresearch/EgoBlur/blob/main/tools/README.md) for detailed instructions
+* EgoBlur Demo - Python3 tool for working with PNG, JPEG or MP4 files
+    * Go to the [EgoBlur Readme](https://github.com/facebookresearch/EgoBlur/blob/main/README.md) for detailed instructions
 
 For these tools, we focused our testing on Fedora 37 and Ubuntu 22.04/20.04 with Nvidia V100 16GB GPU and CUDA 12.1.
