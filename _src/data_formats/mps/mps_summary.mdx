@@ -1,0 +1,105 @@
+---
+sidebar_position: 10
+title: Basics
+---
+This page provides an overview of how Project Aria [Machine Perception Services (MPS)](/docs/ARK/mps) output files are formatted.
+
+MPS provides derived data generated from Aria raw data (VRS files).
+
+* Go to [MPS Overview](/ARK/mps/mps.mdx) for an introduction to MPS
+* Go to [Request MPS](/ARK/mps/request_mps/mps_cli.mdx) for how to request MPS on Aria raw data, if you have access to the [Aria Research Kit](https://www.projectaria.com/research-kit/)
+
+
+## MPS File Structure
+
+MPS outputs use the following structure, in this example recording1.vrs was used to generate MPS.
+
+```
+    └── Example folder
+        ├── mps_recording1_vrs
+        │   ├── eye_gaze
+        │   │   ├── general_eye_gaze.csv
+        │   │   └── summary.json
+        │   ├── slam
+        │   │   ├── closed_loop_trajectory.csv
+        │   │   ├── online_calibration.jsonl
+        │   │   ├── open_loop_trajectory.csv
+        │   │   ├── semidense_observations.csv.gz
+        │   │   ├── semidense_points.csv.gz
+        │   │   └── summary.json
+        │   ├── hand_tracking
+        │   │   ├── wrist_and_palm_poses.csv
+        │   │   └── summary.json
+        │   ├── vrs_health_check.json
+        │   └── vrs_health_check_slam.json
+        └── recording1.vrs
+```
+
+* mps_[name of VRS file]_vrs
+    * Sibling directory where all the intermediate data and MPS output is saved
+* vrs_health_check.json
+    * Output of the health check performed on your computer before data is uploaded
+    * Contains information about data drops in all the sensor streams
+* vrs_health_check_slam.json
+    * Summary of SLAM specific checks on the VRS files
+    * If the health check fails it will contain details about which health checks failed
+* slam folder
+    * Contains outputs after running SLAM (Trajectory and Semi-Dense Point Cloud data)
+* eye_gaze folder
+    * Contains eye gaze outputs
+
+
+## Common terminologies
+
+### graph_uid
+
+`graph_uid` is a unique identifier for the world coordinate frame. For all the 3D geometric instances like pose and points in the world frames (having _world in the suffix), when they have the same graph_uid, they are in the same coordinate frame.
+
+For simulation (such as [Aria Synthetic Environments](open_datasets/aria_synthetic_environments_dataset/ase_getting_started.mdx)) and [Aria Digital Twin(ADT)](/docs/open_datasets/aria_digital_twin_dataset) datasets we use the same random value for one space, e.g. the same graph_uid for one ADT/simulation space.
+
+### tracking_timestamp_us
+`tracking_timestamp_us`'s values are shaped by whether it is real world or synthetic data.
+
+For real world data, `tracking_timestamp_us` provides the Device timestamps from your Aria glasses. Go to [Timestamps in Aria VRS](/docs/data_formats/aria_vrs/timestamps_in_aria_vrs) for a definition of the device timestamps.
+
+In simulation datasets, this will be the timestamp in the simulator.
+
+In `tracking_timestamp_us`
+* This clock has arbitrary starting points, which are not synchronized between recording sessions or devices.
+* This clock is strictly monotonic, has stable clock speed, and is accurate in duration
+   * If you want to compute the time duration between two timestamps (especially when touching dynamics, e.g. integrating acceleration to velocity over time), you should use this timestamp.
+
+### utc_timestamp_ns
+
+`utc_timestamp_ns` is the timestamp from Aria real-time clock (RTC). This time is synchronized to the cell phone time via the Aria Mobile Companion app to get UTC time at the beginning of the recording which is a rough estimate of the external standard clock.
+
+* This clock is not available in the simulation datasets.
+* This clock provides rough synchronization between sessions and devices.
+* This clock is not guaranteed to be monotonic, or have stable clock speed, due to synchronization with NTP. So do not compute duration between two UTC timestamps.
+
+## Operator summary
+
+The operator summary includes individual operator’s status and whether the operation was successful. There are three possible status flags:
+
+* **SUCCESS**: the operator successfully finished, without known issues.
+* **WARNING**: The operator finished, but internally it detected problem(s) that may affect results quality. The operator still outputs the results, but we don’t have confidence in the quality of the results, so consume the results with caution.
+* **ERROR**: the operator did not finish, finished with major error, or the quality of the results are too bad to be consumed. Results may or may not be generated, and any results should not be consumed.
+
+The summary also provides information about processes as well as any warning or error messages available
+
+Summary JSON output example:
+
+```json
+
+    "SLAM": {
+        "status": "SUCCESS",
+        "info": [
+            "Recording total time: 1104.00s; Trajectory total length: 155.42m",
+            "Total Vision Translational Correction (mm): p50: 0.048; p99: 0.451",
+            "Rotational Correction (deg): p50: 0.001; p99: 0.007"
+        ],
+        "warnings": [],
+        "errors": []
+    },
+...
+```

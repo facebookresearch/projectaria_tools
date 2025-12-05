@@ -1,0 +1,41 @@
+---
+sidebar_position: 20
+title: Troubleshooting & Known Issues
+---
+# ARK Troubleshooting & Known Issues
+
+## Overview
+This page provides troubleshooting information for issues you may encounter while using the [Aria Research Kit (ARK)](https://www.projectaria.com/research-kit/).
+
+It covers:
+  - [Device and Recording Issues](#device-and-recording-issues)
+
+
+#### Further resources
+* [Glasses Manual](/ARK/glasses_manual/glasses_user_manual.mdx)
+  * Information about LED States, button configuration, how to factory reset and power cycle your device.
+* [MPS Troubleshooting and Error Codes](/ARK/mps/mps_troubleshooting.mdx)
+  * For MPS CLI.
+* [Client SDK & CLI Troubleshooting & Known Issues](/ARK/sdk/sdk_troubleshooting.mdx)
+
+If you need further support, have feedback or feature requests, go to our [Support page](/support.mdx).
+
+
+## Device and Recording Issues
+
+### I can't start recording
+
+Check that the privacy switch is not engaged. The switch should be pushed forward (towards the lenses of your device) for recording to be possible.
+
+![Aria Privacy Switch](/img/ARK/glasses_manual/aria_privacy_switch.png)
+
+### Where's my recording?
+
+It is possible you may have accidentally discarded your recording.  Do not use the privacy switch to stop recording, as it prevents recording and deletes any current recording.
+
+### Stop recording does not work/ has a long delay
+The longer a device records for, the longer it takes for a recording to stop. This is because the larger the VRS file, the longer it takes a recording to finish indexing.
+
+:::note
+Recording has not fully stopped until the Recording LEDs have turned off
+:::
