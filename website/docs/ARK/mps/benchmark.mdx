@@ -1,0 +1,40 @@
+---
+sidebar_position: 35
+title: MPS Benchmark
+---
+
+# MPS Hand Tracking Algorithm Performance Benchmark
+
+This page presents the performance evaluation of the MPS Hand Tracking algorithm for Aria Gen1 glasses.
+
+## Benchmark Dataset
+
+3D evaluation is conducted on the **HOT3D Aria split**, a publicly available dataset for hand-object interaction research.
+
+- **Dataset**: [HOT3D](https://www.projectaria.com/datasets/hot3D/)
+- **Total Duration**: 400 minutes of Aria Gen1 recordings
+- **Number of Participants**: 19
+- **Ground Truth Source**: Motion Capture (MoCap)
+
+## Evaluation Metrics
+
+We report the following metrics (lower is better for both):
+
+| Metric | Description |
+|--------|-------------|
+| **LTR** (Lose Track Ratio) | The ratio of frames where the hand is not tracked successfully. |
+| **MKPE** (Mean Keypoint Error) | The mean 3D distance error over all hand keypoints and all frames, measured in millimeters. |
+
+## Results
+
+| MPS HT Version | LTR (%) ↓ | MKPE (mm) ↓ |
+|----------------|-----------|-------------|
+| MPS HT 2.0.0 | 6.31 | 51.97 |
+| **MPS HT 3.0.0** | **3.94** | **22.80** |
+
+
+## About HOT3D Dataset
+
+HOT3D is a large-scale dataset for egocentric hand and object tracking in 3D. The Aria split of HOT3D provides diverse hand-object interaction scenarios captured with Aria Gen1 glasses, making it an ideal benchmark for evaluating hand tracking algorithms in real-world conditions.
+
+For more information about the HOT3D dataset, visit the [Project Aria Datasets page](https://www.projectaria.com/datasets/hot3D/).
