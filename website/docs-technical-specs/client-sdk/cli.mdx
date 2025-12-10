@@ -312,17 +312,33 @@ Control device streaming and manage streaming certificates.
 Start streaming from the device.
 
 **Options:**
-- `--url <url>`: Streaming endpoint URL (default: `https://oatmeal_server.local:6768`)
-- `--profile <profile_name>`: Streaming profile name (default: `mp_streaming_demo`)
-- `--streaming-cert-name <name>`: Pre-installed streaming certificate name
-- `--verify-server-certs` / `--no-verify-server-certs`: Verify server certificates (default: no verification)
-- `--use-ephemeral-certs`: Use ephemeral streaming certificates
-- `--local-certs-dir <path>`: Local streaming certificates directory
-- `--keep-streaming-on-disconnection`: Continue streaming after WiFi disconnection
 
+| Option | Values | Default | Description |
+|--------|--------|---------|-------------|
+| `--profile` | Profile name | `mp_streaming_demo` | Streaming profile name |
+| `--json-profile` | Path to JSON file | - | Streaming profile JSON file for custom configurations. See [custom profile example](/technical-specs/device/profile#custom_profile_example) |
+| `--interface` | `usb`, `wifi_sta`, `wifi_sap` | `usb` | Streaming interface. Use `usb` for USB streaming, `wifi_sta` for WiFi network streaming, `wifi_sap` for on-device hotspot streaming |
+| `--batch-period-ms` | Integer (ms) | `0` | Batch period for messages during streaming. Default 0ms for real-time streaming. Set to > 0ms to reduce thermal load for wireless streaming |
+| `--url` | URL string | `https://oatmeal_server.local:6768` | Streaming endpoint URL |
+| `--streaming-cert-name` | Certificate name | - | Pre-installed streaming certificate name |
+| `--verify-server-certs` / `--no-verify-server-certs` | Boolean | No verification | Verify server certificates |
+| `--use-ephemeral-certs` | Flag | - | Use ephemeral streaming certificates |
+| `--local-certs-dir` | Path | - | Local streaming certificates directory |
+| `--keep-streaming-on-disconnection` | Flag | - | Continue streaming after WiFi disconnection |
+
+**Examples:**
 ```bash
-# Start streaming over USB
+# USB streaming (default)
 aria_gen2 streaming start
+
+# WiFi streaming with 200ms batch period
+aria_gen2 streaming start --interface wifi_sta --batch-period-ms 200
+
+# Hotspot streaming with 800ms batch period
+aria_gen2 streaming start --interface wifi_sap --batch-period-ms 800
+
+# USB streaming with custom profile JSON
+aria_gen2 streaming start --json-profile /path/to/custom_profile.json
 
 # Start streaming with custom URL
 aria_gen2 streaming start --url https://192.168.1.100:8080

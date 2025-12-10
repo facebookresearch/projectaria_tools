@@ -9,6 +9,44 @@ This page tracks the version history and changes made to the Aria Gen2 ClientSDK
 
 ---
 
+## Version 2.2.0
+
+**Release Date:** Dec 2025
+
+### New Features
+
+#### macOS Support
+
+ClientSDK now supports macOS, enabling developers on Apple hardware to work with Aria Gen2 devices natively.
+
+**Key additions:**
+- Full Python SDK support on macOS (Apple Silicon and Intel)
+- Hardware-accelerated image decoding for improved performance on macOS
+- Native USB network connection support via Companion App pairing
+- All CLI tools (`aria_gen2`, `aria_doctor`) available on macOS
+
+**Supported platforms:**
+- macOS 13 (Ventura) and later
+- Python versions: 3.10 - 3.12
+
+#### Wireless Streaming
+
+Added support for wireless data streaming from Aria Gen2 devices over WiFi, providing greater flexibility and mobility during development and testing.
+
+**Key capabilities:**
+- **WiFi Router Streaming**: Stream data from Aria devices connected to the same WiFi network as your development machine
+- **On-Device Hotspot Streaming**: Connect directly to Aria's built-in WiFi hotspot for standalone wireless streaming without requiring external network infrastructure
+
+**Benefits:**
+- Untethered development workflows - no USB cable required for streaming
+- Improved mobility for testing in various environments
+- Simplified setup for multi-device scenarios
+
+**Resources:**
+- See the [Wireless Streaming Guide](/ark/client-sdk/streaming#wireless-streaming) for setup instructions and best practices
+
+---
+
 ## Version 2.1.0
 
 **Release Date:** Nov 2025

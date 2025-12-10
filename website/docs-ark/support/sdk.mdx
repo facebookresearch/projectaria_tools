@@ -7,6 +7,43 @@ This page provides solutions to common issues when using the ClientSDK with your
 
 ---
 
+## Frequently Asked Questions
+
+Find quick answers to common questions. Click on any question to jump to the detailed solution.
+
+### Device Connection
+- [What should I do if my device cannot be found by the SDK?](#device-not-detected)
+- [Why is my device not showing up when I run `aria_gen2 device list`?](#device-not-detected)
+- [How do I fix USB connection issues?](#solution-4-check-usb-connection)
+
+### Authentication
+- [Why can't I authenticate my device?](#cannot-authenticate-device)
+- [How do I pair my device with the SDK?](#solution-3-retry-authentication)
+- [Do I need to authenticate every time I connect?](#solution-5-check-authentication-status)
+
+### Recording
+- [Why can't I start a recording?](#cannot-start-recording)
+- [How do I download recordings from my device?](#cannot-download-recording)
+- [Why is my recording download failing?](#cannot-download-recording)
+
+### USB Streaming
+- [Why won't streaming start?](#streaming-wont-start)
+- [Why is my streaming viewer not showing any data?](#viewer-not-showing-data-usb)
+- [How do I fix poor streaming performance?](#poor-usb-streaming-performance)
+
+### Wireless Streaming
+- [Why can't I connect to WiFi streaming?](#wireless-streaming-issues)
+- [Why doesn't streaming work on my guest network?](#guest-networks-cannot-be-used-for-peer-to-peer-streaming)
+- [How do I stream over WiFi?](#connect-device-and-pc-to-the-same-network)
+
+### General Issues
+- [Why are my commands hanging or timing out?](#commands-hang-or-timeout)
+- [What should I do if my device is getting too hot?](#high-device-temperature)
+- [How do I update the ClientSDK?](#cannot-update-clientsdk)
+- [How do I fix GLIBCXX errors on Linux?](#glibcxx-error-on-ubuntu-22-linux)
+
+---
+
 ## First Steps: Update to Latest Versions
 
 :::tip Always Start Here
@@ -427,6 +464,32 @@ aria_streaming_viewer
 * Ensure `aria_doctor` has been run
 * Check firewall settings aren't blocking viewer
 * Try restarting both streaming and viewer with fresh terminals
+
+---
+
+## Wireless Streaming Issues
+
+If you cannot connect to streaming data over WiFi, check the following:
+
+### Stable Device OS Version
+
+Ensure your Aria device is running the latest OS version. Update to the latest OS version from the Mobile Companion App if needed.
+
+### Connect Device and PC to the Same Network
+
+Device streaming data can only be discovered when both devices are on the same network. Verify:
+* Your PC's internet connection is working
+* The WiFi or hotspot is connected to the same network as the Aria device
+* Both devices can reach each other on the network
+
+### Guest Networks Cannot Be Used for Peer-to-Peer Streaming
+
+Guest networks (e.g., `XXX-GUEST`) do not allow peer-to-peer communication, which is required for streaming.
+
+**Solution:** Connect to a different WiFi access point that allows peer-to-peer communication, such as:
+* Your home WiFi router
+* A personal mobile hotspot
+* Any network that permits device-to-device communication
 
 ---
 

@@ -27,6 +27,8 @@ Select the streaming method that best fits your use case:
 | Method | Best For | Pros | Cons |
 |--------|----------|------|------|
 | **[USB Streaming](#usb-streaming)** | Extended sessions, highest quality | Most reliable, no thermal issues | Requires cable connection |
+| **[WiFi Router Streaming](#wifi-router-streaming)** | Untethered development, mobility | Wireless freedom, good for demos | Thermal concerns, requires network |
+| **[On-Device Hotspot Streaming](#on-device-hotspot-streaming)** | Field work, no network available | No external network needed | Highest thermal impact, limited duration |
 
 :::tip Getting Started
 **New to streaming?** Start with [USB Streaming](#usb-streaming) - it's the simplest and most reliable method.
@@ -55,7 +57,7 @@ aria_gen2 device list
 aria_gen2 streaming start
 
 # 3. In another terminal, visualize the stream
-aria_streaming_viewer --real-time --interpolate
+aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
 
 # 4. When done, stop streaming
 aria_gen2 streaming stop
@@ -95,31 +97,188 @@ aria_gen2 auth check
 
 ---
 
+## Wireless Streaming
+
+Wireless streaming allows you to stream data from your Aria Gen2 device over WiFi, eliminating the need for a USB cable. This is useful for untethered development, demos, and testing in various environments.
+
+:::info USB Connection Required for Device Controls
+All device controls, including **starting and stopping streaming**, require a USB connection. For wireless streaming:
+1. Connect the device via USB to start streaming
+2. Unplug the USB cable after streaming has started
+3. Plug the device back in via USB when you need to stop streaming
+:::
+
+:::warning Thermal Considerations
+Wireless streaming generates more heat than USB streaming due to WiFi radio activity. You **must** configure message batching using the `--batch-period-ms` option to manage thermal performance and prevent the device from overheating (thermal throttle at 42°C).
+:::
+
+### Message Batching
+
+The `--batch-period-ms` option controls how messages are batched before being sent from the device. This reduces transmission overhead and optimizes thermal performance.
+
+**How it works:**
+- Messages are collected and batched over the specified period (in milliseconds)
+- Batched messages are sent together, reducing WiFi transmission overhead
+- Higher batch periods = better thermal performance but increased latency
+- The batch period represents the **worst-case delay** for live streaming
+
+**Trade-off:**
+| Batch Period | Thermal Performance | Latency | Use Case |
+|--------------|---------------------|---------|----------|
+| 100ms | Poor (near thermal limit) | Low | Short demos, testing |
+| 200-400ms | Moderate | Medium | General wireless use |
+| 500-800ms | Good | High | Extended wireless sessions |
+
+---
+
+## WiFi Router Streaming
+
+Stream data from Aria devices connected to the same WiFi network as your development machine.
+
+### When to Use WiFi Router Streaming
+
+* **Untethered development**: Move freely without cable constraints
+* **Demos**: Show live streaming without visible cables
+* **Multi-room testing**: Stream while moving between areas
+* **Sessions > 30 minutes**: With appropriate batch period settings
+
+### Prerequisites
+
+1. **Same network**: Both Aria device and computer must be on the same WiFi network
+2. **Network ports**: Ensure streaming ports are accessible on your network (default port: 6768)
+3. **Device connected**: Connect Aria to your WiFi network via the Companion App or via CLI
+
+### Quick Start
+
+```bash
+# 1. Connect device via USB first for initial setup
+aria_gen2 device list
+
+# 2. Verify device is on WiFi (check Companion App)
+
+# 3. Start streaming with batch period for thermal management
+#    Use 200ms batch period for a balance of latency and thermal performance
+aria_gen2 streaming start --batch-period-ms 200
+
+# 4. Unplug the USB cable - streaming will continue over WiFi
+
+# 5. In another terminal, visualize the stream
+aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
+
+# 6. When done, plug the USB cable back in, then stop streaming
+aria_gen2 streaming stop
+```
+
+### Recommended Batch Periods for WiFi Router
+
+*These are preliminary testing results and may vary across environments and devices.*
+
+| Environment | Batch Period | Notes |
+|-------------|--------------|-------|
+| Cool environment (below 25°C) | `--batch-period-ms 100` | Near thermal limit, monitor closely |
+| Normal room temperature | `--batch-period-ms 200` | Recommended starting point |
+| Warm environment (above 28°C) | `--batch-period-ms 400` | More conservative for thermal safety |
+
+:::caution
+With `--batch-period-ms 100`, we have observed the device nearly reaching thermal throttle (42°C) during WiFi router streaming. Actual thermal behavior depends on your operating environment temperature. Start with higher batch periods and reduce if you need lower latency.
+:::
+
+---
+
+## On-Device Hotspot Streaming
+
+Connect directly to Aria's built-in WiFi hotspot for standalone wireless streaming without requiring external network infrastructure.
+
+### When to Use On-Device Hotspot Streaming
+
+* **Field work**: No external WiFi network available
+* **Quick demos**: Simple setup without network configuration
+* **Isolated testing**: When you can't access local networks
+* **Short sessions only**: Due to high thermal impact
+
+:::danger Important Thermal Warning
+**On-device hotspot streaming generates significant heat** because the device acts as both a WiFi access point AND performs streaming simultaneously.
+
+Even with aggressive batching (800ms), the device will overheat during extended use.
+
+**Recommendations:**
+- **Do NOT use for sessions longer than 20 minutes**
+- Take breaks to let the device cool down
+- Monitor device temperature closely
+- Consider USB streaming for longer sessions
+:::
+
+### Prerequisites
+
+1. **Enable hotspot**: Enable the hotspot feature on Aria via the Companion App
+2. **Connect computer**: Connect your development machine to Aria's WiFi hotspot
+
+### Quick Start
+
+```bash
+# 1. Enable hotspot on Aria device via Companion App or CLI:
+#    aria_gen2 device hotspot start
+
+# 2. Connect device via USB to start streaming
+aria_gen2 device list
+
+# 3. Connect your computer to Aria's WiFi hotspot
+
+# 4. Start streaming with aggressive batching for thermal management
+#    800ms batch period is recommended to extend usable time
+aria_gen2 streaming start --batch-period-ms 800
+
+# 5. Unplug the USB cable - streaming will continue over WiFi hotspot
+
+# 6. In another terminal, visualize the stream
+aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
+
+# 7. When done, plug the USB cable back in, then stop streaming
+#    Stop before 20 minutes to prevent overheating
+aria_gen2 streaming stop
+```
+
+### Recommended Settings for Hotspot Streaming
+
+*These are preliminary testing results and may vary across environments and devices.*
+
+| Session Length | Batch Period | Notes |
+|----------------|--------------|-------|
+| Under 10 minutes | `--batch-period-ms 500` | Short demo, higher risk |
+| 10-20 minutes | `--batch-period-ms 800` | Maximum recommended duration |
+| Over 20 minutes | **Not recommended** | Use USB streaming instead |
+
+### Hotspot Streaming Limitations
+
+| Limitation | Impact | Mitigation |
+|------------|--------|------------|
+| High thermal load | Device overheats | Limit to 20 min sessions max |
+| Battery drain | Faster battery consumption | Keep device charged |
+| Higher latency | 500-800ms delay | Not suitable for real-time critical applications |
+| Single client | Only one device can connect | Use WiFi router for multi-client scenarios |
+
+---
+
+:::tip Wireless Streaming Troubleshooting
+If you encounter issues with wireless streaming, see the [Wireless Streaming Troubleshooting Guide](/ark/support/sdk#wireless-streaming-issues) for common solutions.
+:::
+
+---
+
 ## Streaming Commands Reference
 
-### Start Streaming
+For complete streaming command documentation, including all available options, see the [CLI Reference - Streaming Commands](/technical-specs/client-sdk/cli#streaming-commands).
+
+**Quick Reference:**
 
 ```bash
-aria_gen2 streaming start [OPTIONS]
-```
-
-**Options:**
-
-| Option | Values | Default | Description |
-|--------|--------|---------|-------------|
-| `--profile` | Profile name | `mp_streaming_demo` | Streaming profile |
-
-**Examples:**
-```bash
-# USB streaming (default)
+# Start streaming (USB)
 aria_gen2 streaming start
-```
 
-### Stop Streaming
+# Start streaming (WiFi with batch period)
+aria_gen2 streaming start --interface wifi_sta --batch-period-ms 200
 
-Connect device via USB, then stop streaming:
-
-```bash
+# Stop streaming
 aria_gen2 streaming stop
 ```
 
