@@ -20,7 +20,8 @@ This tutorial demonstrates how to access and visualize **Machine Perception Serv
 
 - How to load and access MPS SLAM trajectory data (open loop and closed loop)
 - How to load and visualize MPS semi-dense point clouds and observations
-- How to create 3D visualizations of MPS SLAM results
+- How to load and access MPS hand tracking results
+- How to create 3D visualizations of MPS results
 
 **Prerequisites**
 - Complete Tutorial 1 (VrsDataProvider Basics) to understand basic data provider concepts
@@ -175,16 +176,61 @@ else:
     print("semidense_observations is empty.")
 ```
 
-## Visualizing MPS SLAM Results
+## MPS Hand Tracking
 
-In the following code snippet, we demonstrate how to visualize the MPS SLAM results in a 3D view.
+MPS Hand Tracking augments each sequence with offline hand pose estimates, adding left and right hand tracking results wherever they are detected.
 
-We first prepare a short trajectory segment, then extract the semidense points position, along with timestamp-mapped observations for visualization purpose. Finally we plot everything in Rerun.
+### Hand Tracking Outputs
+
+- **21 landmarks** per detected hand expressed in the device coordinate frame
+- **Wrist-to-device transform** providing the full 6DoF wrist pose
+- **Palm and wrist normals** for reasoning about hand orientation
+- **Confidence scores** indicating tracking quality for each hand
+
+### Loading Hand Tracking Results
+```python
+print("=== MPS - Hand Tracking ===")
+
+hand_tracking_results_file = os.path.join(
+    mps_folder_path, "hand_tracking", "hand_tracking_results.csv"
+)
+hand_tracking_results = mps.hand_tracking.read_hand_tracking_results(
+    hand_tracking_results_file
+)
+
+if hand_tracking_results:
+    if len(hand_tracking_results) > 10:
+        sample = hand_tracking_results[10] # get stable hand tracking result, since first hand tracking result in example vrs might be empty
+    else:
+        sample = hand_tracking_results[0]
+    sample_ts_us = int(sample.tracking_timestamp.total_seconds() * 1e6)
+    print(f"Sample tracking timestamp: {sample_ts_us} us")
+    print(f"Total number of hand tracking results: {len(hand_tracking_results)}")
+
+    for handedness, hand in (("Left", sample.left_hand), ("Right", sample.right_hand)):
+        if hand is None:
+            print(f"  {handedness} hand: not available in this sample")
+            continue
+
+        landmarks = hand.landmark_positions_device
+        landmark_count = len(landmarks) if landmarks is not None else 0
+        wrist_position = hand.get_wrist_position_device()
+        palm_position = hand.get_palm_position_device()
+        print(f"  {handedness} hand confidence: {hand.confidence:.2f}")
+        print(f"  {handedness} hand landmark count: {landmark_count}")
+        print(f"  {handedness} wrist position (device frame): {wrist_position}")
+        print(f"  {handedness} palm position (device frame): {palm_position}")
+else:
+    print("hand_tracking_results is empty.")
+```
+
+## Visualizing MPS Results
+
+In the following snippets, we combine the MPS SLAM outputs and hand tracking results to build an interactive 3D visualization in Rerun.
 
 ### Color Mapping Helper Function
 
 ```python
-from collections import defaultdict
 import numpy as np
 
 # A helper coloring function
@@ -232,18 +278,22 @@ def color_from_zdepth(z_depth_m: float) -> np.ndarray:
     return np.array([int(red), int(green), int(blue)], dtype=np.uint8)
 ```
 
-### Preparing Data for Visualization
+### Preparing SLAM Data for Visualization
 
 ```python
+from collections import defaultdict
+from itertools import islice
+import numpy as np
+
 print("=== Preparing MPS SLAM results for visualization ===")
 
 # Check if we have valid SLAM data to visualize
 if not closed_loop_trajectory or not semidense_points:
     raise RuntimeError("Warning: This tutorial requires valid MPS SLAM data to run.")
 
-# --
+# -----------
 # Prepare Trajectory data
-# --
+# -----------
 # Select a short segment of trajectory (e.g., first 5000 samples, subsampled by 50)
 segment_length = min(50000, len(closed_loop_trajectory))
 trajectory_segment = closed_loop_trajectory[:segment_length:50]
@@ -267,22 +317,23 @@ print(f"Finished preparing filtered semidense points cloud of {len(filtered_semi
 # -----------
 # Prepare Semidense observation data
 # -----------
-# Based on RGB observations, create a per-timestamp point position list, and color them according to its distance from RGB camera
+# Based on RGB observations, create a per-timestamp point position list, and color them according to distance from the RGB camera
 point_uid_to_position = {
     point.uid: np.array(point.position_world) for point in filtered_semidense_point_cloud_data
 }
 
-# A helper function that creates a easier-to-query mapping to obtain observations according to timestamps
+# A helper function that creates an easier-to-query mapping to obtain observations according to timestamps
 slam_1_serial = vrs_data_provider.get_device_calibration().get_camera_calib("slam-front-left").get_serial_number()
 timestamp_to_point_positions = defaultdict(list)  # t_ns -> [position, position, ...]
-timestamp_to_point_colors = defaultdict(list) # t_ns -> [color, color, ...]
+timestamp_to_point_colors = defaultdict(list)  # t_ns -> [color, color, ...]
 
 for obs in semidense_observations:
     # Only add observations for SLAM_1 camera, and if the timestamp is in the chosen trajectory segment
     if (
-        obs.camera_serial == slam_1_serial and
-        obs.frame_capture_timestamp in timestamp_to_pose and
-        obs.point_uid in point_uid_to_position):
+        obs.camera_serial == slam_1_serial
+        and obs.frame_capture_timestamp in timestamp_to_pose
+        and obs.point_uid in point_uid_to_position
+    ):
         # Insert point position
         obs_timestamp = obs.frame_capture_timestamp
         point_position = point_uid_to_position[obs.point_uid]
@@ -295,11 +346,49 @@ for obs in semidense_observations:
         point_color = color_from_zdepth(point_z_depth)
         timestamp_to_point_colors[obs_timestamp].append(point_color)
 
-from itertools import islice
-print(f"Finished preparing semidense points observations: ")
+print("Finished preparing semidense points observations: ")
 for timestamp, points in islice(timestamp_to_point_positions.items(), 5):
     print(f"\t timestamp {int(timestamp.total_seconds() * 1e9)} ns has {len(points)} observed points in slam-front-left view. ")
-print(f"\t ...")
+print("\t ...")
+```
+
+### Prepare Hand Tracking Data
+
+```python
+print("=== Preparing MPS Hand Tracking data ===")
+
+hand_tracking_results_segment: list[mps.hand_tracking.HandTrackingResult] = []
+
+if not hand_tracking_results:
+    print("No hand tracking results loaded; visualization will skip hands.")
+else:
+    if trajectory_segment:
+        segment_start_ns = int(
+            trajectory_segment[0].tracking_timestamp.total_seconds() * 1e9
+        )
+        segment_end_ns = int(
+            trajectory_segment[-1].tracking_timestamp.total_seconds() * 1e9
+        )
+
+        hand_tracking_results_segment = [
+            result
+            for result in hand_tracking_results
+            if segment_start_ns
+            <= int(result.tracking_timestamp.total_seconds() * 1e9)
+            <= segment_end_ns
+        ]
+
+    if hand_tracking_results_segment:
+        print(
+            "Finished preparing hand tracking results: "
+            f"{len(hand_tracking_results_segment)} samples overlap with the trajectory segment."
+        )
+    else:
+        hand_tracking_results_segment = hand_tracking_results
+        print(
+            "Hand tracking results do not overlap with the selected trajectory segment; "
+            "visualization will reuse the nearest available hand pose."
+        )
 ```
 
 ### 3D Visualization with Rerun
@@ -311,16 +400,81 @@ from projectaria_tools.utils.rerun_helpers import (
     AriaGlassesOutline,
     ToTransform3D,
     ToBox3D,
+    create_hand_skeleton_from_landmarks,
 )
 from projectaria_tools.core.mps.utils import (
     filter_points_from_confidence,
     get_nearest_pose,
 )
 
-print("=== Visualizing MPS SLAM Results in 3D ===")
+HAND_COLORS = {
+    "left": np.array([102, 204, 255], dtype=np.uint8),
+    "right": np.array([255, 153, 102], dtype=np.uint8),
+}
+HAND_LANDMARK_RADIUS = 1e-2
+HAND_KEYPOINT_RADIUS = 1.5e-2
+HAND_SKELETON_RADIUS = 7e-3
+
+
+def log_hand_tracking_result(hand_result):
+    rr.log("world/device/hand-tracking", rr.Clear.recursive())
+    if hand_result is None:
+        return
+
+    for label in ("left", "right"):
+        hand = getattr(hand_result, f"{label}_hand")
+        if hand is None or hand.landmark_positions_device is None:
+            continue
+
+        landmarks = np.array(hand.landmark_positions_device, dtype=np.float32)
+        if landmarks.size == 0:
+            continue
+
+        color = HAND_COLORS[label]
+        colors = np.repeat(color[np.newaxis, :], landmarks.shape[0], axis=0)
+
+        rr.log(
+            f"world/device/hand-tracking/{label}/landmarks",
+            rr.Points3D(
+                positions=landmarks,
+                colors=colors,
+                radii=HAND_LANDMARK_RADIUS,
+            ),
+        )
+
+        skeleton = create_hand_skeleton_from_landmarks(landmarks)
+        if skeleton:
+            rr.log(
+                f"world/device/hand-tracking/{label}/skeleton",
+                rr.LineStrips3D(
+                    skeleton,
+                    colors=[HAND_COLORS[label].tolist()] * len(skeleton),
+                    radii=HAND_SKELETON_RADIUS,
+                ),
+            )
+
+        wrist = hand.get_wrist_position_device()
+        palm = hand.get_palm_position_device()
+        keypoints = [
+            np.array(position, dtype=np.float32)
+            for position in (wrist, palm)
+            if position is not None
+        ]
+        if keypoints:
+            rr.log(
+                f"world/device/hand-tracking/{label}/keypoints",
+                rr.Points3D(
+                    positions=keypoints,
+                    colors=np.repeat(color[np.newaxis, :], len(keypoints), axis=0),
+                    radii=HAND_KEYPOINT_RADIUS,
+                ),
+            )
+
+
+print("=== Visualizing MPS Results in 3D ===")
 
 # Initialize Rerun
-rr.init("MPS SLAM Visualization")
+rr.init("MPS Visualization")
 
 # Set up the 3D scene
 rr.log("world", rr.ViewCoordinates.RIGHT_HAND_Z_UP, static=True)
@@ -346,9 +500,26 @@ aria_glasses_point_outline = AriaGlassesOutline(
 closed_loop_traj_cached_full = []
 observation_points_cached = None
 observation_colors_cached = None
+hand_tracking_timestamps_ns = [
+    int(result.tracking_timestamp.total_seconds() * 1e9)
+    for result in hand_tracking_results_segment
+]
+hand_tracking_index = 0
+latest_hand_tracking_result = None
+
 for closed_loop_pose in trajectory_segment:
     capture_timestamp_ns = int(closed_loop_pose.tracking_timestamp.total_seconds() * 1e9)
     rr.set_time_nanos("device_time", capture_timestamp_ns)
+
+    if hand_tracking_results_segment:
+        while (
+            hand_tracking_index < len(hand_tracking_results_segment)
+            and hand_tracking_timestamps_ns[hand_tracking_index] <= capture_timestamp_ns
+        ):
+            latest_hand_tracking_result = hand_tracking_results_segment[hand_tracking_index]
+            hand_tracking_index += 1
+    else:
+        latest_hand_tracking_result = None
 
     T_world_device = closed_loop_pose.transform_world_device
 
@@ -360,6 +531,8 @@ for closed_loop_pose in trajectory_segment:
             axis_length=0.05,
         ),
     )
+
+    log_hand_tracking_result(latest_hand_tracking_result)
 
     # Plot Aria glass outline
     rr.log(
@@ -393,13 +566,12 @@ for closed_loop_pose in trajectory_segment:
         rr.log(
             "world/semidense_observations",
             rr.Points3D(
-            positions = observation_points_cached,
-            colors = observation_colors_cached,
-            radii=0.01
+                positions=observation_points_cached,
+                colors=observation_colors_cached,
+                radii=0.01
             ),
-            static = False
+            static=False
         )
-
 
     # Plot the entire VIO trajectory that are cached so far
     closed_loop_traj_cached_full.append(T_world_device.translation()[0])
@@ -480,7 +652,8 @@ This tutorial covered the essential aspects of working with MPS data:
 - **Trajectory Access**: Loading both open loop and closed loop trajectories
 - **Point Cloud Data**: Accessing semi-dense 3D reconstructions and observations
 - **Data Filtering**: Using confidence thresholds to improve point cloud quality
-- **3D Visualization**: Creating comprehensive visualizations with trajectories and point clouds
+- **Hand Tracking**: Loading offline MPS hand tracking results and inspecting landmarks, wrist poses, and confidences
+- **3D Visualization**: Creating combined visualizations with trajectories, point clouds, and hand tracking results
 - **Data Structures**: Understanding the comprehensive MPS data formats
 
 MPS provides high-quality, globally consistent 3D reconstructions that are ideal for:
