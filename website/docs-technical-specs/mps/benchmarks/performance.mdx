@@ -1,0 +1,62 @@
+---
+sidebar_position: 2
+title: Hand Tracking
+---
+
+# Hand Tracking Algorithm Benchmark
+
+This page presents the performance evaluation of the MPS Hand Tracking algorithm for Aria Gen2 glasses.
+
+## Benchmark Dataset
+
+The MPS Hand Tracking algorithm is benchmarked on an internal dataset specifically designed for **hand-object interaction (HOI)** scenarios. These scenarios are particularly valuable for robotics applications and present significant challenges for hand tracking due to object-induced occlusions.
+
+### Dataset Specifications
+
+| Property | Value |
+|----------|-------|
+| Total Duration | 1 hour |
+| Frame Rate | 30 fps |
+| Cameras Used | All 4 CV cameras on Aria Gen2 |
+| Number of Participants | 7 |
+| Number of Objects | 20 everyday objects |
+
+### Participant Diversity
+
+Seven participants were recruited to ensure diversity across:
+- Ethnicity
+- Age
+- Gender
+- Hand size
+- Arm length
+
+### Recording Scenarios
+
+Each participant was asked to interact naturally with a pool of 20 everyday objects. The dataset captures:
+
+- **Frequent hand occlusions** from objects or the other hand during natural interaction
+- **Out-of-field-of-view segments** where subjects' hands move outside the Aria Gen2 field of view
+
+These challenging scenarios provide an end-to-end evaluation signal for Aria Gen2 hand tracking performance.
+
+## Ground Truth Annotations
+
+Hand pose ground truth annotations follow the standard **[UmeTrack format](https://github.com/facebookresearch/UmeTrack)** and are generated using an internal marker-free reconstruction system with **millimeter-level keypoint accuracy**.
+
+Thanks to the extensive field-of-view coverage of outside-in cameras in the reconstruction system, nearly all frames in the 1-hour VRS dataset have valid hand pose ground truth annotations.
+
+## Evaluation Metrics
+
+We report the following metrics (lower is better for both):
+
+| Metric | Description |
+|--------|-------------|
+| **MKPE** (Mean Keypoint Error) | Average Euclidean distance between predicted and ground truth keypoints, measured in millimeters |
+| **LTR** (Lose Track Ratio) | Percentage of frames where tracking is lost |
+
+## Results
+
+| Method | MKPE (mm) ↓ | LTR (%) ↓ |
+|--------|-------------|-----------|
+| On-device HT | 45.0 | 12.7 |
+| MPS HT (3.1.1) | 20.1 | 8.6 |
