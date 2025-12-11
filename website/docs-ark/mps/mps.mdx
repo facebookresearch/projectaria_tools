@@ -26,20 +26,19 @@ To get these outputs the [recording profile](/technical-specs/device/profile) mu
 
 ### 6DoF trajectory
 MPS provides two types of high frequency (1kHz) trajectories:
-* [Open loop trajectory](/technical-specs/mps/data_formats/mps_trajectory#open-loop-trajectory) - local odometry estimation from visual-inertial odometry (VIO)
-* [Closed loop trajectory](/technical-specs/mps/data_formats/mps_trajectory#closed-loop-trajectory) - created via batch optimization, using multi-sensors' input (SLAM, IMU, barometer, Wi-Fi and GPS), fully optimized and provides poses in a consistent frame of reference.
+* [Open loop trajectory](/technical-specs/mps/data_formats/slam/mps_trajectory#open-loop-trajectory) - local odometry estimation from visual-inertial odometry (VIO)
+* [Closed loop trajectory](/technical-specs/mps/data_formats/slam/mps_trajectory#closed-loop-trajectory) - created via batch optimization, using multi-sensors' input (SLAM, IMU, barometer, Wi-Fi and GPS), fully optimized and provides poses in a consistent frame of reference.
 
 ### Semi-dense point cloud
 
-[Semi-dense point cloud](/technical-specs/mps/data_formats/mps_pointcloud) data supports researchers who need static scene 3D reconstructions, reliable 2D images tracks or a representative visualization of the environment.
+[Semi-dense point cloud](/technical-specs/mps/data_formats/slam/mps_pointcloud) data supports researchers who need static scene 3D reconstructions, reliable 2D images tracks or a representative visualization of the environment.
 
 ### Online sensor calibration
-The [time-varying intrinsic and extrinsic calibrations](/technical-specs/mps/data_formats/mps_calibration) of cameras and IMUs are estimated at the frequency of the SLAM (mono scene) cameras by our multi-sensor state estimation pipeline.
+The [time-varying intrinsic and extrinsic calibrations](/technical-specs/mps/data_formats/slam/mps_calibration) of cameras and IMUs are estimated at the frequency of the SLAM (mono scene) cameras by our multi-sensor state estimation pipeline.
 
 ## Hand Tracking services
-> **Coming Soon.**
 
-Cloud Hand Tracking service is currently available for Aria gen1 devices only. For Aria Gen2, please refer to [On device Hand Tracking](on_device_mp#hand-tracking).
+Cloud Hand Tracking processing is available for all recordings made with CV cameras (>=10fps) and IMU enabled.
 
 ## About MPS Data Loader APIs
 

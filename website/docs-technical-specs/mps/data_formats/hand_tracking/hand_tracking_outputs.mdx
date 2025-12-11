@@ -1,0 +1,220 @@
+---
+sidebar_position: 10
+title: Hand Tracking
+---
+# MPS Output - Hand Tracking
+
+## Overview
+This section covers Hand Tracking Machine Perception Services (MPS). Hand Tracking outputs may be part of Open Dataset Releases or Project Aria Partners can request MPS services on their own data.
+
+Hand Tracking outputs are available for all recordings made with CV cameras (>=10fps) and IMU enabled. Partner data is not made available to Meta researchers or Meta's affiliates. Go to [MPS Data Lifecycle](/ark/mps/mps_data_lifecycle) for more details about how partner data is processed and stored.
+
+
+The following outputs are generated if you request Hand Tracking data using the [MPS CLI](/technical-specs/mps/mps_cli_guide):
+* `hand_tracking_results.csv` - the coordinates of 21 hand landmark positions, wrist and palm normals in the device frame, and the full 6DoF transform from the hand frame (origin at wrist position) to the device frame
+* `summary.json` - high-level report on MPS hand tracking
+
+
+### hand_tracking_results.csv
+
+`hand_tracking_results.csv` contains the following fields:
+The landmark positions, and wrist and palm normal vectors are given in the device frame in meters.
+The translation from the hand frame to the device frame is given in meters.
+
+![The 21 keypoints](/img/docs-technical-specs/hand_tracking/21-keypoints.png)
+
+The 21 landmarks are indexed from 0 to 20, representing key points on the hand. These landmarks correspond to specific joints and locations as follows:
+| **Landmark ID** | **Description**   |
+|---|---|
+|0 | Thumb Fingertip|
+|1 | Index Finger Fingertip|
+|2 | Middle Finger Fingertip|
+|3 | Ring Finger Fingertip|
+|4 | Pinky Finger Fingertip|
+|5 | Wrist Joint|
+|6 | Thumb Intermediate|
+|7 | Thumb Distal|
+|8 | Index Finger Proximal|
+|9 | Index Finger Intermediate|
+|10 | Index Finger Distal|
+|11 | Middle Finger Proximal|
+|12 | Middle Finger Intermediate|
+|13 | Middle Finger Distal|
+|14 | Ring Finger Proximal|
+|15 | Ring Finger Intermediate|
+|16 | Ring Finger Distal|
+|17 | Pinky Finger Proximal|
+|18 | Pinky Finger Intermediate|
+|19 | Pinky Finger Distal|
+|20 | Palm Center|
+
+
+| **Column** | **Type** | **Description**   |
+|---|---|---|
+| tracking_timestamp_us | int    | Timestamp, in microseconds, of the SLAM camera frame in device time domain. This is the same time domain in which the MPS [trajectory outputs](/docs-technical-specs/mps/data_formats/slam/mps_trajectory.mdx#open-loop-trajectory) are reported, so these timestamps can be directly used to infer the device pose from the MPS trajectory output. |
+|  left_tracking_confidence  | float    | A value between 0.0 and 1.0 indicating the confidence in the detected left hand. A value of -1.0 indicates that the left hand data is missing for the frame, and the coordinates *_left_landmark_i_device, *_left_device_wrist*, *_left_wrist_device* and *_left_palm_device* should not be used.    |
+|  tx_left_landmark_0_device  | float    | X-coordinate of the left landmark 0 position given in the device frame in meters.    |
+|  ty_left_landmark_0_device  | float    | Y-coordinate of the left landmark 0 position given in the device frame in meters.    |
+|  tz_left_landmark_0_device  | float    | Z-coordinate of the left landmark 0 position given in the device frame in meters.    |
+|  tx_left_landmark_1_device  | float    | X-coordinate of the left landmark 1 position given in the device frame in meters.    |
+|  ty_left_landmark_1_device  | float    | Y-coordinate of the left landmark 1 position given in the device frame in meters.    |
+|  tz_left_landmark_1_device  | float    | Z-coordinate of the left landmark 1 position given in the device frame in meters.    |
+|  tx_left_landmark_2_device  | float    | X-coordinate of the left landmark 2 position given in the device frame in meters.    |
+|  ty_left_landmark_2_device  | float    | Y-coordinate of the left landmark 2 position given in the device frame in meters.    |
+|  tz_left_landmark_2_device  | float    | Z-coordinate of the left landmark 2 position given in the device frame in meters.    |
+|  tx_left_landmark_3_device  | float    | X-coordinate of the left landmark 3 position given in the device frame in meters.    |
+|  ty_left_landmark_3_device  | float    | Y-coordinate of the left landmark 3 position given in the device frame in meters.    |
+|  tz_left_landmark_3_device  | float    | Z-coordinate of the left landmark 3 position given in the device frame in meters.    |
+|  tx_left_landmark_4_device  | float    | X-coordinate of the left landmark 4 position given in the device frame in meters.    |
+|  ty_left_landmark_4_device  | float    | Y-coordinate of the left landmark 4 position given in the device frame in meters.    |
+|  tz_left_landmark_4_device  | float    | Z-coordinate of the left landmark 4 position given in the device frame in meters.    |
+|  tx_left_landmark_5_device  | float    | X-coordinate of the left landmark 5 position given in the device frame in meters.    |
+|  ty_left_landmark_5_device  | float    | Y-coordinate of the left landmark 5 position given in the device frame in meters.    |
+|  tz_left_landmark_5_device  | float    | Z-coordinate of the left landmark 5 position given in the device frame in meters.    |
+|  tx_left_landmark_6_device  | float    | X-coordinate of the left landmark 6 position given in the device frame in meters.    |
+|  ty_left_landmark_6_device  | float    | Y-coordinate of the left landmark 6 position given in the device frame in meters.    |
+|  tz_left_landmark_6_device  | float    | Z-coordinate of the left landmark 6 position given in the device frame in meters.    |
+|  tx_left_landmark_7_device  | float    | X-coordinate of the left landmark 7 position given in the device frame in meters.    |
+|  ty_left_landmark_7_device  | float    | Y-coordinate of the left landmark 7 position given in the device frame in meters.    |
+|  tz_left_landmark_7_device  | float    | Z-coordinate of the left landmark 7 position given in the device frame in meters.    |
+|  tx_left_landmark_8_device  | float    | X-coordinate of the left landmark 8 position given in the device frame in meters.    |
+|  ty_left_landmark_8_device  | float    | Y-coordinate of the left landmark 8 position given in the device frame in meters.    |
+|  tz_left_landmark_8_device  | float    | Z-coordinate of the left landmark 8 position given in the device frame in meters.    |
+|  tx_left_landmark_9_device  | float    | X-coordinate of the left landmark 9 position given in the device frame in meters.    |
+|  ty_left_landmark_9_device  | float    | Y-coordinate of the left landmark 9 position given in the device frame in meters.    |
+|  tz_left_landmark_9_device  | float    | Z-coordinate of the left landmark 9 position given in the device frame in meters.    |
+|  tx_left_landmark_10_device  | float    | X-coordinate of the left landmark 10 position given in the device frame in meters.    |
+|  ty_left_landmark_10_device  | float    | Y-coordinate of the left landmark 10 position given in the device frame in meters.    |
+|  tz_left_landmark_10_device  | float    | Z-coordinate of the left landmark 10 position given in the device frame in meters.    |
+|  tx_left_landmark_11_device  | float    | X-coordinate of the left landmark 11 position given in the device frame in meters.    |
+|  ty_left_landmark_11_device  | float    | Y-coordinate of the left landmark 11 position given in the device frame in meters.    |
+|  tz_left_landmark_11_device  | float    | Z-coordinate of the left landmark 11 position given in the device frame in meters.    |
+|  tx_left_landmark_12_device  | float    | X-coordinate of the left landmark 12 position given in the device frame in meters.    |
+|  ty_left_landmark_12_device  | float    | Y-coordinate of the left landmark 12 position given in the device frame in meters.    |
+|  tz_left_landmark_12_device  | float    | Z-coordinate of the left landmark 12 position given in the device frame in meters.    |
+|  tx_left_landmark_13_device  | float    | X-coordinate of the left landmark 13 position given in the device frame in meters.    |
+|  ty_left_landmark_13_device  | float    | Y-coordinate of the left landmark 13 position given in the device frame in meters.    |
+|  tz_left_landmark_13_device  | float    | Z-coordinate of the left landmark 13 position given in the device frame in meters.    |
+|  tx_left_landmark_14_device  | float    | X-coordinate of the left landmark 14 position given in the device frame in meters.    |
+|  ty_left_landmark_14_device  | float    | Y-coordinate of the left landmark 14 position given in the device frame in meters.    |
+|  tz_left_landmark_14_device  | float    | Z-coordinate of the left landmark 14 position given in the device frame in meters.    |
+|  tx_left_landmark_15_device  | float    | X-coordinate of the left landmark 15 position given in the device frame in meters.    |
+|  ty_left_landmark_15_device  | float    | Y-coordinate of the left landmark 15 position given in the device frame in meters.    |
+|  tz_left_landmark_15_device  | float    | Z-coordinate of the left landmark 15 position given in the device frame in meters.    |
+|  tx_left_landmark_16_device  | float    | X-coordinate of the left landmark 16 position given in the device frame in meters.    |
+|  ty_left_landmark_16_device  | float    | Y-coordinate of the left landmark 16 position given in the device frame in meters.    |
+|  tz_left_landmark_16_device  | float    | Z-coordinate of the left landmark 16 position given in the device frame in meters.    |
+|  tx_left_landmark_17_device  | float    | X-coordinate of the left landmark 17 position given in the device frame in meters.    |
+|  ty_left_landmark_17_device  | float    | Y-coordinate of the left landmark 17 position given in the device frame in meters.    |
+|  tz_left_landmark_17_device  | float    | Z-coordinate of the left landmark 17 position given in the device frame in meters.    |
+|  tx_left_landmark_18_device  | float    | X-coordinate of the left landmark 18 position given in the device frame in meters.    |
+|  ty_left_landmark_18_device  | float    | Y-coordinate of the left landmark 18 position given in the device frame in meters.    |
+|  tz_left_landmark_18_device  | float    | Z-coordinate of the left landmark 18 position given in the device frame in meters.    |
+|  tx_left_landmark_19_device  | float    | X-coordinate of the left landmark 19 position given in the device frame in meters.    |
+|  ty_left_landmark_19_device  | float    | Y-coordinate of the left landmark 19 position given in the device frame in meters.    |
+|  tz_left_landmark_19_device  | float    | Z-coordinate of the left landmark 19 position given in the device frame in meters.    |
+|  tx_left_landmark_20_device  | float    | X-coordinate of the left landmark 20 position given in the device frame in meters.    |
+|  ty_left_landmark_20_device  | float    | Y-coordinate of the left landmark 20 position given in the device frame in meters.    |
+|  tz_left_landmark_20_device  | float    | Z-coordinate of the left landmark 20 position given in the device frame in meters.    |
+|  right_tracking_confidence  | float    | A value between 0.0 and 1.0 indicating the confidence in the detected right hand. A value of -1.0 indicates that the right hand data is missing for the frame, and the coordinates *_right_landmark_i_device, *_right_device_wrist*, *_right_wrist_device* and *_right_palm_device* should not be used.    |
+|  tx_right_landmark_0_device  | float    | X-coordinate of the right landmark 0 position given in the device frame in meters.    |
+|  ty_right_landmark_0_device  | float    | Y-coordinate of the right landmark 0 position given in the device frame in meters.    |
+|  tz_right_landmark_0_device  | float    | Z-coordinate of the right landmark 0 position given in the device frame in meters.    |
+|  tx_right_landmark_1_device  | float    | X-coordinate of the right landmark 1 position given in the device frame in meters.    |
+|  ty_right_landmark_1_device  | float    | Y-coordinate of the right landmark 1 position given in the device frame in meters.    |
+|  tz_right_landmark_1_device  | float    | Z-coordinate of the right landmark 1 position given in the device frame in meters.    |
+|  tx_right_landmark_2_device  | float    | X-coordinate of the right landmark 2 position given in the device frame in meters.    |
+|  ty_right_landmark_2_device  | float    | Y-coordinate of the right landmark 2 position given in the device frame in meters.    |
+|  tz_right_landmark_2_device  | float    | Z-coordinate of the right landmark 2 position given in the device frame in meters.    |
+|  tx_right_landmark_3_device  | float    | X-coordinate of the right landmark 3 position given in the device frame in meters.    |
+|  ty_right_landmark_3_device  | float    | Y-coordinate of the right landmark 3 position given in the device frame in meters.    |
+|  tz_right_landmark_3_device  | float    | Z-coordinate of the right landmark 3 position given in the device frame in meters.    |
+|  tx_right_landmark_4_device  | float    | X-coordinate of the right landmark 4 position given in the device frame in meters.    |
+|  ty_right_landmark_4_device  | float    | Y-coordinate of the right landmark 4 position given in the device frame in meters.    |
+|  tz_right_landmark_4_device  | float    | Z-coordinate of the right landmark 4 position given in the device frame in meters.    |
+|  tx_right_landmark_5_device  | float    | X-coordinate of the right landmark 5 position given in the device frame in meters.    |
+|  ty_right_landmark_5_device  | float    | Y-coordinate of the right landmark 5 position given in the device frame in meters.    |
+|  tz_right_landmark_5_device  | float    | Z-coordinate of the right landmark 5 position given in the device frame in meters.    |
+|  tx_right_landmark_6_device  | float    | X-coordinate of the right landmark 6 position given in the device frame in meters.    |
+|  ty_right_landmark_6_device  | float    | Y-coordinate of the right landmark 6 position given in the device frame in meters.    |
+|  tz_right_landmark_6_device  | float    | Z-coordinate of the right landmark 6 position given in the device frame in meters.    |
+|  tx_right_landmark_7_device  | float    | X-coordinate of the right landmark 7 position given in the device frame in meters.    |
+|  ty_right_landmark_7_device  | float    | Y-coordinate of the right landmark 7 position given in the device frame in meters.    |
+|  tz_right_landmark_7_device  | float    | Z-coordinate of the right landmark 7 position given in the device frame in meters.    |
+|  tx_right_landmark_8_device  | float    | X-coordinate of the right landmark 8 position given in the device frame in meters.    |
+|  ty_right_landmark_8_device  | float    | Y-coordinate of the right landmark 8 position given in the device frame in meters.    |
+|  tz_right_landmark_8_device  | float    | Z-coordinate of the right landmark 8 position given in the device frame in meters.    |
+|  tx_right_landmark_9_device  | float    | X-coordinate of the right landmark 9 position given in the device frame in meters.    |
+|  ty_right_landmark_9_device  | float    | Y-coordinate of the right landmark 9 position given in the device frame in meters.    |
+|  tz_right_landmark_9_device  | float    | Z-coordinate of the right landmark 9 position given in the device frame in meters.    |
+|  tx_right_landmark_10_device  | float    | X-coordinate of the right landmark 10 position given in the device frame in meters.    |
+|  ty_right_landmark_10_device  | float    | Y-coordinate of the right landmark 10 position given in the device frame in meters.    |
+|  tz_right_landmark_10_device  | float    | Z-coordinate of the right landmark 10 position given in the device frame in meters.    |
+|  tx_right_landmark_11_device  | float    | X-coordinate of the right landmark 11 position given in the device frame in meters.    |
+|  ty_right_landmark_11_device  | float    | Y-coordinate of the right landmark 11 position given in the device frame in meters.    |
+|  tz_right_landmark_11_device  | float    | Z-coordinate of the right landmark 11 position given in the device frame in meters.    |
+|  tx_right_landmark_12_device  | float    | X-coordinate of the right landmark 12 position given in the device frame in meters.    |
+|  ty_right_landmark_12_device  | float    | Y-coordinate of the right landmark 12 position given in the device frame in meters.    |
+|  tz_right_landmark_12_device  | float    | Z-coordinate of the right landmark 12 position given in the device frame in meters.    |
+|  tx_right_landmark_13_device  | float    | X-coordinate of the right landmark 13 position given in the device frame in meters.    |
+|  ty_right_landmark_13_device  | float    | Y-coordinate of the right landmark 13 position given in the device frame in meters.    |
+|  tz_right_landmark_13_device  | float    | Z-coordinate of the right landmark 13 position given in the device frame in meters.    |
+|  tx_right_landmark_14_device  | float    | X-coordinate of the right landmark 14 position given in the device frame in meters.    |
+|  ty_right_landmark_14_device  | float    | Y-coordinate of the right landmark 14 position given in the device frame in meters.    |
+|  tz_right_landmark_14_device  | float    | Z-coordinate of the right landmark 14 position given in the device frame in meters.    |
+|  tx_right_landmark_15_device  | float    | X-coordinate of the right landmark 15 position given in the device frame in meters.    |
+|  ty_right_landmark_15_device  | float    | Y-coordinate of the right landmark 15 position given in the device frame in meters.    |
+|  tz_right_landmark_15_device  | float    | Z-coordinate of the right landmark 15 position given in the device frame in meters.    |
+|  tx_right_landmark_16_device  | float    | X-coordinate of the right landmark 16 position given in the device frame in meters.    |
+|  ty_right_landmark_16_device  | float    | Y-coordinate of the right landmark 16 position given in the device frame in meters.    |
+|  tz_right_landmark_16_device  | float    | Z-coordinate of the right landmark 16 position given in the device frame in meters.    |
+|  tx_right_landmark_17_device  | float    | X-coordinate of the right landmark 17 position given in the device frame in meters.    |
+|  ty_right_landmark_17_device  | float    | Y-coordinate of the right landmark 17 position given in the device frame in meters.    |
+|  tz_right_landmark_17_device  | float    | Z-coordinate of the right landmark 17 position given in the device frame in meters.    |
+|  tx_right_landmark_18_device  | float    | X-coordinate of the right landmark 18 position given in the device frame in meters.    |
+|  ty_right_landmark_18_device  | float    | Y-coordinate of the right landmark 18 position given in the device frame in meters.    |
+|  tz_right_landmark_18_device  | float    | Z-coordinate of the right landmark 18 position given in the device frame in meters.    |
+|  tx_right_landmark_19_device  | float    | X-coordinate of the right landmark 19 position given in the device frame in meters.    |
+|  ty_right_landmark_19_device  | float    | Y-coordinate of the right landmark 19 position given in the device frame in meters.    |
+|  tz_right_landmark_19_device  | float    | Z-coordinate of the right landmark 19 position given in the device frame in meters.    |
+|  tx_right_landmark_20_device  | float    | X-coordinate of the right landmark 20 position given in the device frame in meters.    |
+|  ty_right_landmark_20_device  | float    | Y-coordinate of the right landmark 20 position given in the device frame in meters.    |
+|  tz_right_landmark_20_device  | float    | Z-coordinate of the right landmark 20 position given in the device frame in meters.    |
+|  tx_left_device_wrist  | float    | X-coordinate of the translation from the left hand frame (origin at wrist position) to the device frame in meters.    |
+|  ty_left_device_wrist  | float    | Y-coordinate of the translation from the left hand frame (origin at wrist position) to the device frame in meters.    |
+|  tz_left_device_wrist  | float    | Z-coordinate of the translation from the left hand frame (origin at wrist position) to the device frame in meters.    |
+|  qx_left_device_wrist  | float    | X-component of the quaternion representing the rotation from the left hand frame (origin at wrist position) to the device frame.    |
+|  qy_left_device_wrist  | float    | Y-component of the quaternion representing the rotation from the left hand frame (origin at wrist position) to the device frame.    |
+|  qz_left_device_wrist  | float    | Z-component of the quaternion representing the rotation from the left hand frame (origin at wrist position) to the device frame.    |
+|  qw_left_device_wrist  | float    | W-component of the quaternion representing the rotation from the left hand frame (origin at wrist position) to the device frame.    |
+|  tx_right_device_wrist  | float    | X-coordinate of the translation from the right hand frame (origin at wrist position) to the device frame in meters.    |
+|  ty_right_device_wrist  | float    | Y-coordinate of the translation from the right hand frame (origin at wrist position) to the device frame in meters.    |
+|  tz_right_device_wrist  | float    | Z-coordinate of the translation from the right hand frame (origin at wrist position) to the device frame in meters.    |
+|  qx_right_device_wrist  | float    | X-component of the quaternion representing the rotation from the right hand frame (origin at wrist position) to the device frame.    |
+|  qy_right_device_wrist  | float    | Y-component of the quaternion representing the rotation from the right hand frame (origin at wrist position) to the device frame.    |
+|  qz_right_device_wrist  | float    | Z-component of the quaternion representing the rotation from the right hand frame (origin at wrist position) to the device frame.    |
+|  qw_right_device_wrist  | float    | W-component of the quaternion representing the rotation from the right hand frame (origin at wrist position) to the device frame.    |
+|  nx_left_palm_device     | float    | X-coordinate of the left palm normal given in the device frame in meters.    |
+|  ny_left_palm_device     | float    | Y-coordinate of the left palm normal given in the device frame in meters.    |
+|  nz_left_palm_device     | float    | Z-coordinate of the left palm normal given in the device frame in meters.    |
+|  nx_left_wrist_device     | float    | X-coordinate of the left wrist normal given in the device frame in meters.    |
+|  ny_left_wrist_device     | float    | Y-coordinate of the left wrist normal given in the device frame in meters.    |
+|  nz_left_wrist_device     | float    | Z-coordinate of the left wrist normal given in the device frame in meters.    |
+|  nx_right_palm_device     | float    | X-coordinate of the right palm normal given in the device frame in meters.    |
+|  ny_right_palm_device     | float    | Y-coordinate of the right palm normal given in the device frame in meters.    |
+|  nz_right_palm_device     | float    | Z-coordinate of the right palm normal given in the device frame in meters.    |
+|  nx_right_wrist_device     | float    | X-coordinate of the right wrist normal given in the device frame in meters.    |
+|  ny_right_wrist_device     | float    | Y-coordinate of the right wrist normal given in the device frame in meters.    |
+|  nz_right_wrist_device     | float    | Z-coordinate of the right wrist normal given in the device frame in meters.    |
+
+
+## summary.json
+
+`summary.json` contains the [Operator Summary](/docs-technical-specs/mps/data_formats/slam/basics.mdx#operator-summary), listed in MPS Basics, as well as the following fields:
+
+
+| Field    | Type    | Description    |
+|---|---|---|
+| mean_confidence    | float    | Average `left_tracking_confidence` and `right_tracking_confidence` value for frames with valid results   |
+| total_frames    | int    | Total number of frames    |
+| valid_frame_fraction    | float    | Fraction of frames that have reported a valid tracking result

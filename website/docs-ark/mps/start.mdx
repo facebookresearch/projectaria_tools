@@ -62,7 +62,7 @@ Project Aria MPS pypi package automatically installs the [projectaria-tools](/re
 | :---------------------------- | :----------------------------------------------------------------- | :----------------------------------------- | :------------------------ |
 | Linux (x64)                   | Fedora **40/41**; Ubuntu **20.04 LTS (focal)** / **22.04 LTS (jammy)** / **24.04 LTS ( Noble Numbat)**| ✅ Supported                              | 3.9 – 3.12               |
 | macOS (Apple Silicon / ARM64) | macOS **14+ (Sonoma or newer)** on M1/M2/M3                        | ✅ Supported                              | 3.10 – 3.12              |
-| macOS (Intel)                 | macOS **13+ (Ventura or newer)**                                   | ✅ Supported                              | 3.9 – 3.12               |
+| macOS (Intel)                 | macOS **13 (Ventura or newer)**                                    | ❌ Not Supported                          | 3.9 – 3.12               |
 | Windows (x64)                 | MSVC **2019/2022**                                                 | 🚧 Planned                               | 3.10 – 3.12              |
 
 ## Download the MPS CLI sample dataset
@@ -91,17 +91,20 @@ Once the request has been processed, the MPS output will be downloaded next to t
 ```
     └── Example
         ├── mps_gen2_sample2_vrs
-        │   ├── slam
-        │   │   ├── closed_loop_trajectory.csv
-        │   │   ├── online_calibration.jsonl
-        │   │   ├── open_loop_trajectory.csv
-        │   │   ├── semidense_observations.csv.gz
-        │   │   ├── semidense_points.csv.gz
-        │   │   └── summary.json
-        │   └── vrs_health_check.json
+        │    ├── hand_tracking
+        │    │   ├── hand_tracking_results.csv
+        │    │   └── summary.json
+        │    ├── slam
+        │    │   ├── closed_loop_trajectory.csv
+        │    │   ├── online_calibration.jsonl
+        │    │   ├── open_loop_trajectory.csv
+        │    │   ├── semidense_observations.csv.gz
+        │    │   ├── semidense_points.csv.gz
+        │    │   └── summary.json
+        │    └── vrs_health_check.json
         └── gen2_sample2.vrs
 ```
-Go to [MPS Data Format Basics](/technical-specs/mps/data_formats/basics) for more details about the folder structure.
+Go to [MPS Data Format Basics](/technical-specs/mps/data_formats/slam/basics) for more details about the folder structure.
 
 ## Exit the MPS CLI
 
@@ -116,5 +119,5 @@ If you quit the request tool once the files have been uploaded, the MPS processe
 ## Working with MPS data
 
 You may find the following resources helpful when working with MPS data:
-* [MPS Data Formats](/technical-specs/mps/data_formats/basics)
+* [MPS Data Formats](/technical-specs/mps/data_formats/slam/basics)
 * [Visualize MPS Using Python](/research-tools/projectariatools/pythontutorials/mps)
