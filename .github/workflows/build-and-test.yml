@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04,  macos-13, macos-14] # macos-14 is macSilicon
+        os: [ubuntu-22.04,  macos-14] # macos-14 is macSilicon
     steps:
       - name : Checkout
         uses: actions/checkout@v4
