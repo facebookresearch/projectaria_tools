@@ -75,7 +75,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-13, macos-14, ubuntu-22.04, windows-2022] # macos-14 is macSilicon
+        os: [macos-14, ubuntu-22.04, windows-2022] # macos-14 is macSilicon
         python-version: ["3.10", "3.11", "3.12"]
         # Default consider only Python >=3.10 since actions/setup-python supports only python<3.10 and mac-silicon
         # Other Python versions are added below as matrix entries
@@ -86,17 +86,11 @@ jobs:
             cibw_build: "cp311-*"
           - python-version: "3.12"
             cibw_build: "cp312-*"
-          # Add matrix entries: Python ["3.8", "3.9"] to [macos-13, ubuntu-latest]
+          # Add matrix entries: Python ["3.8", "3.9"] to [ubuntu-latest]
           - os: ubuntu-22.04
             python-version: "3.8"
             cibw_build: "cp38-*"
           - os: ubuntu-22.04
-            python-version: "3.9"
-            cibw_build: "cp39-*"
-          - os: macos-13
-            python-version: "3.8"
-            cibw_build: "cp38-*"
-          - os: macos-13
             python-version: "3.9"
             cibw_build: "cp39-*"
 
@@ -129,7 +123,7 @@ jobs:
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_* *x86_64*"
           CIBW_ARCHS: "arm64"
       - name: Build wheels for CPython
-        if: ${{ (matrix.os == 'macos-13') || (matrix.os == 'ubuntu-22.04') }}
+        if: ${{ (matrix.os == 'ubuntu-22.04') }}
         shell: bash
         run: |
           CMAKE_BUILD_PARALLEL_LEVEL=4 python -m cibuildwheel --output-dir dist
