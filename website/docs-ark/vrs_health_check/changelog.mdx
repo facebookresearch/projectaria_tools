@@ -6,6 +6,23 @@ title: Changelog
 # Changelog
 
 ---
+## Version 1.2.0
+
+### New Features
+
+- Added `thresholds_version` field to output JSON for better version tracking of check configurations
+
+### Configuration Updates
+
+#### `AriaGen2_Handtracking` configuration:
+- Updated thresholds version from `v1.0` to `v2.0`
+- Changed base configuration from `AriaGen2_Location` to `AriaGen2_Default`
+- Added `slam_imu_streams_present` file-level check
+- Added dedicated thresholds for Camera Data (SLAM), IMU Data (SLAM), and RGB Camera Class
+- Relaxed IMU drop ratio fail threshold from 0.2% to 1%
+- Added ignore rules for non-essential streams (Eye Camera, Magnetometer, Audio, Barometer, Wifi, Bluetooth, PPG, Battery, ALS, Pose, Gaze, GPS, Temperature, Time Domain Mapping)
+
+---
 ## Version 1.1.0
 
 ### Configuration Updates
