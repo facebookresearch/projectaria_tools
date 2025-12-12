@@ -1,0 +1,58 @@
+---
+sidebar_position: 3
+title: Batch Processing
+---
+
+# Batch Processing
+
+Bulk processing of large datasets is a built-in feature in MPS CLI.
+
+## Overview
+
+Instead of submitting VRS files one at a time, you can point the MPS CLI to a folder (or multiple folders) containing multiple VRS files. The CLI will automatically:
+- Discover all VRS files in the specified folder(s) recursively
+- Concurrenty process `n` (default 25) recordings at a time and queue the rest.
+
+## Usage
+
+### Process all VRS files in a folder
+
+```bash
+aria_mps single -i <path_to_folder>
+```
+
+The CLI will recursively find all VRS files in the specified folder and submit them for processing.
+
+### Process VRS files from multiple folders
+
+You can chain multiple input folders using the `-i` flag:
+
+```bash
+aria_mps single -i <path_to_folder_1> -i <path_to_folder_2> -i <path_to_folder_3>
+```
+
+## Examples
+
+### Single folder
+
+```bash
+aria_mps single -i ~/recordings/session_01/
+```
+
+### Multiple folders
+
+```bash
+aria_mps single -i ~/recordings/day1/ -i ~/recordings/day2/ -i ~/recordings/day3/
+```
+
+## Batch Concurrency
+
+The batch processing feature automatically manages concurrent jobs to stay within the service limits:
+- By default, a maximum of 25 concurrent processing jobs are allowed. This concurrency count can be updated using the `concurrent_processing` setting in [CLI Settings](/technical-specs/mps/mps_cli_guide#cli-settings). The max allowed concurrency is 100 at this time.
+- Jobs are queued and submitted automatically as capacity becomes available
+
+This ensures reliable processing without overloading the system.
+
+## Output
+
+MPS outputs are saved next to each original VRS file, following the same folder structure as single file processing. See [Getting Started](/ark/mps/start) for details on output folder structure.
