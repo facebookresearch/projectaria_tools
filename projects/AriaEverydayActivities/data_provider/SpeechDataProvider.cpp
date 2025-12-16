@@ -120,13 +120,10 @@ std::optional<SentenceData> SpeechDataProvider::getSentenceDataByTimestampNs(
       } else {
         return iterAfter->second;
       }
-      break;
     case TimeQueryOptions::Before:
       return iterBefore->second;
-      break;
     case TimeQueryOptions::After:
       return iterAfter->second;
-      break;
     default:
       XR_LOGE("invalid time query option, option not yet implemented");
       throw std::runtime_error{"invalid query option"};
@@ -179,17 +176,13 @@ std::optional<WordData> SpeechDataProvider::getWordDataByTimestampNs(
       } else {
         return iterAfter->second;
       }
-      break;
     case TimeQueryOptions::Before:
       return iterBefore->second;
-      break;
     case TimeQueryOptions::After:
       return iterAfter->second;
-      break;
     default:
       XR_LOGE("invalid time query option, option not yet implemented");
       throw std::runtime_error{"invalid query option"};
-      break;
   }
 }
 
