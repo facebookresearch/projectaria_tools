@@ -51,13 +51,10 @@ std::set<int64_t>::const_iterator queryTimestampsSet(
       } else {
         return iterAfter;
       }
-      break;
     case TimeQueryOptions::After:
       return iterAfter;
-      break;
     case TimeQueryOptions::Before:
       return iterBefore;
-      break;
     default:
       throw std::runtime_error{"invalid timeQueryOptions"};
   }
