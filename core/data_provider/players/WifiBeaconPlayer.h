@@ -53,6 +53,8 @@ class WifiBeaconPlayer : public vrs::RecordFormatStreamPlayer {
   WifiBeaconPlayer& operator=(const WifiBeaconPlayer&) = delete;
   WifiBeaconPlayer& operator=(WifiBeaconPlayer&) = delete;
   WifiBeaconPlayer(WifiBeaconPlayer&&) = default;
+  WifiBeaconPlayer& operator=(WifiBeaconPlayer&&) = delete;
+  ~WifiBeaconPlayer() override = default;
 
   void setCallback(WifiBeaconCallback callback) {
     callback_ = callback;
