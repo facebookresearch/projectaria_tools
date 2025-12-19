@@ -158,7 +158,7 @@ aria_gen2 device list
 
 # 3. Start streaming with batch period for thermal management
 #    Use 200ms batch period for a balance of latency and thermal performance
-aria_gen2 streaming start --batch-period-ms 200
+aria_gen2 streaming start --batch-period-ms 200 --interface wifi_sta
 
 # 4. Unplug the USB cable - streaming will continue over WiFi
 
@@ -226,7 +226,7 @@ aria_gen2 device list
 
 # 4. Start streaming with aggressive batching for thermal management
 #    800ms batch period is recommended to extend usable time
-aria_gen2 streaming start --batch-period-ms 800
+aria_gen2 streaming start --batch-period-ms 800 --interface --wifi_sap
 
 # 5. Unplug the USB cable - streaming will continue over WiFi hotspot
 
