@@ -208,8 +208,8 @@ struct Zero<Eigen::Matrix<T, M, N, Opts>> {
 } // namespace
 
 template <typename Scalar, std::enable_if_t<std::is_floating_point<Scalar>::value, int> = 0>
-Eigen::Vector<Scalar, 2> imageCenter(size_t imageWidth, size_t imageHeight) {
-  return Eigen::Vector<Scalar, 2>{
+Eigen::Vector2<Scalar> imageCenter(size_t imageWidth, size_t imageHeight) {
+  return Eigen::Vector2<Scalar>{
       static_cast<Scalar>(imageWidth) / Scalar(2.0) - Scalar(0.5),
       static_cast<Scalar>(imageHeight) / Scalar(2.0) - Scalar(0.5)};
 }

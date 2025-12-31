@@ -92,9 +92,9 @@ int CameraProjectionTemplated<Scalar>::numDistortionParameters() const {
 }
 
 template <typename Scalar>
-Eigen::Vector<Scalar, 2> CameraProjectionTemplated<Scalar>::getFocalLengths() const {
+Eigen::Vector2<Scalar> CameraProjectionTemplated<Scalar>::getFocalLengths() const {
   return std::visit(
-      [this](auto&& projection) -> Eigen::Vector<Scalar, 2> {
+      [this](auto&& projection) -> Eigen::Vector2<Scalar> {
         using T = std::decay_t<decltype(projection)>;
         int focalXIdx = T::kFocalXIdx;
         int focalYIdx = T::kFocalYIdx;
@@ -104,9 +104,9 @@ Eigen::Vector<Scalar, 2> CameraProjectionTemplated<Scalar>::getFocalLengths() co
 }
 
 template <typename Scalar>
-Eigen::Vector<Scalar, 2> CameraProjectionTemplated<Scalar>::getPrincipalPoint() const {
+Eigen::Vector2<Scalar> CameraProjectionTemplated<Scalar>::getPrincipalPoint() const {
   return std::visit(
-      [this](auto&& projection) -> Eigen::Vector<Scalar, 2> {
+      [this](auto&& projection) -> Eigen::Vector2<Scalar> {
         using T = std::decay_t<decltype(projection)>;
         int principalPointColIdx = T::kPrincipalPointColIdx;
         int principalPointRowIdx = T::kPrincipalPointRowIdx;
@@ -116,8 +116,8 @@ Eigen::Vector<Scalar, 2> CameraProjectionTemplated<Scalar>::getPrincipalPoint() 
 }
 
 template <typename Scalar>
-Eigen::Vector<Scalar, 2> CameraProjectionTemplated<Scalar>::project(
-    const Eigen::Vector<Scalar, 3>& pointInCamera,
+Eigen::Vector2<Scalar> CameraProjectionTemplated<Scalar>::project(
+    const Eigen::Vector3<Scalar>& pointInCamera,
     Eigen::Ref<Eigen::Matrix<Scalar, 2, 3>> jacobianWrtPoint,
     Eigen::Ref<Eigen::Matrix<Scalar, 2, Eigen::Dynamic>> jacobianWrtParams) const {
   return std::visit(
@@ -133,8 +133,8 @@ Eigen::Vector<Scalar, 2> CameraProjectionTemplated<Scalar>::project(
 }
 
 template <typename Scalar>
-Eigen::Vector<Scalar, 3> CameraProjectionTemplated<Scalar>::unproject(
-    const Eigen::Vector<Scalar, 2>& cameraPixel) const {
+Eigen::Vector3<Scalar> CameraProjectionTemplated<Scalar>::unproject(
+    const Eigen::Vector2<Scalar>& cameraPixel) const {
   return std::visit(
       [&](auto&& projection) {
         using T = std::decay_t<decltype(projection)>;
