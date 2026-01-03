@@ -102,7 +102,7 @@ PybindSE3Type<Scalar> exportSE3Transformation(
       " Default Constructor initializing a group containing 1 identity element");
   type.def(pybind11::init<const Sophus::SE3<Scalar>&>(), "Copy constructor from single element");
 
-  type.def_static("from_matrix", [](const Eigen::Matrix<Scalar, 4, 4>& matrix) -> SE3Group<Scalar> {
+  type.def_static("from_matrix", [](const Eigen::Matrix4<Scalar>& matrix) -> SE3Group<Scalar> {
     return SE3Group<Scalar>{Sophus::SE3<Scalar>::fitToSE3(matrix)};
   });
   type.def_static("from_matrix", [](const pybind11::array_t<Scalar>& matrices) -> SE3Group<Scalar> {
@@ -148,8 +148,8 @@ PybindSE3Type<Scalar> exportSE3Transformation(
 
   type.def_static(
       "exp",
-      [](const Eigen::Matrix<Scalar, 3, 1>& translational_part,
-         const Eigen::Matrix<Scalar, 3, 1>& rotvec) -> SE3Group<Scalar> {
+      [](const Eigen::Vector3<Scalar>& translational_part,
+         const Eigen::Vector3<Scalar>& rotvec) -> SE3Group<Scalar> {
         auto tangentVec = Eigen::Matrix<Scalar, 6, 1>{
             translational_part[0],
             translational_part[1],
@@ -183,8 +183,8 @@ PybindSE3Type<Scalar> exportSE3Transformation(
   type.def(
       "from_quat_and_translation",
       [](const Scalar& w,
-         const Eigen::Matrix<Scalar, 3, 1>& xyz,
-         const Eigen::Matrix<Scalar, 3, 1>& translation) -> SE3Group<Scalar> {
+         const Eigen::Vector3<Scalar>& xyz,
+         const Eigen::Vector3<Scalar>& translation) -> SE3Group<Scalar> {
         Eigen::Quaternion quat(w, xyz[0], xyz[1], xyz[2]);
         quat.normalize();
         return {Sophus::SE3<Scalar>(quat, translation)};

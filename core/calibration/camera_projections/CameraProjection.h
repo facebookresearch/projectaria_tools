@@ -75,24 +75,24 @@ struct CameraProjectionTemplated {
    *
    * @return The 2D pixel coordinates of the projected point in the image space.
    */
-  Eigen::Matrix<Scalar, 2, 1> project(
-      const Eigen::Matrix<Scalar, 3, 1>& pointInCamera,
+  Eigen::Vector2<Scalar> project(
+      const Eigen::Vector3<Scalar>& pointInCamera,
       Eigen::Matrix<Scalar, 2, 3>* jacobianWrtPoint = nullptr) const;
 
   /**
    * @brief unprojects a 2d pixel in the image space to a 3d world point in homogenous coordinate.
    * No checks performed in this process.
    */
-  Eigen::Matrix<Scalar, 3, 1> unproject(const Eigen::Matrix<Scalar, 2, 1>& cameraPixel) const;
+  Eigen::Vector3<Scalar> unproject(const Eigen::Vector2<Scalar>& cameraPixel) const;
 
   /**
    * @brief returns principal point location as {cx, cy}
    */
-  Eigen::Matrix<Scalar, 2, 1> getPrincipalPoint() const;
+  Eigen::Vector2<Scalar> getPrincipalPoint() const;
   /**
    * @brief returns focal lengths as {fx, fy}
    */
-  Eigen::Matrix<Scalar, 2, 1> getFocalLengths() const;
+  Eigen::Vector2<Scalar> getFocalLengths() const;
 
   /**
    * @brief scales the projection parameters as the image scales without the offset changing

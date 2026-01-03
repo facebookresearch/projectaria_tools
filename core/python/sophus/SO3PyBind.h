@@ -110,7 +110,7 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
 
   type.def_static(
       "from_quat",
-      [](const Scalar& w, const Eigen::Matrix<Scalar, 3, 1>& xyz) -> SO3Group<Scalar> {
+      [](const Scalar& w, const Eigen::Vector3<Scalar>& xyz) -> SO3Group<Scalar> {
         Eigen::Quaternion quat(w, xyz[0], xyz[1], xyz[2]);
         quat.normalize();
         return {Sophus::SO3<Scalar>(quat)};
@@ -139,7 +139,7 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
       },
       "Create rotations from a list of quaternions as w_vec: Nx1, xyz_vec: Nx3");
 
-  type.def_static("from_matrix", [](const Eigen::Matrix<Scalar, 3, 3>& matrix) -> SO3Group<Scalar> {
+  type.def_static("from_matrix", [](const Eigen::Matrix3<Scalar>& matrix) -> SO3Group<Scalar> {
     return Sophus::SO3<Scalar>::fitToSO3(matrix);
   });
   type.def_static("from_matrix", [](const pybind11::array_t<Scalar>& matrices) -> SO3Group<Scalar> {

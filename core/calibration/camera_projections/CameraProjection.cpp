@@ -57,9 +57,9 @@ Eigen::Matrix<Scalar, Eigen::Dynamic, 1> CameraProjectionTemplated<Scalar>::proj
 }
 
 template <typename Scalar>
-Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::getFocalLengths() const {
+Eigen::Vector2<Scalar> CameraProjectionTemplated<Scalar>::getFocalLengths() const {
   return std::visit(
-      [this](auto&& projection) -> Eigen::Matrix<Scalar, 2, 1> {
+      [this](auto&& projection) -> Eigen::Vector2<Scalar> {
         using T = std::decay_t<decltype(projection)>;
         int focalXIdx = T::kFocalXIdx;
         int focalYIdx = T::kFocalYIdx;
@@ -69,9 +69,9 @@ Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::getFocalLengths()
 }
 
 template <typename Scalar>
-Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::getPrincipalPoint() const {
+Eigen::Vector2<Scalar> CameraProjectionTemplated<Scalar>::getPrincipalPoint() const {
   return std::visit(
-      [this](auto&& projection) -> Eigen::Matrix<Scalar, 2, 1> {
+      [this](auto&& projection) -> Eigen::Vector2<Scalar> {
         using T = std::decay_t<decltype(projection)>;
         int principalPointColIdx = T::kPrincipalPointColIdx;
         int principalPointRowIdx = T::kPrincipalPointRowIdx;
@@ -81,8 +81,8 @@ Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::getPrincipalPoint
 }
 
 template <typename Scalar>
-Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::project(
-    const Eigen::Matrix<Scalar, 3, 1>& pointInCamera,
+Eigen::Vector2<Scalar> CameraProjectionTemplated<Scalar>::project(
+    const Eigen::Vector3<Scalar>& pointInCamera,
     Eigen::Matrix<Scalar, 2, 3>* jacobianWrtPoint) const {
   return std::visit(
       [&](auto&& projection) {
@@ -93,8 +93,8 @@ Eigen::Matrix<Scalar, 2, 1> CameraProjectionTemplated<Scalar>::project(
 }
 
 template <typename Scalar>
-Eigen::Matrix<Scalar, 3, 1> CameraProjectionTemplated<Scalar>::unproject(
-    const Eigen::Matrix<Scalar, 2, 1>& cameraPixel) const {
+Eigen::Vector3<Scalar> CameraProjectionTemplated<Scalar>::unproject(
+    const Eigen::Vector2<Scalar>& cameraPixel) const {
   return std::visit(
       [&](auto&& projection) {
         using T = std::decay_t<decltype(projection)>;
