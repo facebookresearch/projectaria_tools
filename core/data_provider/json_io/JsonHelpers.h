@@ -75,13 +75,13 @@ nlohmann::json eigenMatrixToJson(const Eigen::Matrix<Scalar, Rows, Cols>& mat) {
 // Templated function to parse SE3 from/to JSON
 template <typename Scalar>
 Sophus::SE3<Scalar> se3FromJson(const nlohmann::json& jsonObj) {
-  Eigen::Matrix<Scalar, 3, 1> translation = eigenVectorFromJson<Scalar, 3>(jsonObj["Translation"]);
+  Eigen::Vector3<Scalar> translation = eigenVectorFromJson<Scalar, 3>(jsonObj["Translation"]);
   data_provider::checkAndThrow(
       jsonObj["UnitQuaternion"].size() == 2,
       fmt::format(
           "Expects UnitQuaternion to have two components, actual size: {}", jsonObj.size()));
   Scalar qReal = jsonObj["UnitQuaternion"][0].get<Scalar>();
-  Eigen::Matrix<Scalar, 3, 1> qImag = eigenVectorFromJson<Scalar, 3>(jsonObj["UnitQuaternion"][1]);
+  Eigen::Vector3<Scalar> qImag = eigenVectorFromJson<Scalar, 3>(jsonObj["UnitQuaternion"][1]);
   Eigen::Quaternion<Scalar> rotation(qReal, qImag.x(), qImag.y(), qImag.z());
   return Sophus::SE3<Scalar>(rotation, translation);
 }

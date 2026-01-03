@@ -96,25 +96,25 @@ struct ImuMeasurementModelParameters {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   // the scale of each of the gyro axes
-  Eigen::Matrix<Scalar, 3, 1> gyroScaleVec;
+  Eigen::Vector3<Scalar> gyroScaleVec;
 
   // the scale of each of the accel axes
-  Eigen::Matrix<Scalar, 3, 1> accelScaleVec;
+  Eigen::Vector3<Scalar> accelScaleVec;
 
   // additive bias, m/sec^2
-  Eigen::Matrix<Scalar, 3, 1> accelBiasMSec2;
+  Eigen::Vector3<Scalar> accelBiasMSec2;
 
   // additive bias, rad/sec
-  Eigen::Matrix<Scalar, 3, 1> gyroBiasRadSec;
+  Eigen::Vector3<Scalar> gyroBiasRadSec;
 
   // nonorthogonality of accel axes. Each row of the matrix must be unit norm
-  Eigen::Matrix<Scalar, 3, 3> accelNonorth;
+  Eigen::Matrix3<Scalar> accelNonorth;
 
   // nonorthogonality of gyro axes. Each row of the matrix must be unit norm
-  Eigen::Matrix<Scalar, 3, 3> gyroNonorth;
+  Eigen::Matrix3<Scalar> gyroNonorth;
 
   // gyro g sensitivity (implied units are rad/sec per (m/sec^2))
-  Eigen::Matrix<Scalar, 3, 3> gyroGSensitivityRadSecPerMSec2;
+  Eigen::Matrix3<Scalar> gyroGSensitivityRadSecPerMSec2;
 
   // The time offsets of the recorded timestamps. This means that if we record a measurement at t,
   // this actually corresponds to the omega/specific force at t-time_offset.
@@ -146,8 +146,8 @@ struct ImuMeasurementModelParameters {
 
   void reset() {
     // default values
-    gyroNonorth = Eigen::Matrix<Scalar, 3, 3>::Identity();
-    accelNonorth = Eigen::Matrix<Scalar, 3, 3>::Identity();
+    gyroNonorth = Eigen::Matrix3<Scalar>::Identity();
+    accelNonorth = Eigen::Matrix3<Scalar>::Identity();
 
     accelBiasMSec2.setZero();
     gyroBiasRadSec.setZero();
@@ -209,22 +209,22 @@ struct ImuMeasurementModelParameters {
   inline void getCompensatedImuMeasurement(
       const Scalar& uncompensatedGyroRadSecAverage,
       const Scalar& uncompensatedAccelMSec2Average,
-      Eigen::Matrix<Scalar, 3, 1>& compensatedGyroRadSec,
-      Eigen::Matrix<Scalar, 3, 1>& compensatedAccelMSec2) const {
-    const Eigen::Matrix<Scalar, 3, 3> accelScaleMat = getAccelScaleMat();
-    const Eigen::Matrix<Scalar, 3, 3> accelScaleInv = accelScaleMat.inverse();
-    const Eigen::Matrix<Scalar, 3, 3> gyroScaleInv = getGyroScaleMat().inverse();
+      Eigen::Vector3<Scalar>& compensatedGyroRadSec,
+      Eigen::Vector3<Scalar>& compensatedAccelMSec2) const {
+    const Eigen::Matrix3<Scalar> accelScaleMat = getAccelScaleMat();
+    const Eigen::Matrix3<Scalar> accelScaleInv = accelScaleMat.inverse();
+    const Eigen::Matrix3<Scalar> gyroScaleInv = getGyroScaleMat().inverse();
 
-    Eigen::Matrix<Scalar, 3, 1> gyroLinear = uncompensatedGyroRadSecAverage;
+    Eigen::Vector3<Scalar> gyroLinear = uncompensatedGyroRadSecAverage;
 
-    Eigen::Matrix<Scalar, 3, 1> accelLinear = uncompensatedAccelMSec2Average;
+    Eigen::Vector3<Scalar> accelLinear = uncompensatedAccelMSec2Average;
 
     // compensated gyro first
     compensatedGyroRadSec.noalias() = gyroScaleInv * gyroLinear -
         gyroGSensitivityRadSecPerMSec2 * uncompensatedAccelMSec2Average - gyroBiasRadSec;
 
     // start with the uncompensated signal
-    Eigen::Matrix<Scalar, 3, 1> tempAccel = accelLinear;
+    Eigen::Vector3<Scalar> tempAccel = accelLinear;
 
     compensatedAccelMSec2.noalias() = accelScaleInv * tempAccel - accelBiasMSec2;
   }
@@ -249,8 +249,8 @@ struct ImuMeasurementModelParameters {
   }
 
   void setScaleMatrices(
-      const Eigen::Matrix<Scalar, 3, 3>& gyroScaleMat,
-      const Eigen::Matrix<Scalar, 3, 3>& accelScaleMat) {
+      const Eigen::Matrix3<Scalar>& gyroScaleMat,
+      const Eigen::Matrix3<Scalar>& accelScaleMat) {
     for (int i = 0; i < 3; i++) {
       gyroScaleVec(i) = gyroScaleMat.row(i).norm();
       gyroNonorth.row(i) = gyroScaleMat.row(i).normalized();
@@ -265,11 +265,11 @@ struct ImuMeasurementModelParameters {
     XR_DEV_CHECK_EQ(accelNonorth(2, 1), Scalar(0.0));
   }
 
-  [[nodiscard]] Eigen::Matrix<Scalar, 3, 3> getAccelScaleMat() const {
+  [[nodiscard]] Eigen::Matrix3<Scalar> getAccelScaleMat() const {
     return accelScaleVec.asDiagonal() * accelNonorth;
   }
 
-  [[nodiscard]] Eigen::Matrix<Scalar, 3, 3> getGyroScaleMat() const {
+  [[nodiscard]] Eigen::Matrix3<Scalar> getGyroScaleMat() const {
     return gyroScaleVec.asDiagonal() * gyroNonorth;
   }
   void check() const {
