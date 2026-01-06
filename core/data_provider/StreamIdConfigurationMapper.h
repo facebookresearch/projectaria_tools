@@ -37,14 +37,17 @@ class StreamIdConfigurationMapper {
 
   // APIs to query two-way mapping of StreamId <-> sensor label, where the former is the id of a
   // stream in the VRS file.
-  ImageConfigRecord getImageConfiguration(const vrs::StreamId& streamId) const;
-  MotionConfigRecord getImuConfiguration(const vrs::StreamId& streamId) const;
-  GpsConfigRecord getGpsConfiguration(const vrs::StreamId& streamId) const;
-  WifiBeaconConfigRecord getWpsConfiguration(const vrs::StreamId& streamId) const;
-  AudioConfig getAudioConfiguration(const vrs::StreamId& streamId) const;
-  BarometerConfigRecord getBarometerConfiguration(const vrs::StreamId& streamId) const;
-  BluetoothBeaconConfigRecord getBluetoothConfiguration(const vrs::StreamId& streamId) const;
-  MotionConfigRecord getMagnetometerConfiguration(const vrs::StreamId& streamId) const;
+  [[nodiscard]] ImageConfigRecord getImageConfiguration(const vrs::StreamId& streamId) const;
+  [[nodiscard]] MotionConfigRecord getImuConfiguration(const vrs::StreamId& streamId) const;
+  [[nodiscard]] GpsConfigRecord getGpsConfiguration(const vrs::StreamId& streamId) const;
+  [[nodiscard]] WifiBeaconConfigRecord getWpsConfiguration(const vrs::StreamId& streamId) const;
+  [[nodiscard]] AudioConfig getAudioConfiguration(const vrs::StreamId& streamId) const;
+  [[nodiscard]] BarometerConfigRecord getBarometerConfiguration(
+      const vrs::StreamId& streamId) const;
+  [[nodiscard]] BluetoothBeaconConfigRecord getBluetoothConfiguration(
+      const vrs::StreamId& streamId) const;
+  [[nodiscard]] MotionConfigRecord getMagnetometerConfiguration(
+      const vrs::StreamId& streamId) const;
 
  private:
   std::map<vrs::StreamId, ImageConfigRecord> streamIdToImageConfig_;

@@ -68,65 +68,65 @@ class SensorData {
       const std::map<TimeSyncMode, int64_t>& timeSyncTimeNs);
 
   /** @brief Returns the ID of the VRS Stream the data belongs to */
-  vrs::StreamId streamId() const;
+  [[nodiscard]] vrs::StreamId streamId() const;
 
   /**
    * @brief Returns the type of the sensor data
    */
 
-  SensorDataType sensorDataType() const;
+  [[nodiscard]] SensorDataType sensorDataType() const;
 
   /**
    * @brief Returns the sensor data as ImageDataAndRecord
    * @pre type is Image
    */
-  ImageDataAndRecord imageDataAndRecord() const;
+  [[nodiscard]] ImageDataAndRecord imageDataAndRecord() const;
 
   /**
    * @brief Returns the sensor data as MotionData
    * @pre type is IMU
    */
 
-  MotionData imuData() const;
+  [[nodiscard]] MotionData imuData() const;
 
   /**
    * @brief Returns the sensor data as GpsData
    * @pre type is GPS
    */
 
-  GpsData gpsData() const;
+  [[nodiscard]] GpsData gpsData() const;
 
   /**
    * @brief Returns the sensor data as WifiBeaconData
    * @pre type is WPS
    */
-  WifiBeaconData wpsData() const;
+  [[nodiscard]] WifiBeaconData wpsData() const;
 
   /**
    * @brief Returns the sensor data as AudioDataAndRecord
    * @pre type is Audio
    */
-  AudioDataAndRecord audioDataAndRecord() const;
+  [[nodiscard]] AudioDataAndRecord audioDataAndRecord() const;
 
   /**
    * @brief Returns the sensor data as BarometerData
    * @pre type is Barometer
    */
-  BarometerData barometerData() const;
+  [[nodiscard]] BarometerData barometerData() const;
   /**
    * @brief Returns the sensor data as BluetoothBeaconData
    * @pre type is Bluetooth
    */
-  BluetoothBeaconData bluetoothData() const;
+  [[nodiscard]] BluetoothBeaconData bluetoothData() const;
 
   /**
    * @brief Returns the sensor data as MotionData
    * @pre type is Magnetometer
    */
-  MotionData magnetometerData() const;
+  [[nodiscard]] MotionData magnetometerData() const;
 
   /** @brief Returns timestamp in a specified time domains */
-  int64_t getTimeNs(TimeDomain timeDomain) const;
+  [[nodiscard]] int64_t getTimeNs(TimeDomain timeDomain) const;
 
  private:
   vrs::StreamId streamId_;
@@ -141,7 +141,7 @@ class SensorData {
   friend class VrsDataProvider;
 
   // get timestamp in device or host time domain
-  int64_t getDeviceTime() const;
-  int64_t getHostTime() const;
+  [[nodiscard]] int64_t getDeviceTime() const;
+  [[nodiscard]] int64_t getHostTime() const;
 };
 } // namespace projectaria::tools::data_provider

@@ -32,12 +32,13 @@ class StreamIdLabelMapper {
    * @brief retrieve the label of a vrs stream from its id.
    * Returns nullopt of the stream id does not exist
    */
-  std::optional<std::string> getLabelFromStreamId(const vrs::StreamId& streamId) const;
+  [[nodiscard]] std::optional<std::string> getLabelFromStreamId(
+      const vrs::StreamId& streamId) const;
   /**
    * @brief retrieve the ID of a vrs stream from its label.
    * Returns nullopt of the label does not exist
    */
-  std::optional<vrs::StreamId> getStreamIdFromLabel(const std::string& label) const;
+  [[nodiscard]] std::optional<vrs::StreamId> getStreamIdFromLabel(const std::string& label) const;
 
  private:
   std::map<std::string, vrs::StreamId> labelToStreamId_;

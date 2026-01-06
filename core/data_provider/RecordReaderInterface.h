@@ -45,12 +45,12 @@ class RecordReaderInterface {
       std::map<vrs::StreamId, std::shared_ptr<MotionSensorPlayer>>& magnetometerPlayers,
       const std::shared_ptr<TimeSyncMapper>& timeSyncMapper);
 
-  std::set<vrs::StreamId> getStreamIds() const;
+  [[nodiscard]] std::set<vrs::StreamId> getStreamIds() const;
   [[nodiscard]] std::map<std::string, std::string> getFileTags() const;
   [[nodiscard]] std::optional<VrsMetadata> getMetadata() const;
-  SensorDataType getSensorDataType(const vrs::StreamId& streamId) const;
+  [[nodiscard]] SensorDataType getSensorDataType(const vrs::StreamId& streamId) const;
 
-  size_t getNumData(const vrs::StreamId& streamId) const;
+  [[nodiscard]] size_t getNumData(const vrs::StreamId& streamId) const;
 
   std::map<vrs::StreamId, std::vector<const vrs::IndexRecord::RecordInfo*>>
   getStreamIdToDataRecords();

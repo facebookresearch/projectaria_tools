@@ -52,60 +52,60 @@ class SensorConfiguration {
       const SensorDataType& sensorDataType);
 
   /** @brief Returns the type of sensor data */
-  SensorDataType sensorDataType() const;
+  [[nodiscard]] SensorDataType sensorDataType() const;
 
   /**
    * @brief Returns the sensor configuration as ImageConfigRecord
    * @pre type is Image
    */
-  ImageConfigRecord imageConfiguration() const;
+  [[nodiscard]] ImageConfigRecord imageConfiguration() const;
 
   /**
    *@brief Returns the sensor configuration as MotionConfigRecord
    * @pre type is Imu
    */
-  MotionConfigRecord imuConfiguration() const;
+  [[nodiscard]] MotionConfigRecord imuConfiguration() const;
 
   /**
    * @brief Returns the sensor configuration as GpsConfigRecord
    * @pre type is Gps
    */
-  GpsConfigRecord gpsConfiguration() const;
+  [[nodiscard]] GpsConfigRecord gpsConfiguration() const;
 
   /**
    * @brief Returns the sensor configuration as WifiBeaconConfigRecord
    * @pre type is Wps
    */
-  WifiBeaconConfigRecord wpsConfiguration() const;
+  [[nodiscard]] WifiBeaconConfigRecord wpsConfiguration() const;
 
   /**
    * @brief Returns the sensor configuration as AudioConfig
    * @pre type is Audio
    */
-  AudioConfig audioConfiguration() const;
+  [[nodiscard]] AudioConfig audioConfiguration() const;
 
   /**
    * @brief Returns the sensor configuration as BarometerConfigRecord
    * @pre type is Barometer
    */
 
-  BarometerConfigRecord barometerConfiguration() const;
+  [[nodiscard]] BarometerConfigRecord barometerConfiguration() const;
 
   /**
    * @brief Returns the sensor configuration as Bluetooth
    * @pre type is Bluetooth
    */
-  BluetoothBeaconConfigRecord bluetoothConfiguration() const;
+  [[nodiscard]] BluetoothBeaconConfigRecord bluetoothConfiguration() const;
   /**
    * @brief Returns the sensor configuration as MotionConfigRecord
    * @pre type is Magnetometer
    */
-  MotionConfigRecord magnetometerConfiguration() const;
+  [[nodiscard]] MotionConfigRecord magnetometerConfiguration() const;
 
   /**
    * @brief Returns the nominal frame rate of the sensor
    */
-  double getNominalRateHz() const;
+  [[nodiscard]] double getNominalRateHz() const;
 
  private:
   SensorConfigurationVariant sensorConfigurationVariant_;

@@ -24,10 +24,10 @@ struct MicrophoneCalibration {
   MicrophoneCalibration() = default;
   MicrophoneCalibration(const std::string& label, double dSensitivity1KDbv);
 
-  std::string getLabel() const;
+  [[nodiscard]] std::string getLabel() const;
 
-  double rawToRectified(double raw) const;
-  double rectifiedToRaw(double rectified) const;
+  [[nodiscard]] double rawToRectified(double raw) const;
+  [[nodiscard]] double rectifiedToRaw(double rectified) const;
 
  private:
   std::string label_;

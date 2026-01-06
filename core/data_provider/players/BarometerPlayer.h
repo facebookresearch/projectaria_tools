@@ -56,19 +56,19 @@ class BarometerPlayer : public vrs::RecordFormatStreamPlayer {
     callback_ = std::move(callback);
   }
 
-  const BarometerConfigRecord& getConfigRecord() const {
+  [[nodiscard]] const BarometerConfigRecord& getConfigRecord() const {
     return configRecord_;
   }
 
-  const BarometerData& getDataRecord() const {
+  [[nodiscard]] const BarometerData& getDataRecord() const {
     return dataRecord_;
   }
 
-  const vrs::StreamId& getStreamId() const {
+  [[nodiscard]] const vrs::StreamId& getStreamId() const {
     return streamId_;
   }
 
-  double getNextTimestampSec() const {
+  [[nodiscard]] double getNextTimestampSec() const {
     return nextTimestampSec_;
   }
 
