@@ -29,19 +29,19 @@ namespace projectaria::tools::data_provider {
 struct ImageData {
  public:
   /** @brief Returns ImageVariant type of the image */
-  std::optional<projectaria::tools::image::ImageVariant> imageVariant() const;
+  [[nodiscard]] std::optional<projectaria::tools::image::ImageVariant> imageVariant() const;
 
   /** @brief Returns the format of the image */
-  vrs::PixelFormat getPixelFormat() const;
+  [[nodiscard]] vrs::PixelFormat getPixelFormat() const;
 
   /** @brief Returns number of columns in image */
-  uint32_t getWidth() const;
+  [[nodiscard]] uint32_t getWidth() const;
   /** @brief Returns number of rows in image */
-  uint32_t getHeight() const;
+  [[nodiscard]] uint32_t getHeight() const;
   /** @brief Returns number of bytes per row in image */
-  size_t getStride() const;
+  [[nodiscard]] size_t getStride() const;
   /** @brief Returns if image is empty */
-  bool isValid() const;
+  [[nodiscard]] bool isValid() const;
 
  public:
   std::shared_ptr<vrs::utils::PixelFrame> pixelFrame;
@@ -107,23 +107,23 @@ class ImageSensorPlayer : public vrs::utils::VideoRecordFormatStreamPlayer {
     callback_ = callback;
   }
 
-  const ImageData& getData() const {
+  [[nodiscard]] const ImageData& getData() const {
     return data_;
   }
 
-  const ImageConfigRecord& getConfigRecord() const {
+  [[nodiscard]] const ImageConfigRecord& getConfigRecord() const {
     return configRecord_;
   }
 
-  const ImageDataRecord& getDataRecord() const {
+  [[nodiscard]] const ImageDataRecord& getDataRecord() const {
     return dataRecord_;
   }
 
-  const vrs::StreamId& getStreamId() const {
+  [[nodiscard]] const vrs::StreamId& getStreamId() const {
     return streamId_;
   }
 
-  double getNextTimestampSec() const {
+  [[nodiscard]] double getNextTimestampSec() const {
     return nextTimestampSec_;
   }
 

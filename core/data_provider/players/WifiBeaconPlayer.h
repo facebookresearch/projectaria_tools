@@ -60,19 +60,19 @@ class WifiBeaconPlayer : public vrs::RecordFormatStreamPlayer {
     callback_ = callback;
   }
 
-  const WifiBeaconConfigRecord& getConfigRecord() const {
+  [[nodiscard]] const WifiBeaconConfigRecord& getConfigRecord() const {
     return configRecord_;
   }
 
-  const WifiBeaconData& getDataRecord() const {
+  [[nodiscard]] const WifiBeaconData& getDataRecord() const {
     return dataRecord_;
   }
 
-  const vrs::StreamId& getStreamId() const {
+  [[nodiscard]] const vrs::StreamId& getStreamId() const {
     return streamId_;
   }
 
-  double getNextTimestampSec() const {
+  [[nodiscard]] double getNextTimestampSec() const {
     return nextTimestampSec_;
   }
 

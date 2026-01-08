@@ -68,26 +68,26 @@ struct Image {
   // Query dimensions
 
   /** @brief Returns the number of columns */
-  PROJECTARIA_HOST_DEVICE inline size_t width() const;
+  PROJECTARIA_HOST_DEVICE [[nodiscard]] inline size_t width() const;
   /** @brief Returns the number of rows */
-  PROJECTARIA_HOST_DEVICE inline size_t height() const;
+  PROJECTARIA_HOST_DEVICE [[nodiscard]] inline size_t height() const;
   /** @brief Returns the number of channels */
-  PROJECTARIA_HOST_DEVICE inline size_t channel() const;
+  PROJECTARIA_HOST_DEVICE [[nodiscard]] inline size_t channel() const;
   /** @brief Returns (the number of columns, the number of rows) in an Eigen::Vector2i vector */
-  PROJECTARIA_HOST_DEVICE inline Eigen::Vector2i dim() const;
+  PROJECTARIA_HOST_DEVICE [[nodiscard]] inline Eigen::Vector2i dim() const;
 
   //////////////////////////////////////////////////////
   // Storage
   /** @brief Returns if the image is empty */
-  PROJECTARIA_HOST_DEVICE inline bool isValid() const;
+  PROJECTARIA_HOST_DEVICE [[nodiscard]] inline bool isValid() const;
   /** @brief Returns if the image pixel occupies a contiguous memory, i.e. pitch == sizeof(T) * w */
-  PROJECTARIA_HOST_DEVICE inline bool isContiguous() const;
+  PROJECTARIA_HOST_DEVICE [[nodiscard]] inline bool isContiguous() const;
   /** @brief Returns the data pointer */
-  PROJECTARIA_HOST_DEVICE inline T* data() const;
+  PROJECTARIA_HOST_DEVICE [[nodiscard]] inline T* data() const;
   /** @brief Returns the pitch, i.e. number of bytes per row */
-  PROJECTARIA_HOST_DEVICE inline size_t pitch() const;
+  PROJECTARIA_HOST_DEVICE [[nodiscard]] inline size_t pitch() const;
   /** @brief Returns size of bytes occupied by the entire image */
-  PROJECTARIA_HOST_DEVICE inline size_t sizeBytes() const;
+  PROJECTARIA_HOST_DEVICE [[nodiscard]] inline size_t sizeBytes() const;
 
   //////////////////////////////////////////////////////
   // Iterators
@@ -97,9 +97,9 @@ struct Image {
   /** @brief Returns the iterator pointing to the end of the image */
   PROJECTARIA_HOST_DEVICE inline ImageIterator<T> end();
   /** @brief Returns the const iterator pointing to the begin of the image */
-  PROJECTARIA_HOST_DEVICE inline ImageIterator<const T> begin() const;
+  PROJECTARIA_HOST_DEVICE [[nodiscard]] inline ImageIterator<const T> begin() const;
   /** @brief Returns the const iterator pointing to the end of the image */
-  PROJECTARIA_HOST_DEVICE inline ImageIterator<const T> end() const;
+  PROJECTARIA_HOST_DEVICE [[nodiscard]] inline ImageIterator<const T> end() const;
 
   //////////////////////////////////////////////////////
   // Pixel Access
@@ -107,7 +107,7 @@ struct Image {
   /** @brief Returns the row pointers for fast pixel access */
   PROJECTARIA_HOST_DEVICE inline T* rowPtr(size_t y);
   /** Returns the const row pointers for fast pixel access */
-  PROJECTARIA_HOST_DEVICE inline const T* rowPtr(size_t y) const;
+  PROJECTARIA_HOST_DEVICE [[nodiscard]] inline const T* rowPtr(size_t y) const;
 
   /** @brief Returns a reference to the pixel at column x and row y */
   template <typename P, typename std::enable_if_t<std::is_integral<P>::value>* = nullptr>
@@ -142,7 +142,7 @@ struct Image {
   PROJECTARIA_HOST_DEVICE inline bool inBounds(P x, P y, P border = 0) const;
 
  protected:
-  PROJECTARIA_HOST_DEVICE inline bool yInBounds(int y) const;
+  PROJECTARIA_HOST_DEVICE [[nodiscard]] inline bool yInBounds(int y) const;
 
  protected:
   size_t pitch_;

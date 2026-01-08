@@ -40,7 +40,7 @@ struct AudioData {
    * @brief Returns a 2D Eigen::Map of the data, each row represents a time sample, each column
    * represents a channel
    */
-  ConstMapInt32 reshapeAudioData(const int numSamples, const int numChannels) const {
+  [[nodiscard]] ConstMapInt32 reshapeAudioData(const int numSamples, const int numChannels) const {
     return ConstMapInt32(data.data(), numSamples, numChannels);
   }
 };
@@ -81,23 +81,23 @@ class AudioPlayer : public vrs::RecordFormatStreamPlayer {
     callback_ = callback;
   }
 
-  const AudioData& getData() const {
+  [[nodiscard]] const AudioData& getData() const {
     return data_;
   }
 
-  const AudioConfig& getConfigRecord() const {
+  [[nodiscard]] const AudioConfig& getConfigRecord() const {
     return configRecord_;
   }
 
-  const AudioDataRecord& getDataRecord() const {
+  [[nodiscard]] const AudioDataRecord& getDataRecord() const {
     return dataRecord_;
   }
 
-  const vrs::StreamId& getStreamId() const {
+  [[nodiscard]] const vrs::StreamId& getStreamId() const {
     return streamId_;
   }
 
-  double getNextTimestampSec() const {
+  [[nodiscard]] double getNextTimestampSec() const {
     return nextTimestampSec_;
   }
 
@@ -106,7 +106,7 @@ class AudioPlayer : public vrs::RecordFormatStreamPlayer {
   }
 
   // Get the detected audio format (available after first read)
-  vrs::AudioFormat getDetectedAudioFormat() const {
+  [[nodiscard]] vrs::AudioFormat getDetectedAudioFormat() const {
     return detectedAudioFormat_;
   }
 

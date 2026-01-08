@@ -37,7 +37,7 @@ class SpeechDataProvider {
    * Note: TimeQueryOptions is ignored if there is a sentence that contains the query device
    * timestamp
    */
-  std::optional<SentenceData> getSentenceDataByTimestampNs(
+  [[nodiscard]] std::optional<SentenceData> getSentenceDataByTimestampNs(
       int64_t deviceTimeStampNs,
       const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Closest) const;
 
@@ -46,14 +46,14 @@ class SpeechDataProvider {
    * confidence level. Note: TimeQueryOptions is ignored if there is a word that contains
    * the query device timestamp
    */
-  std::optional<WordData> getWordDataByTimestampNs(
+  [[nodiscard]] std::optional<WordData> getWordDataByTimestampNs(
       int64_t deviceTimeStampNs,
       const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Closest) const;
 
   /**
    * @brief Check whether the speech data is empty
    */
-  bool empty() const;
+  [[nodiscard]] bool empty() const;
 
  private:
   void loadSpeechData();

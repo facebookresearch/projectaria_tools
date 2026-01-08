@@ -46,7 +46,7 @@ class AriaDigitalTwinSkeletonProvider {
    * CLOSEST}. Default to CLOSEST.
    * @return SkeletonFrameWithDt skeleton frame data, wrapped using DataWithDt
    */
-  SkeletonFrameWithDt getSkeletonByTimestampNs(
+  [[nodiscard]] SkeletonFrameWithDt getSkeletonByTimestampNs(
       int64_t deviceTimeStampNs,
       const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Closest) const;
 

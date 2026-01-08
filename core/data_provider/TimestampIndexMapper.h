@@ -29,8 +29,10 @@ class TimestampIndexMapper {
   explicit TimestampIndexMapper(std::shared_ptr<RecordReaderInterface> interface);
 
   // get start and end time w.r.t. different time domain
-  int64_t getFirstTimeNs(const vrs::StreamId& streamId, const TimeDomain& timeDomain) const;
-  int64_t getLastTimeNs(const vrs::StreamId& streamId, const TimeDomain& timeDomain) const;
+  [[nodiscard]] int64_t getFirstTimeNs(const vrs::StreamId& streamId, const TimeDomain& timeDomain)
+      const;
+  [[nodiscard]] int64_t getLastTimeNs(const vrs::StreamId& streamId, const TimeDomain& timeDomain)
+      const;
 
   // get index of data based on timestamp in a specified domain
   int getIndexByTimeNs(

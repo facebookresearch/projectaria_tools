@@ -66,14 +66,14 @@ class DataWithDt {
   /**
    * @brief Get the value of delta_time in nanoseconds = data_time - query_time
    */
-  int64_t dtNs() const {
+  [[nodiscard]] int64_t dtNs() const {
     return dtNs_;
   }
 
   /**
    * @brief Get the value of the status flag for data validity
    */
-  bool isValid() const {
+  [[nodiscard]] bool isValid() const {
     return isValid_;
   }
 
@@ -136,7 +136,7 @@ class SegmentationData : public projectaria::tools::data_provider::ImageData {
    * @brief Get stored image as 3-channel uint8 format.
    * @return A copy of the image.
    */
-  projectaria::tools::image::ManagedImage3U8 getVisualizable() const;
+  [[nodiscard]] projectaria::tools::image::ManagedImage3U8 getVisualizable() const;
 };
 
 /**
@@ -148,7 +148,7 @@ class DepthData : public projectaria::tools::data_provider::ImageData {
    * @brief Get stored image as 3-channel uint8 format.
    * @return A copy of the image.
    */
-  projectaria::tools::image::ManagedImageU8 getVisualizable() const;
+  [[nodiscard]] projectaria::tools::image::ManagedImageU8 getVisualizable() const;
 };
 
 /**
@@ -160,7 +160,7 @@ class SyntheticData : public projectaria::tools::data_provider::ImageData {
    * @brief Get stored image as an image variant.
    * @return an image variant.
    */
-  projectaria::tools::image::ImageVariant getVisualizable() const {
+  [[nodiscard]] projectaria::tools::image::ImageVariant getVisualizable() const {
     return imageVariant().value();
   }
 };
@@ -272,7 +272,7 @@ enum class MotionType {
 struct RotationalSymmetryAxis {
   Eigen::Vector3d axis; /**< rotational symmetric axis */
   float angleDegree; /**< */
-  std::string toString() const;
+  [[nodiscard]] std::string toString() const;
 };
 
 /**
@@ -282,7 +282,7 @@ struct RotationalSymmetry {
   bool isAnnotated = false; /**< if false, it means we have not annotated the instance, the
                                isSymmetry is unknown */
   std::vector<RotationalSymmetryAxis> axes; /**< all rotational symmetrical axes of an instance */
-  std::string toString() const;
+  [[nodiscard]] std::string toString() const;
 };
 
 /**
@@ -295,7 +295,7 @@ struct CanonicalPose {
   /**
    * @brief A simple function to string-fy a CanonicalPose object
    */
-  std::string toString() const;
+  [[nodiscard]] std::string toString() const;
 };
 
 /**
@@ -330,7 +330,7 @@ struct InstanceInfo {
   /**
    * @brief A simple function to string-fy an InstanceInfo object
    */
-  std::string toString() const;
+  [[nodiscard]] std::string toString() const;
 };
 
 /**
