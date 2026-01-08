@@ -74,19 +74,19 @@ class MotionSensorPlayer : public vrs::RecordFormatStreamPlayer {
     callback_ = callback;
   }
 
-  const MotionConfigRecord& getConfigRecord() const {
+  [[nodiscard]] const MotionConfigRecord& getConfigRecord() const {
     return configRecord_;
   }
 
-  const MotionData& getDataRecord() const {
+  [[nodiscard]] const MotionData& getDataRecord() const {
     return dataRecord_;
   }
 
-  const vrs::StreamId& getStreamId() const {
+  [[nodiscard]] const vrs::StreamId& getStreamId() const {
     return streamId_;
   }
 
-  double getNextTimestampSec() const {
+  [[nodiscard]] double getNextTimestampSec() const {
     return nextTimestampSec_;
   }
 

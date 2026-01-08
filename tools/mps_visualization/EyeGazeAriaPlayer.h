@@ -32,10 +32,10 @@ class EyeGazeAriaPlayer : public AriaPlayer {
       std::shared_ptr<AriaVisualizationData> visData,
       std::shared_ptr<AriaVisualizationControl> visControl);
 
-  std::shared_ptr<EyeGazeVisualizationData> getGeneralizedEyeGazeVisDataPtr() const {
+  [[nodiscard]] std::shared_ptr<EyeGazeVisualizationData> getGeneralizedEyeGazeVisDataPtr() const {
     return generalizedEyeGazesVisData_;
   }
-  std::shared_ptr<EyeGazeVisualizationData> getCalibratedEyeGazeVisDataPtr() const {
+  [[nodiscard]] std::shared_ptr<EyeGazeVisualizationData> getCalibratedEyeGazeVisDataPtr() const {
     return calibratedEyeGazesVisData_;
   }
 

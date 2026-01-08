@@ -66,19 +66,19 @@ class GpsPlayer : public vrs::RecordFormatStreamPlayer {
     callback_ = callback;
   }
 
-  const GpsConfigRecord& getConfigRecord() const {
+  [[nodiscard]] const GpsConfigRecord& getConfigRecord() const {
     return configRecord_;
   }
 
-  const GpsData& getDataRecord() const {
+  [[nodiscard]] const GpsData& getDataRecord() const {
     return dataRecord_;
   }
 
-  const vrs::StreamId& getStreamId() const {
+  [[nodiscard]] const vrs::StreamId& getStreamId() const {
     return streamId_;
   }
 
-  double getNextTimestampSec() const {
+  [[nodiscard]] double getNextTimestampSec() const {
     return nextTimestampSec_;
   }
 

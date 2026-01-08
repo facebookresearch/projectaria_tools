@@ -36,17 +36,19 @@ class TimeSyncMapper {
   // general function to convert between two times in TimeSyncData
   // syncTime: TimeSyncData.realTimestampNs
   // deviceTime: TimeSyncData.monotonicTimestampNs
-  int64_t convertFromSyncTimeToDeviceTimeNs(int64_t syncTimeNs, TimeSyncMode mode) const;
-  int64_t convertFromDeviceTimeToSyncTimeNs(int64_t deviceTimeNs, TimeSyncMode mode) const;
+  [[nodiscard]] int64_t convertFromSyncTimeToDeviceTimeNs(int64_t syncTimeNs, TimeSyncMode mode)
+      const;
+  [[nodiscard]] int64_t convertFromDeviceTimeToSyncTimeNs(int64_t deviceTimeNs, TimeSyncMode mode)
+      const;
 
   // backward compatible with timecode conversion
-  int64_t convertFromTimeCodeToDeviceTimeNs(int64_t timecodeTimeNs) const;
-  int64_t convertFromDeviceTimeToTimeCodeNs(int64_t deviceTimeNs) const;
+  [[nodiscard]] int64_t convertFromTimeCodeToDeviceTimeNs(int64_t timecodeTimeNs) const;
+  [[nodiscard]] int64_t convertFromDeviceTimeToTimeCodeNs(int64_t deviceTimeNs) const;
 
   // only support TIMECODE and TIC_SYNC mode
-  bool supportsMode(TimeSyncMode mode) const;
+  [[nodiscard]] bool supportsMode(TimeSyncMode mode) const;
 
-  std::vector<TimeSyncMode> getTimeSyncModes() const;
+  [[nodiscard]] std::vector<TimeSyncMode> getTimeSyncModes() const;
 
  private:
   std::map<TimeSyncMode, std::shared_ptr<TimeSyncPlayer>> timesyncPlayers_;

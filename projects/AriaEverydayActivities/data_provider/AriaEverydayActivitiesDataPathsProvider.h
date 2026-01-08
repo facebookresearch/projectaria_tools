@@ -55,48 +55,48 @@ class AriaEverydayActivitiesDataPathsProvider {
    * @brief Get the resulting data paths
    * @return AEA data paths object that can be fed to the AEA data provider
    */
-  AriaEverydayActivitiesDataPaths getDataPaths() const;
+  [[nodiscard]] AriaEverydayActivitiesDataPaths getDataPaths() const;
 
   /**
    * @brief Get the location number. This number is found in the metadata json file, and is also
    * embeded in the sequence name
    */
-  int getLocationNumber() const;
+  [[nodiscard]] int getLocationNumber() const;
 
   /**
    * @brief Get the script number. This number is found in the metadata json file, and is also
    * embeded in the sequence name
    */
-  int getScriptNumber() const;
+  [[nodiscard]] int getScriptNumber() const;
 
   /**
    * @brief Get the sequence number. This number is found in the metadata json file, and is also
    * embeded in the sequence name
    */
-  int getSequenceNumber() const;
+  [[nodiscard]] int getSequenceNumber() const;
 
   /**
    * @brief Get the recording number. This number is found in the metadata json file, and is also
    * embeded in the sequence name
    */
-  int getRecordingNumber() const;
+  [[nodiscard]] int getRecordingNumber() const;
 
   /**
    * @brief Get the recordings that were collected at the same time and location as the current
    * recording. This data can be found in the metadata json file
    * @return vector of sequence names
    */
-  std::vector<std::string> getConcurrentRecordings() const;
+  [[nodiscard]] std::vector<std::string> getConcurrentRecordings() const;
 
   /**
    * @brief Get the name of the current dataset
    */
-  std::string getDatasetName() const;
+  [[nodiscard]] std::string getDatasetName() const;
 
   /**
    * @brief Get the version of the current dataset
    */
-  std::string getDatasetVersion() const;
+  [[nodiscard]] std::string getDatasetVersion() const;
 
  private:
   void validateDatasetVersion() const;

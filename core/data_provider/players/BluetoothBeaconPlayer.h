@@ -58,19 +58,19 @@ class BluetoothBeaconPlayer : public vrs::RecordFormatStreamPlayer {
     callback_ = callback;
   }
 
-  const BluetoothBeaconConfigRecord& getConfigRecord() const {
+  [[nodiscard]] const BluetoothBeaconConfigRecord& getConfigRecord() const {
     return configRecord_;
   }
 
-  const BluetoothBeaconData& getDataRecord() const {
+  [[nodiscard]] const BluetoothBeaconData& getDataRecord() const {
     return dataRecord_;
   }
 
-  const vrs::StreamId& getStreamId() const {
+  [[nodiscard]] const vrs::StreamId& getStreamId() const {
     return streamId_;
   }
 
-  double getNextTimestampSec() const {
+  [[nodiscard]] double getNextTimestampSec() const {
     return nextTimestampSec_;
   }
 

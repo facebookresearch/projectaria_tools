@@ -45,11 +45,11 @@ class AriaEverydayActivitiesDataProvider {
   explicit AriaEverydayActivitiesDataProvider(const std::string& sequencePath);
 
   // ---- Functions to check availability of data ----
-  bool hasAriaData() const;
+  [[nodiscard]] bool hasAriaData() const;
 
-  bool hasSpeechData() const;
+  [[nodiscard]] bool hasSpeechData() const;
 
-  bool hasMpsData() const;
+  [[nodiscard]] bool hasMpsData() const;
 
   // public access to the vrs data provider for all access to raw sensor data
   std::shared_ptr<projectaria::tools::data_provider::VrsDataProvider> vrs;

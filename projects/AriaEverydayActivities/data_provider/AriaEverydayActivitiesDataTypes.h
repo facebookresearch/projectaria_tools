@@ -48,7 +48,7 @@ struct SentenceData {
   int64_t endTimestampNs;
   WordDataSeries words;
 
-  std::string toString() const {
+  [[nodiscard]] std::string toString() const {
     if (words.empty()) {
       return {};
     }
