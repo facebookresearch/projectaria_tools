@@ -69,23 +69,23 @@ class CameraCalibration {
       double timeOffsetSecDeviceCamera = 0.0,
       std::optional<double> maybeReadOutTimeSec = {});
 
-  std::string getLabel() const;
-  std::string getSerialNumber() const;
-  Sophus::SE3d getT_Device_Camera() const;
-  Eigen::Vector2i getImageSize() const;
-  double getMaxSolidAngle() const;
-  std::optional<double> getValidRadius() const;
-  double getTimeOffsetSecDeviceCamera() const;
-  std::optional<double> getReadOutTimeSec() const;
+  [[nodiscard]] std::string getLabel() const;
+  [[nodiscard]] std::string getSerialNumber() const;
+  [[nodiscard]] Sophus::SE3d getT_Device_Camera() const;
+  [[nodiscard]] Eigen::Vector2i getImageSize() const;
+  [[nodiscard]] double getMaxSolidAngle() const;
+  [[nodiscard]] std::optional<double> getValidRadius() const;
+  [[nodiscard]] double getTimeOffsetSecDeviceCamera() const;
+  [[nodiscard]] std::optional<double> getReadOutTimeSec() const;
   /**
    * @brief Function to check whether a pixel is within the valid area of the sensor plane.
    */
-  bool isVisible(const Eigen::Vector2d& cameraPixel) const;
+  [[nodiscard]] bool isVisible(const Eigen::Vector2d& cameraPixel) const;
 
-  CameraProjection::ModelType modelName() const; // return KB3 or Fisheye624
-  Eigen::Vector2d getPrincipalPoint() const; // return optical center
-  Eigen::Vector2d getFocalLengths() const; // return focal length in x and y
-  Eigen::VectorXd projectionParams() const; // return full calibration parameters
+  [[nodiscard]] CameraProjection::ModelType modelName() const; // return KB3 or Fisheye624
+  [[nodiscard]] Eigen::Vector2d getPrincipalPoint() const; // return optical center
+  [[nodiscard]] Eigen::Vector2d getFocalLengths() const; // return focal length in x and y
+  [[nodiscard]] Eigen::VectorXd projectionParams() const; // return full calibration parameters
 
   /**
    * @brief Function to project a 3d point (in camera frame) to a 2d camera pixel location. In this
@@ -93,14 +93,14 @@ class CameraCalibration {
    * @param pointInCamera 3d point in camera frame.
    * @return 2d pixel location in image plane.
    */
-  Eigen::Vector2d projectNoChecks(const Eigen::Vector3d& pointInCamera) const;
+  [[nodiscard]] Eigen::Vector2d projectNoChecks(const Eigen::Vector3d& pointInCamera) const;
   /**
    * @brief Function to project a 3d point (in camera frame) to a 2d camera pixel location, with a
    * number of validity checks to ensure the point is visible.
    * @param pointInCamera 3d point in camera frame.
    * @return 2d pixel location in image plane. If any of the check failed, return std::nullopt.
    */
-  std::optional<Eigen::Vector2d> project(const Eigen::Vector3d& pointInCamera) const;
+  [[nodiscard]] std::optional<Eigen::Vector2d> project(const Eigen::Vector3d& pointInCamera) const;
 
   /**
    * @brief Function to unproject a 2d pixel location to a 3d ray in camera frame. In this function,
@@ -108,14 +108,14 @@ class CameraCalibration {
    * @param cameraPixel 2d pixel location in image plane.
    * @return 3d ray, in camera frame.
    */
-  Eigen::Vector3d unprojectNoChecks(const Eigen::Vector2d& cameraPixel) const;
+  [[nodiscard]] Eigen::Vector3d unprojectNoChecks(const Eigen::Vector2d& cameraPixel) const;
   /**
    * @brief Function to unproject a 2d pixel location to a 3d ray, in camera frame, with a number of
    * validity checks to ensure the unprojection is valid.
    * @param cameraPixel 2d pixel location in image plane.
    * @return 3d ray, in camera frame. If any of the check failed, return std::nullopt
    */
-  std::optional<Eigen::Vector3d> unproject(const Eigen::Vector2d& cameraPixel) const;
+  [[nodiscard]] std::optional<Eigen::Vector3d> unproject(const Eigen::Vector2d& cameraPixel) const;
 
   /**
    * @brief Obtain a new camera calibration after translation + scaling transform from the original
@@ -124,7 +124,7 @@ class CameraCalibration {
    * @param scale The scaling factor to apply in step (2).
    * @param originOffset The offset to apply in step (1). By default the value is {0, 0}.
    */
-  CameraCalibration rescale(
+  [[nodiscard]] CameraCalibration rescale(
       const Eigen::Vector2i& newResolution,
       double scale,
       const Eigen::Vector2d& originOffset = {0.0, 0.0}) const;
