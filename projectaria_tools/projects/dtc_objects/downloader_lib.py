@@ -14,7 +14,6 @@
 
 import hashlib
 import json
-
 import logging
 import os
 import shutil
@@ -23,7 +22,6 @@ from typing import Final, List, Optional, Tuple
 from zipfile import is_zipfile, ZipFile
 
 import requests
-
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from tqdm import tqdm

@@ -18,7 +18,6 @@ import unittest
 from pathlib import Path
 
 from projectaria_tools.core.mps import MpsDataPathsProvider
-
 from projectaria_tools.projects.aea import (
     AriaEverydayActivitiesDataPathsProvider,
     AriaEverydayActivitiesDataProvider,

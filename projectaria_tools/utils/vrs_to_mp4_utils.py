@@ -25,7 +25,6 @@ from moviepy.audio.AudioClip import AudioClip
 from moviepy.editor import AudioFileClip
 from moviepy.video.io.VideoFileClip import VideoClip
 from PIL import Image
-
 from projectaria_tools.core import data_provider
 from projectaria_tools.core.sensor_data import TimeDomain, TimeQueryOptions
 from projectaria_tools.core.stream_id import StreamId

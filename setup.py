@@ -16,7 +16,6 @@ import os
 import re
 import subprocess
 import sys
-
 from platform import system
 
 from setuptools import Extension, find_packages, setup

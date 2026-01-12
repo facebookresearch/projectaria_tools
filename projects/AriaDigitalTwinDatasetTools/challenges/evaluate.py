@@ -16,7 +16,6 @@ import argparse
 import zipfile
 
 import numpy as np
-
 from projectaria_tools.projects.adt.utils import (
     compute_mssd,
     get_3d_bounding_box,

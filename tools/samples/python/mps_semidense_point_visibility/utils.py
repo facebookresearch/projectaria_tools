@@ -15,7 +15,6 @@
 from typing import Tuple
 
 from projectaria_tools.core.calibration import CameraCalibration
-
 from projectaria_tools.core.data_provider import VrsDataProvider
 from projectaria_tools.core.mps import MpsDataProvider
 from projectaria_tools.core.sophus import SE3

@@ -149,7 +149,7 @@ def retry(
                     sleep_time = interval * (backoff ** (attempts))
                     attempts += 1
                     logger.warning(
-                        f"Retrying attempt {attempts}/{retries+1} in {sleep_time} seconds..."
+                        f"Retrying attempt {attempts}/{retries + 1} in {sleep_time} seconds..."
                     )
                     await asyncio.sleep(sleep_time)
 

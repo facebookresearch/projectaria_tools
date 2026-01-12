@@ -47,7 +47,7 @@ class AriaRecording:
         """
         output_path = (
             output_path
-            or vrs_path.parent / f'mps_{vrs_path.name.replace(".vrs", "_vrs")}'
+            or vrs_path.parent / f"mps_{vrs_path.name.replace('.vrs', '_vrs')}"
         )
         output_path.mkdir(parents=True, exist_ok=True)
 

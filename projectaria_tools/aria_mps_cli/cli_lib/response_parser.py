@@ -34,7 +34,6 @@ from .constants import (
     KEY_STATUS,
     KEY_STATUS_MESSAGE,
 )
-
 from .types import (
     MpsFeature,
     MpsFeatureRequest,

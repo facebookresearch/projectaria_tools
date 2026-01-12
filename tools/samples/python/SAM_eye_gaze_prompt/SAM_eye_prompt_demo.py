@@ -18,9 +18,7 @@ import time
 
 import numpy as np
 import rerun as rr
-
 import torch
-
 from efficient_sam.build_efficient_sam import (
     build_efficient_sam_vits,
     build_efficient_sam_vitt,

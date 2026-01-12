@@ -15,7 +15,6 @@
 import numpy as np
 import rerun as rr
 from projectaria_tools.core.calibration import DeviceCalibration
-
 from projectaria_tools.core.sophus import SE3
 
 #

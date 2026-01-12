@@ -15,7 +15,6 @@
 import argparse
 
 import numpy as np
-
 from projectaria_tools.core import calibration, data_provider
 from projectaria_tools.core.sensor_data import TimeDomain, TimeQueryOptions
 from projectaria_tools.core.stream_id import RecordableTypeId

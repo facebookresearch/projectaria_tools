@@ -131,7 +131,7 @@ def main():
     print("Detected text WORD segments:")
     for segment in segments:
         for word in segment.words:
-            print(f"[{round(word.start,2)}s, -> {round(word.end,2)}s] {word.word}")
+            print(f"[{round(word.start, 2)}s, -> {round(word.end, 2)}s] {word.word}")
 
     #
     # (3) Move to Aria time domain by adding audio starting timestamp to each word timestamp

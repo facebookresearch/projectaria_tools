@@ -15,7 +15,6 @@
 import logging
 
 from rich.text import Text
-
 from textual.app import ComposeResult
 from textual.containers import Grid
 from textual.screen import ModalScreen
@@ -108,7 +107,7 @@ class LoginScreen(ModalScreen[bool]):
             if self._login_attempt < 3:
                 self.query_one("#login_error").update(
                     Text.from_markup(
-                        f"[red][i]Log in attempt failed. [/][b][i]{3 - self._login_attempt }/3 attempts left."
+                        f"[red][i]Log in attempt failed. [/][b][i]{3 - self._login_attempt}/3 attempts left."
                     )
                 )
                 self._login_attempt += 1

@@ -22,7 +22,6 @@ from PIL import Image
 from projectaria_tools.core import calibration
 from projectaria_tools.core.sophus import SO3
 from projectaria_tools.projects import ase
-
 from projectaria_tools.projects.ase.interpreter import language_to_bboxes
 from projectaria_tools.projects.ase.readers import (
     read_language_file,
