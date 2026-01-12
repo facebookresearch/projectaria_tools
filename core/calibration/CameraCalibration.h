@@ -89,30 +89,31 @@ class CameraCalibration {
       double timeOffsetSecDeviceCamera = 0.0,
       const std::optional<double>& maybeReadOutTimeSec = {});
 
-  std::string getLabel() const;
-  std::string getSerialNumber() const;
-  const Sophus::SE3d& getT_Device_Camera() const;
+  [[nodiscard]] std::string getLabel() const;
+  [[nodiscard]] std::string getSerialNumber() const;
+  [[nodiscard]] const Sophus::SE3d& getT_Device_Camera() const;
   Sophus::SE3d& getT_Device_CameraMut();
-  Eigen::Vector2i getImageSize() const;
-  double getMaxSolidAngle() const;
-  std::optional<double> getValidRadius() const;
-  double getTimeOffsetSecDeviceCamera() const;
+  [[nodiscard]] Eigen::Vector2i getImageSize() const;
+  [[nodiscard]] double getMaxSolidAngle() const;
+  [[nodiscard]] std::optional<double> getValidRadius() const;
+  [[nodiscard]] double getTimeOffsetSecDeviceCamera() const;
   double& getTimeOffsetSecDeviceCameraMut();
-  std::optional<double> getReadOutTimeSec() const;
+  [[nodiscard]] std::optional<double> getReadOutTimeSec() const;
   std::optional<double>& getReadOutTimeSecMut();
   /**
    * @brief Function to check whether a pixel is within the valid area of the sensor plane.
    */
-  bool isVisible(const Eigen::Vector2d& cameraPixel) const;
+  [[nodiscard]] bool isVisible(const Eigen::Vector2d& cameraPixel) const;
 
-  CameraProjection::ModelType modelName() const; // return KB3 or Fisheye624
-  Eigen::Vector2d getPrincipalPoint() const; // return optical center
-  Eigen::Vector2d getFocalLengths() const; // return focal length in x and y
-  const Eigen::VectorXd& projectionParams() const; // return full calibration parameters
+  [[nodiscard]] CameraProjection::ModelType modelName() const; // return KB3 or Fisheye624
+  [[nodiscard]] Eigen::Vector2d getPrincipalPoint() const; // return optical center
+  [[nodiscard]] Eigen::Vector2d getFocalLengths() const; // return focal length in x and y
+  [[nodiscard]] const Eigen::VectorXd& projectionParams()
+      const; // return full calibration parameters
   Eigen::VectorXd& projectionParamsMut();
-  int numParameters() const; // return number of parameters
-  int numProjectionParameters() const; // return number of projection parameters
-  int numDistortionParameters() const; // return number of distortion parameters
+  [[nodiscard]] int numParameters() const; // return number of parameters
+  [[nodiscard]] int numProjectionParameters() const; // return number of projection parameters
+  [[nodiscard]] int numDistortionParameters() const; // return number of distortion parameters
 
   /**
    * @brief Function to project a 3d point (in camera frame) to a 2d camera pixel location. In this
@@ -124,7 +125,7 @@ class CameraCalibration {
    * with respect to the projection parameters.
    * @return 2d pixel location in image plane.
    */
-  Eigen::Vector2d projectNoChecks(
+  [[nodiscard]] Eigen::Vector2d projectNoChecks(
       const Eigen::Vector3d& pointInCamera,
       Eigen::Ref<Eigen::Matrix<double, 2, 3>> jacobianWrtPoint = NullRef(),
       Eigen::Ref<Eigen::Matrix<double, 2, Eigen::Dynamic>> jacobianWrtParams = NullRef()) const;
@@ -139,7 +140,7 @@ class CameraCalibration {
    * with respect to the projection parameters.
    * @return 2d pixel location in image plane. If any of the check failed, return std::nullopt.
    */
-  std::optional<Eigen::Vector2d> project(
+  [[nodiscard]] std::optional<Eigen::Vector2d> project(
       const Eigen::Vector3d& pointInCamera,
       Eigen::Ref<Eigen::Matrix<double, 2, 3>> jacobianWrtPoint = NullRef(),
       Eigen::Ref<Eigen::Matrix<double, 2, Eigen::Dynamic>> jacobianWrtParams = NullRef()) const;
@@ -150,7 +151,7 @@ class CameraCalibration {
    * @param cameraPixel 2d pixel location in image plane.
    * @return 3d ray, in camera frame.
    */
-  Eigen::Vector3d unprojectNoChecks(const Eigen::Vector2d& cameraPixel) const;
+  [[nodiscard]] Eigen::Vector3d unprojectNoChecks(const Eigen::Vector2d& cameraPixel) const;
 
   /**
    * @brief Function to unproject a 2d pixel location to a 3d ray, in camera frame, with a number of
@@ -158,7 +159,7 @@ class CameraCalibration {
    * @param cameraPixel 2d pixel location in image plane.
    * @return 3d ray, in camera frame. If any of the check failed, return std::nullopt
    */
-  std::optional<Eigen::Vector3d> unproject(const Eigen::Vector2d& cameraPixel) const;
+  [[nodiscard]] std::optional<Eigen::Vector3d> unproject(const Eigen::Vector2d& cameraPixel) const;
 
   /**
    * @brief Obtain a new camera calibration after translation + scaling transform from the original
@@ -167,7 +168,7 @@ class CameraCalibration {
    * @param scale The scaling factor to apply in step (2).
    * @param originOffset The offset to apply in step (1). By default the value is {0, 0}.
    */
-  CameraCalibration rescale(
+  [[nodiscard]] CameraCalibration rescale(
       const Eigen::Vector2i& newResolution,
       double scale,
       const Eigen::Vector2d& originOffset = {0.0, 0.0}) const;

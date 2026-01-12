@@ -72,43 +72,43 @@ class SensorCalibration {
    * @brief Try to get the SensorCalibration as a CameraCalibration. Will throw if sensor type does
    * not match.
    */
-  CameraCalibration cameraCalibration() const;
+  [[nodiscard]] CameraCalibration cameraCalibration() const;
   /**
    * @brief Try to get the SensorCalibration as a ImuCalibration. Will throw if sensor type does not
    * match.
    * .
    */
-  ImuCalibration imuCalibration() const;
+  [[nodiscard]] ImuCalibration imuCalibration() const;
   /**
    * @brief Try to get the SensorCalibration as a MagnetometerCalibration. Will throw if sensor type
    * does not match.
    */
-  MagnetometerCalibration magnetometerCalibration() const;
+  [[nodiscard]] MagnetometerCalibration magnetometerCalibration() const;
   /**
    * @brief Try to get the SensorCalibration as a BarometerCalibration. Will throw if sensor type
    * does not match.
    */
-  BarometerCalibration barometerCalibration() const;
+  [[nodiscard]] BarometerCalibration barometerCalibration() const;
   /**
    * @brief Try to get the SensorCalibration as a MicrophoneCalibration. Will throw if sensor type
    * does not match.
    */
-  MicrophoneCalibration microphoneCalibration() const;
+  [[nodiscard]] MicrophoneCalibration microphoneCalibration() const;
   /**
    * @brief Try to get the SensorCalibration as an AriaEtCalibration.  Will throw if sensor type
    * does not match.
    */
-  AriaEtCalibration ariaEtCalibration() const;
+  [[nodiscard]] AriaEtCalibration ariaEtCalibration() const;
   /**
    * @brief Try to get the SensorCalibration as an AriaMicCalibration.  Will throw if sensor type
    * does not match.
    */
-  AriaMicCalibration ariaMicCalibration() const;
+  [[nodiscard]] AriaMicCalibration ariaMicCalibration() const;
 
   /**
    * @brief get the type of this sensor calibration as an enum.
    */
-  SensorCalibrationType sensorCalibrationType() const;
+  [[nodiscard]] SensorCalibrationType sensorCalibrationType() const;
 
  private:
   SensorCalibrationVariant calibVariant_;

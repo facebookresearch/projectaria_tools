@@ -34,14 +34,14 @@ class DeliverQueuedOptions : public SubstreamSelector {
       const std::map<vrs::StreamId, size_t>& streamIdToDownSampleRate);
 
   /** @brief Returns how many nanoseconds to skip from the beginning of the vrs recording */
-  int64_t getTruncateFirstDeviceTimeNs() const;
+  [[nodiscard]] int64_t getTruncateFirstDeviceTimeNs() const;
   /** @brief Returns how many nanoseconds to skip before the end of the vrs recording */
-  int64_t getTruncateLastDeviceTimeNs() const;
+  [[nodiscard]] int64_t getTruncateLastDeviceTimeNs() const;
   /**
    * @brief Returns how many times the frame rate is downsampled in a stream
    * @param streamId ID of the VRS stream of interest
    */
-  size_t getSubsampleRate(const vrs::StreamId& streamId) const;
+  [[nodiscard]] size_t getSubsampleRate(const vrs::StreamId& streamId) const;
   /**
    * @brief Sets how much time to skip from the beginning of the recording
    * @param time to skip in the beginning of the recording in nanoseconds

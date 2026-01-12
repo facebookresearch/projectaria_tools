@@ -68,7 +68,7 @@ class SensorConfiguration {
       const SensorDataType& sensorDataType);
 
   /** @brief Returns the type of sensor data */
-  SensorDataType sensorDataType() const;
+  [[nodiscard]] SensorDataType sensorDataType() const;
 
   /**
    * @brief Returns the sensor configuration as ImageConfigRecord
@@ -169,7 +169,7 @@ class SensorConfiguration {
   /**
    * @brief Returns the nominal frame rate of the sensor
    */
-  double getNominalRateHz() const;
+  [[nodiscard]] double getNominalRateHz() const;
 
  private:
   SensorConfigurationVariant sensorConfigurationVariant_;

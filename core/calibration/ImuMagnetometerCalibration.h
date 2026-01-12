@@ -43,22 +43,22 @@ class LinearRectificationModel3d {
   /**
    * @brief convert from raw to rectified data to compensate system error
    */
-  Eigen::Vector3d rawToRectified(const Eigen::Vector3d& raw) const;
+  [[nodiscard]] Eigen::Vector3d rawToRectified(const Eigen::Vector3d& raw) const;
   /**
    * @brief inverse function of rawToRectified, for simulating raw sensor data from actual
    * (rectified) data
    */
-  Eigen::Vector3d rectifiedToRaw(const Eigen::Vector3d& rectified) const;
+  [[nodiscard]] Eigen::Vector3d rectifiedToRaw(const Eigen::Vector3d& rectified) const;
 
   /**
    * @brief getter function for rectification matrix
    */
-  Eigen::Matrix3d getRectification() const;
+  [[nodiscard]] Eigen::Matrix3d getRectification() const;
 
   /**
    * @brief getter function for bias vector
    */
-  Eigen::Vector3d getBias() const;
+  [[nodiscard]] Eigen::Vector3d getBias() const;
 
  private:
   Eigen::Matrix3d rectificationMatrix_;
@@ -93,46 +93,46 @@ class ImuCalibration {
       double timeOffsetSecDeviceAccel = 0.0,
       double timeOffsetSecDeviceGyro = 0.0);
 
-  std::string getLabel() const;
-  Sophus::SE3d getT_Device_Imu() const;
+  [[nodiscard]] std::string getLabel() const;
+  [[nodiscard]] Sophus::SE3d getT_Device_Imu() const;
 
   /**
    * @brief convert from imu sensor readout to actual acceleration
    */
-  Eigen::Vector3d rawToRectifiedAccel(const Eigen::Vector3d& raw) const;
+  [[nodiscard]] Eigen::Vector3d rawToRectifiedAccel(const Eigen::Vector3d& raw) const;
 
   /**
    * @brief simulate imu accel sensor readout from actual acceleration
    */
-  Eigen::Vector3d rectifiedToRawAccel(const Eigen::Vector3d& rectified) const;
+  [[nodiscard]] Eigen::Vector3d rectifiedToRawAccel(const Eigen::Vector3d& rectified) const;
   /**
    * @brief  convert from imu sensor readout to actual angular velocity
    */
-  Eigen::Vector3d rawToRectifiedGyro(const Eigen::Vector3d& raw) const;
+  [[nodiscard]] Eigen::Vector3d rawToRectifiedGyro(const Eigen::Vector3d& raw) const;
   /**
    * @brief simulate imu gyro sensor readout from actual angular velocity
    */
-  Eigen::Vector3d rectifiedToRawGyro(const Eigen::Vector3d& rectified) const;
+  [[nodiscard]] Eigen::Vector3d rectifiedToRawGyro(const Eigen::Vector3d& rectified) const;
 
   /**
    * @brief get accelerometer linear rectification model that includes rectification matrix and bias
    */
-  LinearRectificationModel3d getAccelModel() const;
+  [[nodiscard]] LinearRectificationModel3d getAccelModel() const;
 
   /**
    * @brief get gyroscope linear rectification model that includes rectification matrix and bias
    */
-  LinearRectificationModel3d getGyroModel() const;
+  [[nodiscard]] LinearRectificationModel3d getGyroModel() const;
 
   /**
    * @brief return time offset between device and accelerometer
    */
-  double getTimeOffsetSecDeviceAccel() const;
+  [[nodiscard]] double getTimeOffsetSecDeviceAccel() const;
 
   /**
    * @brief return time offset between device and gyroscope
    */
-  double getTimeOffsetSecDeviceGyro() const;
+  [[nodiscard]] double getTimeOffsetSecDeviceGyro() const;
 
  private:
   std::string label_;
@@ -160,19 +160,19 @@ class MagnetometerCalibration {
       const Eigen::Matrix3d& rectificationMatrix,
       const Eigen::Vector3d& bias);
 
-  std::string getLabel() const;
+  [[nodiscard]] std::string getLabel() const;
   /**
    * @brief convert from mag sensor readout to actual magnetic field
    */
-  Eigen::Vector3d rawToRectified(const Eigen::Vector3d& raw) const;
+  [[nodiscard]] Eigen::Vector3d rawToRectified(const Eigen::Vector3d& raw) const;
   /**
    * @brief simulate mag sensor readout from actual magnetic field
    */
-  Eigen::Vector3d rectifiedToRaw(const Eigen::Vector3d& rectified) const;
+  [[nodiscard]] Eigen::Vector3d rectifiedToRaw(const Eigen::Vector3d& rectified) const;
   /**
    * @brief get linear rectification model that includes rectification matrix and bias
    */
-  LinearRectificationModel3d getModel() const;
+  [[nodiscard]] LinearRectificationModel3d getModel() const;
 
  private:
   std::string label_;
