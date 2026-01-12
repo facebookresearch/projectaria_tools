@@ -46,7 +46,7 @@ struct AriaVisualizationData {
     dataChangedMap_[streamId] = dataChanged;
   }
 
-  bool isDataChanged(const vrs::StreamId& streamId) const {
+  [[nodiscard]] bool isDataChanged(const vrs::StreamId& streamId) const {
     if (dataChangedMap_.count(streamId) == 0) {
       return false;
     }
