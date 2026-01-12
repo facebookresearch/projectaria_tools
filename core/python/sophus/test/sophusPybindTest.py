@@ -16,7 +16,6 @@ import math
 import unittest
 
 import numpy as np
-
 from projectaria_tools.core.sophus import interpolate, iterativeMean, SE3, SO3
 
 

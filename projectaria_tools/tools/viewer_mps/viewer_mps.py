@@ -14,12 +14,10 @@
 
 import argparse
 import os
-
 from pathlib import Path
 from typing import List
 
 import rerun as rr
-
 from projectaria_tools.core.mps import MpsDataPathsProvider
 from projectaria_tools.tools.viewer_mps.rerun_viewer_mps import log_mps_to_rerun
 

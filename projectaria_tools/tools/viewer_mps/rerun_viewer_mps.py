@@ -15,9 +15,7 @@
 from typing import Callable, List, Optional, Tuple, Union
 
 import numpy as np
-
 import rerun as rr
-
 from projectaria_tools.core import calibration, data_provider, mps
 from projectaria_tools.core.calibration import (
     CameraCalibration,

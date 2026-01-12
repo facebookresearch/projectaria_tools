@@ -19,7 +19,6 @@ import rerun as rr
 from projectaria_tools.core import calibration
 from projectaria_tools.core.calibration import DeviceCalibration, DeviceVersion
 from projectaria_tools.core.mps import hand_tracking
-
 from projectaria_tools.core.sophus import SE3
 
 

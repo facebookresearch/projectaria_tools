@@ -22,7 +22,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from PIL import Image
-
 from projectaria_tools.core import data_provider
 from projectaria_tools.core.stream_id import StreamId
 from sam2.build_sam import build_sam2_video_predictor

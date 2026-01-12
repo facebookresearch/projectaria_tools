@@ -17,7 +17,6 @@ import pickle
 import unittest
 
 import numpy as np
-
 from projectaria_tools.core import data_provider, mps
 
 TEST_FOLDER = os.getenv("TEST_FOLDER")

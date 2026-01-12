@@ -16,7 +16,6 @@ import os
 import unittest
 
 from projectaria_tools.core.stream_id import StreamId
-
 from projectaria_tools.projects.adt import (
     AriaDigitalTwinDataPathsProvider,
     AriaDigitalTwinDataProvider,

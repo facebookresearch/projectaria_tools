@@ -27,7 +27,6 @@ from typing import List, Tuple
 
 import numpy as np
 from PIL import Image, ImageOps
-
 from projectaria_tools.core import data_provider, mps
 from projectaria_tools.core.calibration import DeviceCalibration
 from projectaria_tools.core.sensor_data import TimeDomain, TimeQueryOptions

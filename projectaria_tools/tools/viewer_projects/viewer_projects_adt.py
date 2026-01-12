@@ -20,7 +20,6 @@ from typing import Dict, Final, List, Set
 import numpy as np
 import rerun as rr
 from PIL import Image
-
 from projectaria_tools.core.mps.utils import get_gaze_vector_reprojection
 from projectaria_tools.core.sophus import SE3
 from projectaria_tools.core.stream_id import StreamId
@@ -129,9 +128,9 @@ def log_glbs(
             )
         instance_info = instance_name_to_info[object_name]
         instance_id = instance_info.id
-        assert (
-            instance_id in bboxes_3d_initial.data()
-        ), f"object {object_name} is not available in ADT sequence"
+        assert instance_id in bboxes_3d_initial.data(), (
+            f"object {object_name} is not available in ADT sequence"
+        )
         bbox_3d = bboxes_3d_initial.data()[instance_id]
         T_scene_object = bbox_3d.transform_scene_object
         is_static = instance_info.motion_type == STATIC

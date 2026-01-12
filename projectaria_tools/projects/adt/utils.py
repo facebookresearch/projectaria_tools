@@ -23,12 +23,10 @@ from typing import Dict, List, Optional
 from zipfile import ZipFile
 
 import numpy as _np
-
 from projectaria_tools.core.calibration import CameraCalibration as _CameraCalibration
 from projectaria_tools.projects.adt import (
     bbox3d_to_line_coordinates as _bbox3d_to_line_coordinates,
 )
-
 from scipy.spatial.transform import Rotation as R
 
 # The minimum angular step between two consecutive poses to for continuous symmetry

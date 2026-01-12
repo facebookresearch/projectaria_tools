@@ -17,14 +17,12 @@ from typing import Dict, List
 
 import rerun as rr
 import rerun.blueprint as rrb
-
 from PointsAndObservationsManager import (
     PointsAndObservationsManager,
     PointsDict,
     PointsIndexList,
     PointsUVsList,
 )
-
 from projectaria_tools.core import data_provider, mps
 from projectaria_tools.core.mps import MpsDataPathsProvider, MpsDataProvider
 from projectaria_tools.core.sensor_data import SensorDataType, TimeDomain

@@ -96,7 +96,7 @@ class PointsAndObservationsManager:
         # Filter out low confidence points
         points_data = filter_points_from_confidence(points_data)
         print(
-            f"Filtering make us keep: {int(100 * len(points_data)/points_data_length_before_filtering)} % of the total 3D global point data"
+            f"Filtering make us keep: {int(100 * len(points_data) / points_data_length_before_filtering)} % of the total 3D global point data"
         )
         # Convert points to a dictionary for faster lookup by uid
         my_object._points = {pt.uid: pt for pt in points_data}

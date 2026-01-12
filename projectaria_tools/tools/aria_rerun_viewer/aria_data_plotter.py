@@ -17,7 +17,6 @@ from functools import partial
 from typing import Final, List, Optional
 
 import numpy as np
-
 import rerun as rr
 import rerun.blueprint as rrb
 from projectaria_tools.core.calibration import DeviceCalibration, DeviceVersion
@@ -116,9 +115,9 @@ class SensorLabels:
     @property
     def rgb_and_slam_labels(self) -> List[str]:
         """Get combined RGB and SLAM camera labels."""
-        assert (
-            self.rgb_label and self.slam_labels
-        ), "RGB and SLAM labels must not be empty"
+        assert self.rgb_label and self.slam_labels, (
+            "RGB and SLAM labels must not be empty"
+        )
         return [self.rgb_label] + self.slam_labels
 
 

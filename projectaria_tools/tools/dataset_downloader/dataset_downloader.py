@@ -22,7 +22,6 @@ from typing import List, Optional, Tuple
 from zipfile import is_zipfile, ZipFile
 
 import requests
-
 from projectaria_tools.tools.dataset_downloader.dataset_download_status_manager import (
     DatasetDownloadStatusManager,
     DOWNLOAD_STATUS_FILE,
@@ -30,7 +29,6 @@ from projectaria_tools.tools.dataset_downloader.dataset_download_status_manager 
 from projectaria_tools.tools.dataset_downloader.dataset_downloader_utils import (
     load_data_groups_from_cdn,
 )
-
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from tqdm import tqdm

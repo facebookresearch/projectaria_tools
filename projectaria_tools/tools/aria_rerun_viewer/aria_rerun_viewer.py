@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import argparse
-
 from typing import List
 
 # Import different modules for internal and external
