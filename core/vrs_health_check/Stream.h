@@ -48,7 +48,7 @@ class Stream {
   }
   virtual void logScore() {}
   // Stream type and index
-  vrs::StreamId getStreamId() const {
+  [[nodiscard]] vrs::StreamId getStreamId() const {
     return streamId_;
   }
   virtual uint32_t getPeriodUs() = 0;

@@ -41,7 +41,7 @@ struct SensorMisalignmentStatistics {
 class SensorHealthStats {
  public:
   SensorHealthStats(const std::string& sensorName, int64_t periodUs);
-  int64_t getPeriodUs() const {
+  [[nodiscard]] int64_t getPeriodUs() const {
     return periodUs_;
   }
 
