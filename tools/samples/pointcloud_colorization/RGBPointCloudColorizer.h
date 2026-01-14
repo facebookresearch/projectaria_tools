@@ -39,6 +39,7 @@ class RGBPointCloudColorizer : public PointCloudColorizer {
   // accumulated)
   std::unordered_map<uint32_t, uint32_t> accumulatorCount_;
 
+  // NOLINTNEXTLINE(clang-diagnostic-unused-member-function)
   explicit RGBPointCloudColorizer(
       const projectaria::tools::mps::ClosedLoopTrajectory& trajectory,
       const projectaria::tools::mps::GlobalPointCloud& globalPointCloud,
