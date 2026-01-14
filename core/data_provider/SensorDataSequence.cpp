@@ -66,7 +66,7 @@ SensorDataIterator SensorDataSequence::begin() {
 }
 
 SensorDataIterator SensorDataSequence::end() {
-  return SensorDataIterator();
+  return {};
 }
 
 SensorDataIterator::SensorDataIterator(

@@ -246,14 +246,14 @@ AriaImageDataWithDt AriaDigitalTwinDataProvider::getAriaImageByTimestampNs(
     const TimeQueryOptions& timeQueryOptions) const {
   if (!hasAriaData()) {
     XR_LOGW("Aria Images are empty, no vrs is provided\n");
-    return AriaImageDataWithDt();
+    return {};
   }
 
   bool isActive = dataProvider_->checkStreamIsActive(streamId);
 
   if (!isActive) {
     XR_LOGW("Stream {} is not active, no image is available\n", streamId.getNumericName());
-    return AriaImageDataWithDt();
+    return {};
   }
 
   checkQueryTimestampBounds(deviceTimeStampNs);
@@ -265,7 +265,7 @@ AriaImageDataWithDt AriaDigitalTwinDataProvider::getAriaImageByTimestampNs(
   // Check if image is valid
   if (!imageData.first.isValid()) {
     XR_LOGW("Invalid Aria image at {}\n", deviceTimeStampNs);
-    return AriaImageDataWithDt();
+    return {};
   }
 
   return AriaImageDataWithDt(
@@ -328,7 +328,7 @@ Aria3dPoseDataWithDt AriaDigitalTwinDataProvider::getAria3dPoseByTimestampNs(
     const TimeQueryOptions& timeQueryOptions) const {
   if (!hasAria3dPoses()) {
     XR_LOGW("Aria 3D trajectory is empty\n");
-    return Aria3dPoseDataWithDt();
+    return {};
   }
 
   checkQueryTimestampBounds(deviceTimeStampNs);
@@ -339,7 +339,7 @@ Aria3dPoseDataWithDt AriaDigitalTwinDataProvider::getAria3dPoseByTimestampNs(
   if (queryPoseIter != aria3dPoses_.end()) {
     return Aria3dPoseDataWithDt(queryPoseIter->second, queryPoseIter->first - deviceTimeStampNs);
   } else {
-    return Aria3dPoseDataWithDt();
+    return {};
   }
 }
 
@@ -348,7 +348,7 @@ BoundingBox3dDataWithDt AriaDigitalTwinDataProvider::getObject3dBoundingBoxesByT
     const TimeQueryOptions& timeQueryOptions) const {
   if (!hasObject3dBoundingboxes()) {
     XR_LOGW("Object 3D poses is empty\n");
-    return BoundingBox3dDataWithDt();
+    return {};
   }
 
   checkQueryTimestampBounds(deviceTimeStampNs);
@@ -374,7 +374,7 @@ BoundingBox3dDataWithDt AriaDigitalTwinDataProvider::getObject3dBoundingBoxesByT
         object3dBoundingBoxMap, queryDynamicObjectIter->first - deviceTimeStampNs);
   } else {
     // invalid result
-    return BoundingBox3dDataWithDt();
+    return {};
   }
 }
 
@@ -384,13 +384,13 @@ BoundingBox2dDataWithDt AriaDigitalTwinDataProvider::getObject2dBoundingBoxesByT
     const TimeQueryOptions& timeQueryOptions) const {
   if (instance2dBoundingBoxes_.find(streamId) == instance2dBoundingBoxes_.end()) {
     XR_LOGW("Camera {} has no object 2d box data \n", streamId.getNumericName());
-    return BoundingBox2dDataWithDt();
+    return {};
   }
 
   const auto& cameraBoxes = instance2dBoundingBoxes_.at(streamId);
   if (instance2dBoundingBoxes_.at(streamId).empty()) {
     XR_LOGW("No object 2d boxes for camera {}\n", streamId.getNumericName());
-    return BoundingBox2dDataWithDt();
+    return {};
   }
 
   checkQueryTimestampBounds(deviceTimeStampNs);
@@ -404,7 +404,7 @@ BoundingBox2dDataWithDt AriaDigitalTwinDataProvider::getObject2dBoundingBoxesByT
         deviceTimeStampNs,
         cameraBoxes.begin()->first,
         cameraBoxes.rbegin()->first);
-    return BoundingBox2dDataWithDt();
+    return {};
   }
 
   TypeBoundingBox2dMap result;
@@ -423,13 +423,13 @@ BoundingBox2dDataWithDt AriaDigitalTwinDataProvider::getSkeleton2dBoundingBoxesB
     const TimeQueryOptions& timeQueryOptions) const {
   if (instance2dBoundingBoxes_.find(streamId) == instance2dBoundingBoxes_.end()) {
     XR_LOGW("Camera {} has no skeleton 2d box data \n", streamId.getNumericName());
-    return BoundingBox2dDataWithDt();
+    return {};
   }
 
   const auto& cameraBoxes = instance2dBoundingBoxes_.at(streamId);
   if (instance2dBoundingBoxes_.at(streamId).empty()) {
     XR_LOGW("No skeleton 2d boxes for camera {}\n", streamId.getNumericName());
-    return BoundingBox2dDataWithDt();
+    return {};
   }
 
   checkQueryTimestampBounds(deviceTimeStampNs);
@@ -443,7 +443,7 @@ BoundingBox2dDataWithDt AriaDigitalTwinDataProvider::getSkeleton2dBoundingBoxesB
         deviceTimeStampNs,
         cameraBoxes.begin()->first,
         cameraBoxes.rbegin()->first);
-    return BoundingBox2dDataWithDt();
+    return {};
   }
   TypeBoundingBox2dMap result;
   for (const auto& [instanceId, bbox2d] : iter->second) {
@@ -460,7 +460,7 @@ EyeGazeWithDt AriaDigitalTwinDataProvider::getEyeGazeByTimestampNs(
     const TimeQueryOptions& timeQueryOptions) const {
   if (eyeGazes_.empty()) {
     XR_LOGW("No eye gaze data\n");
-    return EyeGazeWithDt();
+    return {};
   }
 
   checkQueryTimestampBounds(deviceTimeStampNs);
@@ -472,7 +472,7 @@ EyeGazeWithDt AriaDigitalTwinDataProvider::getEyeGazeByTimestampNs(
         deviceTimeStampNs,
         eyeGazes_.begin()->first,
         eyeGazes_.rbegin()->first);
-    return EyeGazeWithDt();
+    return {};
   }
   return EyeGazeWithDt(iter->second, iter->first - deviceTimeStampNs);
 }
@@ -483,7 +483,7 @@ SegmentationDataWithDt AriaDigitalTwinDataProvider::getSegmentationImageByTimest
     const TimeQueryOptions& timeQueryOptions) const {
   if (!hasSegmentationImages()) {
     XR_LOGW("Segmentations is not available \n");
-    return SegmentationDataWithDt();
+    return {};
   }
 
   checkQueryTimestampBounds(deviceTimeStampNs);
@@ -506,7 +506,7 @@ SegmentationDataWithDt AriaDigitalTwinDataProvider::getSegmentationImageByTimest
   }
 
   if (!segmentationData.isValid()) {
-    return SegmentationDataWithDt();
+    return {};
   }
 
   return SegmentationDataWithDt(segmentationData, gtTNs - deviceTimeStampNs);
@@ -518,7 +518,7 @@ DepthDataWithDt AriaDigitalTwinDataProvider::getDepthImageByTimestampNs(
     const TimeQueryOptions& timeQueryOptions) const {
   if (!hasDepthImages()) {
     XR_LOGW("Depth Images is empty\n");
-    return DepthDataWithDt();
+    return {};
   }
 
   checkQueryTimestampBounds(deviceTimeStampNs);
@@ -540,7 +540,7 @@ DepthDataWithDt AriaDigitalTwinDataProvider::getDepthImageByTimestampNs(
   }
 
   if (!depthData.isValid()) {
-    return DepthDataWithDt();
+    return {};
   }
 
   return DepthDataWithDt(depthData, gtTNs - deviceTimeStampNs);
@@ -552,7 +552,7 @@ SyntheticDataWithDt AriaDigitalTwinDataProvider::getSyntheticImageByTimestampNs(
     const TimeQueryOptions& timeQueryOptions) const {
   if (!hasSyntheticImages()) {
     XR_LOGW("Synthetic data is empty\n");
-    return SyntheticDataWithDt();
+    return {};
   }
 
   checkQueryTimestampBounds(deviceTimeStampNs);
@@ -566,7 +566,7 @@ SyntheticDataWithDt AriaDigitalTwinDataProvider::getSyntheticImageByTimestampNs(
   gtTNs = sensorData.imageDataAndRecord().second.captureTimestampNs;
 
   if (!syntheticData.isValid()) {
-    return SyntheticDataWithDt();
+    return {};
   }
 
   return SyntheticDataWithDt(syntheticData, gtTNs - deviceTimeStampNs);
@@ -1152,7 +1152,7 @@ Aria3dPoseDataWithDt getInterpolatedAria3dPoseAtTimestampNs(
   // Check validity
   if (!provider.hasAria3dPoses()) {
     XR_LOGW("Aria 3D trajectory is empty, query will return empty result\n");
-    return Aria3dPoseDataWithDt();
+    return {};
   }
 
   const Aria3dPoseDataWithDt poseBefore =
@@ -1197,7 +1197,7 @@ BoundingBox3dDataWithDt getInterpolatedObject3dBoundingBoxesAtTimestampNs(
   // Check validity
   if (!provider.hasObject3dBoundingboxes()) {
     XR_LOGW("Object 3D poses is empty, query will return empty result\n");
-    return BoundingBox3dDataWithDt();
+    return {};
   }
 
   const BoundingBox3dDataWithDt objectsBefore =
