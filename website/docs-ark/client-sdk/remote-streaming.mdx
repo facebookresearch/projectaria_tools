@@ -1,0 +1,375 @@
+---
+sidebar_position: 3
+title: Remote Streaming
+---
+
+# Remote Streaming
+
+Stream Aria Gen2 data directly to a remote server over the internet, without requiring a local relay machine.
+
+## Overview
+
+By default, Aria streams data to a local development machine via USB or WiFi on the same network. With remote streaming, you can configure the glasses to send data directly to a cloud server over the internet.
+
+**Use cases:**
+* **Field deployments**: Collect data without carrying a laptop
+* **Centralized collection**: Aggregate data from multiple devices to one server
+* **Cloud processing**: Build real-time processing pipelines in the cloud
+* **Remote monitoring**: Monitor device streams from anywhere
+
+---
+
+## Architecture Comparison
+
+**Local Streaming (default):**
+```
+┌─────────────────┐    USB/WiFi     ┌─────────────────┐
+│  Aria Glasses   │ ─────────────►  │  Local Machine  │
+│                 │  Same Network   │  (Client SDK)   │
+└─────────────────┘                 └─────────────────┘
+```
+
+**Remote Streaming:**
+```
+┌─────────────────┐   WiFi/Internet   ┌─────────────────┐
+│  Aria Glasses   │ ───────────────►  │  Cloud Server   │
+│                 │   HTTPS POST      │  (Your Backend) │
+└─────────────────┘                   └─────────────────┘
+```
+
+---
+
+## Requirements
+
+Before setting up remote streaming, ensure you have:
+
+* Aria Gen2 glasses connected to a WiFi network with internet access
+* An HTTPS server accessible from the internet (public IP or domain)
+* Aria streaming certificates (generated during SDK setup)
+* Port 6768 open on the server firewall
+
+---
+
+## Server Setup
+
+### Step 1: Locate Streaming Certificates
+
+The streaming certificates are generated when you first set up the Client SDK. Find them at:
+
+```
+~/.aria/streaming-certs/persistent/
+├── subscriber.pem        # Server certificate
+├── subscriber-key.pem    # Server private key
+└── root_ca.pem          # CA certificate
+```
+
+### Step 2: Copy Certificates to Server
+
+Transfer the certificate files to your cloud server:
+
+```bash
+scp ~/.aria/streaming-certs/persistent/subscriber.pem user@your-server:/path/to/certs/
+scp ~/.aria/streaming-certs/persistent/subscriber-key.pem user@your-server:/path/to/certs/
+```
+
+### Step 3: Create HTTPS Server
+
+Your server must use the Aria streaming certificates for HTTPS. Here's a minimal Python example:
+
+```python
+#!/usr/bin/env python3
+"""Minimal HTTPS server for Aria remote streaming."""
+
+import ssl
+import json
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+CERT_PATH = "/path/to/certs/subscriber.pem"
+KEY_PATH = "/path/to/certs/subscriber-key.pem"
+
+class AriaStreamHandler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        # Read streaming data
+        content_length = int(self.headers.get('Content-Length', 0))
+        data = self.rfile.read(content_length)
+
+        # Access metadata from headers
+        session_id = self.headers.get('session-id')
+        device_serial = self.headers.get('device-serial')
+        calibration = self.headers.get('oatmeal-calibration')
+
+        print(f"Received {len(data)} bytes from device {device_serial}")
+
+        # TODO: Process your streaming data here
+
+        # Send response
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(b'{"status": "ok"}')
+
+def main():
+    server = HTTPServer(('0.0.0.0', 6768), AriaStreamHandler)
+
+    # Configure SSL with Aria certificates
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    ctx.load_cert_chain(CERT_PATH, KEY_PATH)
+    server.socket = ctx.wrap_socket(server.socket, server_side=True)
+
+    print("Aria streaming server listening on https://0.0.0.0:6768")
+    server.serve_forever()
+
+if __name__ == "__main__":
+    main()
+```
+
+### Step 4: Open Firewall Port
+
+Ensure port 6768 is accessible from the internet:
+
+```bash
+# Ubuntu/Debian
+sudo ufw allow 6768/tcp
+
+# AWS Security Group (example)
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-xxxxx \
+  --protocol tcp \
+  --port 6768 \
+  --cidr 0.0.0.0/0
+```
+
+---
+
+## Client Configuration
+
+### Using the CLI
+
+Start streaming with a custom endpoint URL:
+
+```bash
+aria_gen2_cli streaming start \
+  --url "https://your-server.com:6768" \
+  --interface wifi_sta \
+  --batch-period-ms 200 \
+  --no-verify-server-certs
+```
+
+**Parameters:**
+| Parameter | Description |
+|-----------|-------------|
+| `--url` | Your server's HTTPS endpoint |
+| `--interface wifi_sta` | Use WiFi station mode for internet access |
+| `--batch-period-ms` | Message batching for thermal management |
+| `--no-verify-server-certs` | Skip server certificate verification |
+
+### Using the Python SDK
+
+```python
+import aria.sdk_gen2 as sdk
+
+# Connect to device
+device_client = sdk.DeviceClient()
+device = device_client.connect()
+
+# Configure remote streaming
+config = sdk.HttpStreamingConfig()
+config.profile_name = "profile9"
+config.streaming_interface = sdk.StreamingInterface.WIFI_STA
+config.batch_period_ms = 200
+config.advanced_config.endpoint.url = "https://your-server.com:6768"
+config.advanced_config.endpoint.verify_server_certificates = False
+
+# Apply configuration and start streaming
+device.set_streaming_config(config)
+device.start_streaming()
+
+# ... streaming active ...
+
+# Stop when done
+device.stop_streaming()
+```
+
+---
+
+## Data Format
+
+The glasses send HTTP POST requests to your server endpoint.
+
+### Request Headers
+
+| Header | Description | Example |
+|--------|-------------|---------|
+| `session-id` | Unique UUID for the streaming session | `597b9aec-079a-4ca3-bc6c-98bf10f6aa33` |
+| `device-serial` | Device identifier | `1M0YDB6H7Y0110` |
+| `device-build` | Firmware version | `51048810021100500` |
+| `oatmeal-calibration` | JSON with camera/sensor calibration | See below |
+| `Transfer-Encoding` | Always chunked | `chunked` |
+
+### Calibration Data
+
+The `oatmeal-calibration` header contains JSON with:
+* Camera calibration (intrinsics, extrinsics) for RGB and eye tracking cameras
+* IMU calibration (accelerometer, gyroscope, magnetometer)
+* Barometer calibration
+
+### Request Body
+
+The body contains binary streaming data including:
+* IMU events (accelerometer, gyroscope, magnetometer)
+* Camera frames (RGB, eye tracking, SLAM)
+* Audio data
+* Eye tracking results
+* Hand tracking results
+* SLAM/6DoF pose data
+
+---
+
+## Thermal Considerations
+
+Remote streaming over WiFi generates heat on the device. Follow the same thermal management guidelines as local WiFi streaming.
+
+:::warning Thermal Management Required
+Always use `--batch-period-ms` to prevent device overheating during remote streaming.
+:::
+
+**Recommended batch periods:**
+
+| Environment | Batch Period | Notes |
+|-------------|--------------|-------|
+| Cool (below 25°C) | `100-200ms` | Monitor temperature closely |
+| Normal room temp | `200-400ms` | Recommended starting point |
+| Warm (above 28°C) | `400-800ms` | More conservative for safety |
+
+---
+
+## Troubleshooting
+
+### No data received at server
+
+1. **Verify WiFi connection**: Ensure glasses are connected to WiFi with internet access
+   ```bash
+   # Check WiFi status via Companion App or connect via CLI
+   aria_gen2_cli device wifi connect --ssid "YourNetwork" --password "YourPassword"
+   ```
+
+2. **Check server accessibility**: Test from another machine
+   ```bash
+   curl -k https://your-server.com:6768
+   ```
+
+3. **Verify firewall**: Confirm port 6768 is open
+
+### SSL/TLS errors
+
+1. **Verify certificates**: Ensure `subscriber.pem` and `subscriber-key.pem` are correctly copied
+2. **Check permissions**: Server process must have read access to certificate files
+3. **Use correct flag**: Include `--no-verify-server-certs` in CLI command
+
+### Connection timeouts
+
+1. **Check network latency**: High latency networks may cause timeouts
+2. **Reduce streaming profile**: Use a lighter profile like `profile9`
+3. **Increase batch period**: Use `--batch-period-ms 400` or higher
+
+### Device overheating
+
+1. **Increase batch period**: Use `--batch-period-ms 400` or higher
+2. **Use lighter profile**: Fewer sensors = less thermal load
+3. **Allow cooling breaks**: Pause streaming periodically for extended sessions
+
+---
+
+## Security Considerations
+
+:::caution Certificate Security
+The streaming certificates are unique to your development environment. Anyone with access to your certificates can receive streaming data from devices configured to use your server.
+:::
+
+**Best practices:**
+* Keep certificate files secure and limit access
+* For production, consider additional authentication at the application layer
+* Use HTTPS (TLS) to encrypt data in transit
+* Rotate certificates periodically for sensitive deployments
+
+---
+
+## Complete Example
+
+### Server (deploy to cloud)
+
+```python
+#!/usr/bin/env python3
+"""Production-ready Aria streaming server."""
+
+import ssl
+import json
+import logging
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from datetime import datetime
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class AriaStreamHandler(BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        logger.info(f"{self.address_string()} - {format % args}")
+
+    def do_POST(self):
+        # Parse headers
+        session_id = self.headers.get('session-id', 'unknown')
+        device_serial = self.headers.get('device-serial', 'unknown')
+
+        # Read data
+        content_length = int(self.headers.get('Content-Length', 0))
+        data = self.rfile.read(content_length)
+
+        logger.info(f"Session {session_id[:8]}... | Device {device_serial} | {len(data)} bytes")
+
+        # TODO: Process data (save to disk, send to queue, etc.)
+
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'{"status": "ok"}')
+
+def main():
+    server = HTTPServer(('0.0.0.0', 6768), AriaStreamHandler)
+
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    ctx.load_cert_chain('/path/to/subscriber.pem', '/path/to/subscriber-key.pem')
+    server.socket = ctx.wrap_socket(server.socket, server_side=True)
+
+    logger.info("Aria streaming server started on https://0.0.0.0:6768")
+    server.serve_forever()
+
+if __name__ == "__main__":
+    main()
+```
+
+### Client (run locally with glasses connected)
+
+```bash
+# 1. Connect glasses to WiFi (if not already connected)
+aria_gen2_cli device wifi connect --ssid "YourNetwork" --password "YourPassword"
+
+# 2. Start remote streaming
+aria_gen2_cli streaming start \
+  --url "https://your-server.com:6768" \
+  --interface wifi_sta \
+  --profile profile9 \
+  --batch-period-ms 200 \
+  --no-verify-server-certs
+
+# 3. Unplug USB cable - streaming continues over WiFi to your cloud server
+
+# 4. When done, reconnect USB and stop streaming
+aria_gen2_cli streaming stop
+```
+
+---
+
+## Next Steps
+
+* [Streaming Control](/ark/client-sdk/streaming) - Learn about local streaming options
+* [Program with SDK](/ark/client-sdk/python-sdk/python-interface) - Build custom applications
+* [API Reference](/technical-specs/client-sdk/api) - Complete SDK documentation
