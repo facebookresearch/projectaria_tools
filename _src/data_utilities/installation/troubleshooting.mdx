@@ -1,0 +1,136 @@
+---
+sidebar_position: 60
+title: Troubleshooting
+---
+
+#  Project Aria Tools Troubleshooting
+
+## Jupyter Notebook issues
+### Jupyter Notebook error
+
+Jupyter Notebook works with Python 3.9 or above.
+
+If you have problems using Jupyter examples, please [upgrade Python 3](https://www.python.org/downloads/) to the latest version. If you are using a virtual environment you'll need to recreate it to bring in the update.
+
+To check what what version of Python 3 you have use `python3 --version`
+
+
+### Python module import error
+There are several things that could cause this error message.
+
+#### Python version mismatch
+When running a Jupyter Notebook, it might use a Python 3 version that's not in the virtual environment. There are two ways you can resolve this issue.
+
+* Remove the Jupyter Notebook from outside of the virtual environment
+* Directly start the Jupyter Notebook from the virtual environment bin folder.
+
+If the virtual environment was created using `python3 -m venv $HOME/projectaria_tools_python_env`, you can directly call Jupyter from the virtual env as:
+```bash
+$HOME/projectaria_tools_python_env/bin/jupyter notebook notebook_example.ipynb
+```
+
+#### Old version of projectaria_tools
+
+You may also encounter a Python module import error if you are running an old version of projectaria_tools. Make sure you've installed the latest version of projectaria_tools.
+
+
+## Visualizer issues
+
+### Visualizer does not build
+
+If the visualizer does not build it may be because of missing Pangolin functions. Aria Digital Twin (ADT) dataset depends on very recent changes to Pangolin's master branch. If ADT depends on Pangolin functions that are not available on your installed version of Pangolin, please [reinstall using the most recent master](/docs/data_utilities/installation/installation_cpp#step-2---compile-pangolin).
+
+###  Runtime errors/missing libraries
+Runtime errors can be caused by missing libraries. The following commands may resolve the issue.
+
+```bash
+# Missing libpango_geometry.so, libpango_windowing.so, etc
+sudo ldconfig
+
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/
+
+export LD_LIBRARY_PATH
+```
+
+### Visualizer Window freezes - X11 known issue
+If you are running a platform that uses X11 the Visualizer window may freeze. This is most likely because of a graphics driver bug in X11.
+[Pangolin has a discussion on the issue](https://github.com/stevenlovegrove/Pangolin/issues/782).
+
+If the issue is triggered by Pangolin Plotter, the fix is swap from X11 to EGL.
+
+#### Step 1: Check the cause
+Test to see if it's a display driver issue triggered by Pangolin Plotter.
+
+1. Build the latest version of Pangolin
+```bash
+cd /tmp/Pangolin_Build
+
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TOOLS=OFF -DBUILD_PANGOLIN_PYTHON=OFF \
+-DBUILD_EXAMPLES=ON ../Pangolin/
+
+make -j2
+```
+
+2. Run the following example, it should work without issues
+
+```bash
+./examples/BasicOpenGl/tutorial_3_gl_intro_classic_triangle_vbo_shader
+```
+
+3. Run the following example, if it shows a black window and the machine freezes, this may be the graphics driver issue. Move on to Step 2.
+
+```bash
+./examples/SimplePlot/SimplePlot
+```
+
+
+#### Step 2: Checkout the fix and rebase onto master
+
+1. Use the following commands to checkout the fix on github and rebase onto master
+```bash
+cd /tmp/Pangolin
+
+git fetch origin pull/389/head:x11_to_egl
+
+git checkout x11_to_egl
+
+git rebase master
+
+# rebuild pangolin
+cd /tmp/Pangolin_Build
+
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TOOLS=OFF -DBUILD_PANGOLIN_PYTHON=OFF \
+-DBUILD_EXAMPLES=ON ../Pangolin/
+
+make -j2
+
+sudo make install
+```
+
+2. Confirm this is the correct fix by rebuilding and retesting SimplePlot from Step 1.
+
+#### Step 3: Patch CMake for Visualizers
+
+1. Update the [AriaViewer](/docs/data_utilities/visualization/visualization_cpp#step-2--run-ariaviewer) CMakeLists in
+`$HOME/Documents/projectaria_sandbox/projectaria_tools/tools/CMakeLists.txt`
+2. Update [AriaDigitalTwinViewer](/docs/open_datasets/aria_digital_twin_dataset/visualizers#ariadigitaltwinviewer) CMakeLists in
+`$HOME/Documents/projectaria_sandbox/projectaria_tools/projects/AriaDigitalTwinDatasetTools/visualization/CMakeLists.txt`
+
+By adding the following line:
+
+```cmake
+find_package(OpenGL QUIET COMPONENTS EGL)
+```
+
+#### Step 4. Rebuild Aria Viewer and validate that it works
+
+```bash
+cd $HOME/Documents/projectaria_sandbox/build
+
+cmake ../projectaria_tools -DPROJECTARIA_TOOLS_BUILD_TOOLS=ON
+
+make -j2
+
+./tools/visualization/aria_viewer \
+--vrs ../projectaria_tools/data/mps_sample/sample.vrs
+```
