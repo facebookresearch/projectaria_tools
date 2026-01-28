@@ -31,7 +31,7 @@
 namespace projectaria::tools::vrs_check {
 
 struct SensorMisalignmentStatistics {
-  SensorMisalignmentStatistics() : total(0), misaligned(0), max_misalignment_us(0), score(0) {}
+  SensorMisalignmentStatistics() = default;
   int64_t total = 0;
   int64_t misaligned = 0;
   int64_t max_misalignment_us = 0;
