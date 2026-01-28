@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-#include <mps/TrajectoryReaders.h>
-
+#include <fmt/format.h>
 #include <gtest/gtest.h>
+#include <mps/TrajectoryFormat.h>
+#include <mps/TrajectoryReaders.h>
 
 using namespace projectaria::tools::mps;
 
@@ -32,7 +33,11 @@ static const std::string testOpenLoopFile =
 
 TEST(mps_closed_loop_valid_file, reader) {
   const auto trajectoryValues = readClosedLoopTrajectory(testClosedLoopFile);
-  EXPECT_TRUE(trajectoryValues.size() > 0);
+  EXPECT_EQ(trajectoryValues.size(), 11517);
+  for (const auto& trajectoryValue : trajectoryValues) {
+    EXPECT_EQ(trajectoryValue.graphUid, "ea7288b8-b6a0-012d-8156-257aba6bd796");
+    EXPECT_DOUBLE_EQ(trajectoryValue.gravity_world.z(), -9.81);
+  }
 }
 
 TEST(mps_closed_loop_invalid_file, reader) {
@@ -42,7 +47,7 @@ TEST(mps_closed_loop_invalid_file, reader) {
 
 TEST(mps_open_loop_valid_file, reader) {
   const auto trajectoryValues = readOpenLoopTrajectory(testOpenLoopFile);
-  EXPECT_TRUE(trajectoryValues.size() > 0);
+  EXPECT_FALSE(trajectoryValues.empty());
 }
 
 TEST(mps_open_loop_invalid_file, reader) {

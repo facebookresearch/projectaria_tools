@@ -60,14 +60,14 @@ OpenLoopTrajectory readOpenLoopTrajectory(const std::string& path) {
     std::apply(readHeader, kOpenLoopTrajectoryColumns);
 
     std::string session_uid;
-    std::int64_t tracking_timestamp_us;
-    std::int64_t utc_timestamp_ns;
+    std::int64_t tracking_timestamp_us = 0;
+    std::int64_t utc_timestamp_ns = 0;
     Eigen::Vector3d t_device;
     Eigen::Quaterniond q_device;
     Eigen::Vector3d gravity_odometry;
     Eigen::Vector3d linearVelocity;
     Eigen::Vector3d angularVelocity;
-    float quality_score;
+    float quality_score = 0.0f;
 
     while (csv.read_row(
         tracking_timestamp_us,
@@ -128,7 +128,8 @@ constexpr std::array<const char*, 20> kCloseLoopTrajectoryColumns = {
     "gravity_x_world",
     "gravity_y_world",
     "gravity_z_world",
-    "quality_score"};
+    "quality_score",
+};
 
 ClosedLoopTrajectory readClosedLoopTrajectory(const std::string& path) {
   ClosedLoopTrajectory trajectory;
@@ -142,14 +143,14 @@ ClosedLoopTrajectory readClosedLoopTrajectory(const std::string& path) {
     std::apply(readHeader, kCloseLoopTrajectoryColumns);
 
     std::string graph_uid;
-    std::int64_t tracking_timestamp_us;
-    std::int64_t utc_timestamp_ns;
+    std::int64_t tracking_timestamp_us = 0;
+    std::int64_t utc_timestamp_ns = 0;
     Eigen::Vector3d t_device;
     Eigen::Quaterniond q_device;
     Eigen::Vector3d gravity;
     Eigen::Vector3d linearVelocity;
     Eigen::Vector3d angularVelocity;
-    float quality_score;
+    float quality_score = 0.0f;
 
     while (csv.read_row(
         graph_uid,
