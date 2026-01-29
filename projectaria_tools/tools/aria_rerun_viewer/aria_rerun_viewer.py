@@ -13,16 +13,16 @@
 # limitations under the License.
 
 import argparse
-from typing import List
+from typing import Optional
 
 # Import different modules for internal and external
 try:
-    from projectaria_tools_internal import data_provider
+    from projectaria_tools_internal.data_provider import create_vrs_data_provider
 except ImportError:
-    from projectaria_tools.core import data_provider
+    from projectaria_tools.core.data_provider import create_vrs_data_provider
 
-import rerun as rr
-from projectaria_tools.core.calibration import DeviceVersion
+from projectaria_tools.core.calibration import DeviceCalibration, DeviceVersion
+from projectaria_tools.core.data_provider import DeliverQueuedOptions, VrsDataProvider
 from projectaria_tools.core.sensor_data import SensorDataType, TimeDomain, TimeSyncMode
 from projectaria_tools.tools.aria_rerun_viewer.aria_data_plotter import (
     AriaDataViewer,
@@ -68,7 +68,7 @@ ALL_STREAM_LABELS_GEN1 = [
 MAX_IMU_BATCH_SIZE = 500
 
 
-def parse_subsample_rates(subsampling_args: List[str], enabled_streams: List[str]):
+def parse_subsample_rates(subsampling_args: list[str], enabled_streams: list[str]):
     """
     This is a helper function to parse CLI input of subsample rates for each stream
 
@@ -133,7 +133,7 @@ def parse_args():
 
 def get_deliver_option(
     vrs_data_provider,
-    enabled_stream_labels: List[str] = None,
+    enabled_stream_labels: list[str] = None,
     subsample_rates: dict = None,
     viewer_config: AriaDataViewerConfig = None,
     skip_begin_sec: float = None,
@@ -299,53 +299,71 @@ def plot_queued_sensor_data(vrs_data_provider, deliver_options, aria_data_viewer
             aria_data_viewer.plot_hand_pose_data_3d(data.hand_pose_data())
 
 
-def main():
-    args = parse_args()
+def log_vrs_to_rerun(
+    vrs: str,
+    rrd_output_path: str = "",
+    subsample_rates: Optional[list[str]] = None,
+    enabled_streams: Optional[list[str]] = None,
+    skip_begin_sec: Optional[float] = None,
+    skip_end_sec: Optional[float] = None,
+) -> None:
     # Step 1: Create VRS data provider
-    vrs_data_provider = data_provider.create_vrs_data_provider(args.vrs)
+    vrs_data_provider: VrsDataProvider = create_vrs_data_provider(vrs)
     if not vrs_data_provider:
-        print(f"Failed to open {args.vrs}")
+        print(f"Failed to open {vrs}")
         return
 
     # Step 2: Extract device_calibration from vrs_data_provider
-    device_calibration = vrs_data_provider.get_device_calibration()
-    device_version = device_calibration.get_device_version()
+    device_calibration: DeviceCalibration = vrs_data_provider.get_device_calibration()
+    device_version: DeviceVersion = device_calibration.get_device_version()
     if device_version == DeviceVersion.Gen1:
-        all_stream_labels = ALL_STREAM_LABELS_GEN1
+        all_stream_labels: list[str] = ALL_STREAM_LABELS_GEN1
     elif device_version == DeviceVersion.Gen2:
-        all_stream_labels = ALL_STREAM_LABELS_GEN2
+        all_stream_labels: list[str] = ALL_STREAM_LABELS_GEN2
     else:
         raise ValueError(f" Unsupported Aria device version: {device_version}")
 
     # Step 3: Create config
-    viewer_config = AriaDataViewerConfig()
+    viewer_config: AriaDataViewerConfig = AriaDataViewerConfig()
     viewer_config.enable_gps = True
 
     # Step 4: Get configured deliver options
-    parsed_subsample_rates = (
-        parse_subsample_rates(args.subsample_rates, all_stream_labels)
-        if args.subsample_rates
+    parsed_subsample_rates: dict[str, int] = (
+        parse_subsample_rates(subsample_rates, all_stream_labels)
+        if subsample_rates
         else {}
     )
-    deliver_options = get_deliver_option(
+    deliver_options: DeliverQueuedOptions = get_deliver_option(
         vrs_data_provider=vrs_data_provider,
-        enabled_stream_labels=args.enabled_streams or all_stream_labels,
+        enabled_stream_labels=enabled_streams or all_stream_labels,
         subsample_rates=parsed_subsample_rates,
         viewer_config=viewer_config,
-        skip_begin_sec=args.skip_begin_sec,
-        skip_end_sec=args.skip_end_sec,
+        skip_begin_sec=skip_begin_sec,
+        skip_end_sec=skip_end_sec,
     )
 
     # Step 6: Initialize AriaDataViewer
-    aria_data_viewer = AriaDataViewer(
+    aria_data_viewer: AriaDataViewer = AriaDataViewer(
         config=viewer_config,
         device_calibration=device_calibration,
-        rrd_output_path=args.rrd_output_path,
+        rrd_output_path=rrd_output_path,
     )
     aria_data_viewer.plot_device_extrinsics()
 
     # Step 6: Plot queued sensor data
     plot_queued_sensor_data(vrs_data_provider, deliver_options, aria_data_viewer)
+
+
+def main():
+    args = parse_args()
+    log_vrs_to_rerun(
+        vrs=args.vrs,
+        rrd_output_path=args.rrd_output_path,
+        subsample_rates=args.subsample_rates,
+        enabled_streams=args.enabled_streams,
+        skip_begin_sec=args.skip_begin_sec,
+        skip_end_sec=args.skip_end_sec,
+    )
 
 
 if __name__ == "__main__":
