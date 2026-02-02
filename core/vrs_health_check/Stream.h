@@ -35,7 +35,7 @@ struct Stats {
 class Stream {
  public:
   explicit Stream(const vrs::StreamId streamId) : streamId_(streamId) {}
-  virtual ~Stream() {}
+  virtual ~Stream() = default;
   // Setup the motion player
   virtual bool setup(vrs::RecordFileReader& reader) = 0;
   // Get stats during processing, useful for showing processing progress

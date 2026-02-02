@@ -28,7 +28,7 @@ namespace projectaria::tools::calibration {
  */
 class DeviceCadExtrinsics {
  public:
-  DeviceCadExtrinsics() {}
+  DeviceCadExtrinsics() = default;
   /**
    * @brief Construct for Cad extrinsics based on device sub type and origin label.
    * @param[in] deviceSubType the device sub type, for Aria it can be "DVT-S" or "DVT-L" based on

@@ -27,7 +27,7 @@ namespace vrs::utils {
 // ImageMutationFilter to modify VRS frame when performing a VRS copy.
 class UserDefinedImageMutator {
  public:
-  virtual ~UserDefinedImageMutator() {}
+  virtual ~UserDefinedImageMutator() = default;
   // Operator allowing to modify a given PixelFrame (according to its timestamp and streamId)
   // -> Note the image size (Width, Height, Stride) must be left unchanged
   virtual bool operator()(

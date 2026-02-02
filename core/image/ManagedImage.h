@@ -144,7 +144,7 @@ inline ManagedImage<T, Allocator_, MaxValue>::~ManagedImage() {
 
 // Constructor
 template <typename T, class Allocator_, int MaxValue>
-inline ManagedImage<T, Allocator_, MaxValue>::ManagedImage() {}
+inline ManagedImage<T, Allocator_, MaxValue>::ManagedImage() = default;
 
 template <typename T, class Allocator_, int MaxValue>
 inline ManagedImage<T, Allocator_, MaxValue>::ManagedImage(size_t w, size_t h)
