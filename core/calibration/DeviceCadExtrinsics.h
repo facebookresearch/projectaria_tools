@@ -30,7 +30,7 @@ namespace projectaria::tools::calibration {
 class DeviceCadExtrinsics {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
  public:
-  DeviceCadExtrinsics() {}
+  DeviceCadExtrinsics() = default;
   /**
    * @brief Construct for Cad extrinsics based on device version, sub type and origin label.
    * @param[in] deviceVersion the device version: {Gen1, Gen2}.
