@@ -562,6 +562,175 @@ python ~/Downloads/projectaria_client_sdk_samples_gen2/device_streaming.py \
 
 ---
 
+## HTTP Streaming to Remote Server
+
+This section demonstrates how to stream data to a remote server running at a specific IP address and port. This is useful when you want to run your streaming receiver on a different machine than the one connected to the Aria device.
+
+### Overview
+
+Remote streaming allows you to:
+- **Run the receiver on a dedicated server**: Process streaming data on a more powerful machine
+- **Stream across the network**: Send data to a receiver running on a remote IP address
+- **Secure communication**: Use TLS certificates for encrypted streaming
+
+### Workflow Overview
+
+To set up remote streaming, follow these steps in order:
+
+1. **Install certificates** on the device (outputs a cert name)
+2. **Copy certificates** to the remote server
+3. **Start the streaming server** on the remote machine
+4. **Start streaming** on the device with the cert name
+
+:::warning Important
+Always start streaming with the correct certificate name or install certificates **before** starting the streaming server. Starting streaming without specifying the cert name will default to installing new certificates, which would invalidate any old certificates already copied to the server.
+:::
+
+---
+
+### Step 1: Install Streaming Certificates
+
+On the machine connected to the Aria Gen2 device via USB, install the streaming certificates:
+
+```bash
+# Install certificates on the device
+aria_gen2 streaming install-certs
+```
+
+This command:
+- Generates new streaming certificates
+- Installs the publisher certificate on the Aria Gen2 device
+- Saves the subscriber certificates locally to `~/.aria/streaming-certs/persistent/`
+- Outputs the **cert name** that you'll use when starting streaming
+
+**Example output:**
+```
+[AriaGen2SDK:Device][INFO]: Installing local streaming certs under: "/home/xxx/.aria/streaming-certs/persistent"
+[AriaGen2SDK:Device][INFO]: Request installing streaming certs on device: cert_1769712774692532015
+[AriaGen2Cli:App][INFO]: successfully installed streaming cert.
+```
+
+**Note the cert name** (e.g., `cert_1769712774692532015`) - you'll need it in Step 4.
+
+#### Certificate Files
+
+After installation, the following files are created in `~/.aria/streaming-certs/persistent/`:
+
+| File | Description |
+|------|-------------|
+| `root_ca.pem` | Root CA certificate that verifies the device's publisher certificate |
+| `subscriber.pem` | Subscriber certificate for the streaming server |
+| `subscriber-key.pem` | Subscriber private key for the streaming server |
+| `publisher-cert-name` | Contains the certificate name |
+
+---
+
+### Step 2: Copy Certificates to Remote Server
+
+Copy the certificate directory to your remote server:
+
+```bash
+# Copy certificates to the remote server
+scp -r ~/.aria/streaming-certs/persistent/ user@<remote-server-ip>:~/.aria/streaming-certs/persistent/
+```
+
+---
+
+### Step 3: Start the Streaming Server
+
+On the remote server, start the streaming server with the copied certificates.
+
+#### Python SDK Configuration
+
+```python
+import os
+import aria.sdk_gen2 as sdk_gen2
+import aria.stream_receiver as receiver
+
+def setup_remote_streaming_server(certs_dir):
+    """Configure streaming receiver for remote connections with TLS certificates."""
+
+    # Certificate paths from copied directory
+    root_ca_path = os.path.join(certs_dir, "root_ca.pem")
+    subscriber_cert_path = os.path.join(certs_dir, "subscriber.pem")
+    subscriber_key_path = os.path.join(certs_dir, "subscriber-key.pem")
+
+    # Configure server with remote IP and port
+    config = sdk_gen2.HttpServerConfig()
+    config.address = "0.0.0.0"  # Listen on all interfaces for remote connections
+    config.port = 6768           # Default streaming port
+
+    # Configure TLS with subscriber certificates
+    config.ca_root = root_ca_path
+    config.certificate.cert = subscriber_cert_path
+    config.certificate.key = subscriber_key_path
+
+    # Create and configure the receiver
+    stream_receiver = receiver.StreamReceiver(
+        enable_image_decoding=True, enable_raw_stream=False
+    )
+    stream_receiver.set_server_config(config)
+
+    # Register callbacks (same as local streaming)
+    stream_receiver.register_slam_callback(image_callback)
+    stream_receiver.register_rgb_callback(image_callback)
+    stream_receiver.register_audio_callback(audio_callback)
+    stream_receiver.register_eye_gaze_callback(eyegaze_callback)
+    stream_receiver.register_hand_pose_callback(handtracking_callback)
+    stream_receiver.register_vio_callback(vio_callback)
+
+    # Start the server
+    stream_receiver.start_server()
+
+    return stream_receiver
+```
+
+---
+
+### Step 4: Start Streaming on Device
+
+On the machine connected to the Aria device, start streaming with the cert name from Step 1:
+
+```bash
+# Start streaming to the remote server
+aria_gen2 streaming start \
+    --url https://<remote-server-ip>:<remote-server-port> \
+    --streaming-cert-name <cert-name-from-step-1>
+```
+
+**Options:**
+- `--url`: The URL of the remote streaming server (e.g., `https://192.168.1.100:6768`)
+- `--streaming-cert-name`: The cert name output from Step 1 (e.g., `cert_1767647798330102000`)
+
+---
+
+### Network Configuration
+
+Ensure the following for remote streaming:
+
+1. **Firewall**: Open port 6768 (or your custom port) on the remote server
+2. **Network connectivity**: The Aria Gen2 device must be able to reach the remote server IP
+3. **Certificate matching**: The publisher certificate on the device must match the subscriber certificates on the server (issued from the same Nebula CA)
+
+### Troubleshooting Remote Streaming
+
+**Connection refused:**
+- Verify the server is running and listening on the correct port
+- Check firewall rules on the server
+
+**Certificate errors:**
+- Ensure all certificate files exist in the specified directory
+- Verify you installed certs (`aria_gen2 streaming install-certs`) **before** copying them to the server
+- If you ran `streaming start` after copying certs, new certs will been installed - reinstall and recopy
+- Check that the cert name used in `--streaming-cert-name` matches the one from `install-certs` output
+
+**No data received:**
+- Confirm the device started streaming successfully
+- Check network connectivity between device and server
+- Verify the streaming URL is correct
+
+---
+
 ## Next Steps
 
 * Learn about [text-to-speech commands](/ark/client-sdk/python-sdk/text-to-speech-example)
