@@ -195,8 +195,8 @@ void EyeGazeAriaViewer::addEtPlot() {
   logEyeGaze_ = std::make_shared<pangolin::DataLog>();
   std::vector<std::string> labels = {"Generalized gaze yaw [rad]", "Generalized gaze pitch [rad]"};
   if (calibratedEyeGazesVisData_) {
-    labels.push_back("Calibrated gaze yaw [rad]");
-    labels.push_back("Calibrated gaze pitch [rad]");
+    labels.emplace_back("Calibrated gaze yaw [rad]");
+    labels.emplace_back("Calibrated gaze pitch [rad]");
   }
   logEyeGaze_->SetLabels(labels);
   eyeGazePlotter_ = std::make_shared<pangolin::Plotter>(

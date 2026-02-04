@@ -75,7 +75,7 @@ int mps3dSceneViewerCli(int argc, const char** argv) {
     std::vector<Eigen::Vector3f> openTrajPoints;
     openTrajPoints.reserve(openTraj.size());
     for (const auto& pose : openTraj) {
-      openTrajPoints.push_back(pose.T_odometry_device.translation().cast<float>());
+      openTrajPoints.emplace_back(pose.T_odometry_device.translation().cast<float>());
     }
     fullTrajs_world.push_back(std::move(openTrajPoints));
   }
@@ -92,7 +92,7 @@ int mps3dSceneViewerCli(int argc, const char** argv) {
     std::vector<Eigen::Vector3f> closedTrajPoints;
     closedTrajPoints.reserve(closedTraj.size());
     for (const auto& pose : closedTraj) {
-      closedTrajPoints.push_back(pose.T_world_device.translation().cast<float>());
+      closedTrajPoints.emplace_back(pose.T_world_device.translation().cast<float>());
       allWorldFrameUids.insert(pose.graphUid);
     }
     fullTrajs_world.push_back(std::move(closedTrajPoints));

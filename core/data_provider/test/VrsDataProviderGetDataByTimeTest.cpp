@@ -181,8 +181,7 @@ TEST(VrsDataProvider, multiThreadGetDataByTimeNsInBound) {
     const auto streamIds = provider->getAllStreams();
     std::vector<std::thread> threads;
     for (const auto streamId : streamIds) {
-      threads.emplace_back(
-          std::thread([&provider, streamId]() { checkInBound(provider, streamId); }));
+      threads.emplace_back([&provider, streamId]() { checkInBound(provider, streamId); });
     }
 
     for (auto& thread : threads) {
@@ -199,8 +198,7 @@ TEST(VrsDataProvider, multiThreadGetDataByTimeNsOutOfBound) {
     const auto streamIds = provider->getAllStreams();
     std::vector<std::thread> threads;
     for (const auto streamId : streamIds) {
-      threads.emplace_back(
-          std::thread([&provider, streamId]() { checkOutOfBound(provider, streamId); }));
+      threads.emplace_back([&provider, streamId]() { checkOutOfBound(provider, streamId); });
     }
 
     for (auto& thread : threads) {
