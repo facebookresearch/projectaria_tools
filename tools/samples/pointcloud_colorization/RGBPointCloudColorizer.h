@@ -195,7 +195,7 @@ class RGBPointCloudColorizer : public PointCloudColorizer {
     for (const auto& pt : globalPointCloud_) {
       if (accumulatorCount_.count(pt.uid) == 0) {
         // If point has been unseen set a default color
-        colors.push_back(Eigen::Vector3f(255, 0, 0) / 255.f);
+        colors.emplace_back(Eigen::Vector3f(255, 0, 0) / 255.f);
         continue;
       }
       colors.push_back(colorAccumulator_.at(pt.uid));

@@ -88,8 +88,7 @@ TEST(VrsDataProvider, multiThreadGetConfigurations) {
   const auto streamIds = provider->getAllStreams();
   std::vector<std::thread> threads;
   for (const auto streamId : streamIds) {
-    threads.emplace_back(
-        std::thread([&provider, streamId]() { checkSensorConfig(provider, streamId); }));
+    threads.emplace_back([&provider, streamId]() { checkSensorConfig(provider, streamId); });
   }
 
   for (auto& thread : threads) {

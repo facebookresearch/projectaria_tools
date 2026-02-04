@@ -170,7 +170,7 @@ void SensorMisalignmentStats::checkMisalignment(
     // If new timestamp is close enough to the bucket's timestamp, add it to the bucket
     if (newSensorTimestampUs - referenceTimestampUs < affinityRangeUs_) {
       timeBucketFound = true;
-      alignmentCheck.second.push_back({newSensorId, newSensorTimestampUs});
+      alignmentCheck.second.emplace_back(newSensorId, newSensorTimestampUs);
       break;
     }
   }
