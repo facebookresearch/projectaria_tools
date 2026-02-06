@@ -150,7 +150,7 @@ std::optional<EyeGaze> populateOssEyeGaze(
   }
 
   // Parsing left and right eye pupil diameters
-  float vrsPupilDiameter;
+  float vrsPupilDiameter = 0.0f;
   if (dataLayout.leftEye.pupilDiameterValid.get() &&
       dataLayout.leftEye.pupilDiameterMeter.get(vrsPupilDiameter)) {
     eyeData.vergence.left_pupil_diameter_valid = true;
