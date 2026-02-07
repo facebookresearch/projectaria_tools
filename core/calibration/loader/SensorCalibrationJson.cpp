@@ -34,7 +34,7 @@ CameraCalibration parseCameraCalibrationFromJson(
     const CameraConfigBuilder& configBuilder) {
   // Parse projection params
   const std::string projectionModelName = json["Projection"]["Name"];
-  CameraProjection::ModelType modelName;
+  CameraProjection::ModelType modelName{};
   if (projectionModelName == "FisheyeRadTanThinPrism") {
     modelName = CameraProjection::ModelType::Fisheye624;
   } else if (projectionModelName == "KannalaBrandtK3") {
