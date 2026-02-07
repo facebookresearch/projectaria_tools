@@ -110,7 +110,7 @@ void declareXprsDecoding(py::module& module) {
             };
 
             // Release GIL during expensive C++ operations
-            XprsResult xprsRes;
+            XprsResult xprsRes = XprsResult::ERR_NOT_INITIALIZED;
             bool conversionResult = false;
             {
               py::gil_scoped_release release;
