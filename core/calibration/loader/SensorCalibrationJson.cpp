@@ -78,7 +78,7 @@ Sophus::SE3d parseSe3dFromJson(const nlohmann::json& json) {
 CameraCalibration parseCameraCalibrationFromJson(const nlohmann::json& json) {
   // Parse projection params
   const std::string projectionModelName = json["Projection"]["Name"];
-  CameraProjection::ModelType modelName;
+  CameraProjection::ModelType modelName{};
   if (projectionModelName == "FisheyeRadTanThinPrism") {
     modelName = CameraProjection::ModelType::Fisheye624;
   } else if (projectionModelName == "KannalaBrandtK3") {
@@ -96,9 +96,9 @@ CameraCalibration parseCameraCalibrationFromJson(const nlohmann::json& json) {
       : 0.0;
 
   std::optional<double> validRadius;
-  int width;
-  int height;
-  double maxSolidAngle;
+  int width = 0;
+  int height = 0;
+  double maxSolidAngle = 0.0;
   // Handle sensor valid radius and camera resolution (full res during calibration)
   if (label == "camera-rgb") {
     validRadius = kRgbValidRadius;
