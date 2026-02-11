@@ -1,0 +1,214 @@
+---
+sidebar_position: 80
+title: Aria Studio
+---
+
+
+# Aria Studio
+
+## Overview
+
+Aria Studio is part of the [Aria Research Kit](about_ARK.mdx). The application will launch in your default web browser and provides the ability to:
+
+* Examine preview thumbnails and metadata of Aria recordings (on device or stored locally)
+* Transfer recordings from the device to the local computer or delete recordings stored on the device or local computer
+* Visualize recordings
+    * We show visualizations of all the sensor streams except for audio. Audio outputs are not supported at this time.
+* Group recordings for multi-sequence processing jobs
+    * Grouped recordings are a special feature unlocked by Aria Studio. Users can group VRS recordings from anywhere in their directory for organizational purposes, or to request Multi-SLAM outputs.
+    * Groups are stored on your local machine and associated with your Aria user account
+* Request and manage Machine Perception Services (MPS)
+
+Aria Studio can be installed on:
+
+* x64 Linux distributions of:
+    * Fedora 36, 37, 38
+    * Ubuntu jammy (22.04 LTS) and focal (20.04 LTS)
+* Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
+    * Note: Current versions of Aria Studio are not supported on Intel-based Mac machines, though [version 1.0.3](#previous-versions) is available for download.
+* x64 Windows Intel machines running Windows 11 or newer
+
+Aria Studio is supported on Google Chrome.
+
+:::tip Just received Aria glasses?
+Go to the [Quickstart Guide](/ARK/ARK_quickstart.mdx) for info on how to start using them.
+:::
+
+## Machine Perception Services (MPS) capabilities
+
+* Request MPS processing for recordings
+    * SLAM, Eye Gaze and Hand Tracking are available for individual recordings
+    * Multi-SLAM is available for grouped recordings
+* View MPS request history and status of current requests
+* Access MPS CLI capabilities through a graphical user interface, such as:
+    * Resumable uploads
+    * MPS outputs automatically downloading (as long as Aria Studio is running)
+    * The ability to submit multiple MPS requests at the same time
+
+Like the MPS CLI, you can exercise granular control over settings like uploads and download speeds by customizing `$HOME/.projectaria/mps.ini`. Go to the [MPS CLI Guide](/ARK/mps/request_mps/mps_cli_guide.mdx#cli-settings) for details about all the settings.
+
+## Install Aria Studio with one click
+Install the Aria Studio 1.1.x package appropriate for your computer platform. Double-click on the downloaded file and follow the prompts to complete the installation.
+* Mac ARM 1.1.1: Download the [Package for Mac ARM](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.1-arm64.dmg)
+* Windows 1.1.1: Download the [Package for Windows](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.1-windows.exe)
+* Linux 1.1.2: Download the [Package for Linux](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.2-Linux.appimage)
+
+### Previous versions
+The table below includes links to previous versions of Aria Studio across multiple platforms. Note that if you are installing version 1.0.3, you will need to [allow the installation of unsigned builds](#unsigned-builds).
+
+| Version | Platform | Download link |
+| --- | --- | --- |
+| 1.1.1 | Linux | [Aria_Studio-1.1.1-Linux.appimage](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.1-Linux.appimage) |
+| 1.1.0 | Mac ARM | [Aria_Studio-1.1.0-arm64.dmg](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.0-arm64.dmg) |
+| 1.1.0 | Windows | [Aria_Studio-1.1.0-windows.exe](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.0-windows.exe) |
+| 1.1.0 | Linux | [Aria_Studio-1.1.0-Linux.appimage](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.0-Linux.appimage) |
+| 1.0.3 | Mac ARM | [Aria_Studio-1.0.3-arm64.pkg](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-arm64.pkg) |
+| 1.0.3 | Mac Intel | [Aria_Studio-1.0.3-Intel.pkg](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-Intel.pkg) |
+| 1.0.3 | Windows | [Aria_Studio-1.0.3-windows.exe](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-windows.exe) |
+| 1.0.3 | Linux | [Aria_Studio-1.0.3-Linux.AppImage](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-Linux.AppImage) |
+
+#### Note: Version 1.0.3 is an unsigned build
+You will need to allow the installation of unsigned builds if you want to install version 1.0.3 in this way. We don't recommend enabling unsigned builds for any other versions.
+
+**macOS**
+1. Double-click the downloaded PKG and select **Done**.
+2. Go to **System Settings** > **Privacy & Security**, scroll to the bottom, and select **Open Anyway** to enable the installation.
+
+**Windows**
+1. Double-click on the downloaded EXE file.
+2. When the "Windows protected your PC" dialog appears, select **More info**.
+3. Select **Run anyway**.
+
+## Install Aria Studio via PyPI
+
+:::note
+If you're going to install Aria Studio via PyPI, you'll want Python 3.11 or above. To check which version of Python 3 you have, use `python3 --version`. Get the latest version from the [Python 3 download page](https://www.python.org/downloads/).
+:::
+
+To install Aria Studio via PyPI, use the following command:
+```
+python3 -m pip install aria_studio --no-cache-dir
+```
+
+### Optional: Create a virtual environment
+
+When using PyPI's `pip` command, it's a best practice to use a virtual environment. This will keep all the modules in one folder and avoid breaking anything in your local environment. To install Aria Studio in a virtual environment, use the following steps:
+
+### Linux and macOS
+```
+rm -rf $HOME/venv/aria_studio
+python3 -m venv $HOME/venv/aria_studio
+source $HOME/venv/aria_studio/bin/activate
+python3 -m pip install aria_studio --no-cache-dir
+```
+
+### Windows
+```
+remove-Item -Path $HOME/venv/aria_studio -recurse -Force
+py -3 -m venv $HOME/venv/aria_studio
+& $HOME\venv\aria_studio\Scripts\Activate.ps1
+py -3 -m pip install aria_studio --no-cache-dir
+```
+
+## Run Aria Studio
+
+### Run Aria Studio from your desktop (single-click installation)
+
+If you installed Aria Studio used single-click installation, you can run Aria Studio like you would any other application on your desktop.
+
+### Run Aria Studio using Python (PyPI installation)
+```
+aria_studio
+```
+
+Aria Studio will then open in your web browser.
+
+:::info Closing the browser won't quit the application
+If you close the browser, Aria Studio will continue to run in the background, which can be helpful when running MPS requests. Use Ctrl + C in the command window to quit the application.
+:::
+
+To return to your installation of Aria Studio at any time, restart the virtual environment using the following commands:
+
+```
+source $HOME/aria_studio/bin/activate
+aria_studio
+```
+
+## Using Aria Studio
+
+On the main page you’ll see options to view recordings on your glasses, recordings on your computer, grouped recordings and past MPS requests.
+
+You’ll also be able to see the status of any glasses plugged into your computer.
+
+
+## Recordings on glasses
+
+1. Plug your Aria glasses into your computer
+2. Select **Recordings on glasses**
+    * If you do not see a connected device, try:
+        * Changing ports
+        * Plugging the glasses in more directly if you’re using a USB hub
+        * If your glasses battery is flat, wait 10 minutes for them to charge
+        * If you’re on [Linux you may need to fix driver issues](/ARK/troubleshooting/linux_usb_driver.mdx)
+3. You’ll see a thumbnail preview of the recording, plus metadata for each recording
+
+From this page you can see video previews of each recording, download recordings and delete recordings.
+
+When recordings are downloaded, they’ll also download a JSON file containing the file’s metadata. Metadata can also be extracted from the VRS file, but the JSON file provides a text editor readable file with recording profile, name, OS version the recording was made with, etc.
+
+
+## Recordings on computer
+
+From “Recordings on computer” you can request MPS, add recordings to a group or visualize the recordings. Select the info icon (or file information in Actions) for recording metadata or status of MPS requests associated with that file.
+
+When you request MPS, the output results will be automatically downloaded to an MPS folder in the requesting VRS file’s directory.
+
+
+![Screenshot or Aria Studio Recordings page](/img/ARK/aria_studio/aria_studio_recordings.png)
+
+
+## Groups
+
+In the “Groups” page you can create new groups, examine recordings within a group or request Multi-SLAM MPS processing on a group of recordings. VRS files are not duplicated when they are grouped. So one file can be in multiple groups, without taking up extra storage space.
+
+Go to “Recordings on computer” to add recordings to a group.  For a Multi-SLAM request to be successful, all recordings in the group need to have used recording profiles that collect SLAM camera and IMU data.
+
+### Creating and using groups
+
+1. Go to Groups and select **Create a new group**
+2. Provide a group name
+    * The group name needs to be a valid directory name, as this will be the name of the folder where outputs are automatically downloaded to
+3. Select a directory
+    * This directory will define where the group folder for outputs will be saved
+    * VRS recordings will not be added to this directory
+    * The outputs will include a JSON file with the file paths of all the VRS source files
+4. Go to Recordings on computer to add VRS files to the group
+    * You can select multiple VRS files at the same time
+5. Return to Groups
+    * Select the info icon to view group or individual recording data
+    * Select Request MPS to request Multi-SLAM MPS
+
+
+## Past MPS requests
+
+Past MPS requests is a page that logs the status of current and previous MPS requests.
+
+## Troubleshooting/FAQ
+### My MPS request didn’t automatically download!
+
+MPS requests can only be downloaded when Aria Studio is open. Open Aria Studio to check the status of MPS requests. You’ll see “Successfully Downloaded” as the status.
+
+### What happens if I quit Aria Studio while files are uploading?
+Next time you open Aria Studio the uploads should resume. Once files have successfully uploaded you’ll see “Processing” as the status.
+
+### What are the different statuses and steps when submitting MPS requests?
+Go to the [MPS CLI Guide](/ARK/mps/request_mps/mps_cli_guide.mdx#how-the-mps-cli-works) for details about how the back end works.
+
+### How do I quit Aria Studio?
+Press Ctrl + C in the original console where aria_studio was started.
+
+### Unable to login (on Mac)
+Go to [MPS Troubleshooting - Authentication issue on macOS](/ARK/mps/mps_troubleshooting.mdx#authentication-issue-on-macos) if you encounter this issue.
+
+### Where are my groups?
+Groups are stored locally and associated with a specific user. So if you’ve logged into Aria Studio using a different account name, you won’t see the groups associated with another user.

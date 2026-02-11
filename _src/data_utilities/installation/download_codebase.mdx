@@ -1,0 +1,49 @@
+---
+sidebar_position: 10
+title: Download Codebase
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# How to Download Project Aria Tools
+
+## Supported Platforms
+The codebase is supported on:
+
+- x64 Linux distributions of:
+  - Fedora 36, 37, 38
+  - Ubuntu focal (20.04 LTS) and jammy (22.04 LTS)
+  - Windows (MSVC 2019/2022)
+- Mac Intel or Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
+
+
+## Stable versus Develop
+
+Access the latest stable version of Project Aria Tools with git TAGS. The develop version is pushed continuously to the `main` branch.
+
+## Download codebase
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="stable" label="Stable">
+```
+```bash
+mkdir -p $HOME/Documents/projectaria_sandbox
+cd $HOME/Documents/projectaria_sandbox
+
+git clone https://github.com/facebookresearch/projectaria_tools.git -b 1.7.1
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="develop" label="Develop">
+```
+```bash
+mkdir -p $HOME/Documents/projectaria_sandbox
+cd $HOME/Documents/projectaria_sandbox
+
+git clone https://github.com/facebookresearch/projectaria_tools.git -b main
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
