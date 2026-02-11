@@ -389,7 +389,15 @@ print("\n✅ Successfully queried synchronized frames from both devices!")
 
 ## Part 3: Timestamp-Aligned Trajectory and Hand Tracking Visualization
 
-Now we'll visualize timestamp-aligned data from both devices in 3D. Since MPS processes multi-device recordings together, the trajectories from both devices are already in the same world coordinate frame.
+Now we'll visualize timestamp-aligned data from both devices in 3D.
+
+:::note Coordinate Alignment Across Scenes
+The dataset contains three multi-user scenes — **play**, **walk**, and **eat** — each with different trajectory alignment properties:
+- **Play & Walk**: These scenes are processed with MPS **multi-sequence trajectory**, so the resulting trajectories are both **time-aligned and coordinate-aligned** (i.e., all devices share the same world coordinate frame).
+- **Eat**: Due to limited field-of-view overlap between wearers, each sequence is processed independently using **single-sequence tracking (SST)**. The trajectories are **time-aligned but not coordinate-aligned** — each device has its own world coordinate frame.
+
+When working with the **eat** scene, keep in mind that overlaying trajectories from different devices directly in 3D will **not** produce a spatially consistent visualization.
+:::
 
 ### Load MPS Data
 
