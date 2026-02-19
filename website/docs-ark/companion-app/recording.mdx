@@ -16,11 +16,25 @@ The companion app allows you to start and stop recordings on your glasses. You c
 ![Select a profile](/img/docs-ark/companion-app/profiles.jpg)
 
 4. (Optional) when selecting a profile, you can make it the default profile for future recordings.
-5. Tap **Begin new recording** and you will see your glasses LED light up once recording has started.
+5. (Optional) tap **Advanced Settings** to configure additional options such as the NTP Server (see [NTP Server](#ntp-server) below).
+6. Tap **Begin new recording** and you will see your glasses LED light up once recording has started.
 
 ![Recording](/img/docs-ark/companion-app/recording.jpg)
 
-6. Once you've finished recording, you can end the recording by tapping the **Complete recording** button in the app or by pressing the action button on your glasses. If you don't want to save your recording to the glasses, tap **Discard recording**.
+7. Once you've finished recording, you can end the recording by tapping the **Complete recording** button in the app or by pressing the action button on your glasses. If you don't want to save your recording to the glasses, tap **Discard recording**.
+
+### NTP Server
+NTP (Network Time Protocol) is a time synchronization mode that enables the glasses to synchronize their timestamps with an NTP server. This provides more accurate UTC timestamps in your recording data.
+
+To enable NTP, tap **Advanced Settings** on the recording setup screen and toggle the NTP Server option. When enabled, the glasses will periodically sync their clock with the configured NTP server during the recording.
+
+Enable NTP when you need:
+- Accurate UTC timestamps that can be correlated with external systems or events
+- Rough time synchronization across multiple devices recording simultaneously
+
+:::note
+NTP timestamps are not guaranteed to be monotonic or have a stable clock speed. Do not compute durations by subtracting two NTP-synced UTC timestamps. Use device timestamps for duration calculations instead.
+:::
 
 ### Sensor integrity
 You can view the health of the sensors you are recording with by tapping the **Data Integrity and Status** button during a recording.
