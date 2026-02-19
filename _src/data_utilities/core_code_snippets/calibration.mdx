@@ -1,0 +1,239 @@
+---
+sidebar_position: 30
+title: Calibration
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Calibration Code Snippets
+This section covers how to use Project Aria Tools to:
+* Access calibration data from Project Aria VRS files
+  * Python or C++ API ([projectaria_tools/main/core/calibration](https://github.com/facebookresearch/projectaria_tools/blob/main/core/calibration))
+* Use Python bindings for the [Sophus Library](https://github.com/strasdat/Sophus) to access to SO3, SE3, interpolate and iterative mean features ([projectaria_tools/main/core/sophus](https://github.com/facebookresearch/projectaria_tools/tree/main/core/python/sophus)).
+
+Go to the [Project Aria FAQ](/faq.mdx#calibration) for more calibration information and resources.
+
+### Accessing device calibration
+Device calibration stores:
+* The device's CAD model, which contains the 6DoF poses of sensors of the device as designed.
+* The calibration of all sensors on a single Aria device. See the [Accessing sensor calibration](#accessing-sensor-calibration) section for details.
+* The device's sub-type (`DVT-S` or `DVT-L` to indicate small or large)
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+from projectaria_tools.core import data_provider, calibration
+from projectaria_tools.core.stream_id import StreamId
+
+vrsfile = "example.vrs"
+provider = data_provider.create_vrs_data_provider(vrsfile)
+
+# returns None if vrs does not have a calibration
+device_calib = provider.get_device_calibration()
+print(device_calib.get_device_subtype())
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <dataprovider/VrsDataProvider.h>
+using namespace projectaria::tools::data_provider;
+using namespace projectaria::tools::calibration;
+
+std::string vrsfile = "example.vrs"
+auto maybeProvider = createVrsDataProvider(vrsFilename);
+XR_CHECK(maybeProvider, "Cannot open file");
+auto&provider = *maybeProvider;
+
+// returns nullopt if vrs does not have a calibration
+auto deviceCalib = provider.getDeviceCalibration();
+std::cout << deviceCalib..getDeviceSubtype() << std::endl;
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+### Accessing 6DoF poses of sensors with Sophus Python binding
+All 6DoF poses (a.k.a. extrinsic parameters) are represented as relative to the device frame.
+The device frame is a specific sensor frame, identified by the sensor's label. Aria device frame is by default `camera-slam-left`.
+We also provide the pose of [the central-pupil-frame](/docs/data_formats/coordinate_convention/3d_coordinate_frame_convention#the-nominal-central-pupil-frame-cpf) in the device frame or as relative to a sensor frame.
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+label = "camera-slam-right"
+transform_device_sensor = device_calib.get_transform_device_sensor(label)
+transform_device_cpf = device_calib.get_transform_device_cpf()
+transform_cpf_sensor = device_calib.get_transform_cpf_sensor(label)
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+std::string label = "camera-slam-right";
+Sophus::SE3d T_Device_Sensor = deviceCalib.getT_Device_Sensor(label);
+Sophus::SE3d T_Device_Cpf = deviceCalib.getT_Device_Cpf();
+Sophus::SE3d T_Cpf_Sensor = deviceCalib.getT_Cpf_Sensor(label);
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+### Accessing sensor calibration
+Each sensor on the device *may* have a corresponding stream in the vrs and may have a corresponding calibration.
+However, some types of sensors may not have calibration defined for them (e.g. GPS, WPS, bluetooth), and some sensors may not record stream in a specific vrs.
+For sensor streams where calibration is available, they can be accessed by labels:
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+# returns None if vrs does not have a calibration
+device_calib = provider.get_device_calibration()
+sensor_calib = device_calib.get_sensor_calib(label)
+```
+More conveniently, you can just do
+```python
+stream_id = StreamId("1201-1")
+calib = provider.get_sensor_calibration(stream_id)
+```
+
+If you know the calibration type, you can also do
+
+```python
+# returns None if the calibration label does not exist
+cam_calib = device_calib.get_camera_calib("camera-rgb");
+imu_calib = device_calib.get_imu_calib("imu-left");
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+// returns nullopt if vrs does not have a calibration
+auto deviceCalib = provider.getDeviceCalibration();
+auto sensorCalib = deviceCalib.getSensorCalib(label);
+```
+More conveniently, you can just do
+```
+vrs::StreamId streamId = vrs::StreamId::fromNumericalName("1201-1");
+auto maybeCalib = provider.getSensorCalibration(streamId);
+```
+
+If you know the calibration type, you can also do
+
+```cpp
+// returns nullopt if the calibration label does not exist
+auto camCalib = deviceCalib.getCameraCalib("camera-rgb");
+auto imuCalib = deviceCalib.getImuCalib("imu-left");
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+### Accessing ET and Microphone calibration
+Note Aria's ET camera stream and audio are special types:
+
+* Aria's ET stream switches the stream for left and right ET together, thus its calibration is a pair of CameraCalibration.
+* Aria's Audio stream has 7 channels, thus its calibration is an array of seven microphone calib.
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+# returns None if the calibration label does not exist
+et_calib = device_calib.get_aria_et_camera_calib()
+print(et_calib[0].get_label())
+mic_calib = device_calib.get_aria_microphone_calib()
+print(mic_calib[0].get_label())
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+// returns nullopt if the calibration label does not exist
+auto etCalib = *deviceCalib.getAriaEtCalib()
+std::cout << etCalib[0].getLabel() << std::endl;
+auto micCalib = *deviceCalib.getAriaMicCalib()
+std::cout << micCalib[0].getLabel() << std::endl;
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+<div id="sophus"></div>
+
+## Python binding for Sophus library
+
+Sophus Python PyBind implements Python binding for [Sophus](https://github.com/strasdat/Sophus) that provides access to SO3, SE3, interpolate and iterativeMean features.
+
+This Python binding has been submitted to Sophus and will be officially supported by the Sophus Library GitHub repo soon. Once it is available through the Sophus Library, this section will point to Sophus documentation and code, to avoid duplication.
+
+The user interface is inspired by [scipy.spatial.transform.Rotation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.transform.Rotation.html).
+
+
+
+### Feature list
+
+* SO3
+  * Initialize with from_quat(), from_matrix(), exp()
+  * Convert to functions: to_quat(), to_matrix(), log()
+  * Multiplication with SO3 or 3D points
+  * Operator [] for setting/getting items with index or slices
+  * Inverse, copy, print, and len
+  * Function vectorization
+* SE3
+  * Initialize with from_quat_and_translation(), from_matrix(), from_matrix3x4(), exp()
+  * Convert to functions to_quat_and_translation(), to_matrix(), to_matrix3x4(), log()
+  * Multiplication with SE3 or 3D points
+  * Get rotation and translation component with rotation() and translation()
+  * Operator [] for setting/getting items with index or slices
+  * Function vectorization
+  * Inverse, copy, print, and len
+  * Interpolate between two SE3
+  * Iterative mean of a group of SE3
+
+
+### Import Sophus Python binding
+
+
+```
+from projectaria_tools.core.sophus import SO3, SE3, interpolate, iterativeMean
+```
+
+
+
+### Example code
+
+Example code is provided in `projectaria_tools/core/examples/sophus_quickstart_tutorial.ipynb`
+
+
+`python3 -m jupyter` ensures that the Jupyter comes from the virtual environment that contains the projectaria_tools module.
+
+
+
+
+### Vectorization detail
+
+In Python, we chose to export our Sophus::SO3 as a vector of SO3 objects by binding the cpp object `SO3Group` defined below. This is because numerical code in Python tends to work with array of values so that the program can be efficient. This approach is inspired by scipy.spatial.transform.Rotation.
+
+
+
+
+### Passing a single SO3/SE3 object to C++ code in Python binding
+
+
+To allow other Python binding C++ code to take in a single SO3/SE3 object, we built a caster so that, even if we wrap SO3Group/SE3Group in Python, those can be implicitly converted to the C++ Sophus::SO3/SE3 object at the boundaries between languages.
+
+This enables us to pass the Python SO3/SE3 object to a C++ function as if they were a regular 1-element Sophus::SO3/SE3 object. This simplifies binding the rest of the C++ code. The implicit cast fails if the Python object is not a 1-element object.

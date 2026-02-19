@@ -1,0 +1,122 @@
+---
+sidebar_position: 20
+title: ARK SW Downloads
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+# ARK SW Downloads and Updates
+
+
+The [Aria Research Kit (ARK)](about_ARK.mdx) provides the [Aria Mobile Companion app](mobile_companion_app.mdx) to researchers who use Project Aria glasses.
+
+To be able to use Project Aria glasses you must set them up using the Mobile Companion app.
+
+Optional Software available with the ARK:
+* [Aria Studio](#studio)
+* [Aria Client SDK](#sdk)
+
+<div id="mobile"></div>
+
+## Mobile Companion App
+
+The current version of the Companion App is v245. Go to [ARK Software Release Notes](sw_release_notes.mdx) to learn more about the latest features.
+
+```mdx-code-block
+<Tabs groupId="operating-systems">
+<TabItem value="ios" label="iOS">
+```
+
+### iOS
+#### Requirements
+If you're using iOS, your mobile device will need:
+- OS version must be iOS 14 or above
+- (Optional) TrueDepth camera (iPhone X or later) needed for [eye-tracking calibration](mps/eye_gaze_calibration.mdx)
+
+#### Download and Install
+The Aria Mobile Companion app is available on iOS as a beta app through TestFlight.
+
+On your phone, scan this QR code
+
+<div style={{textAlign: 'center'}}>
+<img width="40%" src={useBaseUrl('/img/ARK/testflight.png')} alt="TestFlight QR Code"/>
+</div>
+
+to open the [Aria Testflight invitation link](https://testflight.apple.com/join/G9sm51a8) and download the app.
+
+To update:
+* Open the TestFlight app
+* Next to the Aria app, select **Update**
+
+
+```mdx-code-block
+</TabItem>
+<TabItem value="android" label="Android">
+```
+
+### Android
+
+#### Requirements
+If you're using Android, your mobile device will need:
+- Android OS version 10 or above installed
+- ARM64 processor preferred
+- (Optional) ARCore Depth API (https://developers.google.com/ar/devices) support needed for [eye-tracking calibration](mps/eye_gaze_calibration.mdx)
+- 64-bit is preferred, although 32-bit is supported
+
+
+#### Download and install
+Follow one of these links on your Android device to download the app:
+
+* Mobile Companion App APK v245 - [recommended (64-bit architecture)](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/android/Aria_v245_ARM64.apk)
+* Mobile Companion App APK v245 - [for 32-bit architecture](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/android/Aria_v245_ARMV7.apk)
+
+To update the app, download and install the latest version.
+
+#### Installation troubleshooting
+
+On Android, if you see an error message such as, “For security, your phone is not allowed to install unknown apps from this source,” you’ll need to enable your web browser to install unknown apps.
+
+![Aria Mobile Companion App install error message](/img/ARK/unknown_app_error.png)
+
+1. Go to Settings → Apps & notifications → Advanced → Special app access → Install unknown apps.
+2. Select the app (usually your internet browser) that you want to grant permission to install from unknown sources.
+3. Select **Allow from this source**
+
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+<div id="studio"></div>
+
+## Aria Studio
+
+Aria Studio is available on:
+
+* x64 Linux distributions of:
+    * Fedora 36, 37, 38
+    * Ubuntu Jammy (22.04 LTS) and Focal (20.04 LTS)
+* Mac Intel or Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
+* x64 Windows Intel machines running Windows 11 or newer
+
+You can install it through either one-click installation or via PyPI (pip instiallation). Go to the [Aria Studio guide](/ARK/aria_studio.mdx) to get started.
+
+<div id="sdk"></div>
+
+## Client SDK with CLI
+
+Aria Client SDK with CLI is available on:
+
+* x64 Linux distributions of:
+    * Fedora 36, 37, 38
+    * Ubuntu Jammy (22.04 LTS)
+* Mac Intel or Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
+
+It is installed via PyPI (pip instiallation). Go to the [Aria Client SDK setup guide](/ARK/sdk/setup.mdx) to get started.
+
+## Are these apps open source?
+
+The Mobile Companion app, Aria Studio, and Client SDK are Meta Licensed Materials and are licensed by Meta to research partners via organizational or individual research agreements. Go to [projectaria.com](https://www.projectaria.com/research-kit/) to find out how to become a research partner.
+
+This software is not part of Project Aria Tools, so it won’t be downloaded when you install [Project Aria Tools Data Utilities](https://facebookresearch.github.io/projectaria_tools/docs/data_utilities), which is open source and licensed under Apache 2.0.

@@ -1,0 +1,169 @@
+---
+sidebar_position: 5
+title: Setup Guide
+---
+import useBaseUrl from '@docusaurus/useBaseUrl'
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Project Aria Client SDK and CLI Setup Guide
+
+## Overview
+
+The page provides instructions about how to get started with the Project Aria Client SDK, covering:
+
+* [Hardware and software requirements](#requirements)
+* [Downloading and installing the SDK](#install)
+    * Installing `projectaria_client_sdk` via pip will also add the [Aria CLI](/docs/ARK/sdk/cli/cli.mdx) to your PATH
+* [Running Project Aria Doctor to setup your computer and fix common issues](#doctor)
+* [Pairing your Aria Glasses](#pair)
+* [Extracting and exploring the sample apps](#explore)
+
+
+<div id="requirements"></div>
+
+## Requirements
+
+### Hardware
+- Project Aria glasses that have:
+  - Completed full device setup using the [Aria Mobile Companion App](/docs/ARK/about_ARK#mobile-companion-app-requirements)
+  - [Latest up-to-date OS](/docs/ARK/sw_release_notes)
+- If you want to stream over Wi-Fi, you'll need a router, such as Asus, Netgear or TP-Link, that has:
+  - No firewall
+  - Supports Wi-Fi 6
+    - So that the glasses can connect to the 5GHz band when streaming over Wi-Fi
+
+:::danger
+The Client SDK does not currently support streaming over corporate, university or public networks. Those networks are protected by many layers of security and firewalls. We recommend using one of the recommended routers listed above to stream over Wi-Fi.
+:::
+
+### Platforms
+The codebase is supported on the following platforms:
+- x64 Linux distributions of:
+  - Fedora 36 or newer
+  - Ubuntu jammy (22.04) or newer
+- Mac Intel or Mac ARM-based (M1) with MacOS 11 (Big Sur) or newer
+
+### Software
+* A version of Python within the range of 3.9 to 3.12 (inclusive)
+  * [Python 3 download page](https://www.python.org/downloads/)
+  * To check which version of Python 3 you have, use `python3 --version`
+* [ADB](https://developer.android.com/studio/command-line/adb) (optional)
+  * In addition to the CLI, you can use ADB to interact with Aria glasses
+  * ADB is one of the ways that you can [download Aria data](/docs/ARK/ARK_quickstart#download-data)
+
+<div id="install"></div>
+
+## Environment Setup
+
+## Step 1: Install SDK from PyPI
+
+### Create a virtual environment
+
+When using `pip`, it is best practice to use a virtual environment. This will keep all the modules under one folder and will not break your local environment. Use the following command with your version of Python3.
+```bash
+python3 -m venv ~/venv
+```
+
+### Install the Client SDK and CLI
+
+Install `projectaria_client_sdk` with pip
+
+
+```bash
+source ~/venv/bin/activate
+
+python3 -m pip install projectaria_client_sdk --no-cache-dir
+```
+
+**Note:** If you are using Linux, install version 1.1.0 instead of the latest version:
+
+```bash
+python3 -m pip install projectaria_client_sdk==1.1.0 --no-cache-dir
+```
+
+## Step 2: Run Project Aria Doctor utility
+
+The Project Aria Doctor utility can help detect and resolve common issues connecting and streaming from the glasses.
+
+Run the utility and follow the prompts to resolve any issues.
+
+```bash
+aria-doctor
+```
+:::info
+If you're on MacOS and lose internet connection while streaming, run `aria-doctor` again.
+:::
+
+<div id="pair">
+</div>
+
+## Step 3: Pair Aria Glasses with your computer
+
+Pairing your Aria glasses to your computer allows the Client SDK and CLI to control the glasses. A pair of Aria glasses can be paired to multiple computers.
+
+1. Turn on your Aria glasses and connect it to your computer using the provided USB cable
+2. Open the Mobile Companion app on your phone
+3. On your computer, run:
+
+```
+aria auth pair
+```
+
+5. A prompt should then appear in the Mobile app, tap **Approve** to pair your glasses
+    * The hash in the terminal and the app should be the same
+    * View (or revoke) certificates by going to [Device Settings](/docs/ARK/mobile_companion_app#aria-device-settings)
+    * The Client SDK Certificate will remain valid until you manually revoke it or factory reset your glasses
+
+<div style={{textAlign: 'center'}}>
+<img width="30%" height="30%" src={useBaseUrl('img/ARK/sdk/clientsdk.png')} alt="Companion App Client SDK pairing"/>
+</div>
+
+:::info
+At this point, you can now use the [Aria CLI](/docs/ARK/sdk/cli/cli.mdx) to interact with you Aria glasses.
+:::
+
+<div id="explore"></div>
+
+## Step 4: Extract and explore the sample apps
+
+1. Extract the Client SDK code samples (here to your home directory)
+
+```bash
+python -m aria.extract_sdk_samples --output ~
+```
+
+2. Navigate to the sample folder
+
+```bash
+cd ~/projectaria_client_sdk_samples
+```
+
+3. Install necessary dependencies:
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+All code samples can be run from `cd ~/projectaria_client_sdk_samples`, with the exception of the Time Synchronization TICSync code samples. To use TICSync, go to `cd ~/projectaria_client_sdk_samples/ticsync`.
+
+Go to [Code Samples](/ARK/sdk/samples/samples.mdx) to explore Aria Client SDK features.
+
+Go to [Streaming Internals](/ARK/sdk/concepts/streaming_internals.mdx) to understand how streaming works and how to configure your own streaming setup.
+
+Go to [Time Synchronization](/ARK/sdk/ticsync.mdx) for how to create recordings with multiple Project Aria glasses.
+
+If you encounter any issues please run `aria-doctor` in a separate terminal or check out [troubleshooting](/docs/ARK/sdk/sdk_troubleshooting).
+
+:::info
+You can check your Aria glasses' recording or streaming status in the [Mobile Companion app](/docs/ARK/mobile_companion_app).
+:::
+
+:::danger
+The Client SDK does not currently support streaming over corporate, university or public networks. Those networks are protected by many layers of security and firewalls. We recommend using one of the recommended routers listed above to stream over Wi-Fi.
+:::
+
+## Useful Links
+* [SDK API Reference](/docs/ARK/sdk/api_reference) - full list of APIs
+* [CLI Command Reference](/docs/ARK/sdk/cli/api_reference)
+* [SDK & CLI Troubleshooting](/docs/ARK/sdk/sdk_troubleshooting)

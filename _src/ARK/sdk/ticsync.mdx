@@ -1,0 +1,194 @@
+---
+sidebar_position: 35
+title: Time Synchronization
+---
+# Time Synchronized Recordings with Multiple Aria Glasses
+
+
+## Overview
+
+Users can capture time-synchronized data between multiple Project Aria glasses on the one Wi-Fi network via [TICSync](/ARK/sdk/concepts/about_ticsync.mdx). Using the Aria hotspot feature, one pair of glasses (server) acts as a Wi-Fi access point that forms a network between all glasses. Time requests from all other glasses go to the server/leader device, creating a synchronized time reference.
+
+The accuracy of this method has been tested to be better than 1ms on average after approximately 45 seconds warm-up.
+
+This guide covers how to:
+
+* Create TICSync recordings
+* Download TICSync recordings
+* Load and visualize TICSync recordings
+
+For more details, go to:
+* [TICSync Code Snippet](/ARK/sdk/samples/ticsync_sample.mdx)
+    * Advanced features and code walkthrough
+* [TICSync Technical Details](/ARK/sdk/concepts/about_ticsync.mdx)
+
+:::note
+Multi-device time synchronization has been verified to work for up to 3 Aria devices at once. You can use more than 3 devices, but it's possible device issues could occur.
+:::
+
+
+## Create TICSync recordings
+### Prerequisites
+
+1. All Aria Glasses need to be [set up and paired with the Mobile Companion app](/ARK/ARK_quickstart.mdx#update-your-glasses) prior to use
+    * This will ensure your glasses have the latest OS and configures them to automatically update when connected to power and a Wi-Fi connection
+    * The glasses do not need to be paired to the same user account
+    * On the Mobile Companion app dashboard, tap **Add **or **Switch** to set up additional glasses
+        * Go to [How to Pair Additional Glasses and Pairing Troubleshooting](/ARK/glasses_manual/pair_glasses.mdx) for more details
+2. Install the Client SDK and pair each set of glasses with your computer (Steps 1-3 in the [SDK Setup Guide](/ARK/sdk/setup.mdx))
+    * All the glasses must be paired to the one computer
+    * Tap **Switch** to toggle between different glasses
+        * In the Mobile Companion app, you can only see the status for the glasses currently connected to the app
+    * To check if your glasses have the certificates necessary to connect
+        * Go to Device Settings (tap the glasses info card on the Dashboard)
+        * Scroll down to Glasses OS, if you see Revoke Client SDK Certificates, your glasses are paired to a computer
+
+
+### Make the recording
+
+
+1. Plug all glasses into your computer
+2. Go to the TICSync sample code directory
+
+```
+cd ~/projectaria_client_sdk_samples/ticsync
+```
+
+3. Use  `ticsync_recording.py` to start recording
+
+In this example all the glasses will start recording with recording profile 4
+
+```
+python -m ticsync_recording --total_num_devices 3 --profile profile4
+```
+
+The instructions above automatically chose the device with the lowest serial number to be the server and for all the glasses use the same recording profile. For granular control of how the glasses make recordings go to [TICSync Code Snippet](/ARK/sdk/samples/ticsync_sample.mdx).
+
+:::note Some recording profiles won't work
+Recording profiles 0, 2, 10, 19, 25 and 27 have wifiScanModeActive enabled, so they can't be used to create TICSync recordings.
+:::
+
+4. In the command line you should then see:
+    1. Confirmation that all glasses have started recording
+        * You’ll also see the recording LED to start on each of the glasses
+    2. Confirmation the glasses are ready for time synchronized data collection
+
+```
+    "-------- All devices are ready for data collection. You can safely unplug all your glasses from USB ---------"
+```
+5. Unplug the glasses (if you wish) and record your activity
+    * It may take ~45 seconds for the ticsync algorithm to reach stabilization between all devices. The ticsync_tutorial below includes how to assess how long it takes for your specific setup and recording profile.
+6. Stop recording:
+    * Press the Capture button on the top right of the Aria glasses
+    * Plug the glasses back into your computer and use `ticsync_cleanup`
+
+Once you’ve completed the recordings:
+
+1. Plug all your glasses into the computer
+2. Use `ticsync_cleanup.py` to return the glasses to their normal recording state (no longer creating TICSync recordings). In this example, three devices are plugged in. Run:
+
+```
+python -m ticsync_cleanup --total_num_devices 3
+```
+
+3. Press Enter to initiate cleanup
+
+Example output:
+
+
+```
+-------- Plug in all devices to your computer again for TicSync cleanup --------
+-------- Then press Enter to start TicSync cleanup --------
+[('1WM999999D0000', 'Aria'), ('1WM281623D3490', 'Aria'), ('1WM391623D5689', 'Aria')]
+[AriaSdk:DeviceControllerImpl][INFO]: Connecting to device 1WM999999D0000 over USB
+[AriaSdk:DeviceControllerImpl][INFO]: Connecting to device 1WM281623D3490 over USB
+[AriaSdk:DeviceControllerImpl][INFO]: Connecting to device 1WM391623D5689 over USB
+Detected server serial 1WM999999D0000
+Detected client serials ['1WM281623D3490', '1WM391623D5689']
+[AriaSdk:DeviceControllerImpl][INFO]: Connecting to device 1WM281623D3490 over USB
+[AriaSdk:DeviceControllerImpl][INFO]: Connecting to device 1WM391623D5689 over USB
+[AriaSdk:DeviceControllerImpl][INFO]: Connecting to device 1WM999999D0000 over USB
+-------- All devices reconnected, please keep all devices plugged in. Performing cleanup --------
+DDS RPC enabled, disabling it
+-------- Successfully performed cleanup. Exiting --------
+```
+
+
+## Download the recordings
+
+`ticsync_file_manager` enables you to view recordings on your Aria glasses that contain TICSync data as well as download the server and client files at the same time.
+
+1. Plug all glasses into your computer
+2. View what files with TICSync data are available
+
+```
+python -m ticsync_file_manager --list
+```
+
+The Shared Session ID outputs will be listed for each recording session, with a list of devices that were in each session.
+
+Example output:
+
+```
+2024-05-23 21:17:19 Shared Session ID: 7dfe4d16-6f54-47bf-859e-6ee4043234d3 Server Serial: 1WM281623D3490 Server Recording UUID: d8b717ce-ef48-40cd-bcc8-56cd9fe14319
+        Client Serial: 1WM391623D5689 Client Recording UUID: 63334502-6125-498e-8f2e-86567c4cfc0e
+	  Client Serial: 1WM222222S0000 Client Recording UUID: c0fae751-4ad5-4e95-a21d-f9060edc1112
+
+2024-05-23 21:14:58 Shared Session ID: 4b5e2587-de1a-42f9-a17c-60bd96a8658c Server Serial: 1WM281623D3490 Server Recording UUID: 1204bcb6-71ea-42b9-bfbb-62e11f5c620a
+        Client Serial: 1WM391623D5689 Client Recording UUID: 012e5c7f-c904-4d6f-822e-0b26aedb7684
+```
+
+Making a copy of the details of each recording associated with a Shared Session ID will be helpful when consuming the data using the notebook below.
+
+
+3. Download VRS files and supporting metadata
+
+Use a Shared Session ID to copy all files from a recording session to a specific folder. In this example all the recordings from session 7dfe4d16-6f54-47bf-859e-6ee4043234d3 will saved to the new folder recording_session_2
+
+```
+python -m ticsync_file_manager --download 7dfe4d16-6f54-47bf-859e-6ee4043234d3 --output_dir recording_session_2
+```
+
+The folder will contain a VRS for each recording with all sensor data, including timestamps from the shared reference clock.
+
+<div id="tutorial"></div>
+
+## Load and visualize the recordings
+
+The `ticsync_tutorial.ipynb` Jupyter notebook will take you through how to:
+
+* Load synchronized sensor data programmatically
+* Visualize the data
+* Assess the accuracy of the time synchronization
+
+
+### Run Jupyter Notebook on Google Colab
+Use the following link to run the Python notebook in an installation free playground:
+
+* [Project Aria TICSync Tutorial](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/core/examples/ticsync_tutorial.ipynb)
+
+### Build and run the Jupyter Notebook locally
+
+1. [Download and install the Python version of Project Aria Tools](/data_utilities/installation/installation_python.mdx)
+2. Run the notebook
+
+```
+cd $HOME/Documents/projectaria_sandbox
+
+jupyter notebook projectaria_tools/core/examples/ticsync_tutorial.ipynb
+
+```
+
+
+## Troubleshooting
+
+### General
+
+* Go to [Client SDK and CLI Troubleshooting](/ARK/sdk/sdk_troubleshooting.mdx) if you encounter issues creating the recordings or setting up the SDK
+* Go to [Project Aria Tools Troubleshooting](/data_utilities/installation/troubleshooting.mdx) if you encounter issues creating the Jupyter notebook
+
+### Recordings keep failing
+If you try to initiate recording and it fails, it may be because the glasses are in a bad state. Try rebooting the glasses.
+
+1. If they are connected to a charge cable, unplug your glasses
+2. Hold down the power button down for about 10 seconds, until the nearby LED flashes green once and returns to solid blue

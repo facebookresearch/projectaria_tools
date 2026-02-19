@@ -1,0 +1,31 @@
+---
+sidebar_position: 30
+title: Device Calibration
+---
+
+# Project Aria Device Calibration
+
+Most sensors in Project Aria glasses are calibrated extrinsically and intrinsically, to rectify from sensor measurements to real quantities in the physical world. Extrinsic calibrations model the 6-DoF pose among the sensors, while intrinsic calibrations model how sensor measurements maps to physical or geometrical quantities in the physical world. We also provide the extrinsic pose for the sensors in the [CAD model](/docs/data_utilities/core_code_snippets/calibration) to indicate where sensors are designed to be.
+
+The following table shows what calibration is available for each Aria sensor.
+
+<table>
+<tr><td></td><td>Count</td><td>Has intrinsic calibration</td><td>Has extrinsic calibration</td><td>Has extrinsic in CAD</td></tr>
+<tr><td>Camera</td><td>5</td><td rowspan="2">Y</td><td rowspan="2">Y</td><td rowspan="2">Y</td></tr>
+<tr><td>IMU</td><td>2</td></tr>
+<tr><td>Mag</td><td>1</td><td rowspan="3">Y</td><td rowspan="3">N</td><td rowspan="3">Y</td></tr>
+<tr><td>Baro</td><td>1</td></tr>
+<tr><td>Mic</td><td>7</td></tr>
+<tr><td>GPS</td><td>1</td><td rowspan="3">N</td><td rowspan="3">N</td><td rowspan="3">N</td></tr>
+<tr><td>Wi-Fi beacon</td><td>1</td></tr>
+<tr><td>Bluetooth beacon</td><td>1</td></tr>
+</table>
+
+
+In summary:
+* Cameras and IMUs are calibrated both intrinsically and extrinsically. We also provide the extrinsic in the CAD model. We assume the accelerometer and gyroscope for each IMU are co-located and thus they share the same extrinsic.
+* Magnetometer, barometer and audio are calibrated intrinsically and we provide the extrinsic in the CAD model. We did not calibrate their extrinsic parameters in the factory.
+* GPS, Wi-Fi beacon and Bluetooth beacon do not have calibration attached, as their signal are already rectified by their calibration before read-out.
+
+### Further resources
+Go to the [Project Aria FAQ](/faq.mdx#calibration) for more calibration information and resources.

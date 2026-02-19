@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-ark docs-version-current docs-doc-page docs-doc-id-support/sdk" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">ClientSDK Troubleshooting | Project Aria Docs</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://facebookresearch.github.io/projectaria_tools/gen2/ark/support/sdk"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-ark-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-ark-current"><meta data-rh="true" property="og:title" content="ClientSDK Troubleshooting | Project Aria Docs"><meta data-rh="true" name="description" content="This page provides solutions to common issues when using the ClientSDK with your Aria Gen2 device. Issues are organized by category for easy navigation."><meta data-rh="true" property="og:description" content="This page provides solutions to common issues when using the ClientSDK with your Aria Gen2 device. Issues are organized by category for easy navigation."><link data-rh="true" rel="icon" href="/projectaria_tools/gen2/img/aria_logo.png"><link data-rh="true" rel="canonical" href="https://facebookresearch.github.io/projectaria_tools/gen2/ark/support/sdk"><link data-rh="true" rel="alternate" href="https://facebookresearch.github.io/projectaria_tools/gen2/ark/support/sdk" hreflang="en"><link data-rh="true" rel="alternate" href="https://facebookresearch.github.io/projectaria_tools/gen2/ark/support/sdk" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Support and TroubleShooting","item":"https://facebookresearch.github.io/projectaria_tools/gen2/ark/support/"},{"@type":"ListItem","position":2,"name":"ClientSDK Troubleshooting","item":"https://facebookresearch.github.io/projectaria_tools/gen2/ark/support/sdk"}]}</script><link rel="preconnect" href="https://www.google-analytics.com">
+<link rel="preconnect" href="https://www.googletagmanager.com">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Q1Q26XCR5N"></script>
+<script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-Q1Q26XCR5N",{})</script>
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ" crossorigin="anonymous"><link rel="stylesheet" href="/projectaria_tools/gen2/assets/css/styles.d03eb096.css">
+<script src="/projectaria_tools/gen2/assets/js/runtime~main.0e152a19.js" defer="defer"></script>
+<script src="/projectaria_tools/gen2/assets/js/main.9383c0b2.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard" data-theme="light">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||"light"),document.documentElement.setAttribute("data-theme-choice",t||"light")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script>
+<div style="display: none; text-align: center; background-color: white; color: black;" id="internaldocs-banner"></div><div id="__docusaurus"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/projectaria_tools/gen2/"><div class="navbar__logo"><img src="/projectaria_tools/gen2/img/aria_logo.png" alt="aria-research-kit-sdk Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/projectaria_tools/gen2/img/aria_logo.png" alt="aria-research-kit-sdk Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Aria Gen 2 Docs</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/projectaria_tools/gen2/ark">Aria Research Kit</a><a class="navbar__item navbar__link" href="/projectaria_tools/gen2/research-tools">Open Science Initiative</a><a class="navbar__item navbar__link" href="/projectaria_tools/gen2/technical-specs">Technical Insights &amp; Specs</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://www.projectaria.com/" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Project Aria<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://github.com/facebookresearch/projectaria_tools" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><div class="dsla-search-wrapper"><div class="dsla-search-field" data-tags="default,docs-default-current,docs-research-tools-current,docs-ark-current,docs-technical-specs-current"></div></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/projectaria_tools/gen2/ark"><span title="Aria Research Kit (ARK)" class="linkLabel_WmDU">Aria Research Kit (ARK)</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/projectaria_tools/gen2/ark/device/manual"><span title="Aria Gen 2" class="categoryLinkLabel_W154">Aria Gen 2</span></a></div></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/projectaria_tools/gen2/ark/on_device_mp"><span title="On-device Machine Perception" class="linkLabel_WmDU">On-device Machine Perception</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/projectaria_tools/gen2/ark/companion-app/start"><span title="Companion App" class="categoryLinkLabel_W154">Companion App</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" href="/projectaria_tools/gen2/ark/mps"><span title="Machine Perception Services" class="categoryLinkLabel_W154">Machine Perception Services</span></a><button aria-label="Expand sidebar category &#x27;Machine Perception Services&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/projectaria_tools/gen2/ark/client-sdk/start"><span title="Client SDK" class="categoryLinkLabel_W154">Client SDK</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/projectaria_tools/gen2/ark/vrs_health_check/installation"><span title="Vrs Health Check Tool" class="categoryLinkLabel_W154">Vrs Health Check Tool</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--active" href="/projectaria_tools/gen2/ark/support"><span title="Support and TroubleShooting" class="categoryLinkLabel_W154">Support and TroubleShooting</span></a><button aria-label="Collapse sidebar category &#x27;Support and TroubleShooting&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/projectaria_tools/gen2/ark/support/rageshake"><span title="Companion App Rage Shake" class="linkLabel_WmDU">Companion App Rage Shake</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/projectaria_tools/gen2/ark/support/sdk"><span title="ClientSDK Troubleshooting" class="linkLabel_WmDU">ClientSDK Troubleshooting</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/projectaria_tools/gen2/ark/support/mps"><span title="MPS Troubleshooting" class="linkLabel_WmDU">MPS Troubleshooting</span></a></li></ul></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="Breadcrumbs"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="Home page" class="breadcrumbs__link" href="/projectaria_tools/gen2/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/projectaria_tools/gen2/ark/support"><span>Support and TroubleShooting</span></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">ClientSDK Troubleshooting</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>ClientSDK Troubleshooting</h1></header><p>This page provides solutions to common issues when using the ClientSDK with your Aria Gen2 device. Issues are organized by category for easy navigation.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="frequently-asked-questions">Frequently Asked Questions<a href="#frequently-asked-questions" class="hash-link" aria-label="Direct link to Frequently Asked Questions" title="Direct link to Frequently Asked Questions" translate="no">​</a></h2>
+<p>Find quick answers to common questions. Click on any question to jump to the detailed solution.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="device-connection">Device Connection<a href="#device-connection" class="hash-link" aria-label="Direct link to Device Connection" title="Direct link to Device Connection" translate="no">​</a></h3>
+<ul>
+<li class=""><a href="#device-not-detected" class="">What should I do if my device cannot be found by the SDK?</a></li>
+<li class=""><a href="#device-not-detected" class="">Why is my device not showing up when I run <code>aria_gen2 device list</code>?</a></li>
+<li class=""><a href="#solution-4-check-usb-connection" class="">How do I fix USB connection issues?</a></li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="authentication">Authentication<a href="#authentication" class="hash-link" aria-label="Direct link to Authentication" title="Direct link to Authentication" translate="no">​</a></h3>
+<ul>
+<li class=""><a href="#cannot-authenticate-device" class="">Why can&#x27;t I authenticate my device?</a></li>
+<li class=""><a href="#solution-3-retry-authentication" class="">How do I pair my device with the SDK?</a></li>
+<li class=""><a href="#solution-5-check-authentication-status" class="">Do I need to authenticate every time I connect?</a></li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="recording">Recording<a href="#recording" class="hash-link" aria-label="Direct link to Recording" title="Direct link to Recording" translate="no">​</a></h3>
+<ul>
+<li class=""><a href="#cannot-start-recording" class="">Why can&#x27;t I start a recording?</a></li>
+<li class=""><a href="#cannot-download-recording" class="">How do I download recordings from my device?</a></li>
+<li class=""><a href="#cannot-download-recording" class="">Why is my recording download failing?</a></li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="usb-streaming">USB Streaming<a href="#usb-streaming" class="hash-link" aria-label="Direct link to USB Streaming" title="Direct link to USB Streaming" translate="no">​</a></h3>
+<ul>
+<li class=""><a href="#streaming-wont-start" class="">Why won&#x27;t streaming start?</a></li>
+<li class=""><a href="#viewer-not-showing-data-usb" class="">Why is my streaming viewer not showing any data?</a></li>
+<li class=""><a href="#poor-usb-streaming-performance" class="">How do I fix poor streaming performance?</a></li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="wireless-streaming">Wireless Streaming<a href="#wireless-streaming" class="hash-link" aria-label="Direct link to Wireless Streaming" title="Direct link to Wireless Streaming" translate="no">​</a></h3>
+<ul>
+<li class=""><a href="#wireless-streaming-issues" class="">Why can&#x27;t I connect to WiFi streaming?</a></li>
+<li class=""><a href="#guest-networks-cannot-be-used-for-peer-to-peer-streaming" class="">Why doesn&#x27;t streaming work on my guest network?</a></li>
+<li class=""><a href="#connect-device-and-pc-to-the-same-network" class="">How do I stream over WiFi?</a></li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="general-issues">General Issues<a href="#general-issues" class="hash-link" aria-label="Direct link to General Issues" title="Direct link to General Issues" translate="no">​</a></h3>
+<ul>
+<li class=""><a href="#commands-hang-or-timeout" class="">Why are my commands hanging or timing out?</a></li>
+<li class=""><a href="#high-device-temperature" class="">What should I do if my device is getting too hot?</a></li>
+<li class=""><a href="#cannot-update-clientsdk" class="">How do I update the ClientSDK?</a></li>
+<li class=""><a href="#glibcxx-error-on-ubuntu-22-linux" class="">How do I fix GLIBCXX errors on Linux?</a></li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="first-steps-update-to-latest-versions">First Steps: Update to Latest Versions<a href="#first-steps-update-to-latest-versions" class="hash-link" aria-label="Direct link to First Steps: Update to Latest Versions" title="Direct link to First Steps: Update to Latest Versions" translate="no">​</a></h2>
+<div class="theme-admonition theme-admonition-tip admonition_xJq3 alert alert--success"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 12 16"><path fill-rule="evenodd" d="M6.5 0C3.48 0 1 2.19 1 5c0 .92.55 2.25 1 3 1.34 2.25 1.78 2.78 2 4v1h5v-1c.22-1.22.66-1.75 2-4 .45-.75 1-2.08 1-3 0-2.81-2.48-5-5.5-5zm3.64 7.48c-.25.44-.47.8-.67 1.11-.86 1.41-1.25 2.06-1.45 3.23-.02.05-.02.11-.02.17H5c0-.06 0-.13-.02-.17-.2-1.17-.59-1.83-1.45-3.23-.2-.31-.42-.67-.67-1.11C2.44 6.78 2 5.65 2 5c0-2.2 2.02-4 4.5-4 1.22 0 2.36.42 3.22 1.19C10.55 2.94 11 3.94 11 5c0 .66-.44 1.78-.86 2.48zM4 14h5c-.23 1.14-1.3 2-2.5 2s-2.27-.86-2.5-2z"></path></svg></span>Always Start Here</div><div class="admonitionContent_BuS1"><p>Before troubleshooting any issues, ensure you&#x27;re running the latest versions of both the ClientSDK and your device firmware. Many common issues are resolved in newer releases.</p></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="update-clientsdk">Update ClientSDK<a href="#update-clientsdk" class="hash-link" aria-label="Direct link to Update ClientSDK" title="Direct link to Update ClientSDK" translate="no">​</a></h3>
+<p>Update to the latest ClientSDK version using pip:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">pip install --upgrade projectaria-client-sdk</span><br></span></code></pre></div></div>
+<p>After updating, verify the installed version:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">pip show projectaria-client-sdk</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="update-device-os">Update Device OS<a href="#update-device-os" class="hash-link" aria-label="Direct link to Update Device OS" title="Direct link to Update Device OS" translate="no">​</a></h3>
+<p>Ensure your Aria Gen2 device is running the latest firmware version:</p>
+<ol>
+<li class="">Open the <strong>Companion App</strong> on your mobile device</li>
+<li class="">Navigate to your paired device settings</li>
+<li class="">Check for available updates on the Companion App <strong>Check for Updates</strong></li>
+<li class="">If an update is available, follow the prompts to install it</li>
+</ol>
+<div class="theme-admonition theme-admonition-info admonition_xJq3 alert alert--info"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 14 16"><path fill-rule="evenodd" d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"></path></svg></span>Version Compatibility</div><div class="admonitionContent_BuS1"><p>Different SDK versions may have specific requirements for device OS versions. Check the <a class="" href="/projectaria_tools/gen2/ark/client-sdk/changelog">Changelog</a> for version-specific compatibility information.</p></div></div>
+<p><strong>After updating both the SDK and device OS</strong>, proceed with the diagnostic commands below if you still experience issues.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="quick-diagnostic-commands">Quick Diagnostic Commands<a href="#quick-diagnostic-commands" class="hash-link" aria-label="Direct link to Quick Diagnostic Commands" title="Direct link to Quick Diagnostic Commands" translate="no">​</a></h2>
+<p>Before diving into specific issues, use these commands to check your device status:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain"># Check device connectivity</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 device list</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># Check authentication status</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 auth check</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># Verify system configuration</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_doctor</span><br></span></code></pre></div></div>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="device-connection-issues">Device Connection Issues<a href="#device-connection-issues" class="hash-link" aria-label="Direct link to Device Connection Issues" title="Direct link to Device Connection Issues" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="device-not-detected">Device Not Detected<a href="#device-not-detected" class="hash-link" aria-label="Direct link to Device Not Detected" title="Direct link to Device Not Detected" translate="no">​</a></h3>
+<p>If your device is not showing up when running <code>aria_gen2 device list</code>, follow these solutions in order:</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="solution-1-run-aria_doctor">Solution 1: Run aria_doctor<a href="#solution-1-run-aria_doctor" class="hash-link" aria-label="Direct link to Solution 1: Run aria_doctor" title="Direct link to Solution 1: Run aria_doctor" translate="no">​</a></h4>
+<p>The <code>aria_doctor</code> command configures your system for device communication:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_doctor</span><br></span></code></pre></div></div>
+<p>This command will:</p>
+<ul>
+<li class="">Open required ports on your PC for device discovery</li>
+<li class="">Configure your system to allow proper USB Ethernet connection</li>
+<li class="">Set up internet access when connected via USB</li>
+</ul>
+<div class="theme-admonition theme-admonition-tip admonition_xJq3 alert alert--success"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 12 16"><path fill-rule="evenodd" d="M6.5 0C3.48 0 1 2.19 1 5c0 .92.55 2.25 1 3 1.34 2.25 1.78 2.78 2 4v1h5v-1c.22-1.22.66-1.75 2-4 .45-.75 1-2.08 1-3 0-2.81-2.48-5-5.5-5zm3.64 7.48c-.25.44-.47.8-.67 1.11-.86 1.41-1.25 2.06-1.45 3.23-.02.05-.02.11-.02.17H5c0-.06 0-.13-.02-.17-.2-1.17-.59-1.83-1.45-3.23-.2-.31-.42-.67-.67-1.11C2.44 6.78 2 5.65 2 5c0-2.2 2.02-4 4.5-4 1.22 0 2.36.42 3.22 1.19C10.55 2.94 11 3.94 11 5c0 .66-.44 1.78-.86 2.48zM4 14h5c-.23 1.14-1.3 2-2.5 2s-2.27-.86-2.5-2z"></path></svg></span>tip</div><div class="admonitionContent_BuS1"><p>If you cannot connect to the internet when connected to the device via USB, running <code>aria_doctor</code> typically resolves this issue.</p></div></div>
+<hr>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="solution-2-update-usb-ethernet-security-settings">Solution 2: Update USB Ethernet Security Settings<a href="#solution-2-update-usb-ethernet-security-settings" class="hash-link" aria-label="Direct link to Solution 2: Update USB Ethernet Security Settings" title="Direct link to Solution 2: Update USB Ethernet Security Settings" translate="no">​</a></h4>
+<p>When connecting via USB, the connection appears as an Ethernet configuration. You may need to adjust security settings:</p>
+<p><strong>Linux Instructions:</strong></p>
+<ol>
+<li class="">Check network connections:<!-- -->
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">nmcli device status</span><br></span></code></pre></div></div>
+</li>
+<li class="">Look for a new USB or Ethernet device</li>
+<li class="">Ensure NetworkManager is managing the connection</li>
+<li class="">Disable Security in USB networking interface</li>
+</ol>
+<hr>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="solution-3-disable-vpn">Solution 3: Disable VPN<a href="#solution-3-disable-vpn" class="hash-link" aria-label="Direct link to Solution 3: Disable VPN" title="Direct link to Solution 3: Disable VPN" translate="no">​</a></h4>
+<p>VPNs can interfere with the USB network interface used by the device:</p>
+<p><strong>Steps to resolve:</strong></p>
+<ol>
+<li class="">Disconnect from any active VPN or Lighthouse connections</li>
+<li class="">Run <code>aria_gen2 device list</code> to check if the device is detected</li>
+<li class="">If successful, streaming and device control should work</li>
+</ol>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain"># After disabling VPN, verify device connection</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 device list</span><br></span></code></pre></div></div>
+<div class="theme-admonition theme-admonition-warning admonition_xJq3 alert alert--warning"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8.893 1.5c-.183-.31-.52-.5-.887-.5s-.703.19-.886.5L.138 13.499a.98.98 0 0 0 0 1.001c.193.31.53.501.886.501h13.964c.367 0 .704-.19.877-.5a1.03 1.03 0 0 0 .01-1.002L8.893 1.5zm.133 11.497H6.987v-2.003h2.039v2.003zm0-3.004H6.987V5.987h2.039v4.006z"></path></svg></span>warning</div><div class="admonitionContent_BuS1"><p>Some corporate VPNs may automatically reconnect. You may need to temporarily disable auto-connect features while working with the device.</p></div></div>
+<hr>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="solution-4-check-usb-connection">Solution 4: Check USB Connection<a href="#solution-4-check-usb-connection" class="hash-link" aria-label="Direct link to Solution 4: Check USB Connection" title="Direct link to Solution 4: Check USB Connection" translate="no">​</a></h4>
+<p><strong>Try these steps:</strong></p>
+<ul>
+<li class=""><strong>Different USB Port</strong>: Use a different USB port on your computer, preferably USB 3.0+</li>
+<li class=""><strong>Different USB Cable</strong>: Use a high-quality USB cable that supports data transfer</li>
+<li class=""><strong>Direct Connection</strong>: Avoid USB hubs if possible - connect directly to computer</li>
+<li class=""><strong>Check Cable</strong>: Ensure the cable supports data transfer (not just charging)</li>
+</ul>
+<hr>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="solution-5-restart-and-reset">Solution 5: Restart and Reset<a href="#solution-5-restart-and-reset" class="hash-link" aria-label="Direct link to Solution 5: Restart and Reset" title="Direct link to Solution 5: Restart and Reset" translate="no">​</a></h4>
+<p>If the above solutions don&#x27;t work:</p>
+<ol>
+<li class=""><strong>Disconnect and reconnect USB cable</strong> - Wait a few seconds between disconnect and reconnect</li>
+<li class=""><strong>Restart the device</strong> - Power off and restart your Aria Gen2 device from Companion App</li>
+<li class=""><strong>Restart your computer</strong> - Sometimes a system restart resolves network configuration issues</li>
+<li class=""><strong>Run aria_doctor again</strong> after restart</li>
+</ol>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain"># After restart, verify setup</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_doctor</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 device list</span><br></span></code></pre></div></div>
+<hr>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="solution-6-check-device-status">Solution 6: Check Device Status<a href="#solution-6-check-device-status" class="hash-link" aria-label="Direct link to Solution 6: Check Device Status" title="Direct link to Solution 6: Check Device Status" translate="no">​</a></h4>
+<ul>
+<li class=""><strong>Battery</strong>: Ensure your device has sufficient battery charge</li>
+<li class=""><strong>Power State</strong>: Verify the device is powered on</li>
+<li class=""><strong>Firmware</strong>: Check if device firmware is up to date via Companion App</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="authentication-issues">Authentication Issues<a href="#authentication-issues" class="hash-link" aria-label="Direct link to Authentication Issues" title="Direct link to Authentication Issues" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="cannot-authenticate-device">Cannot Authenticate Device<a href="#cannot-authenticate-device" class="hash-link" aria-label="Direct link to Cannot Authenticate Device" title="Direct link to Cannot Authenticate Device" translate="no">​</a></h3>
+<p>If authentication is failing when running <code>aria_gen2 auth pair</code>:</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="solution-1-verify-device-connection">Solution 1: Verify Device Connection<a href="#solution-1-verify-device-connection" class="hash-link" aria-label="Direct link to Solution 1: Verify Device Connection" title="Direct link to Solution 1: Verify Device Connection" translate="no">​</a></h4>
+<p>Ensure the device is properly connected and detected:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain"># Check if device is listed</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 device list</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># If not listed, run aria_doctor</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_doctor</span><br></span></code></pre></div></div>
+<p>If device is not listed, see <a href="#device-connection-issues" class="">Device Connection Issues</a> above.</p>
+<hr>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="solution-2-check-companion-app-connection">Solution 2: Check Companion App Connection<a href="#solution-2-check-companion-app-connection" class="hash-link" aria-label="Direct link to Solution 2: Check Companion App Connection" title="Direct link to Solution 2: Check Companion App Connection" translate="no">​</a></h4>
+<p>Authentication requires approval through the Companion App. Verify:</p>
+<ul>
+<li class="">Companion App is running on your mobile device</li>
+<li class="">Device is paired with the Companion App</li>
+<li class="">Mobile device has an active internet connection</li>
+<li class="">Companion App is running in the foreground (not background)</li>
+<li class="">Notifications are enabled for the Companion App</li>
+</ul>
+<hr>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="solution-3-retry-authentication">Solution 3: Retry Authentication<a href="#solution-3-retry-authentication" class="hash-link" aria-label="Direct link to Solution 3: Retry Authentication" title="Direct link to Solution 3: Retry Authentication" translate="no">​</a></h4>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain"># Stop any existing authentication attempts</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># Press Ctrl+C if a command is hanging</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># Retry authentication</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 auth pair</span><br></span></code></pre></div></div>
+<p><strong>When the command runs:</strong></p>
+<ol>
+<li class="">Check your Companion App for the authentication request</li>
+<li class="">Verify the hash code shown matches between PC and Companion App</li>
+<li class="">Approve the authentication in the Companion App</li>
+<li class="">Wait for confirmation on PC</li>
+</ol>
+<hr>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="solution-4-reset-connection">Solution 4: Reset Connection<a href="#solution-4-reset-connection" class="hash-link" aria-label="Direct link to Solution 4: Reset Connection" title="Direct link to Solution 4: Reset Connection" translate="no">​</a></h4>
+<p>If authentication continues to fail:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain"># 1. Disconnect and reconnect the USB cable</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># Wait a few seconds after reconnecting</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># 2. Run aria_doctor again</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_doctor</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># 3. Check device connection</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 device list</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># 4. Retry authentication</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 auth pair</span><br></span></code></pre></div></div>
+<hr>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="solution-5-check-authentication-status">Solution 5: Check Authentication Status<a href="#solution-5-check-authentication-status" class="hash-link" aria-label="Direct link to Solution 5: Check Authentication Status" title="Direct link to Solution 5: Check Authentication Status" translate="no">​</a></h4>
+<p>If you&#x27;ve previously authenticated, verify the status:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 auth check</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># Expected output if authenticated:</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># [AriaGen2Cli:App][INFO]: Device &lt;serial&gt; is successfully authenticated.</span><br></span></code></pre></div></div>
+<div class="theme-admonition theme-admonition-tip admonition_xJq3 alert alert--success"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 12 16"><path fill-rule="evenodd" d="M6.5 0C3.48 0 1 2.19 1 5c0 .92.55 2.25 1 3 1.34 2.25 1.78 2.78 2 4v1h5v-1c.22-1.22.66-1.75 2-4 .45-.75 1-2.08 1-3 0-2.81-2.48-5-5.5-5zm3.64 7.48c-.25.44-.47.8-.67 1.11-.86 1.41-1.25 2.06-1.45 3.23-.02.05-.02.11-.02.17H5c0-.06 0-.13-.02-.17-.2-1.17-.59-1.83-1.45-3.23-.2-.31-.42-.67-.67-1.11C2.44 6.78 2 5.65 2 5c0-2.2 2.02-4 4.5-4 1.22 0 2.36.42 3.22 1.19C10.55 2.94 11 3.94 11 5c0 .66-.44 1.78-.86 2.48zM4 14h5c-.23 1.14-1.3 2-2.5 2s-2.27-.86-2.5-2z"></path></svg></span>tip</div><div class="admonitionContent_BuS1"><p>You only need to authenticate once per device and PC combination. If already authenticated, you don&#x27;t need to authenticate again.</p></div></div>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="recording-issues">Recording Issues<a href="#recording-issues" class="hash-link" aria-label="Direct link to Recording Issues" title="Direct link to Recording Issues" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="cannot-start-recording">Cannot Start Recording<a href="#cannot-start-recording" class="hash-link" aria-label="Direct link to Cannot Start Recording" title="Direct link to Cannot Start Recording" translate="no">​</a></h3>
+<p><strong>Symptoms:</strong> Recording fails to start or returns an error</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li class="">
+<p><strong>Check device connection:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 device list</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Stop existing recording:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 recording stop</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Check storage space:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 recording list</span><br></span></code></pre></div></div>
+<p>If device is full, download and delete old recordings</p>
+</li>
+<li class="">
+<p><strong>Verify authentication:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 auth check</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Try a different profile:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain"># A wrong profile name might be provided, try profile8</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 recording start --profile profile8 --recording-name test_recording</span><br></span></code></pre></div></div>
+</li>
+</ol>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="cannot-download-recording">Cannot Download Recording<a href="#cannot-download-recording" class="hash-link" aria-label="Direct link to Cannot Download Recording" title="Direct link to Cannot Download Recording" translate="no">​</a></h3>
+<p><strong>Symptoms:</strong> Download fails or hangs</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li class="">
+<p><strong>Verify USB connection:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 device list</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Check recording UUID:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 recording list</span><br></span></code></pre></div></div>
+<p>Ensure you&#x27;re using the correct UUID</p>
+</li>
+<li class="">
+<p><strong>Verify output directory exists:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain"># Create directory if it doesn&#x27;t exist</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Check disk space</strong> on your computer</p>
+</li>
+<li class="">
+<p><strong>Try downloading to a different location:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 recording download -u &lt;uuid&gt; -o /path/to/different/folder/</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>For large files:</strong> Be patient - downloads can take several minutes depending on recording size</p>
+</li>
+</ol>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="cannot-delete-recording">Cannot Delete Recording<a href="#cannot-delete-recording" class="hash-link" aria-label="Direct link to Cannot Delete Recording" title="Direct link to Cannot Delete Recording" translate="no">​</a></h3>
+<p><strong>Symptoms:</strong> Delete command fails</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li class="">
+<p><strong>Stop any active recording:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 recording stop</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Verify device connection:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 device list</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Check recording UUID:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 recording list</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Retry delete command:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 recording delete -u &lt;uuid&gt;</span><br></span></code></pre></div></div>
+</li>
+</ol>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="usb-streaming-issues">USB Streaming Issues<a href="#usb-streaming-issues" class="hash-link" aria-label="Direct link to USB Streaming Issues" title="Direct link to USB Streaming Issues" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="streaming-wont-start">Streaming Won&#x27;t Start<a href="#streaming-wont-start" class="hash-link" aria-label="Direct link to Streaming Won&#x27;t Start" title="Direct link to Streaming Won&#x27;t Start" translate="no">​</a></h3>
+<p><strong>Common Causes:</strong></p>
+<ul>
+<li class="">Device is recording</li>
+<li class="">Another streaming session is active</li>
+<li class="">Device battery is low</li>
+<li class="">USB connection issue</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain"># 1. Stop any active recording</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 recording stop</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># 2. Stop any active streaming</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 streaming stop</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># 3. Check device status</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 device list</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># 4. Try starting streaming again</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 streaming start</span><br></span></code></pre></div></div>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="poor-usb-streaming-performance">Poor USB Streaming Performance<a href="#poor-usb-streaming-performance" class="hash-link" aria-label="Direct link to Poor USB Streaming Performance" title="Direct link to Poor USB Streaming Performance" translate="no">​</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li class="">Dropped frames</li>
+<li class="">High latency</li>
+<li class="">Choppy visualization</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li class="">
+<p><strong>USB Connection:</strong></p>
+<ul>
+<li class="">Use a high-quality USB 3.0+ cable</li>
+<li class="">Try a different USB port, preferably USB 3.0+ (usually blue-colored)</li>
+<li class="">Avoid USB hubs - connect directly to computer</li>
+<li class="">Try a different USB cable</li>
+</ul>
+</li>
+<li class="">
+<p><strong>System Resources:</strong></p>
+<ul>
+<li class="">Close unnecessary applications to free up CPU and memory</li>
+<li class="">Disable other programs using camera/video (Zoom, Teams, etc.)</li>
+<li class="">Check system resource usage (CPU, RAM)</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Device Temperature:</strong></p>
+<ul>
+<li class="">If device is hot, take a break to let it cool down</li>
+<li class="">Ensure good ventilation around the device</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Profile Selection:</strong></p>
+<ul>
+<li class="">Use <code>mp_streaming_demo</code> profile for smooth performance:<!-- -->
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 streaming start --profile mp_streaming_demo</span><br></span></code></pre></div></div>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="viewer-not-showing-data-usb">Viewer Not Showing Data (USB)<a href="#viewer-not-showing-data-usb" class="hash-link" aria-label="Direct link to Viewer Not Showing Data (USB)" title="Direct link to Viewer Not Showing Data (USB)" translate="no">​</a></h3>
+<p><strong>Common Causes:</strong></p>
+<ul>
+<li class="">Streaming not started on device</li>
+<li class="">Viewer started before streaming began</li>
+<li class="">Port configuration issue</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain"># 1. Ensure streaming is running</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 streaming stop</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 streaming start</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># 2. Restart the viewer</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># Press Ctrl+C to stop the current viewer, then:</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_streaming_viewer</span><br></span></code></pre></div></div>
+<p><strong>Additional Steps:</strong></p>
+<ul>
+<li class="">Ensure <code>aria_doctor</code> has been run</li>
+<li class="">Check firewall settings aren&#x27;t blocking viewer</li>
+<li class="">Try restarting both streaming and viewer with fresh terminals</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="wireless-streaming-issues">Wireless Streaming Issues<a href="#wireless-streaming-issues" class="hash-link" aria-label="Direct link to Wireless Streaming Issues" title="Direct link to Wireless Streaming Issues" translate="no">​</a></h2>
+<p>If you cannot connect to streaming data over WiFi, check the following:</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="stable-device-os-version">Stable Device OS Version<a href="#stable-device-os-version" class="hash-link" aria-label="Direct link to Stable Device OS Version" title="Direct link to Stable Device OS Version" translate="no">​</a></h3>
+<p>Ensure your Aria device is running the latest OS version. Update to the latest OS version from the Mobile Companion App if needed.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="connect-device-and-pc-to-the-same-network">Connect Device and PC to the Same Network<a href="#connect-device-and-pc-to-the-same-network" class="hash-link" aria-label="Direct link to Connect Device and PC to the Same Network" title="Direct link to Connect Device and PC to the Same Network" translate="no">​</a></h3>
+<p>Device streaming data can only be discovered when both devices are on the same network. Verify:</p>
+<ul>
+<li class="">Your PC&#x27;s internet connection is working</li>
+<li class="">The WiFi or hotspot is connected to the same network as the Aria device</li>
+<li class="">Both devices can reach each other on the network</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="guest-networks-cannot-be-used-for-peer-to-peer-streaming">Guest Networks Cannot Be Used for Peer-to-Peer Streaming<a href="#guest-networks-cannot-be-used-for-peer-to-peer-streaming" class="hash-link" aria-label="Direct link to Guest Networks Cannot Be Used for Peer-to-Peer Streaming" title="Direct link to Guest Networks Cannot Be Used for Peer-to-Peer Streaming" translate="no">​</a></h3>
+<p>Guest networks (e.g., <code>XXX-GUEST</code>) do not allow peer-to-peer communication, which is required for streaming.</p>
+<p><strong>Solution:</strong> Connect to a different WiFi access point that allows peer-to-peer communication, such as:</p>
+<ul>
+<li class="">Your home WiFi router</li>
+<li class="">A personal mobile hotspot</li>
+<li class="">Any network that permits device-to-device communication</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="general-issues-1">General Issues<a href="#general-issues-1" class="hash-link" aria-label="Direct link to General Issues" title="Direct link to General Issues" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="cannot-stop-streamingrecording">Cannot Stop Streaming/Recording<a href="#cannot-stop-streamingrecording" class="hash-link" aria-label="Direct link to Cannot Stop Streaming/Recording" title="Direct link to Cannot Stop Streaming/Recording" translate="no">​</a></h3>
+<p><strong>Symptoms:</strong> Stop command hangs or doesn&#x27;t respond</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li class="">
+<p><strong>Connect device via USB</strong> (if streaming wirelessly)</p>
+</li>
+<li class="">
+<p><strong>Force stop:</strong></p>
+<ul>
+<li class="">Press Ctrl+C to interrupt the hanging command</li>
+<li class="">Try the stop command again:<!-- -->
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 streaming stop</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># or</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 recording stop</span><br></span></code></pre></div></div>
+</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Restart device:</strong></p>
+<ul>
+<li class="">Power off and restart the device</li>
+<li class="">Reconnect via USB</li>
+<li class="">Try stop command again</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="commands-hang-or-timeout">Commands Hang or Timeout<a href="#commands-hang-or-timeout" class="hash-link" aria-label="Direct link to Commands Hang or Timeout" title="Direct link to Commands Hang or Timeout" translate="no">​</a></h3>
+<p><strong>Symptoms:</strong> CLI commands don&#x27;t complete or timeout</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li class="">
+<p><strong>Check device connection:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 device list</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Run aria_doctor:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_doctor</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Check for VPN:</strong></p>
+<ul>
+<li class="">Disable VPN</li>
+<li class="">Retry command</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Restart device and computer:</strong></p>
+<ul>
+<li class="">Sometimes network state needs reset</li>
+<li class="">Reconnect after restart</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Check USB connection:</strong></p>
+<ul>
+<li class="">Try different USB port</li>
+<li class="">Try different USB cable</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="high-device-temperature">High Device Temperature<a href="#high-device-temperature" class="hash-link" aria-label="Direct link to High Device Temperature" title="Direct link to High Device Temperature" translate="no">​</a></h3>
+<p><strong>Symptoms:</strong> Device feels hot to touch</p>
+<p><strong>When This Happens:</strong></p>
+<ul>
+<li class="">During long recording sessions</li>
+<li class="">During high frame rate profiles (e.g. profile8)</li>
+<li class="">In warm environments</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li class="">
+<p><strong>Stop streaming/recording:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 streaming stop</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># or</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 recording stop</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Let device cool:</strong></p>
+<ul>
+<li class="">Remove from hot environments</li>
+<li class="">Ensure good ventilation</li>
+<li class="">Wait 10-15 minutes</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Switch to USB for streaming:</strong></p>
+<ul>
+<li class="">USB streaming generates less heat</li>
+<li class="">Better for extended sessions</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Reduce session length:</strong></p>
+<ul>
+<li class="">Keep wireless streaming under 30 minutes</li>
+<li class="">Take breaks between sessions</li>
+</ul>
+</li>
+</ol>
+<div class="theme-admonition theme-admonition-tip admonition_xJq3 alert alert--success"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 12 16"><path fill-rule="evenodd" d="M6.5 0C3.48 0 1 2.19 1 5c0 .92.55 2.25 1 3 1.34 2.25 1.78 2.78 2 4v1h5v-1c.22-1.22.66-1.75 2-4 .45-.75 1-2.08 1-3 0-2.81-2.48-5-5.5-5zm3.64 7.48c-.25.44-.47.8-.67 1.11-.86 1.41-1.25 2.06-1.45 3.23-.02.05-.02.11-.02.17H5c0-.06 0-.13-.02-.17-.2-1.17-.59-1.83-1.45-3.23-.2-.31-.42-.67-.67-1.11C2.44 6.78 2 5.65 2 5c0-2.2 2.02-4 4.5-4 1.22 0 2.36.42 3.22 1.19C10.55 2.94 11 3.94 11 5c0 .66-.44 1.78-.86 2.48zM4 14h5c-.23 1.14-1.3 2-2.5 2s-2.27-.86-2.5-2z"></path></svg></span>tip</div><div class="admonitionContent_BuS1"><p>This is normal behavior during intensive operations. The device has thermal protection that will automatically stop operations if it gets too hot. This protects the device hardware.</p></div></div>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="cannot-update-clientsdk">Cannot Update ClientSDK<a href="#cannot-update-clientsdk" class="hash-link" aria-label="Direct link to Cannot Update ClientSDK" title="Direct link to Cannot Update ClientSDK" translate="no">​</a></h3>
+<p><strong>Symptoms:</strong> <code>pip install</code> fails or hangs</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li class="">
+<p><strong>Ensure virtual environment is activated:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">source $HOME/projectaria_gen2_python_env/bin/activate</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Update pip first:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">python3 -m pip install --upgrade pip</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Clear pip cache:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">pip cache purge</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Reinstall:</strong></p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">pip uninstall projectaria-client-sdk</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">pip install projectaria-client-sdk==2.0.0</span><br></span></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>Check internet connection:</strong></p>
+<ul>
+<li class="">Ensure you can access PyPI</li>
+<li class="">Try with VPN disabled</li>
+<li class="">Check firewall settings</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="glibcxx-error-on-ubuntu-22-linux">GLIBCXX Error on Ubuntu 22 (Linux)<a href="#glibcxx-error-on-ubuntu-22-linux" class="hash-link" aria-label="Direct link to GLIBCXX Error on Ubuntu 22 (Linux)" title="Direct link to GLIBCXX Error on Ubuntu 22 (Linux)" translate="no">​</a></h3>
+<p><strong>Symptoms:</strong> When running CLI commands on Ubuntu 22, you may see an error like:</p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">GLIBCXX_3.4.31 not found</span><br></span></code></pre></div></div>
+<p><strong>Cause:</strong> The system&#x27;s C++ standard library (<code>libstdc++6</code>) is outdated and doesn&#x27;t have the required version.</p>
+<p><strong>Solution:</strong></p>
+<p>Update the C++ standard library by installing a newer compiler toolchain:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain"># 1. Check current libstdc++6 version</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">sudo apt list --installed | grep libstdc++6</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># 2. Add the Ubuntu toolchain PPA repository</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">sudo add-apt-repository ppa:ubuntu-toolchain-r/test</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># 3. Update package list</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">sudo apt update</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># 4. Install the newer g++ compiler (which includes the updated library)</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">sudo apt install g++-13</span><br></span></code></pre></div></div>
+<p>After installation, try running your CLI command again. The updated <code>libstdc++6</code> library should now be available.</p>
+<div class="theme-admonition theme-admonition-info admonition_xJq3 alert alert--info"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 14 16"><path fill-rule="evenodd" d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"></path></svg></span>info</div><div class="admonitionContent_BuS1"><p>This issue is specific to Ubuntu 22.04 and earlier versions. Ubuntu 24 and later typically have the required library version by default.</p></div></div>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="getting-additional-help">Getting Additional Help<a href="#getting-additional-help" class="hash-link" aria-label="Direct link to Getting Additional Help" title="Direct link to Getting Additional Help" translate="no">​</a></h2>
+<p>If you&#x27;ve tried the solutions above and still experience issues:</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="gather-diagnostic-information">Gather Diagnostic Information<a href="#gather-diagnostic-information" class="hash-link" aria-label="Direct link to Gather Diagnostic Information" title="Direct link to Gather Diagnostic Information" translate="no">​</a></h3>
+<p>Before seeking help, gather this information:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain"># Device information</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 device list</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># Authentication status</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_gen2 auth check</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># System configuration</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_doctor</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># Python and package versions</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">python3 --version</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">pip list | grep projectaria</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"># run diagnostic to collect error logs</span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">aria_diagnostics</span><br></span></code></pre></div></div>
+<div class="theme-admonition theme-admonition-tip admonition_xJq3 alert alert--success"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 12 16"><path fill-rule="evenodd" d="M6.5 0C3.48 0 1 2.19 1 5c0 .92.55 2.25 1 3 1.34 2.25 1.78 2.78 2 4v1h5v-1c.22-1.22.66-1.75 2-4 .45-.75 1-2.08 1-3 0-2.81-2.48-5-5.5-5zm3.64 7.48c-.25.44-.47.8-.67 1.11-.86 1.41-1.25 2.06-1.45 3.23-.02.05-.02.11-.02.17H5c0-.06 0-.13-.02-.17-.2-1.17-.59-1.83-1.45-3.23-.2-.31-.42-.67-.67-1.11C2.44 6.78 2 5.65 2 5c0-2.2 2.02-4 4.5-4 1.22 0 2.36.42 3.22 1.19C10.55 2.94 11 3.94 11 5c0 .66-.44 1.78-.86 2.48zM4 14h5c-.23 1.14-1.3 2-2.5 2s-2.27-.86-2.5-2z"></path></svg></span>Linux Users</div><div class="admonitionContent_BuS1"><p>If <code>aria_diagnostics</code> fails to run, you may need to install <code>net-tools</code>:</p><div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#bfc7d5"><span class="token plain">sudo apt install net-tools</span><br></span></code></pre></div></div></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="contact-support">Contact Support<a href="#contact-support" class="hash-link" aria-label="Direct link to Contact Support" title="Direct link to Contact Support" translate="no">​</a></h3>
+<ul>
+<li class="">Include diagnostic information when reporting issues</li>
+<li class="">Describe steps to reproduce the problem</li>
+<li class="">Include diagnostics.log</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="additional-resources">Additional Resources<a href="#additional-resources" class="hash-link" aria-label="Direct link to Additional Resources" title="Direct link to Additional Resources" translate="no">​</a></h3>
+<ul>
+<li class=""><a class="" href="/projectaria_tools/gen2/ark/client-sdk/start">Get Started Guide</a> - Initial setup and authentication</li>
+<li class=""><a class="" href="/projectaria_tools/gen2/ark/client-sdk/recording">Recording Guide</a> - Recording troubleshooting</li>
+<li class=""><a class="" href="/projectaria_tools/gen2/ark/client-sdk/streaming">Streaming Guide</a> - Streaming troubleshooting</li>
+<li class=""><a class="" href="/projectaria_tools/gen2/technical-specs/client-sdk/cli">CLI Technical Specs</a> - Complete command reference</li>
+</ul></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"><a href="https://www.internalfb.com/code/fbsource/arvr/projects/ariane/aria_research_kit/projectaria_tools/website/docs-ark/support/sdk.mdx" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_JAkA"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/projectaria_tools/gen2/ark/support/rageshake"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Companion App Rage Shake</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/projectaria_tools/gen2/ark/support/mps"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">MPS Troubleshooting</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#frequently-asked-questions" class="table-of-contents__link toc-highlight">Frequently Asked Questions</a><ul><li><a href="#device-connection" class="table-of-contents__link toc-highlight">Device Connection</a></li><li><a href="#authentication" class="table-of-contents__link toc-highlight">Authentication</a></li><li><a href="#recording" class="table-of-contents__link toc-highlight">Recording</a></li><li><a href="#usb-streaming" class="table-of-contents__link toc-highlight">USB Streaming</a></li><li><a href="#wireless-streaming" class="table-of-contents__link toc-highlight">Wireless Streaming</a></li><li><a href="#general-issues" class="table-of-contents__link toc-highlight">General Issues</a></li></ul></li><li><a href="#first-steps-update-to-latest-versions" class="table-of-contents__link toc-highlight">First Steps: Update to Latest Versions</a><ul><li><a href="#update-clientsdk" class="table-of-contents__link toc-highlight">Update ClientSDK</a></li><li><a href="#update-device-os" class="table-of-contents__link toc-highlight">Update Device OS</a></li></ul></li><li><a href="#quick-diagnostic-commands" class="table-of-contents__link toc-highlight">Quick Diagnostic Commands</a></li><li><a href="#device-connection-issues" class="table-of-contents__link toc-highlight">Device Connection Issues</a><ul><li><a href="#device-not-detected" class="table-of-contents__link toc-highlight">Device Not Detected</a></li></ul></li><li><a href="#authentication-issues" class="table-of-contents__link toc-highlight">Authentication Issues</a><ul><li><a href="#cannot-authenticate-device" class="table-of-contents__link toc-highlight">Cannot Authenticate Device</a></li></ul></li><li><a href="#recording-issues" class="table-of-contents__link toc-highlight">Recording Issues</a><ul><li><a href="#cannot-start-recording" class="table-of-contents__link toc-highlight">Cannot Start Recording</a></li><li><a href="#cannot-download-recording" class="table-of-contents__link toc-highlight">Cannot Download Recording</a></li><li><a href="#cannot-delete-recording" class="table-of-contents__link toc-highlight">Cannot Delete Recording</a></li></ul></li><li><a href="#usb-streaming-issues" class="table-of-contents__link toc-highlight">USB Streaming Issues</a><ul><li><a href="#streaming-wont-start" class="table-of-contents__link toc-highlight">Streaming Won&#39;t Start</a></li><li><a href="#poor-usb-streaming-performance" class="table-of-contents__link toc-highlight">Poor USB Streaming Performance</a></li><li><a href="#viewer-not-showing-data-usb" class="table-of-contents__link toc-highlight">Viewer Not Showing Data (USB)</a></li></ul></li><li><a href="#wireless-streaming-issues" class="table-of-contents__link toc-highlight">Wireless Streaming Issues</a><ul><li><a href="#stable-device-os-version" class="table-of-contents__link toc-highlight">Stable Device OS Version</a></li><li><a href="#connect-device-and-pc-to-the-same-network" class="table-of-contents__link toc-highlight">Connect Device and PC to the Same Network</a></li><li><a href="#guest-networks-cannot-be-used-for-peer-to-peer-streaming" class="table-of-contents__link toc-highlight">Guest Networks Cannot Be Used for Peer-to-Peer Streaming</a></li></ul></li><li><a href="#general-issues-1" class="table-of-contents__link toc-highlight">General Issues</a><ul><li><a href="#cannot-stop-streamingrecording" class="table-of-contents__link toc-highlight">Cannot Stop Streaming/Recording</a></li><li><a href="#commands-hang-or-timeout" class="table-of-contents__link toc-highlight">Commands Hang or Timeout</a></li><li><a href="#high-device-temperature" class="table-of-contents__link toc-highlight">High Device Temperature</a></li><li><a href="#cannot-update-clientsdk" class="table-of-contents__link toc-highlight">Cannot Update ClientSDK</a></li><li><a href="#glibcxx-error-on-ubuntu-22-linux" class="table-of-contents__link toc-highlight">GLIBCXX Error on Ubuntu 22 (Linux)</a></li></ul></li><li><a href="#getting-additional-help" class="table-of-contents__link toc-highlight">Getting Additional Help</a><ul><li><a href="#gather-diagnostic-information" class="table-of-contents__link toc-highlight">Gather Diagnostic Information</a></li><li><a href="#contact-support" class="table-of-contents__link toc-highlight">Contact Support</a></li><li><a href="#additional-resources" class="table-of-contents__link toc-highlight">Additional Resources</a></li></ul></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Learn</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://www.projectaria.com/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Introducing Project Aria<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a class="footer__link-item" href="/projectaria_tools/gen2/">Documentation</a></li><li class="footer__item"><a class="footer__link-item" href="/projectaria_tools/gen2/ark/support">Get Support</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Participate</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://www.projectaria.com/datasets/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Open Datasets<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://www.projectaria.com/challenges/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Challenges<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://www.projectaria.com/research-kit/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Partner Program<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Responsible Innovation</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://about.facebook.com/realitylabs/responsible-innovation-principles/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Innovation Principles<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://about.facebook.com/realitylabs/projectaria/community-guidelines/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Project Aria Research Community Guidelines<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Legal</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://opensource.fb.com/legal/privacy/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Privacy<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://opensource.fb.com/legal/terms/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Terms<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://opensource.fb.com/legal/data-policy/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Data Policy<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://opensource.fb.com/legal/cookie-policy/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Cookie Policy<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="margin-bottom--sm"><a href="https://opensource.fb.com" rel="noopener noreferrer" class="footerLogoLink_BH7S"><img src="/projectaria_tools/gen2/img/meta_opensource_logo_negative.svg" alt="Meta Open Source Logo" class="footer__logo themedComponent_mlkZ themedComponent--light_NVdE"><img src="/projectaria_tools/gen2/img/meta_opensource_logo_negative.svg" alt="Meta Open Source Logo" class="footer__logo themedComponent_mlkZ themedComponent--dark_xIcU"></a></div><div class="footer__copyright">Copyright © 2026 Meta Platforms, Inc. Built with Docusaurus.</div></div></div></footer></div>
+</body>
+</html>

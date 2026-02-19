@@ -1,0 +1,52 @@
+---
+sidebar_position: 20
+title: Dataset Download
+---
+By downloading the datasets you agree that you have read and accepted the terms of
+the [Aria Synthetic Environments Dataset License Agreement](https://www.projectaria.com/datasets/ase/license/).
+
+
+# Download the ASE Dataset
+
+Aria Synthetic Environments (ASE) dataset consists of 100K sequences of synthetically generated apartments. The entire dataset is splint up into 10 sequence chunks. This means the total number of chunks as 10K. The contents of each the sequence is detailed in **[Data Format](ase_data_format).** The total dataset of  ~23 TB.
+
+
+## Download via CLI
+
+Follow the [ASE quickstart guide](ase_getting_started.mdx) to get the system ready to download data/example data.  This section will introduce how to download the dataset using the `aria_synthetic_environments_downloader` Python script.
+
+### Detailed arguments
+
+
+|Arguments|Type|Description|
+|---	|---	|---|
+|--cdn_file	|str	|The download-urls file you downloaded from the ASE website page after signing up	|
+|--output-dir	|str	|A local path where the downloaded files will be stored	|
+|--set	|str	|Download either **train** / **test** data. All the 100K data is for training data and comes with GT ASE language. At a later point we will add test data without GT ASE language, which will be used for evaluation	|
+|--scene-ids	|str	|Range of scene ids to download	|
+|--unzip	|bool	|Allows the user to unzip in the output directory or keep it as a zip	|
+
+## Examples
+
+### Download ASE datasets
+
+```
+cd $HOME/Documents/projectaria_sandbox/projectaria_tools
+```
+
+#### Download first 10 scenes
+```
+python3 projects/AriaSyntheticEnvironment/aria_synthetic_environments_downloader.py --set train --scene-ids 0-9 --cdn-file aria_synthetic_environments_dataset_download_urls.json --output-dir $HOME/projectaria_tools_ase_data --unzip True
+```
+
+
+#### Download a large number of scenes: This downloads all 100 scenes (10 chunks)
+```
+python3 projects/AriaSyntheticEnvironment/aria_synthetic_environments_downloader.py --set train --scene-ids 0-99 --cdn-file aria_synthetic_environments_dataset_download_urls.json --output-dir $HOME/projectaria_tools_ase_data --unzip True
+```
+
+#### Download specific scenes: 560-569
+
+```
+python3 projects/AriaSyntheticEnvironment/aria_synthetic_environments_downloader.py --set train --scene-ids 560-569 --cdn-file aria_synthetic_environments_dataset_download_urls.json --output-dir $HOME/projectaria_tools_ase_data --unzip True
+```

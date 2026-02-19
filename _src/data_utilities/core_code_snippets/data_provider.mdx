@@ -1,0 +1,235 @@
+---
+sidebar_position: 10
+title: Data Provider
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Aria Data Provider Code Snippets
+
+In this section, we introduce the Python/C++ API to access sensor data in Project Aria VRS files ([projectaria_tools/main/core/data_provider](https://github.com/facebookresearch/projectaria_tools/blob/main/core/data_provider)).
+
+### Open a VRS file
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+from projectaria_tools.core import data_provider
+from projectaria_tools.core.sensor_data import TimeDomain, TimeQueryOptions
+from projectaria_tools.core.stream_id import RecordableTypeId, StreamId
+
+vrsfile = "example.vrs"
+provider = data_provider.create_vrs_data_provider(vrsfile)
+assert provider is not None, "Cannot open file"
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <dataprovider/VrsDataProvider.h>
+using namespace projectaria::tools::data_provider;
+
+std::string vrsfile = "example.vrs"
+auto maybeProvider = createVrsDataProvider(vrsFilename);
+XR_CHECK(maybeProvider, "Cannot open file");
+VrsDataProvider& provider = *maybeProvider;
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+### Mapping between labels and stream ids
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+Stream IDs can be mapped from labels by using `get_stream_id_from_label`:
+```python
+stream_id = provider.get_stream_id_from_label("camera-slam-left")
+```
+Inversely, you can retrieve a label from a stream ID by using `get_stream_id_from_label`:
+```python
+label = provider.get_label_from_stream_id(StreamId("1201-1"))
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+Stream IDs can be mapped from labels by using `getStreamIdFromLabel`:
+```cpp
+auto streamId = provider.getStreamIdFromLabel("camera-slam-left");
+```
+Inversely, you can retrieve a label from a stream id by using `getLabelFromStreamId`.
+```cpp
+auto label = provider.getLabelFromStreamId(StreamId::fromNumericalName("1201-1"));
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+### Random access data by index
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+for stream_id in provider.get_all_streams():
+  for i in range(0, provider.get_num_data(stream_id)):
+    sensor_data =  provider.get_sensor_data_by_index(stream_id, i)
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+for (const auto& streamId : provider.getAllStreams()) {
+  for( size_t i =  0 ; i < provider.getNumData(streamId); ++i) {
+    auto sensorData =  provider.getSensorDataByIndex(streamId, i);
+  }
+}
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+### Random access data by timestamp
+
+Project Aria data has four kinds of TimeDomain entries. We strongly recommend always working with `DEVICE_TIME` when using single-device Aria data. The `TIME_CODE` TimeDomain is used when synchronizing time across multiple devices. Go to [Timestamps in Aria VRS Files](/data_formats/aria_vrs/timestamps_in_aria_vrs.mdx) for more information.
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+* TimeDomain.RECORD_TIME
+* TimeDomain.DEVICE_TIME - recommended
+* TimeDomain.HOST_TIME
+* TimeDomain.TIME_CODE - for multiple devices
+
+You can also search using three different time query options:
+* TimeQueryOptions.BEFORE (default): last data with `t <= t_query`
+* TimeQueryOptions.AFTER : first data with `t >= t_query`
+* TimeQueryOptions.CLOSEST : the data where `|t - t_query|` is smallest
+
+```python
+for stream_id in provider.get_all_streams():
+  t_first = provider.get_first_time_ns(stream_id, TimeDomain.DEVICE_TIME)
+  t_last = provider.get_last_time_ns(stream_id, TimeDomain.DEVICE_TIME)
+  query_timestamp = (t_first + t_last) // 2 # example query timestamp
+  sensor_data = provider.get_sensor_data_by_time_ns(stream_id, query_timestamp, TimeDomain.DEVICE_TIME, TimeQueryOptions.CLOSEST)
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+
+* TimeDomain::RecordTime
+* TimeDomain::DeviceTime - recommended
+* TimeDomain::HostTime
+* TimeDomain::TimeCode - for multiple devices
+
+You can also search using three different time query options:
+* TimeQueryOptions::Before : last data with `t <= t_query`
+* TimeQueryOptions::After : first data with `t >= t_query`
+* TimeQueryOptions::Closest : the data where `|t - t_query|` is smallest
+
+```cpp
+for (const auto& streamId : provider.getAllStreams()) {
+  int64_t tFirst = provider.getFirstTimeNs(streamId, TimeDomain::DeviceTime);
+  int64_t tLast = provider.getLastTimeNs(streamId, TimeDomain::DeviceTime);
+
+  auto queryTimestamp = (tFirst + tLast) / 2; // example query timestamp
+  auto sensorData = provider.getSensorDataByTimeNs(streamId, queryTimestamp, TimeDomain::DeviceTime, TimeQueryOptions::Closest);
+}
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+### Deliver all sensor data in VRS
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+Async iterator to deliver sensor data for all streams in device time order:
+```python
+for data in provider.deliver_queued_sensor_data():
+  print(data.get_time_ns(TimeDomain.DEVICE_TIME))
+```
+Alternatively, you can use iterator-type syntax:
+```python
+seq = provider.deliver_queued_sensor_data()
+obj = next(seq)
+while True:
+  print(obj.get_time_ns(TimeDomain.DEVICE_TIME))
+  try:
+    obj = next(seq)
+  except StopIteration:
+    break
+```
+Deliver with sub-stream selection, time truncation, and frame rate sub-sampling:
+```python
+# Starts by default options which activates all sensors
+deliver_option = provider.get_default_deliver_queued_options()
+
+# Only play data from two cameras, also reduce framerate to half of vrs
+deliver_option.deactivate_stream_all()
+for label in ["camera-slam-left", "camera-slam-right"]:
+  streamId = provider.get_stream_id_from_label(label)
+  deliver_option.activate_stream(streamId)
+  deliver_option.set_subsample_rate(streamId, 2)
+
+# skip first 100ns
+deliver_option.set_truncate_first_device_time_ns(100)
+for data in provider.deliver_queued_sensor_data() :
+  print(data.get_time_ns(TimeDomain.DEVICE_TIME))
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+Async iterator to deliver sensor data for all streams in device time order:
+```cpp
+for (const SensorData& data : provider.deliverQueuedSensorData()) {
+  std::cout << data.getTimeNs(TimeDomain::DeviceTime) << std::endl;
+}
+```
+Alternatively, you can use iterator-type syntax:
+```cpp
+auto seq = provider.deliverQueuedSensorData();
+for (const auto& it = seq.begin(), it != seq.end(); ++it) {
+  SensorData data = *it;
+  std::cout << data.getTimeNs(TimeDomain::DeviceTime) << std::endl;
+}
+```
+Deliver with sub-stream selection, time truncation, and frame rate sub-sampling:
+```cpp
+// Starts by default options which activates all sensors
+deliverOption = provider.getDefaultDeliverQueuedOptions();
+deliverOption.deactivateStreamAll();
+
+// Only play data from two cameras, also reduce framerate to half of vrs
+for (const auto& label : {"camera-slam-left", "camera-slam-right"}) {
+  std::optional<vrs::StreamId> maybeStreamId = provider.getStreamIdFromLabel(label);
+  if (maybeStreamId) {
+    deliverOption.activateStream(maybeStreamId.value());
+    deliverOption.setSubsampleRate(maybeStreamId.value(), 2);
+  }
+}
+
+// skip first 100ns
+deliverOption.setTruncateFirstDeviceTimeNs(100);
+for (const SensorData& data : provider.deliverQueuedSensorData(deliverOption)) {
+  std::cout << data.getTimeNs(TimeDomain::DeviceTime) << std::endl;
+}
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
