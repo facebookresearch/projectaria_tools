@@ -28,7 +28,7 @@ static const std::string ariaTestDataPath = XSTRING(TEST_FOLDER);
 // test query by timestamp within vrs time range
 void checkInBound(std::shared_ptr<VrsDataProvider> provider, const vrs::StreamId& streamId) {
   for (int t = 0; t < static_cast<int>(kNumTimeDomain); ++t) {
-    TimeDomain timeDomain = static_cast<TimeDomain>(t);
+    auto timeDomain = static_cast<TimeDomain>(t);
     if (!provider->supportsTimeDomain(streamId, timeDomain)) {
       continue;
     }
@@ -94,7 +94,7 @@ void checkInBound(std::shared_ptr<VrsDataProvider> provider, const vrs::StreamId
 // test query by timestamp out side vrs time range
 void checkOutOfBound(std::shared_ptr<VrsDataProvider> provider, const vrs::StreamId& streamId) {
   for (int t = 0; t < static_cast<int>(kNumTimeDomain); ++t) {
-    TimeDomain timeDomain = static_cast<TimeDomain>(t);
+    auto timeDomain = static_cast<TimeDomain>(t);
     if (!provider->supportsTimeDomain(streamId, timeDomain)) {
       continue;
     }

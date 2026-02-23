@@ -60,7 +60,7 @@ struct type_caster<Sophus::SO3<double>> {
   // converting from python -> c++ type
   bool load(handle src, bool /*convert*/) {
     try {
-      sophus::SO3Group<double>& ref = src.cast<sophus::SO3Group<double>&>();
+      auto& ref = src.cast<sophus::SO3Group<double>&>();
       if (ref.size() != 1) {
         throw std::domain_error(
             fmt::format(
@@ -302,7 +302,7 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
       [](const SO3Group<Scalar>& so3Vec,
          pybind11::object index_or_slice_or_list) -> SO3Group<Scalar> {
         if (pybind11::isinstance<pybind11::slice>(index_or_slice_or_list)) {
-          pybind11::slice slice = index_or_slice_or_list.cast<pybind11::slice>();
+          auto slice = index_or_slice_or_list.cast<pybind11::slice>();
           size_t start, stop, step, slicelength;
           if (slice.compute(so3Vec.size(), &start, &stop, &step, &slicelength)) {
             SO3Group<Scalar> result;
@@ -312,7 +312,7 @@ PybindSO3Group<Scalar> exportSO3Group(pybind11::module& module, const std::strin
             return result;
           }
         } else if (pybind11::isinstance<pybind11::list>(index_or_slice_or_list)) {
-          pybind11::list index_list = index_or_slice_or_list.cast<pybind11::list>();
+          auto index_list = index_or_slice_or_list.cast<pybind11::list>();
           SO3Group<Scalar> result;
           for (const auto index : index_list) {
             const auto intIndex = pybind11::cast<int>(index);

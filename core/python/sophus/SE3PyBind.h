@@ -62,7 +62,7 @@ struct type_caster<Sophus::SE3<double>> {
   // converting from python -> c++ type
   bool load(handle src, bool convert) {
     try {
-      sophus::SE3Group<double>& ref = src.cast<sophus::SE3Group<double>&>();
+      auto& ref = src.cast<sophus::SE3Group<double>&>();
       if (ref.size() != 1) {
         throw std::domain_error(
             fmt::format(
@@ -446,7 +446,7 @@ PybindSE3Type<Scalar> exportSE3Transformation(
       [](const SE3Group<Scalar>& se3Vec,
          pybind11::object index_or_slice_or_list) -> SE3Group<Scalar> {
         if (pybind11::isinstance<pybind11::slice>(index_or_slice_or_list)) {
-          pybind11::slice slice = index_or_slice_or_list.cast<pybind11::slice>();
+          auto slice = index_or_slice_or_list.cast<pybind11::slice>();
           size_t start, stop, step, slicelength;
           if (slice.compute(se3Vec.size(), &start, &stop, &step, &slicelength)) {
             SE3Group<Scalar> result;
@@ -456,7 +456,7 @@ PybindSE3Type<Scalar> exportSE3Transformation(
             return result;
           }
         } else if (pybind11::isinstance<pybind11::list>(index_or_slice_or_list)) {
-          pybind11::list index_list = index_or_slice_or_list.cast<pybind11::list>();
+          auto index_list = index_or_slice_or_list.cast<pybind11::list>();
           SE3Group<Scalar> result;
           for (const auto index : index_list) {
             const auto intIndex = pybind11::cast<int>(index);

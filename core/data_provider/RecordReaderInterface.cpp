@@ -247,7 +247,7 @@ void RecordReaderInterface::setReadImageContent(vrs::StreamId streamId, bool rea
 /* read the last cached sensor data in player */
 SensorData RecordReaderInterface::getLastCachedSensorData(const vrs::StreamId& streamId) {
   SensorDataType sensorDataType = getSensorDataType(streamId);
-  const int64_t recordTimeNs =
+  const auto recordTimeNs =
       static_cast<int64_t>(streamIdToLastReadRecord_.at(streamId)->timestamp * 1e9);
 
   switch (sensorDataType) {

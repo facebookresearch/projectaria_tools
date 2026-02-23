@@ -219,8 +219,8 @@ void VrsHealthCheck::printProgress() {
     const auto stats = stream->getStats();
     std::string streamName = stream->getStreamId().getName();
 
-    float current = static_cast<float>(stats.processed);
-    float total = static_cast<float>(stats.total);
+    auto current = static_cast<float>(stats.processed);
+    auto total = static_cast<float>(stats.total);
 
     Utils::printBar(streamName, static_cast<bool>(total) ? current / total : 0.0f);
 
@@ -358,7 +358,7 @@ void VrsHealthCheck::logDroppedFrames(const std::string& filepath) {
     return;
   }
   for (const auto& stream : streams_) {
-    Periodic* periodicStream = dynamic_cast<Periodic*>(stream.get());
+    auto* periodicStream = dynamic_cast<Periodic*>(stream.get());
     if (periodicStream) {
       periodicStream->logDroppedFrames(csvWriter);
     }
