@@ -1,0 +1,68 @@
+---
+sidebar_position: 2
+title: Camera ID to Label Mapping
+---
+# Camera ID to Label Mapping
+
+## What is Camera ID?
+
+`camera_id` is a property available in streaming image data. When you receive image data through the streaming callbacks (via `ImageDataRecord`), each image frame includes a `camera_id` field that identifies which camera captured the image.
+
+You can access the camera ID in your streaming callback:
+
+```python
+def image_callback(image_data: ImageData, image_record: ImageDataRecord):
+    camera_id = image_record.camera_id
+    # Use camera_id to identify which camera this frame came from
+```
+
+## What is Camera Label?
+
+A camera label is a human-readable string identifier used in device calibration and `projectaria_tools` APIs to reference a specific camera sensor. Labels like `camera-rgb`, `slam-front-left`, or `camera-et-left` are used throughout the SDK for camera-related operations and are consistent with the labels used in [VRS Stream ID to Label Mapping](/technical-specs/vrs/streamid-label-mapper).
+
+## Camera ID to Label Mapping for Aria Gen2
+
+The following table provides the mapping between streaming `camera_id` values and their corresponding sensor labels.
+
+**Table 1:** *Camera ID to label mapping for Aria Gen2*
+<table>
+<thead>
+<tr><th><b>Sensor</b></th><th>Camera ID</th><th>Label</th></tr>
+</thead>
+<tbody>
+<tr><td>SLAM camera front left</td><td>1</td><td>slam-front-left</td></tr>
+<tr><td>SLAM camera front right</td><td>2</td><td>slam-front-right</td></tr>
+<tr><td>SLAM camera side left</td><td>4</td><td>slam-side-left</td></tr>
+<tr><td>SLAM camera side right</td><td>8</td><td>slam-side-right</td></tr>
+<tr><td>ET camera left</td><td>16</td><td>camera-et-left</td></tr>
+<tr><td>ET camera right</td><td>32</td><td>camera-et-right</td></tr>
+<tr><td>RGB camera</td><td>64</td><td>camera-rgb</td></tr>
+</tbody>
+</table>
+
+:::note Camera ID Values
+The camera ID values use a bitmask pattern (powers of 2: 1, 2, 4, 8, 16, 32, 64), allowing multiple cameras to be represented in a single value using bitwise operations.
+:::
+
+## Example Usage
+
+Here's how to use the camera ID mapping in your streaming callback:
+
+```python
+# Camera ID to label mapping
+CAMERA_ID_TO_LABEL = {
+    1: "slam-front-left",
+    2: "slam-front-right",
+    4: "slam-side-left",
+    8: "slam-side-right",
+    16: "camera-et-left",
+    32: "camera-et-right",
+    64: "camera-rgb",
+}
+
+def image_callback(image_data: ImageData, image_record: ImageDataRecord):
+    camera_id = image_record.camera_id
+    camera_label = CAMERA_ID_TO_LABEL.get(camera_id, "unknown")
+
+    print(f"Received image from {camera_label} (camera_id={camera_id})")
+```
