@@ -35,7 +35,7 @@ struct AudioData {
    * represents a channel
    */
   [[nodiscard]] ConstMapInt32 reshapeAudioData(const int numSamples, const int numChannels) const {
-    return ConstMapInt32(data.data(), numSamples, numChannels);
+    return {data.data(), numSamples, numChannels};
   }
 };
 
