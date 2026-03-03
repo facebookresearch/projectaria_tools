@@ -161,6 +161,7 @@ class AriaDataViewer:
     # ============================================
     PLOT_COLORS_AND_SIZES_2D: Final = {
         "eye_gaze_point": {"color": [255, 64, 255], "plot_size": 18},
+        "fixation_gaze_point": {"color": [0, 255, 128], "plot_size": 14},
         "left_hand_markers": {"color": [255, 64, 0], "plot_size": 10},
         "left_hand_lines": {"color": [0, 255, 0], "plot_size": 2},
         "right_hand_markers": {"color": [255, 255, 0], "plot_size": 10},
@@ -398,7 +399,19 @@ class AriaDataViewer:
 
         # Update the 3D view
         updated_3d_view_container = rrb.Vertical(
-            _3d_view_container.contents[0],  # RGB view
+            rrb.Tabs(
+                contents=[
+                    _3d_view_container.contents[0],  # RGB view
+                    rrb.Spatial2DView(
+                        name="Cropped POV",
+                        origin="camera-cropped-pov",
+                    ),
+                    rrb.Spatial2DView(
+                        name="Fixation Crop",
+                        origin="camera-fixation-crop",
+                    ),
+                ]
+            ),
             rrb.Tabs(
                 contents=[
                     rrb.Spatial3DView(
@@ -988,6 +1001,56 @@ class AriaDataViewer:
                 ],
                 fill_mode="solid",
             ),
+        )
+
+    def plot_fixation_crop_data(self, fixation_crop_data) -> None:
+        """Plot cropped POV image with gaze point overlay."""
+        image_data = fixation_crop_data.image_data
+        image_array = image_data[0].to_numpy_array()
+        if image_array is None:
+            return
+
+        device_timestamp_ns = image_data[1].capture_timestamp_ns
+        camera_label = "camera-fixation-crop"
+
+        rr.set_time_nanos("device_time", device_timestamp_ns)
+
+        frame = np.array(image_array)
+        rr.log(
+            camera_label,
+            rr.Image(frame).compress(self.config.jpeg_quality),
+        )
+
+        gaze_point = fixation_crop_data.gaze_point_in_crop
+        if gaze_point is not None:
+            plot_label = "fixation_gaze_point"
+
+            rr.log(
+                f"{camera_label}/fixation/gaze_point",
+                rr.Points2D(
+                    positions=[[gaze_point[0], gaze_point[1]]],
+                    colors=[self._get_plot_color(plot_label)],
+                    radii=self._get_plot_size(plot_label),
+                ),
+            )
+        else:
+            rr.log(f"{camera_label}/fixation", rr.Clear.recursive())
+
+    def plot_cropped_pov_image_data(self, image_data, image_record) -> None:
+        """Plot cropped POV image for non-fixation crop sources (e.g. HandObject/HOI)."""
+        image_array = image_data.to_numpy_array()
+        if image_array is None:
+            return
+
+        device_timestamp_ns = image_record.capture_timestamp_ns
+        camera_label = "camera-cropped-pov"
+
+        rr.set_time_nanos("device_time", device_timestamp_ns)
+
+        frame = np.array(image_array)
+        rr.log(
+            camera_label,
+            rr.Image(frame).compress(self.config.jpeg_quality),
         )
 
     def _plot_single_hand_3d(
