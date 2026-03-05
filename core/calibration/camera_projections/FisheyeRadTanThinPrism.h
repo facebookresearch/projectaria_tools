@@ -18,6 +18,8 @@
 
 #include <calibration/camera_projections/Common.h>
 
+#include <string_view>
+
 namespace projectaria::tools::calibration {
 
 // Model for fisheye cameras with radial, tangential, and thin-prism distortion.
@@ -61,8 +63,8 @@ class FisheyeRadTanThinPrism {
 
   static constexpr int kNumParams =
       (4 - useSingleFocalLength) + numK + 2 * useTangential + 4 * useThinPrism;
-  static const char kName[];
-  static const char kDescription[];
+  static constexpr std::string_view kName{};
+  static constexpr std::string_view kDescription{};
   static constexpr int kNumDistortionParams = numK + 2 * useTangential + 4 * useThinPrism;
   static constexpr int kFocalXIdx = 0;
   static constexpr int kFocalYIdx = 1 - useSingleFocalLength;
@@ -398,22 +400,18 @@ using Fisheye624 = FisheyeRadTanThinPrism<6, true, true, true>;
 
 using Fisheye62 = FisheyeRadTanThinPrism<6, true, false, true>;
 
-// We need explicit template instantiation + definition in a separate cpp (ProjectionConstants.cpp)
-// in order to have static const string compile under both clang C++17 and C++11. However, that
-// will cause redefinition error under MSVC. Therefore we bypass it with macro.
-// clang on windows will define _MSC_VER so we need to check both _MSC_VER and __clang__.
-#if !defined(_MSC_VER) || defined(__clang__)
 template <>
-const char Fisheye624::kName[];
+inline constexpr std::string_view Fisheye624::kName = "Fisheye624";
 
 template <>
-const char Fisheye624::kDescription[];
+inline constexpr std::string_view Fisheye624::kDescription =
+    "fx, cx, cy, k0, k1, k2, k3, k4, k5, p0, p1, s0, s1, s2, s3";
 
 template <>
-const char Fisheye62::kName[];
+inline constexpr std::string_view Fisheye62::kName = "Fisheye62";
 
 template <>
-const char Fisheye62::kDescription[];
-#endif // !defined(_MSC_VER) || defined(__clang__)
+inline constexpr std::string_view Fisheye62::kDescription =
+    "fx, cx, cy, k0, k1, k2, k3, k4, k5, p0, p1";
 
 } // namespace projectaria::tools::calibration
