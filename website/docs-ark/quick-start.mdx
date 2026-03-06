@@ -1,0 +1,126 @@
+---
+sidebar_position: 0
+title: Quick Start
+---
+
+# Quick Start
+
+Get from unboxing to your first recording or stream in five steps. This page covers the end-to-end workflow; each step links to a detailed guide.
+
+```
+Setup Device → Install SDK → Authenticate → Record → Process with MPS
+                                                 ↘ Stream (real-time)
+```
+
+## Prerequisites
+
+- Aria Gen 2 glasses (powered on and charged)
+- Aria Companion App installed and paired with your device ([Companion App guide](/ark/companion-app/start))
+- USB cable connecting the device to your PC
+- Python 3.10 - 3.12 installed ([python.org](https://www.python.org/downloads/))
+
+---
+
+## Step 1: Install the Client SDK
+
+Create a virtual environment and install the SDK:
+
+```bash
+python3 -m venv $HOME/projectaria_gen2_python_env
+source $HOME/projectaria_gen2_python_env/bin/activate
+pip install projectaria-client-sdk
+```
+
+See [Installation](/ark/client-sdk/start) for platform-specific details.
+
+---
+
+## Step 2: Configure Your System
+
+Run `aria_doctor` to open the required ports and configure USB networking:
+
+```bash
+aria_doctor
+```
+
+---
+
+## Step 3: Authenticate Your Device
+
+Connect the device via USB, then pair it with your PC:
+
+```bash
+# Verify the device is detected
+aria_gen2 device list
+
+# Authenticate (approve the request in the Companion App)
+aria_gen2 auth pair
+
+# Confirm authentication
+aria_gen2 auth check
+```
+
+You only need to authenticate once per device-PC combination. See [Device Authentication](/ark/client-sdk/authentication) for troubleshooting.
+
+---
+
+## Step 4a: Record Data
+
+Start a recording, collect data, then download it:
+
+```bash
+# Start recording
+aria_gen2 recording start --profile profile8 --recording-name my_first_recording
+
+# ... perform your activity ...
+
+# Stop recording
+aria_gen2 recording stop
+
+# List recordings and note the UUID
+aria_gen2 recording list
+
+# Download the recording
+aria_gen2 recording download -u UUID -o ~/Downloads/
+```
+
+See [Recording Control](/ark/client-sdk/recording) for profiles and advanced options.
+
+---
+
+## Step 4b: Stream Data
+
+Stream sensor data in real time and visualize it:
+
+```bash
+# Start streaming (USB)
+aria_gen2 streaming start
+
+# In a second terminal, open the viewer
+aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
+
+# When done, stop streaming
+aria_gen2 streaming stop
+```
+
+See [Streaming Control](/ark/client-sdk/streaming) for wireless streaming and thermal management.
+
+---
+
+## Step 5: Process with MPS (Optional)
+
+Submit recordings to Machine Perception Services for cloud-based 3D trajectory and hand tracking:
+
+See [Machine Perception Services](/ark/mps/start) to get started.
+
+---
+
+## What's Next?
+
+| Goal | Page |
+|------|------|
+| Control the device with Python scripts | [Program with SDK](/ark/client-sdk/python-sdk/python-interface) |
+| Use wireless streaming | [Streaming Control](/ark/client-sdk/streaming#wireless-streaming) |
+| Stream to a remote server | [Remote Streaming](/ark/client-sdk/remote-streaming) |
+| Validate recording quality | [Data Validation Tools](/ark/vrs_health_check/installation) |
+| Troubleshoot issues | [Support & Troubleshooting](/ark/support/sdk) |

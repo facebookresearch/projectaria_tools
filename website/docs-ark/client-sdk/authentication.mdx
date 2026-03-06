@@ -1,0 +1,127 @@
+---
+sidebar_position: 1
+title: Device Authentication
+---
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import ThemedImage from '@theme/ThemedImage';
+
+# Device Authentication
+
+Authenticate your Aria Gen 2 device with your PC to enable secure communication over USB. You only need to authenticate once per device-PC combination.
+
+## Prerequisites
+
+- [Client SDK installed](/ark/client-sdk/start) and virtual environment activated
+- Device paired with the Companion App ([setup guide](/ark/companion-app/start))
+- Device connected to your PC via USB
+
+---
+
+## Step 1: Verify Device Setup
+
+After setting up the device with the Companion App, connect your device via USB and run the following command to ensure the device can be reached:
+
+```bash
+aria_doctor
+```
+
+:::info
+This step opens the necessary ports on your PC for device discovery and configures your system to allow unblocked internet connection.
+:::
+
+## Step 2: Check Device Connection
+
+Verify the device connection to the PC via USB network interface:
+
+```bash
+# Connect device to the computer and check if the device appears
+aria_gen2 device list
+
+# Expected output
+[AriaGen2Cli:App][INFO]: 1M0YDB5H7B0020
+```
+
+:::warning
+If you cannot see your device listed in the terminal, please visit the [troubleshooting](/ark/support/sdk) page for help.
+:::
+
+## Step 3: Authenticate Device
+
+Authenticate your device to this PC to start using the Client SDK:
+
+```bash
+# Authenticate device to connect with the PC
+aria_gen2 auth pair
+
+# Expected output
+[AriaGen2SDK:DeviceClient][INFO]: Client hash is: f30a36a9f3842bd3fc16c75b525.... please check against the companion app pairing request
+[AriaGen2Cli:App][INFO]: Waiting for authentication approval on your mobile Companion App...
+[AriaGen2Cli:App][INFO]: Successfully authenticated the device
+```
+
+You will need to approve the authentication from your mobile Companion App to allow the connection, as shown here:
+
+<ThemedImage
+  alt="Companion App authentication approval screen"
+  sources={{
+    light: useBaseUrl('/img/docs-ark/client-sdk/ca_approve.png'),
+    dark: useBaseUrl('/img/docs-ark/client-sdk/ca_approve.png'),
+  }}
+  style={{ width: '300px', height: 'auto' }}
+/>
+
+
+:::warning
+If you cannot see the authentication request in your Companion App, please visit the [troubleshooting](/ark/support/sdk) page for help.
+:::
+
+## Step 4: Verify Authentication
+
+Once authenticated, you can check your authentication status using the command below:
+
+```bash
+# Check authentication status
+aria_gen2 auth check
+
+# Expected output
+[AriaGen2Cli:App][INFO]: Setting up connection to device ...
+[AriaGen2Cli:App][INFO]: Connected to device 1M0YDB5H7B0020
+[AriaGen2Cli:App][INFO]: Device 1M0YDB5H7B0020 is successfully authenticated.
+```
+
+:::tip
+You only need to authenticate once per device and PC combination.
+:::
+
+---
+
+## Common Errors
+
+### Device Not Detected
+
+If your device is not showing up when running `aria_gen2 device list`:
+
+1. Run `aria_doctor` to configure your system
+2. Run `dns-sd -B _recordingmanager._tcp` to verify the device is discoverable via mDNS
+3. Check that USB Network is toggled **ON** in the Companion App
+4. Disable any active VPN connections
+5. Try a different USB port or cable (USB 3.0+ recommended)
+
+### Authentication Request Not Appearing
+
+If you don't see the authentication request in the Companion App:
+
+1. Ensure the Companion App is running in the foreground
+2. Verify your mobile device has an active internet connection
+3. Check that the device is paired with the Companion App
+4. Retry with `aria_gen2 auth pair`
+
+For more detailed troubleshooting, visit the [SDK Troubleshooting](/ark/support/sdk) page.
+
+---
+
+## Next Steps
+
+1. Start [recording data](/ark/client-sdk/recording) from your device
+2. Learn about [streaming](/ark/client-sdk/streaming) for real-time data access
+3. Explore [Python SDK examples](/ark/client-sdk/python-sdk/python-interface) for programmatic control

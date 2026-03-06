@@ -1,0 +1,323 @@
+---
+sidebar_position: 8
+title: CLI Quick Reference
+---
+
+# CLI Quick Reference
+
+A structured reference of all `aria_gen2` CLI commands. For full details, see the [Technical Specs CLI Reference](/technical-specs/client-sdk/cli).
+
+## Prerequisites
+
+- [Client SDK installed](/ark/client-sdk/start) and virtual environment activated
+- Device connected via USB and [authenticated](/ark/client-sdk/authentication)
+
+---
+
+## System Setup
+
+### `aria_doctor`
+
+**Purpose:** Configure your PC for device communication (ports, USB networking, internet access).
+
+```bash
+aria_doctor
+```
+
+**When to use:** After installing the SDK, after a system restart, or when the device is not detected.
+
+---
+
+## Device Commands
+
+### `aria_gen2 device list`
+
+**Purpose:** List all connected Aria Gen 2 devices.
+
+```bash
+aria_gen2 device list
+```
+
+**Expected Output:**
+```
+[AriaGen2Cli:App][INFO]: 1M0YDB5H7B0020
+```
+
+---
+
+### `aria_gen2 device wifi connect`
+
+**Purpose:** Connect the device to a Wi-Fi network.
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `--ssid` | Yes | Wi-Fi network name |
+| `--password` | Yes | Wi-Fi password |
+
+```bash
+aria_gen2 device wifi connect --ssid "MyNetwork" --password "MyPassword"
+```
+
+---
+
+### `aria_gen2 device hotspot start`
+
+**Purpose:** Enable the on-device Wi-Fi hotspot for direct wireless streaming.
+
+```bash
+aria_gen2 device hotspot start
+```
+
+---
+
+## Authentication Commands
+
+### `aria_gen2 auth pair`
+
+**Purpose:** Authenticate the device with your PC. Requires approval in the Companion App.
+
+**Prerequisites:** Device detected (`aria_gen2 device list`)
+
+```bash
+aria_gen2 auth pair
+```
+
+**Expected Output:**
+```
+[AriaGen2SDK:DeviceClient][INFO]: Client hash is: f30a36a9f3842bd3fc16c75b525...
+[AriaGen2Cli:App][INFO]: Waiting for authentication approval on your mobile Companion App...
+[AriaGen2Cli:App][INFO]: Successfully authenticated the device
+```
+
+---
+
+### `aria_gen2 auth check`
+
+**Purpose:** Verify the device is authenticated.
+
+```bash
+aria_gen2 auth check
+```
+
+**Expected Output:**
+```
+[AriaGen2Cli:App][INFO]: Device 1M0YDB5H7B0020 is successfully authenticated.
+```
+
+---
+
+## Recording Commands
+
+### `aria_gen2 recording start`
+
+**Purpose:** Start a recording on the device.
+
+**Prerequisites:** Device authenticated (`aria_gen2 auth check`)
+
+| Flag | Required | Default | Description |
+|------|----------|---------|-------------|
+| `--profile` | Yes | — | Recording profile (`profile8`, `profile9`, `profile10`) |
+| `--recording-name` | No | timestamp | Custom name for the recording |
+| `--json-profile` | No | — | Path to a custom JSON profile file |
+
+```bash
+aria_gen2 recording start --profile profile8 --recording-name my_experiment
+```
+
+---
+
+### `aria_gen2 recording stop`
+
+**Purpose:** Stop the currently active recording.
+
+```bash
+aria_gen2 recording stop
+```
+
+---
+
+### `aria_gen2 recording list`
+
+**Purpose:** List all recordings stored on the device (UUID, name, timestamp, size).
+
+```bash
+aria_gen2 recording list
+```
+
+**Expected Output:**
+```
+[RecordingClientWrapper][INFO]: Start time                Recording uuid                         Size (bytes)   Type
+[RecordingClientWrapper][INFO]: 2025-10-12 16:51:16 PDT   4b5d47d4-f1e4-46d6-b852-670adae9d848         11724800 prototype
+```
+
+---
+
+### `aria_gen2 recording info`
+
+**Purpose:** Get detailed information about a specific recording.
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `-u` / `--uuid` | Yes | Recording UUID |
+
+```bash
+aria_gen2 recording info -u <uuid>
+```
+
+---
+
+### `aria_gen2 recording download`
+
+**Purpose:** Download a specific recording from the device in VRS format.
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `-u` / `--uuid` | Yes | Recording UUID |
+| `-o` / `--output` | No | Output directory |
+
+```bash
+aria_gen2 recording download -u <uuid> -o ~/Downloads/
+```
+
+---
+
+### `aria_gen2 recording download-all`
+
+**Purpose:** Download all recordings from the device.
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `-o` / `--output` | No | Output directory |
+
+```bash
+aria_gen2 recording download-all -o ~/Downloads/
+```
+
+---
+
+### `aria_gen2 recording delete`
+
+**Purpose:** Delete a specific recording from the device.
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `-u` / `--uuid` | Yes | Recording UUID |
+
+```bash
+aria_gen2 recording delete -u <uuid>
+```
+
+---
+
+### `aria_gen2 recording delete-all`
+
+**Purpose:** Delete all recordings from the device.
+
+```bash
+aria_gen2 recording delete-all
+```
+
+---
+
+## Streaming Commands
+
+### `aria_gen2 streaming start`
+
+**Purpose:** Start streaming sensor data from the device.
+
+**Prerequisites:** Device authenticated (`aria_gen2 auth check`)
+
+| Flag | Required | Default | Description |
+|------|----------|---------|-------------|
+| `--interface` | No | `usb` | `usb`, `wifi_sta`, or `wifi_sap` |
+| `--batch-period-ms` | No | — | Message batching period (required for wireless) |
+| `--profile` | No | `mp_streaming_demo` | Streaming profile |
+| `--url` | No | — | Remote server URL for remote streaming |
+| `--streaming-cert-name` | No | — | Certificate name for remote streaming |
+| `--no-verify-server-certs` | No | — | Skip server certificate verification |
+
+```bash
+# USB streaming
+aria_gen2 streaming start
+
+# WiFi router streaming
+aria_gen2 streaming start --interface wifi_sta --batch-period-ms 200
+
+# On-device hotspot streaming
+aria_gen2 streaming start --interface wifi_sap --batch-period-ms 800
+
+# Remote server streaming
+aria_gen2 streaming start --url "https://server:6768" --interface wifi_sta --batch-period-ms 200
+```
+
+**Expected Output:**
+```
+[AriaGen2Cli:App][INFO]: Streaming started successfully
+```
+
+---
+
+### `aria_gen2 streaming stop`
+
+**Purpose:** Stop the active streaming session.
+
+```bash
+aria_gen2 streaming stop
+```
+
+---
+
+### `aria_gen2 streaming install-certs`
+
+**Purpose:** Generate and install streaming certificates for remote streaming.
+
+```bash
+aria_gen2 streaming install-certs
+```
+
+**Output includes a cert name** (e.g., `cert_1769712774692532015`) needed for `--streaming-cert-name`.
+
+---
+
+## Visualization Commands
+
+### `aria_streaming_viewer`
+
+**Purpose:** Open the real-time streaming viewer (run in a separate terminal while streaming is active).
+
+```bash
+aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
+```
+
+---
+
+### `aria_rerun_viewer`
+
+**Purpose:** Visualize a downloaded VRS recording.
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `--vrs` | Yes | Path to VRS file |
+
+```bash
+aria_rerun_viewer --vrs ~/Downloads/recording.vrs
+```
+
+---
+
+## Diagnostic Commands
+
+### `aria_diagnostics`
+
+**Purpose:** Collect diagnostic information and error logs for troubleshooting.
+
+```bash
+aria_diagnostics
+```
+
+:::tip Linux Users
+If `aria_diagnostics` fails to run, you may need to install `net-tools`:
+```bash
+sudo apt install net-tools
+```
+:::

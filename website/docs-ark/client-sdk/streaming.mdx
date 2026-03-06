@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 title: Streaming Control
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -9,6 +9,12 @@ import ThemedImage from '@theme/ThemedImage';
 # Streaming Control
 
 The ClientSDK provides powerful streaming capabilities that allow you to receive real-time data from your Aria Gen2 device. You can stream sensor data including camera feeds, IMU data, eye tracking, hand tracking, and machine perception outputs.
+
+## Prerequisites
+
+- [Client SDK installed](/ark/client-sdk/start) and virtual environment activated
+- Device [authenticated](/ark/client-sdk/authentication) with your PC
+- Device connected via USB (required to start/stop streaming, even for wireless methods)
 
 ## Overview
 
@@ -68,7 +74,7 @@ aria_gen2 streaming stop
 
 **Requirements:**
 * Device connected via USB
-* Device authenticated (see [Get Started](/ark/client-sdk/start) guide)
+* Device authenticated (see [Device Authentication](/ark/client-sdk/authentication) guide)
 * High-quality USB 3.0+ cable recommended
 
 **Command:**

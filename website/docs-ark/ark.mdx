@@ -10,6 +10,15 @@ import ThemedImage from '@theme/ThemedImage';
 
 Aria Research Kit (ARK) is a comprehensive development platform for the **Aria Gen 2 glasses**, designed to empower researchers and developers to build cutting-edge applications in egocentric AI, contextual AI, robotics, spatial computing, and human-computer interaction. ARK provides everything you need to capture, process, and analyze data from Aria's advanced sensor suite.
 
+## Workflow Overview
+
+```
+Setup Device → Companion App → Install SDK → Authenticate → Record → Process with MPS
+                                                                ↘ Stream (real-time)
+```
+
+**New here?** Start with the [Quick Start](/ark/quick-start) guide to go from setup to your first recording or stream.
+
 ## What is Aria Gen 2?
 
 Aria Gen 2 is a state-of-the-art research device featuring an advanced sensor suite that includes:
@@ -56,9 +65,9 @@ Leverage cloud-based processing to generate rich outputs from your recordings:
 
 All optimized for all-day wearability with energy-efficient hardware acceleration.
 
-### 🛠️ Data Analysis & Visualization
+### 🛠️ Data Validation & Visualization
 Use the comprehensive toolset to:
-- Validate recording quality with VRS Health Check
+- Validate recording quality with Data Validation Tools
 - Visualize sensor data streams
 - Export data in standard formats
 - Build custom analysis pipelines
@@ -68,10 +77,10 @@ Use the comprehensive toolset to:
 Choose your path based on your role and objectives:
 
 ### For Developers
-Start with the [Client SDK](/ark/client-sdk/start) to control your device programmatically. Install the Python SDK, authenticate your device, and begin streaming or recording data within minutes.
+Start with the [Client SDK](/ark/client-sdk/start) to control your device programmatically. Install the Python SDK, authenticate your device, and begin streaming or recording data within minutes. Or jump straight to the [Quick Start](/ark/quick-start).
 
 ### For Researchers
-Explore the [Device Manual](/ark/device/manual) to understand the hardware capabilities and sensor specifications. Learn about recording profiles and on-device machine perception in the [On-Device Machine Perception](/ark/on_device_mp) guide.
+Explore the [Device Manual](/ark/device/manual) to understand the hardware capabilities and sensor specifications. Learn about recording profiles and on-device machine perception in the [On-Device Machine Perception](/ark/device/on_device_mp) guide.
 
 ### For First-Time Users
 Begin with the [Companion App](/ark/companion-app/start) for a simple way to set up and use your Aria Gen 2 glasses. Then explore the Client SDK when you're ready for more advanced control.
@@ -81,8 +90,39 @@ Check out [Machine Perception Services (MPS)](/ark/mps/start) to learn how to pr
 
 ## Need Help?
 
-Visit the [Support](/ark/support) page for troubleshooting guides, FAQs, and contact information.
+Visit the [Support & Troubleshooting](/ark/support) page for troubleshooting guides, FAQs, and contact information.
 
 ---
 
-**Ready to dive in?** Pick a section from the navigation menu to begin your journey with Aria Research Kit.
+## For AI Agents
+
+This section provides a structured summary of the Aria Research Kit for AI coding assistants.
+
+**SDK package:** `projectaria-client-sdk` (install via `pip install projectaria-client-sdk`)
+
+**Primary CLI tool:** `aria_gen2` with subcommands: `device`, `auth`, `recording`, `streaming`
+
+**Key workflows:**
+- **Install:** `pip install projectaria-client-sdk` → `aria_doctor`
+- **Authenticate:** `aria_gen2 auth pair` → approve in Companion App → `aria_gen2 auth check`
+- **Record:** `aria_gen2 recording start --profile profile8` → `aria_gen2 recording stop` → `aria_gen2 recording download -u <uuid>`
+- **Stream (USB):** `aria_gen2 streaming start` → `aria_streaming_viewer --real-time --interpolate`
+- **Stream (WiFi):** `aria_gen2 streaming start --interface wifi_sta --batch-period-ms 200`
+
+**Python SDK module:** `import aria.sdk_gen2 as sdk_gen2`
+
+**Key documentation pages:**
+| Topic | Path |
+|-------|------|
+| Quick Start | [/ark/quick-start](/ark/quick-start) |
+| Installation | [/ark/client-sdk/start](/ark/client-sdk/start) |
+| Authentication | [/ark/client-sdk/authentication](/ark/client-sdk/authentication) |
+| Recording | [/ark/client-sdk/recording](/ark/client-sdk/recording) |
+| Streaming | [/ark/client-sdk/streaming](/ark/client-sdk/streaming) |
+| CLI Reference | [/ark/client-sdk/cli-reference](/ark/client-sdk/cli-reference) |
+| Python SDK Examples | [/ark/client-sdk/python-sdk/python-interface](/ark/client-sdk/python-sdk/python-interface) |
+| Troubleshooting | [/ark/support/sdk](/ark/support/sdk) |
+
+---
+
+**Ready to dive in?** Start with the [Quick Start](/ark/quick-start) guide or pick a section from the navigation menu.

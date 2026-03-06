@@ -1,11 +1,19 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 title: Remote Streaming
 ---
 
 # Remote Streaming
 
 Stream Aria Gen2 data directly to a remote server over the internet, without requiring a local relay machine.
+
+## Prerequisites
+
+- [Client SDK installed](/ark/client-sdk/start) and virtual environment activated
+- Device [authenticated](/ark/client-sdk/authentication) with your PC
+- Device connected to a Wi-Fi network with internet access
+- An HTTPS server accessible from the internet (public IP or domain)
+- Port 6768 open on the server firewall
 
 ## Overview
 
@@ -36,17 +44,6 @@ By default, Aria streams data to a local development machine via USB or WiFi on 
 │                 │   HTTPS POST      │  (Your Backend) │
 └─────────────────┘                   └─────────────────┘
 ```
-
----
-
-## Requirements
-
-Before setting up remote streaming, ensure you have:
-
-* Aria Gen2 glasses connected to a WiFi network with internet access
-* An HTTPS server accessible from the internet (public IP or domain)
-* Aria streaming certificates (generated during SDK setup)
-* Port 6768 open on the server firewall
 
 ---
 
