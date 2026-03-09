@@ -26,6 +26,33 @@ Streaming enables you to access real-time data from your device:
 
 ---
 
+## Available Streaming Profiles
+
+Before starting a streaming session, you can select a streaming profile that defines the sensor configuration, data rates, and resolutions. Project Aria Gen2 offers several pre-defined profiles optimized for streaming:
+
+* **[mp_streaming_demo](/technical-specs/device/profile)**: Default streaming profile for visualization - Optimized for real-time visualization with VIO, eye gaze, and hand pose data
+* **[profile9](/technical-specs/device/profile)**: General purpose streaming profile - Balanced configuration for streaming with lower bandwidth requirements
+
+For detailed specifications of each profile including sensor rates, resolutions, and encoding formats, visit the [Profiles Technical Specification](/technical-specs/device/profile) page.
+
+### Custom Streaming Profiles
+
+In addition to the pre-defined profiles, streaming **fully supports custom profiles**. You can create your own streaming profile to define custom sensor configurations, data rates, and resolutions tailored to your specific research or application needs.
+
+**Using a Custom Profile for Streaming:**
+
+```bash
+aria_gen2 streaming start --json-profile <path_to_custom_profile.json>
+```
+
+For instructions on creating custom profiles, see the [Custom Profile Guide](/technical-specs/device/profile#custom_profile_example).
+
+:::tip
+Custom profiles are especially useful when you need specific sensor combinations or data rates that aren't available in the pre-defined profiles. For example, you might want to stream only RGB and IMU data at higher rates for a specific computer vision application.
+:::
+
+---
+
 ## Choose Your Streaming Method
 
 Select the streaming method that best fits your use case:
