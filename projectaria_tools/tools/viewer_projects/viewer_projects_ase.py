@@ -160,8 +160,10 @@ def main():
             trajectory["Ts_world_from_device"],
         )
     ):
-        rr.set_time_nanos("device_time", int(timestamp_ns * 1e3))  # convert to us to ns
-        rr.set_time_sequence("frame_id", frame_id)
+        rr.set_time(
+            "device_time", duration=int(timestamp_ns * 1e3) * 1e-9
+        )  # convert to us to ns
+        rr.set_time("frame_id", sequence=frame_id)
         T_world_from_device = pose  # SE3.from_matrix(pose)
         T_world_camera = T_world_from_device @ T_device_from_camera
         rr.log("world/device", ToTransform3D(T_world_camera, False))

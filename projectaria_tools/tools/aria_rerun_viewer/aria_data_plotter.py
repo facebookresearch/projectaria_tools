@@ -622,7 +622,7 @@ class AriaDataViewer:
                 f"Frame is not a numpy array for label {label}",
             )
             return
-        rr.set_time_nanos("device_time", device_timestamp_ns)
+        rr.set_time("device_time", timestamp=device_timestamp_ns * 1e-9)
         frame = self._check_and_rotate_image_for_gen1(frame, label)
         rr.log(
             label,
@@ -655,34 +655,34 @@ class AriaDataViewer:
         # Log accelerometer data
         rr.send_columns(
             f"{label}/accl/x[m-sec2]",
-            indexes=[rr.TimeNanosColumn("device_time", timestamps)],
+            indexes=[rr.TimeColumn("device_time", timestamp=timestamps * 1e-9)],
             columns=[rr.components.ScalarBatch(accel_data[:, 0])],
         )
         rr.send_columns(
             f"{label}/accl/y[m-sec2]",
-            indexes=[rr.TimeNanosColumn("device_time", timestamps)],
+            indexes=[rr.TimeColumn("device_time", timestamp=timestamps * 1e-9)],
             columns=[rr.components.ScalarBatch(accel_data[:, 1])],
         )
         rr.send_columns(
             f"{label}/accl/z[m-sec2]",
-            indexes=[rr.TimeNanosColumn("device_time", timestamps)],
+            indexes=[rr.TimeColumn("device_time", timestamp=timestamps * 1e-9)],
             columns=[rr.components.ScalarBatch(accel_data[:, 2])],
         )
 
         # Log gyroscope data
         rr.send_columns(
             f"{label}/gyro/x[rad-sec]",
-            indexes=[rr.TimeNanosColumn("device_time", timestamps)],
+            indexes=[rr.TimeColumn("device_time", timestamp=timestamps * 1e-9)],
             columns=[rr.components.ScalarBatch(gyro_data[:, 0])],
         )
         rr.send_columns(
             f"{label}/gyro/y[rad-sec]",
-            indexes=[rr.TimeNanosColumn("device_time", timestamps)],
+            indexes=[rr.TimeColumn("device_time", timestamp=timestamps * 1e-9)],
             columns=[rr.components.ScalarBatch(gyro_data[:, 1])],
         )
         rr.send_columns(
             f"{label}/gyro/z[rad-sec]",
-            indexes=[rr.TimeNanosColumn("device_time", timestamps)],
+            indexes=[rr.TimeColumn("device_time", timestamp=timestamps * 1e-9)],
             columns=[rr.components.ScalarBatch(gyro_data[:, 2])],
         )
 
@@ -701,13 +701,13 @@ class AriaDataViewer:
                 f"IMU data missing required attributes for label {label}",
             )
             return
-        rr.set_time_nanos("device_time", imu_data.capture_timestamp_ns)
-        rr.log(f"{label}/accl/x[m-sec2]", rr.Scalar(imu_data.accel_msec2[0]))
-        rr.log(f"{label}/accl/y[m-sec2]", rr.Scalar(imu_data.accel_msec2[1]))
-        rr.log(f"{label}/accl/z[m-sec2]", rr.Scalar(imu_data.accel_msec2[2]))
-        rr.log(f"{label}/gyro/x[rad-sec]", rr.Scalar(imu_data.gyro_radsec[0]))
-        rr.log(f"{label}/gyro/y[rad-sec]", rr.Scalar(imu_data.gyro_radsec[1]))
-        rr.log(f"{label}/gyro/z[rad-sec]", rr.Scalar(imu_data.gyro_radsec[2]))
+        rr.set_time("device_time", timestamp=imu_data.capture_timestamp_ns * 1e-9)
+        rr.log(f"{label}/accl/x[m-sec2]", rr.Scalars(imu_data.accel_msec2[0]))
+        rr.log(f"{label}/accl/y[m-sec2]", rr.Scalars(imu_data.accel_msec2[1]))
+        rr.log(f"{label}/accl/z[m-sec2]", rr.Scalars(imu_data.accel_msec2[2]))
+        rr.log(f"{label}/gyro/x[rad-sec]", rr.Scalars(imu_data.gyro_radsec[0]))
+        rr.log(f"{label}/gyro/y[rad-sec]", rr.Scalars(imu_data.gyro_radsec[1]))
+        rr.log(f"{label}/gyro/z[rad-sec]", rr.Scalars(imu_data.gyro_radsec[2]))
 
     def plot_magnetometer(self, magnetometer_data):
         """Plot magnetometer sensor data."""
@@ -725,19 +725,21 @@ class AriaDataViewer:
             )
             return
 
-        rr.set_time_nanos("device_time", magnetometer_data.capture_timestamp_ns)
+        rr.set_time(
+            "device_time", timestamp=magnetometer_data.capture_timestamp_ns * 1e-9
+        )
         # Convert magnetometer reading from tesla (SI unit) to microtesla (µT): 1 tesla = 1e6 microtesla
         rr.log(
             f"{self.sensor_labels.magnetometer_label}/x[µT]",
-            rr.Scalar(magnetometer_data.mag_tesla[0] * 1e6),
+            rr.Scalars(magnetometer_data.mag_tesla[0] * 1e6),
         )
         rr.log(
             f"{self.sensor_labels.magnetometer_label}/y[µT]",
-            rr.Scalar(magnetometer_data.mag_tesla[1] * 1e6),
+            rr.Scalars(magnetometer_data.mag_tesla[1] * 1e6),
         )
         rr.log(
             f"{self.sensor_labels.magnetometer_label}/z[µT]",
-            rr.Scalar(magnetometer_data.mag_tesla[2] * 1e6),
+            rr.Scalars(magnetometer_data.mag_tesla[2] * 1e6),
         )
 
     def plot_barometer(self, barometer_data):
@@ -757,15 +759,15 @@ class AriaDataViewer:
                 "Barometer data missing required attributes",
             )
             return
-        rr.set_time_nanos("device_time", barometer_data.capture_timestamp_ns)
+        rr.set_time("device_time", timestamp=barometer_data.capture_timestamp_ns * 1e-9)
         # Convert pressure from pascal (SI unit) to kilopascal (kPa): 1 pascal = 1e-3 kilopascal
         rr.log(
             f"{self.sensor_labels.barometer_labels[0]}/pressure[kPa]",
-            rr.Scalar(barometer_data.pressure * 1e-3),
+            rr.Scalars(barometer_data.pressure * 1e-3),
         )  # Pascals converter to kPascals
         rr.log(
             f"{self.sensor_labels.barometer_labels[1]}/temperature[Celsius]",
-            rr.Scalar(barometer_data.temperature),
+            rr.Scalars(barometer_data.temperature),
         )  # Degree Celsius
 
     def _plot_audio_from_selected_channels(
@@ -804,9 +806,12 @@ class AriaDataViewer:
             rr.send_columns(
                 f"{rerun_plotter_label}/{selected_channel_labels[c]}",
                 indexes=[
-                    rr.TimeNanosColumn(
+                    rr.TimeColumn(
                         "device_time",
-                        audio_data_timestamp[:: self.config.audio_subsample_rate],
+                        timestamp=np.array(audio_data_timestamp)[
+                            :: self.config.audio_subsample_rate
+                        ]
+                        * 1e-9,
                     )
                 ],
                 columns=[
@@ -885,7 +890,7 @@ class AriaDataViewer:
             )
             return
 
-        rr.set_time_nanos("device_time", gps_data.capture_timestamp_ns)
+        rr.set_time("device_time", timestamp=gps_data.capture_timestamp_ns * 1e-9)
         # gps_data.provider is a string that can be "APP" or "GPS", indicating data source.
         gps_settings = self.PLOT_COLORS_AND_SIZES_2D[
             "gps_app"
@@ -912,8 +917,8 @@ class AriaDataViewer:
                 "device_calibration is None. Cannot plot eye gaze data.",
             )
             return
-        rr.set_time_nanos(
-            "device_time", int(eyegaze_data.tracking_timestamp.total_seconds() * 1e9)
+        rr.set_time(
+            "device_time", timestamp=eyegaze_data.tracking_timestamp.total_seconds()
         )
         # Clear the canvas (only if eye_gaze_label exists for this device version)
         if self.sensor_labels.eye_gaze_label:
@@ -1013,7 +1018,7 @@ class AriaDataViewer:
         device_timestamp_ns = image_data[1].capture_timestamp_ns
         camera_label = "camera-fixation-crop"
 
-        rr.set_time_nanos("device_time", device_timestamp_ns)
+        rr.set_time("device_time", timestamp=device_timestamp_ns * 1e-9)
 
         frame = np.array(image_array)
         rr.log(
@@ -1045,7 +1050,7 @@ class AriaDataViewer:
         device_timestamp_ns = image_record.capture_timestamp_ns
         camera_label = "camera-cropped-pov"
 
-        rr.set_time_nanos("device_time", device_timestamp_ns)
+        rr.set_time("device_time", timestamp=device_timestamp_ns * 1e-9)
 
         frame = np.array(image_array)
         rr.log(
@@ -1167,8 +1172,8 @@ class AriaDataViewer:
         """
         Plot hand pose data in 3D world view
         """
-        rr.set_time_nanos(
-            "device_time", int(hand_pose_data.tracking_timestamp.total_seconds() * 1e9)
+        rr.set_time(
+            "device_time", timestamp=hand_pose_data.tracking_timestamp.total_seconds()
         )
 
         # Clear the canvas (only if hand_tracking_label exists for this device version)
@@ -1211,9 +1216,9 @@ class AriaDataViewer:
             return
 
         if self.sensor_labels.hand_tracking_label:
-            rr.set_time_nanos(
+            rr.set_time(
                 "device_time",
-                int(hand_pose_data.tracking_timestamp.total_seconds() * 1e9),
+                timestamp=hand_pose_data.tracking_timestamp.total_seconds(),
             )
 
             # Clear the canvas first
@@ -1241,9 +1246,9 @@ class AriaDataViewer:
                 "device_calibration is None. Cannot plot VIO high frequency data.",
             )
             return
-        rr.set_time_nanos(
+        rr.set_time(
             "device_time",
-            int(vio_high_freq_data.tracking_timestamp.total_seconds() * 1e9),
+            timestamp=vio_high_freq_data.tracking_timestamp.total_seconds(),
         )
         # Set and plot Aria Device for the current timestamp
         T_World_Device = vio_high_freq_data.transform_odometry_device
@@ -1270,7 +1275,7 @@ class AriaDataViewer:
             or vio_data.pose_quality != TrackingQuality.GOOD
         ):
             return
-        rr.set_time_nanos("device_time", vio_data.capture_timestamp_ns)
+        rr.set_time("device_time", timestamp=vio_data.capture_timestamp_ns * 1e-9)
         # Set and plot Aria Device for the current timestamp
         T_World_Device = (
             vio_data.transform_odometry_bodyimu @ vio_data.transform_bodyimu_device
@@ -1327,7 +1332,7 @@ class AriaDataViewer:
     def plot_utc_timestamp(
         self, utc_timestamp_ns, camera_label: str, device_timestamp_ns
     ):
-        rr.set_time_nanos("device_time", device_timestamp_ns)
+        rr.set_time("device_time", timestamp=device_timestamp_ns * 1e-9)
         rr.log(
             f"{camera_label}/utc_timestamp",
             rr.Points2D(

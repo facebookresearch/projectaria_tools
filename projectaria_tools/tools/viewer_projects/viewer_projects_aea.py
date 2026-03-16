@@ -147,13 +147,13 @@ def logInstanceData(
 ):
     device_time_ns = timestamp_ns
     if time_domain is TimeDomain.TIME_CODE:
-        rr.set_time_nanos("timecode_ns", timestamp_ns)
+        rr.set_time("timecode_ns", duration=timestamp_ns * 1e-9)
 
         device_time_ns = aea_data_provider.vrs.convert_from_timecode_to_device_time_ns(
             timestamp_ns
         )
-    rr.set_time_nanos("device_time_ns", device_time_ns)
-    rr.set_time_sequence("timestamp", device_time_ns)
+    rr.set_time("device_time_ns", duration=device_time_ns * 1e-9)
+    rr.set_time("timestamp", sequence=device_time_ns)
 
     rgb_stream_label = aea_data_provider.vrs.get_label_from_stream_id(RGB_STREAM_ID)
     device_calibration = aea_data_provider.vrs.get_device_calibration()
