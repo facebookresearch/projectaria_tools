@@ -244,8 +244,8 @@ def main():
     static_obj_ids: Set[int] = set()
     dynamic_obj_moved: Set[str] = set()
     for timestamp_ns in tqdm(img_timestamps_ns):
-        rr.set_time_nanos("device_time", timestamp_ns)
-        rr.set_time_sequence("timestamp", timestamp_ns)
+        rr.set_time("device_time", duration=timestamp_ns * 1e-9)
+        rr.set_time("timestamp", sequence=timestamp_ns)
 
         # Log RGB image
         image_with_dt = gt_provider.get_aria_image_by_timestamp_ns(

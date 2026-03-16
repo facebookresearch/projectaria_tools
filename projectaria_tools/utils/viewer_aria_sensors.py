@@ -68,7 +68,8 @@ def main():
 
     # Run the viewer in the web browser or desktop app
     if args.web:
-        rr.serve_web()
+        _uri = rr.serve_grpc()
+        rr.serve_web_viewer(connect_to=_uri)
     else:
         rr.spawn()
 
