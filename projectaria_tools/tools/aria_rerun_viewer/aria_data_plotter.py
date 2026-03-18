@@ -284,16 +284,14 @@ class AriaDataViewer:
         self.slam_to_rgb_plot_scale = slam_image_height / rgb_image_height
 
     def set_device_calibration(self, device_calibration):
-        if self.device_calibration is not None:
-            print(
-                "Warning: device_calibration is already set. Setting device_calibration again."
-            )
+        is_first_calibration = self.device_calibration is None
         self.device_calibration = device_calibration
         self.sensor_labels = SensorLabels.from_device_version(
             device_calibration.get_device_version()
         )
         self.set_slam_to_rgb_plotting_ratio()
-        self.update_rerun_blueprint()
+        if is_first_calibration:
+            self.update_rerun_blueprint()
         self.plot_device_extrinsics()
 
     def _get_plot_color(self, plot_label):
