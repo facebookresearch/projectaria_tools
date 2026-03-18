@@ -24,7 +24,7 @@ import katex from 'rehype-katex';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Project Aria Docs',
+  title: 'Aria Gen 1 Docs',
   tagline:
     'Documentation and tooling to support researchers expand the horizons of Augmented Reality, Machine Perception and Artificial Intelligence',
   favicon: 'img/aria_logo.png',
@@ -46,7 +46,8 @@ const config = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/facebookresearch/projectaria_tools/tree/main/website/',
+          editUrl:
+            'https://github.com/facebookresearch/projectaria_tools/tree/main/website/',
           remarkPlugins: [math],
           rehypePlugins: [katex],
         },
@@ -82,8 +83,16 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     {
+      announcementBar: {
+        id: 'gen1_notice',
+        content:
+          '⚠️ This is the <strong>Aria Gen 1</strong> documentation site. For Aria Gen 2 docs, visit <a target="_blank" rel="noopener noreferrer" href="https://facebookresearch.github.io/projectaria_tools/gen2/">Aria Gen 2 Documentation</a>.',
+        backgroundColor: '#FFF3CD',
+        textColor: '#856404',
+        isCloseable: false,
+      },
       navbar: {
-        title: 'Project Aria Docs',
+        title: 'Aria Gen 1 Docs',
         logo: {
           alt: 'aria-research-kit-sdk Logo',
           src: 'img/aria_logo.png',
@@ -113,8 +122,12 @@ const config = {
                 href: 'https://www.projectaria.com/',
               },
               {
-                label: 'Documentation',
+                label: 'Aria Gen 1 Documentation',
                 to: '/docs/intro',
+              },
+              {
+                label: 'Aria Gen 2 Documentation',
+                href: 'https://facebookresearch.github.io/projectaria_tools/gen2/',
               },
               {
                 label: 'Get Support',

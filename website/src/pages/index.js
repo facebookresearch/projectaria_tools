@@ -29,25 +29,47 @@ export default function Home() {
   const {siteConfig = {}} = context;
 
   return (
-    <Layout
-      title={siteConfig.title}
-      description={siteConfig.tagline}>
+    <Layout title={siteConfig.title} description={siteConfig.tagline}>
       <header className={clsx(styles.heroBanner)}>
-        <div style={{
-          justifyContent: 'center',
-          display: 'flex',
-        }}>
+        <div
+          style={{
+            justifyContent: 'center',
+            display: 'flex',
+          }}>
           <div className={clsx(styles.mainLogo)} />
         </div>
       </header>
 
       <main id="main" role="main">
-        <p className={clsx(styles.tagLine, "hero__subtitle")}>{siteConfig.tagline}</p>
+        <div
+          style={{
+            textAlign: 'center',
+            margin: '0 auto 1.5rem',
+            padding: '0.75rem 1.5rem',
+            maxWidth: '700px',
+            backgroundColor: 'var(--ifm-color-emphasis-100)',
+            borderRadius: '8px',
+            border: '1px solid var(--ifm-color-emphasis-300)',
+          }}>
+          <p style={{margin: 0, fontSize: '1.1rem'}}>
+            📌 This is the <strong>Aria Gen 1</strong> documentation site.
+          </p>
+          <p style={{margin: '0.5rem 0 0'}}>
+            Looking for Aria Gen 2? Visit the{' '}
+            <a href="https://facebookresearch.github.io/projectaria_tools/gen2/">
+              Aria Gen 2 Documentation
+            </a>
+            .
+          </p>
+        </div>
+        <p className={clsx(styles.tagLine, 'hero__subtitle')}>
+          {siteConfig.tagline}
+        </p>
         <div className={styles.buttons}>
           <Link
             className={clsx(
               'button button--outline button--secondary button--lg',
-              styles.getStarted
+              styles.getStarted,
             )}
             to={useBaseUrl('docs/intro')}>
             GET STARTED

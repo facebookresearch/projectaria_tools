@@ -1,11 +1,14 @@
 ---
 sidebar_position: 1
 id: intro
-title: Introduction to Project Aria Docs
+title: Introduction to Aria Gen 1 Docs
 ---
 
+:::caution Aria Gen 1 Documentation
+This documentation covers **Aria Gen 1** glasses and tools only. If you are looking for Aria Gen 2 documentation, please visit the [Aria Gen 2 Documentation](https://facebookresearch.github.io/projectaria_tools/gen2/).
+:::
 
-**Project Aria** is a research platform developed by Meta Reality Labs Research to enable both internal groups in Meta and external researchers to use egocentric data to push the state of the art in egocentric AI research, including the subfields of computer vision, robotics, and contextual AI, as examples. We believe it will take many of the world’s leading research communities to collectively solve the biggest problems in this deep research domain.
+**Project Aria** is a research platform developed by Meta Reality Labs Research to enable both internal groups in Meta and external researchers to use egocentric data to push the state of the art in egocentric AI research, including the subfields of computer vision, robotics, and contextual AI, as examples. We believe it will take many of the world's leading research communities to collectively solve the biggest problems in this deep research domain.
 
 Project Aria’s offering to the external community is organized into two major pillars:
 
