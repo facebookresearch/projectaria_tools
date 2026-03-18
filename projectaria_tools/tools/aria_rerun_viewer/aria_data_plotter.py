@@ -147,6 +147,10 @@ class AriaDataViewerConfig:
     # rerun memory limit (default parameter is 75% of available memory)
     rerun_memory_limit = "75%"
 
+    # Path to a custom Rerun blueprint (.rbl) file. When set, the viewer will
+    # launch Rerun with this blueprint and skip the auto-generated layout.
+    blueprint_path: Optional[str] = None
+
 
 class AriaDataViewer:
     """
@@ -233,9 +237,13 @@ class AriaDataViewer:
         if rrd_output_path:
             rr.init("AriaDataViewer", spawn=False)
             rr.save(rrd_output_path)
+        elif self.config.blueprint_path:
+            self._spawn_rerun_with_blueprint(
+                self.config.blueprint_path, self.config.rerun_memory_limit
+            )
         else:
             rr.init("AriaDataViewer")
-            rr.spawn(memory_limit=config.rerun_memory_limit)
+            rr.spawn(memory_limit=self.config.rerun_memory_limit)
 
         if device_calibration is not None:
             self.device_calibration = device_calibration
@@ -444,7 +452,20 @@ class AriaDataViewer:
             collapse_panels=True,
         )
 
+    def _spawn_rerun_with_blueprint(self, blueprint_path: str, memory_limit: str):
+        """Launch the Rerun viewer with a custom .rbl blueprint file.
+
+        Uses the normal rr.spawn() to start the viewer, then loads the
+        blueprint file via rr.log_file_from_path() which can send any
+        Rerun recording (including .rbl blueprints) to the viewer.
+        """
+        rr.init("AriaDataViewer")
+        rr.spawn(memory_limit=memory_limit)
+        rr.log_file_from_path(blueprint_path)
+
     def update_rerun_blueprint(self):
+        if self.config.blueprint_path:
+            return
         if self.device_calibration is None:
             print("Warning: device_calibration is None. Cannot create rerun blueprint.")
             return
