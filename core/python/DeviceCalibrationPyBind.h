@@ -894,9 +894,10 @@ inline void declareDeviceCalibration(py::module& m) {
       .def(
           "get_transform_device_cpf",
           &DeviceCalibration::getT_Device_Cpf,
+          py::arg("use_svd") = false,
           "returns relative pose between device frame (anchored to a particular sensor defined by"
-          " `origin_label`) and CPF (central pupil frame), where CPF is a virtual coordinate frame defined"
-          " in CAD model.")
+          " `origin_label`) and CPF (central pupil frame). Set use_svd=True to use SVD-based"
+          " alignment between per-instance calibration and CAD extrinsics.")
       .def(
           "get_transform_device_sensor",
           &DeviceCalibration::getT_Device_Sensor,

@@ -185,4 +185,21 @@ Sophus::SE3d DeviceCadExtrinsics::getT_Device_Cpf() const {
   return T_Device_Cpf_;
 }
 
+std::optional<Sophus::SE3d> DeviceCadExtrinsics::getT_Cpf_Sensor(const std::string& label) const {
+  const auto it = labelToT_Cpf_Sensor_.find(label);
+  if (it != labelToT_Cpf_Sensor_.end()) {
+    return it->second;
+  }
+  return std::nullopt;
+}
+
+std::vector<std::string> DeviceCadExtrinsics::getAllLabels() const {
+  std::vector<std::string> labels;
+  labels.reserve(labelToT_Cpf_Sensor_.size());
+  for (const auto& [label, _] : labelToT_Cpf_Sensor_) {
+    labels.push_back(label);
+  }
+  return labels;
+}
+
 } // namespace projectaria::tools::calibration

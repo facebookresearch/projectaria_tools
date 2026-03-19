@@ -172,10 +172,13 @@ class DeviceCalibration {
 
   /**
    * @brief returns relative pose between device frame (anchored to a particular sensor defined by
-   * `originLabel`) and CPF (central pupil frame), where CPF is a virtual coordinate frame defined
-   * in CAD model
+   * `originLabel`) and CPF (central pupil frame).
+   * @param useSvd If true, uses SVD-based alignment between per-instance camera
+   * calibration and CAD extrinsics to account for manufacturing tolerances. Falls back to CAD-only
+   * value if SVD alignment is not possible (e.g. fewer than 3 cameras).
+   * If false (default), returns the pure CAD design value.
    */
-  Sophus::SE3d getT_Device_Cpf() const;
+  Sophus::SE3d getT_Device_Cpf(bool useSvd = false) const;
 
   /**
    * @brief returns calibrated `T_Device_Sensor` given a label.
@@ -230,7 +233,10 @@ class DeviceCalibration {
   std::map<std::string, MicrophoneCalibration> microphoneCalibs_;
   std::map<std::string, SensorCalibration> allCalibs_;
 
+  Sophus::SE3d computeSvdT_Device_Cpf() const;
+
   DeviceCadExtrinsics deviceCadExtrinsics_;
+  Sophus::SE3d svdT_Device_Cpf_;
 
   std::string deviceSubtype_;
   std::string originLabel_;

@@ -15,6 +15,7 @@
  */
 
 #include <calibration/DeviceCalibration.h>
+#include <calibration/SvdPointCloudAlignment.h>
 #include <logging/Checks.h>
 #include <filesystem>
 #include <fstream>
@@ -60,6 +61,35 @@ DeviceCalibration::DeviceCalibration(
   for (const auto& [label, calib] : microphoneCalibs) {
     allCalibs_.emplace(label, calib);
   }
+
+  // Compute SVD-based T_Device_Cpf by aligning CAD camera positions (in CPF frame)
+  // to per-instance calibrated camera positions (in device frame).
+  // This accounts for manufacturing tolerances that cause the real device
+  // to deviate from the CAD design.
+  svdT_Device_Cpf_ = computeSvdT_Device_Cpf();
+}
+
+Sophus::SE3d DeviceCalibration::computeSvdT_Device_Cpf() const {
+  std::vector<Eigen::Vector3d> cpfPoints;
+  std::vector<Eigen::Vector3d> devicePoints;
+
+  for (const auto& [label, camCalib] : cameraCalibs_) {
+    const auto maybeT_Cpf_Sensor = deviceCadExtrinsics_.getT_Cpf_Sensor(label);
+    if (!maybeT_Cpf_Sensor.has_value()) {
+      continue;
+    }
+    cpfPoints.push_back(maybeT_Cpf_Sensor->translation());
+    devicePoints.push_back(camCalib.getT_Device_Camera().translation());
+  }
+
+  const auto maybeT_Device_Cpf = alignPointCloudsToRigidTransform(cpfPoints, devicePoints);
+  if (maybeT_Device_Cpf.has_value()) {
+    return maybeT_Device_Cpf.value();
+  }
+
+  // Fallback to CAD-only value when SVD alignment fails
+  // (e.g. fewer than 3 cameras, collinear points, simulated device)
+  return deviceCadExtrinsics_.getT_Device_Cpf();
 }
 
 std::vector<std::string> DeviceCalibration::getAllLabels() const {
@@ -226,7 +256,10 @@ std::string DeviceCalibration::getDeviceSubtype() const {
   return deviceSubtype_;
 }
 
-Sophus::SE3d DeviceCalibration::getT_Device_Cpf() const {
+Sophus::SE3d DeviceCalibration::getT_Device_Cpf(bool useSvd) const {
+  if (useSvd) {
+    return svdT_Device_Cpf_;
+  }
   return deviceCadExtrinsics_.getT_Device_Cpf();
 }
 
@@ -274,7 +307,10 @@ std::optional<Sophus::SE3d> DeviceCalibration::getT_Cpf_Sensor(
     bool getCadValue) const {
   auto const maybeT_Device_Sensor = getT_Device_Sensor(label, getCadValue);
   if (maybeT_Device_Sensor) {
-    return getT_Device_Cpf().inverse() * maybeT_Device_Sensor.value();
+    // Use consistent T_Device_Cpf: CAD-only when getCadValue is true,
+    // SVD-aligned otherwise.
+    const bool useSvd = !getCadValue;
+    return getT_Device_Cpf(useSvd).inverse() * maybeT_Device_Sensor.value();
   } else {
     return {};
   }

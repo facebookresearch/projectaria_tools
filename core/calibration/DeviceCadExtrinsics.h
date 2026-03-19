@@ -18,6 +18,7 @@
 
 #include <optional>
 #include <unordered_map>
+#include <vector>
 
 #include <calibration/DeviceVersion.h>
 #include <sophus/se3.hpp>
@@ -70,6 +71,17 @@ class DeviceCadExtrinsics {
    * coordinate frame defined in CAD model
    */
   Sophus::SE3d getT_Device_Cpf() const;
+
+  /**
+   * @brief Get the CAD extrinsics value of `T_Cpf_Sensor` (sensor pose in CPF frame)
+   * from a given sensor label. Returns std::nullopt if label is not found.
+   */
+  std::optional<Sophus::SE3d> getT_Cpf_Sensor(const std::string& label) const;
+
+  /**
+   * @brief Get all sensor labels that have CAD extrinsics data.
+   */
+  std::vector<std::string> getAllLabels() const;
 
  private:
   DeviceVersion deviceVersion_;

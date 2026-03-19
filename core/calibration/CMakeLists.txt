@@ -48,10 +48,14 @@ add_library(sensor_calibration
 target_include_directories(sensor_calibration PUBLIC "../")
 target_link_libraries(sensor_calibration PUBLIC format error_handler camera_projection vrs_logging calibration_distort camera_config_builder)
 
+add_library(svd_point_cloud_alignment SvdPointCloudAlignment.cpp SvdPointCloudAlignment.h)
+target_include_directories(svd_point_cloud_alignment PUBLIC "../")
+target_link_libraries(svd_point_cloud_alignment PUBLIC Eigen3::Eigen Sophus::Sophus)
+
 add_library(device_cad_extrinsics DeviceCadExtrinsics.cpp DeviceCadExtrinsics.h)
 target_include_directories(device_cad_extrinsics PUBLIC "../")
 target_link_libraries(device_cad_extrinsics PUBLIC vrs_logging device_version config_file_loader Eigen3::Eigen Sophus::Sophus)
 
 add_library(device_calibration DeviceCalibration.cpp DeviceCalibration.h)
 target_include_directories(device_calibration PUBLIC "../")
-target_link_libraries(device_calibration PUBLIC device_cad_extrinsics sensor_calibration Sophus::Sophus image)
+target_link_libraries(device_calibration PUBLIC device_cad_extrinsics svd_point_cloud_alignment sensor_calibration Sophus::Sophus image)
