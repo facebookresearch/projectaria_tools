@@ -14,3 +14,39 @@ Online calibration is generated as part of SLAM [MPS requests](/ark/mps).
 `online_calibration.jsonl` contains one json online calibration record per line. Each record is a json dict object that contains timestamp metadata and the result of online calibration for the cameras and IMUs.
 
 The calibration parameters contain intrinsics and extrinsics parameters for each sensor as well as a time offsets which best temporally align their data.
+
+## When to use online calibration
+
+### General guideline
+
+**For any task requiring accurate geometric understanding of the world, use online calibration by default.**
+
+### Rationale
+
+Device calibration parameters can drift from their factory values due to:
+
+- **Mechanical deformation** when worn by different users
+- **Temperature variations** affecting optical parameters
+- **Accumulated wear** from shocks or thermal cycles
+- **IMU bias drift** over time
+
+Online calibration compensates for these effects by optimizing parameters using actual sensor observations from each recording session.
+
+The impact of online calibration on reconstruction quality has been validated on Aria Gen1:
+
+- [PhotoReal Reconstruction](https://www.projectaria.com/photoreal-reconstruction/) explicitly demonstrates the importance of online calibration for high-fidelity 3D reconstruction
+- [LaMARIA Benchmark](https://arxiv.org/abs/2509.26639)
+
+While we have not conducted equivalent controlled experiments specifically on Gen2, the online calibration methodology is identical between Gen1 and Gen2. Additionally, online calibration has been the standard approach for all high-accuracy geometry pipelines developed internally. We recommend treating it as the default choice unless your application has specific constraints.
+
+### Current coverage
+
+|Sensor Type	|Online Calibration Status	|
+|---	|---	|
+|SLAM cameras	|Intrinsics and extrinsics optimized per-session	|
+|RGB camera	|Copied from factory calibration (optimization planned for future MPS versions)	|
+|IMUs	|Intrinsics and extrinsics parameters optimized per-session	|
+
+:::note
+RGB parameters are included in `online_calibration.jsonl` for convenience, allowing you to load all calibration from a single source. Your code will automatically benefit when RGB optimization becomes available.
+:::
