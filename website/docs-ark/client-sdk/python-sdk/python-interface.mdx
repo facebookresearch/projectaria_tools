@@ -24,6 +24,10 @@ Before using the Python SDK, ensure you have:
 * [Client SDK installed](/ark/client-sdk/start) and virtual environment activated
 * Device connected via USB and [authenticated](/ark/client-sdk/authentication)
 
+:::caution One-Time Setup: Device Authentication Required
+Before running **any** Python SDK examples that control the device (recording, streaming, TTS, etc.), you **must** authenticate your device by running `aria_gen2 auth pair` (see [Device Authentication](/ark/client-sdk/authentication)). This only needs to be done **once** per device-PC combination, but **all `device_client.connect()` calls will fail without it**.
+:::
+
 ### Export Example Code
 
 The SDK includes example scripts that demonstrate common use cases. Extract them using:

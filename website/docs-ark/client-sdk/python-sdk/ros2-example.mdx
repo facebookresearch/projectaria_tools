@@ -23,6 +23,10 @@ The ROS2 integration allows you to:
 - Basic familiarity with ROS2 concepts (nodes, topics, messages)
 - C++ compiler for building custom message types
 
+:::caution One-Time Setup: Device Authentication Required
+Before running any ROS2 examples that connect to the device, you **must** authenticate your device by running `aria_gen2 auth pair` (see [Device Authentication](/ark/client-sdk/authentication)). This only needs to be done **once** per device-PC combination, but **all device operations (streaming, recording, etc.) will fail without it**.
+:::
+
 ---
 
 ## Setup Steps

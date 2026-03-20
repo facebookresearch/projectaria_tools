@@ -66,6 +66,10 @@ You only need to authenticate once per device-PC combination. See [Device Authen
 
 ## Step 4a: Record Data
 
+:::caution Authentication Required
+Make sure you have completed [Step 3](#step-3-authenticate-your-device) (`aria_gen2 auth pair`) before proceeding. Recording and streaming commands will **not work** without authentication.
+:::
+
 Start a recording, collect data, then download it:
 
 ```bash
@@ -90,13 +94,21 @@ See [Recording Control](/ark/client-sdk/recording) for profiles and advanced opt
 
 ## Step 4b: Stream Data
 
+:::caution Authentication Required
+Make sure you have completed [Step 3](#step-3-authenticate-your-device) (`aria_gen2 auth pair`) before proceeding. Recording and streaming commands will **not work** without authentication.
+:::
+
+:::warning Start Streaming Before Opening Viewer
+You **must** start streaming **before** launching the viewer. The viewer connects to an already-active stream — if no stream is running, the viewer will **not** display any data.
+:::
+
 Stream sensor data in real time and visualize it:
 
 ```bash
-# Start streaming (USB)
+# Start streaming (USB) — MUST be done before opening viewer
 aria_gen2 streaming start
 
-# In a second terminal, open the viewer
+# In a second terminal, open the viewer (streaming must already be active)
 aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
 
 # When done, stop streaming

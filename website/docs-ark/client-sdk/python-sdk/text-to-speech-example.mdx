@@ -13,6 +13,10 @@ This example demonstrates how to programmatically send text-to-speech (TTS) comm
 - Device connected via USB and [authenticated](/ark/client-sdk/authentication)
 - [Example code exported](/ark/client-sdk/python-sdk/python-interface#export-example-code)
 
+:::caution One-Time Setup: Device Authentication Required
+Before running this example, you **must** authenticate your device by running `aria_gen2 auth pair` (see [Device Authentication](/ark/client-sdk/authentication)). This only needs to be done **once** per device-PC combination, but **all device operations (recording, streaming, TTS, etc.) will fail without it**.
+:::
+
 ## Quick Start
 
 Run the text-to-speech example script:

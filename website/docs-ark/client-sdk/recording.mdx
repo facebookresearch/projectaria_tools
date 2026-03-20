@@ -16,6 +16,10 @@ The ClientSDK provides comprehensive CLI tools to manage recordings on your Aria
 - Device [authenticated](/ark/client-sdk/authentication) with your PC
 - Device connected via USB
 
+:::caution One-Time Setup: Device Authentication Required
+Before using **any** recording commands, you **must** authenticate your device by running `aria_gen2 auth pair` (see [Device Authentication](/ark/client-sdk/authentication)). This only needs to be done **once** per device-PC combination, but **all recording and streaming operations will fail without it**. You can verify your authentication status at any time with `aria_gen2 auth check`.
+:::
+
 ## Available Recording Profiles
 
 Before starting a recording, you need to select a recording profile that defines the sensor configuration, data rates, resolutions, and encoding formats. Project Aria Gen2 offers several pre-defined profiles:

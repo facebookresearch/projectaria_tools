@@ -16,6 +16,10 @@ The ClientSDK provides powerful streaming capabilities that allow you to receive
 - Device [authenticated](/ark/client-sdk/authentication) with your PC
 - Device connected via USB (required to start/stop streaming, even for wireless methods)
 
+:::caution One-Time Setup: Device Authentication Required
+Before using **any** streaming commands, you **must** authenticate your device by running `aria_gen2 auth pair` (see [Device Authentication](/ark/client-sdk/authentication)). This only needs to be done **once** per device-PC combination, but **all streaming and recording operations will fail without it**. You can verify your authentication status at any time with `aria_gen2 auth check`.
+:::
+
 ## Overview
 
 Streaming enables you to access real-time data from your device:
@@ -83,14 +87,18 @@ Stream data over USB connection for maximum bandwidth and reliability. This is t
 
 ### Quick Start
 
+:::warning Start Streaming Before Opening Viewer
+You **must** start streaming (`aria_gen2 streaming start`) **before** launching `aria_streaming_viewer`. The viewer connects to an already-active stream — if no stream is running, the viewer will **not** display any data. Always start streaming first, then open the viewer in a separate terminal.
+:::
+
 ```bash
 # 1. Connect device via USB and verify connection
 aria_gen2 device list
 
-# 2. Start streaming
+# 2. Start streaming (MUST be done before opening viewer)
 aria_gen2 streaming start
 
-# 3. In another terminal, visualize the stream
+# 3. In another terminal, visualize the stream (streaming must already be active)
 aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
 
 # 4. When done, stop streaming
@@ -190,13 +198,13 @@ aria_gen2 device list
 
 # 2. Verify device is on WiFi (check Companion App)
 
-# 3. Start streaming with batch period for thermal management
+# 3. Start streaming with batch period for thermal management (MUST be done before opening viewer)
 #    Use 200ms batch period for a balance of latency and thermal performance
 aria_gen2 streaming start --batch-period-ms 200 --interface wifi_sta
 
 # 4. Unplug the USB cable - streaming will continue over WiFi
 
-# 5. In another terminal, visualize the stream
+# 5. In another terminal, visualize the stream (streaming must already be active)
 aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
 
 # 6. When done, plug the USB cable back in, then stop streaming
@@ -258,13 +266,13 @@ aria_gen2 device list
 
 # 3. Connect your computer to Aria's WiFi hotspot
 
-# 4. Start streaming with aggressive batching for thermal management
+# 4. Start streaming with aggressive batching for thermal management (MUST be done before opening viewer)
 #    800ms batch period is recommended to extend usable time
 aria_gen2 streaming start --batch-period-ms 800 --interface --wifi_sap
 
 # 5. Unplug the USB cable - streaming will continue over WiFi hotspot
 
-# 6. In another terminal, visualize the stream
+# 6. In another terminal, visualize the stream (streaming must already be active)
 aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
 
 # 7. When done, plug the USB cable back in, then stop streaming
@@ -317,6 +325,10 @@ aria_gen2 streaming stop
 ```
 
 ### Visualize Streaming Data
+
+:::warning Start Streaming Before Opening Viewer
+You **must** start streaming **before** launching the viewer. The viewer connects to an already-active stream — if no stream is running, the viewer will **not** display any data.
+:::
 
 Open the streaming viewer in a separate terminal while streaming is active:
 

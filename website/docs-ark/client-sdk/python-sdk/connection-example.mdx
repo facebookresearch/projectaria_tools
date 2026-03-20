@@ -13,6 +13,10 @@ This example demonstrates how to establish a connection to your Aria Gen2 device
 - Device connected via USB and [authenticated](/ark/client-sdk/authentication)
 - [Example code exported](/ark/client-sdk/python-sdk/python-interface#export-example-code)
 
+:::caution One-Time Setup: Device Authentication Required
+Before running this example, you **must** authenticate your device by running `aria_gen2 auth pair` (see [Device Authentication](/ark/client-sdk/authentication)). This only needs to be done **once** per device-PC combination, but the `device_client.connect()` call will **fail** without it.
+:::
+
 ## Quick Start
 
 Run the connection example script:

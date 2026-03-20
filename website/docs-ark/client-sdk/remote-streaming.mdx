@@ -15,6 +15,10 @@ Stream Aria Gen2 data directly to a remote server over the internet, without req
 - An HTTPS server accessible from the internet (public IP or domain)
 - Port 6768 open on the server firewall
 
+:::caution One-Time Setup: Device Authentication Required
+Before using **any** streaming or recording commands, you **must** authenticate your device by running `aria_gen2 auth pair` (see [Device Authentication](/ark/client-sdk/authentication)). This only needs to be done **once** per device-PC combination, but **all SDK operations will fail without it**. You can verify your authentication status at any time with `aria_gen2 auth check`.
+:::
+
 ## Overview
 
 By default, Aria streams data to a local development machine via USB or WiFi on the same network. With remote streaming, you can configure the glasses to send data directly to a cloud server over the internet.

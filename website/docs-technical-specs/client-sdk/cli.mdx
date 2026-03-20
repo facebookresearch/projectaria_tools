@@ -443,6 +443,10 @@ Visualize real-time streaming data from the device.
 
 This tool provides a live view of sensor data streams, including images, IMU data, and other sensor outputs.
 
+:::warning Start Streaming Before Opening Viewer
+You **must** start streaming (`aria_gen2 streaming start`) **before** launching `aria_streaming_viewer`. The viewer connects to an already-active stream — if no stream is running, the viewer will **not** display any data. Always start streaming first, then open the viewer in a separate terminal.
+:::
+
 **Options:**
 - `--real-time`: Enable real-time streaming mode with reduced queue sizes to minimize latency (default: disabled)
 - `--interpolate`: Interpolate hand pose data for smoother visualization (default: use closest data point)
