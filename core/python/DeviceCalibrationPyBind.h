@@ -732,7 +732,9 @@ inline void declareDevignetting(py::module& m) {
                 maskBuf.shape[1] * maskBuf.shape[2]);
         image::ManagedImage3F32 convertedDevignettingMask(maskBuf.shape[1], maskBuf.shape[0]);
         std::memcpy(
-            convertedDevignettingMask.data(), eigenMatrix.data(), maskBuf.size * sizeof(float));
+            static_cast<void*>(convertedDevignettingMask.data()),
+            eigenMatrix.data(),
+            maskBuf.size * sizeof(float));
 
         bool isRgb = srcImage.ndim() == 3 && srcImage.shape()[2] == 3;
         if (isRgb) {
