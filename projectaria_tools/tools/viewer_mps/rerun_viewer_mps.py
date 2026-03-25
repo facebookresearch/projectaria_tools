@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from threading import Event
 from typing import Callable, List, Optional, Tuple, Union
 
 import numpy as np
@@ -798,6 +799,7 @@ def log_mps_to_rerun(
     down_sampling_factor: int = 4,
     jpeg_quality: int = 75,
     rrd_output_path: Optional[str] = None,
+    stop_event: Optional[Event] = None,
 ) -> None:
     if rrd_output_path:
         print(f"Saving .rrd file to {rrd_output_path}")
@@ -916,6 +918,9 @@ def log_mps_to_rerun(
     progress_bar = tqdm(total=rgb_frame_count)
     # Iterate over the data and LOG data as we see fit
     for data in provider.deliver_queued_sensor_data(deliver_option):
+        if stop_event is not None and stop_event.is_set():
+            progress_bar.close()
+            break
         device_time_ns = data.get_time_ns(TimeDomain.DEVICE_TIME)
         rr.set_time("device_time", duration=device_time_ns * 1e-9)
         rr.set_time("timestamp", sequence=device_time_ns)

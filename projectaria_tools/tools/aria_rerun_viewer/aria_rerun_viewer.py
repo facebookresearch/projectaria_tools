@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import argparse
+from threading import Event
 from typing import Optional
 
 # Import different modules for internal and external
@@ -215,7 +216,12 @@ def plot_interpolated_hand_pose_in_image(
         )
 
 
-def plot_queued_sensor_data(vrs_data_provider, deliver_options, aria_data_viewer):
+def plot_queued_sensor_data(
+    vrs_data_provider,
+    deliver_options,
+    aria_data_viewer,
+    stop_event: Optional[Event] = None,
+):
     """
     Plot queued sensor data from VRS file
     """
@@ -229,6 +235,8 @@ def plot_queued_sensor_data(vrs_data_provider, deliver_options, aria_data_viewer
 
     # Loop over queued sensor data
     for data in tqdm(vrs_data_provider.deliver_queued_sensor_data(deliver_options)):
+        if stop_event is not None and stop_event.is_set():
+            break
         device_time_ns = data.get_time_ns(TimeDomain.DEVICE_TIME)
 
         # Current stream's stream_id and label
@@ -306,6 +314,7 @@ def log_vrs_to_rerun(
     enabled_streams: Optional[list[str]] = None,
     skip_begin_sec: Optional[float] = None,
     skip_end_sec: Optional[float] = None,
+    stop_event: Optional[Event] = None,
 ) -> None:
     # Step 1: Create VRS data provider
     vrs_data_provider: VrsDataProvider = create_vrs_data_provider(vrs)
@@ -351,7 +360,9 @@ def log_vrs_to_rerun(
     aria_data_viewer.plot_device_extrinsics()
 
     # Step 6: Plot queued sensor data
-    plot_queued_sensor_data(vrs_data_provider, deliver_options, aria_data_viewer)
+    plot_queued_sensor_data(
+        vrs_data_provider, deliver_options, aria_data_viewer, stop_event=stop_event
+    )
 
 
 def main():
