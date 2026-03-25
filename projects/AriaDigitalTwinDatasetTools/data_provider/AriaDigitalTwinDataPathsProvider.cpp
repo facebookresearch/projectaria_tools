@@ -256,7 +256,6 @@ void AriaDigitalTwinDataPathsProvider::loadSequenceMetaData() {
   if (!fs::exists(sequencePath_)) {
     XR_LOGE("sequence path does not exist: {}", sequencePath_);
     throw std::runtime_error{"invalid sequence path is provided"};
-    return;
   }
 
   fs::path fileMetadata = fs::path(sequencePath_) / fs::path(kMetadataFile);
