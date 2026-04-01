@@ -675,34 +675,34 @@ class AriaDataViewer:
         rr.send_columns(
             f"{label}/accl/x[m-sec2]",
             indexes=[rr.TimeColumn("device_time", timestamp=timestamps * 1e-9)],
-            columns=[rr.components.ScalarBatch(accel_data[:, 0])],
+            columns=rr.Scalars.columns(scalars=accel_data[:, 0]),
         )
         rr.send_columns(
             f"{label}/accl/y[m-sec2]",
             indexes=[rr.TimeColumn("device_time", timestamp=timestamps * 1e-9)],
-            columns=[rr.components.ScalarBatch(accel_data[:, 1])],
+            columns=rr.Scalars.columns(scalars=accel_data[:, 1]),
         )
         rr.send_columns(
             f"{label}/accl/z[m-sec2]",
             indexes=[rr.TimeColumn("device_time", timestamp=timestamps * 1e-9)],
-            columns=[rr.components.ScalarBatch(accel_data[:, 2])],
+            columns=rr.Scalars.columns(scalars=accel_data[:, 2]),
         )
 
         # Log gyroscope data
         rr.send_columns(
             f"{label}/gyro/x[rad-sec]",
             indexes=[rr.TimeColumn("device_time", timestamp=timestamps * 1e-9)],
-            columns=[rr.components.ScalarBatch(gyro_data[:, 0])],
+            columns=rr.Scalars.columns(scalars=gyro_data[:, 0]),
         )
         rr.send_columns(
             f"{label}/gyro/y[rad-sec]",
             indexes=[rr.TimeColumn("device_time", timestamp=timestamps * 1e-9)],
-            columns=[rr.components.ScalarBatch(gyro_data[:, 1])],
+            columns=rr.Scalars.columns(scalars=gyro_data[:, 1]),
         )
         rr.send_columns(
             f"{label}/gyro/z[rad-sec]",
             indexes=[rr.TimeColumn("device_time", timestamp=timestamps * 1e-9)],
-            columns=[rr.components.ScalarBatch(gyro_data[:, 2])],
+            columns=rr.Scalars.columns(scalars=gyro_data[:, 2]),
         )
 
     def plot_imu(self, imu_data, label):
@@ -833,11 +833,9 @@ class AriaDataViewer:
                         * 1e-9,
                     )
                 ],
-                columns=[
-                    rr.components.ScalarBatch(
-                        sampled_vectors[c][:: self.config.audio_subsample_rate]
-                    )
-                ],
+                columns=rr.Scalars.columns(
+                    scalars=sampled_vectors[c][:: self.config.audio_subsample_rate]
+                ),
             )
 
     def plot_audio(self, audio_data_and_record, num_audio_channels):
