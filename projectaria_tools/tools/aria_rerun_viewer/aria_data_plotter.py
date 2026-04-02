@@ -151,6 +151,9 @@ class AriaDataViewerConfig:
     # launch Rerun with this blueprint and skip the auto-generated layout.
     blueprint_path: Optional[str] = None
 
+    # Whether to show latency plot in the blueprint (only relevant for streaming)
+    show_latency: bool = False
+
 
 class AriaDataViewer:
     """
@@ -436,11 +439,23 @@ class AriaDataViewer:
         contact_mic_1d_view = rrb.TimeSeriesView(
             origin=self.sensor_labels.contact_microphone_label
         )
+
+        # Create latency view if enabled (for streaming use case)
+        latency_views = []
+        if self.config.show_latency:
+            latency_views = [
+                rrb.TimeSeriesView(
+                    name="Latency",
+                    origin="latency",
+                )
+            ]
+
         updated_1d_view_container = rrb.Vertical(
             _1d_view_container.contents[0],  # IMU plots
             _1d_view_container.contents[1],  # mic
             contact_mic_1d_view,  # contact mic
             _1d_view_container.contents[2],  # Tabbed baro + mag
+            *latency_views,  # latency (optional, for streaming)
         )
 
         # Create final horizontal blueprint layout.
