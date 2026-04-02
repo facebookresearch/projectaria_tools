@@ -91,10 +91,7 @@ jobs:
             cibw_build: "cp311-*"
           - python-version: "3.12"
             cibw_build: "cp312-*"
-          # Add matrix entries: Python ["3.8", "3.9"] to [ubuntu-latest]
-          - os: ubuntu-22.04
-            python-version: "3.8"
-            cibw_build: "cp38-*"
+          # Add matrix entries: Python 3.9 to ubuntu-22.04
           - os: ubuntu-22.04
             python-version: "3.9"
             cibw_build: "cp39-*"
