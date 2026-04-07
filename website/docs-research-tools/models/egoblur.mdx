@@ -23,16 +23,50 @@ For recordings captured by Aria Gen2 devices, we provide both face and license p
 * EgoBlur Research Paper - [EgoBlur: Responsible Innovation in Aria](https://arxiv.org/abs/2308.13093)
 * EgoBlur FAQ, at the bottom of [projectaria.com/tools/egoblur](https://www.projectaria.com/tools/egoblur/)
 
+## Prerequisites
+
+### Installation
+
+Please refer to https://github.com/facebookresearch/EgoBlur/blob/main/README.md#installation.
+
+This installs the EgoBlur Python package, which includes the `egoblur` CLI for images/videos and the `egoblur-vrs-blur` CLI for VRS files.
+
+### Model Downloads
+
+The face and license plate detector models (~400 MB each) must be downloaded separately from the [EgoBlur GitHub repository](https://github.com/facebookresearch/EgoBlur). See the [EgoBlur README](https://github.com/facebookresearch/EgoBlur/blob/main/README.md) for download links and instructions.
+
+### Supported Environments
+
+| OS / Platform                 | OS / Distro Details                                                        | CUDA Toolkit | Supported Python Versions |
+| :---------------------------- | :------------------------------------------------------------------------- | :----------- | :------------------------ |
+| Linux (x64)                   | Fedora **43**; Ubuntu **20.04 LTS** / **22.04 LTS** / **24.04 LTS**       | 12.8         | 3.10 – 3.12              |
+| macOS (Apple Silicon / ARM64) | macOS **>=14 (Sonoma)**                                                   | CPU only     | 3.10 – 3.12            |
+
+:::note
+We do not recommend running EgoBlur on macOS. The models run on CPU only on Mac (no CUDA support), which results in very slow inference. For best performance, use a Linux machine with a CUDA-capable GPU.
+:::
+
 ## Getting Started
 
-To demonstrate how EgoBlur models can be applied and to support privacy-preserving research we provide:
+EgoBlur provides two tools for applying face and license plate blurring:
 
-* EgoBlur Demo - Python3 tool for working with PNG, JPEG or MP4 files
-    * Go to the [EgoBlur Readme](https://github.com/facebookresearch/EgoBlur/blob/main/README.md) for detailed instructions
-    * Supported environment:
-        - Python version: 3.10-3.12
-        - Platform: Fedora 43, Ubuntu 20.04, Ubuntu 22.04, Ubuntu 24.04, MacOS-14, MacOS-15
-        - CUDA toolkit (optional): version 12.8. If CUDA is unavailable—either because it’s not supported on the platform (e.g., macOS) or not installed—then inference will run on the CPU.
+### EgoBlur Demo
 
-* EgoBlur VRS Utilities - C++ tool for working with Aria Gen2 VRS files
-    * Coming soon
+Python3 tool for blurring faces and license plates in PNG, JPEG, or MP4 files. The tool takes input image/video files and produces blurred output files in the same format.
+
+Go to the [EgoBlur README](https://github.com/facebookresearch/EgoBlur/blob/main/README.md) for detailed usage instructions and examples.
+
+### End-to-end VRS Blur (Gen2)
+
+Python tool for blurring faces and license plates directly in Aria Gen2 VRS files (new in `egoblur` 2.0.1). The `egoblur-vrs-blur` CLI reads camera streams, runs detection, applies blur, and writes everything back into a single output VRS file. Non-camera streams (IMU, VIO, barometer, eye tracking, etc.) are copied verbatim.
+
+```bash
+egoblur-vrs-blur \
+  --input_vrs_path /path/to/input.vrs \
+  --output_vrs_path /path/to/output.vrs \
+  --face_model_path /path/to/ego_blur_face_gen2.jit \
+  --lp_model_path /path/to/ego_blur_lp_gen2.jit \
+  --batch_size 5
+```
+
+Run `egoblur-vrs-blur --help` for the full list of options.
