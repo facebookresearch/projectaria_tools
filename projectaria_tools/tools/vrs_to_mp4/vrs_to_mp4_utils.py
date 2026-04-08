@@ -21,9 +21,7 @@ import tempfile
 from typing import List
 
 import numpy as np
-from moviepy.audio.AudioClip import AudioClip
-from moviepy.editor import AudioFileClip
-from moviepy.video.io.VideoFileClip import VideoClip
+from moviepy import AudioClip, AudioFileClip, VideoClip
 from PIL import Image
 from projectaria_tools.core import data_provider
 from projectaria_tools.core.calibration import DeviceVersion
@@ -165,7 +163,7 @@ def convert_vrs_to_mp4(
         audio_clip = AudioFileClip(
             temp_audio_file,
         )
-        video_writer_clip = video_writer_clip.set_audio(audio_clip)
+        video_writer_clip = video_writer_clip.with_audio(audio_clip)
         audio_writer_clip.close()
 
     video_writer_clip.write_videofile(temp_video_file, fps=converter.video_fps())

@@ -156,25 +156,19 @@ def main():
         zip_safe=False,
         python_requires=">=3.8",
         install_requires=[
+            "jupyter",
+            "matplotlib",
+            "moviepy>=2.0",
             "numpy",
-            "requests",  # Required for datasets downloader
+            "pandas",
+            "pillow",
+            "plotly",
+            "requests",
+            "rerun-notebook==0.26.2",
             "rerun-sdk==0.26.2",
+            "scipy",
             "tqdm",
         ],
-        extras_require={
-            "all": [
-                ## Required for tutorial/quickstart notebooks
-                "jupyter",
-                "matplotlib",
-                "pandas",
-                "pillow",
-                "plotly",
-                "scipy",
-                "rerun-notebook==0.26.2",
-                ## Required for vrs_to_mp4
-                "moviepy==1.0.3",
-            ]
-        },
         entry_points={
             "console_scripts": [
                 "aria_dataset_downloader = projectaria_tools.tools.dataset_downloader.dataset_downloader_main:main",
