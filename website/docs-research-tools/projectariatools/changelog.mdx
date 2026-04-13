@@ -6,6 +6,20 @@ title: Changelog
 # Changelog
 
 ---
+## Version 2.1.2
+
+### New Features
+
+- Added `--show-latency` flag to `aria_streaming_viewer` that displays a TimeSeriesView panel for latency metrics in the Rerun UI
+- Added `--blueprint` CLI flag to load custom Rerun blueprint (`.rbl`) files, with automatic preservation on stream reconnection
+- Added robust SVD-based method for computing device-to-CPF transformation
+
+### Improvements
+
+- Migrated to Rerun SDK 0.26.2: unified `rr.set_time()` API, renamed archetypes to plural forms, and switched from TCP to gRPC transport
+- Migrated `vrs_to_mp4` from moviepy 1.0.3 to 2.x and flattened setup.py dependencies
+
+---
 ## Version 2.1.1
 
 ### Improvements
