@@ -17,6 +17,7 @@
 #pragma once
 
 #include <cmath>
+#include <string_view>
 
 #include <calibration/camera_projections/Common.h>
 
@@ -40,8 +41,8 @@ class KannalaBrandtK3Projection {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   static constexpr int kNumParams = 8;
-  static constexpr char kName[] = "KannalaBrandtK3";
-  static constexpr char kDescription[] = "fx, fy, cx, cy, kb0, kb1, kb2, kb3";
+  static constexpr std::string_view kName = "KannalaBrandtK3";
+  static constexpr std::string_view kDescription = "fx, fy, cx, cy, kb0, kb1, kb2, kb3";
   static constexpr int kNumDistortionParams = 4;
   static constexpr int kFocalXIdx = 0;
   static constexpr int kFocalYIdx = 1;
