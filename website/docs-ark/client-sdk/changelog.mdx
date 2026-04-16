@@ -9,6 +9,85 @@ This page tracks the version history and changes made to the Aria Gen2 ClientSDK
 
 ---
 
+## Version 2.3.0
+
+**Release Date:** Apr 2026
+
+### New Features
+
+#### Multi-Device Support
+
+Refactored device connectivity to support connecting multiple Aria Gen 2 devices simultaneously.
+
+**Key additions:**
+- `DeviceTarget` struct bundling IP and serial for streamlined device identification
+- `usb_network_devices()` returns `List[DeviceTarget]` for direct use with `connect()`
+- CLI supports `--serial` flag to specify a target device
+- Auto-prompts when multiple devices are detected
+
+#### Real-Time Latency Measurement
+
+Added real-time latency measurement to the `aria_streaming_viewer`.
+
+**Key additions:**
+- Re-enabled TicSync time synchronization
+- `TimeSyncRef` Python binding with `compute_latency_ms()`, `is_connected()`, and `is_valid()` methods
+- CLI flags: `--show-latency` and `--latency-offset-ms`
+
+#### Multi-Device Streaming Cert Install
+
+The CLI `streaming install-certs` command now supports batch certificate installation across multiple devices.
+
+**Key additions:**
+- `--device` option for specifying target devices
+- Certificates generated once and installed on all specified devices
+
+#### Recording List API
+
+`listRecordings()` now returns `List[RecordingInfo]` with uuid, size, and metadata, enabling Python scripts to directly retrieve and process recording lists.
+
+#### Recording State Query API
+
+Added APIs for querying the current recording state of a device.
+
+**Key additions:**
+- `is_recording()` and `get_recording_state()` APIs
+- `RecordingState` data class with `is_recording`, `recording_name`, `start_time_ms`, and `profile_name` fields
+- Enables Aria Studio and Companion App recording state synchronization
+
+#### Thumbnail Download API
+
+Added APIs for downloading recording thumbnails.
+
+**Key additions:**
+- `download_thumbnail(uuid, output_path)` for downloading a single thumbnail
+- `download_all_thumbnails(uuid, output_dir)` for batch downloading
+- Thumbnail naming matches VRS files (e.g., `example_recording_20230101_123456_thumbnail_0.jpeg`)
+
+#### Device Profiles API for Python
+
+Added `device_profiles()` API to the Python SDK for retrieving device recording profiles.
+
+#### Online Calibration Streaming
+
+VIO data stream now includes real-time Online Calibration state.
+
+**Key additions:**
+- `FrontendOutput.online_calib` containing:
+  - Camera projection model parameters (real-time updated intrinsics)
+  - IMU biases (accelerometer/gyroscope offsets)
+- Full Python SDK support for `OnlineCalibState`, `ProjectionModelParameters`, and `ImuMeasurementModelParametersFloat`
+
+#### Custom Streaming Profile Support
+
+The `device_streaming.py` example now supports custom streaming profiles.
+
+**Key additions:**
+- `--profile-name` argument for selecting a named profile
+- `--custom-profile-path` argument for using a custom JSON profile
+
+---
+
 ## Version 2.2.0
 
 **Release Date:** Dec 2025
