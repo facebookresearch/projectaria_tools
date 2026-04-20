@@ -244,6 +244,44 @@ Always use `--batch-period-ms` to prevent device overheating during remote strea
 
 ---
 
+## VPN and Firewall Limitations
+
+:::warning Aria Glasses Cannot Use VPN
+Aria glasses do not support VPN connections. If your server is behind a corporate VPN or firewall, the glasses cannot reach it directly over the internet.
+:::
+
+### The Problem
+
+When your streaming server is on a corporate network protected by VPN:
+
+```
+┌─────────────────┐     Internet      ┌─────────────────┐     VPN      ┌─────────────────┐
+│  Aria Glasses   │ ────────────────► │    VPN Wall     │ ──────────►  │  Your Server    │
+│                 │                   │   ❌ BLOCKED    │              │  (behind VPN)   │
+└─────────────────┘                   └─────────────────┘              └─────────────────┘
+```
+
+The glasses connect to the internet via WiFi but have no way to establish a VPN tunnel to reach internal servers.
+
+### Solution: Public Relay
+
+Deploy a publicly accessible relay server (gateway) that forwards traffic through an encrypted tunnel to your backend server:
+
+```
+┌─────────────────┐   Internet   ┌─────────────────┐  Encrypted Tunnel  ┌─────────────────┐
+│  Aria Glasses   │ ──────────►  │  Public Relay   │ ─────────────────► │  Your Server    │
+│                 │  HTTPS POST  │   (Gateway)     │   (SSH/WireGuard)  │  (behind VPN)   │
+└─────────────────┘              └─────────────────┘                    └─────────────────┘
+```
+
+**Implementation options:**
+
+1. **Cloud VM as relay**: Deploy a small VM (e.g., AWS EC2, GCP) with a public IP that tunnels to your internal server via SSH or WireGuard
+2. **Reverse proxy**: Use a cloud-based reverse proxy that your internal server connects to outbound
+
+
+---
+
 ## Troubleshooting
 
 ### No data received at server
