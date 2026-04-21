@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-14]  # macos-14 is macSilicon
+        os: [ubuntu-latest, macos-14]  # macos-14 is macSilicon
         project: [
           PROJECTARIA_TOOLS_BUILD_PROJECTS_ADT,
           PROJECTARIA_TOOLS_BUILD_TOOLS]
@@ -41,7 +41,7 @@ jobs:
               # Install VRS dependencies
               sudo apt-get install -o Acquire::Retries=5 \
                 libfmt-dev \
-                libturbojpeg-dev libpng-dev \
+                libjpeg-dev libturbojpeg-dev libpng-dev \
                 liblz4-dev libzstd-dev libxxhash-dev \
                 libboost-date-time-dev \
                 libboost-filesystem-dev \
