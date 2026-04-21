@@ -17,7 +17,7 @@ on:
 jobs:
   build-stubs:
     name: Build Python stubs
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -46,7 +46,7 @@ jobs:
             sudo apt-get install -o Acquire::Retries=5 \
               libgtest-dev libgmock-dev \
               libfmt-dev \
-              libturbojpeg-dev libpng-dev \
+              libjpeg-dev libturbojpeg-dev libpng-dev \
               liblz4-dev libzstd-dev libxxhash-dev \
               libboost-date-time-dev \
               libboost-filesystem-dev \
@@ -80,7 +80,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14, ubuntu-22.04] # macos-14 is macSilicon
+        os: [macos-14, ubuntu-latest] # macos-14 is macSilicon
         python-version: ["3.10", "3.11", "3.12"]
         # Default consider only Python >=3.10 since actions/setup-python supports only python<3.10 and mac-silicon
         # Other Python versions are added below as matrix entries
@@ -91,8 +91,8 @@ jobs:
             cibw_build: "cp311-*"
           - python-version: "3.12"
             cibw_build: "cp312-*"
-          # Add matrix entries: Python 3.9 to ubuntu-22.04
-          - os: ubuntu-22.04
+          # Add matrix entries: Python 3.9 to ubuntu-latest
+          - os: ubuntu-latest
             python-version: "3.9"
             cibw_build: "cp39-*"
 
@@ -116,7 +116,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install cibuildwheel==2.17.0
       - name: Install ffmpeg dependency lib
-        if: ${{ (matrix.os == 'macos-14') || (matrix.os == 'ubuntu-22.04') }}
+        if: ${{ (matrix.os == 'macos-14') || (matrix.os == 'ubuntu-latest') }}
         shell: bash
         run: |
           ./build_third_party_libs/build_ffmpeg_linuxunix.sh
@@ -131,7 +131,7 @@ jobs:
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_* *x86_64*"
           CIBW_ARCHS: "arm64"
       - name: Build wheels for CPython
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         shell: bash
         run: |
           CMAKE_BUILD_PARALLEL_LEVEL=4 python -m cibuildwheel --output-dir dist
