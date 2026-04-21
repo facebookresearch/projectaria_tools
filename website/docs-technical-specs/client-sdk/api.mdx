@@ -7,6 +7,25 @@ title: Application Programming Interface
 
 This page provides a comprehensive reference for the Aria Client SDK Python API, which enables control and data streaming from Aria devices.
 
+## Utility Functions
+
+### `set_log_level(level: Level) -> None`
+
+Set the SDK log verbosity level.
+
+**Parameters:**
+- `level` (Level): The desired log level
+
+**Example:**
+```python
+import aria.sdk_gen2 as sdk_gen2
+from aria.sdk import Level
+
+sdk_gen2.set_log_level(Level.INFO)
+```
+
+---
+
 ## Core Classes
 
 ### DeviceClient
@@ -23,17 +42,23 @@ Creates a new DeviceClient instance.
 
 #### Methods
 
-##### `authenticate()`
+##### `authenticate(target: DeviceTarget = DeviceTarget()) -> str`
 
 Authenticate with the device using credentials.
+
+**Parameters:**
+- `target` (DeviceTarget, optional): Target device to authenticate with. Defaults to an empty DeviceTarget (auto-detect).
 
 **Returns:** Certificate hash pushed to the device (str)
 
 **Raises:** `RuntimeError` if authentication fails
 
-##### `connect()`
+##### `connect(target: DeviceTarget = DeviceTarget()) -> Device`
 
 Establish a connection to an Aria device.
+
+**Parameters:**
+- `target` (DeviceTarget, optional): Target device to connect to. Defaults to an empty DeviceTarget (auto-detect).
 
 **Returns:** `Device` object representing the connected device
 
@@ -48,13 +73,19 @@ Check if a device is currently connected.
 
 **Returns:** `bool` - True if connected, False otherwise
 
-##### `usb_network_devices()`
+##### `usb_network_devices() -> List[DeviceTarget]`
 
 Get a list of devices available via USB network connection.
 
-**Returns:** List of available USB network devices
+**Returns:** List of `DeviceTarget` objects
 
 **Raises:** `RuntimeError` if unable to query devices
+
+##### `usb_devices() -> List[Any]`
+
+Get a list of USB devices.
+
+**Returns:** List of USB device objects
 
 ##### `active_connections() -> List[Device]`
 
@@ -72,6 +103,13 @@ Disconnect from a specific device.
 ##### `disconnect_all() -> None`
 
 Disconnect from all connected devices.
+
+##### `set_recording_manager_tls(enable_tls: bool) -> None`
+
+Enable or disable TLS for the recording manager.
+
+**Parameters:**
+- `enable_tls` (bool): Whether to enable TLS
 
 ##### `set_client_config(config: DeviceClientConfig) -> None`
 
@@ -94,15 +132,15 @@ Get the unique connection identifier for this device.
 
 **Returns:** String connection ID
 
-##### `status()`
+##### `status() -> DeviceStatus`
 
 Get current device status.
 
-**Returns:** Device status object
+**Returns:** `DeviceStatus` object
 
 **Raises:** `RuntimeError` if unable to retrieve device status
 
-##### `serial()`
+##### `serial() -> str`
 
 Get the device serial number.
 
@@ -128,6 +166,18 @@ Stop streaming data from the device.
 
 **Raises:** `RuntimeError` if unable to stop streaming
 
+##### `is_streaming() -> bool`
+
+Check if the device is currently streaming.
+
+**Returns:** `bool` - True if streaming, False otherwise
+
+##### `get_streaming_info() -> StreamingInfo`
+
+Get information about the current streaming session.
+
+**Returns:** `StreamingInfo` object
+
 ##### `set_streaming_config(streaming_config: HttpStreamingConfig) -> None`
 
 Configure streaming settings.
@@ -135,20 +185,12 @@ Configure streaming settings.
 **Parameters:**
 - `streaming_config` (HttpStreamingConfig): Streaming configuration object
 
-##### `install_streaming_certs()`
+##### `install_streaming_certs(streaming_certificates: Optional[StreamingCertsPem] = None)`
 
-Install default streaming certificates on the device.
-
-**Returns:** None
-
-**Raises:** `RuntimeError` if certificate installation fails
-
-##### `install_streaming_certs(streaming_certificates: StreamingCertsPem)`
-
-Install custom streaming certificates on the device.
+Install streaming certificates on the device. If no certificates are provided, default certificates are installed.
 
 **Parameters:**
-- `streaming_certificates` (StreamingCertsPem): Custom certificates in PEM format
+- `streaming_certificates` (StreamingCertsPem, optional): Custom certificates in PEM format. Defaults to None (uses default certs).
 
 **Returns:** None
 
@@ -171,7 +213,7 @@ Configure recording settings.
 **Parameters:**
 - `recording_config` (RecordingConfig): Recording configuration object
 
-##### `start_recording()`
+##### `start_recording() -> str`
 
 Start recording on the device.
 
@@ -187,22 +229,40 @@ Stop the current recording.
 
 **Raises:** `RuntimeError` if unable to stop recording
 
-##### `list_recordings()`
+##### `is_recording() -> bool`
 
-Print a list of all recordings on the device.
+Check if the device is currently recording.
 
-**Returns:** None
+**Returns:** `bool` - True if recording, False otherwise
+
+##### `get_recording_state() -> RecordingState`
+
+Get the current recording state of the device.
+
+**Returns:** `RecordingState` object with recording details
+
+##### `get_device_session_state() -> DeviceSessionState`
+
+Get the combined recording and streaming session state.
+
+**Returns:** `DeviceSessionState` object
+
+##### `list_recordings() -> List[RecordingInfo]`
+
+Get a list of all recordings on the device.
+
+**Returns:** List of `RecordingInfo` objects
 
 **Raises:** `RuntimeError` if unable to list recordings
 
-##### `recording_info(uuid: str)`
+##### `recording_info(uuid: str) -> RecordingInfo`
 
-Print detailed information about a specific recording.
+Get detailed information about a specific recording.
 
 **Parameters:**
 - `uuid` (str): Recording UUID
 
-**Returns:** None
+**Returns:** `RecordingInfo` object
 
 **Raises:** `RuntimeError` if recording not found or unable to retrieve info
 
@@ -247,6 +307,39 @@ Delete all recordings from the device.
 **Returns:** None
 
 **Raises:** `RuntimeError` if unable to delete recordings
+
+##### `download_thumbnail(uuid: str, output_path: str = "")`
+
+Download a thumbnail for a specific recording.
+
+**Parameters:**
+- `uuid` (str): Recording UUID
+- `output_path` (str, optional): Local path to save the thumbnail. Defaults to current directory.
+
+**Returns:** None
+
+##### `download_all_thumbnails(uuid: str, output_dir: str = "")`
+
+Download all thumbnails for a specific recording.
+
+**Parameters:**
+- `uuid` (str): Recording UUID
+- `output_dir` (str, optional): Local directory to save thumbnails. Defaults to current directory.
+
+**Returns:** None
+
+##### `set_file_conflict_action(action: FileConflictAction) -> None`
+
+Set the action to take when a file conflict occurs during download.
+
+**Parameters:**
+- `action` (FileConflictAction): The conflict resolution action
+
+##### `device_profiles() -> Dict[str, DataFlowProfileList]`
+
+Get the device's recording profiles.
+
+**Returns:** Dictionary mapping profile category names to `DataFlowProfileList` objects
 
 #### Text-to-Speech Methods
 
@@ -294,9 +387,20 @@ Save streaming data to a VRS file.
 **Parameters:**
 - `vrs_path` (str): Path where VRS file from received streaming data will be saved
 
+##### `clear_callbacks() -> None`
+
+Remove all registered callbacks.
+
 ##### Callback Registration Methods
 
 The following methods register callbacks for different data types:
+
+##### `register_raw_message_callback(callback: Callable)`
+
+Register callback for raw messages before they are decoded.
+
+**Parameters:**
+- `callback` (Callable): Function called for each raw message
 
 ##### `register_imu_callback(callback: Callable)`
 
@@ -367,6 +471,41 @@ Register callback for magnetometer data.
 
 **Parameters:**
 - `callback` (Callable): Function `callback(motion_data: projectaria_tools.core.sensor_data.MotionData, sensor_label: str)` called for magnetometer samples
+
+##### `register_gps_callback(callback: Callable)`
+
+Register callback for GPS/GNSS data.
+
+**Parameters:**
+- `callback` (Callable): Function called for GPS samples
+
+##### `register_phone_location_callback(callback: Callable)`
+
+Register callback for companion phone location data.
+
+**Parameters:**
+- `callback` (Callable): Function called for phone location samples
+
+##### `register_ppg_callback(callback: Callable)`
+
+Register callback for PPG (photoplethysmogram) data.
+
+**Parameters:**
+- `callback` (Callable): Function called for PPG samples
+
+##### `register_bluetooth_beacon_callback(callback: Callable)`
+
+Register callback for Bluetooth beacon data.
+
+**Parameters:**
+- `callback` (Callable): Function called for Bluetooth beacon scans
+
+##### `register_wifi_beacon_callback(callback: Callable)`
+
+Register callback for WiFi beacon data.
+
+**Parameters:**
+- `callback` (Callable): Function called for WiFi beacon scans
 
 ##### `register_vio_callback(callback: Callable)`
 
@@ -531,16 +670,46 @@ Get the queue size for hand pose data.
 
 ## Configuration Classes
 
+### DeviceClientConfig
+
+Configuration for the device client.
+
+**Attributes:**
+- `reconnection_attempts` (int): Number of reconnection attempts
+- `enable_device_monitoring` (bool): Enable automatic device monitoring
+
+### DeviceTarget
+
+Identifies a specific device by IP address and/or serial number.
+
+**Constructor:**
+```python
+DeviceTarget(ip: str = "", serial: str = "")
+```
+
+**Parameters:**
+- `ip` (str, optional): Device IP address. Defaults to "".
+- `serial` (str, optional): Device serial number. Defaults to "".
+
+**Attributes:**
+- `ip` (str): Device IP address
+- `serial` (str): Device serial number
+
+**Methods:**
+- `empty() -> bool`: Returns True if both ip and serial are empty
+
 ### HttpStreamingConfig
 
 Configuration for HTTP-based streaming.
 
 **Attributes:**
 - `profile_name` (str): Name of the streaming profile to use
+- `profile_json` (str): Custom streaming profile in JSON format
 - `streaming_cert_name` (str): Name of the streaming certificate
 - `streaming_interface` (StreamingInterface): Network interface to use for streaming
 - `security_options` (StreamingSecurityOptions): Security settings for streaming
 - `advanced_config` (HttpStreamerConfig): Advanced streaming configuration
+- `batch_period_ms` (int): Batch period in milliseconds
 - `keep_streaming_on_disconnection` (bool): Continue streaming if disconnected
 
 ### RecordingConfig
@@ -551,6 +720,7 @@ Configuration for on-device recording.
 - `profile_name` (str): Name of the recording profile to use
 - `custom_profile` (str): Custom recording profile in JSON format
 - `recording_name` (str): Name for the recording
+- `recording_type` (RecordingType): Type of recording
 
 ### StreamingCertsPem
 
@@ -581,6 +751,127 @@ HTTP endpoint configuration.
 
 ---
 
+## Data Classes
+
+### RecordingInfo
+
+Information about a recording on the device.
+
+**Attributes:**
+- `name` (str): Recording name
+- `size` (int): Recording size in bytes
+- `metadata` (str): Recording metadata
+
+### RecordingState
+
+Current recording state of a device.
+
+**Attributes:**
+- `is_recording` (bool): Whether the device is currently recording
+- `recording_name` (Optional[str]): Name of the current recording
+- `start_time_ms` (Optional[int]): Recording start time in milliseconds
+- `profile_name` (Optional[str]): Name of the recording profile in use
+
+### StreamingInfo
+
+Current streaming state of a device.
+
+**Attributes:**
+- `is_streaming` (bool): Whether the device is currently streaming
+- `start_time_ms` (Optional[int]): Streaming start time in milliseconds
+- `profile_name` (Optional[str]): Name of the streaming profile in use
+- `streaming_interface` (Optional[str]): Network interface being used
+
+### DeviceSessionState
+
+Combined recording and streaming session state.
+
+**Attributes:**
+- `recording` (RecordingState): Current recording state
+- `streaming` (StreamingInfo): Current streaming state
+
+### RecordingProfile
+
+A named recording profile available on the device.
+
+**Attributes:**
+- `name` (str): Profile name
+- `description` (str): Profile description
+
+### DataFlowProfileList
+
+A collection of recording profiles with a hash identifier.
+
+**Attributes:**
+- `hash` (str): Hash identifying this profile list version
+- `profiles` (List[RecordingProfile]): List of available recording profiles
+
+### DeviceStatus
+
+Comprehensive device status information.
+
+**Attributes:**
+- `battery_level` (int): Battery level percentage
+- `charger_connected` (bool): Whether a charger is connected
+- `charging` (bool): Whether the device is actively charging
+- `wifi_enabled` (bool): Whether WiFi is enabled
+- `wifi_configured` (bool): Whether WiFi is configured
+- `wifi_connected` (bool): Whether WiFi is connected
+- `wifi_ip_address` (str): WiFi IP address
+- `wifi_device_name` (str): WiFi device name
+- `wifi_ssid` (str): Connected WiFi SSID
+- `logged_in` (bool): Whether a user is logged in
+- `developer_mode` (bool): Whether developer mode is enabled
+- `thermal_mitigation_triggered` (bool): Whether thermal mitigation is active
+- `skin_temp_celsius` (float): Device skin temperature in Celsius
+- `default_recording_profile` (str): Name of the default recording profile
+- `is_recording_allowed` (bool): Whether recording is currently allowed
+- `device_mode` (str): Current device mode
+
+### TimeSyncRef
+
+Reference for time synchronization between host and device.
+
+#### Constructor
+
+```python
+TimeSyncRef()
+```
+
+#### Methods
+
+##### `is_connected() -> bool`
+
+Check if time synchronization is connected.
+
+**Returns:** `bool` - True if connected
+
+##### `is_valid() -> bool`
+
+Check if time synchronization data is valid.
+
+**Returns:** `bool` - True if valid
+
+##### `remote_timestamp_ns_from_local(local_ns: int) -> int`
+
+Convert a local timestamp to remote device timestamp.
+
+**Parameters:**
+- `local_ns` (int): Local timestamp in nanoseconds
+
+**Returns:** Remote timestamp in nanoseconds (int)
+
+##### `compute_latency_ms(capture_timestamp_ns: int) -> float`
+
+Compute the latency between capture and reception.
+
+**Parameters:**
+- `capture_timestamp_ns` (int): Capture timestamp in nanoseconds
+
+**Returns:** Latency in milliseconds (float)
+
+---
+
 ## HTTP Server Classes
 
 ### AriaGen2HttpServer
@@ -590,12 +881,13 @@ HTTP server for receiving streaming data from devices.
 #### Constructor
 
 ```python
-AriaGen2HttpServer(config: HttpServerConfig, handler_factory: AriaGen2HandlerFactory)
+AriaGen2HttpServer(config: HttpServerConfig, handler: Any, time_sync_ref: Optional[TimeSyncRef] = None)
 ```
 
 **Parameters:**
 - `config` (HttpServerConfig): Server configuration
-- `handler_factory` (AriaGen2HandlerFactory): Factory for creating stream handlers
+- `handler` (Any): Stream data handler (e.g., a `StreamDataInterface` instance)
+- `time_sync_ref` (TimeSyncRef, optional): Time synchronization reference for latency measurement. Defaults to None.
 
 #### Methods
 
@@ -630,21 +922,6 @@ Server SSL certificate configuration.
 - `key` (str): Private key in PEM format
 - `key_password` (str): Password for the private key
 
-### AriaGen2HandlerFactory
-
-Factory for creating stream data handlers.
-
-#### Methods
-
-##### `create_factory_handler(handler_object: StreamDataInterface) -> AriaGen2HandlerFactory`
-
-Create a handler factory from a StreamDataInterface object.
-
-**Parameters:**
-- `handler_object` (StreamDataInterface): Stream data interface instance
-
-**Returns:** AriaGen2HandlerFactory instance
-
 ---
 
 ## Enumerations
@@ -664,7 +941,19 @@ Available network interfaces for streaming.
 Types of recordings.
 
 **Values:**
+- `RECORDING_TYPE_REAL` - Real recording
+- `RECORDING_TYPE_TEST` - Test recording
 - `RECORDING_TYPE_PROTOTYPE` - Prototype recording
+
+### FileConflictAction
+
+Actions to take when a file conflict occurs during download.
+
+**Values:**
+- `UNDEFINED` - No action defined
+- `KEEP_BOTH` - Keep both files
+- `REPLACE` - Replace the existing file
+- `STOP` - Stop the download
 
 ---
 
@@ -775,12 +1064,12 @@ Low-level message data structure.
 
 **Constructor:**
 ```python
-SharedMessage(id: int, payload: bytes, timestampNs: int = 0)
+SharedMessage(id: int, payload: list[int], timestampNs: int = 0)
 ```
 
 **Parameters:**
 - `id` (int): Message type ID
-- `payload` (bytes): Message payload data
+- `payload` (list[int]): Message payload data as a list of byte values (0-255)
 - `timestampNs` (int, optional): Timestamp in nanoseconds. Defaults to 0.
 
 **Example:**
@@ -790,7 +1079,7 @@ import aria.sdk_gen2 as sdk_gen2
 # Create a message
 msg = sdk_gen2.SharedMessage(
     id=sdk_gen2.MessageType.IMU_EVENT,
-    payload=b'\x00\x01\x02\x03',
+    payload=[0x00, 0x01, 0x02, 0x03],
     timestampNs=1234567890
 )
 
@@ -805,7 +1094,6 @@ Buffer interface for binary data.
 
 **Methods:**
 - `data() -> bytes`: Get buffer data as bytes
-- `size() -> int`: Get buffer size in bytes
 - `as_memoryview() -> Optional[memoryview]`: Get buffer as Python memoryview (returns None if buffer is empty or null)
 
 **Example:**
