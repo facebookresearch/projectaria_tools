@@ -157,11 +157,34 @@ class ImageSensorPlayer : public vrs::utils::VideoRecordFormatStreamPlayer {
     emptyFrameMode_ = emptyFrameMode;
   }
 
+  // Test-only debug counters used to pin two invariants of the random-access
+  // P-frame fix without taking on a friend declaration in VRS's
+  // VideoFrameHandler (see Lessons L4):
+  //  - readMissingFramesCallCount: how many times recordReadComplete actually
+  //    invoked readMissingFrames. A linear sweep should bump this at most once,
+  //    proving the forward-step optimization stays O(1) per frame.
+  //  - invokeCallbackCount: how many times the user ImageCallback fired. A
+  //    single getImageDataByIndex call must bump this exactly once even when
+  //    the target sits N P-frames into a GOP and triggers an N-record replay.
+  // These are static so tests can read them without holding a player instance
+  // (players live inside VrsDataProvider). The atomic increments are
+  // unconditional but cheap; they do not depend on NDEBUG.
+  static int getReadMissingFramesCallCount();
+  static int getInvokeCallbackCount();
+  static void resetDebugCounters();
+
  private:
   bool onDataLayoutRead(const vrs::CurrentRecord& r, size_t blockIndex, vrs::DataLayout& dl)
       override;
   bool onImageRead(const vrs::CurrentRecord& r, size_t /*idx*/, const vrs::ContentBlock& cb)
       override;
+  // Random-access P-frame fix. When a mid-GOP read sets isMissingFrames(), walk back to the
+  // keyframe and replay until the target frame is decoded. Reference implementation lives behind
+  // #if 0 in arvr/libraries/vrs/vrs/utils/VideoRecordFormatStreamPlayer.h:87-95; if VRS ever
+  // enables it upstream this override becomes a trivial delete.
+  int recordReadComplete(
+      vrs::RecordFileReader& fileReader,
+      const vrs::IndexRecord::RecordInfo& recordInfo) override;
 
   // Helper methods for different image processing modes
   bool handleEmptyFrameMode(const vrs::ContentBlock& cb);

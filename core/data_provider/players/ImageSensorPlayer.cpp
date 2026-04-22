@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <atomic>
 #include <cmath>
 #include <optional>
 
@@ -24,6 +25,26 @@
 #include <vrs/RecordFormat.h>
 
 namespace projectaria::tools::data_provider {
+
+namespace {
+// See ImageSensorPlayer.h for the invariants these counters pin.
+std::atomic<int> gReadMissingFramesCallCount{0};
+std::atomic<int> gInvokeCallbackCount{0};
+} // namespace
+
+int ImageSensorPlayer::getReadMissingFramesCallCount() {
+  return gReadMissingFramesCallCount.load(std::memory_order_relaxed);
+}
+
+int ImageSensorPlayer::getInvokeCallbackCount() {
+  return gInvokeCallbackCount.load(std::memory_order_relaxed);
+}
+
+void ImageSensorPlayer::resetDebugCounters() {
+  gReadMissingFramesCallCount.store(0, std::memory_order_relaxed);
+  gInvokeCallbackCount.store(0, std::memory_order_relaxed);
+}
+
 std::optional<projectaria::tools::image::ImageVariant> ImageData::imageVariant() const {
   if (pixelFrame->getSpec().getImageFormat() == vrs::ImageFormat::JPG) {
     std::shared_ptr<vrs::utils::PixelFrame> normalizedFrame;
@@ -126,10 +147,15 @@ bool ImageSensorPlayer::onImageRead(
     success = handleNormalImageProcessing(r, cb, imageSpec);
   }
 
-  if (success) {
-    invokeCallbackAndCache();
-  } else {
+  if (!success) {
     return false;
+  }
+  // During a P-frame replay walk (triggered from recordReadComplete), let data_/dataRecord_
+  // update naturally so the final replayed record (the user-visible target frame) leaves them
+  // in the correct state, but suppress the user callback and dedup cache update — those fire
+  // exactly once for the target from recordReadComplete().
+  if (!whileReadingMissingFrames()) {
+    invokeCallbackAndCache();
   }
 
   if (verbose_) {
@@ -205,6 +231,21 @@ bool ImageSensorPlayer::handleYuv420Processing(
 void ImageSensorPlayer::invokeCallbackAndCache() {
   callback_(data_, dataRecord_, configRecord_, verbose_);
   cachedCaptureTimestampNs_ = dataRecord_.captureTimestampNs;
+  gInvokeCallbackCount.fetch_add(1, std::memory_order_relaxed);
+}
+
+int ImageSensorPlayer::recordReadComplete(
+    vrs::RecordFileReader& fileReader,
+    const vrs::IndexRecord::RecordInfo& recordInfo) {
+  if (!getVideoFrameHandler(streamId_).isMissingFrames()) {
+    return 0;
+  }
+  gReadMissingFramesCallCount.fetch_add(1, std::memory_order_relaxed);
+  int result = readMissingFrames(fileReader, recordInfo, /*exactFrame=*/true);
+  if (result == 0 && data_.isValid()) {
+    invokeCallbackAndCache();
+  }
+  return result;
 }
 
 } // namespace projectaria::tools::data_provider
