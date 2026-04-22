@@ -30,7 +30,7 @@
     "@mdx-js/react": "^3.1.0",
     "@types/react": "^18.3.3",
     "clsx": "^2.1.1",
-    "docusaurus-plugin-internaldocs-fb": "^1.19.1",
+    "docusaurus-plugin-internaldocs-fb": "^1.19.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-loadable": "^5.5.0",
@@ -70,12 +70,13 @@
     ]
   },
   "engines": {
-    "node": ">=18",
+    "node": ">=22",
     "npm": "use yarn instead",
     "yarn": "^1.5"
   },
   "resolutions": {
     "cheerio": "1.0.0-rc.12",
-    "@mdx-js/react": "^3.1.0"
+    "@mdx-js/react": "^3.1.0",
+    "langium": "^4.2.2"
   }
 }
