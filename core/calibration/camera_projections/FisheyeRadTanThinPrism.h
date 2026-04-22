@@ -61,8 +61,8 @@ class FisheyeRadTanThinPrism {
 
   static constexpr int kNumParams =
       (4 - useSingleFocalLength) + numK + 2 * useTangential + 4 * useThinPrism;
-  static const char kName[];
-  static const char kDescription[];
+  static const char kName[]; // NOLINT(modernize-avoid-c-arrays)
+  static const char kDescription[]; // NOLINT(modernize-avoid-c-arrays)
   static constexpr int kNumDistortionParams = numK + 2 * useTangential + 4 * useThinPrism;
   static constexpr int kFocalXIdx = 0;
   static constexpr int kFocalYIdx = 1 - useSingleFocalLength;
@@ -458,16 +458,16 @@ using Fisheye62 = FisheyeRadTanThinPrism<6, true, false, true>;
 // clang on windows will define _MSC_VER so we need to check both _MSC_VER and __clang__.
 #if !defined(_MSC_VER) || defined(__clang__)
 template <>
-const char Fisheye624::kName[];
+const char Fisheye624::kName[]; // NOLINT(modernize-avoid-c-arrays)
 
 template <>
-const char Fisheye624::kDescription[];
+const char Fisheye624::kDescription[]; // NOLINT(modernize-avoid-c-arrays)
 
 template <>
-const char Fisheye62::kName[];
+const char Fisheye62::kName[]; // NOLINT(modernize-avoid-c-arrays)
 
 template <>
-const char Fisheye62::kDescription[];
+const char Fisheye62::kDescription[]; // NOLINT(modernize-avoid-c-arrays)
 #endif // !defined(_MSC_VER) || defined(__clang__)
 
 } // namespace projectaria::tools::calibration
