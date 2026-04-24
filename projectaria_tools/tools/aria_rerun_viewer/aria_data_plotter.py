@@ -144,6 +144,8 @@ class AriaDataViewerConfig:
 
     enable_gps = False
 
+    enable_crop_visualization = False
+
     # rerun memory limit (default parameter is 75% of available memory)
     rerun_memory_limit = "75%"
 
@@ -407,10 +409,10 @@ class AriaDataViewer:
         _1d_view_container = template_blueprint_container.contents[2]
 
         # Update the 3D view
-        updated_3d_view_container = rrb.Vertical(
-            rrb.Tabs(
-                contents=[
-                    _3d_view_container.contents[0],  # RGB view
+        rgb_tab_contents = [_3d_view_container.contents[0]]  # RGB view
+        if self.config.enable_crop_visualization:
+            rgb_tab_contents.extend(
+                [
                     rrb.Spatial2DView(
                         name="Cropped POV",
                         origin="camera-cropped-pov",
@@ -420,7 +422,9 @@ class AriaDataViewer:
                         origin="camera-fixation-crop",
                     ),
                 ]
-            ),
+            )
+        updated_3d_view_container = rrb.Vertical(
+            rrb.Tabs(contents=rgb_tab_contents),
             rrb.Tabs(
                 contents=[
                     rrb.Spatial3DView(
