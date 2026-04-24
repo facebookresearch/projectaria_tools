@@ -1,0 +1,22 @@
+---
+sidebar_position: 30
+title: Eye Tracking
+---
+
+# Project Aria Eye Tracking
+
+## Overview
+
+Project Aria Eye Tracking provides an open source inference model and tooling that can be used to estimate eye gaze direction based on Aria device Eye Tracking camera images. This Pytorch model, trained on data from over ~1200 individuals and ~2M frames, produces outputs that use the [Pre March 2024 Eye Gaze Model](/data_formats/mps/mps_eye_gaze.mdx) data structure.
+
+Use `projectaria_eyetracking` to generate and visualize these outputs on downloaded or streaming data. These outputs will also be compatible with Project Aria Tools MPS eye gaze output and visualizers.
+
+
+* [Project Aria Eye Tracking GitHub repository](https://github.com/facebookresearch/projectaria_eyetracking)
+    * Download and run `projectaria_eyetracking`
+* [Pre March 2024 Eye Gaze Model](/data_formats/mps/mps_eye_gaze.mdx)
+    * How the data is structured
+* [Project Aria Tools Eye Gaze Code Snippets](/data_utilities/core_code_snippets/eye_gaze_code.mdx)
+    * Project Aria Tooling is compatible with these Eye Gaze outputs
+* [Project Aria Client SDK](/ARK/sdk/setup.mdx)
+    * Code snippets that support streaming live Aria data to downstream applications

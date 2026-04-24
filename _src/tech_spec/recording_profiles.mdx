@@ -1,0 +1,143 @@
+---
+sidebar_position: 20
+title: Recording Profiles
+---
+
+# Project Aria Recording Profiles
+
+## Overview
+
+Project Aria glasses have multiple recording profiles that enable users to choose what sensors to record with and what settings to use. Aria glasses recording profiles can vary by:
+* Sub-selection of sensor streams
+* RGB and ET (Eye Tracking) camera resolution
+* Mono Scene (often, but not exclusively used for SLAM), RGB and ET camera frame rate and auto-exposure settings
+* Image stream format
+* Number of audio channels: all (7) v.s. stereo(2)
+
+The table below provides a detailed spec of each profile we currently support. We add new profiles when necessary.
+
+This page covers:
+* [Recording profile specs](#specs)
+* [General guidance if you're making recordings](#general)
+* [How to make custom recordings with the Mobile Companion app](#custom)
+
+<div id="specs"></div>
+
+## Recording Profile Specs
+
+The following table provides a detailed spec of each profile we currently support. Keep in mind the following requirements when selecting a recording profile:
+* If Wi-Fi data is being recorded (wifiScanModeActive), you won't be able to create TICSync recordings with that profile
+* To request SLAM (or Multi-SLAM) MPS, you'll need Monoscene/SLAM cameras + IMU enabled
+* To request Eye Gaze MPS, you'll need Eye Tracking cameras enabled
+* To request Hand Tracking MPS, you'll need Monoscene/SLAM camers enabled
+
+<table>
+<thead> <tr><th class="headcol"></th><th colspan="2"><center>Microphones</center></th><th colspan="3"><center>ET Cameras</center></th><th colspan="4"><center>RGB Cameras</center>  </th><th colspan="4"><center> SLAM (Mono Scene Cameras)</center>  </th><th><center> GPS </center>     </th><th><center>IMU 1</center>         </th><th><center>IMU 2</center>         </th><th><center>Magnetometer</center>  </th><th><center>Barometer</center>     </th><th><center>Wi-Fi</center>          </th><th><center> Bluetooth</center>          </th></tr>
+<tr><th  class="headcol">Profile</th><td>Channels     </td><td>Sample Rate (kHz)</td><td>Resolution  </td><td>FPS</td><td>Image Format</td><td>Resolution   </td><td>FPS</td><td>Auto Exposure</td><td>Image Format</td><td>Resolution    </td><td>FPS</td><td>Auto Exposure</td><td>Image Format</td><td>Data Rate (Hz)</td><td>Data Rate (Hz)</td><td>Data Rate (Hz)</td><td>Data Rate (Hz)</td><td>Data Rate (Hz)</td><td>Scan Duration(s)</td><td>Scan Duration(s)</td></tr></thead>
+<tbody>
+<tr><th  class="headcol">0</th><td>7            </td><td>48               </td><td>320x240     </td><td>10 </td>    <td>JPEG        </td><td>2880x2880    </td><td>1  </td><td>ON           </td><td>JPEG        </td><td>640x480       </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>1             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>10              </td><td>10              </td></tr>
+<tr><th  class="headcol">2</th><td>-            </td><td>-                </td><td>-   </td><td>- </td> <td>-        </td><td>1408x1408     </td><td>20 </td><td>ON           </td><td>JPEG        </td><td>640x480     </td><td>20  </td><td>ON            </td><td>JPEG           </td><td>1             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>10                     </td><td>10</td></tr>
+<tr><th  class="headcol">4</th><td>7            </td><td>48               </td><td>-           </td><td>-  </td><td>-           </td><td>1408x1408    </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>-             </td><td>-  </td><td>-            </td><td>-           </td><td>1             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>-             </td><td>-  </td></tr>
+<tr><th  class="headcol">5</th><td>-            </td><td>-                </td><td>640x480     </td><td>20 </td><td>JPEG        </td><td>1408x1408    </td><td>20 </td><td>ON           </td><td>JPEG        </td><td>-             </td><td>-  </td><td>-            </td><td>-           </td><td>-             </td><td>1000          </td><td>800           </td><td>-             </td><td>-             </td><td>-             </td><td>-  </td></tr>
+<tr><th  class="headcol">7</th><td>7            </td><td>48               </td><td>-           </td><td>-  </td><td>-           </td><td>1408x1408    </td><td>10 </td><td>ON           </td><td>RAW         </td><td>-             </td><td>-  </td><td>-            </td><td>-           </td><td>1             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>-             </td><td>- </td></tr>
+<tr><th  class="headcol">8</th><td>7            </td><td>48               </td><td>320x240     </td><td>30 </td><td>JPEG        </td><td>1408x1408    </td><td>5  </td><td>ON           </td><td>JPEG        </td><td>640x480       </td><td>15 </td><td>ON           </td><td>JPEG        </td><td>-             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>-               </td><td>- </td></tr>
+<tr><th  class="headcol">9</th><td>7            </td><td>48               </td><td>320x240     </td><td>10 </td><td>JPEG        </td><td>1408x1408    </td><td>20 </td><td>ON           </td><td>JPEG        </td><td>640x480       </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>-             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>-               </td><td>- </td></tr>
+<tr><th  class="headcol">10</th><td>7            </td><td>48               </td><td>320x240     </td><td>10 </td><td>JPEG        </td><td>1408x1408    </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>640x480       </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>1             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>10             </td><td>10 </td></tr>
+<tr><th  class="headcol">12</th><td>-            </td><td>-                </td><td>320x240     </td><td>10 </td><td>JPEG        </td><td>1408x1408    </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>640x480       </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>-             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>-              </td><td>- </td></tr>
+<tr><th  class="headcol">14</th><td>-            </td><td>-                </td><td>320x240     </td><td>10 </td><td>JPEG        </td><td>1408x1408    </td><td>1 </td><td>ON           </td><td>JPEG        </td><td>640x480       </td><td>30 </td><td>ON           </td><td>JPEG        </td><td>1             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>-               </td><td>- </td></tr>
+<tr><th  class="headcol">15</th><td>7            </td><td>48               </td><td>320x240     </td><td>10 </td><td>JPEG        </td><td>1408x1408    </td><td>30 </td><td>ON           </td><td>JPEG        </td><td>640x480       </td><td>30 </td><td>ON           </td><td>JPEG        </td><td>-             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>-               </td><td>- </td></tr>
+</tbody>
+</table>
+
+
+<table>
+<thead> <tr><th class="headcol"></th><th colspan="2"><center>Microphones</center></th><th colspan="3"><center>ET Cameras</center></th><th colspan="4"><center>RGB Cameras</center>  </th><th colspan="4"><center> SLAM (Mono Scene Cameras)</center>  </th><th><center> GPS </center>     </th><th><center>IMU 1</center>         </th><th><center>IMU 2</center>         </th><th><center>Magnetometer</center>  </th><th><center>Barometer</center>     </th><th><center>Wi-Fi</center>          </th><th><center> Bluetooth</center>          </th></tr>
+<tr><th  class="headcol">Profile</th><td>Channels     </td><td>Sample Rate (kHz)</td><td>Resolution  </td><td>FPS</td><td>Image Format</td><td>Resolution   </td><td>FPS</td><td>Auto Exposure</td><td>Image Format</td><td>Resolution    </td><td>FPS</td><td>Auto Exposure</td><td>Image Format</td><td>Data Rate (Hz)</td><td>Data Rate (Hz)</td><td>Data Rate (Hz)</td><td>Data Rate (Hz)</td><td>Data Rate (Hz)</td><td>Scan Duration(s)</td><td>Scan Duration(s)</td></tr></thead>
+<tbody>
+<tr><th  class="headcol">16</th><td>2            </td><td>48               </td><td>640x480     </td><td>90 </td><td>JPEG        </td><td>1408x1408    </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>-             </td><td>-  </td><td>-            </td><td>-           </td><td>-             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>-               </td><td>- </td></tr>
+<tr><th  class="headcol">18</th><td>7            </td><td>48               </td><td>320x240     </td><td>10 </td><td>JPEG        </td><td>1408x1408    </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>640x480       </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>-             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>-               </td><td>- </td></tr>
+<tr><th  class="headcol">19</th><td>-            </td><td>-                </td><td>-           </td><td>-  </td><td>-           </td><td>1408x1408    </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>640x480       </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>1             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>10            </td><td>10 </td></tr>
+<tr><th  class="headcol">20</th><td>2            </td><td>48               </td><td>-           </td><td>-  </td><td>-           </td><td>-            </td><td>-  </td><td>-            </td><td>-           </td><td>-             </td><td>-  </td><td>-            </td><td>-           </td><td>-             </td><td>1000          </td><td>800           </td><td>-             </td><td>-             </td><td>-             </td><td>- </td></tr>
+<tr><th  class="headcol">21</th><td>7            </td><td>48               </td><td>320x240     </td><td>30 </td><td>JPEG       </td><td>1408x1408    </td><td>15 </td><td>ON           </td><td>JPEG        </td><td>640x480       </td><td>15 </td><td>ON           </td><td>JPEG        </td><td>-             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>-              </td><td>- </td></tr>
+<tr><th  class="headcol">22</th><td>7            </td><td>48               </td><td>320x240     </td><td>10 </td><td>JPEG       </td><td>1408x1408    </td><td>30 </td><td>ON           </td><td>JPEG        </td><td>640x480       </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>-             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>-              </td><td>- </td></tr>
+<tr><th  class="headcol">23</th><td>7            </td><td>48               </td><td>320x240     </td><td>10 </td><td>JPEG       </td><td>1408x1408    </td><td>30 </td><td>ON           </td><td>JPEG        </td><td>640x480       </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>-             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>-              </td><td>- </td></tr>
+<tr><th  class="headcol">24</th><td>-            </td><td>-                </td><td>-           </td><td>- </td><td>-        </td><td>2880x2880    </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>640x480         </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>-             </td><td>1000          </td><td>800           </td><td>10            </td><td>50            </td><td>-               </td><td>- </td></tr>
+<tr><th  class="headcol">25</th><td>-            </td><td>-                </td><td>-           </td><td>- </td><td>-        </td><td>1408x1408    </td><td>10 </td><td>ON           </td><td>JPEG        </td><td>640x480         </td><td>20 </td><td>ON           </td><td>JPEG        </td><td>1             </td><td>1000          </td><td>800           </td><td>-            </td><td>-            </td><td>10                </td><td>10 </td></tr>
+<tr><th  class="headcol">26</th><td>2            </td><td>48                </td><td>-           </td><td>- </td><td>-        </td><td>2880x2880    </td><td>1 </td><td>ON           </td><td>JPEG        </td><td>-               </td><td>- </td><td>-             </td><td>-              </td><td>1             </td><td>-          </td><td>-           </td><td>-            </td><td>-            </td><td>-                   </td><td>- </td></tr>
+<tr><th  class="headcol">27</th><td>7            </td><td>48                </td><td>320x240     </td><td>10 </td><td>JPEG        </td><td>1408x1408    </td><td>10 </td><td>ON           </td><td>JPEG    </td><td>640x480       </td><td>10 </td><td>ON          </td><td>JPEG          </td><td>-             </td><td>1000         </td><td>800          </td><td>10            </td><td>50            </td><td>10               </td><td>- </td></tr>
+<tr><th  class="headcol">28</th><td>7            </td><td>48                </td><td>320x240     </td><td>60 </td><td>JPEG        </td><td>1408x1408    </td><td>30 </td><td>ON           </td><td>JPEG    </td><td>640x480       </td><td>30 </td><td>ON          </td><td>JPEG          </td><td>-             </td><td>1000         </td><td>800          </td><td>10            </td><td>50            </td><td>-                </td><td>- </td></tr>
+<tr><th  class="headcol">29</th><td>2            </td><td>48                </td><td>-           </td><td>- </td><td>-        </td><td>2880x2880    </td><td>1/0.1 </td><td>ON           </td><td>JPEG with decimation       </td><td>-               </td><td>- </td><td>-             </td><td>-              </td><td>1             </td><td>-          </td><td>-           </td><td>-      </td><td>-        </td><td>-           </td><td>- </td></tr>
+</tbody>
+</table>
+
+The Decimated JPEG outputs for profile29 means that 9 out 10 JPEG frames are skipped, creating an equivalent frame rate of 0.1FPS. The aim is to create a recording profile that can support 15+ recording hours.
+
+
+### Viewing recording profile details on device
+There are several ways you can view recording profile information if you have access to Project Aria glasses
+
+#### Mobile Companion app
+1. Open the Mobile Companion App and select **New Recording Session**
+2. Tap **Recording Profile**
+3. Select **More Info** in the top right corner
+    * The More Info page will show all recording profiles as well as the current settings for the Custom Profile
+
+<div id="general"></div>
+
+#### Project Aria Client SDK
+If you've set up your glasses with the [Client SDK](/ARK/sdk/setup.mdx) you can [export recording profiles to a JSON file](/ARK/sdk/concepts/sdk_sensor_profiles.mdx).
+
+
+## General guidance if you're making recordings
+
+These are some sensor profiles researchers have found useful for particular kinds of research. Commonly used recording profiles are Profiles 0, 2, 5, 9, 10, 15 and 23.
+
+### If you’re not sure what you want
+
+Profile10 is interesting to explore, it gathers data with all sensors and the RGB Camera records at 10 fps. All sensor data is useful for exploring multimodal ML models.
+
+If you need high RGB Resolution (2880x2880 rather than 1408x1408), and 1FPS is sufficient shutter speed, use Profile0.
+
+### If you're streaming data
+
+While you can use any recording profile when streaming, we recommend only using Profiles 12 and 18, which are optimized for streaming.
+
+### If you need a high frame rate
+
+Use Profiles 2, 9 or 15, depending on whether you want EyeTracking or GPS. Profile2 does not have ET, Profile15 does not have GPS.
+
+### If your research focuses on audio
+
+Try Profiles 4, 7 (no SLAM) or 10.
+
+### To avoid image pre-processing
+
+In situations where you want to use RAW videos and skip the Image Sensor Processor (ISP) as much as possible, Profile7 is helpful.
+
+Please note, because Profile7 delivers RAW image files, not JPEGs the data is 8x more costly to store. This profile also uses more energy while recording and may heat up faster than others.
+
+### Long duration recordings
+
+<div id="custom"></div>
+
+Profiles 20 and 26 are optimized for 5+ recording hours. Profile 29 is optimized for recording times over 15 hours and uses JPEG decimation to provide 0.1FPS RGB data.
+
+## How to make custom recordings with the Mobile Companion app
+
+The custom profile feature enables users to alter the most commonly used sensor configurations. Further customizations could be added, such as auto-exposure or whether to record images as JPEG or RAW, if there is sufficient demand. Please contact us using one of our [support channels](/support.mdx) if you have any feature requests.
+
+Some custom configurations are restricted, to protect the device or quality of recording:
+
+* FPS across cameras must be the same, or multiples of each other for the glasses to record.
+* [Warning] RGB Cameras at 2880 x 2880 at 15-20 fps will cause elevated thermal loads and reduced battery life
+* To ensure device stability, recordings at 2880x2880 at 30fps are not allowed
+
+To set a Custom Recording Profile:
+1. In the Mobile Companion app Dashboard, select **New Recording Session**
+2. Select **Recording Profile**
+3. The first recording profile in the list will be Custom Profile
+    * You may need to scroll up to see this option
+4. Select the Custom Profile
+5. Select **Edit parameters**
+6. Adjust sensor settings
+    * Tap **More info** on the Recording Profiles Tab to see more details, such as auto exposure
