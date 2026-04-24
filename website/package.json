@@ -76,6 +76,7 @@
   },
   "resolutions": {
     "cheerio": "1.0.0-rc.12",
+    "dompurify": "^3.4.1",
     "@mdx-js/react": "^3.1.0",
     "follow-redirects": "^1.16.0",
     "langium": "^4.2.2"
