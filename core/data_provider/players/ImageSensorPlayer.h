@@ -162,6 +162,13 @@ class ImageSensorPlayer : public vrs::utils::VideoRecordFormatStreamPlayer {
       override;
   bool onImageRead(const vrs::CurrentRecord& r, size_t /*idx*/, const vrs::ContentBlock& cb)
       override;
+  // Random-access P-frame fix. When a mid-GOP read sets isMissingFrames(), walk back to the
+  // keyframe and replay until the target frame is decoded. Reference implementation lives behind
+  // #if 0 in vrs/utils/VideoRecordFormatStreamPlayer.h:87-95; if VRS ever
+  // enables it upstream this override becomes a trivial delete.
+  int recordReadComplete(
+      vrs::RecordFileReader& fileReader,
+      const vrs::IndexRecord::RecordInfo& recordInfo) override;
 
   // Helper methods for different image processing modes
   bool handleEmptyFrameMode(const vrs::ContentBlock& cb);
