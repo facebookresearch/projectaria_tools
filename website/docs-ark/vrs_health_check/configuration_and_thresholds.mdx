@@ -94,8 +94,15 @@ intervals) against numerical thresholds.
 ```json
 {
   "check_type": "LE|LT|GE|GT",
-  "fail_threshold": <number>,     // Optional: value that triggers FAIL
-  "warn_threshold": <number>      // Optional: value that triggers WARN
+  "fail_threshold": <number>,            // Optional: value that triggers FAIL
+  "warn_threshold": <number>,            // Optional: value that triggers WARN
+  "duration_overrides": [                // Optional: relax thresholds for short recordings
+    {
+      "max_duration_secs": <number>,     // Apply when recording duration <= this
+      "fail_threshold": <number>,        // Optional override for short recordings
+      "warn_threshold": <number>         // Optional override for short recordings
+    }
+  ]
 }
 ```
 
@@ -104,6 +111,29 @@ intervals) against numerical thresholds.
 1. **PASS**: Value meets all thresholds
 2. **WARN**: Value exceeds warn_threshold but not fail_threshold
 3. **FAIL**: Value exceeds fail_threshold
+
+**Duration-Aware Thresholds (`duration_overrides`)**
+
+Some checks become noisy on short recordings (e.g., GPS drop ratio over a 30-second clip). Use `duration_overrides` to specify relaxed `fail_threshold` / `warn_threshold` values that apply only when the recording duration is at or below `max_duration_secs`. Recording duration is read from VRS metadata. If multiple entries match, the smallest matching tier wins; if no entry matches, the base thresholds apply.
+
+For example, the `AriaGen2_Default` config relaxes GPS `ratio_dropped_over_expected` for recordings ≤ 60s (fail 10% / warn 5%) while keeping the default (fail 2% / warn 1%) for longer recordings:
+
+```json
+"GPS Data Class": {
+  "ratio_dropped_over_expected": {
+    "check_type": "LE",
+    "fail_threshold": 0.02,
+    "warn_threshold": 0.01,
+    "duration_overrides": [
+      {
+        "max_duration_secs": 60,
+        "fail_threshold": 0.10,
+        "warn_threshold": 0.05
+      }
+    ]
+  }
+}
+```
 
 ## 2. Boolean Checks
 

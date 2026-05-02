@@ -6,6 +6,32 @@ title: Changelog
 # Changelog
 
 ---
+## Version 1.2.1
+
+### New Features
+
+- Added support for the **Proximity Sensor stream**: the tool now recognizes this stream and reports it in the output JSON
+- Added **duration-aware threshold overrides** for numeric checks: thresholds can now declare relaxed values that apply only to short recordings, via a new `duration_overrides` field (see [Configurations and Threshold Checks](./configuration_and_thresholds#1-numeric-checks))
+- Added new camera timing check `ratio_large_deviation_over_total`: the percentage of frames whose timing deviates from the expected period by more than a configurable amount
+
+### Configuration Updates
+
+#### `AriaGen2_Default` configuration:
+- Added `Proximity Sensor Data Class` checks (only applied to recordings whose firmware emits this stream)
+- Relaxed GPS `start_offset_from_file_us` warn threshold from 3,000,000µs to 6,000,000µs
+- Added a duration override for GPS `ratio_dropped_over_expected`: recordings ≤ 60s use fail 10% / warn 5% (default remains fail 2% / warn 1%)
+- Disabled GPS `percentage_inaccurate_samples` and `percentage_invalid_raw_measurement_samples` (set `ignore: true`) to reduce false warnings on valid-but-inaccurate GNSS fixes
+
+#### `AriaGen2_Location` configuration:
+- Camera timing: removed `largest_deviation_from_period_us` fail threshold (kept `warn_threshold` at 250µs)
+- Camera timing: added `ratio_large_deviation_over_total` fail threshold at 0.1%, using a 500µs deviation threshold
+
+### Bug Fixes
+
+- Fixed camera large-deviation frame counting so it now matches the periodic stream's behavior
+- Lowered the log level of the `calib_json_tag_correct` check from error to warning when an unexpected exception occurs (the check result is still reported in the final summary)
+
+---
 ## Version 1.2.0
 
 ### New Features
