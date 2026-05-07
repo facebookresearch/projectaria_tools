@@ -433,12 +433,16 @@ inline void compare(
   EXPECT_NEAR(eyeGaze1.pitch_low, eyeGaze2.pitch_low, tolerance);
   EXPECT_NEAR(eyeGaze1.pitch_high, eyeGaze2.pitch_high, tolerance);
 
-  EXPECT_TRUE(
-      eyeGaze1.spatial_gaze_point_in_cpf.isApprox(eyeGaze2.spatial_gaze_point_in_cpf, tolerance));
-  EXPECT_TRUE(eyeGaze1.combined_gaze_origin_in_cpf.isApprox(
-      eyeGaze2.combined_gaze_origin_in_cpf, tolerance));
   EXPECT_EQ(eyeGaze1.spatial_gaze_point_valid, eyeGaze2.spatial_gaze_point_valid);
+  if (eyeGaze1.spatial_gaze_point_valid && eyeGaze2.spatial_gaze_point_valid) {
+    EXPECT_TRUE(
+        eyeGaze1.spatial_gaze_point_in_cpf.isApprox(eyeGaze2.spatial_gaze_point_in_cpf, tolerance));
+  }
   EXPECT_EQ(eyeGaze1.combined_gaze_valid, eyeGaze2.combined_gaze_valid);
+  if (eyeGaze1.combined_gaze_valid && eyeGaze2.combined_gaze_valid) {
+    EXPECT_TRUE(eyeGaze1.combined_gaze_origin_in_cpf.isApprox(
+        eyeGaze2.combined_gaze_origin_in_cpf, tolerance));
+  }
 
   // Compare left and right eyes
   const auto& vergence1 = eyeGaze1.vergence;
