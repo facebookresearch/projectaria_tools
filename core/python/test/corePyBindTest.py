@@ -404,24 +404,24 @@ class CalibrationTests(unittest.TestCase):
                 ):
                     if not provider.supports_time_domain(stream_id, time_domain):
                         continue
-                    first_time = provider.get_first_time_ns(stream_id, time_domain)
-                    last_time = provider.get_last_time_ns(stream_id, time_domain)
-                    assert first_time <= last_time
-                    for time in range(first_time, last_time, int(1e8)):
-                        time_before = provider.get_sensor_data_by_time_ns(
-                            stream_id, time, time_domain, TimeQueryOptions.BEFORE
+                    first_time_ns = provider.get_first_time_ns(stream_id, time_domain)
+                    last_time_ns = provider.get_last_time_ns(stream_id, time_domain)
+                    assert first_time_ns <= last_time_ns
+                    for time_ns in range(first_time_ns, last_time_ns, int(1e8)):
+                        time_before_ns = provider.get_sensor_data_by_time_ns(
+                            stream_id, time_ns, time_domain, TimeQueryOptions.BEFORE
                         ).get_time_ns(time_domain)
-                        time_closest = provider.get_sensor_data_by_time_ns(
-                            stream_id, time, time_domain, TimeQueryOptions.CLOSEST
+                        time_closest_ns = provider.get_sensor_data_by_time_ns(
+                            stream_id, time_ns, time_domain, TimeQueryOptions.CLOSEST
                         ).get_time_ns(time_domain)
-                        time_after = provider.get_sensor_data_by_time_ns(
-                            stream_id, time, time_domain, TimeQueryOptions.AFTER
+                        time_after_ns = provider.get_sensor_data_by_time_ns(
+                            stream_id, time_ns, time_domain, TimeQueryOptions.AFTER
                         ).get_time_ns(time_domain)
-                        assert time_before <= time
-                        assert time_after >= time
-                        delta = abs(time_closest - time)
-                        assert delta <= (time_after - time) and delta <= (
-                            time - time_before
+                        assert time_before_ns <= time_ns
+                        assert time_after_ns >= time_ns
+                        delta = abs(time_closest_ns - time_ns)
+                        assert delta <= (time_after_ns - time_ns) and delta <= (
+                            time_ns - time_before_ns
                         )
 
     def test_random_accessor_timecode(self) -> None:
@@ -431,41 +431,45 @@ class CalibrationTests(unittest.TestCase):
         for stream_id in streams:
             assert provider.supports_time_domain(stream_id, TimeDomain.TIME_CODE)
 
-            first_time = provider.get_first_time_ns(stream_id, TimeDomain.TIME_CODE)
-            last_time = provider.get_last_time_ns(stream_id, TimeDomain.TIME_CODE)
-            first_device_time = provider.convert_from_timecode_to_device_time_ns(
-                first_time
+            first_time_ns = provider.get_first_time_ns(stream_id, TimeDomain.TIME_CODE)
+            last_time_ns = provider.get_last_time_ns(stream_id, TimeDomain.TIME_CODE)
+            first_device_time_ns = provider.convert_from_timecode_to_device_time_ns(
+                first_time_ns
             )
-            first_device_time_compare = (
+            first_device_time_compare_ns = (
                 provider.convert_from_synctime_to_device_time_ns(
-                    first_time, TimeSyncMode.TIME_CODE
+                    first_time_ns, TimeSyncMode.TIME_CODE
                 )
             )
-            last_device_time = provider.convert_from_timecode_to_device_time_ns(
-                last_time
+            last_device_time_ns = provider.convert_from_timecode_to_device_time_ns(
+                last_time_ns
             )
-            last_device_time_compare = provider.convert_from_synctime_to_device_time_ns(
-                last_time, TimeSyncMode.TIME_CODE
+            last_device_time_compare_ns = (
+                provider.convert_from_synctime_to_device_time_ns(
+                    last_time_ns, TimeSyncMode.TIME_CODE
+                )
             )
-            assert first_device_time == first_device_time_compare
-            assert last_device_time == last_device_time_compare
+            assert first_device_time_ns == first_device_time_compare_ns
+            assert last_device_time_ns == last_device_time_compare_ns
 
-            assert first_time <= last_time
-            assert first_device_time <= last_device_time
-            for time in range(first_time, last_time, int(1e7)):
-                time_before = provider.get_sensor_data_by_time_ns(
-                    stream_id, time, TimeDomain.TIME_CODE, TimeQueryOptions.BEFORE
+            assert first_time_ns <= last_time_ns
+            assert first_device_time_ns <= last_device_time_ns
+            for time_ns in range(first_time_ns, last_time_ns, int(1e7)):
+                time_before_ns = provider.get_sensor_data_by_time_ns(
+                    stream_id, time_ns, TimeDomain.TIME_CODE, TimeQueryOptions.BEFORE
                 ).get_time_ns(TimeDomain.TIME_CODE)
-                time_closest = provider.get_sensor_data_by_time_ns(
-                    stream_id, time, TimeDomain.TIME_CODE, TimeQueryOptions.CLOSEST
+                time_closest_ns = provider.get_sensor_data_by_time_ns(
+                    stream_id, time_ns, TimeDomain.TIME_CODE, TimeQueryOptions.CLOSEST
                 ).get_time_ns(TimeDomain.TIME_CODE)
-                time_after = provider.get_sensor_data_by_time_ns(
-                    stream_id, time, TimeDomain.TIME_CODE, TimeQueryOptions.AFTER
+                time_after_ns = provider.get_sensor_data_by_time_ns(
+                    stream_id, time_ns, TimeDomain.TIME_CODE, TimeQueryOptions.AFTER
                 ).get_time_ns(TimeDomain.TIME_CODE)
-                assert time_before <= time
-                assert time_after >= time
-                delta = abs(time_closest - time)
-                assert delta <= (time_after - time) and delta <= (time - time_before)
+                assert time_before_ns <= time_ns
+                assert time_after_ns >= time_ns
+                delta = abs(time_closest_ns - time_ns)
+                assert delta <= (time_after_ns - time_ns) and delta <= (
+                    time_ns - time_before_ns
+                )
 
     def test_camera_calibration_rotation(self) -> None:
         provider = data_provider.create_vrs_data_provider(timecode_vrs_filepath)

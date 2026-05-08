@@ -90,9 +90,9 @@ class TestAeaPybindings(unittest.TestCase):
         self.assertTrue(maybe_first_image.is_valid())
         self.assertAlmostEqual(abs(maybe_first_image.dt_ns()), 0, 3)
         self.assertTrue(dp.get_aria_camera_calibration(stream_id))
-        first_tc_time = dp.get_timecode_from_device_time_ns(ts1)
+        first_tc_time_ns = dp.get_timecode_from_device_time_ns(ts1)
         self.assertTrue(
-            abs(ts1 - dp.get_device_time_from_timecode_ns(first_tc_time)) < 1000
+            abs(ts1 - dp.get_device_time_from_timecode_ns(first_tc_time_ns)) < 1000
         )
         self.assertTrue(dp.get_aria_3d_pose_by_timestamp_ns(ts1).is_valid())
         self.assertTrue(dp.get_object_3d_boundingboxes_by_timestamp_ns(ts1).is_valid())

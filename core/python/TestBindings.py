@@ -282,15 +282,15 @@ def print_sample_random_access_image_data(provider, camera_name):
     option = (
         TimeQueryOptions.CLOSEST
     )  # get data whose time [in TimeDomain] is Closest to query time
-    start_time = provider.get_first_time_ns(sensor_stream_id, time_domain)
-    end_time = provider.get_last_time_ns(sensor_stream_id, time_domain)
-    for time in range(start_time, end_time, int(1e8)):
+    start_time_ns = provider.get_first_time_ns(sensor_stream_id, time_domain)
+    end_time_ns = provider.get_last_time_ns(sensor_stream_id, time_domain)
+    for time_ns in range(start_time_ns, end_time_ns, int(1e8)):
         image_data = provider.get_image_data_by_time_ns(
-            sensor_stream_id, time, time_domain, option
+            sensor_stream_id, time_ns, time_domain, option
         )
         pixel_format = image_data[0].get_pixel_format()
         print(
-            f"query time {time} and get image time {image_data[1].arrival_timestamp_ns} within range {start_time} {end_time} \n"
+            f"query time {time_ns} and get image time {image_data[1].arrival_timestamp_ns} within range {start_time_ns} {end_time_ns} \n"
             f"image pixel format is {pixel_format}"
         )
 
@@ -315,11 +315,11 @@ def print_sample_random_access_ppg_data(provider):
     option = (
         TimeQueryOptions.CLOSEST
     )  # get data whose time [in TimeDomain] is Closest to query time
-    start_time = provider.get_first_time_ns(ppg_stream_id, time_domain)
-    end_time = provider.get_last_time_ns(ppg_stream_id, time_domain)
-    for time in range(start_time, end_time, int(1e8)):
+    start_time_ns = provider.get_first_time_ns(ppg_stream_id, time_domain)
+    end_time_ns = provider.get_last_time_ns(ppg_stream_id, time_domain)
+    for time_ns in range(start_time_ns, end_time_ns, int(1e8)):
         ppg_data = provider.get_ppg_data_by_time_ns(
-            ppg_stream_id, time, time_domain, option
+            ppg_stream_id, time_ns, time_domain, option
         )
         print_ppg_data(ppg_data)
 
@@ -383,11 +383,11 @@ def print_sample_vio_data(provider):
     option = (
         TimeQueryOptions.CLOSEST
     )  # get data whose time [in TimeDomain] is Closest to query time
-    start_time = provider.get_first_time_ns(sensor_stream_id, time_domain)
-    end_time = provider.get_last_time_ns(sensor_stream_id, time_domain)
-    for time in range(start_time, end_time, int(1e8)):
+    start_time_ns = provider.get_first_time_ns(sensor_stream_id, time_domain)
+    end_time_ns = provider.get_last_time_ns(sensor_stream_id, time_domain)
+    for time_ns in range(start_time_ns, end_time_ns, int(1e8)):
         vioData = provider.get_vio_data_by_time_ns(
-            sensor_stream_id, time, time_domain, option
+            sensor_stream_id, time_ns, time_domain, option
         )
         print(
             f"Getting vio data from random accessor with timestamp {vioData.capture_timestamp_ns}, frame id is {vioData.frame_id}\n"
