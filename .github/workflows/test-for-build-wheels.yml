@@ -19,7 +19,7 @@ jobs:
       - name: Upgrade pip and python packages
         run: |
           python -m pip install --upgrade pip
-          python -m pip install cibuildwheel==2.17.0 pybind11-stubgen==1.1
+          python -m pip install cibuildwheel==2.21.0 pybind11-stubgen==1.1
       - name: Install dependencies
         shell: bash
         run: |
@@ -71,22 +71,13 @@ jobs:
       matrix:
         os: [macos-14, ubuntu-latest] # macos-14 is macSilicon
         python-version: ["3.10", "3.11", "3.12"]
-        # Default consider only Python >=3.10 since actions/setup-python supports only python<3.10 and mac-silicon
-        # Other Python versions are added below as matrix entries
-        include: # Customize cibuildwheel python version to build
+        include:
           - python-version: "3.10"
             cibw_build: "cp310-*"
           - python-version: "3.11"
             cibw_build: "cp311-*"
           - python-version: "3.12"
             cibw_build: "cp312-*"
-          # Add matrix entries: Python ["3.8", "3.9"] to [ubuntu-latest]
-          - os: ubuntu-latest
-            python-version: "3.8"
-            cibw_build: "cp38-*"
-          - os: ubuntu-latest
-            python-version: "3.9"
-            cibw_build: "cp39-*"
 
     steps:
       - name: Checkout repo
@@ -105,7 +96,7 @@ jobs:
       - name: Upgrade pip and python packages
         run: |
           python -m pip install --upgrade pip
-          python -m pip install cibuildwheel==2.17.0
+          python -m pip install cibuildwheel==2.21.0
       - name: Install ffmpeg dependency lib
         if: ${{ (matrix.os == 'macos-14') || (matrix.os == 'ubuntu-latest') }}
         shell: bash
@@ -121,6 +112,7 @@ jobs:
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_* *x86_64*"
           CIBW_ARCHS: "arm64"
+          CIBW_ENVIRONMENT_MACOS: "MACOSX_DEPLOYMENT_TARGET=14.0"
       - name: Build wheels for CPython
         if: ${{ (matrix.os == 'ubuntu-latest') }}
         shell: bash
