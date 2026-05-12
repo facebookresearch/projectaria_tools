@@ -78,6 +78,10 @@ jobs:
             cibw_build: "cp311-*"
           - python-version: "3.12"
             cibw_build: "cp312-*"
+          # Add Python 3.9 to ubuntu-latest
+          - os: ubuntu-latest
+            python-version: "3.9"
+            cibw_build: "cp39-*"
 
     steps:
       - name: Checkout repo
