@@ -1,7 +1,6 @@
 name: Build wheels and deploy
 
 on:
-  # this workflow can only be manually triggered for now.
   workflow_dispatch:
     inputs:
       deploy:
@@ -13,6 +12,16 @@ on:
           - build
           - test
           - prod
+  schedule:
+    # Weekly canary, Monday 16:00 UTC = 8 AM PST / 9 AM PDT.
+    #
+    # We cannot explicitly set `deploy: build` here -- GitHub Actions does not
+    # allow `inputs:` on `schedule:` triggers (only on `workflow_dispatch:`).
+    # On a schedule trigger, github.event.inputs.deploy is null, so the
+    # publish-to-pypi job's steps (gated on inputs.deploy == 'test' or 'prod')
+    # are skipped automatically. Net effect: the schedule run builds wheels
+    # and stops -- it cannot publish to PyPI.
+    - cron: '0 16 * * MON'
 
 jobs:
   build-stubs:
