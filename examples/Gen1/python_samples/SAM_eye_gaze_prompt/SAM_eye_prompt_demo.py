@@ -244,14 +244,14 @@ def main():
                 pts_labels = torch.reshape(torch.tensor(input_labels), [1, 1, -1])
 
                 # Running inference and monitor timing
-                start_time = time.time()
+                start_time_sec = time.time()
                 predicted_logits, predicted_iou = model(
                     img_tensor[None, ...].to(device),
                     pts_sampled.to(device),
                     pts_labels.to(device),
                 )
-                end_time = time.time()
-                elapsed_time = (end_time - start_time) * 1000  # seconds to ms
+                end_time_sec = time.time()
+                inference_duration_ms = (end_time_sec - start_time_sec) * 1000
                 mask = (
                     torch.ge(predicted_logits[0, 0, 0, :, :], 0).cpu().detach().numpy()
                 )
@@ -260,9 +260,9 @@ def main():
                 #
                 # Log scalar data
                 # - mask_area
-                # - inference_time
+                # - inference_duration_ms
                 rr.log(f"mask_area/{model_name}", rr.Scalar(mask_area))
-                rr.log(f"inference_time/{model_name}", rr.Scalar(elapsed_time))
+                rr.log(f"inference_time/{model_name}", rr.Scalar(inference_duration_ms))
 
                 # Log std_dev area (Update mask statistics and compute std_dev)
                 running_mask_area_average[model_name].append(mask_area)
