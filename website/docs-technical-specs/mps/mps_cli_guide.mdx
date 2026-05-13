@@ -7,10 +7,10 @@ title: Command Line Interface
 ## Overview
 The Project Aria MPS CLI Guide provides detailed information about how to use this tool. The guide contain:
 * [About the MPS CLI](#about)
-* [How the MPS CLI works](#how)
+* [How the MPS CLI works](#how-the-mps-cli-works)
     * Go to [MPS Data Lifecycle](/ark/mps/mps_data_lifecycle) for more details about how sequences are processed on the server
-* [MPS CLI Settings](#settings)
-* [MPS CLI Command Line Reference](#clr)
+* [MPS CLI Settings](#cli-settings)
+* [MPS CLI Command Line Reference](#command-line-reference)
 
 <div id="about"> </div>
 
@@ -27,17 +27,18 @@ The MPS CLI has two modes:
     * Output is always saved next to the input file
     * The most common way to request MPS
 * Multi
-    * Not yet supported for Aria Gen2
+    * Process two or more recordings together for Multi-SLAM
+    * Generate SLAM outputs for each recording in a shared coordinate frame
 
 
 
 ## How the MPS CLI works
-The MPS CLI enables you to upload VRS files from your computer to the Meta servers for processing. The outputs are then saved to your local directory. The MPS CLI will try to process multiple recordings concurrently. The concurrency for various stages can be controlled via [Settings](#settings).
+The MPS CLI enables you to upload VRS files from your computer to the Meta servers for processing. The outputs are then saved to your local directory. The MPS CLI will try to process multiple recordings concurrently. The concurrency for various stages can be controlled via [Settings](#cli-settings).
 
 ![MPS CLI UI for single mode](/img/docs-ark/mps/mps_cli_ui_single.png)
 
 1. Once you submit your request, the MPS CLI for the selected mode will open and show the status of your requests.
-    * See the [Getting Started](/ark/mps/start) or the [Command Line Reference](#clr) below for how to submit a request.
+    * See the [Getting Started](/ark/mps/start) or the [Command Line Reference](#command-line-reference) below for how to submit a request.
 2. Once authenticated, the request tool checks with the server to see if this recording was previously processed. We use unique IDs (Hashing stage) to check if this is a new or a previously known recording.
 3. If it is a known recording, we skip processing and directly download the results (Download Results stage) or show the error code.
 4. If this is a new recording, we run health checks on the recording (HealthCheck stage), to minimize the chances that it will fail during processing. While this check catches obvious errors, like gaps in data and ensures presence of the right sensor streams, but server side processing may still fail.
@@ -235,8 +236,7 @@ Project Aria MPS CLI settings can be customized via the mps.ini file. This file 
 
 ## Command line reference
 
-The MPS CLI has two distinct modes: single (process each recording individually) and multi (SLAM outputs for multiple recordings in a shared co-ordinate frame).
-The latest version of the MPS CLI only supports single mode for Aria Gen2 and both single and multi modes for Aria Gen1. Multi mode is not yet supported for Aria Gen2.
+The MPS CLI has two distinct modes: single (process each recording individually) and multi (Multi-SLAM outputs for two or more recordings in a shared coordinate frame).
 
 
 ```
