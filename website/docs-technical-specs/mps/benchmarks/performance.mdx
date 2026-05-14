@@ -7,11 +7,13 @@ title: Hand Tracking
 
 This page presents the performance evaluation of the MPS Hand Tracking algorithm for Aria Gen2 glasses.
 
-## Benchmark Dataset
+## Benchmark Datasets
 
-The MPS Hand Tracking algorithm is benchmarked on an internal dataset specifically designed for **hand-object interaction (HOI)** scenarios. These scenarios are particularly valuable for robotics applications and present significant challenges for hand tracking due to object-induced occlusions.
+We evaluate MPS Hand Tracking on two complementary internal datasets.
 
-### Dataset Specifications
+### HOI Dataset
+
+The HOI dataset is specifically designed for **hand-object interaction** scenarios, which are particularly valuable for robotics applications and present significant challenges for hand tracking due to object-induced occlusions.
 
 | Property | Value |
 |----------|-------|
@@ -21,43 +23,67 @@ The MPS Hand Tracking algorithm is benchmarked on an internal dataset specifical
 | Number of Participants | 7 |
 | Number of Objects | 20 everyday objects |
 
-### Participant Diversity
+Seven participants were recruited to ensure diversity across ethnicity, age, gender, hand size, and arm length.
 
-Seven participants were recruited to ensure diversity across:
-- Ethnicity
-- Age
-- Gender
-- Hand size
-- Arm length
-
-### Recording Scenarios
-
-Each participant was asked to interact naturally with a pool of 20 everyday objects. The dataset captures:
+Each participant interacts naturally with a pool of 20 everyday objects. The dataset captures:
 
 - **Frequent hand occlusions** from objects or the other hand during natural interaction
-- **Out-of-field-of-view segments** where subjects' hands move outside the Aria Gen2 field of view
+- **Out-of-field-of-view segments** where the subjects' hands move outside the Aria Gen2 field of view
 
-These challenging scenarios provide an end-to-end evaluation signal for Aria Gen2 hand tracking performance.
+### Bystander Dataset
+
+The bystander dataset is designed to evaluate the algorithm's ability to track only the wearer's hands and reject hands of nearby people. It is critical for both contextual AI use cases (where bystanders are common) and robotics use cases (where false positives degrade dataset quality).
+
+| Property | Value |
+|----------|-------|
+| Total Frames | 69,000 |
+| Cameras Used | All 4 CV cameras on Aria Gen2 |
+| Bystander Distance Buckets | < 50 cm, 50 – 100 cm, ≥ 100 cm |
+
+Each frame is bucketed by the closest bystander distance to the wearer, enabling per-distance analysis. The dataset includes a dedicated subset focused on close-range **face-to-face conversation**, historically a major pain point for hand tracking in social interaction settings.
 
 ## Ground Truth Annotations
 
 Hand pose ground truth annotations follow the standard **[UmeTrack format](https://github.com/facebookresearch/UmeTrack)** and are generated using an internal marker-free reconstruction system with **millimeter-level keypoint accuracy**.
 
-Thanks to the extensive field-of-view coverage of outside-in cameras in the reconstruction system, nearly all frames in the 1-hour VRS dataset have valid hand pose ground truth annotations.
+Thanks to the extensive field-of-view coverage of outside-in cameras in the reconstruction system, nearly all frames have valid hand pose ground truth annotations.
 
 ## Evaluation Metrics
 
-We report the following metrics (lower is better for both):
+We report two complementary sets of metrics:
 
-| Metric | Description |
-|--------|-------------|
-| **MKPE** (Mean Keypoint Error) | Average Euclidean distance between predicted and ground truth keypoints, measured in millimeters |
-| **LTR** (Lose Track Ratio) | Percentage of frames where tracking is lost |
+| Metric | Description | Used On |
+|--------|-------------|---------|
+| **MKPE** (Mean Keypoint Error) ↓ | Average Euclidean distance between predicted and ground truth keypoints, measured in millimeters | HOI Dataset |
+| **LTR** (Lose Track Ratio) ↓ | Percentage of frames where tracking is lost | HOI Dataset |
+| **Precision** @ IoU = 0.25 ↑ | Fraction of detected hands that are valid wearer hands | Bystander Dataset, HOI Dataset |
+| **Recall** @ IoU = 0.25 ↑ | Fraction of wearer hands that are correctly detected | Bystander Dataset, HOI Dataset |
 
 ## Results
 
-| Method | MKPE (mm) ↓ | LTR (%) ↓ |
-|--------|-------------|-----------|
-| On-device HT | 45.0 | 12.7 |
-| MPS HT (3.1.1) | 20.1 | 8.6 |
-| MPS HT (3.2.0) | 19.7 | 9.3 |
+### HOI Dataset
+
+| Method | MKPE (mm) ↓ | LTR (%) ↓ | Precision @ IoU = 0.25 ↑ | Recall @ IoU = 0.25 ↑ |
+|--------|-------------|-----------|--------------------------|------------------------|
+| On-device HT | 45.0 | 12.7 | — | — |
+| MPS HT 3.1.1 | 19.9 | **8.8** | 0.963 | **0.925** |
+| MPS HT 3.2.0 (latest) | **19.7** | 9.3 | **0.969** | 0.915 |
+
+### Bystander Dataset
+
+Aggregated across all distance buckets:
+
+| Method | Precision @ IoU = 0.25 ↑ | Recall @ IoU = 0.25 ↑ |
+|--------|--------------------------|------------------------|
+| MPS HT 3.1.1 | 0.893 | **0.785** |
+| MPS HT 3.2.0 (latest) | **0.938** | 0.765 |
+
+### Close-range Face-to-face Conversation
+
+A particularly challenging bystander scenario is close-range face-to-face conversation. MPS HT 3.2.0 substantially improves precision in this regime, especially when the bystander is within 50 cm:
+
+| Bystander Distance | 3.1.1 Precision ↑ | 3.2.0 Precision ↑ | 3.1.1 Recall ↑ | 3.2.0 Recall ↑ |
+|--------------------|-------------------|-------------------|----------------|----------------|
+| < 50 cm | 0.78 | **0.93** | 0.70 | **0.72** |
+| 50 – 100 cm | 0.94 | **0.95** | **0.85** | 0.80 |
+| ≥ 100 cm | 0.97 | 0.97 | 0.99 | **1.00** |
