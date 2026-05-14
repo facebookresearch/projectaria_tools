@@ -852,7 +852,7 @@
 
 "@babel/plugin-transform-modules-systemjs@^7.29.0", "@babel/plugin-transform-modules-systemjs@^7.29.4":
   version "7.29.4"
-  resolved "https://registry.facebook.net/@babel/plugin-transform-modules-systemjs/-/plugin-transform-modules-systemjs-7.29.4.tgz#f621105da99919c15cf4bde6fcc7346ef95e7b20"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-modules-systemjs/-/plugin-transform-modules-systemjs-7.29.4.tgz#f621105da99919c15cf4bde6fcc7346ef95e7b20"
   integrity sha512-N7QmZ0xRZfjHOfZeQLJjwgX2zS9pdGHSVl/cjSGlo4dXMqvurfxXDMKY4RqEKzPozV78VMcd0lxyG13mlbKc4w==
   dependencies:
     "@babel/helper-module-transforms" "^7.28.6"
@@ -1314,7 +1314,7 @@
 
 "@chevrotain/types@~11.1.1":
   version "11.1.2"
-  resolved "https://registry.facebook.net/@chevrotain/types/-/types-11.1.2.tgz#e83a1a2704f0c5e49e7592b214031a0f4a34d7e5"
+  resolved "https://registry.yarnpkg.com/@chevrotain/types/-/types-11.1.2.tgz#e83a1a2704f0c5e49e7592b214031a0f4a34d7e5"
   integrity sha512-U+HFai5+zmJCkK86QsaJtoITlboZHBqrVketcO2ROv865xfCMSFpELQoz1GkX5GzME8pTa+3kbKrZHQtI0gdbw==
 
 "@chevrotain/utils@12.0.0":
@@ -1324,7 +1324,7 @@
 
 "@cmfcmf/docusaurus-search-local@^2.0.1":
   version "2.0.1"
-  resolved "https://registry.facebook.net/@cmfcmf/docusaurus-search-local/-/docusaurus-search-local-2.0.1.tgz#0b41d75084fb3f0552e76838240ca1ae30d49819"
+  resolved "https://registry.yarnpkg.com/@cmfcmf/docusaurus-search-local/-/docusaurus-search-local-2.0.1.tgz#0b41d75084fb3f0552e76838240ca1ae30d49819"
   integrity sha512-4Gk313a+9HGetIFB9f087Qrmba5svx0zY9xZ10QKd79Nic0IsY0/JktDqFMZ51IDuL+9yIMOsdeKb313ce2mnw==
   dependencies:
     "@algolia/autocomplete-js" "^1.8.2"
@@ -2310,7 +2310,7 @@
 
 "@iconify/utils@^3.0.2":
   version "3.1.3"
-  resolved "https://registry.facebook.net/@iconify/utils/-/utils-3.1.3.tgz#71efd68f9ed2ea3c91fd3a01c0032f70a87027b7"
+  resolved "https://registry.yarnpkg.com/@iconify/utils/-/utils-3.1.3.tgz#71efd68f9ed2ea3c91fd3a01c0032f70a87027b7"
   integrity sha512-LPKOXPn/zV+zis1oOfGWogaXVpqUybF3ZS6SCZIsz8vg0ivVp9+fVqyYB7xq0aiST/VhUQYGO1qo6uoYSiEJqw==
   dependencies:
     "@antfu/install-pkg" "^1.1.0"
@@ -2596,7 +2596,7 @@
 
 "@mermaid-js/parser@^1.1.1":
   version "1.1.1"
-  resolved "https://registry.facebook.net/@mermaid-js/parser/-/parser-1.1.1.tgz#30f3ab68d816912e43f245a72a0d4081bf69d966"
+  resolved "https://registry.yarnpkg.com/@mermaid-js/parser/-/parser-1.1.1.tgz#30f3ab68d816912e43f245a72a0d4081bf69d966"
   integrity sha512-VuHdsYMK1bT6X2JbcAaWAhugTRvRBRyuZgd+c22swUeI9g/ntaxF7CY7dYarhZovofCbUNO0G7JesfmNtjYOCw==
   dependencies:
     "@chevrotain/types" "~11.1.1"
@@ -3585,7 +3585,7 @@
 
 "@upsetjs/venn.js@^2.0.0":
   version "2.0.0"
-  resolved "https://registry.facebook.net/@upsetjs/venn.js/-/venn.js-2.0.0.tgz#3be192038cdda927aa4f8b22ab51af82abf47f34"
+  resolved "https://registry.yarnpkg.com/@upsetjs/venn.js/-/venn.js-2.0.0.tgz#3be192038cdda927aa4f8b22ab51af82abf47f34"
   integrity sha512-WbBhLrooyePuQ1VZxrJjtLvTc4NVfpOyKx0sKqioq9bX1C1m7Jgykkn8gLrtwumBioXIqam8DLxp88Adbue6Hw==
   optionalDependencies:
     d3-selection "^3.0.0"
@@ -4083,7 +4083,7 @@ async-function@^1.0.0:
 
 autocomplete.js@^0.37.1:
   version "0.37.1"
-  resolved "https://registry.facebook.net/autocomplete.js/-/autocomplete.js-0.37.1.tgz#a29a048d827e7d2bf8f7df8b831766e5cc97df01"
+  resolved "https://registry.yarnpkg.com/autocomplete.js/-/autocomplete.js-0.37.1.tgz#a29a048d827e7d2bf8f7df8b831766e5cc97df01"
   integrity sha512-PgSe9fHYhZEsm/9jggbjtVsGXJkPLvd+9mC7gZJ662vVL5CRWEtm/mIrrzCx0MrNxHVwxD5d00UOn6NsmL2LUQ==
   dependencies:
     immediate "^3.2.3"
@@ -4274,7 +4274,7 @@ boxen@^7.0.0:
 
 brace-expansion@^1.1.13, brace-expansion@^1.1.7:
   version "1.1.14"
-  resolved "https://registry.facebook.net/brace-expansion/-/brace-expansion-1.1.14.tgz#d9de602370d91347cd9ddad1224d4fd701eb348b"
+  resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-1.1.14.tgz#d9de602370d91347cd9ddad1224d4fd701eb348b"
   integrity sha512-MWPGfDxnyzKU7rNOW9SP/c50vi3xrmrua/+6hfPbCS2ABNWfx24vPidzvC7krjU/RTo235sV776ymlsMtGKj8g==
   dependencies:
     balanced-match "^1.0.0"
@@ -5095,7 +5095,7 @@ cytoscape-fcose@^2.2.0:
 
 cytoscape@^3.33.1:
   version "3.33.3"
-  resolved "https://registry.facebook.net/cytoscape/-/cytoscape-3.33.3.tgz#6c885823cb088eb8c31087c35d978661dcde5eae"
+  resolved "https://registry.yarnpkg.com/cytoscape/-/cytoscape-3.33.3.tgz#6c885823cb088eb8c31087c35d978661dcde5eae"
   integrity sha512-Gej7U+OKR+LZ8kvX7rb2HhCYJ0IhvEFsnkud4SB1PR+BUY/TsSO0dmOW59WEVLu51b1Rm+gQRKoz4bLYxGSZ2g==
 
 "d3-array@1 - 2":
@@ -5371,7 +5371,7 @@ d3@^7.9.0:
 
 dagre-d3-es@7.0.14:
   version "7.0.14"
-  resolved "https://registry.facebook.net/dagre-d3-es/-/dagre-d3-es-7.0.14.tgz#1272276e26457cf3b97dac569f8f0531ec33c377"
+  resolved "https://registry.yarnpkg.com/dagre-d3-es/-/dagre-d3-es-7.0.14.tgz#1272276e26457cf3b97dac569f8f0531ec33c377"
   integrity sha512-P4rFMVq9ESWqmOgK+dlXvOtLwYg0i7u0HBGJER0LZDJT2VHIPAMZ/riPxqJceWMStH5+E61QxFra9kIS3AqdMg==
   dependencies:
     d3 "^7.9.0"
@@ -5411,7 +5411,7 @@ data-view-byte-offset@^1.0.1:
 
 dayjs@^1.11.19:
   version "1.11.20"
-  resolved "https://registry.facebook.net/dayjs/-/dayjs-1.11.20.tgz#88d919fd639dc991415da5f4cb6f1b6650811938"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.20.tgz#88d919fd639dc991415da5f4cb6f1b6650811938"
   integrity sha512-YbwwqR/uYpeoP4pu043q+LTDLFBLApUP6VxRihdfNTqu4ubqMlGDLd6ErXhEgsyvY0K6nCs7nggYumAN+9uEuQ==
 
 debounce@^1.2.1:
@@ -5602,7 +5602,7 @@ doctrine@^3.0.0:
 
 docusaurus-lunr-search@^2.3.2, docusaurus-lunr-search@^3.5.0:
   version "3.6.0"
-  resolved "https://registry.facebook.net/docusaurus-lunr-search/-/docusaurus-lunr-search-3.6.0.tgz#f708e4fcb84581db141f3c92fefce9ad0386a3a9"
+  resolved "https://registry.yarnpkg.com/docusaurus-lunr-search/-/docusaurus-lunr-search-3.6.0.tgz#f708e4fcb84581db141f3c92fefce9ad0386a3a9"
   integrity sha512-CCEAnj5e67sUZmIb2hOl4xb4nDN07fb0fvRDDmdWlYpUvyS1CSKbw4lsGInLyUFEEEBzxQmT6zaVQdF/8Zretg==
   dependencies:
     autocomplete.js "^0.37.1"
@@ -5969,7 +5969,7 @@ es-to-primitive@^1.3.0:
 
 es-toolkit@^1.45.1:
   version "1.46.1"
-  resolved "https://registry.facebook.net/es-toolkit/-/es-toolkit-1.46.1.tgz#38ca27191a98a867fc544b81cf1477a68947fb06"
+  resolved "https://registry.yarnpkg.com/es-toolkit/-/es-toolkit-1.46.1.tgz#38ca27191a98a867fc544b81cf1477a68947fb06"
   integrity sha512-5eNtXOs3tbfxXOj04tjjseeWkRWaoCjdEI+96DgwzZoe6c9juL49pXlzAFTI72aWC9Y8p7168g6XIKjh7k6pyQ==
 
 esast-util-from-estree@^2.0.0:
@@ -6115,7 +6115,7 @@ eslint-plugin-jsx-a11y@^6.10.2:
 
 eslint-plugin-react-hooks@^4.6.2:
   version "4.6.2"
-  resolved "https://registry.facebook.net/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-4.6.2.tgz#c829eb06c0e6f484b3fbb85a97e57784f328c596"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-4.6.2.tgz#c829eb06c0e6f484b3fbb85a97e57784f328c596"
   integrity sha512-QzliNJq4GinDBcD8gPB5v0wh6g8q3SUi6EFF0x8N/BL9PoVs0atuGc47ozMRyOWAKdwaZ5OnbOEa3WR+dSGKuQ==
 
 eslint-plugin-react@^7.37.4:
@@ -6441,7 +6441,7 @@ fast-levenshtein@^2.0.6:
 
 fast-uri@^3.0.1, fast-uri@^3.1.2:
   version "3.1.2"
-  resolved "https://registry.facebook.net/fast-uri/-/fast-uri-3.1.2.tgz#8af3d4fc9d3e71b11572cc2673b514a7d1a8c8ec"
+  resolved "https://registry.yarnpkg.com/fast-uri/-/fast-uri-3.1.2.tgz#8af3d4fc9d3e71b11572cc2673b514a7d1a8c8ec"
   integrity sha512-rVjf7ArG3LTk+FS6Yw81V1DLuZl1bRbNrev6Tmd/9RaroeeRRJhAt7jg/6YFxbvAQXUCavSoZhPPj6oOx+5KjQ==
 
 fastest-levenshtein@^1.0.16:
@@ -6575,12 +6575,12 @@ flat@^5.0.2:
 
 flatted@^3.2.9, flatted@^3.3.3, flatted@^3.4.2:
   version "3.4.2"
-  resolved "https://registry.facebook.net/flatted/-/flatted-3.4.2.tgz#f5c23c107f0f37de8dbdf24f13722b3b98d52726"
+  resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.4.2.tgz#f5c23c107f0f37de8dbdf24f13722b3b98d52726"
   integrity sha512-PjDse7RzhcPkIJwy5t7KPWQSZ9cAbzQXcafsetQoD7sOJRQlGikNbx7yZp2OotDnJyrDcbyRq3Ttb18iYOqkxA==
 
 follow-redirects@^1.0.0, follow-redirects@^1.16.0:
   version "1.16.0"
-  resolved "https://registry.facebook.net/follow-redirects/-/follow-redirects-1.16.0.tgz#28474a159d3b9d11ef62050a14ed60e4df6d61bc"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.16.0.tgz#28474a159d3b9d11ef62050a14ed60e4df6d61bc"
   integrity sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==
 
 for-each@^0.3.3, for-each@^0.3.5:
@@ -6667,7 +6667,7 @@ functions-have-names@^1.2.3:
 
 gauge@^3.0.2:
   version "3.0.2"
-  resolved "https://registry.facebook.net/gauge/-/gauge-3.0.2.tgz#03bf4441c044383908bcfa0656ad91803259b395"
+  resolved "https://registry.yarnpkg.com/gauge/-/gauge-3.0.2.tgz#03bf4441c044383908bcfa0656ad91803259b395"
   integrity sha512-+5J6MS/5XksCuXq++uFRsnUd7Ovu1XenbeuIuNRJxYWjgQbPuFhT14lAvsWfqfAmnwluf1OwMjz39HjfLPci0Q==
   dependencies:
     aproba "^1.0.3 || ^2.0.0"
@@ -7076,7 +7076,7 @@ hast-util-raw@^9.0.0:
 
 hast-util-select@^4.0.2:
   version "4.0.2"
-  resolved "https://registry.facebook.net/hast-util-select/-/hast-util-select-4.0.2.tgz#ae3ef2860e02cda2ad3a2e72b47c1f5e8f44e9e7"
+  resolved "https://registry.yarnpkg.com/hast-util-select/-/hast-util-select-4.0.2.tgz#ae3ef2860e02cda2ad3a2e72b47c1f5e8f44e9e7"
   integrity sha512-8EEG2//bN5rrzboPWD2HdS3ugLijNioS1pqOTIolXNf67xxShYw4SQEmVXd3imiBG+U2bC2nVTySr/iRAA7Cjg==
   dependencies:
     bcp-47-match "^1.0.0"
@@ -7157,7 +7157,7 @@ hast-util-to-string@^1.0.0:
 
 hast-util-to-text@^2.0.1:
   version "2.0.1"
-  resolved "https://registry.facebook.net/hast-util-to-text/-/hast-util-to-text-2.0.1.tgz#04f2e065642a0edb08341976084aa217624a0f8b"
+  resolved "https://registry.yarnpkg.com/hast-util-to-text/-/hast-util-to-text-2.0.1.tgz#04f2e065642a0edb08341976084aa217624a0f8b"
   integrity sha512-8nsgCARfs6VkwH2jJU9b8LNTuR4700na+0h3PqCaEk4MAnMDeu5P0tP8mjk9LLNGxIeQRLbiDbZVw6rku+pYsQ==
   dependencies:
     hast-util-is-element "^1.0.0"
@@ -7466,7 +7466,7 @@ import-lazy@^4.0.0:
 
 import-meta-resolve@^4.2.0:
   version "4.2.0"
-  resolved "https://registry.facebook.net/import-meta-resolve/-/import-meta-resolve-4.2.0.tgz#08cb85b5bd37ecc8eb1e0f670dc2767002d43734"
+  resolved "https://registry.yarnpkg.com/import-meta-resolve/-/import-meta-resolve-4.2.0.tgz#08cb85b5bd37ecc8eb1e0f670dc2767002d43734"
   integrity sha512-Iqv2fzaTQN28s/FwZAoFq0ZSs/7hMAHJVX+w8PZl3cY19Pxk6jFFalxQoIfW2826i/fDLXv8IiEZRIT0lDuWcg==
 
 imurmurhash@^0.1.4:
@@ -8099,7 +8099,7 @@ katex@^0.16.0:
 
 katex@^0.16.25:
   version "0.16.46"
-  resolved "https://registry.facebook.net/katex/-/katex-0.16.46.tgz#8e19feefe14aac04c9d6516c086a78f61d06c0b4"
+  resolved "https://registry.yarnpkg.com/katex/-/katex-0.16.46.tgz#8e19feefe14aac04c9d6516c086a78f61d06c0b4"
   integrity sha512-WHy4Coo+bGZyH7NwJKHkS04YFsFcarWbAEOAC3EMndzdN6VSZqklLLIgfxzyaW9jDoeGYJX9SWbJPKpecox0Uw==
   dependencies:
     commander "^8.3.0"
@@ -8245,7 +8245,7 @@ locate-path@^7.1.0:
 
 lodash-es@^4.17.21, lodash-es@^4.18.1:
   version "4.18.1"
-  resolved "https://registry.facebook.net/lodash-es/-/lodash-es-4.18.1.tgz#b962eeb80d9d983a900bf342961fb7418ca10b1d"
+  resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.18.1.tgz#b962eeb80d9d983a900bf342961fb7418ca10b1d"
   integrity sha512-J8xewKD/Gk22OZbhpOVSwcs60zhd95ESDwezOFuA3/099925PdHJ7OFHNTGtajL3AlZkykD32HykiMo+BIBI8A==
 
 lodash.debounce@^4.0.8:
@@ -8280,7 +8280,7 @@ lodash.uniq@^4.5.0:
 
 lodash@^4.17.20, lodash@^4.17.21, lodash@^4.18.1:
   version "4.18.1"
-  resolved "https://registry.facebook.net/lodash/-/lodash-4.18.1.tgz#ff2b66c1f6326d59513de2407bf881439812771c"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.18.1.tgz#ff2b66c1f6326d59513de2407bf881439812771c"
   integrity sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==
 
 longest-streak@^3.0.0:
@@ -8321,7 +8321,7 @@ lunr-languages@^1.4.0:
 
 lunr@^2.3.9:
   version "2.3.9"
-  resolved "https://registry.facebook.net/lunr/-/lunr-2.3.9.tgz#18b123142832337dd6e964df1a5a7707b25d35e1"
+  resolved "https://registry.yarnpkg.com/lunr/-/lunr-2.3.9.tgz#18b123142832337dd6e964df1a5a7707b25d35e1"
   integrity sha512-zTU3DaZaF3Rt9rhN3uBMGQD3dD2/vFQqnvZCDv4dl5iOzq2IZQqTxu90r4E5J+nP70J3ilqVCrbho2eWaeW8Ow==
 
 magic-string@^0.25.0, magic-string@^0.25.1:
@@ -8355,7 +8355,7 @@ markdown-table@^3.0.0:
 
 marked@^16.3.0:
   version "16.4.2"
-  resolved "https://registry.facebook.net/marked/-/marked-16.4.2.tgz#4959a64be6c486f0db7467ead7ce288de54290a3"
+  resolved "https://registry.yarnpkg.com/marked/-/marked-16.4.2.tgz#4959a64be6c486f0db7467ead7ce288de54290a3"
   integrity sha512-TI3V8YYWvkVf3KJe1dRkpnjs68JUPyEa5vjKrp1XEEJUAOaQc+Qj+L1qWbPd0SJuAdQkFU0h73sXXqwDYxsiDA==
 
 math-intrinsics@^1.1.0:
@@ -8776,7 +8776,7 @@ merge2@^1.3.0, merge2@^1.4.1:
 
 mermaid@^11.15.0, mermaid@^11.5.0:
   version "11.15.0"
-  resolved "https://registry.facebook.net/mermaid/-/mermaid-11.15.0.tgz#b485c13ea5e1e74f3328c4bb00427bda87fa1c1e"
+  resolved "https://registry.yarnpkg.com/mermaid/-/mermaid-11.15.0.tgz#b485c13ea5e1e74f3328c4bb00427bda87fa1c1e"
   integrity sha512-pTMbcf3rWdtLiYGpmoTjHEpeY8seiy6sR+9nD7LOs8KfUbHE4lOUAprTRqRAcWSQ6MQpdX+YEsxShtGsINtPtw==
   dependencies:
     "@braintree/sanitize-url" "^7.1.1"
@@ -9561,7 +9561,7 @@ minimalistic-assert@^1.0.0:
 
 minimatch@3.1.2, minimatch@^3.0.5, minimatch@^3.1.1, minimatch@^3.1.2, minimatch@^3.1.5:
   version "3.1.5"
-  resolved "https://registry.facebook.net/minimatch/-/minimatch-3.1.5.tgz#580c88f8d5445f2bd6aa8f3cadefa0de79fbd69e"
+  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.1.5.tgz#580c88f8d5445f2bd6aa8f3cadefa0de79fbd69e"
   integrity sha512-VgjWUsnnT6n+NUk6eZq77zeFdpW2LWDzP6zFGrCbHXiYNul5Dzqk2HHQ5uFH2DNW5Xbp8+jVzaeNt94ssEEl4w==
   dependencies:
     brace-expansion "^1.1.7"
@@ -10087,7 +10087,7 @@ path-root@^0.1.1:
 
 path-to-regexp@0.1.13, path-to-regexp@~0.1.12:
   version "0.1.13"
-  resolved "https://registry.facebook.net/path-to-regexp/-/path-to-regexp-0.1.13.tgz#9b22ec16bc3ab88d05a0c7e369869421401ab17d"
+  resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-0.1.13.tgz#9b22ec16bc3ab88d05a0c7e369869421401ab17d"
   integrity sha512-A/AGNMFN3c8bOlvV9RreMdrv7jsmF9XIfDeCd87+I8RNg6s78BhJxMu69NEMHBSJFxKidViTEdruRwEk/WIKqA==
 
 path-to-regexp@3.3.0:
@@ -10114,7 +10114,7 @@ picocolors@^1.0.0, picocolors@^1.1.1:
 
 picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.2.3, picomatch@^2.3.1, picomatch@^2.3.2:
   version "2.3.2"
-  resolved "https://registry.facebook.net/picomatch/-/picomatch-2.3.2.tgz#5a942915e26b372dc0f0e6753149a16e6b1c5601"
+  resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.2.tgz#5a942915e26b372dc0f0e6753149a16e6b1c5601"
   integrity sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA==
 
 pkg-dir@^7.0.0:
@@ -10721,7 +10721,7 @@ postcss-zindex@^6.0.2:
 
 postcss@^8.4.21, postcss@^8.4.24, postcss@^8.4.33, postcss@^8.5.10, postcss@^8.5.4, postcss@^8.5.6:
   version "8.5.14"
-  resolved "https://registry.facebook.net/postcss/-/postcss-8.5.14.tgz#a66c2d7808fadf69ebb5b84a03f8bafd76c4919c"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.5.14.tgz#a66c2d7808fadf69ebb5b84a03f8bafd76c4919c"
   integrity sha512-SoSL4+OSEtR99LHFZQiJLkT59C5B1amGO1NzTwj7TT1qCUgUO6hxOvzkOYxD+vMrXBM3XJIKzokoERdqQq/Zmg==
   dependencies:
     nanoid "^3.3.11"
@@ -11567,7 +11567,7 @@ sax@^1.2.4:
 
 sax@^1.5.0:
   version "1.6.0"
-  resolved "https://registry.facebook.net/sax/-/sax-1.6.0.tgz#da59637629307b97e7c4cb28e080a7bc38560d5b"
+  resolved "https://registry.yarnpkg.com/sax/-/sax-1.6.0.tgz#da59637629307b97e7c4cb28e080a7bc38560d5b"
   integrity sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA==
 
 scheduler@^0.23.2:
@@ -11665,7 +11665,7 @@ send@~0.19.0, send@~0.19.1:
 
 serialize-javascript@^6.0.0, serialize-javascript@^6.0.1, serialize-javascript@^6.0.2, serialize-javascript@^7.0.5:
   version "7.0.5"
-  resolved "https://registry.facebook.net/serialize-javascript/-/serialize-javascript-7.0.5.tgz#c798cc0552ffbb08981914a42a8756e339d0d5b1"
+  resolved "https://registry.yarnpkg.com/serialize-javascript/-/serialize-javascript-7.0.5.tgz#c798cc0552ffbb08981914a42a8756e339d0d5b1"
   integrity sha512-F4LcB0UqUl1zErq+1nYEEzSHJnIwb3AF2XWB94b+afhrekOUijwooAYqFyRbjYkm2PAKBabx6oYv/xDxNi8IBw==
 
 serve-handler@^6.1.6:
@@ -12259,7 +12259,7 @@ svg-tags@^1.0.0:
 
 svgo@^3.0.2, svgo@^3.2.0, svgo@^3.3.3:
   version "3.3.3"
-  resolved "https://registry.facebook.net/svgo/-/svgo-3.3.3.tgz#8246aee0b08791fde3b0ed22b5661b471fadf58e"
+  resolved "https://registry.yarnpkg.com/svgo/-/svgo-3.3.3.tgz#8246aee0b08791fde3b0ed22b5661b471fadf58e"
   integrity sha512-+wn7I4p7YgJhHs38k2TNjy1vCfPIfLIJWR5MnCStsN8WuuTcBnRKcMHQLMM2ijxGZmDoZwNv8ipl5aTTen62ng==
   dependencies:
     commander "^7.2.0"
@@ -12594,7 +12594,7 @@ unified@^11.0.0, unified@^11.0.3, unified@^11.0.4:
 
 unified@^9.2.1, unified@^9.2.2:
   version "9.2.2"
-  resolved "https://registry.facebook.net/unified/-/unified-9.2.2.tgz#67649a1abfc3ab85d2969502902775eb03146975"
+  resolved "https://registry.yarnpkg.com/unified/-/unified-9.2.2.tgz#67649a1abfc3ab85d2969502902775eb03146975"
   integrity sha512-Sg7j110mtefBD+qunSLO1lqOEKdrwBFBrR6Qd8f4uwkhWNlbkaqwHse6e7QvD3AP/MNoJdEDLaf8OxYyoWgorQ==
   dependencies:
     bail "^1.0.0"
@@ -12835,7 +12835,7 @@ utils-merge@1.0.1:
 
 "uuid@^11.1.0 || ^12 || ^13 || ^14.0.0", uuid@^14.0.0, uuid@^8.3.2:
   version "14.0.0"
-  resolved "https://registry.facebook.net/uuid/-/uuid-14.0.0.tgz#0af883220163d264ffe0c084f6b8a89b9666966d"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-14.0.0.tgz#0af883220163d264ffe0c084f6b8a89b9666966d"
   integrity sha512-Qo+uWgilfSmAhXCMav1uYFynlQO7fMFiMVZsQqZRMIXp0O7rR7qjkj+cPvBHLgBqi960QCoo/PH2/6ZtVqKvrg==
 
 uvu@^0.5.0:
