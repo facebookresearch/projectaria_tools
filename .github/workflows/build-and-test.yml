@@ -10,6 +10,9 @@ on:
     paths-ignore:
       - "**/website/**"
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build projectaria_tools on ${{ matrix.os }}
