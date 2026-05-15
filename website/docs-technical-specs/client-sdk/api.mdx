@@ -337,9 +337,18 @@ Set the action to take when a file conflict occurs during download.
 
 ##### `device_profiles() -> Dict[str, DataFlowProfileList]`
 
-Get the device's recording profiles.
+Get all profiles available on the device, organized by category.
 
 **Returns:** Dictionary mapping profile category names to `DataFlowProfileList` objects
+
+**Example:**
+```python
+profiles = device.device_profiles()
+for category, profile_list in profiles.items():
+    print(f"Category: {category} (hash: {profile_list.hash})")
+    for profile in profile_list.profiles:
+        print(f"  {profile.name}: {profile.description} (type: {profile.type})")
+```
 
 #### Text-to-Speech Methods
 
@@ -797,6 +806,7 @@ A named recording profile available on the device.
 **Attributes:**
 - `name` (str): Profile name
 - `description` (str): Profile description
+- `type` (ProfileType): Profile type (`RECORDING` or `STREAMING`)
 
 ### DataFlowProfileList
 
@@ -935,6 +945,15 @@ Available network interfaces for streaming.
 - `USB_RNDIS` - USB RNDIS (Windows)
 - `USB_NCM` - USB NCM (Linux/Mac)
 - `WIFI_SAP` - WiFi Soft Access Point mode
+
+### ProfileType
+
+Types of device profiles.
+
+**Values:**
+- `UNDEFINED` - Profile type not specified
+- `RECORDING` - Profile configured for on-device recording
+- `STREAMING` - Profile configured for live streaming
 
 ### RecordingType
 

@@ -83,11 +83,28 @@ aria_gen2 device status
 
 #### `device profile list`
 
-List available device profiles.
+List available device profiles, including both pre-defined and custom profiles on the device.
 
 ```bash
 aria_gen2 device profile list
 ```
+
+#### `device profile --upload-profile <json_file>`
+
+Upload a custom profile JSON file to the device. Once uploaded, the custom profile can be used with `recording start --profile` or `streaming start --profile`.
+
+**Options:**
+- `--upload-profile` (required): Path to a custom profile JSON file
+
+```bash
+# Upload a custom profile to the device
+aria_gen2 device profile --upload-profile /path/to/custom_profile.json
+
+# Verify the profile was uploaded
+aria_gen2 device profile list
+```
+
+For details on creating custom profile JSON files, see [Custom Profile Example](/technical-specs/device/profile#custom_profile_example).
 
 ### Text-to-Speech Commands
 

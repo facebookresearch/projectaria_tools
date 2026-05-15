@@ -74,6 +74,34 @@ aria_gen2 device hotspot start
 
 ---
 
+## Profile Commands
+
+### `aria_gen2 device profile list`
+
+**Purpose:** List all available recording and streaming profiles on the device, including pre-defined and custom profiles.
+
+```bash
+aria_gen2 device profile list
+```
+
+---
+
+### `aria_gen2 device profile --upload-profile`
+
+**Purpose:** Upload a custom profile JSON file to the device for use with recording or streaming.
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `--upload-profile` | Yes | Path to custom profile JSON file |
+
+```bash
+aria_gen2 device profile --upload-profile /path/to/custom_profile.json
+```
+
+For details on creating custom profile JSON files, see [Custom Profile Example](/technical-specs/device/profile#custom_profile_example).
+
+---
+
 ## Authentication Commands
 
 ### `aria_gen2 auth pair`
