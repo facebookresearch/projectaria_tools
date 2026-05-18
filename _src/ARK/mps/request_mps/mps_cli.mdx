@@ -1,0 +1,45 @@
+---
+sidebar_position: 10
+title: MPS CLI
+---
+
+# MPS CLI
+
+## Overview
+
+
+The Project Aria MPS Command Line Interface (MPS CLI) is part of Project Aria Tools (available on MacOS and Linux) that enables users to request [Machine Perception Services (MPS)](/ARK/mps/mps.mdx). [Aria Studio](/ARK/aria_studio.mdx) is a web-based application that builds on Aria MPS CLI capabilities.
+
+MPS CLI features:
+
+* Request [SLAM](/data_formats/mps/slam/slam.mdx), [Eye Gaze](/data_formats/mps/mps_eye_gaze.mdx) and [Hand Tracking](/data_formats/mps/hand_tracking/hand_tracking.mdx) data
+* Request [multi-sequence SLAM data](/data_formats/mps/slam/mps_multi_slam.mdx)
+* Auto run health checks prior to upload
+    * Recordings will not be uploaded if they are not valid for any of the MPS services requested
+* Resumable uploads
+    * Uploads, interrupted for any reason, can be resumed within 24 hrs
+    * Particularly useful for large VRS files
+* Concurrent processing
+    * CLI takes a list of directories/files as input and recursively finds all .vrs files to process concurrently
+    * The number of concurrent processes for each stage can be modified in [Settings](mps_cli_guide.mdx#settings)
+* Automatically downloads outputs once processing is complete
+* Recordings are processed once
+    * If the output directory already exists and contains the MPS results, processing is skipped
+    * If the recording was processed in the past, the results will be downloaded without submitting the recording for processing again (unless --force is passed as an input)
+* Uploaded data is stored for 30 days
+    * Additional MPS can be requested without needing to upload again
+    * Data can be reprocessed without needing to upload again
+* CLI can be integrated into your automated workflows
+    * This includes ensuring that all commands and processes work without using the UI
+    * See the [Command Line Reference](mps_cli_guide.mdx#command-line-reference) for more details
+
+MPS CLI documentation:
+* [Getting Started](mps_cli_getting_started.mdx)
+* [MPS CLI Guide](mps_cli_guide.mdx)
+
+Further resources:
+* [Aria Studio](/ARK/aria_studio.mdx)
+* [About Project Aria Machine Perception Services](/ARK/mps/mps.mdx)
+* [MPS Data Formats](/data_formats/mps/mps_summary.mdx)
+* [Visualize MPS Using Python](/data_utilities/visualization/visualization_python.mdx)
+* [Visualize MPS Using C++](/data_utilities/visualization/visualization_cpp.mdx)

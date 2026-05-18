@@ -1,0 +1,1592 @@
+---
+sidebar_position: 120
+title: ARK Release Notes
+---
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+# Project Aria Research Kit Release Notes
+
+These SW Release notes are for the Aria Research Kit (ARK), and are for Meta SW that supports Academic Research Partners using Project Aria glasses. To find out how to become a research partner, go to [projectaria.com](https://projectaria.com).
+
+Our Open Source Project Aria Tools SW Release notes are posted to [Project Aria Tools GitHub repository](https://github.com/facebookresearch/projectaria_tools), using Tags > Releases.
+
+## ARK v1.15 is Now Available!
+We are excited to announce the release of Aria Research Kit v1.15 today, containing improvements for both user experience and technical performance. This update adds robust debug sharing in Aria Studio and adds a settings page for customization of machine perception job submission. A new version of the  companion app enables users to quickly report issues using the “rage-shake” feature. This release also brings significant improvements to MPS Hand Tracking accuracy.
+
+### Key Features
+
+#### Aria Studio
+
+- **MPS Job Debug Sharing:** Users can now easily create and submit MPS job failure reports directly within Aria Studio. Attach screenshots, log files, and grant permission for the Aria Team to provide technical support—all from the new interface. You can also track the history and real-time status of your support cases, streamlining communication and accelerating issue resolution.
+
+- **Settings Page:** A new GUI settings page in Aria Studio allows you to customize MPS settings with intuitive, accessible controls. This enhancement makes it simpler to adjust relevant options, improving usability and efficiency when debugging or configuring your environment.
+
+**Download and Installation Details: Aria Studio** [one-click Installation](aria_studio.mdx#install-aria-studio-with-one-click);[PyPI installation](aria_studio.mdx#install-aria-studio-via-pypi)
+
+#### Aria Companion App v238
+
+- **Rage-shake Bug Reporting:** Quickly report abnormal behavior by simply shaking your phone! The new rage-shake feature instantly captures the issue and connects you to Aria Support for faster problem resolution.
+
+**Download and Installation Details:** [Mobile Companion App installation](ark_downloads.mdx#mobile-companion-app)
+
+#### Improved MPS Hand Tracking
+
+We are releasing MPS Hand Tracking v3.0.0 on October 20th. This version reduces loss of hand tracking and reduces the mean keypoint estimation error on our test datasets, resulting in more reliable and precise hand tracking results. All Aria Research Kit users will be migrated to this new version at the time of release. If anyone has a need to continue using the existing version for dataset consistency, please reach out immediately so we can keep you allowlisted for the current version of hand tracking until you are ready for migration. This is a server-side update that does not require any software installation or updates.
+
+### Questions, Comments, Concerns?
+
+If you encounter any problems with Project Aria software please contact our support team through one of the following channels:
+
+- **NEW!** "Rage shake" in the companion app to report a bug directly to the team.
+
+- **NEW!** Report MPS Job failures directly in Aria Studio.
+
+- Post to [Project Aria Tools issues on GitHub](https://github.com/facebookresearch/projectaria_tools/issues)
+
+- Post to [Academic Partners Feedback and Support workplace group](workplacegroup.mdx) - discussion, feedback or user support
+
+- Post to Project Aria Discord - best for discussion, feedback, or user support
+
+- Email us directly at AriaOps@meta.com
+
+Thank you for being part of the Project Aria community. We look forward to your feedback and to seeing what you build with these new capabilities!
+
+## Aria Mobile App v230 is now available
+Dear Academic Partners,
+
+The Aria Mobile App v230 is now available. Visit the [ARK SW Downloads page](ark_downloads.mdx) to download the latest version of the app for Android. For iOS, select **Update** in the TestFlight app. Keeping your app up to date helps ensure the best performance and compatibility.
+
+### PROJECT ARIA LATEST OS
+The latest Project Aria OS build **4975080.310.70** (released **April 1, 2025**).
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+If you encounter any problems using Project Aria support, please contact us. There are several ways for getting user support.
+
+We encourage you to post issues to GitHub.
+
+* Post to [Project Aria Tools issues on GitHub](https://github.com/facebookresearch/projectaria_tools/issues)
+
+* Post to [Academic Partners Feedback and Support workplace group](workplacegroup.mdx) - discussion, feedback or user support
+
+* Post to Project Aria Discord - best for [discussion](https://discord.com/channels/1149058737504538654/1149062533152518305), [feedback](https://discord.com/channels/1149058737504538654/1149062533152518305) or [user support](https://discord.com/channels/1149058737504538654/1293298255576301631)
+
+* Email AriaOps@meta.com - for feedback or user support
+
+**Note:** If you are a Research Partner with access to the Aria Research Kit, there are several other support options available, although GitHub is ideal for bug reports and feature requests.
+
+## Aria Mobile App v220 is now available
+Dear Academic Partners,
+
+The Aria Mobile App v220 is now available. Visit the [ARK SW Downloads page](ark_downloads.mdx) to download the latest version of the app for Android. For iOS, select **Update** in the TestFlight app. Please update the app to access the following features and bug fixes.
+
+### BUG FIXES
+* Various bug fixes improving the overall usage.
+
+### PROJECT ARIA LATEST OS
+The latest Project Aria OS build **4975080.310.70** (released **April 1, 2025**).
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+If you encounter any problems using Project Aria support, please contact us. There are several ways for getting user support.
+
+We encourage you to post issues to GitHub.
+
+* Post to [Project Aria Tools issues on GitHub](https://github.com/facebookresearch/projectaria_tools/issues)
+
+* Post to [Academic Partners Feedback and Support workplace group](workplacegroup.mdx) - discussion, feedback or user support
+
+* Post to Project Aria Discord - best for [discussion](https://discord.com/channels/1149058737504538654/1149062533152518305), [feedback](https://discord.com/channels/1149058737504538654/1149062533152518305) or [user support](https://discord.com/channels/1149058737504538654/1293298255576301631)
+
+* Email AriaOps@meta.com - for feedback or user support
+
+Note: If you are a Research Partner with access to the Aria Research Kit there are several other support options available, although GitHub is ideal for bug reports and feature requests.
+
+## Announcing Aria Research Kit v1.14 with 21 Landmark Hand Tracking in MPS
+We are pleased to announce the release of Aria Research Kit v1.14 which now makes fully articulated 21 landmark hand joint positions available with Machine Perception Services Hand Tracking output as a new CSV file called hand_tracking_results.csv. Researchers can utilize this long-awaited feature to produce detailed 3D hand pose annotations useful for robotics research, contextual AI, and anywhere else that hand signals may be important.
+
+![Hand tracking demonstration](/img/data_utilities/21-keypoint-tri.png)
+
+In addition to 21 landmarks output, we output a six-degree-of-freedom transform at the wrist location to allow for transformation of the landmarks from the hand frame to the device frame, and normal vectors computed at both the wrist and palm landmarks. The transform and normals form a consistent system and the normals also match the normals we’ve computed on previous versions of wrist and palm output.
+
+![The 21 landmarks](/img/data_utilities/21-keypoints.png)
+
+We encourage hand tracking users to transition to this new output format, where we will be investing in any future maintenance and bug fixing. We will also continue to provide wrist_and_palm_poses output, which can be loaded with prior versions of projectaria_tools, but will not invest in bug fixes or feature additions for this legacy format.
+
+* Here's a [Notebook](https://github.com/facebookresearch/projectaria_tools/blob/main/core/examples/mps_quickstart_tutorial.ipynb) and [Sample Code (Python & C++)](../data_utilities/core_code_snippets/mps.mdx#hand-tracking) demonstrating how to load and use the landmarks.
+
+* See [Documentation](../data_formats/mps/hand_tracking/hand_tracking.mdx) on data format definitions.
+
+**Reminder for Aria Desktop App Deprecation:** As mentioned in previous release notes, the Aria Desktop App will be fully deprecated on May 30th, 2025, at which point requests to MPS will not be possible and documentation for the tool will be removed. Please migrate over to [Aria Studio](aria_studio.mdx) if you haven’t already.
+
+### Update your Software to Access These Improvements
+
+#### Aria Companion App
+Aria Mobile Companion App App v215 is now available for installation. Visit to the [ARK SW Downloads and Updates](ark_downloads.mdx) to download the latest version for Android. For iOS, select Update in the TestFlight app.
+
+#### Project Aria Tools
+The latest projectaria-tools 1.6.0 contains tooling necessary to load and visualize 21 landmark hand tracking output. See [documentation](../data_utilities/data_utilities.mdx) for download instructions.
+
+#### Aria Studio v1.1.0
+The latest version of Aria Studi, v1.1.0 is required to submit requests to the MPS service for hand tracking annotations with 21 landmark output. See [documentation](aria_studio.mdx) for instructions on how to install Aria Studio. Note that starting with this version, we no longer support Mac Intel with a one-click installer and Mac Intel users must use pip for Aria Studio installation.
+
+### Questions, comments, concerns?
+If you encounter any bugs or issues, please contact our support team through one of the following channels:
+
+* Post in the Project Aria Discord
+    * [Join the server](https://discord.gg/2pj4er4dGF) | [User support channel](https://discord.com/channels/1149058737504538654/1293298255576301631)
+* Post to Workplace
+    * [Feedback and support group](https://facebookresearch.github.io/projectaria_tools/docs/ARK/workplacegroup)
+* Email us directly at AriaOps@meta.com
+
+## Announcement: Aria Research Kit v1.13 is now available
+We are excited to announce Aria Research Kit v1.13, featuring color correction and devignetting on videos recorded with the Aria RGB camera and a new ability for Aria to operate as a Wi-Fi hotspot for streaming, eliminating dependency on external networks. Download the latest versions of the Aria Mobile Companion App, the Aria Client SDK, and Project Aria Tools to access these improvements today.
+
+### Color correction and devignetting for the Aria RGB camera
+You may have noticed blueish color distortion in Aria RGB recordings. We’ve now fixed these with consistent gamma curves and standard color temperatures in ARK v1.13. With this update, Aria devices now produce images with more consistent colors, calibrated to a standard color temperature of 5000K. Additionally, a new devignetting API is available in Project Aria Tools to further enhance image quality and accuracy.
+
+![Pre-CC, post-CC, and reference image](/img/data_utilities/color-correction.png)
+
+### Wi-Fi hotspot streaming
+A new Wi-Fi hotspot streaming feature allows users to set up a dedicated hotspot using the Aria device, enabling direct and stable streaming without relying on external network infrastructure. **Users can enable this feature through the Aria Client SDK or directly within the Aria Companion App.**
+
+### Update your software to access these improvements
+
+#### Aria Companion App
+Aria Mobile Companion App App v210 is now available for download. Visit [ARK SW Downloads and Updates](ark_downloads.mdx#mobile-companion-app) to download the latest version for Android. For iOS, select **Update** in the TestFlight app.
+
+#### Project Aria latest OS
+Project Aria OS build 4975080.310.70 (released April 1, 2025) contains the changes necessary for RGB color correction and devignetting. Update to this build or newer using the Aria Companion App.
+
+#### Aria Client SDK
+The Aria Client SDK now supports streaming in hotspot mode, diagnostic logging collections for users, support for Python 3.12, RGB color correction, and more. See the [ARK download documentation](ark_downloads.mdx#client-sdk-with-cli) for download instructions.
+
+#### Project Aria Tools
+The latest projectaria-tools 1.5.8 contains the tooling necessary to support RGB camera color correction and devignetting. See the [data utilities overview](../data_utilities/data_utilities.mdx#overview) for download instructions.
+
+### Questions, comments, concerns?
+If you encounter any bugs or issues, please contact our support team through one of the following channels:
+
+* Post in the Project Aria Discord
+    * [Join the server](https://discord.gg/2pj4er4dGF) | [User support channel](https://discord.com/channels/1149058737504538654/1293298255576301631)
+* Post to Workplace
+    * [Feedback and support group](https://facebookresearch.github.io/projectaria_tools/docs/ARK/workplacegroup)
+* Email us directly at AriaOps@meta.com
+
+
+## Aria Research Kit v1.12
+We are excited to announce updates to the Aria Research Kit with v1.12. Download the latest versions and access new features for Aria Studio, Project Aria Tools, and the Companion App.
+
+### Mobile Companion App
+Aria Mobile Companion App v200 is now available for download. Visit [ARK SW Downloads and Updates](ark_downloads.mdx#mobile-companion-app) to download the latest version for Android. For iOS, select **Update** in the TestFlight app.
+
+#### Bug fixes
+Version 200 includes minor bug fixes and refinements to the existing functionality and user experience.
+
+#### Latest Project Aria OS
+Version 200 maintains the latest Project Aria OS build: 4971771.1550.70 from October 3, 2024.
+
+### Aria Studio
+[Aria Studio](aria_studio.mdx) v1.0.3 includes minor bug fixes and refinements. It is now available via [one-click installation](aria_studio.mdx#install-aria-studio-with-one-click) and [pip-install from PyPi](aria_studio.mdx#install-aria-studio-via-pypi) in Mac ARM, Mac Intel, Windows, and Linux.
+
+### Project Aria Tools
+We are excited to announce Project Aria Tools v1.5.7! Download or update your installation of [Project Aria Tools](../data_utilities/installation/installation_python.mdx) to get access to the latest updates.
+
+See our [GitHub release notes](https://github.com/facebookresearch/projectaria_tools/releases) to review all Project Aria Tools updates.
+
+#### New Advanced Image Utility: Image devignetting
+
+Devignetting is a digital image processing technique used to correct uneven lighting in images, particularly those captured by cameras with wide-angle lenses or those that have inherent optical vignetting. Vignetting refers to the gradual decrease in brightness toward the edges of an image, often resulting in a darker periphery and a brighter center.
+
+We now provide official guidance on how to apply devignetting with Python and C++. See the [notebook](https://github.com/facebookresearch/projectaria_tools/blob/main/core/examples/dataprovider_quickstart_tutorial.ipynb) and [documentation](../data_utilities/advanced_code_snippets/image_utilities.mdx#image-devignetting) for more information.
+
+### Questions, comments, concerns?
+If you encounter any bugs or issues, please contact our support team through one of the following channels:
+
+* Post in the Project Aria Discord
+    * [Join the server](https://discord.gg/2pj4er4dGF) | [User support channel](https://discord.com/channels/1149058737504538654/1293298255576301631)
+* Post to Workplace
+    * [Feedback and support group](https://facebookresearch.github.io/projectaria_tools/docs/ARK/workplacegroup)
+* Email us directly at AriaOps@meta.com
+
+
+## **Aria Companion App v195 now Available!**
+
+December 13, 2024
+
+Aria Mobile App v195 is now available for download. For Android, visit the [ARK SW Downloads and Updates](ark_downloads.mdx#mobile-companion-app) page and download the latest version. For iOS, select **Update** in the TestFlight app. Please update the app to access the following features and bug fixes:
+
+### New & Updated Features
+
+* A new updates tab dedicated to feature announcements and program updates is now available in-app
+
+* Our eye tracking calibration feature is now fully compatible with iPhone 16
+
+### Bug Fixes
+
+Some bug fixes to improve the overall usage.
+
+### Project Aria Latest OS
+
+The latest Project Aria OS build 4971771.1550.70 (October 3, 2024).
+
+### Aria Studio - Please Update to v1.0.2 for Bug Fixes
+
+After our v1.0.0/1.0.1 release of Aria Studio on Monday Dec 9th, we identified a bug for users who downloaded Aria Studio with the Windows 1-click installer that caused MPS jobs to fail.
+
+The team worked quickly to resolve the bug, and the fix is now available as part of a new release: [Aria Studio 1.0.2](aria_studio.mdx#install-aria-studio-with-one-click). Please update to the latest version (1.0.2) at your earliest convenience.
+
+### Questions, Comments, or Feedback?
+
+If you encounter any problems with Project Aria software, please contact our support team through one of the following channels:
+
+* **Post to [Project Aria Tools issues on GitHub](https://github.com/facebookresearch/projectaria_tools/issues) - *preferred***
+
+* Post to [Academic Partners Feedback and Support workplace group](workplacegroup.mdx) - discussion, feedback or user support
+
+* Post to Project Aria Discord - best for discussion, feedback or user support
+
+* Email us directly at AriaOps@meta.com
+
+
+## **Announcing Aria Research Kit v1.11!**
+
+December 9, 2024
+
+### Aria Studio v1.0.1: Now on Windows, plus some other nice features
+
+Aria Studio is a modern desktop application with a browser-based UI that helps you manage recordings from your Aria glasses, access Machine Perception Services, and visualize egocentric data. We released a beta version of Aria Studio at CVPR this year with support for Mac and Linux. Today, we are releasing [Aria Studio v1.0.1](aria_studio.mdx), which extends our OS support to include Windows. Aria Studio is now available as a downloadable 1-click installer package in addition to the previously available pip install method. Another new feature includes the ability to submit feedback to the Aria team directly in the application and a section where the Aria team will publish news program updates and important information in the home tab.
+
+### Updates for the MPS CLI and the Mobile Companion App
+
+This release also brings the Aria Machine Perception Services Command Line Interface (MPS CLI) to Windows. Download or update your installation of [Project Aria Tools](../data_utilities/installation/installation_python.mdx) on your Windows machine to use the MPS CLI to submit your recordings to Aria Machine Perception Services. Coming soon, we will release v195 of the Aria Companion App on mobile, featuring a new section on the home tab where you can stay up-to-date with the latest news and updates from the Aria team.
+
+### Deprecation Plan for Aria Desktop App
+
+For those still using the Aria Desktop App: Today, we are announcing a deprecation plan for the Aria Desktop App. We are no longer onboarding new users to the Desktop App and will shut off the ability to request MPS from the Desktop App on May 30th, 2025. Now with support for Windows, Aria Studio fully replaces the functionality of the Desktop App. Please switch over to Aria Studio as soon as possible and reach out to ariaops@meta.com if you have any questions about the transition.
+
+### Feedback and Support
+
+If you encounter any problems using ARK v1.11, please contact us. There are several ways for getting user support.
+
+* Post to Academic Partners Feedback and Support workplace group
+
+* Post to Project Aria Discord
+
+* Email AriaOps@meta.com
+
+You can always request a meeting through our ops team if you need more in-depth discussions requiring higher bandwidth.
+
+
+## **Aria Mobile App v185 is now available**
+October 25, 2024
+
+Dear Academic Partners,
+
+The Aria Mobile App v185 is now available. Go to the [Downloads page](/ARK/ark_downloads.mdx) to get the latest version for Android. For iOS, select Update in the TestFlight app. Please **Update** the app to access the following features and bug fixes.
+
+### BUG FIXES
+
+Various bug fixes to improve the overall usage.
+
+
+
+### PROJECT ARIA LATEST OS
+
+The latest Project Aria OS build **4970205.890.70** (June 28, 2024).
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+If you encounter any problems using Project Aria support, please contact us. There are several ways for getting user support.
+
+We encourage you to post issues to GitHub, so that they can be tracked.
+
+* Post to [Project Aria Tools issues on GitHub](https://github.com/facebookresearch/projectaria_tools/issues)
+
+If you are a Research Partner with access to the Aria Research Kit there are several other support options available, although GitHub is ideal for bug reports and feature requests.
+
+* Post to [Academic Partners Feedback and Support workplace group](/ARK/workplacegroup.mdx) - discussion, feedback or user support
+* Post to Project Aria Discord - best for discussion, feedback or user support
+* Email AriaOps@meta.com - for feedback or user support
+
+<br/>
+<br/>
+
+## **Announcing Aria Research Kit v1.10**
+October 9, 2024
+
+We're announcing the release of Aria Research Kit v1.10. This release adds versioning to all of the Machine Perception Services and includes a major update to make the SLAM service more accurate for downstream tasks that utilize 3D results projected into the RGB camera frame. We are also making it much easier for you to visualize, edit, and prepare your Aria recordings for downstream use such as dataset preparation and model training with PyTorch.
+
+### MPS Versioning
+
+Starting now, we are introducing the concept of versioning to machine perception services. When we make changes to our SLAM, hand tracking, or eye tracking services, you will have information about which version of the service was utilized for your result computation. This will be available directly at the very end of the summary.json file. Versions will have a major, minor, and bugfix number (e.g. SLAM v1.1.0). We will keep our [MPS Service Versions page](/ARK/mps/mps_versioning.mdx) updated as we roll out new versions so that you are aware of the changes we make.
+
+### RGB Online Calibration
+
+Aria excels at enabling computer vision from a 3D perspective. Our SLAM Machine Perception Service provides Aria trajectory and a semi-dense point cloud output that allow computations in a 3D reference frame. Tasks like object detection can be performed in 3D and then be re-projected back into the 2D RGB images. Available as of v1.1.0, we’ve implemented extremely accurate RGB online calibration for all of your downstream tasks that utilize 3D results reprojected into the RGB camera frame. Read the [MPS Output Calibration page](/data_formats/mps/slam/mps_calibration.mdx) for more details on how to make use of online calibration.
+
+### New Tools for Working with VRS
+
+We know that it takes manual work to prepare Aria recordings for downstream use, so we’ve released some new tools to make things easier. We now provide a lightweight [VRS Player App](/data_formats/aria_vrs/aria_vrsplayer.mdx) that allows you to easily play the visual and audio sensor streams of a recording from a file menu or by using a simple command. We’ve also released a [VRS Command Line Tool](/data_formats/aria_vrs/aria_vrs_command_line.mdx) that enables easy inspection and editing of VRS files. For example, you can time crop a recording to eliminate an unwanted segment or remove sensor streams that you no longer need in your final dataset after processing through Machine Perception Services. Install both the lightweight VRS Player and the VRS Command Line Tool with the [VRS Tools Installer](/data_formats/aria_vrs/aria_vrs_tools_installation.mdx).
+
+### Aria Training and Evaluation Toolkit
+
+Preparing Aria recordings for training in PyTorch just got easier with Aria Training and Evaluation Kit (ATEK). ATEK offers an efficient solution to convert VRS files to PyTorch compatible formats, simplifying integration and use within deep learning projects. We’ve also pre-processed two popular Aria datasets with ATEK for direct usage in a data store. And lastly, we’ve created standardized evaluation libraries for 3D object detection and surface reconstruction. Read an in-depth [blog post on ATEK](https://www.projectaria.com/news/aria-training-and-evaluation-toolkit-atek/) for more information and see the [ATEK GitHub page](https://github.com/facebookresearch/ATEK/tree/main) to install ATEK today.
+
+### Project Aria Now on Huggingface
+Finally, we introduce the [Project Aria Huggingface Space](https://huggingface.co/projectaria), which allows researchers to track their model performance, helping measure, compare, and accelerate AI and ML research within the open community. AI models and datasets, released in the Project Aria Hugging Face space, will be supported by ATEK. Where possible, AI models trained using Project Aria data will also be available with full weights and scripts, making it easy for researchers to discover and benchmark existing models against their own methods.
+
+### Aria Studio Updates
+
+We've also made some updates to Aria Studio. We now display a version number and have a mechanism for surfacing updates and other key information that we want to communicate to our users. Today, Aria Studio is installed via pip install, and in doing so you'll automatically get these new features. If you haven't yet tried it, please install [Aria Studio](/ARK/aria_studio.mdx) today.
+
+### Any Questions?
+
+If you have any questions regarding this new functionality in Aria Research Kit v1.10 or any issues accessing any of the features, please reach out to our support team at AriaOps@meta.com.
+
+<br/>
+<br/>
+
+## **Aria Mobile App v180 is now available**
+September 17, 2024
+
+Dear Academic Partners,
+
+The Aria Mobile App v180 for Android is now available. Go to the [Downloads page](/ARK/ark_downloads.mdx) to get the latest version for Android. For iOS, select **Update** in the TestFlight app. Please update the app.
+
+### BUG FIXES
+Various bug fixes to improve the overall usage.
+
+### PROJECT ARIA LATEST OS
+The latest Project Aria OS build **4970205.890.70** (June 28, 2024).
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+Contact Aria User Support by posting here in [Academic Partners Feedback and Support workplace group](/ARK/workplacegroup.mdx) or emailing AriaOps@meta.com.
+
+Additional resources are available at Project Aria Github.
+
+<br/>
+<br/>
+
+## Announcing Aria Research Kit v1.9
+
+We're announcing a new release of Aria Research Kit v1.9, now including Live Preview in the Aria Companion App and updates to our Wrist and Palm tracking MPS output. Read below for more details!
+
+Use our new feature, Live Preview, to visualize the RGB camera, SLAM camera, and eye tracking camera sensor streams directly in the Aria Companion App on your mobile device. Live Preview gives you a tighter feedback loop to ensure that you are recording the right data for your research activities.
+
+With Live Preview, your glasses operate as a Wi-Fi hotspot, streaming the sensor data directly without the need for an external router.
+
+### How to Use Live Preview
+* Update your Companion App to v175 [(software download page)](ark_downloads.mdx)
+* Update your glasses to the latest OS version using OTA updates.
+* In the Dashboard tab, look for and tap the Live Preview button.
+
+### Wrist and Palm Tracking Updates in MPS
+We’ve made some exciting updates to our wrist and palm tracking capabilities in our machine perception services (MPS). Starting now, all jobs launched will utilize these new features.
+
+#### What’s New?
+1. We’ve tuned our hand tracking algorithm to improve recall for common computer vision research use cases.
+2. We are including normal vectors to the wrist and palm landmark output so that you can better understand the orientation of hands in your sequences ([see documentation](https://facebookresearch.github.io/projectaria_tools/docs/data_formats/mps/hand_tracking) and [a notebook to visualize sample data](https://github.com/facebookresearch/projectaria_tools/blob/main/core/examples/mps_quickstart_tutorial.ipynb))
+3. We provide a demonstration of how to project popular third-party hand tracking models onto our wrist and palm landmark output for tasks that require higher-fidelity hand tracking output ([see Jupyter notebook](https://github.com/facebookresearch/projectaria_tools/tree/main/tools/samples/python/mps_handtracking_overlay_media_pipe)).
+
+#### What Do I Need to Update to Access It?
+1. Follow [instructions in our Wiki](https://facebookresearch.github.io/projectaria_tools/docs/ARK/aria_studio#install-aria-studio-via-pypi) to re-install Aria Studio. This will update all necessary dependencies for you.
+2. If you’re only using our CLI directly instead of Aria Studio, you can just update to Projectaria_tools 1.5.6 using `pip install projectaria_tools --upgrade`. This will be handled automatically if you update or re-install Aria Studio.
+
+#### Any Questions?
+If you have any issues accessing or using Live Preview or our new hand tracking functionality, please reach out to our support team at AriaOps@meta.com.
+
+<br/>
+<br/>
+
+## Mobile Companion App v170 and Time Synchronized Recordings Between Multiple Project Aria Devices now available
+
+Dear Academic Partners,
+
+Mobile Companion app V170 and Aria OS **4970205.890.70** are now available. With the release of Aria OS 4970205.890.70, you can now create time synchronized recordings between multiple devices via the Client SDK.
+
+* Recent documentation improvements include:
+    * **Renamed** The Project Aria Tools documentation site has been renamed to reflect its broader scope, it’s now called Project Aria Docs. The Data Utilities section has been renamed to Project Aria Tools.
+    * **Updated** [Intro page](/intro.md) and [About ARK](/ARK/about_ARK.mdx)
+    * **New** [Project Aria FAQ](/faq.mdx)
+
+### Aria Client SDK (TICSync support and general improvements)
+
+Users can now use the Aria Client SDK to capture time-synchronized data between multiple Project Aria glasses (and potentially other devices) on the one Wi-Fi network via TICSync. Using the Aria hotspot feature, one pair of glasses (server) acts as a Wi-Fi access point that forms a network between all glasses. Time requests from all other glasses go to the server/leader device, creating a synchronized time reference.
+
+* [How to Create Time Synchronized Recordings with Multiple Aria Glasses](/ARK/sdk/ticsync.mdx)
+* [TICSync Code Snippet](/ARK/sdk/samples/ticsync_sample.mdx)
+* [TICSync Technical Details](/ARK/sdk/concepts/about_ticsync.mdx)
+
+To use TICSync you’ll need to:
+
+* Update to the Aria glasses OS 4970205.750.70, June 28 release
+    * Project Aria glasses OS should automatically update when plugged into power and connected to Wi-Fi. Go to [How to Update Your Aria Glasses’ OS](/ARK/troubleshooting/update_glasses_os.mdx) if you want to manually update your glasses.
+* Update to Aria Client SDK V1.1
+    * [Project Aria Client SDK and CLI Setup Guide](/ARK/sdk/setup.mdx)
+    * [Update to the latest version via PyPI](https://pypi.org/project/projectaria-client-sdk/)
+
+In addition:
+
+* The Aria Client SDK is now supported on Python 3.12
+* Wi-Fi connections to Aria glasses have been made more reliable by enabling sticky connection
+
+
+#### Known Issues
+
+* The Client SDK is a software developer kit. While we have created code samples to enable a range of features, we have not created fully fledged applications. We encourage people to make this code their own, and to use the code samples as a starting point.
+
+
+#### Bug Fixes
+
+* Information in error messages has been improved
+* Reliability of multiple Project Aria devices connected over USB has been improved
+
+
+### Mobile Companion app
+
+The Aria Mobile App v170 is now available. Follow the in-app prompt or go to the [Downloads page](https://facebookresearch.github.io/projectaria_tools/docs/ARK/ark_downloads) to get the latest version for Android. For iOS, select **Update** in the TestFlight app. Please update the app to access the latest bug fixes and finalized retheming of all app pages.
+
+
+### PROJECT ARIA LATEST OS
+
+The latest Project Aria OS build **4970205.890.70** (June 28, 2024).
+
+Project Aria glasses OS should automatically update when plugged into power and connected to Wi-Fi. Go to [How to Update Your Aria Glasses’ OS](https://facebookresearch.github.io/projectaria_tools/docs/ARK/troubleshooting/update_glasses_os) if you want to manually update your glasses.
+
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+If you encounter any problems using Project Aria support, please contact us. There are several ways for getting user support.
+
+We encourage you to post issues to GitHub, so that they can be tracked.
+
+
+* Post to [Project Aria Tools issues on GitHub](https://github.com/facebookresearch/projectaria_tools/issues)
+
+If you are a Research Partner with access to the Aria Research Kit there are several other support options available, although GitHub is ideal for bug reports and feature requests.
+
+* Post to [Academic Partners Feedback and Support workplace group](/ARK/workplacegroup.mdx) - discussion, feedback or user support
+* Post to Project Aria Discord - best for discussion, feedback or user support
+* Email AriaOps@meta.com - for feedback or user support
+
+
+## Announcing Aria Research Kit v1.8 - Aria Studio (in beta today), TICSync (coming soon), improved vrs2mp4 conversion (available today)
+
+Dear Academic Partners: We’re excited to introduce Aria Research Kit V1.8, featuring Aria Studio (in beta today) and TICSync (coming soon). Aria Studio is a brand new browser-based application for managing your devices, recordings, and MPS jobs available today for Mac and Linux via pip install. TICSync will enable multiple Aria devices to be easily time synchronized and will be made available via pip install towards the end of June along with the next device OS update. We've also released improvements in the VRS_to_MP4 converter in Project Aria Tools to solve for audio and video synchronization issues.
+
+
+### Aria Studio (BETA)
+
+* Aria Studio is a new browser-based application we are releasing in beta for managing devices, recordings, and machine perception services jobs, designed for cross-platform support, easy update installation, stability, and a smooth user flow for MPS job submission.
+* Aria Studio offers an easy way to visualize both your recordings transferred to your machine and processed MPS results.
+* Aria Studio is based on the existing MPS CLI tool and everything possible in the MPS CLI tool will also be possible via Aria Studio.
+* Aria Studio is currently available on certain distributions of x64 Linux and Mac.
+* Go to the [Aria Studio documentation page](/ARK/aria_studio.mdx) for installation details.
+
+
+### Aria TICSync Support
+
+* Aria TICSync allows you to run millisecond-scale-accurate time-synchronized recordings for multi-view computer vision applications.
+* You can start time-synchronized recordings for multiple Aria devices via simple CLI commands with devices connected to a host machine
+* You can disconnect the Aria devices from the host machine and enable WiFi-based synchronization with one Aria device operating as a hotspot.
+* Aria TICSync functionality will be included with Aria SDK v1.1.0 available towards the end of June. Keep an eye out for another post when the installer is ready.
+* A Jupyter Notebook is available today with example code for how to work with and visualize time synchronized recordings for your learning and experimentation.
+* Go to the [TICSync documentation page](/ARK/sdk/ticsync.mdx) for details.
+
+
+### Project Aria Tools VRS to MP4 improvements
+
+* We've improved timing accuracy during export for audio and video syncing.
+* We updated the translator to include frame timestamps in the metadata.
+* Go to [Project Aria Tools 1.5.2 release notes](https://github.com/facebookresearch/projectaria_tools/releases) for details.
+
+
+### Feedback and Support
+
+If you encounter any problems using ARK v1.8, please contact us. There are several ways for getting user support.
+
+* Post to Academic Partners Feedback and Support workplace group
+* Post to Project Aria Discord
+* Email AriaOps@meta.com
+* You can always request a meeting through our ops team if you need more in-depth discussions requiring higher bandwidth.
+
+
+## **Aria Mobile App v165 is now available**
+
+Dear Academic Partners,
+
+The Aria Mobile App v165 is now available. Go to the [Downloads page](/ARK/ark_downloads.mdx) to get the latest version for Android. For iOS, select **Update** in the TestFlight app. Please update the app to access the following features and bug fixes.
+
+Project Aria recently released [Project Aria Eye Tracking](https://github.com/facebookresearch/projectaria_eyetracking), an open source inference code for the [Pre March 2024 Eye Gaze Model](/data_formats/mps/mps_eye_gaze.mdx) used by MPS. This model:
+
+* Provides the ability to generate eye gaze data using the old model, if that is more suited to your research use case or if you’re not able to request MPS
+* This code can be used on downloaded data or when streaming data using the Aria Client SDK
+
+
+### BUG FIXES
+
+Various bug fixes to improve the overall usage.
+
+### PROJECT ARIA LATEST OS
+
+The latest Project Aria OS build **4968951.840.70** (April 25th, 2024).
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+Go to our [Support page](/support.mdx) for ways to get in touch.
+
+<br />
+
+## **Announcing: New Custom Recording Profile Capabilities**
+
+We’re pleased to announce that Aria Mobile Companion app v160 contains the ability to configure individual sensors when creating custom recordings using the Mobile Companion app.
+
+**How to access the update**
+
+You’ll be prompted to update the app when you open it, and you can also [manually download it](/ARK/ark_downloads.mdx).
+
+You’ll need Aria OS version 4968999.0.70 (April 25th, 2024) or later to be able to set custom recording profiles.
+
+* [How to manually update the OS](/ARK/troubleshooting/update_glasses_os.mdx)
+
+### Custom Recording Profile
+
+To keep the new Custom Recording Profile feature approachable, and to reduce our testing matrix, we are launching this feature with a limited set of parameters. If people find the feature useful, we are open to unblocking research needs by providing the ability to include additional parameters. Please use one of our [support channels](/support.mdx) to make feature requests.
+
+To start a recording with a custom recording profile:
+
+1. In the Aria app Dashboard, select **New Recording Session**
+2. Select **Recording Profile**
+3. The first recording profile in the list will be Custom Profile
+    * You may need to scroll up to see this option
+4. Select the Custom Profile
+5. Select **Edit parameters**
+6. Adjust sensor settings
+    * Certain combinations, such as RGB Cameras at 2880 x 2880 at 15 or more fps will trigger warnings as they cause elevated thermal loads and reduced battery life
+    * Tap **More info** on the Recording Profiles Tab to see more details, such as auto exposure
+
+
+### Bug Fixes
+
+* An issue where the **More info** link on the top right of the Recording Profiles page was difficult to see has been resolved.
+
+
+### Known issues
+
+* Custom Recordings is a new feature! If you encounter data quality issues, please help us track down the issue by emailing the repro steps (including sensor configuration) to AriaOps@meta.com.
+
+
+## QUESTIONS, CONCERNS, FEEDBACK?
+
+Go to our [Support page](/support.mdx) for ways to get in touch.
+
+<br />
+
+
+## **Announcing New MPS, Recording Profiles, and Updates to the Companion Apps**
+March 21 2024
+
+Dear Academic Partners,
+
+This release includes new Machine Perception Services (MPS) capabilities, Wrist and Palm Tracking data and a revised Eye Gaze model that provides depth estimations, as well as four new recording profiles, and an Automatic Speech Recognition speech to text code sample.
+
+### How to access the new features
+
+* MPS
+    * NEW SERVICE: Hand Tracking
+        * Request Hand Tracking via the MPS CLI or Desktop app to get Wrist and Palm Tracking data!
+    * UPDATED SERVICE: The new Eye Gaze model includes depth estimations
+        * Backwards compatibility with Project Aria Tools will be maintained for data generated using the old model
+    * Use the MPS CLI to do bulk requests on existing data
+        * Raw uploaded data will now be stored for 30 days for MPS processing and reprocessing
+* Desktop app v38 [MacOS and Windows]
+    * Download the latest version of the app for the ability to request Hand Tracking MPS via Desktop app, and to get bug fixes
+* Project Aria Tools v1.5
+    * New code sample that generates speech to text outputs from VRS files
+    * Install via Pip to be able to request Hand Tracking data using the MPS CLI
+* Aria glasses OS **4968297.250.70**
+    * Update to the latest OS for four new recording profiles and essential bug fixes
+    * Please make sure your glasses have been updated in the last two months
+* Aria Mobile Companion App v155
+    * Download the latest version of the app to enjoy the updated look and bug fixes
+* Documentation
+    * the latest documentation updates including:
+        * New [MPS Troubleshooting](/ARK/mps/mps_troubleshooting.mdx) page.
+        * New [Collaborative Tools Page](/collaborative_tools.mdx), did you know you can use Aria data with Nerfstudio? We’ve collaborated with Nerfstudio to enable Gaussian Splatting with their tools.
+        * Updated MPS [Google Colab tutorials](/data_utilities/getting_started.mdx#running--jupyter-notebooks-on-google-colab).
+
+
+### MPS Updates
+
+Once you upload data using the MPS CLI, it will be stored for 30 days for additional processing/reprocessing, instead of 24 hours.
+
+
+#### New Hand Tracking MPS, Wrist and Palm Tracking
+
+For this new service, we use Aria's SLAM camera images to estimate the hand movements of the wearer. The wrist and palm poses are given in the device frame in meters. These outputs are automatically generated when doing the default MPS CLI request (or request hand_tracking mode) and are listed as Hand Tracking in the Desktop App.
+
+Install Project Aria Tools vs 1.5 using Pip or install Desktop App v38 to be able to request this new service.
+
+* [Hand Tracking Data Format](/data_formats/mps/hand_tracking/hand_tracking.mdx)
+* [MPS CLI](/ARK/mps/request_mps/mps_cli.mdx)
+* [Install/Update Project Aria Tools Using Pip](/data_utilities/installation/installation_python.mdx)
+* [Download Desktop app](/ARK/ark_downloads.mdx#desktop-companion-app)
+
+
+#### Update to Eye Gaze outputs - depth estimations
+
+We have introduced a new model for computing eye gaze, which produces left and right eye gaze directions along with the depth at which these gaze directions intersect.
+
+This new model’s output schema adds to `general_eye_gaze.csv` and `personalized_eye_gaze.csv` in a way that ensures backward compatibility with Project Aria Tools.
+
+* [Eye Gaze Data Formats page](/data_formats/mps/mps_eye_gaze.mdx) - schema has been updated
+* [Eye Gaze Code Snippets](/data_utilities/core_code_snippets/eye_gaze_code.mdx) - new page
+
+
+#### Known Issues
+
+* The new Eye Gaze model does not generate `yaw_rads_cpf` outputs
+    * This value can be computed using [helper functions](/data_utilities/core_code_snippets/eye_gaze_code.mdx#helper) and is automatically read when parsed with our data utilities.
+
+
+#### Bug Fixes
+
+Minor bug fixes
+
+### Desktop Companion App v38
+
+Download v38 on Windows or MacOS to request Hand Tracking MPS and to get bug fixes.
+
+MPS requests using the Desktop app have been slightly restructured, you no longer need to request Point Cloud data as an additional service. The request options are:
+
+* SLAM (6DoF Trajectory, Semi-Dense Point Cloud, Online Sensor Calibration)
+* Eye Gaze (General, plus personalized if the VRS file contains In-Session Eye Gaze Calibration)
+* Hand Tracking (Wrist and Palm Tracking)
+
+The Streaming button in the dashboard has been renamed to Preview, to better reflect the capability provided by the Desktop app. Use the [Client SDK with CLI](/ARK/sdk/sdk.mdx) to stream data.
+
+Desktop app logs are now stored in `~/.aria/logs/aria_desktop_app_{date}_{time}.log`
+
+* Please note, the streaming preview available through the Desktop app is optimized for Profile 12.
+
+
+#### Known Issues
+
+* If you encounter the file too small error when requesting MPS, it may be because the Desktop app is in a bad state. Restarting the app should resolve this issue
+* Selecting Cancel does not work when downloading MPS is in progress
+* [MacOS] When the app is launched with logging enabled, the Aria icon might not appear in the taskbar, but functions should not be impacted
+* [Windows] The Aria icon does not render correctly when pinned to the taskbar
+
+
+#### Bug Fixes
+
+* If starting recording/streaming fails the UI will now refresh
+* Issue where you can’t request MPS unless you interact with tick boxes has been resolved
+* Issue where the Desktop app did not quit completely on MacOS has been resolved
+
+
+### Project Aria Tools v1.5
+
+Project Aria Tools provides open tooling for anyone wanting to work with Aria data. For this release it enables users to request Hand Tracking data using the MPS CLI and provides a new ASR Python code sample.
+
+Update Project Aria Tools:
+
+* Python users: [Update projectaria_tools Python package](/data_utilities/installation/installation_python.mdx)
+    * Install via Pip to be able to request Hand Tracking data using the MPS CLI
+* C++ users: [Update projectaria_tools git repository](/data_utilities/installation/download_codebase.mdx)
+
+Go to [https://github.com/facebookresearch/projectaria_tools/releases/tag/1.5.3](https://github.com/facebookresearch/projectaria_tools/releases/tag/1.5.3) for the full release log.
+
+
+#### Speech to Text Code Sample (Python)
+
+This new ASR Python code sample shows how to use [Faster Whisper](https://github.com/SYSTRAN/faster-whisper) to run Whisper Speech Recognition on an Aria audio stream. The ASR outputs are time aligned with [Aria Device Time](/data_formats/aria_vrs/timestamps_in_aria_vrs.mdx#vrs-timestamps-single-device).
+
+Go to the [Automated Speech Recognition Readme](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/samples/python/automated_speech_recognition/Readme.md) for how to get started.
+
+![Speech to Text outputs](/img/data_utilities/asr_speech_to_text.png)
+
+
+### Aria Glasses OS
+
+The latest Project Aria OS build **4968297.250.70** was released on March 11, 2024.
+
+
+#### New recording profiles
+
+We’ve released the following experimental recording profiles. If you use a new profile, we’d love to hear about how it works for you.
+
+**Recording Profile 26:** Minimal sensors, low RGB frame rate for extended recording times. The aim is 5+ recording hours while having RGB camera data at a low frame rate (unlike Recording Profile 20, which has IMU, but no RGB data).
+
+**Recording Profile 27**: Designed for streaming over USB.
+
+**Recording Profile 28: **Very high Eye Tracking camera frame rate.
+
+**Recording Profile 29:** Low RGB frame rate, JPEG with decimation. This recording profile is the same as Profile 26, however 9 out of every 10 JPEG frames are skipped (decimation/sub-sampling). This is our first recording profile that uses decimation. The data from the RGB data stream is saved at a rate that archives a frame rate of 0.1FPS. The aim of this profile is to be able to record for 15+ hours.
+
+Update to the latest version of the OS to access these profiles. Your glasses’ OS should automatically update when connected to Wi-Fi and power. Go to [Updating OS](/ARK/troubleshooting/update_glasses_os.mdx) to manually trigger an update.
+
+You can see more details about recording profiles in the Mobile Companion app:
+
+1. Open the Mobile Companion App and select **New Recording Session**
+2. Select the existing recording profile (or Choose Profile if you have not set a default recording profile)
+3. Tap **More Info** in the top right corner
+    * The More info link may be difficult to see, this will be fixed in a future version of the Mobile Companion app
+
+Or go to [Recording Profiles](/tech_spec/recording_profiles.mdx) documentation in Project Aria Tools.
+
+
+#### Known Issues
+
+* The new recording profiles are experimental and may be tuned further in the future.
+
+
+#### Bug Fixes
+
+* Make sure your glasses’ OS is less than 2 months old, to make sure you have a fix for an issue that may cause sluggish behavior in your Aria glasses, difficulties updating the OS, streaming data and reduced upload times.
+    * [Updating OS](/ARK/troubleshooting/update_glasses_os.mdx) includes troubleshooting steps if you have difficulties updating the OS.
+
+
+### Mobile Companion App v155
+
+Please keep in mind, you can’t initiate recordings through the Mobile app if your glasses’ OS is more than 2 months old. Please make sure you update your [glasses’ OS](/ARK/troubleshooting/update_glasses_os.mdx).
+
+
+#### Updated look and feel of the Mobile app
+
+The Mobile Companion app has a fresh new look! As part of this:
+
+* The Settings tab has been renamed Profile
+* Device Settings can be opened by tapping the glasses icon under Paired Glasses
+
+<div style={{textAlign: 'center'}}>
+<img width="80%" src={useBaseUrl('/img/ARK/mobile_app_device_settings.png')} alt="Device Settings page from the Dashboard"/>
+</div>
+
+
+#### Known Issues
+
+* The **More info** link on the top right of the Recording Profiles page may be difficult to see.
+
+
+#### Bug Fixes
+
+Minor bug fixes
+
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+Go to our [Support page](/support.mdx) for ways to get in touch.
+
+<br/>
+
+
+## **Announcing Project Aria MPS CLI Availability and New MPS Feature**
+February 28 2024
+
+Dear Academic Partners,
+
+We are pleased to announce Project Aria MPS CLI and new MPS capability multi-trajectory map alignment! As part of our ongoing commitment to empowering researchers, the Aria MPS CLI allows you to submit jobs to Machine Perception Services programmatically. This will hopefully bring a new level of efficiency and flexibility to your workflow.
+
+### ⭐️Key features for MPS CLI
+
+* Request the following MPS services
+    * Single and multi-sequence SLAM
+        * SLAM Open/Closed loop trajectories
+        * Semi-Dense point clouds and observations
+        * Online sensor calibration
+    * Eye gaze
+        * General
+        * Personalized
+* Recording Upload
+    * VrsHealthCheck runs automatically before uploading. Upload is skipped if there is a failure.
+    * Unfinished uploads can be resumed for up to 24 hrs
+* Processing
+    * Improved efficiency from concurrent processing and upload of multiple recordings
+    * Automatic download of outputs for immediate access
+    * Enables re-processing of data within a set time-frame without the need for re-upload
+* Workflow integration Support
+    * Run MPS CLI as part of a script of other workflow to run MPS on recordings via automation
+
+
+### How to get started with CLI
+
+To experience the power of Aria MPS CLI, go to the [Project Aria MPS CLI page](/ARK/mps/request_mps/mps_cli.mdx) for how to use it.
+
+Videos of this feature are available in the [Project Aria Academic Partner Announcements, Feedback & Support workplace group](/ARK/workplacegroup.mdx)
+
+
+###  ⭐️MPS: MULTI-SLAM/MULTI-SEQUENCE MAP ALIGNMENT
+
+This addition brings the ability to generate SLAM output in a common frame of reference and support for multi-sequence SLAM outputs in a common frame of reference. Please go to [Multi-SLAM page](/data_formats/mps/slam/mps_multi_slam.mdx) for more information about the feature and go to the [MPS CLI page](/ARK/mps/request_mps/mps_cli.mdx) for how to access it.
+
+###  ⭐️Feedback and Support
+
+If you encounter any problems using Aria MPS CLI, there are several ways to get user support:
+
+* Post to Project Aria Academic Partner Announcements, Feedback & Support workplace group
+* Post to Project Aria Discord
+* Email AriaOps@meta.com and you can always request a meeting through this email if you need higher bandwidth discussion.
+* Additional resources are available at [Project Aria Github](https://github.com/facebookresearch/projectaria_tools).
+
+
+
+## **Aria Mobile App v150 is now available**
+
+February 6 2024
+
+Dear Academic Partners,
+
+The Aria Mobile App v150 is now available. Go to the [Downloads page](/ARK/ark_downloads.mdx) to get the latest version for Android. For iOS, select **Update** in the TestFlight app. Please update the app.
+
+
+### BUG FIXES
+
+Various bug fixes to improve the overall usage.
+
+
+### PROJECT ARIA LATEST OS
+
+The latest Project Aria OS build **4967277.730.70 **was released on 01/25/2024.
+
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+Go to our new [Support page](/support.mdx) for ways to get in touch.
+
+
+## **Project Aria Updates: Aria Mobile App v140 and changes to MPS**
+December 4 2023
+
+Dear Academic Partners,
+
+The Aria Mobile App v140 is now available. Go to the [Downloads page](/ARK/ark_downloads.mdx) to get the latest version for Android. For iOS, select **Update** in the Lighthouse app.
+
+<div id="122023_features"></div>
+
+### NEW & UPDATED FEATURES
+
+#### MPS file outputs have been renamed
+
+Machine Perception Services (MPS) outputs have been renamed, so that they more clearly communicate what is in the outputs:
+
+**Trajectory**
+
+* global_points.csv.gz -> semidense_points.csv.gz
+
+**Eye Gaze**
+
+* generalized_eye_gaze.csv -> general_eye_gaze.csv
+* calibrated_eye_gaze.csv -> personalized_eye_gaze.csv
+
+### KNOWN ISSUES
+
+The MPS examples in [Getting Started](/data_utilities/getting_started.mdx), Google Colab and the Visualization guide use the old naming conventions for MPS.
+
+
+### BUG FIXES
+
+Various bug fixes improving the overall usage, including:
+
+* Client SDK/CLI issue resolved. Device Settings tab now automatically refreshes after you’ve allowed Client SDK pairing in the mobile app.
+
+### PROJECT ARIA LATEST OS
+
+The latest Project Aria OS build **4965072.660.70** was released on 12/01/2023.
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+Go to our new [Support page](/support.mdx) for ways to get in touch.
+
+
+## **Announcing,  Project Aria Updates (ARK V1.5 & Project Aria Tools V1.2)**
+October 24, 2023
+
+We’re delighted to announce Project Aria Research Kit V1.5, a point release encompassing new features for every aspect of Project Aria Research Kit (ARK), from a Client SDK and CLI, enabling you to directly interact with the glasses; to new Calibrated Eye Gaze, enabling you to achieve more accurate eye gaze estimations. Plus, you can now download the Mobile Companion app on iOS!
+
+In this release:
+
+* Project Aria Client SDK V1.0.2
+* Aria Mobile Companion app V135
+* Project Aria OS build **4965072.660.70**
+* Project Aria Tools V1.2
+
+### To access the new ARK features
+
+Update the Mobile Companion app and Aria glasses OS to the latest version:
+
+* Follow the instructions in [ARK SW Downloads and Updates](/docs/ARK/ark_downloads) to download and update the Aria Mobile Companion App on Android or iOS
+* Connect your Aria Glasses to Wi-Fi and power and they will automatically update
+   * You can [manually trigger an update](/docs/ARK/mobile_companion_app#os-update) from the Mobile Companion app’s Device Settings
+
+The Aria Research Kit parts of this release, support research partners with access to Project Aria glasses.
+
+### To access new Open Science features
+
+Update Project Aria Tools:
+
+* Python users: [Update projectaria_tools Python package](/docs/data_utilities/installation/installation_python)
+* C++ users: [Update projectaria_tools git repository](/docs/data_utilities/installation/download_codebase)
+
+Open Science releases can be helpful for users with or without access to Aria glasses.
+
+### Aria Research Kit Release Notes
+
+#### Project Aria Client SDK with CLI
+
+`projectaria_client_sdk` is a new Python package/client library that enables you to directly interact with your Project Aria glasses from a client machine. This enables you to stream Aria data and run MP algorithms on that data, in real-time.
+
+The Client SDK currently offers the ability to:
+
+* Connect and disconnect from the device via USB and WiFi
+* Retrieve detailed device information and its current status
+* Control Aria streaming and recording capabilities
+* Access calibration data for the sensors you're recording with
+* Subscribe and listen to Aria sensors data
+* Visualize streaming data
+
+A CLI, installed as part of the SDK, provides the ability to:
+
+* Pair the glasses via USB or Wi-Fi
+* Connect to the glasses via USB or Wi-Fi
+* Retrieve the device status and information
+* Control Aria recording and streaming capabilities
+
+
+To support this new feature, we’ve added a Client SDK section to ARK Documentation in Project Aria Tools, including:
+
+* [Project Aria Client SDK](https://facebookresearch.github.io/projectaria_tools/docs/ARK/sdk)
+* [Setup Guide](https://facebookresearch.github.io/projectaria_tools/docs/ARK/sdk/setup)
+* [Code Sample Examples and Walkthroughs](https://facebookresearch.github.io/projectaria_tools/docs/ARK/sdk/samples)
+
+#### New & Improved Machine Perception Service: Calibrated Eye Gaze
+
+You can now generate Calibrated Eye Gaze MPS for sequences captured on Project Aria glasses that have in-session Eye Gaze Calibration. This enables you to capture more data about how Aria wearers look at objects, and improve the eye gaze estimations for any given recording.
+
+When you request Eye Gaze Machine Perception Services (MPS) and the file has an in-session Eye Gaze Calibration as part of the VRS file, you will receive two outputs:
+
+* `generalized_eye_gaze.csv` - based on the standard eye gaze configuration
+* `calibrated_eye_gaze.csv` - calibrated eye gaze data based on the calibration data collected in the recording.
+
+Additional improvements to Eye Gaze MPS include:
+
+* `Summary.json` files are also now available for Eye Gaze MPS output
+* We’ve created a new visualization tool, [MPS Replay Viewer (C++)](/docs/data_utilities/visualization/visualization_cpp#mps-3d-replay-visualizer),  to render static scene and dynamic elements.
+
+See below for more details:
+
+* [How to collect in-session eye gaze calibration data](https://facebookresearch.github.io/projectaria_tools/docs/ARK/mps/eye_gaze_calibration)
+* [Eye Gaze Data Format documentation](https://facebookresearch.github.io/projectaria_tools/docs/data_formats/mps/mps_eye_gaze) - updated to reflect new outputs
+
+#### Mobile Companion App improvements (and now available on iOS)
+
+The Aria Mobile Companion App allows users to interact with their Aria glasses via mobile device. With this release, users will now be able to download the app on iOS as beta testing software via Testflight.
+
+Installing or updating the Mobile Companion app on Android just became easier. You no longer need to sign in to the partner portal to ARK specific software. You can download it as a direct link from the ARK SW Downloads and Updates page or from an update prompt in the app.
+
+Additionally, you’ll now have the ability to change the default [Recording Profiles](/tech_spec/recording_profiles.mdx) when you make a recording using the Mobile Companion app.
+
+See below for more details:
+
+* [ARK SW Downloads and Updates](/docs/ARK/ark_downloads) 
+* [Aria Mobile Companion App documentation](/docs/ARK/mobile_companion_app)
+
+
+### ARK Bug Fixes
+Minor bug fixes and general quality of life improvements.
+
+### Known Issues
+
+#### Client SDK/CLI
+
+* Unlike Project Aria Tools, the Client SDK is not available on Ubuntu 20.04
+* Device Settings tab does not automatically refresh after you’ve paired your glasses with SDK.
+   * If you’re in the Device Settings tab when you select “aria auth pair”, navigate away from Device Settings and back again to view your certificate.
+
+Further resources:
+* [ARK Troubleshooting and Known Issues](/docs/ARK/troubleshooting/troubleshooting_issues)
+* [Client SDK & CLI Troubleshooting & Known Issues](/docs/ARK/sdk/sdk_troubleshooting)
+
+
+#### Getting Support
+
+If you encounter any problems using ARK resources, there are several ways approved Academic Research Partners can access user support:
+
+* [Report or view issues on GitHub](https://github.com/facebookresearch/projectaria_tools/issues) - can be used to report ARK or Open Science issues
+* Post to Project Aria discord - best for discussion, feedback or user support
+* Post to Academic Partners Feedback and Support workplace group - discussion, feedback or user support
+* Email [AriaOps@meta.com](mailto:AriaOps@meta.com) - for feedback or user support
+
+
+#### PROJECT ARIA LATEST OS
+
+The latest Project Aria OS build **4965072.660.70** was released on October 17th, 2023.
+
+
+### Open Science Updates (for everybody)
+
+The Aria Research Kit, builds on top of projectaria_tools, which is available to anyone wishing to work with Aria data. New features contained within projectaria_tools V1.2 include:
+
+* Google Colab Notebooks
+   * You can now explore Project Aria Tools without needing to install it on your own machine!
+      * [Dataprovider Quickstart Tutorial](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/core/examples/dataprovider_quickstart_tutorial.ipynb)
+      * [Machine Perception Services Tutorial](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/core/examples/mps_quickstart_tutorial.ipynb)
+* [Python binding for the Sophus Library](https://facebookresearch.github.io/projectaria_tools/docs/data_utilities/core_code_snippets/calibration#sophus) 
+   * Sophus PyBind provides access to SO3, SE3, interpolate and iterativeMean features
+   * This Python binding has been submitted to Sophus and will be officially supported by the Sophus Library GitHub repo soon
+* Python binding type hinting
+   * Python type hinting/stubs are now automatically generated if you’ve installed the tools using pip
+   * Change the type of hinting in generate_stubs.py
+* [MPS Replay Viewer (C++)](/docs/data_utilities/visualization/visualization_cpp#mps-3d-replay-visualizer)
+   * This new visualization tool renders static scene and dynamic elements:
+      * 2D/3D observations rays
+      * Eye gaze data
+* [Output image data from data_provider now contains information about which camera it came from ](https://github.com/facebookresearch/projectaria_tools/commit/f3010063b8869244ba1ef776e4dbc1c2d47675a2)
+   * cameraId has been added to ImageDataRecord
+
+
+Update Project Aria Tools to access these features:
+* Python users: [Update projectaria_tools Python package](/docs/data_utilities/installation/installation_python)
+* C++ users: [Update projectaria_tools git repository](/docs/data_utilities/installation/download_codebase)
+
+Documentation updates and improvements for this release include:
+* How to Convert [VRS to MP4](/docs/data_utilities/advanced_code_snippets/vrs_to_mp4)
+* Updates to [Machine Perception Services documentation](/docs/ARK/mps)
+
+For more details, please [go to Project Aria Tools Release notes](https://github.com/facebookresearch/projectaria_tools/releases).
+
+#### Open Science Bug Fixes
+
+Bug fixes include:
+
+* [When camera intrinsics are updated, all sensor calibration is now updated](https://github.com/facebookresearch/projectaria_tools/commit/feaa489303ddf7fee3e74ed1fdb3001df142f541)
+   * The Sophus API has been updated, if you encounter issues, please update to v1.2 of Project Aria Tools and update your code
+      * This fix resolves:
+         * [TypeError: 'unsupported operand type(s) for @: '_core_pybinds.sophus.SE3d' and '_core_pybinds.sophus.SE3d'](https://github.com/facebookresearch/projectaria_tools/issues/20)
+         * [AttributeError: '_core_pybinds.sophus.SE3d' object has no attribute 'to_matrix'](https://github.com/facebookresearch/projectaria_tools/issues/19)
+   * The API has been corrected so that the calibration data will match the sensor and device access point: get_sensor_calibration(stream_id).camera_calibration() and provider.get_device_calibration().get_camera_calib(name) will now match
+
+
+Go to [Project Aria Tools Issues on GitHub](https://github.com/facebookresearch/projectaria_tools/issues?q=is%3Aissue+is%3Aclosed) for more information.
+
+If you encounter any problems working with Open Science tooling or data, we encourage you to [post the issue on Github](https://github.com/facebookresearch/projectaria_tools/issues).
+
+
+#### Open Science Known Issues
+
+* The Sophus API has been updated, if you encounter issues, please update to v1.2 of Project Aria Tools
+
+
+**Further resources**
+
+* Project Aria Tools [Troubleshooting and Known Issues](/docs/ARK/troubleshooting/troubleshooting_issues)
+* [Report or view issues on GitHub](https://github.com/facebookresearch/projectaria_tools/issues)
+
+
+
+## **August Release - Project Aria Mobile App v125 is now available**
+8/22/2023
+
+Dear Academic Partners,
+
+Download the Aria Mobile App v125 to ensure you have all the latest features and capabilities.  Sign into the [Aria Web Portal](https://portal.projectaria.com) on your Android device to download v125.
+
+
+
+### NEW & UPDATED FEATURES
+
+* Ability to name VRS files via the Mobile Companion app
+* The default recording profile (if set via Mobile or Desktop app) will now also be the default profile when initiating recordings via the Mobile app
+* Added a feature that requires the app to be updated if the app build is flagged as severely buggy.
+
+#### Ability to name VRS files
+
+Historically, the VRS files were given random alphanumeric names. This made the recordings difficult to distinguish from one another in the Desktop app and after downloading them. With this new release, the name given to a recording when creating a custom recording defines the VRS file name. You’ll get a warning if there are two recordings with the same name on your Aria device.
+
+
+
+To access this feature:
+
+1. In the mobile app, go to Settings to check that you have v125
+   1. Sign into [portal.projectaria.com](https://portal.projectaria.com/home) on your phone to get the latest recommended build
+2. Go to device settings (select the gear icon next to your glasses) to check that you have 4963656.310.70 of the OS
+   1. Aria glasses will automatically update if they’re connected to Wi-Fi and power
+   2. Select **Check for Updates** in Device Settings to make sure you have the most recent version of the OS
+
+
+
+How to name a recording:
+
+Set the recording’s name when you create a custom recording, or edit the file name of any recording on your glasses. To edit the name or to give an existing recording a name:
+
+1. Go to the recording tab
+2. Select a recording
+3. Select **Edit** on the top right corner
+
+#### Default recording profile applied to new recordings
+
+With this change, the default recording profile selected for the glasses also applies to each recording started from the app. Previously, the default recording profile only applied to recordings started by the capture button on the glasses.
+
+
+
+Please double-check that the correct profile is selected before you start each recording, as the behavior has changed. Previously, the app kept its own last-used setting; with this change, the default will flip back to the default recording profile of the glasses on connection. This default recording profile can be updated [via Device Settings](https://facebookresearch.github.io/projectaria_tools/docs/ARK/mobile_companion_app#aria-device-settings) in the mobile app.
+
+#### Disable severely buggy builds
+
+This feature is a contingency plan, in case a severely broken app build is rolled out by mistake. In this situation, the app would show a full-screen dialog that requires it to be updated in order to proceed.
+
+### BUG FIXES
+
+Various bug fixes implemented to improve the overall usage of the App.
+
+
+
+### PROJECT ARIA LATEST OS
+
+The latest Project Aria OS build **4963656.310.70** was released on August 22, 2023.
+
+
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+Contact Aria User Support by posting in [**Project Aria Academic Partner Announcements, Feedback & Support**](https://facebookresearch.github.io/projectaria_tools/docs/ARK/workplacegroup) or email [_AriaOps@meta.com_](mailto:AriaOps@meta.com).
+
+
+
+## **July Release - new documentation site, Aria Desktop App v37 and Mobile App v120**
+7/11/23
+
+Dear Academic Partners,
+
+With this July release we’re pleased to announce a new documentation site on GitHub, Desktop Companion App v37, and Aria Mobile Companion App v120.
+
+V37 of the Desktop Companion App updates the app to the new Project Aria branding, the ability to run the Desktop app from the command line and users will now be able to request Semi-Dense Point Cloud MPS.
+
+[_Project Aria Tools_](https://facebookresearch.github.io/projectaria_tools/docs/intro) is our new documentation site on GitHub. Information that used to be at [projectaria.com](http://projectaria.com/) is now in the [_Aria Research Kit section_](https://facebookresearch.github.io/projectaria_tools/docs/ARK/about_ARK)of the site and no login is required to access the documentation.
+
+Download the updated companion apps from the [_Aria Web Portal_](https://portal.projectaria.com/). If you sign in on your desktop computer, you’ll get the Desktop Companion app. If you sign in on your Android mobile device, you’ll download the Mobile Companion app.
+
+### NEW AND UPDATED FEATURES
+
+### Documentation now on GitHub
+
+The documentation previously hosted at projectaria.com will now be hosted in Project Aria Tools.
+
+Project Aria Tools is the new comprehensive website for all your documentation needs. It contains over 60 pages, covering technical specifications, data formats, data utilities you can use with your data, information and tooling for open data we’ve released and technical insights for deeper dives.
+
+The [_Aria Research Kit_](https://facebookresearch.github.io/projectaria_tools/docs/ARK/about_ARK) section contains information specific to Academic partners who have access to Aria glasses and MPS. We’ve added a few extra pages and updated the documentation for this release, updates include adding:
+
+* [_Get the Right Size Glasses_](https://facebookresearch.github.io/projectaria_tools/docs/ARK/frame_sizing) - sizing information if you’re ordering glasses (our small is surprisingly large!)
+* [_How to Join the Academic Partners Workplace Group_](https://facebookresearch.github.io/projectaria_tools/docs/ARK/workplacegroup)
+* [_Aria Glasses User Manual_](https://facebookresearch.github.io/projectaria_tools/docs/ARK/glasses_manual/glasses_user_manual) - a combination of old and new information. Proper Handling and Cleaning information is now at the top.
+
+
+There is a lot of new documentation to explore, including:
+
+* [_Aria Data Utilities_](https://facebookresearch.github.io/projectaria_tools/docs/data_utilities/getting_started) - including new Jupyter notebook tutorials
+* [_More detailed information about recording profiles_](https://facebookresearch.github.io/projectaria_tools/docs/tech_spec/recording_profiles) (scroll the table sideways to see all the columns)
+* More [_data format information_](https://facebookresearch.github.io/projectaria_tools/docs/data_formats) (including [_coordinate conventions_](https://facebookresearch.github.io/projectaria_tools/docs/data_formats/coordinate_convention/2d_image_coordinate_system_convention))
+* New Open Datasets with tooling, [_Aria Digital Twin Dataset_](https://facebookresearch.github.io/projectaria_tools/docs/open_datasets/aria_digital_twin_dataset) and [_Aria Synthetic Environments Dataset_](https://facebookresearch.github.io/projectaria_tools/docs/open_datasets/aria_digital_twin_dataset).
+
+### Desktop App v37 - Semi-dense point cloud
+
+From V37 of the Desktop app onwards, users will be able to request semi-dense point clouds as an addition to trajectory MPS services. The same sensor profile requirements for generating trajectory data apply to semi-dense point cloud.
+
+[_Semi-dense point clouds_](https://facebookresearch.github.io/projectaria_tools/docs/data_formats/mps/slam/mps_pointcloud) are used by researchers who need static scene 3D reconstructions, reliable 2D images tracks or a representative visualization of the environment.
+
+
+* [_About Aria Machine Perception Services (MPS)_](https://facebookresearch.github.io/projectaria_tools/docs/ARK/mps)
+* _How to Request MPS_
+* [_MPS Output - Semi-Dense Point Cloud_](https://facebookresearch.github.io/projectaria_tools/docs/data_formats/mps/slam/mps_pointcloud)
+
+### Improved UI & UX
+* The Desktop app has been updated to match Aria’s new brand
+* The recordings view has been revamped, users will now see a thumbnail for each recording and the upload ID can be copied
+* The Desktop app can now be run directly from the command line without needing a GUI. It currently includes two utilities as subcommands:
+   * Further documentation about how to run the Desktop app from the command line will be added to the ARK wiki soon
+   * health: use this to run validity checks on an Aria recording (VRS file)
+       * It can be run from the command line as follows: AriaHub health vrsFilePath.vrs
+       * These checks are also run on the VRS file automatically, before the file gets uploaded for MPS processing. The results of those checks can be found under your home directory under  ./aria/logs
+   * vrs: a Swiss army knife utility to manipulate VRS files in different ways
+       * It can be run from the command line as follows: AriaHub vrs vrsFilePath.vrs
+       * Go to VRS official documentation for a full list of commands
+
+
+### Mobile App v120 - Quality Screens Feature update
+
+Some additional features have been added to the quality screen feature that was introduced with v115. You’ll now be able to see timecodes and the overall score percentage for the sensors.
+
+
+### BUG FIXES
+
+Various bug fixes improving the overall usage of the Apps.
+
+
+### PROJECT ARIA LATEST DEVICE OS
+
+The latest Project Aria device OS build **4962591.230.70** was released on June 30, 2023.
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+Contact Aria User Support by posting in [**Project Aria Academic Partner Announcements, Feedback & Support**](https://facebookresearch.github.io/projectaria_tools/docs/ARK/workplacegroup) or email [_AriaOps@meta.com_](mailto:AriaOps@meta.com).
+
+
+<br/>
+<br/>
+
+## **Aria Mobile App v115 is now available**
+Dear Academic Partners,
+The Aria Mobile App v115 for Android is now available for download from the [Aria Web Portal](https://portal.projectaria.com) (accessed via your Android internet browser).
+
+### NEW & UPDATED FEATURES
+* Sensor data quality signals
+* In-Session personalized eye gaze calibration
+* Differentiate paired glasses in the pairing screen
+   * When you select **Add glasses**, the available Aria devices will be split into Paired Glasses and Other Glasses so that it’s easy to tell which glasses are already paired with the app.
+
+#### Sensor Data Quality Signals
+While making recordings, researchers will be able to see whether there are any sensor data quality issues (for example, due to thermal mitigation). To check for any issues, in the Mobile Companion app, view the "Sensor Status" section in the Recording Status Screen. Tap on the row to see full details. If you’ve initiated recording via the Capture button, access the Recording Status by selecting Recording in progress on the Mobile Companion app’s main dashboard.
+
+#### In-Session Personalized Eye Gaze Calibration
+Users will be able to record personalized eye gaze calibrations within an ongoing recording. The eye gaze calibration section of the sequence can be used to improve the eye gaze estimations in the rest of the recording. In the future, Machine Perception Services will be able to consume these recordings and output more accurate gaze information.
+
+1. In the Mobile Companion app, create a new recording using a profile that includes ET and RGB cameras (such as Profile 15 or 25)
+2. Once your recording has started, close the recording window
+   * Select X on the top left of the screen
+4. Go to Device Settings (select the gear next to your glasses)
+5. Select Eye Tracking Calibration
+6. Confirm that you’d like to run the during the current recording session
+7. Follow the prompts to calibrate your glasses
+
+#### Eye Gaze Calibration tips
+##### Things to Avoid
+❌ Do not wear a face covering during eye calibration.
+
+❌ Choose an area with ample and even lighting; do not face a bright light, window or reflective surface.
+
+❌ Do not set your phone screen brightness too high compared to your surroundings.
+
+❌ Do not fully extend your arm(s) during eye calibration. Your elbows should be bent so that the phone is roughly 1 ft (30 cm) away from your face.
+
+##### Helpful Tips
+✅ The phone should be held straight in front of your face, so that you shouldn't look up or down to see the screen. Hold the phone plumb (90 degrees) vertically to the ground.
+
+✅ The "Leveler" stage appears if the position of your phone isn't within specifications for the calibration process. Adjust the phone in front of you and its distance by bending your elbow until the smaller, black circle turns into a green disk with a check mark.
+
+✅ Once the "Leveler" stage is successfully completed, do your best to keep your phone in exactly the same position throughout the full eye calibration process. If your phone is moved to a position no longer suited to calibrate your device, the app will return to the "Leveler" stage.
+
+✅ The eye calibration stages 1 to 10 move your nose towards the direction indicated by the arrow. If you're only following the direction with your gaze without moving your head, the calibration stage will time out and fail. However, you make sure to keep your eyes fixed on the number within the dot the whole time.
+
+### BUG FIXES
+ Various bug fixes to improve the overall usage of the Companion App.
+
+### PROJECT ARIA LATEST OS
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+Contact Aria User Support by posting here in Project Aria Academic Partner Announcements, Feedback & Support or emailing [AriaOps@meta.com](mailto:AriaOps@meta.com).
+
+## **Aria Mobile App v110 is now available**
+Dear Academic Partners,The Aria Mobile App v110 for Android is now available for download from the[ Aria Web Portal](https://portal.projectaria.com) (accessed from your Android internet browser). Here are the updates this new version brings.
+
+### NEW & UPDATED FEATURES
+* App icons and splash screens for Android companion apps have been updated to Aria’s new branding. When you update the app it will now look like this!
+* From v110 onwards, users will be more easily able to tell if their Aria device’s OS is out of date and see prompts to update their devices.
+* If the glasses are significantly (currently set as 2 months) out of date, the app will disable recording until they are updated.
+* As before, glasses automatically update when connected to power and Wi-Fi.
+* Users will get an in-app prompt to update the app if the app build is over 8 weeks old.
+
+### BUG FIXES
+* Fixed a bug that occasionally prevented partner mode glasses from being set up for over-the-air software updates properly. Please double-check that your glasses are able to update to a recent build (April 2023 or later). If your glasses are not updating, please reach out to the Aria team.
+* After glasses are unpaired, the app prevents re-pairing with the glasses until they finish rebooting.
+* Other minor bug fixes
+### PROJECT ARIA LATEST OS
+
+The latest Project Aria OS build was released on May 2, 2023.
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+Contact Aria User Support by posting here in Project Aria Academic Partner Announcements, Feedback & Support or emailing AriaOps@meta.com.
+
+## **May 3, 2023 Aria Mobile App v110 is now available**
+
+Dear Academic Partners,
+
+The Aria Mobile App v110 for Android is now available for download from the[_Aria Web Portal_](https://portal.projectaria.com) (accessed from your Android internet browser). Here are the updates this new version brings.
+
+###  NEW & UPDATED FEATURES
+
+* App icons and splash screens for Android companion apps have been updated to Aria's new branding.
+* From v110 onwards, users will be more easily able to tell if their Aria device's OS is out of date and see prompts to update their devices.
+* If the glasses are significantly (currently set as 2 months) out of date, the app will disable recording until they are updated.
+* As before, glasses automatically update when connected to power and Wi-Fi.
+* Users will get an in-app prompt to update the app if the app build is over 8 weeks old.
+
+###  BUG FIXES
+
+* Fixed a bug that occasionally prevented partner mode glasses from being set up for over-the-air software updates properly. Please double-check that your glasses are able to update to a recent build (April 2023 or later). If your glasses are not updating, please reach out to the Aria team.
+* After glasses are unpaired, the app prevents re-pairing with the glasses until they finish rebooting.
+* Other minor bug fixes
+
+###  PROJECT ARIA LATEST OS
+
+The latest Project Aria OS build **4961244.1190.70** was released on May 2, 2023
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+Contact Aria User Support by posting in **Project Aria Academic Partner Announcements, Feedback & Support** or emailing [_AriaOps@meta.com_](mailto:AriaOps@meta.com).
+
+
+## **April 3, 2023  Aria Desktop App v36 is now available**
+
+### IMPORTANT NOTICE
+v36 will clear the app's cache when you start it for the first time. Please make sure you download all of your MPS artifacts (Trajectory, Eye Gaze) before installing and starting v36.
+
+**Dear Academic Partners,**
+
+The Aria Desktop App v36 for Mac and Windows is now available for download from the Aria Web Portal including the brand new Linux version.
+
+Here are the updates this new version brings:
+
+### NEW FEATURES
+Aria for Linux is now available as a debian package for Ubuntu, more precisely the 22.04 LTS version. It is important to note the app was only tested for that specific version under Gnome 42.5 and X11 (X Server) as well as Wayland. Any other debian distribution (Ubuntu 22.04 fork such as Kubuntu, Mint etc..) or environment may or may not work.
+
+* Find updated instructions in the Aria For Linux Installer section of the Desktop App page to find out how to install Aria on Ubuntu.
+
+### IMPROVEMENTS
+* Reduced app size bundle (both pre and post install)
+* Reduced app startup time
+
+### BUG FIXES
+Various bug fixes improving the overall usage of the Desktop App.
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+Contact Aria User Support by posting in Project Aria Academic Partner Announcements, Feedback & Support or emailing AriaOps@meta.com.
+
+<br />
+
+## **March 24, 2023 Aria Mobile App v105 is now available**
+
+Dear Academic Partners,
+
+The Aria Mobile App v105 for Android is now available for download from the Aria Web Portal (accessed from your Android internet browser). Here are the updates this new version brings.
+
+### NEW & UPDATED FEATURES
+
+* The default recording profile, engaged when starting a recording by pressing the Capture button on the Project Aria device directly, can now be set and viewed on the Mobile Aria App on Android (see screenshot below). This feature used to be only available on the Desktop Aria App.
+* Tapping “Unpair Glasses” mentions the number of on-device recordings (not uploaded) the unpairing will delete through factory reset.
+* The Device ID is now listed in the app, below the serial number in the device settings page.
+
+Go to the Device Info page for more information about Device IDs.
+
+
+### BUG FIXES
+
+* On Android only, a bug causing difficulties with switching between more than 8 paired glasses has been fixed.
+* The recording setup screen is no longer dismissed if the recording fails to start.
+* Minor bug fixes
+
+### PROJECT ARIA LATEST OS
+The latest Project Aria OS build *4959822.780.70* was released on February 22, 2023.
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+Contact Aria User Support by posting in Project Aria Academic Partner Announcements, Feedback & Support or emailing AriaOps@meta.com.
+
+
+## **February 22, 2023**
+
+### Aria Mobile App v100 is now available
+
+Dear Academic Partners,
+
+The Aria Mobile App v100 for Android is now available for download from the [Aria Web Portal](https://projectaria.com/home) (accessed from your Android internet browser). Here are the updates this new version brings.
+
+
+### NEW & UPDATED FEATURES
+
+* The on-screen status message stating a recording is starting or completing used to render the whole page temporarily unresponsive until the recording was fully started or saved. Now, an equivalent status message shows up on top of the screen (not as an overlay message in the center), allowing the user to dismiss or interact with the page at any time.
+* Several UI adjustments were made to improve visibility and ease of interaction with various app sections and buttons.
+
+
+### BUG FIXES
+
+* The issue causing the recording status to occasionally stay on-screen instead of being dismissed when completing a recording by pressing the Capture button has been fixed.
+* Minor bug fixes
+
+### PROJECT ARIA LATEST OS
+
+The latest Project Aria OS build **4959822.780.70** was released on February 22, 2023.
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+Contact Aria User Support by posting in Project Aria Academic Partner Feedback & Support or emailing AriaOps@meta.com.
+
+<br/>
+<br/>
+
+## **February 9, 2023,  Aria Desktop App v35 is now available**
+Dear Academic Partners,
+
+The Aria Desktop App v35 for Mac and Windows is now available for download from the Aria Web Portal. Here are the updates this new version brings.
+
+### NEW FEATURES
+
+We revamped the Recordings view to simplify the distinction between accessing Project Aria's device storage and the tools tailored for processing VRS files on the local host with a dedicated VRS Tools tab. Every file operation on the local host (Mac/Windows) is now done using the native file explorer (Finder for Mac, File Explorer for Windows).
+- Find updated instructions in Desktop App instructions, in the Device Storage section, to know how to copy locally VRS files from the Project Aria device storage.
+- Find updated instructions in Desktop App wiki page, in the Playback section, to know how to read your locally copied VRS files.
+- Find updated instructions in MPS wiki page for how to request MPS.
+
+### BUG FIXES
+
+Various bug fixes improving the overall usage.
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+Contact Aria User Support by posting in Project Aria Academic Partner Feedback & Support or emailing AriaOps@meta.com.
+
+<br/>
+<br/>
+
+## **January 20, 2023,  Aria Mobile Companion App v95 is now available**
+
+Dear Academic Partners,
+
+The Aria Mobile Companion App v95 for Android is now available for download. Find it in the [Aria Web Portal](https://projectaria.com/home) by visiting it directly from your Android internet browser. Here are the updates this new version brings.
+
+### NEW FEATURES
+
+#### Backend Update for User Accounts
+
+Over the next few weeks, we will be changing the way we create user accounts to log into the Aria Mobile App on Android. There should be no perceived difference after this change, even with older versions of the app. If you run into an issue, please contact us immediately.
+
+#### Mobile App Update Prompt
+
+When you launch the Mobile Companion app, it should trigger a notification prompting you to download the latest version from [Aria Web Portal](https://projectaria.com/home). If dismissed, the prompt will not show up again within the same day unless you log out and back in. Otherwise, the same notification prompt will show up the following day when launching the app.
+
+### BUG FIXES
+
+Various bug fixes
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+
+Contact Aria User Support by posting in Project Aria Academic Partner Feedback & Support or emailing AriaOps@meta.com.
+
+## **December 16, 2022 Major Feature Release 🚀(Dec 2022)**
+
+### New Feature Summary
+
+1) New Machine Perception Services (i.e. MPS): These features are available through the updated version of Desktop App.
+   * Improved Trajectory - We will now provide additional Trajectory output, including 1 khz open loop trajectory (instead of low frequency 10 hz previously), 1 khz closed loop trajectory, online calibration at camera frame rate and more robust error messaging for scenarios where Trajectory processing fails.
+   * Local Eye Gaze - Provides unit vectors and associated uncertainties for each ET frame. The gaze vectors are expressed in central pupil frame (CPF). We also provide CPF to device frame 6DOF transformation.
+2) Aria Data Tools: Open Source tools that provide C++ and Python3 tools to interact with Project Aria data.
+   * Read and visualize Project Aria sequences and sensor data
+   * Retrieve calibration data and interact with Aria camera models
+   * Read and visualize machine perception output from Project Aria sequences (6DoF Trajectory, Local Eye Gaze)
+3) Usability & Bug Fixes:
+   * Various usability improvements across Desktop, Mobile & Aria Data Tools
+   * Improved documentation, including a “Troubleshooting & Known Issues” section
+   * We will now be logging high-level anonymous usage data to better understand how we can improve your experience
+
+### ACCESSING NEW FEATURES
+
+To gain access to new features, you will need to:
+
+* Download the most recent version of the Mobile (v90) and Desktop (v34) Apps from the Portal ([projectaria.com](https://projectaria.com)). Additionally, we will prompt Mobile App users to update their app.
+* Access [Aria Data Tools from Github](https://github.com/facebookresearch/aria_data_tools)
+
+Thank you, and again please feel free to provide feedback. We want to hear the good, the bad and the ugly!
+
+## Detailed Release Notes
+
+### ARIA MOBILE APP V90
+
+New features and bug fixes include:
+* “Task ID” and “Client Tag” fields have been renamed “Name” and “Notes”.
+* Access Denied screen no longer shows when external users start the app with no internet connection.
+* Wi-Fi can be configured while glasses are not connected to power. It does not allow uploading without plugging in the device.
+* Profile selection screen now shows sensor details for each profile.
+
+Note: If your current version is under v85 it will not update automatically. Please delete and install v90 by signing into the Portal ([projectaria.com](https://projectaria.com)) with your Android device.
+
+### ARIA DESKTOP APP V34
+
+New features and bug fixes include:
+* New improved trajectory with open/close loop poses and online calibration.
+* Eye Gaze vectors with uncertainty.
+* Various usability improvements and bug fixes
+
+
+### DEVICE SW (BUILD 4958601.360.70)
+Please make sure your device is charged and connected to wifi via Aria Mobile App to receive this build.
+
+New features and bug fixes include:
+* Enabled USB streaming support on Mac OS (not available on AriaHub yet).
+* Added telemetry logging for a subset of device events with an anonymized location.
+* Added new recording profile21.
+* Companion App shows details about a streaming session started from AriaHub.
+* Updated security patch level to November 2022.
+* Added the ability to run RGB in RAW mode at high frame rate (not exposed in a profile yet).
+* Removed profile17 from the list of recording profiles.
+
+<br/>
+<br/>
+
+## **November 11, 2022, Android Aria App v85 is now available**
+
+Dear Academic Partners,The Android Aria App v85 has now been released. Here is what you need to know.### NEW FEATURES AND IMPROVEMENTS
+* Thumbnails showing what was recorded appear in each Recording Details page under the Recordings tab immediately after that recording is completed and saved (this feature should become available after the next Project Aria OS update around November 15th)
+* If the Bluetooth and/or Location services need to be enabled, the app will now show a prompt to do so upon launching the app.
+* During an ongoing recording, the Profile and Sensors used are now mentioned on the active recording page.
+* Through the app, users can now connect a Project Aria device to an EAP-PWD Wi-Fi network (using username and password for authentication - does not support certificates).
+* The Android app will now show a banner on top of the screen indicating that the user has not selected a default Profile for the paired Project Aria device, which can only be done via the Desktop app.
+
+### IF YOUR CURRENT VERSION IS V80
+As long as you're currently using v80 (check the app version in the app Settings page), launching the app should trigger a notification prompting you to download the latest version from the [Partner Portal](https://projectaria.com).
+
+### IF YOUR CURRENT VERSION IS OLDER THAN V80
+App versions older than v80 will not receive any notifications, as this is a new feature (as announced in this [post](https://my.workplace.com/groups/1137227200340269/permalink/1193407851388870/)). In this case, you will need to uninstall the app and install v85 from the [Partner Portal](https://projectaria.com).
+
+### WHAT IF YOU DISMISSED THE PROMPT?
+If you dismissed the notification prompting you to update, it should appear again when you launch the Android Aria App the following day. If you don't want to wait that long, you can directly install the latest version from the [Partner Portal](https://projectaria.com).
+
+### VERIFY V85 WAS INSTALLED
+Once the Aria app is installed, login and tap the Settings tab at the bottom right corner of the Dashboard page. On that Settings page, you'll find the app version.
+
+### QUESTIONS, CONCERNS, FEEDBACK?
+Contact Aria User Support by posting here in Project Aria Academic Partner Feedback & Support or emailing [AriaOps@meta.com](mailto:AriaOps@meta.com).
+<br/>
+<br/>
+
+## **October 10, 2022 ARIA DESKTOP APP V32**
+
+With v32 a single universal Mac application is now available, supporting both Intel and Apple Silicon architecture
+
+### New Features
+* Single universal Mac application supporting both Intel and Apple Silicon architecture
+* Local Notifications for both Mac & Windows
+* Merging both Uploads & Local recordings in the same view
+* Ability to select a default profile when using the HW recording button
+* Resizable columns for the Local & Uploads tables
+* Overall app speed and performance improved
+
+### Deprecated Features
+
+* OS update & Wireless connection (you may now use the latest Companion App for that)
+
+### Bug Fixes
+
+* Frequent inability to select a recording profile
+* Inability to visualize the Aria Stream window
+* Various issues when using the extracting features via the "More" toolbar button
+* Windows app freezing randomly
+* On Mac, when in fullscreen, the top toolbar covering the top of the window
+As always, please make sure to update your glasses to the latest version using the Companion App before starting to use Aria For Mac and Aria for Windows V32
+
+<br/>
+<br/>
+
+## **ARIA Companion App APP V80**
+
+With v80, updating the companion app is now easier.
+
+### New Features
+
+Starting with v80, the Android app will show a notification prompting you to update it when a newer version becomes available. The on-screen prompt will take you to the location (Aria Web Portal) of the new version, allowing you to update the app faster.

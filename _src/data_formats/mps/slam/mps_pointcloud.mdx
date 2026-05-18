@@ -1,0 +1,50 @@
+---
+sidebar_position: 30
+title: Semi-Dense Point Cloud
+---
+
+# MPS Output - Semi-Dense Point Cloud
+
+Semi-Dense Point Cloud is a Project Aria [Machine Perception Service (MPS)](/docs/ARK/mps) that is generated as part of SLAM MPS requests.
+
+Semi-Dense Point Cloud MPS file outputs are:
+* `semidense_points.csv.gz`: Points in the world coordinate frame
+* `semidense_observations.csv.gz`: Point observations
+
+This data can be visualized using the MPS Viewer in [Python](/data_utilities/visualization/visualization_python.mdx) or [C++](/data_utilities/visualization/visualization_cpp.mdx).
+
+
+## What are semi-dense points?
+
+Semi-dense points are the 3D points associated with tracks from our semi-dense tracking pipeline. Semi-dense tracks are continually created in pixel locations of input frames that lie in regions of high image gradient, and are then successively tracked in the following frames. Each track is associated with a 3D point, parameterized as an inverse distance along a ray originating from the track's first initial observation, as well as its uncertainty in inverse distance and distance. These points are transformed from their original camera coordinate spaces to the same coordinate frame associated with the closed loop trajectory of the sequence.
+
+### User needs to define how to enforce quality
+To support user flexibility the tool outputs the associated points of all tracks regardless of quality. This means the data will contain a number of points whose positions have high uncertainty and are geometrically less accurate.
+
+Users will either need to threshold the point cloud by setting a maximum allowed inverse distance / distance certainty or correctly weight points by their certainty when using them in downstream tasks.
+
+Nominal threshold values are a maximum `inv_dist_std` of 0.005 and a maximum `dist_std` of 0.01.
+
+## Points in the world coordinate frame
+
+This file is the gzip compressed semi-dense points in the world coordinate system. The world coordinate frame is the same frame of the closed loop trajectory. For utility function to load the points in Python and C++, please check the [code examples](/docs/data_utilities/core_code_snippets/mps#point-clouds)
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|`uid`	|int	|A unique identifier of this point within this map	|
+|`graph_uid`	|string	|Unique identifier of the world coordinate frame. Associated with an equivalent graph_uid found in close_loop_trajectory.csv, depending on the frame this point was first observed in	|
+|`p{x,y,z}_world`	|float	|Point location in the world coordinate frame p_world	|
+|`inv_dist_std`	|float	|Standard deviation of the inverse distance estimate, in meter^-1. Could be used for determining the quality of the 3D point position estimate	|
+|`dist_std`	|float	|Standard deviation of the distance estimate, in meters. Could be used for determining the quality of the 3D point position estimate	|
+
+## Point observations
+
+The observation file is the gzip compressed semi-dense 2D observations, described in image pixel 2D coordinate frame. For utility function to load the observations in Python and C++, please check the [code examples](/docs/data_utilities/core_code_snippets/mps#point-clouds)
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|`uid`	|int	|A unique identifier integer of this point within this map	|
+|`frame_tracking_timestamp_us`	|int	|Aria device timestamp of the host frame’s center of exposure, in microsecond	|
+|`camera_serial`	|string	|The serial number of the camera which observes this point	|
+|`u`	|float	|The sub-pixel-accuracy observed measurement of the point in pixels, in the observing frame’s camera	|
+|`v`	|float	|The sub-pixel-accuracy observed measurement of the point in pixels, in the observing frame’s camera |
