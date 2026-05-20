@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: '0 16 * * MON'  # Weekly canary, Monday 16:00 UTC = 8 AM PST / 9 AM PDT
 
+permissions:
+  contents: read
+
 jobs:
   build-stubs:
     name: Build Python stubs

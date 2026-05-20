@@ -10,6 +10,9 @@ on:
     paths-ignore:
       - "**/website/**"
 
+permissions:
+  contents: read
+
 jobs:
   run_c:
     name: C++ - Build/Test - ${{ matrix.os }}
