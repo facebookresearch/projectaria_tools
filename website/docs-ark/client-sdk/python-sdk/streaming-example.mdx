@@ -48,6 +48,10 @@ The script performs the following operations:
 
 ## Code Walkthrough
 
+:::tip Multi-device callbacks
+For multi-device streaming, add an optional `device_id: str | None = None` parameter to any callback to receive the source device's serial — the SDK auto-detects it via `inspect.signature()`. See [Multi-Device Streaming Example](/ark/client-sdk/python-sdk/multi-device-streaming-example).
+:::
+
 ### Step 1: Import Required Modules
 
 ```python
