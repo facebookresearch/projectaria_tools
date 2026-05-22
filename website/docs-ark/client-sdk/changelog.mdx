@@ -9,6 +9,73 @@ This page tracks the version history and changes made to the Aria Gen2 ClientSDK
 
 ---
 
+## Version 2.4.0
+
+**Release Date:** [TBD — fill at release]
+
+### New Features
+
+#### Multi-Device Time-Aligned Recording & Streaming
+
+Orchestrate multiple Aria Gen 2 devices from a single CLI invocation. Devices receive coordinated start/stop, and one device acts as a time-domain-mapping broadcaster so receivers can align timestamps to a shared clock.
+
+**Key additions:**
+- `recording start --all` / `streaming start --all` — discover and orchestrate every connected device
+- `--broadcaster <serial>` — override the default broadcaster (smallest-serial wins by default)
+- `--disable-time-domain-mapping` — opt out of TDM when only coordinated start/stop is needed
+- `recording stop` / `streaming stop` — auto-stop all connected devices when no `--serial` is given
+- `recording sessions list` / `info` and `streaming sessions list` / `info` — inspect multi-device sessions
+- `recording download --session <id>` — download every recording in a session into per-device subdirectories
+- Sessions persisted as JSON at `~/.aria/multi-device-session/<id>.json`
+
+See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device) for the full guide.
+
+#### Country-aware Time-Domain-Mapping Channel Validation
+
+The CLI now validates the time-domain-mapping channel against the connected glasses' regulatory region before forwarding it to the device, mirroring what the Aria companion app enforces.
+
+**Key additions:**
+- ETSI countries permit channels `0–2`; FCC countries permit channels `10–40`
+- Channel auto-picked per region when `--time-domain-mapping-channel` is omitted (ETSI → `0`, FCC → `10`)
+- Multi-device sessions infer an empty country from any sibling that does report one (logged as a `WARNING`); cross-region mismatches are surfaced as a hard error
+- Country code source: each device's `wifi_country_code` from `HmdStatusResponse`, surfaced via the new `aria::sdk::DeviceStatus.countryCode` field
+- Behavioral break: existing scripts that relied on the silent default of channel `0` in FCC regions will now error out with an actionable message pointing to the right channel
+
+#### Per-Device Identity in Callbacks
+
+Optional `device_id` parameter on every Python streaming callback. Auto-detected via `inspect.signature()` — declare `device_id` in your callback to receive the device serial; omit it to keep existing single-device behavior unchanged.
+
+**Key additions:**
+- `device_id: str | None` keyword argument on RGB, SLAM, ET, audio, IMU/IMU batch, magnetometer, GPS, phone-location, PPG, barometer, Bluetooth/WiFi beacon, eye-gaze, hand-pose, time-domain-mapping callbacks
+- `handler.device_serial` property on `StreamDataInterface`
+- See [Multi-Device Streaming Example](/ark/client-sdk/python-sdk/multi-device-streaming-example) for the pattern
+
+#### Multi-Device Streaming Example
+
+New Python tool `multi_device_streaming_example.py` — a headless HTTPS server that demonstrates how to receive RGB frames and time-domain-mapping offsets from multiple Aria Gen 2 devices in a single process and disambiguate them per device.
+
+**Key additions:**
+- Concrete reference for the new opt-in `device_id` callback parameter
+- Per-device aggregation pattern (thread-safe dicts keyed by serial; `threading.Lock` for cross-callback state)
+- Time-domain-mapping offset summary printed on shutdown for sanity-checking sync quality
+- Use as a starting point for downstream tools (notebooks, custom dashboards, perception pipelines) that need per-device frames in one process
+- See [Multi-Device Streaming Example](/ark/client-sdk/python-sdk/multi-device-streaming-example) for the walkthrough
+
+#### Multi-Device Streaming Viewer
+
+New Python tool `multi_device_streaming_viewer.py` — a live Rerun visualization that receives RGB streams from N Aria Gen 2 devices, applies TDM-corrected timestamps for synchronized cross-device replay, and rebuilds its panel layout as devices connect and reconnect.
+
+**Key additions:**
+- mDNS-resolved HTTPS server (`oatmeal_server.local:6768`) shared across all devices
+- TDM activation validation with per-device timing windows; fails fast on a broken receiver before the user spends minutes wondering why the timeline is desynced
+- `--broadcaster <serial>` to override the auto-detected broadcaster
+- `--expected-device-count <N>` strict mode for scripted/CI runs
+- `--skip-tdm-validation` escape hatch for partial-sync investigations
+- Inherits the persistent shared-cert workflow from `streaming install-certs`
+- See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device#live-visualization-with-multi_device_streaming_viewer) for usage
+
+---
+
 ## Version 2.3.0
 
 **Release Date:** Apr 2026

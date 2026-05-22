@@ -1,0 +1,253 @@
+---
+sidebar_position: 5
+title: Multi-Device Recording & Streaming
+---
+
+# Multi-Device Recording & Streaming
+
+The ClientSDK can orchestrate two or more Aria Gen2 devices from a single CLI invocation. Devices receive coordinated start and stop, and one device acts as a **time-domain-mapping (TDM) broadcaster** so the others can align their timestamps to a shared clock. Sessions are tracked on disk so you can inspect, stop, and download every recording in a session by ID later.
+
+## Prerequisites
+
+- [Client SDK installed](/ark/client-sdk/start) and virtual environment activated
+- Two or more Aria Gen2 devices connected via USB
+- Every device [authenticated](/ark/client-sdk/authentication) with this PC (run `aria_gen2 auth pair` once per device)
+- Every device provisioned through the Aria companion app and connected to Wi-Fi
+
+:::caution One-Time Setup: Device Authentication Required
+Before using **any** multi-device commands, every device must be paired via `aria_gen2 auth pair`. See [Device Authentication](/ark/client-sdk/authentication).
+:::
+
+:::tip Verify all devices are visible
+```bash
+aria_gen2 device list
+```
+You should see one line per connected device. If only one shows up, run `aria_doctor` and re-check USB cables.
+:::
+
+---
+
+## Concepts
+
+### Broadcaster and Receivers
+
+Time-domain-mapping (TDM) requires one device to emit a periodic timing signal that the others lock onto. By default, the SDK selects the device with the **smallest serial** (lexicographic) as the broadcaster — this is deterministic across runs without requiring any configuration. Override with `--broadcaster <serial>`:
+
+```bash
+aria_gen2 recording start --profile profile8 --all --broadcaster 1M0YDD5H7K0047
+```
+
+If you only need coordinated start and stop without timestamp alignment, disable TDM entirely:
+
+```bash
+aria_gen2 recording start --profile profile8 --all --disable-time-domain-mapping
+```
+
+### Sessions
+
+Every multi-device start creates a **session** identified by a UUID. The session JSON lives at:
+
+```
+~/.aria/multi-device-session/<session-id>.json
+```
+
+It records the broadcaster, receivers, profile, TDM config, per-device recording UUIDs (for recording sessions), and the streaming cert name (for streaming sessions). The file is the source of truth for `sessions info` and `download --session`.
+
+### Regulatory Channel Rules
+
+The TDM channel is a sub-GHz radio parameter and is regulated per country. The CLI validates the channel against the connected glasses' country code (read from each device's `wifi_country_code`) before forwarding it to the device:
+
+| Region | Allowed channels | Example countries |
+|---|---|---|
+| ETSI | `0–2` | GB, DE, FR, ES, IT, IN, SG, ... |
+| FCC | `10–40` | US, CA, TW, ... |
+
+When `--time-domain-mapping-channel` is omitted, the CLI auto-picks the first allowed channel for the resolved region (`0` for ETSI, `10` for FCC). If the channel you pass is not allowed for the resolved region, the CLI rejects with an actionable error naming the region, the country, and the allowed set.
+
+If a device reports an empty country code (Wi-Fi not yet configured, or the device is not currently active in the Aria companion app), the CLI uses the country reported by any other device in the same multi-device session and logs a `WARNING`. In single-device mode the CLI errors out with a hint to configure Wi-Fi via the companion app.
+
+---
+
+## Multi-Device Recording
+
+### Start a recording on all devices
+
+```bash
+aria_gen2 recording start --profile profile8 --all
+```
+
+Output:
+
+```
+Multi-device recording session: 60799c52-b095-4f53-8c19-053277e7a0cd
+  Broadcaster: 1M0YDB6H800117
+  Receiver:    1M0YDD5H7K0047
+Recording started on 1M0YDB6H800117 (broadcaster)
+Recording started on 1M0YDD5H7K0047 (receiver)
+Session dir: /Users/you/.aria/multi-device-session
+```
+
+### Inspect active sessions
+
+```bash
+aria_gen2 recording sessions list
+aria_gen2 recording sessions info <session-id>
+```
+
+`sessions info` shows roles, per-device recording UUIDs, TDM config, and whether the session is active or stopped.
+
+### Stop the recording
+
+```bash
+aria_gen2 recording stop
+```
+
+With no `--serial` flag, `recording stop` auto-discovers all connected devices and stops them. The most recent active session is marked stopped in its JSON. To stop a single device explicitly, pass `--serial <serial>`.
+
+### Download every recording in a session
+
+```bash
+aria_gen2 recording download --session <session-id> -o ~/Downloads/
+```
+
+This downloads every device's VRS into a per-device subdirectory:
+
+```
+~/Downloads/<session-id>/
+├── 1M0YDB6H800117/
+│   └── <name>.vrs
+└── 1M0YDD5H7K0047/
+    └── <name>.vrs
+```
+
+---
+
+## Multi-Device Streaming
+
+### Streaming certs
+
+Multi-device streaming requires every device to present the **same** TLS cert to the server. The CLI supports two equivalent flows — both produce the same on-device state, so pick whichever fits your workflow:
+
+**Option 1 — Install explicitly first**
+
+Run `streaming install-certs` to generate one cert and install it on every listed device. The output prints the cert name (e.g. `cert_1777249326189756000`) you can record for later runs or pass to other tools.
+
+```bash
+aria_gen2 streaming install-certs --device 1M0YDB6H800117 --device 1M0YDD5H7K0047
+```
+
+Then either omit `--streaming-cert-name` on `streaming start --all` (the SDK adopts the installed cert automatically) or pin it explicitly:
+
+```bash
+aria_gen2 streaming start --profile profile9 --all --streaming-cert-name cert_1777249326189756000 ...
+```
+
+**Option 2 — Let the SDK auto-install on first start**
+
+Skip the explicit install step. When `streaming start --all` runs and finds no cert installed and no `--streaming-cert-name` passed, the SDK auto-generates one cert and installs it on every connected device.
+
+```bash
+aria_gen2 streaming start --profile profile9 --all ...
+```
+
+Pick Option 1 when you want the cert name printed up front (e.g. to pass to `multi_device_streaming_viewer.py` — see [Live Visualization](#live-visualization-with-multi_device_streaming_viewer) below — or to pin it across runs). Pick Option 2 for zero-setup runs where the cert name is implementation detail. If both an installed cert AND `--streaming-cert-name` exist and they don't match, the CLI errors loudly so you don't silently ship the wrong cert.
+
+### Start streaming on all devices
+
+```bash
+aria_gen2 streaming start --profile profile9 --all --interface wifi_sta
+```
+
+`--all` orchestrates every connected device; the broadcaster starts first so TDM is active before receivers lock. All single-device streaming flags from [Streaming Control](/ark/client-sdk/streaming) (server URL, batching, cert verification, etc.) work identically when combined with `--all`. Add `--streaming-cert-name <name>` if you installed an explicit cert via Option 1 above and want to pin it.
+
+### Inspect and stop
+
+```bash
+aria_gen2 streaming sessions list
+aria_gen2 streaming sessions info <session-id>
+aria_gen2 streaming stop
+```
+
+---
+
+## Live Visualization with multi_device_streaming_viewer
+
+`multi_device_streaming_viewer.py` is a live Rerun visualization tool that receives RGB streams from every connected device and renders them side-by-side with TDM-corrected timestamps. The Rerun timeline scrubber on `device_time` produces synchronized cross-device replay.
+
+The script ships with the Python SDK samples and is not on `$PATH` after install — export it once via the [example-code instructions](/ark/client-sdk/python-sdk/python-interface#export-example-code), then run it with `python` from your activated SDK virtual environment. The Quick Start below assumes the default export location `~/Downloads/projectaria_client_sdk_samples_gen2/`.
+
+:::tip Recommended order: viewer first, then streaming
+Launch the viewer before `aria_gen2 streaming start --all` so device frames land from the first push attempt. Reverse order also works — devices retry on connection-refused and the viewer picks them up once it binds the port — but you'll see a noticeable lag, and (in `--expected-device-count` strict mode) the connection-wait window starts ticking from the *viewer's* first connect, not from `streaming start`.
+:::
+
+:::warning Viewer requires preinstalled cert
+Unlike `aria_gen2 streaming start --all` (which auto-installs a cert when none exists), `multi_device_streaming_viewer.py` does **not** auto-generate a cert. You must run `streaming install-certs` once before launching the viewer, otherwise the viewer exits immediately with a clear startup error. This asymmetry is deliberate — the viewer reads the cert name from disk to verify it matches devices' presented certs.
+:::
+
+### Quick start
+
+```bash
+# 1. Install the shared streaming cert on every device (REQUIRED for the viewer)
+aria_gen2 streaming install-certs --device 1M0YDB6H800117 --device 1M0YDD5H7K0047
+
+# 2. Launch the viewer (terminal 1)
+python ~/Downloads/projectaria_client_sdk_samples_gen2/multi_device_streaming_viewer.py
+
+# 3. Start streaming on all devices (terminal 2)
+aria_gen2 streaming start --profile profile9 --all
+```
+
+The viewer prints `Viewer ready at http://oatmeal_server.local:<port> (mDNS-resolved)` once the server is up. Drag the Rerun timeline scrubber to see synchronized cross-device replay.
+
+### Flags
+
+| Flag | Default | Purpose |
+|---|---|---|
+| `--broadcaster <serial>` | smallest-serial wins | Override the auto-detected broadcaster (must match the value passed to `streaming start --broadcaster`) |
+| `--expected-device-count <N>` | passive | Strict mode: hard-error if fewer than N devices are connected after the connection-wait window. Useful for scripted/CI runs. |
+| `--skip-tdm-validation` | off | Escape hatch: proceed even when one or more receivers fail the TDM activation window. Logical-impossibility cases (TDM from broadcaster, no TDM at all) still hard-error. |
+| `--port <N>` | `6768` | HTTP server port. Override only when running alongside another viewer on the same host. |
+| `--streaming-cert-name <name>` | auto-resolved | Verify the installed cert's name matches the value used by `streaming start --streaming-cert-name`. On mismatch the viewer exits before any device tries to connect. |
+
+### Validation behavior
+
+The viewer waits for each device to fire at least three TDM callbacks within ~10 seconds of its first frame. After the window:
+
+- **Broadcaster never fires TDM callbacks** — by design. If the device you passed as `--broadcaster` is actively firing TDM, the viewer flags a contradiction (you likely overrode the broadcaster in the CLI but not in the viewer).
+- **A receiver that never fires TDM** is treated as broken. The viewer hard-errors with the offending serial unless `--skip-tdm-validation` is passed.
+- **No TDM from anyone** typically means `--disable-time-domain-mapping` was passed at streaming start. The viewer requires TDM and instructs you to re-run streaming without that flag.
+
+---
+
+## Programmatic Use
+
+For scripts and notebooks that consume per-device callback data without the live Rerun visualization, see [Multi-Device Streaming Example](/ark/client-sdk/python-sdk/multi-device-streaming-example) — it walks through `multi_device_streaming_example.py`, a headless HTTPS server that receives per-device RGB frames and TDM offsets via the `device_id` callback parameter.
+
+| When to use | Tool |
+|---|---|
+| Live cross-device visualization with synchronized timeline scrubbing | `multi_device_streaming_viewer.py` (this page) |
+| Headless data collection, custom processing, notebooks, perception pipelines | [`multi_device_streaming_example.py`](/ark/client-sdk/python-sdk/multi-device-streaming-example) |
+
+---
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `Multi-device recording requires at least 2 devices. Found: 1` | Only one device on USB | Reconnect the second device; rerun `aria_gen2 device list` |
+| `Cannot use --all with --serial` | Both flags passed together | Choose one — `--all` for all devices, `--serial` for a single device |
+| `--time-domain-mapping-channel=0 is not allowed for region FCC` | Default channel `0` is ETSI-only | Pass a valid FCC channel (`10`–`40`), or omit the flag to auto-select `10` |
+| `cannot start time-domain-mapping: device(s) report no country code` | Device's Wi-Fi country code is empty | Connect the device to Wi-Fi via the Aria companion app, then retry |
+| `connected glasses are in incompatible regions: ... (FCC), ... (ETSI)` | Two devices in different regulatory regions | All devices in one session must share a region. Check each device's country in the companion app. |
+| Session shows `(active)` after a crash | Stop didn't run | Run `aria_gen2 recording stop --all` to reconcile, or delete the stale JSON in `~/.aria/multi-device-session/` |
+| `aria_gen2 streaming start --all` succeeds but devices report TLS handshake failure | A `--streaming-cert-name` was passed that doesn't match what's installed on the devices | Either omit `--streaming-cert-name` (let the SDK adopt the installed cert) or rerun `streaming install-certs --device A --device B` to refresh |
+| Viewer exits with `No streaming cert installed at ~/.aria/streaming-certs/persistent` | Cert never installed on this host | Run `aria_gen2 streaming install-certs --device <SERIAL> [--device <SERIAL>]` before launching the viewer (the viewer doesn't auto-generate) |
+
+---
+
+## See Also
+
+- [Recording Control](/ark/client-sdk/recording) — single-device recording
+- [Streaming Control](/ark/client-sdk/streaming) — single-device streaming
+- [CLI Quick Reference](/ark/client-sdk/cli-reference#multi-device-sessions) — flag-by-flag reference (added in 2.4.0)
+- [Multi-Device Streaming Example](/ark/client-sdk/python-sdk/multi-device-streaming-example) — programmatic walkthrough

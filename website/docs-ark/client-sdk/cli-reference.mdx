@@ -151,6 +151,12 @@ aria_gen2 auth check
 | `--profile` | Yes | — | Recording profile (`profile8`, `profile9`, `profile10`) |
 | `--recording-name` | No | timestamp | Custom name for the recording |
 | `--json-profile` | No | — | Path to a custom JSON profile file |
+| `--all` | No | — | Multi-device: orchestrate all connected devices. See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device) |
+| `--broadcaster <serial>` | No | smallest serial | Multi-device: serial of the TDM broadcaster (requires `--all`) |
+| `--disable-time-domain-mapping` | No | — | Multi-device: skip TDM, coordinate start/stop only (requires `--all`) |
+| `--time-domain-mapping-channel <N>` | No | auto | TDM radio channel. Allowed values depend on the device's country code (read from `wifi_country_code`): ETSI permits `0–2`; FCC permits `10–40`. Auto-picked for the resolved region when omitted. |
+| `--time-domain-mapping-broadcaster-id <N>` | No | `0` | TDM broadcaster identifier |
+| `--time-domain-mapping-rate-hz <N>` | No | `2.0` | TDM signal rate in Hz |
 
 ```bash
 aria_gen2 recording start --profile profile8 --recording-name my_experiment
@@ -161,6 +167,11 @@ aria_gen2 recording start --profile profile8 --recording-name my_experiment
 ### `aria_gen2 recording stop`
 
 **Purpose:** Stop the currently active recording.
+
+| Flag | Required | Default | Description |
+|------|----------|---------|-------------|
+| `--all` | No | — | Multi-device: stop recording on all connected devices |
+| `--serial <serial>` | No | auto-detected | Stop recording on a specific device |
 
 ```bash
 aria_gen2 recording stop
@@ -200,12 +211,13 @@ aria_gen2 recording info -u <uuid>
 
 ### `aria_gen2 recording download`
 
-**Purpose:** Download a specific recording from the device in VRS format.
+**Purpose:** Download a specific recording from the device in VRS format, or every recording in a multi-device session.
 
 | Flag | Required | Description |
 |------|----------|-------------|
-| `-u` / `--uuid` | Yes | Recording UUID |
+| `-u` / `--uuid` | Conditional | Recording UUID. Required unless `--session` is given |
 | `-o` / `--output` | No | Output directory |
+| `--session <id>` | Conditional | Multi-device session ID. Downloads every device's recording into per-device subdirectories. Mutually exclusive with `--uuid`. See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device#download-every-recording-in-a-session). |
 
 ```bash
 aria_gen2 recording download -u <uuid> -o ~/Downloads/
@@ -267,6 +279,12 @@ aria_gen2 recording delete-all
 | `--url` | No | — | Remote server URL for remote streaming |
 | `--streaming-cert-name` | No | — | Certificate name for remote streaming |
 | `--no-verify-server-certs` | No | — | Skip server certificate verification |
+| `--all` | No | — | Multi-device: orchestrate all connected devices. See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device) |
+| `--broadcaster <serial>` | No | smallest serial | Multi-device: serial of the TDM broadcaster (requires `--all`) |
+| `--disable-time-domain-mapping` | No | — | Multi-device: skip TDM, coordinate start/stop only (requires `--all`) |
+| `--time-domain-mapping-channel <N>` | No | auto | TDM radio channel. Allowed values depend on the device's country code (read from `wifi_country_code`): ETSI permits `0–2`; FCC permits `10–40`. Auto-picked for the resolved region when omitted. |
+| `--time-domain-mapping-broadcaster-id <N>` | No | `0` | TDM broadcaster identifier |
+| `--time-domain-mapping-rate-hz <N>` | No | `2.0` | TDM signal rate in Hz |
 
 ```bash
 # USB streaming
@@ -293,6 +311,11 @@ aria_gen2 streaming start --url "https://server:6768" --interface wifi_sta --bat
 
 **Purpose:** Stop the active streaming session.
 
+| Flag | Required | Default | Description |
+|------|----------|---------|-------------|
+| `--all` | No | — | Multi-device: stop streaming on all connected devices |
+| `--serial <serial>` | No | auto-detected | Stop streaming on a specific device |
+
 ```bash
 aria_gen2 streaming stop
 ```
@@ -303,11 +326,67 @@ aria_gen2 streaming stop
 
 **Purpose:** Generate and install streaming certificates for remote streaming.
 
+| Flag | Required | Default | Description |
+|------|----------|---------|-------------|
+| `--device <serial>` | No (repeatable) | — | Pass repeatedly to install the same cert across multiple devices, e.g. `--device A --device B`, for multi-device streaming. See [Multi-Device Streaming Certs](/ark/client-sdk/multi-device#streaming-certs). |
+
 ```bash
 aria_gen2 streaming install-certs
 ```
 
 **Output includes a cert name** (e.g., `cert_1769712774692532015`) needed for `--streaming-cert-name`.
+
+---
+
+## Multi-Device Sessions
+
+Multi-device sessions are tracked on disk at `~/.aria/multi-device-session/<id>.json`. Use these commands to inspect and manage them. See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device) for the full conceptual guide.
+
+### `aria_gen2 recording sessions list`
+
+**Purpose:** List all multi-device recording sessions on disk.
+
+```bash
+aria_gen2 recording sessions list
+```
+
+---
+
+### `aria_gen2 recording sessions info`
+
+**Purpose:** Show details of a specific recording session — roles (broadcaster/receiver), per-device recording UUIDs, TDM config, active/stopped status.
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `<session-id>` | Yes | Session UUID (positional) |
+
+```bash
+aria_gen2 recording sessions info <session-id>
+```
+
+---
+
+### `aria_gen2 streaming sessions list`
+
+**Purpose:** List all multi-device streaming sessions on disk.
+
+```bash
+aria_gen2 streaming sessions list
+```
+
+---
+
+### `aria_gen2 streaming sessions info`
+
+**Purpose:** Show details of a specific streaming session — roles, profile, TDM config, streaming cert name, active/stopped status.
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `<session-id>` | Yes | Session UUID (positional) |
+
+```bash
+aria_gen2 streaming sessions info <session-id>
+```
 
 ---
 
@@ -326,6 +405,25 @@ You **must** start streaming (`aria_gen2 streaming start`) **before** launching 
 ```bash
 aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
 ```
+
+---
+
+### `multi_device_streaming_viewer.py`
+
+**Purpose:** Live Rerun visualization for two or more Aria Gen 2 devices streaming simultaneously, with TDM-corrected timestamps for synchronized cross-device replay. Bundled with the Python SDK samples — export it via [Export Example Code](/ark/client-sdk/python-sdk/python-interface#export-example-code) before first use.
+
+:::tip Recommended order (opposite of `aria_streaming_viewer`)
+This tool is the HTTPS server that devices push to, so launching it before `aria_gen2 streaming start --all` lets frames land from the first push attempt. Reverse order also works — devices retry on connection-refused. **Hard prerequisite:** a streaming cert must already be installed via `aria_gen2 streaming install-certs` (the viewer does not auto-generate). Recommended sequence:
+1. `aria_gen2 streaming install-certs --device <SERIAL> [--device <SERIAL>]` (one-time, REQUIRED)
+2. `python ~/Downloads/projectaria_client_sdk_samples_gen2/multi_device_streaming_viewer.py` (terminal 1)
+3. `aria_gen2 streaming start --profile profile9 --all` (terminal 2)
+:::
+
+```bash
+python ~/Downloads/projectaria_client_sdk_samples_gen2/multi_device_streaming_viewer.py
+```
+
+See [Multi-Device Recording & Streaming → Live Visualization](/ark/client-sdk/multi-device#live-visualization-with-multi_device_streaming_viewer) for flags and validation behavior.
 
 ---
 

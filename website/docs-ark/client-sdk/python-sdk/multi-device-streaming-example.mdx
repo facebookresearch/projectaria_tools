@@ -1,0 +1,209 @@
+---
+sidebar_position: 5
+title: Multi-Device Streaming Example
+---
+
+# Multi-Device Streaming Example
+
+This page walks through `multi_device_streaming_example.py`, a headless HTTPS server that receives streams from multiple Aria Gen 2 devices simultaneously and uses the `device_id` callback parameter to distinguish per-device data.
+
+## Prerequisites
+
+- 2+ Aria Gen 2 devices connected via USB and [authenticated](/ark/client-sdk/authentication)
+- Every device provisioned through the Aria companion app and connected to Wi-Fi
+- Python SDK [example code exported](/ark/client-sdk/python-sdk/python-interface#export-example-code)
+
+:::tip See also
+For the broader multi-device CLI surface (recording, streaming, sessions, the live Rerun viewer), see [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device).
+:::
+
+---
+
+## Quick Start
+
+**Terminal 1 — start the headless server:**
+
+```bash
+python ~/Downloads/projectaria_client_sdk_samples_gen2/multi_device_streaming_example.py
+```
+
+Output:
+
+```
+Streaming server started on :6768. Waiting for device connections...
+Press Ctrl+C to stop.
+```
+
+**Terminal 2 — start streaming on all devices:**
+
+```bash
+aria_gen2 streaming start --profile profile9 --all --interface wifi_sta
+```
+
+The streaming CLI handles cert installation automatically (see [Streaming Certs](/ark/client-sdk/multi-device#streaming-certs)). After ~10 seconds you'll see per-device output in Terminal 1:
+
+```
+[1M0YDD5H7K0047] Time domain mapping offset: -18548787.611ms (avg last 10: -18548787.612ms)
+[1M0YDB6H800117] RGB frame #30
+[1M0YDD5H7K0047] RGB frame #30
+```
+
+Press **Ctrl+C** to stop the server. A summary of TDM samples per device prints on shutdown:
+
+```
+Final Time domain mapping offset summary:
+  1M0YDB6H800117: 240 samples, avg offset: 0.012ms
+  1M0YDD5H7K0047: 240 samples, avg offset: -18548787.601ms
+```
+
+---
+
+## What This Example Does
+
+- Spins up an `AriaGen2HttpServer` on port `6768` that accepts HTTPS connections from any number of Aria Gen 2 devices simultaneously.
+- For each device that connects, the server invokes a factory (`setup_stream_handler`) that returns a fresh `StreamDataInterface` with RGB and time-domain-mapping callbacks registered.
+- Both callbacks declare an optional `device_id: str | None = None` parameter — the SDK detects this via `inspect.signature()` at registration time and passes the device's serial as a keyword argument every time the callback fires.
+- All per-device state (frame counts, recent TDM offsets, running averages) is kept in dicts keyed by serial, guarded by a single `threading.Lock` because the SDK fires callbacks from internal threads.
+
+---
+
+## The `device_id` Callback Pattern
+
+The Python SDK detects whether your callback declares a `device_id` parameter via `inspect.signature()` at registration time. If it does, the SDK passes the device serial as a keyword argument on every invocation; if not, the callback receives only the regular arguments — backwards compatible with all existing single-device code.
+
+### TDM callback (with `device_id`)
+
+```python
+def time_domain_mapping_callback(
+    capture_ts_ns: int,
+    broadcaster_ts_ns: int,
+    broadcaster_id: int,
+    device_id: str | None = None,
+) -> None:
+    offset_ms = (broadcaster_ts_ns - capture_ts_ns) / 1e6
+    serial = device_id or f"unknown-{broadcaster_id}"
+    print(f"[{serial}] TDM offset: {offset_ms:.3f}ms")
+
+handler.register_time_domain_mapping_callback(time_domain_mapping_callback)
+```
+
+### RGB callback (with `device_id`)
+
+```python
+def rgb_callback(
+    image_data: object,
+    image_record: object,
+    device_id: str | None = None,
+) -> None:
+    serial = device_id or "unknown"
+    print(f"[{serial}] new RGB frame")
+
+handler.register_rgb_callback(rgb_callback)
+```
+
+### Same callback, single-device style
+
+If you don't add `device_id`, behavior is unchanged:
+
+```python
+def rgb_callback(image_data: object, image_record: object) -> None:
+    print("new RGB frame")
+
+handler.register_rgb_callback(rgb_callback)  # still works
+```
+
+:::tip
+Use `device_id: str | None = None` (with default) so the same callback works whether or not the SDK passes the kwarg — useful when you reuse callbacks across single- and multi-device pipelines.
+:::
+
+---
+
+## Code Walkthrough
+
+### Server setup
+
+The example creates a single `AriaGen2HttpServer` listening on port `6768`. The server accepts an arbitrary number of incoming HTTPS connections — one per device — and calls the `setup_stream_handler` factory once per connection.
+
+```python
+config = HttpServerConfig()
+config.address = "0.0.0.0"
+config.port = 6768
+
+time_sync_ref = TimeSyncRef()
+server = AriaGen2HttpServer(
+    config, setup_stream_handler, time_sync_ref=time_sync_ref
+)
+```
+
+### Per-connection handler factory
+
+Each device gets its own fresh `StreamDataInterface`. The factory registers both callbacks on the new handler:
+
+```python
+def setup_stream_handler() -> StreamDataInterface:
+    handler = StreamDataInterface(
+        enable_image_decoding=True, enable_raw_stream=False
+    )
+    handler.register_time_domain_mapping_callback(time_domain_mapping_callback)
+    handler.register_rgb_callback(rgb_callback)
+    handlers.append(handler)
+    return handler
+```
+
+The handler reads the device's serial from the `device-serial` HTTP header on the incoming connection and exposes it via the `device_id` keyword on every callback fire.
+
+### Aggregating per-device state
+
+All cross-device state is in dicts keyed by serial, guarded by a single `threading.Lock`:
+
+```python
+recent_offsets: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=10))
+total_counts: dict[str, int] = {}
+total_sums: dict[str, float] = {}
+frame_counts: dict[str, int] = {}
+lock = threading.Lock()  # callbacks fire from internal SDK threads
+```
+
+:::warning Always guard cross-thread state
+Callbacks fire from internal SDK threads, not the main thread. Any state read or written by more than one callback (or by both a callback and the main thread) needs a lock — even simple counter increments. The example uses one lock for all aggregation; if your application is contention-sensitive, partition into per-device locks.
+:::
+
+---
+
+## How the Server Handles Multiple Connections
+
+Each device opens a separate HTTPS connection to the server. `AriaGen2HttpServer` invokes the `setup_stream_handler` factory once per connection, returning a fresh `StreamDataInterface` per device. Verify both connections are active while the server is running:
+
+```bash
+lsof -i :6768
+# TCP host:6768 -> 10.0.0.181:33112 (ESTABLISHED)  <- device A
+# TCP host:6768 -> 10.0.0.232:33230 (ESTABLISHED)  <- device B
+```
+
+If only one connection appears, the second device is either still connecting or failed TLS handshake — check that both devices were given the same streaming cert (see [Streaming Certs](/ark/client-sdk/multi-device#streaming-certs)).
+
+---
+
+## Complete Example Code
+
+The full source lives at `arvr/projects/oatmeal/client_sdk/python/example/multi_device_streaming_example.py`. Export it via the [example-code instructions](/ark/client-sdk/python-sdk/python-interface#export-example-code) and run it with `python` from your activated SDK virtual environment.
+
+---
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| Server prints `Waiting for device connections...` indefinitely | Devices haven't started streaming yet | Run `aria_gen2 streaming start --profile profile9 --all --interface wifi_sta` in a second terminal |
+| Only one device appears in callbacks | Other device failed TLS handshake | Verify both devices share the same cert — see [Streaming Certs](/ark/client-sdk/multi-device#streaming-certs) |
+| Callbacks fire but `device_id` is always `None` | Callback omits `device_id` parameter | Add `device_id: str | None = None` to the callback signature; the SDK detects it via `inspect.signature()` and starts passing the kwarg on next registration |
+| `Time domain mapping offset` line never appears for one device | That device is the broadcaster — broadcasters don't fire TDM callbacks by design | Expected behavior; only receivers report TDM offsets |
+| Process exits with `Address already in use` on port 6768 | Another viewer or example server is already running | Stop the other process or change the port via `config.port` in the script |
+
+---
+
+## Next Steps
+
+- For a live cross-device visualization with synchronized timeline scrubbing, see [Multi-Device Recording & Streaming → Live Visualization](/ark/client-sdk/multi-device#live-visualization-with-multi_device_streaming_viewer) — the `multi_device_streaming_viewer.py` tool builds on the same `device_id` pattern but renders RGB streams in Rerun.
+- For single-device streaming with custom callbacks, see [Streaming Example](/ark/client-sdk/python-sdk/streaming-example).
+- For the full CLI reference, see [CLI Quick Reference](/ark/client-sdk/cli-reference).
