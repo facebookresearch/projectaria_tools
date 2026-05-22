@@ -109,6 +109,18 @@ Learn how to send text-to-speech commands to your device for audio feedback.
 
 ---
 
+### 6. [Multi-Device Streaming Example](/ark/client-sdk/python-sdk/multi-device-streaming-example)
+
+Receive streams from multiple Aria Gen 2 devices in one server using the opt-in `device_id` callback parameter for per-device identity.
+
+**Topics covered:**
+* Running an `AriaGen2HttpServer` that accepts multiple connections
+* The `device_id` callback parameter and how the SDK auto-detects it via `inspect.signature()`
+* Registering `register_time_domain_mapping_callback` for clock alignment
+* Aggregating per-device data with thread-safe state
+
+---
+
 ## Common Python SDK Patterns
 
 ### Basic Device Connection Pattern
@@ -166,6 +178,26 @@ streaming_config = sdk_gen2.HttpStreamingConfig()
 streaming_config.profile_name = "mp_streaming_demo"
 device.set_streaming_config(streaming_config)
 ```
+
+---
+
+### Per-Device Identity in Callbacks (Multi-Device)
+
+When streaming from multiple devices through a single server, declare an optional `device_id` parameter on any callback to receive the source device's serial:
+
+```python
+def rgb_callback(image_data, image_record, device_id: str | None = None) -> None:
+    serial = device_id or "unknown"
+    print(f"[{serial}] RGB frame")
+
+handler.register_rgb_callback(rgb_callback)
+```
+
+The SDK detects the `device_id` parameter via `inspect.signature()` at registration time. Existing single-device callbacks (no `device_id`) continue to work unchanged. See [Multi-Device Streaming Example](/ark/client-sdk/python-sdk/multi-device-streaming-example) for a complete walkthrough.
+
+**Single-device** recording and streaming are fully supported from Python — `device.set_recording_config()` + `device.start_recording()` and `device.set_streaming_config()` + `device.start_streaming()`. See [Recording Example](/ark/client-sdk/python-sdk/recording-example) and [Streaming Example](/ark/client-sdk/python-sdk/streaming-example).
+
+**Multi-device orchestration** — starting/stopping recordings or streams across all connected devices in one call — is exposed only through the CLI by design (`aria_gen2 recording start --all` / `streaming start --all`). The Python SDK exposes the per-device primitives and receiver-side multi-device support (factory-per-connection in `AriaGen2HttpServer`, plus the optional `device_id` callback parameter for per-device identity); combine the CLI for orchestration with a Python receiver for end-to-end multi-device pipelines.
 
 ---
 
