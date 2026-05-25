@@ -36,9 +36,9 @@ def bisection_timestamp_search(timed_data, query_timestamp_ns: int) -> int:
     if timed_data and len(timed_data) > 1:
         first_timestamp = timed_data[0].tracking_timestamp.total_seconds() * 1e9
         last_timestamp = timed_data[-1].tracking_timestamp.total_seconds() * 1e9
-        if query_timestamp_ns <= first_timestamp:
+        if query_timestamp_ns < first_timestamp:
             return None
-        elif query_timestamp_ns >= last_timestamp:
+        elif query_timestamp_ns > last_timestamp:
             return None
     # If this is safe we perform the Bisection search
     start = 0

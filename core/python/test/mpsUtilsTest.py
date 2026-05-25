@@ -36,6 +36,12 @@ class BisectionTimestampSearchTest(unittest.TestCase):
         # Tie-break is deterministic toward the lower index.
         self.assertEqual(bisection_timestamp_search(self.ts, 6000), 2)
 
+    def test_exact_match_on_first_or_last_returns_its_index(self) -> None:
+        # The border guards used <= / >=, so an exact match on the first or
+        # last timestamp returned None instead of its index.
+        self.assertEqual(bisection_timestamp_search(self.ts, 1000), 0)
+        self.assertEqual(bisection_timestamp_search(self.ts, 19000), 9)
+
 
 if __name__ == "__main__":
     unittest.main()
