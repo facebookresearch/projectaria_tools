@@ -100,6 +100,7 @@ jobs:
           export TEST_FOLDER_GEN2="./data/gen2/"
           python3 -m unittest core/python/test/corePyBindTest.py
           python3 -m unittest core/python/test/mpsPyBindTest.py
+          python3 -m unittest core/python/test/mpsUtilsTest.py
           python3 -m unittest core/python/sophus/test/sophusPybindTest.py
 
       - name: Test Python Notebooks
