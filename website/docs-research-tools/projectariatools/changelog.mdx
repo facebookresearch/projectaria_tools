@@ -6,6 +6,17 @@ title: Changelog
 # Changelog
 
 ---
+## Version 2.1.3
+
+### New Features
+
+- Added random-access P-frame video decoding: `getImageDataByIndex()` now supports non-sequential frame access for H.265 video streams. The decoder automatically replays from the preceding keyframe, enabling random-access for training data pipelines and video editors
+
+### Improvements
+
+- Bumped VRS dependency to include `ProximitySensorRecordableClass` support
+
+---
 ## Version 2.1.2
 
 ### New Features
