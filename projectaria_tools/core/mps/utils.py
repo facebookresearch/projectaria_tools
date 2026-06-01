@@ -36,9 +36,9 @@ def bisection_timestamp_search(timed_data, query_timestamp_ns: int) -> int:
     if timed_data and len(timed_data) > 1:
         first_timestamp = timed_data[0].tracking_timestamp.total_seconds() * 1e9
         last_timestamp = timed_data[-1].tracking_timestamp.total_seconds() * 1e9
-        if query_timestamp_ns <= first_timestamp:
+        if query_timestamp_ns < first_timestamp:
             return None
-        elif query_timestamp_ns >= last_timestamp:
+        elif query_timestamp_ns > last_timestamp:
             return None
     # If this is safe we perform the Bisection search
     start = 0
@@ -52,7 +52,28 @@ def bisection_timestamp_search(timed_data, query_timestamp_ns: int) -> int:
             start = mid + 1
         else:
             end = mid - 1
-    return start
+    # The loop can leave `start` on either side of the query, so check both
+    # neighbors and keep the closest one. Ties go to the lower index.
+    best = start
+    best_dist = abs(
+        timed_data[best].tracking_timestamp.total_seconds() * 1e9 - query_timestamp_ns
+    )
+    if start > 0:
+        prev_dist = abs(
+            timed_data[start - 1].tracking_timestamp.total_seconds() * 1e9
+            - query_timestamp_ns
+        )
+        if prev_dist <= best_dist:
+            best = start - 1
+            best_dist = prev_dist
+    if start + 1 < len(timed_data):
+        next_dist = abs(
+            timed_data[start + 1].tracking_timestamp.total_seconds() * 1e9
+            - query_timestamp_ns
+        )
+        if next_dist < best_dist:
+            best = start + 1
+    return best
 
 
 def get_nearest_eye_gaze(eye_gazes: List[EyeGaze], query_timestamp_ns: int) -> EyeGaze:
