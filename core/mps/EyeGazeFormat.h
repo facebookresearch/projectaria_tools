@@ -33,9 +33,11 @@ struct fmt::formatter<projectaria::tools::mps::EyeGazeVergence> : fmt::formatter
 
     return fmt::format_to(
         ctx.out(),
-        "EyeGazeVergence(left_yaw: {:.2f} degs, right_yaw: {:.2f} degs, left_yaw_low: {:.2f} degs, right_yaw_low: {:.2f} degs, left_yaw_high: {:.2f} degs, right_yaw_high: {:.2f} degs, tx_left_eye: {} m, ty_left_eye: {} m, tz_left_eye: {} m, tx_right_eye: {} m, ty_right_eye: {} m, tz_right_eye: {} m)",
+        "EyeGazeVergence(left_yaw: {:.2f} degs, right_yaw: {:.2f} degs, left_pitch: {:.2f} degs, right_pitch: {:.2f} degs, left_yaw_low: {:.2f} degs, right_yaw_low: {:.2f} degs, left_yaw_high: {:.2f} degs, right_yaw_high: {:.2f} degs, tx_left_eye: {} m, ty_left_eye: {} m, tz_left_eye: {} m, tx_right_eye: {} m, ty_right_eye: {} m, tz_right_eye: {} m)",
         gazeVergence.left_yaw * kRadsToDegs,
         gazeVergence.right_yaw * kRadsToDegs,
+        gazeVergence.left_pitch * kRadsToDegs,
+        gazeVergence.right_pitch * kRadsToDegs,
         gazeVergence.left_yaw_low * kRadsToDegs,
         gazeVergence.right_yaw_low * kRadsToDegs,
         gazeVergence.left_yaw_high * kRadsToDegs,

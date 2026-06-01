@@ -67,10 +67,10 @@ struct EyeGazeVergence {
   bool left_blink = false;
   bool right_blink = false;
   // In CPF Frame
-  Eigen::Vector3f left_entrance_pupil_position_meter;
-  Eigen::Vector3f right_entrance_pupil_position_meter;
-  float left_pupil_diameter_meter;
-  float right_pupil_diameter_meter;
+  Eigen::Vector3f left_entrance_pupil_position_meter{Eigen::Vector3f::Zero()};
+  Eigen::Vector3f right_entrance_pupil_position_meter{Eigen::Vector3f::Zero()};
+  float left_pupil_diameter_meter{};
+  float right_pupil_diameter_meter{};
 
   // Gen2 validity flags
   bool left_gaze_valid = true;
@@ -125,12 +125,14 @@ struct EyeGaze {
                             have a different session_uid.*/
 
   /***************** Gen2 data types ******************/
-  Eigen::Vector3f spatial_gaze_point_in_cpf;
-  Eigen::Vector3f combined_gaze_origin_in_cpf;
+  Eigen::Vector3f spatial_gaze_point_in_cpf{Eigen::Vector3f::Zero()};
+  Eigen::Vector3f combined_gaze_origin_in_cpf{Eigen::Vector3f::Zero()};
 
-  // Gen2 data validity flags
-  bool spatial_gaze_point_valid = true;
-  bool combined_gaze_valid = true;
+  // Gen2 data validity flags. Default to false; the producer (MPS CSV reader, on-device
+  // EyeGazePlayer, or OatmealTypes converter) is responsible for setting them to true only
+  // after it has populated the corresponding field with a real value.
+  bool spatial_gaze_point_valid = false;
+  bool combined_gaze_valid = false;
 };
 
 /**

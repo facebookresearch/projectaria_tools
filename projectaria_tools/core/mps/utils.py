@@ -176,15 +176,22 @@ def get_gaze_vector_reprojection(
     make_upright: bool = False,
 ) -> Optional[np.ndarray]:
     """
-    Helper function to project a eye gaze output onto a given image and its calibration, assuming specified fixed depth.
+    Helper function to project a eye gaze output onto a given image and its calibration.
+
+    When `eye_gaze.spatial_gaze_point_valid` is True (the vergence-point geometry available
+    on Gen2 ET outputs), `eye_gaze.spatial_gaze_point_in_cpf` is projected directly. Otherwise
+    the gaze is reconstructed from combined yaw/pitch scaled by `depth_m`.
 
     If no reprojection is possible (e.g. the eye gaze is out of the
     field of view), then None is returned. See `CameraCalibration::project()`
     (in CameraCalibration.h) for details.
     """
-    gaze_center_in_cpf = get_eyegaze_point_at_depth(
-        eye_gaze.yaw, eye_gaze.pitch, depth_m
-    )
+    if eye_gaze.spatial_gaze_point_valid:
+        gaze_center_in_cpf = np.asarray(eye_gaze.spatial_gaze_point_in_cpf)
+    else:
+        gaze_center_in_cpf = get_eyegaze_point_at_depth(
+            eye_gaze.yaw, eye_gaze.pitch, depth_m
+        )
     # these changes are needed to ensure gaze projections are always using CAD extrinsics
     transform_device_cpf_cad = (
         device_calibration.get_transform_device_cpf()

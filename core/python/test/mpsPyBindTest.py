@@ -12,12 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+import math
 import os
 import pickle
 import unittest
 
 import numpy as np
 from projectaria_tools.core import data_provider, mps
+from projectaria_tools.core.stream_id import StreamId
 
 TEST_FOLDER = os.getenv("TEST_FOLDER")
 
@@ -348,6 +351,77 @@ class MPSEyeGaze(unittest.TestCase):
         self.assertAlmostEqual(right_gaze[0], -0.07434921)
         self.assertAlmostEqual(right_gaze[1], -0.25982753)
         self.assertAlmostEqual(right_gaze[2], 0.96278858)
+
+    def test_get_gaze_vergence_point_convergent(self) -> None:
+        # Two eyes converging on (0, 0, 1). Per-eye yaws constructed via atan2 so the rays
+        # exactly hit the target. is_real must be True.
+        left_origin = np.array([0.0325, 0.0, 0.0])
+        right_origin = np.array([-0.0325, 0.0, 0.0])
+        target = np.array([0.0, 0.0, 1.0])
+        left_dir = (target - left_origin) / np.linalg.norm(target - left_origin)
+        right_dir = (target - right_origin) / np.linalg.norm(target - right_origin)
+        left_yaw = float(math.atan2(left_dir[0], left_dir[2]))
+        right_yaw = float(math.atan2(right_dir[0], right_dir[2]))
+        vergence, is_real = mps.get_gaze_vergence_point(
+            left_origin, left_yaw, 0.0, right_origin, right_yaw, 0.0
+        )
+        self.assertTrue(is_real)
+        self.assertAlmostEqual(vergence[0], 0.0, places=4)
+        self.assertAlmostEqual(vergence[1], 0.0, places=4)
+        self.assertAlmostEqual(vergence[2], 1.0, places=4)
+
+    def test_get_gaze_vergence_point_parallel_fallback(self) -> None:
+        # Both eyes looking straight forward — parallel rays trigger the weak-vergence
+        # guardrail. is_real is False; the fallback lands at +Z = 10 m from the cyclopean
+        # origin (which is the CPF origin for these symmetric eyes).
+        left_origin = np.array([0.0325, 0.0, 0.0])
+        right_origin = np.array([-0.0325, 0.0, 0.0])
+        vergence, is_real = mps.get_gaze_vergence_point(
+            left_origin, 0.0, 0.0, right_origin, 0.0, 0.0
+        )
+        self.assertFalse(is_real)
+        self.assertAlmostEqual(vergence[0], 0.0, places=4)
+        self.assertAlmostEqual(vergence[1], 0.0, places=4)
+        self.assertAlmostEqual(vergence[2], 10.0, places=4)
+
+    def test_get_gaze_vector_reprojection_branches_on_validity(self) -> None:
+        # `get_gaze_vector_reprojection` must pick its source from `spatial_gaze_point_valid`,
+        # not from a non-zero check on the vector. Build two equal EyeGaze objects whose
+        # spatial gaze point differs only in `spatial_gaze_point_valid` and verify that the
+        # projected pixel differs (the valid one uses the spatial point at (0.05, 0, 0.5);
+        # the invalid one falls back to the (yaw, pitch, depth_m=1) ray).
+        from projectaria_tools.core.mps.utils import get_gaze_vector_reprojection
+
+        vrs_filepath = os.path.join(
+            os.getenv("TEST_FOLDER_GEN2"), "aria_gen2_unit_test_sequence.vrs"
+        )
+        provider = data_provider.create_vrs_data_provider(vrs_filepath)
+        device_calibration = provider.get_device_calibration()
+        rgb_label = provider.get_label_from_stream_id(StreamId("214-1"))
+        rgb_camera = device_calibration.get_camera_calib(rgb_label)
+
+        def make_eye_gaze(spatial_valid: bool) -> mps.EyeGaze:
+            eg = mps.EyeGaze()
+            eg.tracking_timestamp = datetime.timedelta(seconds=0)
+            eg.yaw = 0.0
+            eg.pitch = 0.0
+            eg.depth = 1.0
+            eg.spatial_gaze_point_in_cpf = np.array([0.05, 0.0, 0.5], dtype=np.float32)
+            eg.combined_gaze_origin_in_cpf = np.zeros(3, dtype=np.float32)
+            eg.spatial_gaze_point_valid = spatial_valid
+            eg.combined_gaze_valid = True
+            return eg
+
+        pixel_valid = get_gaze_vector_reprojection(
+            make_eye_gaze(True), rgb_label, device_calibration, rgb_camera, depth_m=1.0
+        )
+        pixel_invalid = get_gaze_vector_reprojection(
+            make_eye_gaze(False), rgb_label, device_calibration, rgb_camera, depth_m=1.0
+        )
+        self.assertIsNotNone(pixel_valid)
+        self.assertIsNotNone(pixel_invalid)
+        # Different code paths must produce different pixels.
+        self.assertFalse(np.allclose(pixel_valid, pixel_invalid))
 
         """
         (-0.12185171, leftDirection.x(), EYEGAZE_ERROR_TOLERANCE);
