@@ -227,17 +227,34 @@ def log_eye_gaze(
     if eyegaze_data:
         eye_gaze = get_nearest_eye_gaze(eyegaze_data, device_time_ns)
         if eye_gaze:
-            # If depth available use it, else use a proxy (1 meter depth along the EyeGaze ray)
-            depth_m = eye_gaze.depth or 1.0
-            gaze_vector_in_cpf = mps.get_eyegaze_point_at_depth(
-                eye_gaze.yaw, eye_gaze.pitch, depth_m
-            )
-            # Move EyeGaze vector to CPF coordinate system for visualization
+            # If a spatial gaze point is available (Gen2 ET back-fills it from the per-eye
+            # rays), draw the arrow from the combined gaze origin to the spatial point.
+            # Otherwise fall back to combined yaw/pitch scaled by depth (or a 1 m proxy when
+            # depth is unknown), anchored at the CPF origin.
+            if eye_gaze.spatial_gaze_point_valid:
+                gaze_origin_in_cpf = np.asarray(eye_gaze.combined_gaze_origin_in_cpf)
+                gaze_tip_in_cpf = np.asarray(eye_gaze.spatial_gaze_point_in_cpf)
+                depth_m = float(np.linalg.norm(gaze_tip_in_cpf - gaze_origin_in_cpf))
+            else:
+                gaze_origin_in_cpf = np.zeros(3)
+                depth_m = eye_gaze.depth or 1.0
+                gaze_tip_in_cpf = np.asarray(
+                    mps.get_eyegaze_point_at_depth(
+                        eye_gaze.yaw, eye_gaze.pitch, depth_m
+                    )
+                )
+            # Transform both points to device frame with the full SE3, then build the arrow
+            # displacement in device frame. This keeps the start anchored on the (transformed)
+            # combined gaze origin instead of the CPF origin — they coincide only when the
+            # eyes are symmetric around CPF, but the spatial / yaw+pitch branches use
+            # different origin conventions.
+            gaze_origin_in_device = np.asarray(T_device_CPF @ gaze_origin_in_cpf)
+            gaze_tip_in_device = np.asarray(T_device_CPF @ gaze_tip_in_cpf)
             rr.log(
                 "world/device/eye-gaze",
                 rr.Arrows3D(
-                    origins=[T_device_CPF @ [0, 0, 0]],
-                    vectors=[T_device_CPF @ gaze_vector_in_cpf],
+                    origins=[gaze_origin_in_device],
+                    vectors=[gaze_tip_in_device - gaze_origin_in_device],
                     colors=[[255, 0, 255]],
                 ),
             )
