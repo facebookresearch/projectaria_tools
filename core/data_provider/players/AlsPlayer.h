@@ -28,10 +28,10 @@ namespace projectaria::tools::data_provider {
  * @brief ALS (Ambient Light Sensor) configuration type
  */
 struct AlsConfiguration {
-  uint32_t streamId; ///< @brief ID of the VRS stream
-  uint64_t deviceId; ///< @brief device ID for ALS sensor
-  double nominalRateHz; ///< @brief number of frames per second
-  std::string sensorModel; ///< @brief sensor model name
+  uint32_t streamId{}; ///< ID of the VRS stream
+  uint64_t deviceId{}; ///< device ID for ALS sensor
+  double nominalRateHz{}; ///< number of frames per second
+  std::string sensorModel; ///< sensor model name
 };
 
 /**
@@ -39,31 +39,34 @@ struct AlsConfiguration {
  */
 struct AlsData {
   // Timestamp of capturing this sample.
-  int64_t captureTimestampNs;
+  int64_t captureTimestampNs{};
   // Normalized channel values
-  float redChannelNormalized;
-  float greenChannelNormalized;
-  float blueChannelNormalized;
-  float uvChannelNormalized;
-  float irChannelNormalized;
-  float clearChannelNormalized;
+  float redChannelNormalized{};
+  float greenChannelNormalized{};
+  float blueChannelNormalized{};
+  float uvChannelNormalized{};
+  float irChannelNormalized{};
+  float clearChannelNormalized{};
+  float visibleChannelNormalized{};
   // Flux measurements in watts per square meter
-  float uvFluxWattPerSquareMeter;
-  float irFluxWattPerSquareMeter;
-  float clearFluxWattPerSquareMeter;
+  float uvFluxWattPerSquareMeter{};
+  float irFluxWattPerSquareMeter{};
+  float clearFluxWattPerSquareMeter{};
+  float visibleFluxWattPerSquareMeter{};
   // Gain values for each channel
-  int32_t gainRed;
-  int32_t gainGreen;
-  int32_t gainBlue;
-  int32_t gainUv;
-  int32_t gainIr;
-  int32_t gainClear;
+  float gainRed{};
+  float gainGreen{};
+  float gainBlue{};
+  float gainUv{};
+  float gainIr{};
+  float gainClear{};
+  float gainVisible{};
   // Exposure time in microseconds
-  int32_t exposureTimeUs;
+  uint32_t exposureTimeUs{};
   // Correlated color temperature
-  float cct;
+  float cct{};
   // Illuminance in lux
-  float lux;
+  float lux{};
 };
 
 using AlsCallback =

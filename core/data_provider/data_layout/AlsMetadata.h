@@ -45,16 +45,19 @@ class AlsDataLayout : public vrs::AutoDataLayout {
   vrs::DataPieceValue<float> uvChannelNormalized{"uv_channel_normalized"};
   vrs::DataPieceValue<float> irChannelNormalized{"ir_channel_normalized"};
   vrs::DataPieceValue<float> clearChannelNormalized{"clear_channel_normalized"};
+  vrs::DataPieceValue<float> visibleChannelNormalized{"visible_channel_normalized"};
   vrs::DataPieceValue<float> uvFluxWattPerSquareMeter{"uv_flux_watt_per_square_meter"};
   vrs::DataPieceValue<float> irFluxWattPerSquareMeter{"ir_flux_watt_per_square_meter"};
   vrs::DataPieceValue<float> clearFluxWattPerSquareMeter{"clear_flux_watt_per_square_meter"};
-  vrs::DataPieceValue<std::int32_t> gainRed{"gain_red"};
-  vrs::DataPieceValue<std::int32_t> gainGreen{"gain_green"};
-  vrs::DataPieceValue<std::int32_t> gainBlue{"gain_blue"};
-  vrs::DataPieceValue<std::int32_t> gainUv{"gain_uv"};
-  vrs::DataPieceValue<std::int32_t> gainIr{"gain_ir"};
-  vrs::DataPieceValue<std::int32_t> gainClear{"gain_clear"};
-  vrs::DataPieceValue<std::int32_t> exposureTimeUs{"exposure_time_us"};
+  vrs::DataPieceValue<float> visibleFluxWattPerSquareMeter{"visible_flux_watt_per_square_meter"};
+  vrs::DataPieceValue<float> gainRed{"gain_red"};
+  vrs::DataPieceValue<float> gainGreen{"gain_green"};
+  vrs::DataPieceValue<float> gainBlue{"gain_blue"};
+  vrs::DataPieceValue<float> gainUv{"gain_uv"};
+  vrs::DataPieceValue<float> gainIr{"gain_ir"};
+  vrs::DataPieceValue<float> gainClear{"gain_clear"};
+  vrs::DataPieceValue<float> gainVisible{"gain_visible"};
+  vrs::DataPieceValue<std::uint32_t> exposureTimeUs{"exposure_time_us"};
   vrs::DataPieceValue<float> cct{"cct"};
   vrs::DataPieceValue<float> lux{"lux"};
 

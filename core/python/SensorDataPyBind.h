@@ -530,6 +530,10 @@ inline void declareAlsDataRecord(py::module& m) {
           &AlsData::clearChannelNormalized,
           "Normalized clear channel value")
       .def_readwrite(
+          "visible_channel_normalized",
+          &AlsData::visibleChannelNormalized,
+          "Normalized visible channel value")
+      .def_readwrite(
           "uv_flux_watt_per_square_meter",
           &AlsData::uvFluxWattPerSquareMeter,
           "UV flux in watts per square meter")
@@ -541,12 +545,17 @@ inline void declareAlsDataRecord(py::module& m) {
           "clear_flux_watt_per_square_meter",
           &AlsData::clearFluxWattPerSquareMeter,
           "Clear flux in watts per square meter")
+      .def_readwrite(
+          "visible_flux_watt_per_square_meter",
+          &AlsData::visibleFluxWattPerSquareMeter,
+          "Visible flux in watts per square meter")
       .def_readwrite("gain_red", &AlsData::gainRed, "Red channel gain")
       .def_readwrite("gain_green", &AlsData::gainGreen, "Green channel gain")
       .def_readwrite("gain_blue", &AlsData::gainBlue, "Blue channel gain")
       .def_readwrite("gain_uv", &AlsData::gainUv, "UV channel gain")
       .def_readwrite("gain_ir", &AlsData::gainIr, "IR channel gain")
       .def_readwrite("gain_clear", &AlsData::gainClear, "Clear channel gain")
+      .def_readwrite("gain_visible", &AlsData::gainVisible, "Visible channel gain")
       .def_readwrite("exposure_time_us", &AlsData::exposureTimeUs, "Exposure time in microseconds")
       .def_readwrite("cct", &AlsData::cct, "Correlated color temperature")
       .def_readwrite("lux", &AlsData::lux, "Illuminance in lux");
