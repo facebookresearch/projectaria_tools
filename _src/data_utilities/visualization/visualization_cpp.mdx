@@ -1,0 +1,146 @@
+---
+sidebar_position: 20
+title: C++ Visualization
+---
+
+# Project Aria Tools C++ Visualization
+
+## Overview
+This page introduces our C++ visualization tools available in Project Aria Tools. We've provided example datasets to test these tools.
+
+
+* [Aria Viewer](#aria-viewer): visualize raw Aria data
+* [MPS 3D Scene Viewer](#mps-static-scene-visualizer): renders a static scene using Aria data with trajectories,
+global point cloud, and static camera poses
+* [MPS 3D Replay Viewer](#mps-3d-replay-visualizer): renders static scene and dynamic elements: 2D/3D observations rays + eye gaze data
+* [MPS Eye Gaze Viewer](#mps-eye-gaze-visualizer): visualize Aria data with eye gaze data
+---
+
+## Requirements
+
+### Step 0 : Check system requirements and download codebase
+
+Go to the [Download Codebase](/docs/data_utilities/installation/download_codebase) page to:
+   * Check your system is supported
+   * Download projectaria_tools codebase from the GitHub
+### Step 1 : Download the sample dataset
+
+* Go to the [Download MPS Sample dataset](/docs/data_utilities/installation/download_mps_sample_data) to retrieve a raw VRS file and all the corresponding MPS outputs.
+
+### Step 2 : Build and install visualizers
+
+The visualizers need the C++ version of Project Aria Tools to run.
+
+* In the [C++ Installation Guide](/docs/data_utilities/installation/installation_cpp), follow the instructions to [build from source with visualization](/docs/data_utilities/installation/installation_cpp#build-from-source-with-visualization)
+
+<div id="aria-viewer"></div>
+
+## Run Aria Viewer
+
+[Aria Viewer](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/visualization/main.cpp) enable you to to visualize Aria device recorded VRS files. It shows all sensor data including:
+* Camera images
+* IMU
+* Audio (visualization of waveform, sound is not available)
+
+```bash
+cd $HOME/Documents/projectaria_sandbox/build
+
+./tools/visualization/aria_viewer --vrs $MPS_SAMPLE_PATH/sample.vrs
+```
+![Aria Viewer Screenshot](/img/data_utilities/aria-viewer.png)
+
+<div id="mps-static-scene-visualizer"></div>
+
+## Run MPS 3D Scene Viewer
+
+The [MPS 3D Scene Viewer](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/mps_visualization/main_3d_scene_viewer.cpp) renders a static scene using location MPS output.
+
+Through this tool you can create visualizations using:
+* Closed loop trajectories
+* Global point cloud
+* Static camera poses
+* Open loop trajectories
+   * Because open loop is in odometry frame of reference, it shouldn’t be visualized with closed loop trajectories, global points or static camera poses
+
+This tutorial generates a visualization containing:
+* Closed loop trajectories
+* Global point cloud
+
+```bash
+cd $HOME/Documents/projectaria_sandbox/build
+
+./tools/mps_visualization/mps_3d_scene_viewer \
+    --closed-loop-traj $MPS_SAMPLE_PATH/trajectory/closed_loop_trajectory.csv \
+    --global-point-cloud $MPS_SAMPLE_PATH/trajectory/global_points.csv.gz
+```
+![Screenshot of 3D Scene Viewer UI](/img/data_utilities/mps-3d-staticscene-viewer.png)
+
+:::info
+Because the sample dataset doesn't have static cameras you won't be able to interact with the static camera settings
+:::
+
+<div id="mps-3d-replay-visualizer"></div>
+
+## Run MPS 3D Replay Viewer
+
+The [MPS 3D Replay Viewer](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/mps_visualization/main_3d_replay_viewer.cpp) renders static scene and dynamic elements at each frame: Aria's pose + 2D/3D observations rays + eye gaze data.
+
+Through this tool you can create visualizations using:
+* Closed loop trajectories
+* Semi-Dense Point Cloud
+   * Global point cloud
+   * Point observations
+* Static camera poses
+
+This tutorial generates a visualization containing:
+* Static elements
+   * Closed loop trajectories
+   * Global point cloud
+* Dynamic elements
+   * One closed loop trajectory for replay
+   * 2D/3D point observations rays
+   * Generalized and Personalized Eye Gaze vectors
+
+```bash
+cd $HOME/Documents/projectaria_sandbox/build
+
+./tools/mps_visualization/mps_3d_replay_viewer \
+  --vrs $MPS_SAMPLE_PATH/sample.vrs  \
+  --replay-trajectory $MPS_SAMPLE_PATH/trajectory/closed_loop_trajectory.csv \
+  --closed-loop-traj $MPS_SAMPLE_PATH/trajectory/closed_loop_trajectory.csv \
+  --global-point-cloud $MPS_SAMPLE_PATH/trajectory/global_points.csv.gz \
+  --point-obs $MPS_SAMPLE_PATH/trajectory/semidense_observations.csv.gz \
+  --generalized-eye-gaze $MPS_SAMPLE_PATH/eye_gaze/generalized_eye_gaze.csv \
+  --calibrated-eye-gaze $MPS_SAMPLE_PATH/eye_gaze/calibrated_eye_gaze.csv \
+  --hands $MPS_SAMPLE_PATH/hand_tracking/wrist_and_palm_poses.csv
+```
+![Screenshot of 3D Replay Viewer UI](/img/data_utilities/mps-3d-replay-viewer.png)
+
+
+<div id="mps-eye-gaze-visualizer"></div>
+
+## MPS Eye Gaze visualizer
+
+The [MPS Eye Gaze visualizer](https://github.com/facebookresearch/projectaria_tools/blob/main/tools/mps_visualization/main_eyegaze.cpp) renders the computed eye gaze and vrs data side by side. The visualizer contains:
+
+* Eye Tracking camera stream
+* RGB, Mono Scene (SLAM) left and right camera streams
+   * A red dot shows the projection of the eye gaze onto the image
+   * The projection is computed using a fixed depth of 1m
+* 2D graph plot of the gaze yaw and pitch angles in radians
+* 2D radar plot of the eye gaze yaw and pitch angles
+
+### Run visualizer and visualize both generalized and optional calibrated eye gaze
+```bash
+cd $HOME/Documents/projectaria_sandbox/build
+
+./tools/mps_visualization/mps_eyegaze_viewer --vrs $MPS_SAMPLE_PATH/sample.vrs \
+    --generalized-eye-gaze $MPS_SAMPLE_PATH/eye_gaze/general_eye_gaze.csv \
+    --calibrated-eye-gaze $MPS_SAMPLE_PATH/eye_gaze/personalized_eye_gaze.csv
+```
+
+![Screenshot of MPS Eye Gaze Viewer](/img/data_utilities/mps-eyegaze-viewer.png)
+
+## Troubleshooting
+
+Check the [Troubleshooting Guide](/docs/data_utilities/installation/troubleshooting) if you encounter issues using this tutorial.

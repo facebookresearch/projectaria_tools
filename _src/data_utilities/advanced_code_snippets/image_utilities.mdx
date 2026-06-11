@@ -1,0 +1,283 @@
+---
+sidebar_position: 20
+title: Image Utilities (Python and C++)
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Advanced Image Utilities
+
+## Overview
+
+This page provides advanced image utilities code snippets for Project Aria Tools, see also [Image Code Snippets](/docs/data_utilities/core_code_snippets/image).
+
+## Image debayer
+
+Some recording profiles outputs raw RGB images (Profile 7 in [Recording Profile](/docs/tech_spec/recording_profiles)). We provide functionalities to debayer them and perform white-balancing to get RGB images.
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+from projectaria_tools.core import data_provider, image
+
+stream_id = provider.get_stream_id_from_label("camera-rgb")
+image_data = provider.get_image_data_by_index(stream_id, 0)
+image_data_array = image_data[0].to_numpy_array()
+debayered_array = image.debayer(image_data_array)
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <dataprovider/VrsDataProvider.h>
+#include <image/utility/Debayer.h>
+
+auto streamId = provider.getStreamIdFromLabel("camera-rgb");
+auto imageData = provider.getImageDataByIndex(streamId, 0);
+auto debayeredImage = debayer(imageData.first.imageVariant());
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+![Image](/img//data_utilities/advanced_guide/debayer.png)
+
+See [projectaria_tools/core/image/utility/Debayer.cpp](https://github.com/facebookresearch/projectaria_tools/blob/main/core/image/utility/Debayer.cpp) for implementation
+
+
+## Image undistortion
+
+In this example, we remove distortions in raw sensor data so that straight 3D lines appear straight in the undistorted images. There is existing C++ implementation and Python wrapper of this helper function in the data utilities.
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+from projectaria_tools.core import data_provider, calibration
+
+camera_label = "camera-slam-left"
+stream_id = provider.get_stream_id_from_label(camera_label)
+
+calib = provider.get_device_calibration().get_camera_calib(camera_label)
+pinhole = calibration.get_linear_camera_calibration(512, 512, 150)
+
+raw_image = provider.get_image_data_by_index(stream_id, 0)[0].to_numpy_array()
+undistorted_image = calibration.distort_by_calibration(raw_image, pinhole, calib)
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <dataprovider/VrsDataProvider.h>
+#include <calibration/utility/Distort.h>
+
+std::string cameraLabel = "camera-rgb";
+vrs::StreamId streamId = provider->getStreamIdFromLabel(cameraLabel);
+
+CameraCalibration calib = provider->getCameraCalibration(streamId);
+CameraCalibration pinhole = getLinearCameraCalibration(512, 512, 150);
+
+ImageData rawImage = provider->getImageDataByIndex(streamId, 0);
+auto undistortedImage = distortByCalibration(rawImage.imageVariant(), pinhole, calib);
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+![Image](/img/data_utilities/advanced_guide/undistortion.png)
+
+Go to [projectaria_tools/core/calibration/utility/Distort.cpp](https://github.com/facebookresearch/projectaria_tools/blob/main/core/calibration/utility/Distort.cpp) for implementation.
+
+Go to the [Project Aria FAQ](/faq.mdx#calibration) for more calibration information and resources.
+
+## Rotated image clockwise 90 degrees
+In this example, we rotated the RGB image 90 degrees and provide the new calibration object.
+* Calibration rotation only applies to pinhole camera model
+* Pinhole camera calibration object needs to be initialized as `pinhole = calibration.get_linear_camera_calibration(512, 512, 150, camera_label, calib.get_transform_device_camera())`
+with `camera_label` and the pose `calib.get_transform_device_camera()` so that `pinhole_cw90` can have the correct transformation matrix when unprojecting a pixel to get `ray_in_device_frame`.
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+camera_label = "camera-rgb"
+stream_id = provider.get_stream_id_from_label(camera_label)
+
+calib = provider.get_device_calibration().get_camera_calib(camera_label)
+pinhole = calibration.get_linear_camera_calibration(512, 512, 150, camera_label,
+calib.get_transform_device_camera())
+
+raw_image = provider.get_image_data_by_index(stream_id, 0)[0].to_numpy_array()
+undistorted_image = calibration.distort_by_calibration(raw_image, pinhole, calib)
+
+# Rotated image by CW90 degrees
+rotated_image = np.rot90(undistorted_image, k=3)
+
+# Get rotated image calibration
+pinhole_cw90 = calibration.rotate_camera_calib_cw90deg(pinhole)
+
+# Unproject a pixel and get a ray from device coordinate frame
+test_pixel_in_rotated_image = [10,0]
+ray_in_device_frame =  pinhole_cw90.get_transform_device_camera() @ pinhole_cw90.unproject_no_checks(test_pixel_in_rotated_image)
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <dataprovider/VrsDataProvider.h>
+#include <calibration/utility/Distort.h>
+
+std::string cameraLabel = "camera-rgb";
+vrs::StreamId streamId = provider->getStreamIdFromLabel(cameraLabel);
+
+CameraCalibration calib = provider->getCameraCalibration(streamId);
+CameraCalibration pinhole = getLinearCameraCalibration(512, 512, 150, cameraLabel, calib.getT_Device_Camera());
+
+// Get rotated image calibration
+CameraCalibration pinholeCW90 = rotatedCameraCalibCW90Deg(pinhole);
+
+// Unproject a pixel and get a ray from device coordinate frame
+Eigen::Vector2d textPixelInRotatedImage{10,0};
+auto ray = pinholeCW90.getT_Device_Camera() * pinholeCW90.projectNoChecks(textPixelInRotatedImage);
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+## Color Correction
+Videos and images taken with earlier versions of the Aria OS may show color distortion due to inconsistent gamma curves and unconventional color temperatures, leading to inconsistent and overly blue hues. To address this, we've introduced a Color Correction feature in the ARK v1.13 update. With this update, images captured by Aria devices now have more consistent colors and are calibrated to a standard color temperature of 5000K. We also recommend applying devignetting to the images to achieve more accurate image quality.
+
+### Color Correction user recommendations
+The new Color Correction feature is available as an option in data campaigns and the Companion App. It's enabled by default in the new Aria OS, and we recommend users utilize the feature for future Aria captures to achieve optimal image quality. We also suggest keeping existing images captured with the old Aria OS and combining them with new Aria captures for research purposes.
+For advanced users, we provide a Color Correction API in Project Aria Tools that can correct color distortions in old captures and images. We advise using this API with caution for the following reasons:
+* The post-processing API can effectively convert and correct color distortion in older images, particularly in environments that are not overexposed. If your images do not contain overexposed areas, we recommend converting them for optimal image quality.
+* If an image contains overexposed areas, the colors in the overexposed regions may be oversaturated due to distortion in color settings: this may make it impossible to accurately recover the proper colors, potentially resulting in artifacts. This is more common in outdoor environments, where oversaturated areas can appear around the sky or sun. In such cases, we recommend retaining the old images without converting them.
+
+### Potential failure cases
+The issue with overexposed captures is demonstrated in the picture below. In the left image, captured by the old Aria OS, the central area is oversaturated due to strong light around the sun, resulting in the loss of digital values above 255 for higher-range colors. These lost colors cannot be recovered. The middle image, where the old image has been color-corrected and devignetted, displays a yellowish tint after the color correction conversion due to the original image's oversaturation. This problem does not occur in images captured with the updated Aria OS, shown in the right image.
+
+![Image](/img//data_utilities/advanced_guide/color_correction_failure.png)
+
+Below, we demonstrate how to apply color correction:
+
+1. Set set_color_correction as True (the default value is False).
+2. The output from provider.get_image_data_by_index would be color-corrected.
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+from projectaria_tools.core import data_provider
+camera_label = "camera-rgb"
+stream_id = provider.get_stream_id_from_label(camera_label)
+
+# turn on color correction
+provider.set_color_correction(True)
+
+# the output image from get_image_data_by_index will be color corrected
+color_corrected_image_array = provider.get_image_data_by_index(stream_id, 0)[0].to_numpy_array()
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <dataprovider/VrsDataProvider.h>
+
+std::string cameraLabel = "camera-rgb";
+vrs::StreamId streamId = provider->getStreamIdFromLabel(cameraLabel);
+
+// turn on color correction
+provider.setColorCorrection(True);
+
+// the output image from getImageDataByIndex will be color corrected
+ImageDataAndRecord imageDataAndRecord = provider.getImageDataByIndex(streamId, 0);
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+![Image](/img//data_utilities/advanced_guide/color_correction.png)
+Go to [projectaria_tools/core/image/utility/ColorCorrect.cpp](https://github.com/facebookresearch/projectaria_tools/blob/main/core/image/utility/ColorCorrect.cpp) for implementation.
+
+## Image devignetting
+
+Devignetting corrects uneven lighting, enhancing image uniformity and clarity. We provide devignetting for camera-rgb full size image [2880, 2880], camera-rgb half size image[1408, 1408] and slam image [640, 480].
+1. Download [Aria devignetting masks](https://www.projectaria.com/async/sample/download/?bucket=core&filename=devignetting_masks_bin.zip) containing following files:
+
+```
+devignetting_masks_bin
+|- new_isp
+   |- slam_devignetting_mask.bin
+   |- rgb_half_devignetting_mask.bin
+   |- rgb_full_devignetting_mask.bin
+|- old_isp
+   |- slam_devignetting_mask.bin
+   |- rgb_half_devignetting_mask.bin
+   |- rgb_full_devignetting_mask.bin
+```
+2. Turn on devignetting. Set devignetting mask folder path with the local aria camera devignetting masks folder path.
+   ```python
+   set_devignetting(True)
+   mask_folder_path = "devignetting_masks_bin"
+   set_devignetting_mask_folder_path(mask_folder_path)
+   ```
+3. The image data from `get_image_data_by_index` will be devignetted.
+4. (Optional) If you don't want to devignetting feature, turn off by calling `set_devignetting(False)`
+
+```mdx-code-block
+<Tabs groupId="programming-language">
+<TabItem value="python" label="Python">
+```
+```python
+from projectaria_tools.core import data_provider
+camera_label = "camera-rgb"
+stream_id = provider.get_stream_id_from_label(camera_label)
+
+# set devignetting mask path
+devignetting_mask_folder_path = <FOLDER_PATH_CONTAINING_DEVIGNETTING_MASK>
+provider.set_devignetting_mask_folder_path(devignetting_mask_folder_path)
+
+# turn on devignetting
+provider.set_devignetting(True)
+
+# the output image from get_image_data_by_index will be devignetted
+devignetted_image = provider.get_image_data_by_index(stream_id, 0)
+```
+```mdx-code-block
+</TabItem>
+<TabItem value="cpp" label="C++">
+```
+```cpp
+#include <dataprovider/VrsDataProvider.h>
+
+std::string cameraLabel = "camera-rgb";
+vrs::StreamId streamId = provider->getStreamIdFromLabel(cameraLabel);
+
+std::string devignettingMaskFolderPath = <FOLDER_PATH_CONTAINING_DEVIGNETTING_MASK>;
+
+// set devignetting mask path
+provider.setDevignettingMaskFolderPath(devignettingMaskFolderPath);
+
+// turn on devignetting
+provider.setDevignetting(true);
+
+// the output image from getImageDataByIndex will be devignetted
+ImageDataAndRecord imageDataAndRecord = provider.getImageDataByIndex(streamId, 0);
+```
+```mdx-code-block
+</TabItem>
+</Tabs>
+```
+
+![Image](/img//data_utilities/advanced_guide/devignetting.png)
+
+Go to [projectaria_tools/core/image/utility/Devignetting.cpp](https://github.com/facebookresearch/projectaria_tools/blob/main/core/image/utility/Devignetting.cpp) for implementation.
