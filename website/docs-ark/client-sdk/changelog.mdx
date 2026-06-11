@@ -11,7 +11,7 @@ This page tracks the version history and changes made to the Aria Gen2 ClientSDK
 
 ## Version 2.4.0
 
-**Release Date:** [TBD — fill at release]
+**Release Date:** Jun 2026
 
 ### New Features
 
@@ -29,6 +29,15 @@ Orchestrate multiple Aria Gen 2 devices from a single CLI invocation. Devices re
 - Sessions persisted as JSON at `~/.aria/multi-device-session/<id>.json`
 
 See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device) for the full guide.
+
+#### Unified Device Discovery
+
+The `connect()` path now discovers Aria Gen 2 devices over the network (mDNS) and over USB simultaneously, so a device is found whether it is reachable over the network, over USB, or both.
+
+**Key additions:**
+- A single discovery pass spans both transports — no need to know in advance which one a device is on
+- Devices reachable via both paths are de-duplicated by serial, so each device is listed only once
+- When multiple devices are discovered, every serial is reported so you can disambiguate with `--serial`
 
 #### Country-aware Time-Domain-Mapping Channel Validation
 
@@ -73,6 +82,31 @@ New Python tool `multi_device_streaming_viewer.py` — a live Rerun visualizatio
 - `--skip-tdm-validation` escape hatch for partial-sync investigations
 - Inherits the persistent shared-cert workflow from `streaming install-certs`
 - See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device#live-visualization-with-multi_device_streaming_viewer) for usage
+
+### Improvements
+
+#### Python Type Stubs
+
+The Client SDK wheel now ships `sdk_gen2.pyi` type stubs, giving editors and type checkers full autocomplete and signature information for the `aria.sdk_gen2` module.
+
+**Key additions:**
+- `sdk_gen2.pyi` packaged in the `projectaria_client_sdk` wheel, alongside the existing `sdk.pyi`
+- IDE autocomplete, inline signatures, and static type checking (mypy / pyright) across the Gen2 SDK surface
+
+#### Resilient Streaming Examples
+
+The streaming example scripts now exit cleanly when a device connection drops, instead of hanging or crashing.
+
+**Key additions:**
+- `device_streaming.py` reports the error and exits cleanly when an initial connection fails
+- `multi_device_streaming_viewer.py` polls `server.connections()` to detect per-device drops, marks the affected device disconnected, and keeps the remaining devices streaming
+- `SIGINT` / `SIGTERM` handlers tear down servers and callbacks gracefully on shutdown
+
+### Bug Fixes
+
+#### Custom Profile Upload
+
+Fixed a failure that prevented some custom data-flow profiles from installing. Profiles carrying a top-level `__type` tag were rejected by the strict profile parser; the tag is now handled correctly, so `aria_gen2 device profile --upload-profile <file>` and `device.set_data_flow_profile(...)` accept them.
 
 ---
 
