@@ -5,6 +5,20 @@ title: Changelog
 
 # Changelog
 
+## Version 2.1.4
+
+### New Features
+
+- Added support for loading Aria Gen2 eye-tracking CSV output in the MPS reader: parses combined yaw/pitch + per-eye yaw/pitch, back-fills `combined_gaze_origin_in_cpf`, `spatial_gaze_point_in_cpf`, and `depth` from ray vergence
+- Exposed new `mps.get_gaze_vergence_point()` Python API that computes the vergence point of two eye gaze rays with independent per-eye pitch and arbitrary IPD, with built-in guardrails for near-parallel, divergent, skew, and excessive-depth inputs
+- `viewer_mps` now uses the back-filled Gen2 spatial gaze point (when available) to render a more accurate 3D gaze arrow, falling back to the yaw/pitch + depth approximation for Gen1 recordings
+
+### Bug Fixes
+
+- Fixed `AlsDataLayout` to match the actual Gen2 VRS schema: corrected `gain_{red,green,blue,uv,ir,clear}` from `int32_t` to `float` and `exposure_time_us` from `int32_t` to `uint32_t` (these previously read as 0 for every sample)
+- Fixed `bisection_timestamp_search` to return the truly closest timestamp index instead of whichever side the binary search landed on; also fixed border guards so an exact match on the first or last timestamp now returns its index rather than `None` (resolves GitHub issue #100)
+- Fixed an SE3 transform bug in `viewer_mps`'s 3D gaze arrow rendering where the displacement vector was being treated as a point, causing the CPF→device translation to be added twice
+
 ---
 ## Version 2.1.3
 
