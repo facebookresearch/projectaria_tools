@@ -26,8 +26,20 @@ namespace projectaria::tools::data_provider {
 
 TimeSyncMapper::TimeSyncMapper(
     const std::shared_ptr<vrs::MultiRecordFileReader>& reader,
-    const std::map<TimeSyncMode, std::shared_ptr<TimeSyncPlayer>>& timesyncPlayers) {
+    const std::map<TimeSyncMode, std::shared_ptr<TimeSyncPlayer>>& timesyncPlayers,
+    const MetadataTimeSyncMode metadataTimeSyncMode) {
   if (timesyncPlayers.empty()) {
+    return;
+  }
+  if (metadataTimeSyncMode == MetadataTimeSyncMode::NotEnabled) {
+    // The file's metadata says no cross-device time sync was enabled during
+    // recording. Even if TimeSync streams are physically present, their records
+    // are unusable — preloading them costs one HTTP RTT per record on remote
+    // file systems and the data is discarded by the conversion APIs anyway.
+    XR_LOGI(
+        "Skipping TimeSyncMapper preload: file metadata reports time-sync NotEnabled "
+        "({} TimeSync stream(s) present but unused).",
+        timesyncPlayers.size());
     return;
   }
   timesyncPlayers_ = timesyncPlayers;

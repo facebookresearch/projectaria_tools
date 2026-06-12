@@ -442,7 +442,10 @@ std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
   }
   checkAndThrow(hasStreamPlayer, "No stream activated, cannot create provider");
 
-  auto timeSyncMapper = std::make_shared<TimeSyncMapper>(reader_, timesyncPlayers_);
+  const MetadataTimeSyncMode metadataTimeSyncMode =
+      determineTimeSyncMode(reader_->getTags(), deviceVersion_, timesyncPlayers_);
+  auto timeSyncMapper =
+      std::make_shared<TimeSyncMapper>(reader_, timesyncPlayers_, metadataTimeSyncMode);
 
   auto interface = std::make_shared<RecordReaderInterface>(
       reader_,
@@ -462,7 +465,8 @@ std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
       vioHighFreqPlayers_,
       eyeGazePlayers_,
       handPosePlayers_,
-      timeSyncMapper);
+      timeSyncMapper,
+      metadataTimeSyncMode);
 
   auto configMap = std::make_shared<StreamIdConfigurationMapper>(
       reader_,

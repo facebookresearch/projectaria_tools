@@ -35,6 +35,17 @@
 
 namespace projectaria::tools::data_provider {
 
+// Inspect the file-level "metadata" tag and the registered TimeSync players to
+// decide what cross-device time-sync mode (if any) this recording was made
+// with. Returns NotEnabled when the metadata tag is missing/unparseable, when
+// no relevant fields are set (Gen1 / Gen2), or when the device version is
+// unsupported. Used by the factory to skip TimeSyncMapper preload for files
+// that wouldn't use the data anyway.
+[[nodiscard]] MetadataTimeSyncMode determineTimeSyncMode(
+    const std::map<std::string, std::string>& fileTags,
+    calibration::DeviceVersion deviceVersion,
+    const std::map<TimeSyncMode, std::shared_ptr<TimeSyncPlayer>>& timesyncPlayers);
+
 /*
   read a data record from vrs cached in corresponding players
 */
@@ -58,7 +69,8 @@ class RecordReaderInterface {
       std::map<vrs::StreamId, std::shared_ptr<VioHighFrequencyPlayer>>& vioHighFreqPlayers,
       std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>>& eyegazePlayers,
       std::map<vrs::StreamId, std::shared_ptr<HandPosePlayer>>& handPosePlayers,
-      const std::shared_ptr<TimeSyncMapper>& timeSyncMapper);
+      const std::shared_ptr<TimeSyncMapper>& timeSyncMapper,
+      MetadataTimeSyncMode metadataTimeSyncMode);
 
   [[nodiscard]] std::set<vrs::StreamId> getStreamIds() const;
   [[nodiscard]] std::map<std::string, std::string> getFileTags() const;
@@ -163,6 +175,7 @@ class RecordReaderInterface {
   std::map<vrs::StreamId, std::shared_ptr<HandPosePlayer>> handPosePlayers_;
 
   std::shared_ptr<TimeSyncMapper> timeSyncMapper_;
+  const MetadataTimeSyncMode metadataTimeSyncMode_ = MetadataTimeSyncMode::NotEnabled;
 
   std::unique_ptr<std::mutex> readerMutex_;
   std::map<vrs::StreamId, std::unique_ptr<std::mutex>> streamIdToPlayerMutex_;

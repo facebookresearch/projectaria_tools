@@ -22,6 +22,7 @@
 #include <vrs/MultiRecordFileReader.h>
 #include <vrs/StreamId.h>
 
+#include <data_provider/VrsMetadata.h>
 #include <players/TimeSyncPlayer.h>
 
 namespace projectaria::tools::data_provider {
@@ -29,9 +30,14 @@ namespace projectaria::tools::data_provider {
 class TimeSyncMapper {
  public:
   TimeSyncMapper() = default;
-  explicit TimeSyncMapper(
+  // When `metadataTimeSyncMode == NotEnabled`, the per-record preload over the
+  // TimeSync streams is skipped. `supportsMode()` and `getTimeSyncModes()` then
+  // report no usable modes, which is correct: callers should check the file's
+  // `getTimeSyncMode()` before invoking conversion APIs anyway.
+  TimeSyncMapper(
       const std::shared_ptr<vrs::MultiRecordFileReader>& reader,
-      const std::map<TimeSyncMode, std::shared_ptr<TimeSyncPlayer>>& timesyncPlayers);
+      const std::map<TimeSyncMode, std::shared_ptr<TimeSyncPlayer>>& timesyncPlayers,
+      MetadataTimeSyncMode metadataTimeSyncMode);
 
   // general function to convert between two times in TimeSyncData
   // syncTime: TimeSyncData.realTimestampNs

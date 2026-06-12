@@ -62,9 +62,13 @@ add_library(streamid_label_mapper STATIC StreamIdLabelMapper.cpp StreamIdLabelMa
 target_include_directories(streamid_label_mapper PUBLIC "../")
 target_link_libraries(streamid_label_mapper PUBLIC vrslib)
 
+add_library(file_metadata INTERFACE)
+target_sources(file_metadata INTERFACE VrsMetadata.h)
+target_include_directories(file_metadata INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>)
+
 add_library(timesync_mapper STATIC TimeSyncMapper.cpp TimeSyncMapper.h)
 target_include_directories(timesync_mapper PUBLIC "../")
-target_link_libraries(timesync_mapper PUBLIC error_handler vrslib players)
+target_link_libraries(timesync_mapper PUBLIC error_handler file_metadata vrslib players)
 
 add_library(record_reader_interface STATIC RecordReaderInterface.cpp RecordReaderInterface.h)
 target_include_directories(record_reader_interface PUBLIC "../")
@@ -87,7 +91,7 @@ target_sources(utils INTERFACE QueryMapByTimestamp.h)
 target_include_directories(utils INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 add_library(vrs_data_provider STATIC
-        VrsDataProvider.cpp VrsDataProvider.h VrsMetadata.h
+        VrsDataProvider.cpp VrsDataProvider.h
         VrsDataProviderFactory.cpp
         SensorDataSequence.cpp SensorDataSequence.h)
 target_include_directories(vrs_data_provider PUBLIC
@@ -96,6 +100,7 @@ target_include_directories(vrs_data_provider PUBLIC
 target_link_libraries(vrs_data_provider PUBLIC
         aria_stream_ids
         deliver_queued_options
+        file_metadata
         record_reader_interface
         sensor_configuration
         sensor_data

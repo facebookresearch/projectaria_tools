@@ -27,11 +27,55 @@
 namespace projectaria::tools::data_provider {
 
 namespace {
-// Gen1 and Gen2 have different metadata formats, these helpers would parse the metadata json
-void fillMetadataForGen1(
-    VrsMetadata& metadata,
+MetadataTimeSyncMode determineTimeSyncModeFromJson(
     const nlohmann::json& metadataJson,
-    const std::shared_ptr<TimeSyncMapper>& timeSyncMapper) {
+    calibration::DeviceVersion deviceVersion,
+    const std::map<TimeSyncMode, std::shared_ptr<TimeSyncPlayer>>& timesyncPlayers) {
+  if (!metadataJson.is_object()) {
+    return MetadataTimeSyncMode::NotEnabled;
+  }
+  if (deviceVersion == calibration::DeviceVersion::Gen1) {
+    if (metadataJson.contains("ticsync_mode") && metadataJson["ticsync_mode"].is_string()) {
+      const auto ticsyncMode = metadataJson["ticsync_mode"].get<std::string>();
+      if (ticsyncMode == "client") {
+        return MetadataTimeSyncMode::TicSyncClient;
+      }
+      if (ticsyncMode == "server") {
+        return MetadataTimeSyncMode::TicSyncServer;
+      }
+      // Match the legacy fillMetadataForGen1 short-circuit: if ticsync_mode is
+      // set but unrecognized, treat as NotEnabled instead of falling through
+      // to the NTP/timecode/SubGHz/UTC checks.
+      return MetadataTimeSyncMode::NotEnabled;
+    }
+    if (metadataJson.value("ntp_time_enabled", false)) {
+      return MetadataTimeSyncMode::Ntp;
+    }
+    if (metadataJson.value("timecode_enabled", false)) {
+      return MetadataTimeSyncMode::Timecode;
+    }
+    if (timesyncPlayers.count(TimeSyncMode::SUBGHZ) != 0) {
+      return MetadataTimeSyncMode::SubGhz;
+    }
+    if (timesyncPlayers.count(TimeSyncMode::UTC) != 0) {
+      return MetadataTimeSyncMode::Utc;
+    }
+    return MetadataTimeSyncMode::NotEnabled;
+  }
+  if (deviceVersion == calibration::DeviceVersion::Gen2) {
+    // The OS writes `recording.subghz_mode` only when SubGHz is configured
+    // (broadcaster or receiver); the field is absent otherwise.
+    if (metadataJson.contains("recording") && metadataJson["recording"].is_object() &&
+        metadataJson["recording"].contains("subghz_mode")) {
+      return MetadataTimeSyncMode::SubGhz;
+    }
+    return MetadataTimeSyncMode::NotEnabled;
+  }
+  return MetadataTimeSyncMode::NotEnabled;
+}
+
+// Gen1 and Gen2 have different metadata formats, these helpers would parse the metadata json
+void fillMetadataForGen1(VrsMetadata& metadata, const nlohmann::json& metadataJson) {
   std::string tempKey = "recording_profile";
   if (metadataJson.contains(tempKey)) {
     metadata.recordingProfile = metadataJson[tempKey];
@@ -45,24 +89,6 @@ void fillMetadataForGen1(
   tempKey = "filename";
   if (metadataJson.contains(tempKey)) {
     metadata.filename = metadataJson[tempKey];
-  }
-
-  metadata.timeSyncMode = MetadataTimeSyncMode::NotEnabled;
-  if (metadataJson.contains("ticsync_mode")) {
-    const std::string& ticsyncMode = metadataJson["ticsync_mode"];
-    if (ticsyncMode == "client") {
-      metadata.timeSyncMode = MetadataTimeSyncMode::TicSyncClient;
-    } else if (ticsyncMode == "server") {
-      metadata.timeSyncMode = MetadataTimeSyncMode::TicSyncServer;
-    }
-  } else if (metadataJson.contains("ntp_time_enabled") && metadataJson["ntp_time_enabled"]) {
-    metadata.timeSyncMode = MetadataTimeSyncMode::Ntp;
-  } else if (metadataJson.contains("timecode_enabled") && metadataJson["timecode_enabled"]) {
-    metadata.timeSyncMode = MetadataTimeSyncMode::Timecode;
-  } else if (timeSyncMapper->supportsMode(TimeSyncMode::SUBGHZ)) {
-    metadata.timeSyncMode = MetadataTimeSyncMode::SubGhz;
-  } else if (timeSyncMapper->supportsMode(TimeSyncMode::UTC)) {
-    metadata.timeSyncMode = MetadataTimeSyncMode::Utc;
   }
 
   tempKey = "device_id";
@@ -96,11 +122,25 @@ void fillMetadataForGen2(VrsMetadata& metadata, const nlohmann::json& metadataJs
   if (metadataJson.contains(tempKey_1) && metadataJson[tempKey_1].contains(tempKey_2)) {
     metadata.startTimeEpochSec = metadataJson[tempKey_1][tempKey_2];
   }
-
-  // TODO: parse this when OS team adds this to the metadata
-  metadata.timeSyncMode = MetadataTimeSyncMode::NotEnabled;
 }
 } // namespace
+
+MetadataTimeSyncMode determineTimeSyncMode(
+    const std::map<std::string, std::string>& fileTags,
+    calibration::DeviceVersion deviceVersion,
+    const std::map<TimeSyncMode, std::shared_ptr<TimeSyncPlayer>>& timesyncPlayers) {
+  const auto it = fileTags.find("metadata");
+  if (it == fileTags.end()) {
+    return MetadataTimeSyncMode::NotEnabled;
+  }
+  nlohmann::json metadataJson;
+  try {
+    metadataJson = nlohmann::json::parse(it->second);
+  } catch (const nlohmann::json::exception&) {
+    return MetadataTimeSyncMode::NotEnabled;
+  }
+  return determineTimeSyncModeFromJson(metadataJson, deviceVersion, timesyncPlayers);
+}
 
 RecordReaderInterface::RecordReaderInterface(
     std::shared_ptr<vrs::MultiRecordFileReader> reader,
@@ -120,7 +160,8 @@ RecordReaderInterface::RecordReaderInterface(
     std::map<vrs::StreamId, std::shared_ptr<VioHighFrequencyPlayer>>& vioHighFreqPlayers,
     std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>>& eyegazePlayers,
     std::map<vrs::StreamId, std::shared_ptr<HandPosePlayer>>& handPosePlayers,
-    const std::shared_ptr<TimeSyncMapper>& timeSyncMapper)
+    const std::shared_ptr<TimeSyncMapper>& timeSyncMapper,
+    MetadataTimeSyncMode metadataTimeSyncMode)
     : reader_(reader),
       imagePlayers_(imagePlayers),
       motionPlayers_(motionPlayers),
@@ -139,6 +180,7 @@ RecordReaderInterface::RecordReaderInterface(
       eyegazePlayers_(eyegazePlayers),
       handPosePlayers_(handPosePlayers),
       timeSyncMapper_(timeSyncMapper),
+      metadataTimeSyncMode_(metadataTimeSyncMode),
       readerMutex_(std::make_unique<std::mutex>()) {
   // Determine device version
   const std::string deviceTypeString = reader_->getTag("device_type");
@@ -270,7 +312,7 @@ std::optional<VrsMetadata> RecordReaderInterface::getMetadata() const {
   // Parse metadata keys based on device version
   switch (deviceVersion_) {
     case calibration::DeviceVersion::Gen1:
-      fillMetadataForGen1(metadata, metadataJson, timeSyncMapper_);
+      fillMetadataForGen1(metadata, metadataJson);
       break;
     case calibration::DeviceVersion::Gen2:
       fillMetadataForGen2(metadata, metadataJson);
@@ -280,6 +322,11 @@ std::optional<VrsMetadata> RecordReaderInterface::getMetadata() const {
           fmt::format(
               "Unsupported device version for loading metadata: {}", getName(deviceVersion_)));
   }
+
+  // Time sync mode is computed once by the factory (which has direct access to
+  // the TimeSync player registry) and threaded through, so the result here is
+  // consistent with what was passed to the TimeSyncMapper constructor.
+  metadata.timeSyncMode = metadataTimeSyncMode_;
 
   return metadata;
 }
