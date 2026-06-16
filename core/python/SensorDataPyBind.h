@@ -107,6 +107,7 @@ inline void declareSensorDataType(py::module& m) {
       .value("ALS", SensorDataType::Als, "Ambient Light Sensor (ALS) data streams")
       .value("EYE_GAZE", SensorDataType::EyeGaze, "EyeGaze data streams")
       .value("HAND_POSE", SensorDataType::HandPose, "HandPose data streams")
+      .value("EMG", SensorDataType::Emg, "Electromyography (EMG) IMU batch data streams")
       .value("VIO_HIGH_FREQ", SensorDataType::VioHighFreq, "Vio high frequency data streams")
       .value("VIO", SensorDataType::Vio, "Vio data streams")
       .export_values();
@@ -496,6 +497,52 @@ inline void declarePpgDataRecord(py::module& m) {
           "integration_time_us", &PpgData::integrationTimeUs, "PPG integration time in us");
 }
 
+inline void declareEmgDataRecord(py::module& m) {
+  py::class_<EmgConfiguration>(m, "EmgConfiguration", "EMG sensor configuration type")
+      .def(py::init<>())
+      .def_readwrite("stream_id", &EmgConfiguration::streamId, "ID of the VRS stream")
+      .def_readwrite("sensor_model", &EmgConfiguration::sensorModel, "sensor model name")
+      .def_readwrite("device_id", &EmgConfiguration::deviceId, "device ID for emg sensor")
+      .def_readwrite(
+          "nominal_rate_hz", &EmgConfiguration::nominalRateHz, "number of frames per second")
+      .def_readwrite(
+          "description", &EmgConfiguration::description, "description of the EMG sensor");
+
+  py::class_<EmgImuSample>(m, "EmgImuSample", "A single EMG / IMU sample within an EMG IMU batch")
+      .def(py::init<>())
+      .def_readwrite(
+          "sequence_number",
+          &EmgImuSample::sequenceNumber,
+          "monotonic sequence number of the sample")
+      .def_readwrite(
+          "timestamp_ns",
+          &EmgImuSample::timestampNs,
+          "capture timestamp of the sample in nanoseconds")
+      .def_property(
+          "packed_channel_data",
+          [](const EmgImuSample& self) { return py::bytes(self.packedChannelData); },
+          [](EmgImuSample& self, const std::string& value) { self.packedChannelData = value; },
+          "packed binary blob of per-channel ADC readings for this sample; unpack using channel_count and bits_per_adc_reading")
+      .def_readwrite(
+          "encoding", &EmgImuSample::encoding, "encoding of the packed channel data (EMG only)");
+
+  py::class_<EmgData>(m, "EmgData", "EMG IMU batch data type")
+      .def(py::init<>())
+      .def_readwrite(
+          "capture_timestamp_ns", &EmgData::captureTimestampNs, "timestamp of capturing this batch")
+      .def_readwrite(
+          "batch_sequence_number",
+          &EmgData::batchSequenceNumber,
+          "monotonic sequence number of the batch")
+      .def_readwrite("emg", &EmgData::emg, "EMG samples in this batch")
+      .def_readwrite("accel", &EmgData::accel, "accelerometer samples in this batch")
+      .def_readwrite("gyro", &EmgData::gyro, "gyroscope samples in this batch")
+      .def_readwrite("channel_count", &EmgData::channelCount, "number of EMG channels")
+      .def_readwrite(
+          "bits_per_adc_reading", &EmgData::bitsPerAdcReading, "number of bits per ADC reading")
+      .def_readwrite("samples_per_batch", &EmgData::samplesPerBatch, "number of samples per batch");
+}
+
 inline void declareAlsDataRecord(py::module& m) {
   py::class_<AlsConfiguration>(m, "AlsConfiguration", "ALS sensor configuration type")
       .def(py::init<>())
@@ -868,6 +915,10 @@ inline void declareSensorConfiguration(py::module& m) {
           "temperature_configuration",
           &SensorConfiguration::temperatureConfiguration,
           "Returns the sensor configuration as TemperatureConfiguration")
+      .def(
+          "emg_configuration",
+          &SensorConfiguration::emgConfiguration,
+          "Returns the sensor configuration as EmgConfiguration")
       .def("eye_gaze_configuration", &SensorConfiguration::eyeGazeConfiguration)
       .def("hand_pose_configuration", &SensorConfiguration::handPoseConfiguration)
       .def("vio_configuration", &SensorConfiguration::vioConfiguration)
@@ -887,6 +938,7 @@ inline void declareSensorData(py::module& m) {
   declareBluetoothDataRecord(m);
   declareBarometerDataRecord(m);
   declarePpgDataRecord(m);
+  declareEmgDataRecord(m);
   declareAlsDataRecord(m);
   declareTemperatureDataRecord(m);
   declareFrontendTypes(m);
@@ -914,6 +966,7 @@ inline void declareSensorData(py::module& m) {
       .def("barometer_data", &SensorData::barometerData)
       .def("magnetometer_data", &SensorData::magnetometerData)
       .def("ppg_data", &SensorData::ppgData)
+      .def("emg_data", &SensorData::emgData)
       .def("als_data", &SensorData::alsData)
       .def("temperature_data", &SensorData::temperatureData)
       .def("vio_high_freq_data", &SensorData::vioHighFreqData)

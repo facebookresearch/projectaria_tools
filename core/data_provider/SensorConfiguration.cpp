@@ -79,6 +79,10 @@ TemperatureConfiguration SensorConfiguration::temperatureConfiguration() const {
       sensorDataType_ == SensorDataType::Temperature, "Sensor data type is not Temperature");
   return std::get<TemperatureConfiguration>(sensorConfigurationVariant_);
 }
+EmgConfiguration SensorConfiguration::emgConfiguration() const {
+  checkAndThrow(sensorDataType_ == SensorDataType::Emg, "Sensor data type is not Emg");
+  return std::get<EmgConfiguration>(sensorConfigurationVariant_);
+}
 EyeGazeConfiguration SensorConfiguration::eyeGazeConfiguration() const {
   checkAndThrow(sensorDataType_ == SensorDataType::EyeGaze, "Sensor data type is not EyeGaze");
   return std::get<EyeGazeConfiguration>(sensorConfigurationVariant_);
@@ -123,6 +127,8 @@ double SensorConfiguration::getNominalRateHz() const {
       return alsConfiguration().nominalRateHz;
     case SensorDataType::Temperature:
       return temperatureConfiguration().nominalRateHz;
+    case SensorDataType::Emg:
+      return emgConfiguration().nominalRateHz;
     case SensorDataType::EyeGaze:
       return eyeGazeConfiguration().nominalRateHz;
     case SensorDataType::HandPose:

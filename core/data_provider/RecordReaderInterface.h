@@ -26,6 +26,7 @@
 #include <data_provider/TimeSyncMapper.h>
 #include <data_provider/VrsMetadata.h>
 #include <data_provider/players/AlsPlayer.h>
+#include <data_provider/players/EmgPlayer.h>
 #include <data_provider/players/EyeGazePlayer.h>
 #include <data_provider/players/HandPosePlayer.h>
 #include <data_provider/players/PpgPlayer.h>
@@ -65,6 +66,7 @@ class RecordReaderInterface {
       std::map<vrs::StreamId, std::shared_ptr<PpgPlayer>>& ppgPlayers,
       std::map<vrs::StreamId, std::shared_ptr<AlsPlayer>>& alsPlayers,
       std::map<vrs::StreamId, std::shared_ptr<TemperaturePlayer>>& temperaturePlayers,
+      std::map<vrs::StreamId, std::shared_ptr<EmgPlayer>>& emgPlayers,
       std::map<vrs::StreamId, std::shared_ptr<VioPlayer>>& vioPlayers,
       std::map<vrs::StreamId, std::shared_ptr<VioHighFrequencyPlayer>>& vioHighFreqPlayers,
       std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>>& eyegazePlayers,
@@ -103,6 +105,7 @@ class RecordReaderInterface {
   PpgData getLastCachedPpgData(const vrs::StreamId& streamId);
   AlsData getLastCachedAlsData(const vrs::StreamId& streamId);
   TemperatureData getLastCachedTemperatureData(const vrs::StreamId& streamId);
+  EmgData getLastCachedEmgData(const vrs::StreamId& streamId);
 
   /* read the last cached on-device MP data in player */
   FrontendOutput getLastCachedVioData(const vrs::StreamId& streamId);
@@ -168,6 +171,7 @@ class RecordReaderInterface {
   std::map<vrs::StreamId, std::shared_ptr<PpgPlayer>> ppgPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<AlsPlayer>> alsPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<TemperaturePlayer>> temperaturePlayers_;
+  std::map<vrs::StreamId, std::shared_ptr<EmgPlayer>> emgPlayers_;
 
   std::map<vrs::StreamId, std::shared_ptr<VioPlayer>> vioPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<VioHighFrequencyPlayer>> vioHighFreqPlayers_;

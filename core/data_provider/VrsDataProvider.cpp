@@ -85,6 +85,8 @@ SensorConfiguration VrsDataProvider::getConfiguration(const vrs::StreamId& strea
       return SensorConfiguration(getAlsConfiguration(streamId), sensorDataType);
     case SensorDataType::Temperature:
       return SensorConfiguration(getTemperatureConfiguration(streamId), sensorDataType);
+    case SensorDataType::Emg:
+      return SensorConfiguration(getEmgConfiguration(streamId), sensorDataType);
     case SensorDataType::BatteryStatus:
       return SensorConfiguration(getBatteryStatusConfiguration(streamId), sensorDataType);
     case SensorDataType::VioHighFreq:
@@ -161,6 +163,12 @@ PpgConfiguration VrsDataProvider::getPpgConfiguration(const vrs::StreamId& strea
   assertStreamIsActive(streamId);
   assertStreamIsType(streamId, SensorDataType::Ppg);
   return configMap_->getPpgConfiguration(streamId);
+}
+
+EmgConfiguration VrsDataProvider::getEmgConfiguration(const vrs::StreamId& streamId) const {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::Emg);
+  return configMap_->getEmgConfiguration(streamId);
 }
 
 AlsConfiguration VrsDataProvider::getAlsConfiguration(const vrs::StreamId& streamId) const {
@@ -432,6 +440,17 @@ PpgData VrsDataProvider::getPpgDataByIndex(const vrs::StreamId& streamId, const 
   }
 }
 
+EmgData VrsDataProvider::getEmgDataByIndex(const vrs::StreamId& streamId, const int index) {
+  assertStreamIsActive(streamId);
+  assertStreamIsType(streamId, SensorDataType::Emg);
+
+  if (interface_->readRecordByIndex(streamId, index)) {
+    return interface_->getLastCachedEmgData(streamId);
+  } else {
+    return {};
+  }
+}
+
 AlsData VrsDataProvider::getAlsDataByIndex(const vrs::StreamId& streamId, const int index) {
   assertStreamIsActive(streamId);
   assertStreamIsType(streamId, SensorDataType::Als);
@@ -614,6 +633,15 @@ PpgData VrsDataProvider::getPpgDataByTimeNs(
     const TimeQueryOptions& timeQueryOptions) {
   const int index = getIndexByTimeNs(streamId, timeNs, timeDomain, timeQueryOptions);
   return getPpgDataByIndex(streamId, index);
+}
+
+EmgData VrsDataProvider::getEmgDataByTimeNs(
+    const vrs::StreamId& streamId,
+    const int64_t timeNs,
+    const TimeDomain& timeDomain,
+    const TimeQueryOptions& timeQueryOptions) {
+  const int index = getIndexByTimeNs(streamId, timeNs, timeDomain, timeQueryOptions);
+  return getEmgDataByIndex(streamId, index);
 }
 
 AlsData VrsDataProvider::getAlsDataByTimeNs(

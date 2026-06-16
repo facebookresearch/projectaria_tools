@@ -31,6 +31,11 @@
 
 namespace projectaria::tools::data_provider {
 namespace {
+// Stream flavor the oatmeal recorder uses for the EMG IMU batch stream. Canonical definition is
+// oatmeal::kEmgImuBatchRecordingFlavor in arvr/projects/oatmeal/vrs/OatmealVrsUtils.h; it is
+// duplicated here because this OSS file cannot depend on the internal oatmeal headers.
+constexpr const char* kEmgImuBatchFlavor = "device/oatmeal/emg_imu_batch";
+
 SensorDataType getSensorDataType(const vrs::RecordableTypeId& id, const std::string& streamFlavor) {
   static const std::map<vrs::RecordableTypeId, SensorDataType> sensorTypeMap = {
       // Image
@@ -90,6 +95,12 @@ SensorDataType getSensorDataType(const vrs::RecordableTypeId& id, const std::str
     }
   }
 
+  // EMG shares ImuRecordableClass with the regular IMU stream, so it must be disambiguated by
+  // stream flavor before the static map maps ImuRecordableClass to SensorDataType::Imu.
+  if (id == vrs::RecordableTypeId::ImuRecordableClass && streamFlavor == kEmgImuBatchFlavor) {
+    return SensorDataType::Emg;
+  }
+
   // For all other cases, check the static map
   auto iteratorIdAndType = sensorTypeMap.find(id);
   if (iteratorIdAndType != sensorTypeMap.end()) {
@@ -139,6 +150,7 @@ class VrsDataProviderFactory {
   std::map<vrs::StreamId, std::shared_ptr<PpgPlayer>> ppgPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<AlsPlayer>> alsPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<TemperaturePlayer>> temperaturePlayers_;
+  std::map<vrs::StreamId, std::shared_ptr<EmgPlayer>> emgPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<VioPlayer>> vioPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<VioHighFrequencyPlayer>> vioHighFreqPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>> eyeGazePlayers_;
@@ -267,6 +279,12 @@ void VrsDataProviderFactory::addPlayers() {
             std::make_shared<TemperaturePlayer>(streamId);
         temperaturePlayers_[streamId] = std::move(temperaturePlayer);
         setStreamAndLog(streamId, temperaturePlayers_[streamId].get());
+        break;
+      }
+      case SensorDataType::Emg: {
+        std::shared_ptr<EmgPlayer> emgPlayer = std::make_shared<EmgPlayer>(streamId);
+        emgPlayers_[streamId] = std::move(emgPlayer);
+        setStreamAndLog(streamId, emgPlayers_[streamId].get());
         break;
       }
       case SensorDataType::Vio: {
@@ -461,6 +479,7 @@ std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
       ppgPlayers_,
       alsPlayers_,
       temperaturePlayers_,
+      emgPlayers_,
       vioPlayers_,
       vioHighFreqPlayers_,
       eyeGazePlayers_,
@@ -482,6 +501,7 @@ std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
       ppgPlayers_,
       alsPlayers_,
       temperaturePlayers_,
+      emgPlayers_,
       eyeGazePlayers_,
       handPosePlayers_,
       vioPlayers_,

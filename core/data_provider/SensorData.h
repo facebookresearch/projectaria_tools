@@ -24,6 +24,7 @@
 #include <data_provider/players/BarometerPlayer.h>
 #include <data_provider/players/BatteryStatusPlayer.h>
 #include <data_provider/players/BluetoothBeaconPlayer.h>
+#include <data_provider/players/EmgPlayer.h>
 #include <data_provider/players/GpsPlayer.h>
 #include <data_provider/players/ImageSensorPlayer.h>
 #include <data_provider/players/MotionSensorPlayer.h>
@@ -69,6 +70,7 @@ class SensorData {
       PpgData,
       AlsData,
       TemperatureData,
+      EmgData,
       /* on device MP data types*/
       FrontendOutput,
       OnDeviceVioHighFreqData,
@@ -167,6 +169,12 @@ class SensorData {
    * @pre type is Temperature
    */
   [[nodiscard]] TemperatureData temperatureData() const;
+
+  /**
+   * @brief Returns the sensor data as EmgData
+   * @pre type is Emg
+   */
+  [[nodiscard]] EmgData emgData() const;
 
   /**
    * @brief Returns the sensor data as BatteryStatusData

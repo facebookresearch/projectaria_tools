@@ -23,6 +23,7 @@
 #include <data_provider/players/BarometerPlayer.h>
 #include <data_provider/players/BatteryStatusPlayer.h>
 #include <data_provider/players/BluetoothBeaconPlayer.h>
+#include <data_provider/players/EmgPlayer.h>
 #include <data_provider/players/EyeGazePlayer.h>
 #include <data_provider/players/GpsPlayer.h>
 #include <data_provider/players/HandPosePlayer.h>
@@ -57,6 +58,7 @@ class SensorConfiguration {
       PpgConfiguration,
       AlsConfiguration,
       TemperatureConfiguration,
+      EmgConfiguration,
       EyeGazeConfiguration,
       HandPoseConfiguration,
       VioConfiguration,
@@ -141,6 +143,12 @@ class SensorConfiguration {
    * @pre type is Temperature
    */
   [[nodiscard]] TemperatureConfiguration temperatureConfiguration() const;
+
+  /**
+   * @brief Returns the sensor configuration as EmgConfiguration
+   * @pre type is Emg
+   */
+  [[nodiscard]] EmgConfiguration emgConfiguration() const;
 
   /**
    * @brief Returns the sensor configuration as HandPoseConfiguration

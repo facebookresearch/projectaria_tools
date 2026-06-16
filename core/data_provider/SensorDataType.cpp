@@ -40,6 +40,7 @@ std::string getName(const SensorDataType type) {
       {SensorDataType::VioHighFreq, "VIO high freq"},
       {SensorDataType::EyeGaze, "eyegaze"},
       {SensorDataType::HandPose, "hand pose"},
+      {SensorDataType::Emg, "EMG"},
       {SensorDataType::NotValid, "invalid"}};
   return kTypeNameMap.at(type);
 }

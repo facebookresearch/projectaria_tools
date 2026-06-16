@@ -92,6 +92,11 @@ TemperatureData SensorData::temperatureData() const {
   return std::get<TemperatureData>(dataVariant_);
 }
 
+EmgData SensorData::emgData() const {
+  checkAndThrow(sensorDataType_ == SensorDataType::Emg, "Sensor data type is not EMG");
+  return std::get<EmgData>(dataVariant_);
+}
+
 BatteryStatusData SensorData::batteryStatusData() const {
   checkAndThrow(
       sensorDataType_ == SensorDataType::BatteryStatus, "Sensor data type is not BatteryStatus");
@@ -145,6 +150,8 @@ int64_t SensorData::getDeviceTime() const {
       return alsData().captureTimestampNs;
     case SensorDataType::Temperature:
       return temperatureData().captureTimestampNs;
+    case SensorDataType::Emg:
+      return emgData().captureTimestampNs;
     case SensorDataType::BatteryStatus:
       return batteryStatusData().captureTimestampNs;
 
@@ -187,6 +194,7 @@ int64_t SensorData::getHostTime() const {
     case SensorDataType::Ppg:
     case SensorDataType::Als:
     case SensorDataType::Temperature:
+    case SensorDataType::Emg:
     case SensorDataType::Vio:
     case SensorDataType::VioHighFreq:
     case SensorDataType::EyeGaze:

@@ -37,6 +37,7 @@ StreamIdConfigurationMapper::StreamIdConfigurationMapper(
     std::map<vrs::StreamId, std::shared_ptr<PpgPlayer>>& ppgPlayers,
     std::map<vrs::StreamId, std::shared_ptr<AlsPlayer>>& alsPlayers,
     std::map<vrs::StreamId, std::shared_ptr<TemperaturePlayer>>& temperaturePlayers,
+    std::map<vrs::StreamId, std::shared_ptr<EmgPlayer>>& emgPlayers,
     std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>>& EyeGazePlayers,
     std::map<vrs::StreamId, std::shared_ptr<HandPosePlayer>>& handPosePlayers,
     std::map<vrs::StreamId, std::shared_ptr<VioPlayer>>& vioPlayers,
@@ -88,6 +89,9 @@ StreamIdConfigurationMapper::StreamIdConfigurationMapper(
   }
   for (const auto& [streamId, temperaturePlayer] : temperaturePlayers) {
     streamIdToTemperatureConfig_.emplace(streamId, temperaturePlayer->getConfigRecord());
+  }
+  for (const auto& [streamId, emgPlayer] : emgPlayers) {
+    streamIdToEmgConfig_.emplace(streamId, emgPlayer->getConfigRecord());
   }
 }
 
@@ -152,6 +156,11 @@ AlsConfiguration StreamIdConfigurationMapper::getAlsConfiguration(
 TemperatureConfiguration StreamIdConfigurationMapper::getTemperatureConfiguration(
     const vrs::StreamId& streamId) const {
   return streamIdToTemperatureConfig_.at(streamId);
+}
+
+EmgConfiguration StreamIdConfigurationMapper::getEmgConfiguration(
+    const vrs::StreamId& streamId) const {
+  return streamIdToEmgConfig_.at(streamId);
 }
 
 EyeGazeConfiguration StreamIdConfigurationMapper::getEyeGazeConfiguration(

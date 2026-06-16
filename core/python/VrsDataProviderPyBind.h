@@ -440,6 +440,7 @@ inline void declareVrsDataProvider(py::module& m) {
           &VrsDataProvider::getMagnetometerConfiguration,
           py::arg("stream_id"))
       .def("get_ppg_configuration", &VrsDataProvider::getPpgConfiguration, py::arg("stream_id"))
+      .def("get_emg_configuration", &VrsDataProvider::getEmgConfiguration, py::arg("stream_id"))
       .def("get_als_configuration", &VrsDataProvider::getAlsConfiguration, py::arg("stream_id"))
       .def(
           "get_temperature_configuration",
@@ -490,6 +491,11 @@ inline void declareVrsDataProvider(py::module& m) {
       .def(
           "get_ppg_data_by_index",
           &VrsDataProvider::getPpgDataByIndex,
+          py::arg("stream_id"),
+          py::arg("index"))
+      .def(
+          "get_emg_data_by_index",
+          &VrsDataProvider::getEmgDataByIndex,
           py::arg("stream_id"),
           py::arg("index"))
       .def(
@@ -583,6 +589,13 @@ inline void declareVrsDataProvider(py::module& m) {
       .def(
           "get_ppg_data_by_time_ns",
           &VrsDataProvider::getPpgDataByTimeNs,
+          py::arg("stream_id"),
+          py::arg("time_ns"),
+          py::arg("time_domain"),
+          py::arg("time_query_options") = TimeQueryOptions::Before)
+      .def(
+          "get_emg_data_by_time_ns",
+          &VrsDataProvider::getEmgDataByTimeNs,
           py::arg("stream_id"),
           py::arg("time_ns"),
           py::arg("time_domain"),

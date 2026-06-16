@@ -156,6 +156,7 @@ RecordReaderInterface::RecordReaderInterface(
     std::map<vrs::StreamId, std::shared_ptr<PpgPlayer>>& ppgPlayers,
     std::map<vrs::StreamId, std::shared_ptr<AlsPlayer>>& alsPlayers,
     std::map<vrs::StreamId, std::shared_ptr<TemperaturePlayer>>& temperaturePlayers,
+    std::map<vrs::StreamId, std::shared_ptr<EmgPlayer>>& emgPlayers,
     std::map<vrs::StreamId, std::shared_ptr<VioPlayer>>& vioPlayers,
     std::map<vrs::StreamId, std::shared_ptr<VioHighFrequencyPlayer>>& vioHighFreqPlayers,
     std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>>& eyegazePlayers,
@@ -175,6 +176,7 @@ RecordReaderInterface::RecordReaderInterface(
       ppgPlayers_(ppgPlayers),
       alsPlayers_(alsPlayers),
       temperaturePlayers_(temperaturePlayers),
+      emgPlayers_(emgPlayers),
       vioPlayers_(vioPlayers),
       vioHighFreqPlayers_(vioHighFreqPlayers),
       eyegazePlayers_(eyegazePlayers),
@@ -244,6 +246,11 @@ RecordReaderInterface::RecordReaderInterface(
   for (const auto& [streamId, _] : temperaturePlayers_) {
     streamIds_.insert(streamId);
     streamIdToSensorDataType_.emplace(streamId, SensorDataType::Temperature);
+  }
+
+  for (const auto& [streamId, _] : emgPlayers_) {
+    streamIds_.insert(streamId);
+    streamIdToSensorDataType_.emplace(streamId, SensorDataType::Emg);
   }
 
   for (const auto& [streamId, _] : vioPlayers_) {
@@ -559,6 +566,16 @@ SensorData RecordReaderInterface::getLastCachedSensorData(const vrs::StreamId& s
       }
       return {streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData};
     }
+    case SensorDataType::Emg: {
+      auto data = getLastCachedEmgData(streamId);
+      std::map<TimeSyncMode, int64_t> timeSyncData;
+      for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
+        const int64_t& syncTimeNs =
+            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(data.captureTimestampNs, mode);
+        timeSyncData.emplace(mode, syncTimeNs);
+      }
+      return {streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData};
+    }
     case SensorDataType::Vio: {
       auto data = getLastCachedVioData(streamId);
       std::map<TimeSyncMode, int64_t> timeSyncData;
@@ -709,6 +726,13 @@ BatteryStatusData RecordReaderInterface::getLastCachedBatteryStatusData(
   auto batteryStatusData = batteryStatusPlayers_[streamId]->getDataRecord();
   streamIdToCondition_.at(streamId)->notify_one();
   return batteryStatusData;
+}
+
+EmgData RecordReaderInterface::getLastCachedEmgData(const vrs::StreamId& streamId) {
+  std::unique_lock<std::mutex> readLock(*(streamIdToPlayerMutex_.at(streamId)));
+  auto emgData = emgPlayers_[streamId]->getDataRecord();
+  streamIdToCondition_.at(streamId)->notify_one();
+  return emgData;
 }
 
 uint32_t RecordReaderInterface::getRgbIspTuningVersion() const {

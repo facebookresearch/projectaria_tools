@@ -47,6 +47,7 @@ enum class SensorDataType {
   VioHighFreq, /**< On Device VIO high frequency data streams*/
   EyeGaze, /**< On Device Eye gaze data streams*/
   HandPose, /**< On Device Hand tracking data streams*/
+  Emg, /**< Electromyography (EMG) IMU batch data streams */
 };
 
 /** @brief converts the enum to readable std::string */

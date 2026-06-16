@@ -369,6 +369,7 @@ class VrsDataProvider {
   PpgConfiguration getPpgConfiguration(const vrs::StreamId& streamId) const;
   AlsConfiguration getAlsConfiguration(const vrs::StreamId& streamId) const;
   TemperatureConfiguration getTemperatureConfiguration(const vrs::StreamId& streamId) const;
+  EmgConfiguration getEmgConfiguration(const vrs::StreamId& streamId) const;
   EyeGazeConfiguration getEyeGazeConfiguration(const vrs::StreamId& streamId) const;
   HandPoseConfiguration getHandPoseConfiguration(const vrs::StreamId& streamId) const;
   VioConfiguration getVioConfiguration(const vrs::StreamId& streamId) const;
@@ -386,6 +387,7 @@ class VrsDataProvider {
   PpgData getPpgDataByIndex(const vrs::StreamId& streamId, int index);
   AlsData getAlsDataByIndex(const vrs::StreamId& streamId, int index);
   TemperatureData getTemperatureDataByIndex(const vrs::StreamId& streamId, int index);
+  EmgData getEmgDataByIndex(const vrs::StreamId& streamId, int index);
   MotionData getMagnetometerDataByIndex(const vrs::StreamId& streamId, int index);
   FrontendOutput getVioDataByIndex(const vrs::StreamId& streamId, int index);
   OnDeviceVioHighFreqData getVioHighFreqDataByIndex(const vrs::StreamId& streamId, int index);
@@ -439,6 +441,11 @@ class VrsDataProvider {
       const TimeDomain& timeDomain = TimeDomain::DeviceTime,
       const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Before);
   PpgData getPpgDataByTimeNs(
+      const vrs::StreamId& streamId,
+      int64_t timeNs,
+      const TimeDomain& timeDomain = TimeDomain::DeviceTime,
+      const TimeQueryOptions& timeQueryOptions = TimeQueryOptions::Before);
+  EmgData getEmgDataByTimeNs(
       const vrs::StreamId& streamId,
       int64_t timeNs,
       const TimeDomain& timeDomain = TimeDomain::DeviceTime,
