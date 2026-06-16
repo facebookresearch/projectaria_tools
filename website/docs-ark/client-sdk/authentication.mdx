@@ -102,7 +102,9 @@ You only need to authenticate once per device and PC combination.
 If your device is not showing up when running `aria_gen2 device list`:
 
 1. Run `aria_doctor` to configure your system
-2. Run `dns-sd -B _recordingmanager._tcp` to verify the device is discoverable via mDNS
+2. Verify the device is discoverable via mDNS:
+   - On macOS: `dns-sd -B _recordingmanager._tcp`
+   - On Linux: `avahi-browse -r _recordingmanager._tcp` (install with `sudo apt install avahi-utils` if not available)
 3. Check that USB Network is toggled **ON** in the Companion App
 4. Disable any active VPN connections
 5. Try a different USB port or cable (USB 3.0+ recommended)
