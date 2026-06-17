@@ -46,6 +46,7 @@ ALL_STREAM_LABELS_GEN2 = [
     "mag0",
     "gps",
     "gps-app",
+    "emg",
     "handtracking",
     "eyegaze",
     "vio",
@@ -290,6 +291,8 @@ def plot_queued_sensor_data(
             aria_data_viewer.plot_magnetometer(data.magnetometer_data())
         elif data.sensor_data_type() == SensorDataType.BAROMETER:
             aria_data_viewer.plot_barometer(data.barometer_data())
+        elif data.sensor_data_type() == SensorDataType.EMG:
+            aria_data_viewer.plot_emg(data.emg_data(), label, device_time_ns)
         elif data.sensor_data_type() == SensorDataType.AUDIO:
             aria_data_viewer.plot_audio(
                 data.audio_data_and_record(),
@@ -335,6 +338,10 @@ def log_vrs_to_rerun(
     # Step 3: Create config
     viewer_config: AriaDataViewerConfig = AriaDataViewerConfig()
     viewer_config.enable_gps = True
+    # Only show the EMG panel when this recording actually has an EMG (Ceres wristband) stream.
+    viewer_config.enable_emg = (
+        vrs_data_provider.get_stream_id_from_label("emg") is not None
+    )
 
     # Step 4: Get configured deliver options
     parsed_subsample_rates: dict[str, int] = (

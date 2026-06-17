@@ -41,6 +41,11 @@ def warn_once(func, message):
         setattr(target, "_warned", True)
 
 
+# Smoothing factor for the per-channel EMG DC baseline (exponential moving average; ~1 s time
+# constant at typical EMG batch rates). Used to center each channel's AC signal around zero.
+EMG_BASELINE_SMOOTHING_FACTOR = 0.99
+
+
 @dataclass
 class SensorLabels:
     """
@@ -144,6 +149,11 @@ class AriaDataViewerConfig:
 
     enable_gps = False
 
+    # Whether to include the EMG panel in the blueprint. Set true only when the recording
+    # actually contains an EMG (Ceres wristband) stream, so other recordings don't get an
+    # empty EMG view taking up vertical space.
+    enable_emg = False
+
     enable_crop_visualization = False
 
     # rerun memory limit (default parameter is 75% of available memory)
@@ -237,6 +247,12 @@ class AriaDataViewer:
         self.vio_high_freq_traj_cached_full = []
         # A variable to cache full VIO trajectory
         self.vio_traj_cached_full = []
+        # Timestamp (sec) of the previous EMG sample, used to spread a batch's
+        # sub-samples across the inter-batch interval when plotting.
+        self._prev_emg_time_sec = None
+        # Slowly-adapting per-channel EMG DC baseline (np array, one entry per channel),
+        # subtracted to center each channel's AC signal around zero. None until first batch.
+        self._emg_baseline = None
         # Scale ratio to convert plot sizes from RGB camera space to SLAM camera space (based on camera resolution ratio)
 
         if rrd_output_path:
@@ -444,6 +460,14 @@ class AriaDataViewer:
             origin=self.sensor_labels.contact_microphone_label
         )
 
+        # EMG IMU batch view: only included when an EMG (Ceres wristband) stream is present in
+        # the recording, so recordings without one don't get an empty panel wasting space.
+        emg_views = (
+            [rrb.TimeSeriesView(name="emg", origin="emg")]
+            if self.config.enable_emg
+            else []
+        )
+
         # Create latency view if enabled (for streaming use case)
         latency_views = []
         if self.config.show_latency:
@@ -458,6 +482,7 @@ class AriaDataViewer:
             _1d_view_container.contents[0],  # IMU plots
             _1d_view_container.contents[1],  # mic
             contact_mic_1d_view,  # contact mic
+            *emg_views,  # EMG IMU batch (only when present)
             _1d_view_container.contents[2],  # Tabbed baro + mag
             *latency_views,  # latency (optional, for streaming)
         )
@@ -807,6 +832,93 @@ class AriaDataViewer:
             f"{self.sensor_labels.barometer_labels[1]}/temperature[Celsius]",
             rr.Scalars(barometer_data.temperature),
         )  # Degree Celsius
+
+    def plot_emg(self, emg_data, label, device_time_ns):
+        """Plot EMG IMU batch data as one scalar time series per channel.
+
+        Each EMG sample carries a packed blob of `samples_per_batch` sub-samples across
+        `channel_count` ADC channels, decoded as big-endian *unsigned* 16-bit (offset-binary)
+        shaped [samples_per_batch, channel_count]. Each channel is centered by removing a
+        slowly-adapting per-channel DC baseline (exponential moving average) -- electrodes have
+        individual biases, so a per-channel baseline keeps every channel readable on a shared
+        auto-scaled axis. One Rerun time series is logged per channel.
+
+        The batch is anchored on `device_time_ns` (the batch capture time, on the shared device
+        timeline) rather than the per-sample timestamp: the per-sample EMG timestamp is a
+        sensor-internal clock that does not span the recording, so using it collapses all
+        batches into a tiny time window. The sub-samples are evenly spread across the interval
+        since the previous EMG batch.
+
+        NOTE: the decode (big-endian, unsigned/offset-binary) was confirmed empirically --
+        little-endian or signed interpretation fills the full int16 range, while big-endian
+        unsigned yields an EMG-like signal. The sample- vs channel-major reshape order is still
+        assumed; confirm channel ordering with the recording team.
+        """
+        if emg_data is None:
+            warn_once(self.plot_emg, "EMG data is None")
+            return
+
+        channel_count = emg_data.channel_count
+        samples_per_batch = emg_data.samples_per_batch
+        if channel_count <= 0 or samples_per_batch <= 0:
+            warn_once(
+                self.plot_emg,
+                "EMG channel_count/samples_per_batch not populated; skipping EMG plot",
+            )
+            return
+
+        # Decode and stack every EMG sample in the batch into a single [total_samples, channel]
+        # array. The device packs the ADC samples big-endian, unsigned (offset-binary).
+        rows = []
+        for sample in emg_data.emg:
+            buffer = np.frombuffer(sample.packed_channel_data, dtype=">u2")
+            if buffer.size != channel_count * samples_per_batch:
+                warn_once(
+                    self.plot_emg,
+                    f"EMG blob size {buffer.size} != channel_count*samples_per_batch "
+                    f"({channel_count}*{samples_per_batch}); skipping EMG plot",
+                )
+                return
+            rows.append(buffer.reshape(samples_per_batch, channel_count))
+        if not rows:
+            return
+        raw_counts = np.concatenate(rows, axis=0).astype(np.float64)
+
+        # Per-channel DC removal: each electrode has its own bias, so subtract a slowly-adapting
+        # per-channel baseline to center the AC EMG around zero.
+        batch_mean = raw_counts.mean(axis=0)
+        if self._emg_baseline is None:
+            self._emg_baseline = batch_mean
+        else:
+            self._emg_baseline = (
+                EMG_BASELINE_SMOOTHING_FACTOR * self._emg_baseline
+                + (1.0 - EMG_BASELINE_SMOOTHING_FACTOR) * batch_mean
+            )
+        values = raw_counts - self._emg_baseline
+        total_samples = values.shape[0]
+
+        # Spread the batch's sub-samples evenly across the interval since the previous batch,
+        # on the device timeline.
+        end_time_sec = device_time_ns * 1e-9
+        prev_time_sec = (
+            self._prev_emg_time_sec
+            if self._prev_emg_time_sec is not None
+            else end_time_sec
+        )
+        if total_samples > 1 and end_time_sec > prev_time_sec:
+            timestamps_sec = np.linspace(
+                prev_time_sec, end_time_sec, total_samples, endpoint=True
+            )
+        else:
+            timestamps_sec = np.full(total_samples, end_time_sec)
+        self._prev_emg_time_sec = end_time_sec
+
+        for channel in range(channel_count):
+            rr.send_columns(
+                f"{label}/channel_{channel}",
+                indexes=[rr.TimeColumn("device_time", timestamp=timestamps_sec)],
+                columns=rr.Scalars.columns(scalars=values[:, channel]),
+            )
 
     def _plot_audio_from_selected_channels(
         self,
