@@ -38,7 +38,7 @@ You may also encounter a Python module import error if you are running an old ve
 
 ### Visualizer does not build
 
-If the visualizer does not build it may be because of missing Pangolin functions. Aria Digital Twin (ADT) dataset depends on very recent changes to Pangolin's master branch. If ADT depends on Pangolin functions that are not available on your installed version of Pangolin, please [reinstall using the most recent master](/docs/data_utilities/installation/installation_cpp#step-2---compile-pangolin).
+If the visualizer does not build it may be because of missing Pangolin functions. Aria Digital Twin (ADT) dataset depends on very recent changes to Pangolin's master branch. If ADT depends on Pangolin functions that are not available on your installed version of Pangolin, please [reinstall using the most recent master](/docs/data_utilities/installation/installation_cpp#step-2--compile-pangolin).
 
 ###  Runtime errors/missing libraries
 Runtime errors can be caused by missing libraries. The following commands may resolve the issue.
@@ -111,9 +111,9 @@ sudo make install
 
 #### Step 3: Patch CMake for Visualizers
 
-1. Update the [AriaViewer](/docs/data_utilities/visualization/visualization_cpp#step-2--run-ariaviewer) CMakeLists in
+1. Update the [AriaViewer](/docs/data_utilities/visualization/visualization_cpp#run-aria-viewer) CMakeLists in
 `$HOME/Documents/projectaria_sandbox/projectaria_tools/tools/CMakeLists.txt`
-2. Update [AriaDigitalTwinViewer](/docs/open_datasets/aria_digital_twin_dataset/visualizers#ariadigitaltwinviewer) CMakeLists in
+2. Update [AriaDigitalTwinViewer](/docs/open_datasets/aria_digital_twin_dataset/visualizers#step-3--build-ariadigitaltwinviewer) CMakeLists in
 `$HOME/Documents/projectaria_sandbox/projectaria_tools/projects/AriaDigitalTwinDatasetTools/visualization/CMakeLists.txt`
 
 By adding the following line:

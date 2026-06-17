@@ -630,7 +630,7 @@ Install Project Aria Tools vs 1.5 using Pip or install Desktop App v38 to be abl
 * [Hand Tracking Data Format](/data_formats/mps/hand_tracking/hand_tracking.mdx)
 * [MPS CLI](/ARK/mps/request_mps/mps_cli.mdx)
 * [Install/Update Project Aria Tools Using Pip](/data_utilities/installation/installation_python.mdx)
-* [Download Desktop app](/ARK/ark_downloads.mdx#desktop-companion-app)
+* [Download Desktop app](/ARK/ark_downloads.mdx#aria-studio)
 
 
 #### Update to Eye Gaze outputs - depth estimations
@@ -646,7 +646,7 @@ This new model’s output schema adds to `general_eye_gaze.csv` and `personalize
 #### Known Issues
 
 * The new Eye Gaze model does not generate `yaw_rads_cpf` outputs
-    * This value can be computed using [helper functions](/data_utilities/core_code_snippets/eye_gaze_code.mdx#helper) and is automatically read when parsed with our data utilities.
+    * This value can be computed using [helper functions](/data_utilities/core_code_snippets/eye_gaze_code.mdx#helper-functions-to-support-the-new-eye-gaze-model) and is automatically read when parsed with our data utilities.
 
 
 #### Bug Fixes
@@ -917,7 +917,7 @@ Update the Mobile Companion app and Aria glasses OS to the latest version:
 
 * Follow the instructions in [ARK SW Downloads and Updates](/docs/ARK/ark_downloads) to download and update the Aria Mobile Companion App on Android or iOS
 * Connect your Aria Glasses to Wi-Fi and power and they will automatically update
-   * You can [manually trigger an update](/docs/ARK/mobile_companion_app#os-update) from the Mobile Companion app’s Device Settings
+   * You can [manually trigger an update](/docs/ARK/mobile_companion_app#update-os) from the Mobile Companion app’s Device Settings
 
 The Aria Research Kit parts of this release, support research partners with access to Project Aria glasses.
 
@@ -971,7 +971,7 @@ When you request Eye Gaze Machine Perception Services (MPS) and the file has an 
 Additional improvements to Eye Gaze MPS include:
 
 * `Summary.json` files are also now available for Eye Gaze MPS output
-* We’ve created a new visualization tool, [MPS Replay Viewer (C++)](/docs/data_utilities/visualization/visualization_cpp#mps-3d-replay-visualizer),  to render static scene and dynamic elements.
+* We’ve created a new visualization tool, [MPS Replay Viewer (C++)](/docs/data_utilities/visualization/visualization_cpp#run-mps-3d-replay-viewer),  to render static scene and dynamic elements.
 
 See below for more details:
 
@@ -1037,7 +1037,7 @@ The Aria Research Kit, builds on top of projectaria_tools, which is available 
 * Python binding type hinting
    * Python type hinting/stubs are now automatically generated if you’ve installed the tools using pip
    * Change the type of hinting in generate_stubs.py
-* [MPS Replay Viewer (C++)](/docs/data_utilities/visualization/visualization_cpp#mps-3d-replay-visualizer)
+* [MPS Replay Viewer (C++)](/docs/data_utilities/visualization/visualization_cpp#run-mps-3d-replay-viewer)
    * This new visualization tool renders static scene and dynamic elements:
       * 2D/3D observations rays
       * Eye gaze data

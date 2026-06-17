@@ -62,7 +62,7 @@ Recording profiles 0, 2, 10, 19, 25 and 27 have wifiScanModeActive enabled, so t
     3. Script prompting that it is waiting for devices to be ready for time synchronized data collection.
     4. Script prompting that devices are ready for time synchronized data collection.
 6. Unplug the glasses (if you wish) and record your activity
-    * It may take ~40 seconds for the ticsync algorithm to reach stabilization between all devices. [The TICSync Jupyter notebook tutorial](/ARK/sdk/ticsync.mdx#tutorial) includes how to assess how long it takes for your specific setup and recording profile.
+    * It may take ~40 seconds for the ticsync algorithm to reach stabilization between all devices. [The TICSync Jupyter notebook tutorial](/ARK/sdk/ticsync.mdx#load-and-visualize-the-recordings) includes how to assess how long it takes for your specific setup and recording profile.
 7. Stop recording:
     * Press the Capture button on the top right of the Aria glasses and then return glasses to their normal state by plugging them in and using ‘ticsync_cleanup’
     * Plug the glasses back into your computer and use `ticsync_cleanup`
@@ -122,7 +122,7 @@ Depending on how many client devices were used during recordings, there will be 
 ...
 ```
 
-Using the shared session ID, you can download all the time synchronized recordings for that session, rather than needing to pull individual records. Making a copy of the all the details associated with a shared session ID will be helpful when [consuming the data](/docs/ARK/sdk/ticsync.mdx#tutorial)
+Using the shared session ID, you can download all the time synchronized recordings for that session, rather than needing to pull individual records. Making a copy of the all the details associated with a shared session ID will be helpful when [consuming the data](/docs/ARK/sdk/ticsync.mdx#load-and-visualize-the-recordings)
 
 
 #### Download the recordings
