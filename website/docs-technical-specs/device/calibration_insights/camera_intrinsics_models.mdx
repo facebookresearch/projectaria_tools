@@ -51,19 +51,25 @@ The linear camera model (a.k.a pinhole model) is parametrized by 4 coefficients 
 $(f_x, f_y)$ are the focal lengths, and $c_x, c_y$ are the coordinate of the projection of the optical axis.
 It  maps from world point $(x,y,z)$ to 2D camera pixel $\mathbf{p}=(u, v)$ with the following formulae.
 $$
-    u = f_x x/z + c_x \\
-    v = f_y y/z + c_y
+\begin{aligned}
+    u &= f_x x/z + c_x \\
+    v &= f_y y/z + c_y
+\end{aligned}
 $$
 Or, in polar coordinates:
 $$
-    u = f_x tan(\theta) \cos(\varphi) + c_x, \\
-    v = f_y tan(\theta) \sin(\varphi) + c_y.
+\begin{aligned}
+    u &= f_x tan(\theta) \cos(\varphi) + c_x, \\
+    v &= f_y tan(\theta) \sin(\varphi) + c_y.
+\end{aligned}
 $$
 
 Inversely, we can unproject from 2D camera pixel $\mathbf{p}=(u, v)$  to the homogeneous coordinate of the world point by
 $$
-x/z=(u-c_x)/f_x, \\
-y/z=(v-c_y)/f_y.
+\begin{aligned}
+x/z&=(u-c_x)/f_x, \\
+y/z&=(v-c_y)/f_y.
+\end{aligned}
 $$
 The linear camera model preserves linearity in 3D space, thus straight lines in the real world are supposed to look straight under the linear camera model.
 
@@ -73,15 +79,19 @@ The spherical camera model is, similarly from the linear camera model parametriz
 The pixel coordinates are linear to solid angles rather than the homography coordinate system.
 The projection function can be written in polar coordinates
 $$
-    u = f_x \theta \cos(\varphi) + c_x, \\
-    v = f_y \theta \sin(\varphi) + c_y.
+\begin{aligned}
+    u &= f_x \theta \cos(\varphi) + c_x, \\
+    v &= f_y \theta \sin(\varphi) + c_y.
+\end{aligned}
 $$
 Note the difference from the linear camera model — under spherical projection, 3D straight lines look curved in images.
 
 Inversely, we can unproject from 2D camera pixel $\mathbf{p}=(u, v)$ to the homogeneous coordinate of the world point by
 $$
-    \theta = \sqrt{(u - c_x)^2/f_x^2 + (v - c_y)^2/f_y^2}, \\
-    \varphi = \arctan((u - c_x)/f_x, (v - c_y)/f_y).
+\begin{aligned}
+    \theta &= \sqrt{(u - c_x)^2/f_x^2 + (v - c_y)^2/f_y^2}, \\
+    \varphi &= \arctan((u - c_x)/f_x, (v - c_y)/f_y).
+\end{aligned}
 $$
 
 ## The KannalaBrandtK3 (KB3) model
@@ -99,8 +109,10 @@ In KannalaBrandtK3 model we use a 9-th order polynomial with four radial distort
 
 To unproject from camera pixel $(u, v)$ to the world point $(\theta, \varphi)$, we first compute
 $$
-    \varphi = \arctan((u - c_x)/f_x, (v - c_y)/f_y) \\
-    r(\theta) = \sqrt{(u - c_x)^2/f_x^2 + (v - c_y)^2/f_y^2}
+\begin{aligned}
+    \varphi &= \arctan((u - c_x)/f_x, (v - c_y)/f_y) \\
+    r(\theta) &= \sqrt{(u - c_x)^2/f_x^2 + (v - c_y)^2/f_y^2}
+\end{aligned}
 $$
 Then we use Newton method to inverse the function $r(\theta)$ to compute $\theta$. See the code [here](https://github.com/facebookresearch/projectaria_tools/blob/afad1fe09dd1d89eee55ceb95ba1f2f577f9c606/core/calibration/camera_projections/KannalaBrandtK3.h#L131-L147).
 
@@ -108,18 +120,24 @@ Then we use Newton method to inverse the function $r(\theta)$ to compute $\theta
 
 The Fisheye62 model adds two more radial distortion parameters, resulting in 6 radial distortation parameters in total, and tangential distortion on top of the KB3 model parametrized by two new coefficients: p_0 p_1.
 $$
-    u = f_x . (u_r + t_x(u_r, v_r))  + c_x, \\
-    v = f_y . (v_r + t_y(u_r, v_r))  + c_y.
+\begin{aligned}
+    u &= f_x . (u_r + t_x(u_r, v_r))  + c_x, \\
+    v &= f_y . (v_r + t_y(u_r, v_r))  + c_y.
+\end{aligned}
 $$
 where
 $$
-    u_r = r(\theta) \cos(\varphi), \\
-    v_r = r(\theta) \sin(\varphi).
+\begin{aligned}
+    u_r &= r(\theta) \cos(\varphi), \\
+    v_r &= r(\theta) \sin(\varphi).
+\end{aligned}
 $$
 and
 $$
-    t_x(u_r, v_r)  = p_0(2 u_r^2 + r(\theta)^2) + 2p_1u_rv_r, \\
-    t_y(u_r, v_r)  = p_1(2 v_r^2 + r(\theta)^2) + 2p_0u_rv_r.
+\begin{aligned}
+    t_x(u_r, v_r)  &= p_0(2 u_r^2 + r(\theta)^2) + 2p_1u_rv_r, \\
+    t_y(u_r, v_r)  &= p_1(2 v_r^2 + r(\theta)^2) + 2p_0u_rv_r.
+\end{aligned}
 $$
 
 To unproject from camera pixel $(u, v)$ to the world point $(\theta, \varphi)$, we first use Newton method to compute $u_r$ and $v_r$ from $(u - c_x)/f_x$ and $(v - cy)/f_y$, and then compute $(\theta, \varphi)$ using the above KB3 unproject method.
@@ -129,13 +147,17 @@ To unproject from camera pixel $(u, v)$ to the world point $(\theta, \varphi)$, 
 The FisheyeRadTanThinPrism (also called Fisheye624 in file and codebase) models thin-prism distortion (noted $tp$) on top of the Fisheye62 model above.
 Its parametrization contains 4 additional coefficients: s_0 s_1 s_2 s_3. The projection function writes:
 $$
-    u = f_x \cdot (u_r + t_x(u_r, v_r) + tp_x(u_r, v_r))  + c_x, \\
-    v = f_y \cdot (v_r + t_y(u_r, v_r) + tp_y(u_r, v_r))  + c_y.
+\begin{aligned}
+    u &= f_x \cdot (u_r + t_x(u_r, v_r) + tp_x(u_r, v_r))  + c_x, \\
+    v &= f_y \cdot (v_r + t_y(u_r, v_r) + tp_y(u_r, v_r))  + c_y.
+\end{aligned}
 $$
 u_r, v_r, t_x, t_y are defined as in the Fisheye62 model, while $tp_x$ and $tp_y$ are defined as:
 $$
-   tp_x(u_r, v_r) = s_0 r(\theta)^2 + s_1  r(\theta)^4, \\
-   tp_y(u_r, v_r) = s_2 r(\theta)^2 + s_3  r(\theta)^4.
+\begin{aligned}
+   tp_x(u_r, v_r) &= s_0 r(\theta)^2 + s_1  r(\theta)^4, \\
+   tp_y(u_r, v_r) &= s_2 r(\theta)^2 + s_3  r(\theta)^4.
+\end{aligned}
 $$
 
 To unproject from camera pixel $(u, v)$ to the world point $(\theta, \varphi)$, we first use Newton method to compute $u_r$ and $v_r$ from $(u - c_x)/f_x$ and $(v - cy)/f_y$, and then compute $(\theta, \varphi)$ using the above KB3 unproject method.
