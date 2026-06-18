@@ -166,6 +166,11 @@ class AriaDataViewerConfig:
     # Whether to show latency plot in the blueprint (only relevant for streaming)
     show_latency: bool = False
 
+    # Whether to connect to an existing Rerun viewer via gRPC instead of spawning
+    # a new viewer process. Used for frozen Electron builds where the viewer is
+    # already started by the parent process via start_frozen_rerun().
+    connect_to_existing_viewer: bool = False
+
 
 class AriaDataViewer:
     """
@@ -258,6 +263,12 @@ class AriaDataViewer:
         if rrd_output_path:
             rr.init("AriaDataViewer", spawn=False)
             rr.save(rrd_output_path)
+        elif self.config.connect_to_existing_viewer:
+            rr.init("AriaDataViewer")
+            rr.connect_grpc()
+            # If a blueprint path is configured, load it after connecting
+            if self.config.blueprint_path:
+                rr.log_file_from_path(self.config.blueprint_path)
         elif self.config.blueprint_path:
             self._spawn_rerun_with_blueprint(
                 self.config.blueprint_path, self.config.rerun_memory_limit
