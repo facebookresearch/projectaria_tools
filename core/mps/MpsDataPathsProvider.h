@@ -69,7 +69,7 @@ class MpsDataPathsProvider {
    * @brief Get the resulting data paths
    * @return MPS data paths object
    */
-  MpsDataPaths getDataPaths() const;
+  [[nodiscard]] MpsDataPaths getDataPaths() const;
 
  private:
   void loadDataPaths();
