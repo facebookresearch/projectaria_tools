@@ -3,6 +3,79 @@ sidebar_position: 50
 title: New Recording
 ---
 
-:::note
-TBD: This page is under construction.
+:::info Gen 2 Only
+The New Recording feature is only available with Aria Gen 2 glasses connected via USB.
 :::
+
+The **New Recording** page lets you configure and start a custom recording session directly from Aria Studio.
+
+![New Recording page](/img/docs-ark/aria_studio/new_recording_start.png)
+
+## Start a recording
+
+1. Navigate to the New Recording page by selecting **Custom Recording** in the sidebar's Glasses Info panel.
+2. (Optional) Enter a **Name** for the recording.
+3. (Optional) Add **Notes**.
+4. Select a **Recording Profile** — this determines which sensors are active and at what settings. The **What's recorded** section shows checkmarks for all active sensors in the selected profile.
+5. Select **Start a Custom Recording**.
+
+## Recording profiles
+
+Select **Change recording profile** to browse available profiles on your device. The **Recording profiles** page lists recommended profiles, each showing a name and description.
+
+![Recording profiles page](/img/docs-ark/aria_studio/new_recording_profile.png)
+
+Select a profile to view its sensor configuration in the details panel on the right, including frame rates and sample rates for:
+
+- RGB Camera
+- SLAM Cameras
+- Eye Tracking Cameras
+- Eye Tracking
+- Hand Tracking
+- VIO
+- And other sensors (GPS, Bluetooth, Wi-Fi, IMUs, PPG, ALS, Audio, Barometer, Magnetometer, Temperature, Device Info)
+
+Select **Done** to confirm or **Go back** to return without changing.
+
+## Monitor an active recording
+
+Once a recording starts, a recording card appears showing:
+
+- Recording timer with elapsed time
+- Recording name
+- **Data Integrity and Status** — color-coded indicator of sensor data quality:
+  - **Green** — Good: all sensors are looking good
+  - **Orange** — Degraded: some sensor issues detected
+  - **Red** — Poor: significant sensor issues detected
+- **Complete Recording** button — saves the recording
+- **Discard Recording** button — stops and discards the recording
+
+The sidebar also shows the recording status and elapsed time.
+
+![Recording in progress](/img/docs-ark/aria_studio/new_recording_in-progress.png)
+
+## Complete or discard a recording
+
+- Select **Complete Recording** to save the recording to your glasses. A success notification appears with a link to the recording.
+
+![Recording completed successfully](/img/docs-ark/aria_studio/new_recording_complete.png)
+
+- Select **Discard Recording** to stop recording without saving.
+
+The saved recording appears on the [Recordings on Glasses](/ark/aria_studio/glasses) page.
+
+![New recording on glasses](/img/docs-ark/aria_studio/new_recording_on_glasses.png)
+
+## External recording detection
+
+Recordings can also be started or stopped by:
+- The [Companion App](/ark/companion-app/recording)
+- The physical button on the glasses
+- CLI tools
+
+Aria Studio detects these external events and shows an info alert notifying you that a recording was started or stopped by another source.
+
+## Next steps
+
+- [Import recordings to your computer](/ark/aria_studio/glasses)
+- [Request MPS for your recordings](/ark/aria_studio/recordings)
