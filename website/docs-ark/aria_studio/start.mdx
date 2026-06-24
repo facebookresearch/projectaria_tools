@@ -3,6 +3,185 @@ sidebar_position: 0
 title: Get Started
 ---
 
-:::note
-TBD: This page is under construction.
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Aria Studio is a desktop application for managing [Project Aria](https://www.projectaria.com/) glasses and recordings. It is part of the [Aria Research Kit (ARK)](/ark/) and replaces the legacy Desktop App (deprecated May 30, 2025). Aria Studio provides a single interface to connect to Aria devices, browse and import VRS recordings, run Machine Perception Services (MPS), and visualize the results.
+
+## Key features
+
+- **Device management** — Connect to Gen 1 and Gen 2 Aria glasses over USB, browse on-device recordings, and import them to your computer.
+- **Local recording library** — Organize VRS files on disk, view metadata and thumbnails, and group recordings for multi-SLAM processing.
+- **MPS integration** — Request SLAM (Simultaneous Localization and Mapping), eye gaze, and hand tracking results for individual recordings or recording groups directly from the UI.
+- **Rerun visualization** — Stream VRS sensor data and MPS outputs into the [Rerun](https://rerun.io/) viewer for interactive 3D exploration (all streams except audio).
+- **Live streaming** (Gen 2 only) — Stream live sensor data from your glasses.
+- **Custom recording** (Gen 2 only) — Start and stop recordings with custom profile settings.
+
+## Supported Platforms
+
+| OS / Platform                 | OS / Distro Details                                                | Aria Gen2 Support | Supported Python Versions |
+| :---------------------------- | :----------------------------------------------------------------- | :---------------- | :------------------------ |
+| Linux (x64)                   | Fedora **36–38**; Ubuntu **20.04 LTS (focal)** / **22.04 LTS (jammy)** | ✅ Supported       | 3.11+                     |
+| macOS (Apple Silicon / ARM64) | macOS **11+ (Big Sur or newer)** on M1/M2/M3/M4                       | ✅ Supported       | 3.11+                     |
+| macOS (Intel / x64)           | macOS **11+ (Big Sur or newer)**                                       | ⚠️ Deprecated — use PyPI install only (one-click installer removed in v1.1.0) | 3.11+     |
+| Windows (x64)                 | Windows **10 / 11**                                                    | 🔜 Planned — previous one-click installer available for [v1.0.3 and earlier](/ark/aria_studio/changelog); native support planned pending Client SDK for Windows | 3.11+ |
+
+## Installation
+
+<Tabs>
+  <TabItem value="pypi" label="PyPI" default>
+
+### Requirements
+- Python 3.11 or later
+- A virtual environment is recommended
+
+### Install
+
+```bash
+python3 -m pip install aria_studio --no-cache-dir
+```
+
+#### Using a virtual environment
+
+```bash
+python3 -m venv ~/projectaria_gen2_python_env
+source ~/projectaria_gen2_python_env/bin/activate
+pip install aria_studio --no-cache-dir
+```
+
+  </TabItem>
+  <TabItem value="desktop" label="One-click installer">
+
+Download the installer for your platform:
+
+| **Platform** | **Download** |
+|--|--|
+| macOS (ARM) | [Aria_Studio-2.0.0-arm64.dmg](https://www.projectaria.com/async/sample/download/?bucket=build&filename=Aria-Studio-2.0.0-arm64.dmg) |
+| Linux (x64) | [Aria_Studio-2.0.0-Linux.appimage](https://www.projectaria.com/async/sample/download/?bucket=build&filename=Aria-Studio-2.0.0.appimage) |
+
+Check the [Aria Studio Changelog](/ark/aria_studio/changelog) for the latest updates.
+
+### Previous versions
+
+| Version | Platform | Download link |
+|--|--|--|
+| 1.1.2 | Linux | [Aria_Studio-1.1.2-Linux.appimage](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.2-Linux.appimage) |
+| 1.1.1 | Mac ARM | [Aria_Studio-1.1.1-arm64.dmg](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.1-arm64.dmg) |
+| 1.1.1 | Linux | [Aria_Studio-1.1.1-Linux.appimage](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.1-Linux.appimage) |
+| 1.1.1 | Windows | [Aria_Studio-1.1.1-windows.exe](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.1-windows.exe) |
+| 1.1.0 | Mac ARM | [Aria_Studio-1.1.0-arm64.dmg](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.0-arm64.dmg) |
+| 1.1.0 | Linux | [Aria_Studio-1.1.0-Linux.appimage](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.0-Linux.appimage) |
+| 1.1.0 | Windows | [Aria_Studio-1.1.0-windows.exe](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.0-windows.exe) |
+| 1.0.3 | Mac ARM | [Aria_Studio-1.0.3-arm64.pkg](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-arm64.pkg) |
+| 1.0.3 | Mac Intel | [Aria_Studio-1.0.3-Intel.pkg](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-Intel.pkg) |
+| 1.0.3 | Linux | [Aria_Studio-1.0.3-Linux.AppImage](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-Linux.AppImage) |
+| 1.0.3 | Windows | [Aria_Studio-1.0.3-windows.exe](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-windows.exe) |
+
+  </TabItem>
+</Tabs>
+
+## Launch the application
+
+<Tabs>
+  <TabItem value="pypi-run" label="PyPI install" default>
+
+Run the following command:
+
+```bash
+aria_studio
+```
+
+The application opens a browser window at `http://127.0.0.1:8000`. To choose a different port or suppress the browser:
+
+```bash
+aria_studio --port 9000 --no-browser
+```
+
+If you used a virtual environment, reactivate it before launching:
+
+```bash
+source ~/projectaria_gen2_python_env/bin/activate  # Linux/macOS
+aria_studio
+```
+
+:::tip
+Closing the browser tab does **not** quit Aria Studio — the server continues running in the background. To fully stop the application, press **Ctrl+C** in the terminal.
 :::
+
+  </TabItem>
+  <TabItem value="desktop-run" label="Desktop installer">
+
+Launch Aria Studio from your Applications folder (macOS) or directly via the AppImage (Linux).
+
+:::tip
+To fully stop the application, quit it from the system tray or close the application window.
+:::
+
+  </TabItem>
+</Tabs>
+
+## Log in
+
+![User Type Selection screen showing Gen 1 and Gen 2 buttons](/img/docs-ark/aria_studio/user_selection.png)
+
+When you first launch Aria Studio, you'll see the **User Type Selection** screen. Choose the glasses generation you're using and follow the login prompts. For detailed instructions, credential storage, and session management, see [Authentication](/ark/aria_studio/authentication).
+
+## Home screen
+
+After logging in, you'll see the Home dashboard with quick access to the main features:
+
+![Home dashboard](/img/docs-ark/aria_studio/home_screen.png)
+
+- **Access recordings on your glasses** — Opens the [Recordings on Glasses](/ark/aria_studio/glasses) page.
+- **Manage recordings and request MPS** — Opens [Recordings on Computer](/ark/aria_studio/recordings) or [Groups](/ark/aria_studio/groups).
+- **See MPS requests** — Opens the [MPS Requests](/ark/aria_studio/mps) page.
+
+Below the feature cards, the Home screen also shows the latest **Project Aria updates** (see [Read Project Aria news](#read-project-aria-news)) and a **Helpful Links** row with shortcuts to the [Aria Research Kit documentation](/ark/), the [Machine Perception Services overview](/ark/mps), the [Aria Discord](https://discord.com/channels/1149058737504538654/1149058738242715791), and the full Project Aria Updates page.
+
+## Read Project Aria news
+
+Aria Studio surfaces announcements from Project Aria — new releases, OS and Mobile App updates, and feature highlights — directly in the app. The feed is fetched live, so it stays current without reinstalling Aria Studio.
+
+The **Project Aria updates** section on the Home screen shows the most recent announcement. To see the complete history, click **See all** (or the **Project Aria Updates** card under Helpful Links).
+
+![Project Aria updates page listing all announcements](/img/docs-ark/aria_studio/home_notices.png)
+
+## Navigation
+
+The collapsible **sidebar** is visible on every page after you log in. It provides access to:
+
+| **Tab** | **Description** |
+|--|--|
+| Recordings on glasses | Manage recordings stored on your connected glasses |
+| Recordings on computer | Manage imported VRS files on your local machine |
+| Groups | Organize recordings into groups for Multi-SLAM |
+| Past MPS requests | View status of all MPS processing requests |
+| Settings | Configure upload, download, and processing options |
+| Logs | View application logs for troubleshooting |
+| Feedback | Submit bug reports or feature requests |
+
+### Sidebar panels
+
+At the bottom of the sidebar you'll find:
+
+- **Glasses** — Shows the connected device's serial number, battery level, Wi-Fi status, and available storage. For Gen 2 devices, this panel also has **Custom Recording** and **Streaming** buttons.
+- **User Info** — Displays your username and a **Logout** button.
+
+## MPS configuration
+
+Aria Studio shares its MPS configuration with the [MPS CLI](/ark/mps/start). Settings are stored at `$HOME/.projectaria/mps.ini` and control upload/download speeds, retry behavior, and concurrency. You can modify these settings through the [Settings](/ark/aria_studio/settings) page in the app.
+
+## Licensing
+
+Aria Studio is Meta Licensed Materials distributed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
+## Next steps
+
+- [Set up the Client SDK](/ark/client-sdk/start) for first-time device configuration and authentication
+- [Log in and manage credentials](/ark/aria_studio/authentication)
+- [Connect and manage your glasses](/ark/aria_studio/device-management)
+- [Manage recordings on your glasses](/ark/aria_studio/glasses)
+- [Work with local recordings](/ark/aria_studio/recordings)
+- [Create groups and request Multi-SLAM](/ark/aria_studio/groups)
+- [Start a new recording](/ark/aria_studio/new-recording) (Gen 2 only)
+- [Stream live sensor data](/ark/aria_studio/streaming) (Gen 2 only)
