@@ -21,9 +21,9 @@ This page provides troubleshooting support for issues relating to [Aria Studio](
 | **Issue** | **Resolution** |
 |--|--|
 | Gen 1 device not detected | Verify ADB is installed and on your PATH. Run `adb devices` in a terminal to confirm the device is visible. |
-| Gen 2 device not detected | Try unplugging and reconnecting. Ensure the device is powered on. |
+| Gen 2 device not detected | Try unplugging and reconnecting. Ensure the device is powered on. Use a USB data cable (not charge-only). |
 | Authentication fails | Open the Companion App and check for pending pairing requests. Make sure the glasses are powered on and unlocked. |
-| "Device mode is not supported" | The device may be in a mode that Aria Studio doesn't support. Check the device status in the Companion App. |
+| "Device mode is not supported" | The device may be in a mode that Aria Studio doesn't support. Check the device status in the Companion App. Ensure your device generation is supported on your operating system. |
 | Device appears but can't be selected | The device may not be authenticated. Select **Authenticate** in the Switch Glasses dialog to pair it. |
 | Multiple devices conflict | Only one device is active at a time. Switch between them using the Switch Glasses dialog. |
 
@@ -32,7 +32,6 @@ This page provides troubleshooting support for issues relating to [Aria Studio](
 | **Issue** | **Resolution** |
 |--|--|
 | "Device Not Connected" | Check that your USB cable is connected and the device is powered on. |
-| "Device mode is not supported" | Ensure your device generation is supported on your operating system. Gen 2 features require macOS or Linux. |
 | No recordings appear | Verify the glasses have recordings. Try disconnecting and reconnecting. |
 
 ## Live streaming
@@ -43,3 +42,26 @@ This page provides troubleshooting support for issues relating to [Aria Studio](
 | Viewer closes unexpectedly | Use the **Open Viewer** button to reopen without restarting the stream. |
 | Poor data quality | Try switching from Wi-Fi to USB for more reliable data transfer. |
 | "Prototype consent required" error | Accept the Prototype Mode consent dialog when prompted. |
+
+## MPS processing fails
+
+| **Issue** | **Resolution** |
+|--|--|
+| VRS file corrupted | Run the [VRS Health Check](/ark/vrs_health_check/installation) tool to validate your recording. |
+| Upload keeps failing | Try increasing the retry count and wait time in [Settings](/ark/aria_studio/settings). |
+| Server error | Check the [Past MPS Requests](/ark/aria_studio/mps) page for the error code and try again later. |
+
+## Visualization issues
+
+| **Issue** | **Resolution** |
+|--|--|
+| Rerun viewer doesn't open | Ensure [Rerun](https://rerun.io/) is installed (`pip install rerun-sdk`). |
+| Viewer shows stale data | Only one visualization runs at a time. Starting a new one replaces the previous. |
+
+## Application errors
+
+| **Issue** | **Resolution** |
+|--|--|
+| "Port already in use" | Another instance of Aria Studio may be running. Close it or use `--port` to specify a different port. |
+| App freezes during import | Large VRS files may take time. Check the import progress indicator. |
+| Settings not saving | Ensure all fields pass validation (no red error messages) before selecting Save. |

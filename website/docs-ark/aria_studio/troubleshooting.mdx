@@ -3,6 +3,54 @@ sidebar_position: 80
 title: Logs & Troubleshooting
 ---
 
-:::note
-TBD: This page is under construction.
-:::
+## Application logs
+
+The **Logs** page provides a searchable, filterable view of Aria Studio's application logs for debugging and troubleshooting.
+
+![Logs page](/img/docs-ark/aria_studio/logs.png)
+
+### Log file location
+
+Aria Studio writes logs to `/tmp/logs/projectaria/log_YYYYMMDD_HHMMSS.log`.
+
+### Log columns
+
+Each log entry displays the following columns:
+
+| **Column** | **Description** |
+|--|--|
+| Time stamp | When the log entry was recorded |
+| Component | The system component that generated the log |
+| File | Source code file |
+| Line | Line number in the source file |
+| Level | Log level (DEBUG, INFO, WARNING, ERROR) |
+| Message | Log message content |
+| Status | HTTP status code (if applicable) |
+
+### Working with logs
+
+The **Component**, **File**, **Level**, **Message**, and **Status** column headers have a filter icon that lets you narrow log entries by that column's values.
+
+Use the actions menu (three-dot icon) on individual entries for additional options. These options include:
+- Copy message - Copies the raw log message to the clipboard.
+- File a bug - Opens the **Aria Studio Feedback & Support** dialog with the log message pre-populated.
+
+## Submit feedback
+
+Select **Feedback** in the sidebar to open the **Aria Studio Feedback & Support** dialog. Fill in:
+
+- **Report Type** — Select "Bug" for bug reports or other options for feature requests.
+- **Title** — A short summary (at least 8 characters). When reporting from a log entry, the title is pre-populated with an `[Aria Studio Log]` prefix, the entry's timestamp, and the log message.
+- **Details** — A detailed description to help the team understand your request. When reporting from a log entry, details are pre-populated with the log timestamp, component, file, and level.
+
+Select **Submit** to send the report.
+
+![Aria Studio Feedback & Support dialog](/img/docs-ark/aria_studio/bug_report.png)
+
+## Common issues
+
+For common issues and solutions, see [Aria Studio Troubleshooting](/ark/support/aria_studio).
+
+## Getting help
+
+If you can't resolve an issue, go to the [Support page](/ark/support) for how to contact our team.
