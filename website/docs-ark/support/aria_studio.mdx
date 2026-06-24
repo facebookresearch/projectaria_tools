@@ -3,9 +3,55 @@ sidebar_position: 3
 title: Aria Studio Troubleshooting
 ---
 
-This page provides troubleshooting support for issues relating to [Aria Studio](/ark/aria_studio/start). If you can't find a solution for your problem on this page, go to the [Support page](/ark/support) for how to contact our team.
+This page provides troubleshooting support for issues relating to [Aria Studio](/ark/aria_studio/start). It covers how to view application logs, submit feedback, common issues and solutions, and how to get further help.
 
-## Authentication
+## Application logs
+
+The **Logs** page provides a searchable, filterable view of Aria Studio's application logs for debugging and troubleshooting.
+
+![Logs page](/img/docs-ark/aria_studio/logs.png)
+
+### Log file location
+
+Aria Studio writes logs to `/tmp/logs/projectaria/log_YYYYMMDD_HHMMSS.log`.
+
+### Log columns
+
+Each log entry displays the following columns:
+
+| **Column** | **Description** |
+|--|--|
+| Time stamp | When the log entry was recorded |
+| Component | The system component that generated the log |
+| File | Source code file |
+| Line | Line number in the source file |
+| Level | Log level (DEBUG, INFO, WARNING, ERROR) |
+| Message | Log message content |
+| Status | HTTP status code (if applicable) |
+
+### Working with logs
+
+The **Component**, **File**, **Level**, **Message**, and **Status** column headers have a filter icon that lets you narrow log entries by that column's values.
+
+Use the actions menu (three-dot icon) on individual entries for additional options. These options include:
+- Copy message - Copies the raw log message to the clipboard.
+- File a bug - Opens the **Aria Studio Feedback & Support** dialog with the log message pre-populated.
+
+## Submit feedback
+
+Select **Feedback** in the sidebar to open the **Aria Studio Feedback & Support** dialog. Fill in:
+
+- **Report Type** — Select "Bug" for bug reports or other options for feature requests.
+- **Title** — A short summary (at least 8 characters). When reporting from a log entry, the title is pre-populated with an `[Aria Studio Log]` prefix, the entry's timestamp, and the log message.
+- **Details** — A detailed description to help the team understand your request. When reporting from a log entry, details are pre-populated with the log timestamp, component, file, and level.
+
+Select **Submit** to send the report.
+
+![Aria Studio Feedback & Support dialog](/img/docs-ark/aria_studio/bug_report.png)
+
+## Common issues
+
+### Authentication
 
 | **Issue** | **Resolution** |
 |--|--|
@@ -16,7 +62,7 @@ This page provides troubleshooting support for issues relating to [Aria Studio](
 | Login works in MPS CLI but not Aria Studio | Both share the same keyring. Try logging out of MPS CLI and logging in again through Aria Studio. |
 | macOS: login issues | On some macOS versions, keyring access may require granting permission to the terminal or Python process. Check System Preferences > Security & Privacy. |
 
-## Device management
+### Device management
 
 | **Issue** | **Resolution** |
 |--|--|
@@ -27,14 +73,14 @@ This page provides troubleshooting support for issues relating to [Aria Studio](
 | Device appears but can't be selected | The device may not be authenticated. Select **Authenticate** in the Switch Glasses dialog to pair it. |
 | Multiple devices conflict | Only one device is active at a time. Switch between them using the Switch Glasses dialog. |
 
-## Recordings on glasses
+### Recordings on glasses
 
 | **Issue** | **Resolution** |
 |--|--|
 | "Device Not Connected" | Check that your USB cable is connected and the device is powered on. |
 | No recordings appear | Verify the glasses have recordings. Try disconnecting and reconnecting. |
 
-## Live streaming
+### Live streaming
 
 | **Issue** | **Resolution** |
 |--|--|
@@ -43,7 +89,7 @@ This page provides troubleshooting support for issues relating to [Aria Studio](
 | Poor data quality | Try switching from Wi-Fi to USB for more reliable data transfer. |
 | "Prototype consent required" error | Accept the Prototype Mode consent dialog when prompted. |
 
-## MPS processing fails
+### MPS processing fails
 
 | **Issue** | **Resolution** |
 |--|--|
@@ -51,17 +97,21 @@ This page provides troubleshooting support for issues relating to [Aria Studio](
 | Upload keeps failing | Try increasing the retry count and wait time in [Settings](/ark/aria_studio/settings). |
 | Server error | Check the [Past MPS Requests](/ark/aria_studio/mps) page for the error code and try again later. |
 
-## Visualization issues
+### Visualization issues
 
 | **Issue** | **Resolution** |
 |--|--|
 | Rerun viewer doesn't open | Ensure [Rerun](https://rerun.io/) is installed (`pip install rerun-sdk`). |
 | Viewer shows stale data | Only one visualization runs at a time. Starting a new one replaces the previous. |
 
-## Application errors
+### Application errors
 
 | **Issue** | **Resolution** |
 |--|--|
 | "Port already in use" | Another instance of Aria Studio may be running. Close it or use `--port` to specify a different port. |
 | App freezes during import | Large VRS files may take time. Check the import progress indicator. |
 | Settings not saving | Ensure all fields pass validation (no red error messages) before selecting Save. |
+
+## Getting help
+
+If you can't resolve an issue, go to the [Support page](/ark/support) for how to contact our team.
