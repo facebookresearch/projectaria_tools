@@ -15,3 +15,14 @@ This page provides troubleshooting support for issues relating to [Aria Studio](
 | Auto-login fails on startup | Your saved token may have expired. Log in again to refresh it. |
 | Login works in MPS CLI but not Aria Studio | Both share the same keyring. Try logging out of MPS CLI and logging in again through Aria Studio. |
 | macOS: login issues | On some macOS versions, keyring access may require granting permission to the terminal or Python process. Check System Preferences > Security & Privacy. |
+
+## Device management
+
+| **Issue** | **Resolution** |
+|--|--|
+| Gen 1 device not detected | Verify ADB is installed and on your PATH. Run `adb devices` in a terminal to confirm the device is visible. |
+| Gen 2 device not detected | Try unplugging and reconnecting. Ensure the device is powered on. |
+| Authentication fails | Open the Companion App and check for pending pairing requests. Make sure the glasses are powered on and unlocked. |
+| "Device mode is not supported" | The device may be in a mode that Aria Studio doesn't support. Check the device status in the Companion App. |
+| Device appears but can't be selected | The device may not be authenticated. Select **Authenticate** in the Switch Glasses dialog to pair it. |
+| Multiple devices conflict | Only one device is active at a time. Switch between them using the Switch Glasses dialog. |
