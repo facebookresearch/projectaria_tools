@@ -3,6 +3,123 @@ sidebar_position: 30
 title: Groups & Multi-SLAM
 ---
 
+The **Groups** page lets you organize multiple VRS recordings into groups and submit them for Multi-SLAM processing. Multi-SLAM produces trajectories and point clouds in a common coordinate frame across all recordings in the group, which is essential for spatial analysis of shared environments.
+
+![Groups page](/img/docs-ark/aria_studio/groups_info.png)
+
+## Create a group
+
+1. Select **Create a new Group** in the header.
+2. Enter a group name in the **Group Name** dialog.
+
+![Group Name dialog](/img/docs-ark/aria_studio/groups_create_name.png)
+
+3. Choose the directory where the group data will be stored in the **Select directory** dialog.
+
+![Select directory dialog](/img/docs-ark/aria_studio/groups_create_location.png)
+
+4. A confirmation message appears when the group is created.
+
+![Group created successfully](/img/docs-ark/aria_studio/groups_create_success.png)
+
+The new group appears in the table as an empty group. Add recordings to it from the [Recordings on Computer](/ark/aria_studio/recordings) page using the **Add to a Group** button.
+
+### Create errors
+
+Group names must be unique, and the target directory must not already exist:
+
+- If you enter a name that matches an existing group, the **Group Name** dialog shows an inline error ("Group '\<name\>' already exists") and the **Create** button stays disabled.
+
+![Group name already exists error](/img/docs-ark/aria_studio/groups_create_name_exists.png)
+
+- If a group or directory with the chosen name already exists at the selected location, an error dialog appears: "Group or directory with provided name already exists. Please provide a different name." Select **OK** and try again with a different name.
+
+![Group or directory already exists error](/img/docs-ark/aria_studio/groups_create_dir_exists.png)
+
+## Manage groups
+
+Groups appear in a sortable table with the following columns:
+
+| **Column** | **Description** |
+|--|--|
+| Group Name | Name of the group and number of files |
+| Date Created | When the group was created |
+| MPS Status | Processing status icon for Multi-SLAM |
+
+Each group row has an expand arrow to reveal the individual VRS files in the group.
+
+### View group details
+
+Select a group and click the **info** button in the header to open the details panel. This shows:
+
+- **MPS Request** — Status of the last Multi-SLAM request with links to view results
+- **Group Details** — Number of files, date created, and group path on disk
+
+![Group details panel](/img/docs-ark/aria_studio/groups_info.png)
+
+Expand a group and select an individual file to see its details in the panel, including file size, duration, date created, recording profile, file path, and device generation.
+
+![File details in group](/img/docs-ark/aria_studio/groups_info_file.png)
+
+### Delete groups
+
+1. Select one or more groups.
+2. Select the delete button in the header.
+3. Confirm by selecting **Delete group** in the dialog.
+
+![Delete group dialog](/img/docs-ark/aria_studio/groups_delete.png)
+
 :::note
-TBD: This page is under construction.
+Deleting a group removes it from the Groups page. The original VRS recording files are not deleted.
 :::
+
+## Request Multi-SLAM
+
+1. Select one or more groups (each must have at least 2 recordings).
+2. Select **Request MPS** in the header.
+3. In the **Select service options** dialog, **MULTI-SEQUENCE SLAM** is pre-selected.
+4. Optionally check **Re-process completed groups** to force reprocessing.
+5. Select **Done** to submit.
+
+![Select service options dialog for groups](/img/docs-ark/aria_studio/groups_mps_request.png)
+
+Processing is done in the cloud. Monitor status on the [MPS Requests](/ark/aria_studio/mps) page or check the MPS Status column in the Groups table.
+
+### Error conditions
+
+If a group has fewer than 2 recordings, an error message appears:
+
+![Error — group needs more than one recording](/img/docs-ark/aria_studio/groups_mps_error_empty.png)
+
+If a group contains files that have been deleted from disk, the request will be blocked:
+
+![Error — group contains deleted files](/img/docs-ark/aria_studio/groups_mps_error_deleted.png)
+
+### Multi-SLAM outputs
+
+On success, results are saved to the group's storage directory with numbered subfolders for each recording:
+
+```
+group-folder/
+  ├── 0/
+  │   └── slam/
+  ├── 1/
+  │   └── slam/
+  └── ...
+```
+
+### Visualize Multi-SLAM results
+
+Select a processed group to visualize the unified Multi-SLAM results in the Rerun viewer. The viewer shows all device trajectories and point clouds from the group overlaid in a single 3D scene.
+
+![Multi-SLAM results in Rerun](/img/docs-ark/aria_studio/groups_mps_group.png)
+
+You can also select an individual file within a group to view its MPS results.
+
+![Individual file MPS results from group](/img/docs-ark/aria_studio/groups_mps_file.png)
+
+## Next steps
+
+- [Add recordings to a group](/ark/aria_studio/recordings)
+- [View MPS requests](/ark/aria_studio/mps)
+- [Configure processing settings](/ark/aria_studio/settings)
