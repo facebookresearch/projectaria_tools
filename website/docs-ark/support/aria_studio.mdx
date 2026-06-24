@@ -1,0 +1,17 @@
+---
+sidebar_position: 3
+title: Aria Studio Troubleshooting
+---
+
+This page provides troubleshooting support for issues relating to [Aria Studio](/ark/aria_studio/start). If you can't find a solution for your problem on this page, go to the [Support page](/ark/support) for how to contact our team.
+
+## Authentication
+
+| **Issue** | **Resolution** |
+|--|--|
+| MMA login page doesn't open | Ensure your default browser is configured. Check that you're running on port 8000, or 8134. |
+| MMA login times out | The SSO flow must complete within 5 minutes. Try again and complete authentication promptly. |
+| "Incorrect username or password" (Gen 1) | Verify your credentials. Username should be your partner email or username without domain. |
+| Auto-login fails on startup | Your saved token may have expired. Log in again to refresh it. |
+| Login works in MPS CLI but not Aria Studio | Both share the same keyring. Try logging out of MPS CLI and logging in again through Aria Studio. |
+| macOS: login issues | On some macOS versions, keyring access may require granting permission to the terminal or Python process. Check System Preferences > Security & Privacy. |

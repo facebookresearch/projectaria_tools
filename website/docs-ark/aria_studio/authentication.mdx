@@ -3,6 +3,156 @@ sidebar_position: 3
 title: Authentication
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Aria Studio requires authentication to access Machine Perception Services (MPS), check for updates, and interact with other cloud features. This page covers the login and logout flows, credential storage, and session management.
+
+## Choosing your login method
+
+When you launch Aria Studio, the **User Type Selection** screen presents two login options based on your glasses generation:
+
+![User Type Selection screen](/img/docs-ark/aria_studio/user_selection.png)
+
+| **Button** | **Login method** | **For** |
+|--|--|--|
+| Aria Gen 2 Glasses | Meta Managed Account (MMA) Single Sign-On | Gen 2 glasses users with a Meta Work account |
+| Aria Gen 1 Glasses | Username and password | Gen 1 glasses users with partner credentials |
+
+## Gen 2 login (MMA SSO)
+
+The MMA login uses Meta's Single Sign-On (SSO) system. No username or password is entered directly in Aria Studio.
+
+### Step by step
+
+1. Select **Aria Gen 2 Glasses** on the User Type Selection screen.
+2. Your default web browser opens to `work.meta.com` with the Meta authentication page.
+3. Log in with your Meta Work account credentials in the browser.
+4. After successful authentication, Meta redirects back to Aria Studio (at `127.0.0.1` on your machine).
+5. Aria Studio automatically detects the login and navigates to the Home screen. You can close the browser window at this point.
+
+![Browser screen after successful login](/img/docs-ark/aria_studio/post_login.png)
+
 :::note
-TBD: This page is under construction.
+Your MMA auth token is always remembered. If you don't want your credentials to persist, log out when you're done using Aria Studio.
 :::
+
+:::note
+The MMA SSO login must complete within **5 minutes** of initiating the flow. If the page times out, return to Aria Studio and try again.
+:::
+
+### Port requirements
+
+MMA login only works when Aria Studio runs on these ports:
+
+| **Environment** | **Port** |
+|--|--|
+| PyPI install | 8000 |
+| Desktop app (one-click installer) | 8134 |
+
+If you specified a custom port via `--port`, MMA login will not work unless it's one of these ports.
+
+## Gen 1 login (username and password)
+
+### Step by step
+
+1. Select **Aria Gen 1 Glasses** on the User Type Selection screen.
+2. Enter your **username** (you can enter just the username without the email domain — the correct suffix is added automatically).
+3. Enter your **password**. Use the eye icon to toggle password visibility.
+4. Optionally check **Remember me** to save your credentials for future sessions.
+5. Select **Login**.
+
+![Login screen for Gen 1](/img/docs-ark/aria_studio/login_gen1.png)
+
+If login fails, an error message appears: "Incorrect username or password." Verify your credentials and try again.
+
+### Forgot credentials
+
+Select **Forgot username or password?** on the login page. You'll be directed to contact **AriaOps@meta.com** with your partner email and organization name for assistance.
+
+## Credential storage
+
+Aria Studio stores authentication tokens using your operating system's secure credential manager:
+
+| **Platform** | **Storage backend** |
+|--|--|
+| macOS | macOS Keychain |
+| Linux | Secret Service (GNOME Keyring / KWallet) |
+
+### How "Remember me" works
+
+| **Login method** | **Default behavior** | **With "Remember me"** |
+|--|--|--|
+| Gen 2 (MMA) | Token is **always saved** to the system keyring | Not applicable (always saved) |
+| Gen 1 (password) | Token is held in memory only — lost when the app closes | Token is saved to the system keyring |
+
+When a token is saved, Aria Studio automatically logs you in on the next launch — no need to re-enter credentials.
+
+### Shared credentials with MPS CLI
+
+Aria Studio and the [MPS CLI](/ark/mps/start) share the same credential store. This means:
+
+- If you log in via MPS CLI with `--save-token`, Aria Studio will auto-log-in on next launch.
+- If you log in via Aria Studio with "Remember me" (Gen 1) or via MMA (Gen 2), MPS CLI will auto-log-in on next run.
+
+Both tools use the same entry in your system's secure credential store.
+
+### Legacy token migration
+
+Older versions of Aria Studio and MPS CLI stored tokens in a plain text file at `~/.projectaria/auth_token`. On startup, Aria Studio checks for this file. If found, it reads the token, validates it, **deletes the file**, and migrates the token to the secure system keyring.
+
+## Auto-login on startup
+
+Each time Aria Studio starts, it attempts to restore your previous session:
+
+1. Checks the system keyring for a saved token.
+2. Validates the token against the server.
+3. If valid, you're logged in automatically and taken to the Home screen.
+4. If the token has expired or is invalid, it's removed from the keyring and you're shown the login screen.
+
+## Logout
+
+### How to log out
+
+1. Locate the **User Info** panel at the bottom of the sidebar.
+2. Select the **Log out** button.
+3. In the confirmation dialog, select **Log out** to confirm (or **Cancel** to stay logged in).
+4. You'll be returned to the User Type Selection screen.
+
+![Log out confirmation dialog](/img/docs-ark/aria_studio/logout.png)
+
+### What happens during logout
+
+Logging out performs a complete cleanup:
+
+- **Server-side session** is invalidated.
+- **Saved credentials** are removed from the system keyring and any legacy token files.
+- **In-memory token** is cleared.
+- **MPS request caches** (individual and group) are reset.
+- **Recording profile preferences** are cleared from local storage.
+
+After logging out, you'll need to authenticate again to access any features that require login (MPS processing, update checks, announcements).
+
+## Session management
+
+### Protected features
+
+Most Aria Studio features require authentication. If your session expires while the app is running, you'll be redirected to the login screen. The following features require an active session:
+
+- Requesting or monitoring MPS processing
+- Checking for app updates
+- Viewing announcements
+- Submitting bug reports or feedback
+- Browsing the file explorer
+
+### Re-authentication
+
+If your token expires server-side (typically after an extended period), Aria Studio will detect this on the next API call and redirect you to log in again. Saved credentials are cleared so that an expired token doesn't cause repeated failures.
+
+## Next steps
+
+- [Connect Project Aria glasses](/ark/aria_studio/device-management)
+
+## Troubleshooting
+
+For authentication issues and solutions, see [Aria Studio Troubleshooting](/ark/support/aria_studio#authentication).
