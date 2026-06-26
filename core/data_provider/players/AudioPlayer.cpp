@@ -86,6 +86,20 @@ bool AudioPlayer::onAudioRead(
       data_.maxAmplitude = static_cast<double>(std::numeric_limits<int32_t>::max());
       callback_(data_, dataRecord_, configRecord_, verbose_);
     }
+  }
+  // Raw PCM S16: widen to int32 and report INT16_MAX as the amplitude scale, so
+  // amplitude-normalizing consumers stay correct regardless of on-disk width.
+  else if (
+      audioSpec.getAudioFormat() == vrs::AudioFormat::PCM &&
+      audioSpec.getSampleFormat() == vrs::AudioSampleFormat::S16_LE) {
+    data_.data.clear();
+    std::vector<int16_t> rawVec(
+        audioSpec.getSampleCount() * static_cast<size_t>(audioSpec.getChannelCount()));
+    if (r.reader->read(rawVec) == 0) {
+      data_.data.assign(rawVec.begin(), rawVec.end());
+      data_.maxAmplitude = static_cast<double>(std::numeric_limits<int16_t>::max());
+      callback_(data_, dataRecord_, configRecord_, verbose_);
+    }
   } else {
     throw std::runtime_error(
         fmt::format("Unsupported audio sample format: {}", audioSpec.getSampleFormatAsString()));
