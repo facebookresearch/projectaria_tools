@@ -19,6 +19,9 @@ import unittest
 import numpy as np
 from projectaria_tools.core import calibration, data_provider
 from projectaria_tools.core.sensor_data import (
+    decode_emg_samples,
+    EmgData,
+    EmgImuSample,
     SensorDataType,
     TimeDomain,
     TimeQueryOptions,
@@ -552,3 +555,23 @@ class DataProviderTests(unittest.TestCase):
         provider = data_provider.create_vrs_data_provider(vrs_filepath_list[1])
         device_version = provider.get_device_version()
         assert device_version == calibration.DeviceVersion.Gen2
+
+    def test_emg_decode_samples(self) -> None:
+        # Build an EMG batch in memory: big-endian uint16, sample-major [samples_per_batch, channels].
+        emg_data = EmgData()
+        emg_data.channel_count = 2
+        emg_data.samples_per_batch = 2
+        emg_data.bits_per_adc_reading = 16
+        counts = np.array([[0x0102, 0x0304], [0x0506, 0x0708]], dtype=">u2")
+        sample = EmgImuSample()
+        sample.packed_channel_data = counts.tobytes()
+        emg_data.emg = [sample]
+
+        decoded = emg_data.get_emg_samples()
+        expected = counts.astype(np.uint16)
+
+        assert decoded.dtype == np.uint16
+        assert decoded.shape == (emg_data.samples_per_batch, emg_data.channel_count)
+        assert np.array_equal(decoded, expected)
+        # The EmgData method and the module-level helper must agree.
+        assert np.array_equal(decoded, decode_emg_samples(emg_data))

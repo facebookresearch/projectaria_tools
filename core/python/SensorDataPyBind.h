@@ -497,6 +497,16 @@ inline void declarePpgDataRecord(py::module& m) {
           "integration_time_us", &PpgData::integrationTimeUs, "PPG integration time in us");
 }
 
+// Decode an EMG batch's packed blobs into a [num_sub_samples, channel_count] numpy array of raw ADC
+// counts. Shared by EmgData.get_emg_samples() and the module-level decode_emg_samples() helper.
+inline py::array_t<uint16_t> emgSamplesToNumpy(const EmgData& data) {
+  const DecodedEmgSamples decoded = decodeEmgSamples(data);
+  return py::array_t<uint16_t>(
+      {static_cast<size_t>(decoded.numRows), static_cast<size_t>(decoded.numChannels)},
+      {static_cast<size_t>(decoded.numChannels) * sizeof(uint16_t), sizeof(uint16_t)},
+      decoded.values.data());
+}
+
 inline void declareEmgDataRecord(py::module& m) {
   py::class_<EmgConfiguration>(m, "EmgConfiguration", "EMG sensor configuration type")
       .def(py::init<>())
@@ -540,7 +550,17 @@ inline void declareEmgDataRecord(py::module& m) {
       .def_readwrite("channel_count", &EmgData::channelCount, "number of EMG channels")
       .def_readwrite(
           "bits_per_adc_reading", &EmgData::bitsPerAdcReading, "number of bits per ADC reading")
-      .def_readwrite("samples_per_batch", &EmgData::samplesPerBatch, "number of samples per batch");
+      .def_readwrite("samples_per_batch", &EmgData::samplesPerBatch, "number of samples per batch")
+      .def(
+          "get_emg_samples",
+          [](const EmgData& self) { return emgSamplesToNumpy(self); },
+          "Decode this batch's packed EMG blobs into a [num_sub_samples, channel_count] numpy array of raw ADC counts (big-endian, unsigned 16-bit, offset-binary; no baseline removal or unit conversion). Raises ValueError for unsupported bit depth or encoding.");
+
+  m.def(
+      "decode_emg_samples",
+      [](const EmgData& emgData) { return emgSamplesToNumpy(emgData); },
+      py::arg("emg_data"),
+      "Decode an EmgData batch's packed EMG blobs into a [num_sub_samples, channel_count] numpy array of raw ADC counts (big-endian, unsigned 16-bit, offset-binary, sample-major). Equivalent to EmgData.get_emg_samples(). Raises ValueError for unsupported bit depth or encoding.");
 }
 
 inline void declareAlsDataRecord(py::module& m) {
