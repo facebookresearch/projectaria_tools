@@ -847,12 +847,12 @@ class AriaDataViewer:
     def plot_emg(self, emg_data, label, device_time_ns):
         """Plot EMG IMU batch data as one scalar time series per channel.
 
-        Each EMG sample carries a packed blob of `samples_per_batch` sub-samples across
-        `channel_count` ADC channels, decoded as big-endian *unsigned* 16-bit (offset-binary)
-        shaped [samples_per_batch, channel_count]. Each channel is centered by removing a
-        slowly-adapting per-channel DC baseline (exponential moving average) -- electrodes have
-        individual biases, so a per-channel baseline keeps every channel readable on a shared
-        auto-scaled axis. One Rerun time series is logged per channel.
+        `EmgData.get_emg_samples()` (PAT) decodes the batch's packed blobs into a
+        [total_sub_samples, channel_count] array of raw ADC counts (big-endian, unsigned 16-bit,
+        offset-binary). Each channel is then centered by removing a slowly-adapting per-channel DC
+        baseline (exponential moving average) -- electrodes have individual biases, so a per-channel
+        baseline keeps every channel readable on a shared auto-scaled axis. One Rerun time series is
+        logged per channel.
 
         The batch is anchored on `device_time_ns` (the batch capture time, on the shared device
         timeline) rather than the per-sample timestamp: the per-sample EMG timestamp is a
@@ -860,10 +860,9 @@ class AriaDataViewer:
         batches into a tiny time window. The sub-samples are evenly spread across the interval
         since the previous EMG batch.
 
-        NOTE: the decode (big-endian, unsigned/offset-binary) was confirmed empirically --
-        little-endian or signed interpretation fills the full int16 range, while big-endian
-        unsigned yields an EMG-like signal. The sample- vs channel-major reshape order is still
-        assumed; confirm channel ordering with the recording team.
+        NOTE: the channel ordering and the sample-major reshape are assumed; confirm channel
+        ordering with the recording team. The byte-level decode (big-endian, unsigned/offset-binary,
+        confirmed empirically) lives in PAT's `get_emg_samples`.
         """
         if emg_data is None:
             warn_once(self.plot_emg, "EMG data is None")
@@ -878,22 +877,16 @@ class AriaDataViewer:
             )
             return
 
-        # Decode and stack every EMG sample in the batch into a single [total_samples, channel]
-        # array. The device packs the ADC samples big-endian, unsigned (offset-binary).
-        rows = []
-        for sample in emg_data.emg:
-            buffer = np.frombuffer(sample.packed_channel_data, dtype=">u2")
-            if buffer.size != channel_count * samples_per_batch:
-                warn_once(
-                    self.plot_emg,
-                    f"EMG blob size {buffer.size} != channel_count*samples_per_batch "
-                    f"({channel_count}*{samples_per_batch}); skipping EMG plot",
-                )
-                return
-            rows.append(buffer.reshape(samples_per_batch, channel_count))
-        if not rows:
+        # Decode every EMG sample in the batch into a single [total_samples, channel_count] array
+        # of raw ADC counts. PAT handles the big-endian, unsigned/offset-binary unpacking and
+        # skips any malformed sample blobs.
+        try:
+            raw_counts = emg_data.get_emg_samples().astype(np.float64)
+        except ValueError as e:
+            warn_once(self.plot_emg, f"EMG decode failed, skipping EMG plot: {e}")
             return
-        raw_counts = np.concatenate(rows, axis=0).astype(np.float64)
+        if raw_counts.shape[0] == 0:
+            return
 
         # Per-channel DC removal: each electrode has its own bias, so subtract a slowly-adapting
         # per-channel baseline to center the AC EMG around zero.

@@ -66,6 +66,30 @@ struct EmgData {
   uint32_t samplesPerBatch{}; ///< @brief number of samples per batch
 };
 
+/**
+ * @brief Decoded EMG sub-samples of a single batch, laid out row-major as [numRows, numChannels].
+ *
+ * numRows == samplesPerBatch * (number of well-formed EMG samples in the batch). Values are the raw
+ * per-channel ADC counts in offset-binary (baseline near 2^(bitsPerAdcReading - 1)); no baseline
+ * removal or physical-unit conversion is applied (the recording carries no EMG calibration).
+ */
+struct DecodedEmgSamples {
+  std::vector<uint16_t> values; ///< @brief row-major ADC counts, size == numRows * numChannels
+  uint32_t numRows{}; ///< @brief number of decoded sub-samples (rows)
+  uint32_t numChannels{}; ///< @brief number of EMG channels (columns)
+};
+
+/**
+ * @brief Decode the packed EMG sub-samples of a batch into raw per-channel ADC counts.
+ *
+ * Unpacks each EmgImuSample::packedChannelData blob in EmgData::emg (big-endian, unsigned 16-bit,
+ * offset-binary, sample-major [samplesPerBatch, channelCount]) and concatenates the batch's samples
+ * into one [numRows, channelCount] block. Blobs whose size != samplesPerBatch * channelCount * 2
+ * are skipped. Throws std::invalid_argument if bitsPerAdcReading != 16 or a sample uses a non-zero
+ * encoding, both of which are unsupported by this decoder.
+ */
+DecodedEmgSamples decodeEmgSamples(const EmgData& data);
+
 using EmgCallback =
     std::function<bool(const EmgData& data, const EmgConfiguration& config, bool verbose)>;
 

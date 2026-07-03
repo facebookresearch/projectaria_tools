@@ -17,6 +17,9 @@
 #include <data_provider/players/EmgPlayer.h>
 
 #include <algorithm>
+#include <cstdint>
+#include <stdexcept>
+#include <string>
 
 #define DEFAULT_LOG_CHANNEL "EmgPlayer"
 #include <logging/Log.h>
@@ -111,6 +114,54 @@ bool EmgPlayer::onDataLayoutRead(
     callback_(dataRecord_, configRecord_, verbose_);
   }
   return true;
+}
+
+DecodedEmgSamples decodeEmgSamples(const EmgData& data) {
+  constexpr uint32_t kSupportedBitsPerAdcReading = 16;
+  if (data.bitsPerAdcReading != kSupportedBitsPerAdcReading) {
+    throw std::invalid_argument(
+        "decodeEmgSamples only supports 16-bit ADC readings, got " +
+        std::to_string(data.bitsPerAdcReading));
+  }
+
+  DecodedEmgSamples decoded;
+  decoded.numChannels = data.channelCount;
+  if (data.channelCount == 0 || data.samplesPerBatch == 0) {
+    return decoded;
+  }
+
+  const size_t bytesPerSample =
+      static_cast<size_t>(data.samplesPerBatch) * data.channelCount * sizeof(uint16_t);
+  decoded.values.reserve(
+      data.emg.size() * static_cast<size_t>(data.samplesPerBatch) * data.channelCount);
+  for (const EmgImuSample& sample : data.emg) {
+    if (sample.encoding != 0) {
+      throw std::invalid_argument(
+          "decodeEmgSamples only supports unencoded samples (encoding == 0), got encoding " +
+          std::to_string(sample.encoding));
+    }
+    if (sample.packedChannelData.size() != bytesPerSample) {
+      XR_LOGE(
+          "Skipping malformed EMG sample blob (size {} != expected {})",
+          sample.packedChannelData.size(),
+          bytesPerSample);
+      continue;
+    }
+    const auto* bytes = reinterpret_cast<const uint8_t*>(sample.packedChannelData.data());
+    for (uint32_t s = 0; s < data.samplesPerBatch; ++s) {
+      for (uint32_t c = 0; c < data.channelCount; ++c) {
+        const size_t byteOffset =
+            (static_cast<size_t>(s) * data.channelCount + c) * sizeof(uint16_t);
+        // Big-endian: the first byte is the most-significant.
+        const uint16_t value = static_cast<uint16_t>(
+            (static_cast<uint16_t>(bytes[byteOffset]) << 8) |
+            static_cast<uint16_t>(bytes[byteOffset + 1]));
+        decoded.values.push_back(value);
+      }
+    }
+  }
+  decoded.numRows = static_cast<uint32_t>(decoded.values.size() / data.channelCount);
+  return decoded;
 }
 
 } // namespace projectaria::tools::data_provider
