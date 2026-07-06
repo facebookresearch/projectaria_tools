@@ -61,8 +61,7 @@ SensorDataIterator SensorDataSequence::begin() {
     }
     queue.push(data);
   }
-  return SensorDataIterator(
-      provider_, queue, streamIdToNextIndex, streamIdToSubsampleRate, endDeviceTimeNs);
+  return {provider_, queue, streamIdToNextIndex, streamIdToSubsampleRate, endDeviceTimeNs};
 }
 
 SensorDataIterator SensorDataSequence::end() {
