@@ -105,7 +105,7 @@ ImuCalibration parseImuCalibrationFromJson(const nlohmann::json& json) {
       static_cast<double>(json["Gyroscope"]["TimeOffsetSec_Device_Gyro"]);
   const auto T_Device_Imu = se3FromJson<double>(json["T_Device_Imu"]);
 
-  return ImuCalibration(
+  return {
       label,
       accelMat,
       accelBias,
@@ -113,7 +113,7 @@ ImuCalibration parseImuCalibrationFromJson(const nlohmann::json& json) {
       gyroBias,
       T_Device_Imu,
       timeOffsetSecDeviceAccel,
-      timeOffsetSecDeviceGyro);
+      timeOffsetSecDeviceGyro};
 }
 
 MagnetometerCalibration parseMagnetometerCalibrationFromJson(
@@ -152,13 +152,13 @@ BarometerCalibration parseBarometerCalibrationFromJson(const nlohmann::json& jso
   double slope = json["PressureModel"]["Slope"];
   double offsetPa = json["PressureModel"]["OffsetPa"];
 
-  return BarometerCalibration(label, slope, offsetPa);
+  return {label, slope, offsetPa};
 }
 
 MicrophoneCalibration parseMicrophoneCalibrationFromJson(const nlohmann::json& json) {
   const auto& label = json["Label"];
   const double dSensitivity1KDbv = json["DSensitivity1KDbv"];
-  return MicrophoneCalibration(label, dSensitivity1KDbv);
+  return {label, dSensitivity1KDbv};
 }
 
 // Helper function to convert DeviceVersion enum to string
