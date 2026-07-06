@@ -55,7 +55,7 @@ Sophus::SE3d CameraCalibration::getT_Device_Camera() const {
 }
 
 Eigen::Vector2i CameraCalibration::getImageSize() const {
-  return Eigen::Vector2i(imageWidth_, imageHeight_);
+  return {imageWidth_, imageHeight_};
 }
 
 double CameraCalibration::getMaxSolidAngle() const {
@@ -181,7 +181,7 @@ CameraCalibration getLinearCameraCalibration(
   Eigen::VectorXd projectionParams(4);
   projectionParams << focalLength, focalLength, double(imageWidth - 1) / 2.0,
       double(imageHeight - 1) / 2.0;
-  return CameraCalibration(
+  return {
       label,
       type,
       projectionParams,
@@ -191,7 +191,7 @@ CameraCalibration getLinearCameraCalibration(
       std::nullopt,
       M_PI,
       "LinearCameraCalibration",
-      timeOffsetSecDeviceCamera);
+      timeOffsetSecDeviceCamera};
 }
 
 CameraCalibration getSphericalCameraCalibration(
@@ -205,7 +205,7 @@ CameraCalibration getSphericalCameraCalibration(
   Eigen::VectorXd projectionParams(4);
   projectionParams << focalLength, focalLength, double(imageWidth - 1) / 2.0,
       double(imageHeight - 1) / 2.0;
-  return CameraCalibration(
+  return {
       label,
       type,
       projectionParams,
@@ -215,7 +215,7 @@ CameraCalibration getSphericalCameraCalibration(
       std::nullopt,
       M_PI,
       "SphericalCameraCalibration",
-      timeOffsetSecDeviceCamera);
+      timeOffsetSecDeviceCamera};
 }
 
 namespace {
