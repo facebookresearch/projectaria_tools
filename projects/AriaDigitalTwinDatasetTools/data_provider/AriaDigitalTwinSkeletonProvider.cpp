@@ -119,7 +119,7 @@ SkeletonFrameWithDt AriaDigitalTwinSkeletonProvider::getSkeletonByTimestampNs(
         frames_.rbegin()->first);
     return {};
   }
-  return SkeletonFrameWithDt(iter->second, iter->first - deviceTimeStampNs);
+  return {iter->second, iter->first - deviceTimeStampNs};
 }
 
 const std::vector<std::pair<int, int>>& AriaDigitalTwinSkeletonProvider::getJointConnections() {
