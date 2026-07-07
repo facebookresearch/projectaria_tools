@@ -337,7 +337,7 @@ Aria3dPoseDataWithDt AriaDigitalTwinDataProvider::getAria3dPoseByTimestampNs(
       queryMapByTimestamp<Aria3dPose>(aria3dPoses_, deviceTimeStampNs, timeQueryOptions);
 
   if (queryPoseIter != aria3dPoses_.end()) {
-    return Aria3dPoseDataWithDt(queryPoseIter->second, queryPoseIter->first - deviceTimeStampNs);
+    return {queryPoseIter->second, queryPoseIter->first - deviceTimeStampNs};
   } else {
     return {};
   }
@@ -360,7 +360,7 @@ BoundingBox3dDataWithDt AriaDigitalTwinDataProvider::getObject3dBoundingBoxesByT
 
   // Check if dynamic objects are empty
   if (dynamicObject3dBoundingBoxSeries_.empty()) {
-    return BoundingBox3dDataWithDt(object3dBoundingBoxMap, 0);
+    return {object3dBoundingBoxMap, 0};
   }
 
   // Query dynamic objects according to timestamp
@@ -414,7 +414,7 @@ BoundingBox2dDataWithDt AriaDigitalTwinDataProvider::getObject2dBoundingBoxesByT
       result[instanceId] = bbox2d;
     }
   }
-  return BoundingBox2dDataWithDt(result, iter->first - deviceTimeStampNs);
+  return {result, iter->first - deviceTimeStampNs};
 }
 
 BoundingBox2dDataWithDt AriaDigitalTwinDataProvider::getSkeleton2dBoundingBoxesByTimestampNs(
@@ -452,7 +452,7 @@ BoundingBox2dDataWithDt AriaDigitalTwinDataProvider::getSkeleton2dBoundingBoxesB
       result[instanceId] = bbox2d;
     }
   }
-  return BoundingBox2dDataWithDt(result, iter->first - deviceTimeStampNs);
+  return {result, iter->first - deviceTimeStampNs};
 }
 
 EyeGazeWithDt AriaDigitalTwinDataProvider::getEyeGazeByTimestampNs(
@@ -474,7 +474,7 @@ EyeGazeWithDt AriaDigitalTwinDataProvider::getEyeGazeByTimestampNs(
         eyeGazes_.rbegin()->first);
     return {};
   }
-  return EyeGazeWithDt(iter->second, iter->first - deviceTimeStampNs);
+  return {iter->second, iter->first - deviceTimeStampNs};
 }
 
 SegmentationDataWithDt AriaDigitalTwinDataProvider::getSegmentationImageByTimestampNs(
@@ -509,7 +509,7 @@ SegmentationDataWithDt AriaDigitalTwinDataProvider::getSegmentationImageByTimest
     return {};
   }
 
-  return SegmentationDataWithDt(segmentationData, gtTNs - deviceTimeStampNs);
+  return {segmentationData, gtTNs - deviceTimeStampNs};
 }
 
 DepthDataWithDt AriaDigitalTwinDataProvider::getDepthImageByTimestampNs(
@@ -543,7 +543,7 @@ DepthDataWithDt AriaDigitalTwinDataProvider::getDepthImageByTimestampNs(
     return {};
   }
 
-  return DepthDataWithDt(depthData, gtTNs - deviceTimeStampNs);
+  return {depthData, gtTNs - deviceTimeStampNs};
 }
 
 SyntheticDataWithDt AriaDigitalTwinDataProvider::getSyntheticImageByTimestampNs(
@@ -569,7 +569,7 @@ SyntheticDataWithDt AriaDigitalTwinDataProvider::getSyntheticImageByTimestampNs(
     return {};
   }
 
-  return SyntheticDataWithDt(syntheticData, gtTNs - deviceTimeStampNs);
+  return {syntheticData, gtTNs - deviceTimeStampNs};
 }
 
 void AriaDigitalTwinDataProvider::loadInstancesInfo() {
@@ -1188,7 +1188,7 @@ Aria3dPoseDataWithDt getInterpolatedAria3dPoseAtTimestampNs(
       alpha *
           (poseAfter.data().deviceRotationalVelocity - poseBefore.data().deviceRotationalVelocity);
 
-  return Aria3dPoseDataWithDt(resultAria3dPose, 0);
+  return {resultAria3dPose, 0};
 }
 
 BoundingBox3dDataWithDt getInterpolatedObject3dBoundingBoxesAtTimestampNs(
@@ -1236,7 +1236,7 @@ BoundingBox3dDataWithDt getInterpolatedObject3dBoundingBoxesAtTimestampNs(
       object3dBoundingBoxMap[objId].aabb = (objectPoseBefore.aabb + objectPoseAfter.aabb) / 2.0f;
     }
   }
-  return BoundingBox3dDataWithDt(object3dBoundingBoxMap, 0);
+  return {object3dBoundingBoxMap, 0};
 }
 
 } // namespace projectaria::dataset::adt
