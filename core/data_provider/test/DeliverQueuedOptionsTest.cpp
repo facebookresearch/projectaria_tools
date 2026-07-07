@@ -31,7 +31,7 @@ const vrs::StreamId kUnknownStream{vrs::RecordableTypeId::RgbCameraRecordableCla
 
 DeliverQueuedOptions makeDefaultOptions() {
   std::map<vrs::StreamId, size_t> rates = {{kStream1, 1}, {kStream2, 3}};
-  return DeliverQueuedOptions(100, 200, rates);
+  return {100, 200, rates};
 }
 
 } // namespace
