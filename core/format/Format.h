@@ -29,6 +29,27 @@ struct fmt::formatter<Eigen::Matrix<SCALAR, ROWS, COLS, Options, MaxRows, MaxCol
   auto format(
       const Eigen::Matrix<SCALAR, ROWS, COLS, Options, MaxRows, MaxCols>& mat,
       FormatContext& ctx) const {
+    static const Eigen::IOFormat kMatrixFormat(
+        Eigen::StreamPrecision,
+        Eigen::DontAlignCols, // flags
+        ", ", // coeffSeparator
+        ", ", // rowSeparator
+        "[", // rowPrefix
+        "]", // rowSuffix
+        "[", // matPrefix
+        "]"); // matSuffix;
+
+    // When printing Vectors, don't use the row prefix/suffix
+    static const Eigen::IOFormat kVectorFormat(
+        Eigen::StreamPrecision,
+        Eigen::DontAlignCols, // flags
+        ", ", // coeffSeparator
+        ", ", // rowSeparator
+        "", // rowPrefix
+        "", // rowSuffix
+        "[", // matPrefix
+        "]"); // matSuffix
+
     std::stringstream ss;
     if constexpr (COLS == 1) {
       ss << mat.format(kVectorFormat);
@@ -38,27 +59,6 @@ struct fmt::formatter<Eigen::Matrix<SCALAR, ROWS, COLS, Options, MaxRows, MaxCol
 
     return fmt::format_to(ctx.out(), "{}", ss.str());
   }
-
-  const Eigen::IOFormat kMatrixFormat = Eigen::IOFormat(
-      Eigen::StreamPrecision,
-      Eigen::DontAlignCols, // flags
-      ", ", // coeffSeparator
-      ", ", // rowSeparator
-      "[", // rowPrefix
-      "]", // rowSuffix
-      "[", // matPrefix
-      "]"); // matSuffix;
-
-  // When printing Vectors, don't use the row prefix/suffix
-  const Eigen::IOFormat kVectorFormat = Eigen::IOFormat(
-      Eigen::StreamPrecision,
-      Eigen::DontAlignCols, // flags
-      ", ", // coeffSeparator
-      ", ", // rowSeparator
-      "", // rowPrefix
-      "", // rowSuffix
-      "[", // matPrefix
-      "]"); // matSuffix
 };
 
 /*
