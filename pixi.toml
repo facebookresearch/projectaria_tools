@@ -5,7 +5,7 @@ homepage = "https://github.com/facebookresearch/projectaria_tools"
 license = "Apache-2.0"
 channels = ["conda-forge"]
 platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64", "win-64"]
-version = "1.5.2"
+version = "2.1.4"
 
 [tasks]
 #
@@ -58,8 +58,8 @@ build_python = "python -m pip install ."
 
 [build-dependencies]
 cmake = "4.0.0.*"
-cxx-compiler = "1.9.0.*"
-ninja = "1.12.1.*"
+cxx-compiler = "1.11.0.*"
+ninja = "1.13.2.*"
 
 [dependencies]
 # Note: projectaria_tools gather its own dependencies using CMake Fetch, but
@@ -67,18 +67,18 @@ ninja = "1.12.1.*"
 #  - Unit testing is leveraging installed gtest
 
 # Install UNIT TEST dependencies
-gtest = "1.14.0.*"
+gtest = "1.17.0.*"
 
 # Install VRS dependencies
 # - Note that some library are listed as '*' so pixi can pick the last compatible set of libraries versions
-boost = "1.84.0.*"
-fmt = "10.2.1.*"
+boost = "1.85.0.*"
+fmt = "12.2.0.*"
 libjpeg-turbo = "*"
 libpng = "*"
 lz4 = "*"
 xxhash = "*"
 zlib = "*"
-libopus = "1.4*" # optional dependency
+libopus = "1.4*" # optional dependencys
 ffmpeg = { version = "*", build = "*lgpl*" }
 
 # Install Python dependencies

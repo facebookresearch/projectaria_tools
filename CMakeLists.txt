@@ -31,7 +31,7 @@ add_compile_definitions(
   EIGEN_DONT_ALIGN
 )
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Set unit test data folders
