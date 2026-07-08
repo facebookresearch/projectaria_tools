@@ -354,7 +354,7 @@ void VrsDataProviderFactory::checkCalibrationConfigConsistency() {
     // Aria Gen1 ET needs to be handled differently, where the vrs stream contains stitched images
     // from left and right ET cameras.
     bool isAriaGen1Et =
-        (label.rfind("camera-et", 0) == 0) && (deviceVersion_ == calibration::DeviceVersion::Gen1);
+        (label.starts_with("camera-et")) && (deviceVersion_ == calibration::DeviceVersion::Gen1);
     const auto maybeStreamId = isAriaGen1Et
         ? streamIdLabelMapper_->getStreamIdFromLabel("camera-et")
         : streamIdLabelMapper_->getStreamIdFromLabel(label);
