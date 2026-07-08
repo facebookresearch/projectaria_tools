@@ -103,8 +103,7 @@ bool Wifi::getResult() {
 
 namespace {
 inline bool hasSuffix(const std::string& str, const std::string& suffix) {
-  return str.size() >= suffix.size() &&
-      str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+  return str.size() >= suffix.size() && str.ends_with(suffix);
 }
 } // namespace
 

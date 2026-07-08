@@ -223,7 +223,7 @@ void VrsDataProviderFactory::checkCalibrationConfigConsistency() {
 
   std::map<std::string, Eigen::Vector2i> labelToCameraResolution;
   for (const auto& label : maybeDeviceCalib_->getCameraLabels()) {
-    bool isAriaEt = (label.rfind("camera-et", 0) == 0);
+    bool isAriaEt = (label.starts_with("camera-et"));
     const auto maybeStreamId = isAriaEt ? streamIdLabelMapper_->getStreamIdFromLabel("camera-et")
                                         : streamIdLabelMapper_->getStreamIdFromLabel(label);
     checkAndThrow(
