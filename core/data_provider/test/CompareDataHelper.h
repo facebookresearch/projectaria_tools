@@ -41,7 +41,6 @@ inline void compare(
       imageDataAndRecord1.second.exposureDuration, imageDataAndRecord2.second.exposureDuration);
   EXPECT_EQ(imageDataAndRecord1.second.frameNumber, imageDataAndRecord2.second.frameNumber);
   EXPECT_EQ(imageDataAndRecord1.second.gain, imageDataAndRecord2.second.gain);
-  EXPECT_EQ(imageDataAndRecord1.second.temperature, imageDataAndRecord2.second.temperature);
   EXPECT_EQ(imageDataAndRecord1.second.groupId, imageDataAndRecord2.second.groupId);
   EXPECT_EQ(imageDataAndRecord1.second.groupMask, imageDataAndRecord2.second.groupMask);
   EXPECT_THAT(

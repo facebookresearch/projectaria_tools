@@ -16,6 +16,9 @@
 
 #pragma once
 
+#include <limits>
+#include <utility>
+
 #include <data_layout/ImageSensorMetadata.h>
 #include <image/FromPixelFrame.h>
 #include <image/ImageVariant.h>
@@ -78,15 +81,16 @@ struct ImageConfigRecord {
  * @brief Image data type: meta data
  */
 struct ImageDataRecord {
-  uint32_t cameraId; ///< @brief ID of the camera, 0 to N
-  uint64_t groupId;
-  uint64_t groupMask;
-  uint64_t frameNumber; ///< @brief index of the frame
-  double exposureDuration; ///< @brief length of exposure time (seconds)
-  double gain; ///< @brief gain settings
-  int64_t captureTimestampNs; ///< @brief capture time in device domain
-  int64_t arrivalTimestampNs; ///< @brief arrival time in host domain
-  double temperature; ///< @brief capture temperature on the sensor, may be NAN
+  uint32_t cameraId{}; ///< @brief ID of the camera, 0 to N
+  uint64_t groupId{};
+  uint64_t groupMask{};
+  uint64_t frameNumber{}; ///< @brief index of the frame
+  double exposureDuration{}; ///< @brief length of exposure time (seconds)
+  double gain{}; ///< @brief gain settings
+  int64_t captureTimestampNs{}; ///< @brief capture time in device domain
+  int64_t arrivalTimestampNs{}; ///< @brief arrival time in host domain
+  double temperature = std::numeric_limits<double>::quiet_NaN(); ///< @brief capture temperature on
+                                                                 ///< the sensor, may be NAN
 };
 
 using ImageCallback = std::function<bool(
@@ -104,7 +108,7 @@ class ImageSensorPlayer : public vrs::utils::VideoRecordFormatStreamPlayer {
   ImageSensorPlayer(ImageSensorPlayer&&) = default;
 
   void setCallback(ImageCallback callback) {
-    callback_ = callback;
+    callback_ = std::move(callback);
   }
 
   [[nodiscard]] const ImageData& getData() const {
