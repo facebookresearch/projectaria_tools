@@ -148,7 +148,7 @@ ImuCalibration parseImuCalibrationFromJson(const nlohmann::json& json) {
   const auto [gyroMat, gyroBias] = parseRectModelFromJson(json["Gyroscope"]);
   const auto T_Device_Imu = parseSe3dFromJson(json["T_Device_Imu"]);
 
-  return ImuCalibration(label, accelMat, accelBias, gyroMat, gyroBias, T_Device_Imu);
+  return {label, accelMat, accelBias, gyroMat, gyroBias, T_Device_Imu};
 }
 
 MagnetometerCalibration parseMagnetometerCalibrationFromJson(const nlohmann::json& json) {
@@ -171,7 +171,7 @@ MagnetometerCalibration parseMagnetometerCalibrationFromJson(const nlohmann::jso
   // 3. `bias` is transformed as:
   auto biasInTesla = biasInMicroTesla * 1e-6;
 
-  return MagnetometerCalibration(label, magMat, biasInTesla);
+  return {label, magMat, biasInTesla};
 }
 
 BarometerCalibration parseBarometerCalibrationFromJson(const nlohmann::json& json) {
@@ -179,12 +179,12 @@ BarometerCalibration parseBarometerCalibrationFromJson(const nlohmann::json& jso
   double slope = json["PressureModel"]["Slope"];
   double offsetPa = json["PressureModel"]["OffsetPa"];
 
-  return BarometerCalibration(label, slope, offsetPa);
+  return {label, slope, offsetPa};
 }
 
 MicrophoneCalibration parseMicrophoneCalibrationFromJson(const nlohmann::json& json) {
   const auto& label = json["Label"];
   const double dSensitivity1KDbv = json["DSensitivity1KDbv"];
-  return MicrophoneCalibration(label, dSensitivity1KDbv);
+  return {label, dSensitivity1KDbv};
 }
 } // namespace projectaria::tools::calibration
