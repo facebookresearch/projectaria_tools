@@ -16,6 +16,7 @@
 
 #include "Wifi.h"
 
+#include <algorithm>
 #include <cctype>
 #include <iomanip>
 #include <iostream>
@@ -110,9 +111,8 @@ inline bool hasSuffix(const std::string& str, const std::string& suffix) {
 void Wifi::processData(const data_provider::WifiBeaconData& data) {
   std::lock_guard lock{mutex_};
   std::string ssidLower = data.ssid;
-  std::transform(ssidLower.begin(), ssidLower.end(), ssidLower.begin(), [](unsigned char c) {
-    return std::tolower(c);
-  });
+  std::ranges::transform(
+      ssidLower, ssidLower.begin(), [](unsigned char c) { return std::tolower(c); });
   uint64_t currTimestampUs = data.boardTimestampNs / 1e3;
   if (hasSuffix(ssidLower, "_nomap") || hasSuffix(ssidLower, "_optout")) {
     XR_LOGE("{}: Opt out SSID collected {}", streamId_.getName(), data.ssid);
