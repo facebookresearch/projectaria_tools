@@ -18,6 +18,8 @@
 
 #ifdef BUILD_INTERNAL_PROJECTARIA_TOOLS
 #include <data_provider/internal/VrsDataProvider.h>
+
+#include <utility>
 #endif
 
 using namespace projectaria::tools::data_provider;
@@ -82,7 +84,7 @@ void AriaPlayer::playStreamFromTimeNs(int64_t timestampNs, const vrs::StreamId& 
 
   int64_t playbackStartTime = timestampNs;
   auto systemStartTime = std::chrono::steady_clock::now();
-  for (size_t i = startIndex; i < numData; ++i) {
+  for (size_t i = startIndex; std::cmp_less(i, numData); ++i) {
     if (!visControl_->isPlaying_ || visControl_->shouldClose_) {
       return;
     }

@@ -22,6 +22,7 @@
 
 #include <boost/timer/progress_display.hpp>
 #include <unordered_map>
+#include <utility>
 
 namespace {
 
@@ -86,7 +87,7 @@ class RGBPointCloudColorizer : public PointCloudColorizer {
     {
       boost::timer::progress_display progressBar(
           numRgbData, std::cout, "Looping over VRS image frames and PointCloud observations.\n");
-      for (int64_t frameId = 0; frameId < numRgbData; ++frameId) {
+      for (int64_t frameId = 0; std::cmp_less(frameId, numRgbData); ++frameId) {
         ++progressBar;
 
         //

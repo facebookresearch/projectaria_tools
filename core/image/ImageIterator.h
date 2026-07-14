@@ -17,6 +17,7 @@
 #pragma once
 
 #include <iterator>
+#include <utility>
 
 #include "Portability.h"
 
@@ -139,7 +140,7 @@ class ImageIterator {
   }
   PROJECTARIA_HOST_DEVICE_INLINE void stepForward(const difference_type delta) {
     const size_t remainingInRow = std::distance(ptr, rowEnd);
-    if (remainingInRow <= delta) {
+    if (std::cmp_less_equal(remainingInRow, delta)) {
       const size_t w = width();
       const size_t numRows = 1 + (delta - remainingInRow) / w;
       const size_t rowPosition = (delta - remainingInRow) % w;
@@ -152,7 +153,7 @@ class ImageIterator {
   }
   PROJECTARIA_HOST_DEVICE_INLINE void stepBackward(const difference_type delta) {
     const size_t remainingInRow = ptr - rowStart;
-    if (remainingInRow < delta) {
+    if (std::cmp_less(remainingInRow, delta)) {
       const size_t w = width();
       const size_t numRows = 1 + (delta - remainingInRow - 1) / w;
       const size_t rowPosition = 1 + (delta - remainingInRow - 1) % w;
