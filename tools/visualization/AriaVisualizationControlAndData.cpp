@@ -19,6 +19,7 @@
 #include "vrs/StreamId.h"
 
 #include <chrono>
+#include <utility>
 
 void AriaVisualizationData::initDataStreams(
     const std::vector<vrs::StreamId>& kImageStreamIds,
@@ -96,8 +97,8 @@ bool AriaVisualizationData::updateData(
       }
 
       // Audio samples are 32bit; convert to float for visualization
-      for (size_t i = 0; i < audioMatrix.rows(); ++i) {
-        for (size_t c = 0; c < audioMatrix.cols(); ++c) {
+      for (size_t i = 0; std::cmp_less(i, audioMatrix.rows()); ++i) {
+        for (size_t c = 0; std::cmp_less(c, audioMatrix.cols()); ++c) {
           audio_[i][c] = static_cast<float>(audioMatrix(i, c) / maxAmplitude);
         }
       }

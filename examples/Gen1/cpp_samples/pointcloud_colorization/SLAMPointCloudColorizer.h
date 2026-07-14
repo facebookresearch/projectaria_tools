@@ -22,6 +22,7 @@
 
 #include <boost/timer/progress_display.hpp>
 #include <unordered_map>
+#include <utility>
 
 namespace {
 // Colorize a GlobalPointCloud given its SLAM image observations.
@@ -89,7 +90,7 @@ class SLAMPointCloudColorizer : public PointCloudColorizer {
     {
       boost::timer::progress_display progressBar(
           numSlamData, std::cout, "Looping over VRS image frames and PointCloud observations.\n");
-      for (int64_t frameId = 0; frameId < numSlamData; ++frameId) {
+      for (int64_t frameId = 0; std::cmp_less(frameId, numSlamData); ++frameId) {
         ++progressBar;
 
         //
