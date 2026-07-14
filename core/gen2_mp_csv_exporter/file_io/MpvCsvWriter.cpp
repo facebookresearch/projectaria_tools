@@ -17,6 +17,7 @@
 #include <fmt/format.h>
 #include <gen2_mp_csv_exporter/file_io/MpvCsvWriter.h>
 #include <iostream>
+#include <utility>
 
 namespace {
 const std::string kEyeGazeCsvHeader =
@@ -38,7 +39,8 @@ const std::string kVioHighFreqCsvHeader =
 std::string getHandPoseCsvHeader() {
   std::string header = "tracking_timestamp_us,left_tracking_confidence";
   // Left landmarks
-  for (int iLandmark = 0; iLandmark < projectaria::tools::mps::kNumHandLandmarks; ++iLandmark) {
+  for (int iLandmark = 0; std::cmp_less(iLandmark, projectaria::tools::mps::kNumHandLandmarks);
+       ++iLandmark) {
     header += fmt::format(
         ",tx_left_landmark_{}_device,ty_left_landmark_{}_device,tz_left_landmark_{}_device",
         iLandmark,
@@ -47,7 +49,8 @@ std::string getHandPoseCsvHeader() {
   }
   header += ",right_tracking_confidence";
   // Right landmarks
-  for (int iLandmark = 0; iLandmark < projectaria::tools::mps::kNumHandLandmarks; ++iLandmark) {
+  for (int iLandmark = 0; std::cmp_less(iLandmark, projectaria::tools::mps::kNumHandLandmarks);
+       ++iLandmark) {
     header += fmt::format(
         ",tx_right_landmark_{}_device,ty_right_landmark_{}_device,tz_right_landmark_{}_device",
         iLandmark,
