@@ -21,6 +21,7 @@
 #include <pybind11/stl.h>
 
 #include <fmt/core.h>
+#include <algorithm>
 #include <sstream>
 #include <type_traits>
 
@@ -69,7 +70,7 @@ inline bool xprsFrameToImageData(xprs::Frame& xprsFrame, ImageData& imageData) {
   // Copy to pixel frame
   auto outputPixelFrame =
       std::make_shared<vrs::utils::PixelFrame>(vrs::PixelFormat::RGB8, width, height, width * 3);
-  std::copy(outDecodedFrame.begin(), outDecodedFrame.end(), outputPixelFrame->getBuffer().begin());
+  std::ranges::copy(outDecodedFrame, outputPixelFrame->getBuffer().begin());
   imageData.pixelFrame = std::move(outputPixelFrame);
   return true;
 }
