@@ -19,6 +19,7 @@
 #include <calibration/camera_projections/Common.h>
 
 #include <string_view>
+#include <utility>
 
 namespace projectaria::tools::calibration {
 
@@ -151,7 +152,7 @@ class FisheyeRadTanThinPrism {
       } else {
         T dthD_dth = static_cast<T>(1.0);
         T theta2i = thetaSq;
-        for (size_t i = 0; i < numK; ++i) {
+        for (size_t i = 0; std::cmp_less(i, numK); ++i) {
           dthD_dth += T(2 * i + 3) * params[startK + i] * theta2i;
           theta2i *= thetaSq;
         }
