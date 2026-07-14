@@ -79,9 +79,8 @@ int64_t TimeSyncMapper::convertFromSyncTimeToDeviceTimeNs(
 
   TimeSyncData query;
   query.realTimestampNs = timecodeTimeNs;
-  auto timecodeIter = std::upper_bound( // finds first timestamp > query
-      timecodeData.begin(),
-      timecodeData.end(),
+  auto timecodeIter = std::ranges::upper_bound( // finds first timestamp > query
+      timecodeData,
       query,
       [&](const auto& lhs, const auto& rhs) { return lhs.realTimestampNs < rhs.realTimestampNs; });
   auto lastTimeCodeIter = timecodeIter - 1;
@@ -115,9 +114,8 @@ int64_t TimeSyncMapper::convertFromDeviceTimeToSyncTimeNs(
 
   TimeSyncData query;
   query.monotonicTimestampNs = deviceTimeNs;
-  auto timecodeIter = std::upper_bound( // finds first timestamp > query
-      timecodeData.begin(),
-      timecodeData.end(),
+  auto timecodeIter = std::ranges::upper_bound( // finds first timestamp > query
+      timecodeData,
       query,
       [&](const auto& lhs, const auto& rhs) {
         return lhs.monotonicTimestampNs < rhs.monotonicTimestampNs;
