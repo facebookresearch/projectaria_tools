@@ -18,6 +18,8 @@
 
 #include <calibration/camera_projections/Common.h>
 
+#include <utility>
+
 namespace projectaria::tools::calibration {
 
 // Model for fisheye cameras with radial, tangential, and thin-prism distortion.
@@ -155,7 +157,7 @@ class FisheyeRadTanThinPrism {
         } else {
           T dthD_dth = static_cast<T>(1.0);
           T theta2i = thetaSq;
-          for (size_t i = 0; i < numK; ++i) {
+          for (size_t i = 0; std::cmp_less(i, numK); ++i) {
             dthD_dth += T(2 * i + 3) * params[startK + i] * theta2i;
             theta2i *= thetaSq;
           }
@@ -198,7 +200,7 @@ class FisheyeRadTanThinPrism {
             temp = params.template head<2>().cwiseProduct(th_divr * (duvDistorted_dxryr * ab));
           }
           T theta2i = thetaSq;
-          for (size_t i = 0; i < numK; ++i) {
+          for (size_t i = 0; std::cmp_less(i, numK); ++i) {
             d_param->col(startK + i) = theta2i * temp;
             theta2i *= thetaSq;
           }

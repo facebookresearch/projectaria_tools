@@ -18,6 +18,7 @@
 
 #include <fmt/format.h>
 #include <cmath>
+#include <utility>
 
 #include <data_provider/players/DataPlayerUtils.h>
 #include <mps/HandTracking.h>
@@ -64,7 +65,7 @@ std::optional<HandTrackingResult::OneSide> populateOneSideHand(
     fmt::print("Missing handLandmarks3d_DeviceMeterXyz in hand pose data layout!");
     return {};
   }
-  for (int landmarkIdx = 0; landmarkIdx < kHtLandmarksCount; ++landmarkIdx) {
+  for (int landmarkIdx = 0; std::cmp_less(landmarkIdx, kHtLandmarksCount); ++landmarkIdx) {
     oneSide.landmarkPositions_device[landmarkIdx] =
         mapToEigenVector<float, double, 3>(vrsLandmarks3d.at(landmarkIdx));
   }

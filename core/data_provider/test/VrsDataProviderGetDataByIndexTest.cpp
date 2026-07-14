@@ -19,6 +19,8 @@
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 
+#include <utility>
+
 using namespace projectaria::tools::data_provider;
 using namespace projectaria::tools::mps;
 using namespace projectaria::tools::data_provider::test;
@@ -38,7 +40,7 @@ void checkGetDataByIndex(
   size_t numData = provider->getNumData(streamId);
   int lastDeviceTime = -1;
 
-  for (int f = 0; f < numData; ++f) {
+  for (int f = 0; std::cmp_less(f, numData); ++f) {
     const auto sensorData = provider->getSensorDataByIndex(streamId, f);
     EXPECT_EQ(sensorData.sensorDataType(), provider->getSensorDataType(streamId));
 
