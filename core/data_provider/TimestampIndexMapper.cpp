@@ -20,6 +20,8 @@
 #define DEFAULT_LOG_CHANNEL "TimestampIndexMapper"
 #include <logging/Log.h>
 
+#include <algorithm>
+
 namespace projectaria::tools::data_provider {
 TimestampIndexMapper::TimestampIndexMapper(std::shared_ptr<RecordReaderInterface> interface)
     : interface_(interface), streamIdToDataRecords_(interface_->getStreamIdToDataRecords()) {
@@ -132,9 +134,8 @@ int TimestampIndexMapper::getIndexBeforeTimeNsNonTimeCode(
       estTimeSecInRecordTime, 0, vrs::StreamId(), vrs::Record::Type::UNDEFINED);
   auto dataRecords = streamIdToDataRecords_.at(streamId);
 
-  auto recordIter = std::upper_bound( // searches for earliest timestamp > query
-      dataRecords.begin(),
-      dataRecords.end(),
+  auto recordIter = std::ranges::upper_bound( // searches for earliest timestamp > query
+      dataRecords,
       &queryTime,
       [&](const auto& query, const auto& dataRecord) {
         // Convert both to nanoseconds in integer for comparison, to avoid precision issue when

@@ -18,6 +18,8 @@
 
 #include <pangolin/gl/gldraw.h>
 
+#include <algorithm>
+
 #include "PangolinColor.h"
 
 using namespace projectaria::tools::mps;
@@ -118,11 +120,8 @@ std::vector<std::vector<Eigen::Vector3d>> createHandSkeleton3d(
   // Loop over all skeleton segments. In 3D no need to check for std::nullopt
   for (const auto& landmarkNameVec : kHandSkeletonOrders) {
     std::vector<Eigen::Vector3d> segments;
-    std::transform(
-        landmarkNameVec.begin(),
-        landmarkNameVec.end(),
-        std::back_inserter(segments),
-        [&](const auto& landmarkName) {
+    std::ranges::transform(
+        landmarkNameVec, std::back_inserter(segments), [&](const auto& landmarkName) {
           return handMarkers3d.at(static_cast<uint8_t>(landmarkName));
         });
     handSkeleton.push_back(std::move(segments));

@@ -26,9 +26,7 @@ namespace {
 // Helper function to convert a string to lowercase
 std::string toLowerCase(const std::string& input) {
   std::string result = input; // Create a copy of the input string
-  std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) {
-    return std::tolower(c);
-  });
+  std::ranges::transform(result, result.begin(), [](unsigned char c) { return std::tolower(c); });
   return result;
 }
 } // namespace

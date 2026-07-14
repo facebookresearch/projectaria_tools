@@ -81,7 +81,7 @@ void AriaDigitalTwinDataPathsProvider::loadV1Metadata(const rapidjson::Document&
   for (const auto& [deviceSerial, _] : serialToSubtourName_) {
     deviceSerialNumbers_.push_back(deviceSerial);
   }
-  std::sort(deviceSerialNumbers_.begin(), deviceSerialNumbers_.end());
+  std::ranges::sort(deviceSerialNumbers_);
 }
 
 std::optional<AriaDigitalTwinDataPaths> AriaDigitalTwinDataPathsProvider::getDataPaths(

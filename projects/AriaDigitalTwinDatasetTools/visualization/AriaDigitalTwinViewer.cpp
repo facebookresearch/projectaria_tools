@@ -16,6 +16,7 @@
 
 #include <fmt/core.h>
 #include <pangolin/gl/glpixformat.h>
+#include <algorithm>
 #include <filesystem>
 
 #include <mps/EyeGazeReader.h>
@@ -49,8 +50,7 @@ void AriaDigitalTwinViewer::loadData(const AriaDigitalTwinDataPaths& dataPaths) 
   tsNsRgb_ = adtDataProvider_->getAriaDeviceCaptureTimestampsNs(rgbStreamId_);
 
   // get start time:
-  tsNsOverlapStartIter_ =
-      std::lower_bound(tsNsRgb_.begin(), tsNsRgb_.end(), adtDataProvider_->getStartTimeNs());
+  tsNsOverlapStartIter_ = std::ranges::lower_bound(tsNsRgb_, adtDataProvider_->getStartTimeNs());
 
   // get end time and count
   numberOfFrames_ = 0;
