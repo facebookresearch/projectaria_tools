@@ -183,10 +183,12 @@ def log_camera_pose(
             rr.log(
                 "world/device",
                 ToTransform3D(T_world_device, False),
+                rr.TransformAxes3D(0.02),
             )
             rr.log(
                 f"world/device/{rgb_stream_label}",
                 ToTransform3D(T_device_camera, False),
+                rr.TransformAxes3D(0.02),
             )
 
 

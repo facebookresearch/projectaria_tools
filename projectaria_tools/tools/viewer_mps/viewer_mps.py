@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import List
 
 import rerun as rr
+import rerun.blueprint as rrb
 from projectaria_tools.core.mps import MpsDataPathsProvider
 from projectaria_tools.tools.viewer_mps.rerun_viewer_mps import log_mps_to_rerun
 
@@ -166,8 +167,15 @@ def main() -> None:
     # Run the viewer in the web browser or desktop app
     if args.web:
         rr.serve_web()
-    else:
+    elif not args.rrd_output_path:
         rr.spawn()
+
+    # Set the default shown timeline to be the device time
+    blueprint = rrb.Blueprint(
+        rrb.TimePanel(timeline="device_time"),
+        rrb.SelectionPanel(state="collapsed"),
+    )
+    rr.send_blueprint(blueprint)
 
     log_mps_to_rerun(
         vrs_path=args.vrs,
