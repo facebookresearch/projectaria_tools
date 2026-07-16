@@ -227,6 +227,7 @@ class AriaDataViewer:
             "combined_gaze_origin_size": [2e-2, 2e-2, 2e-2],
             "spatial_gaze_point_size": [1e-2, 1e-2, 1e-2],
         },
+        "default_axis_length": 0.02,
     }
 
     PLOT_SIZES_DEVICE_EXTRINSICS_BOXES: Final = {
@@ -569,6 +570,9 @@ class AriaDataViewer:
                     ],
                     focal_length=float(camera_calibration.get_focal_lengths()[0]),
                 ),
+                rr.TransformAxes3D(
+                    self.PLOT_COLORS_AND_SIZES_3D["default_axis_length"]
+                ),
             )
         mic_labels = self.device_calibration.get_microphone_labels()
         for mic in mic_labels:  # Note: Only defined in CAD extrinsics
@@ -578,7 +582,13 @@ class AriaDataViewer:
             T_device_sensor = self.device_calibration.get_transform_device_sensor(
                 mic, get_cad_value=True
             )
-            log_static(f"device/mic/{mic}", ToTransform3D(T_device_sensor))
+            log_static(
+                f"device/mic/{mic}",
+                ToTransform3D(T_device_sensor),
+                rr.TransformAxes3D(
+                    self.PLOT_COLORS_AND_SIZES_3D["default_axis_length"]
+                ),
+            )
             log_static(
                 f"device/mic/{mic}/box",
                 ToBox3D(mic, self.PLOT_SIZES_DEVICE_EXTRINSICS_BOXES["microphone"]),
@@ -589,7 +599,13 @@ class AriaDataViewer:
             T_device_sensor = self.device_calibration.get_transform_device_sensor(
                 imu, get_cad_value=False
             )
-            log_static(f"device/imu/{imu}", ToTransform3D(T_device_sensor))
+            log_static(
+                f"device/imu/{imu}",
+                ToTransform3D(T_device_sensor),
+                rr.TransformAxes3D(
+                    self.PLOT_COLORS_AND_SIZES_3D["default_axis_length"]
+                ),
+            )
             log_static(
                 f"device/imu/{imu}",
                 ToBox3D(imu, self.PLOT_SIZES_DEVICE_EXTRINSICS_BOXES["imu"]),
@@ -602,7 +618,13 @@ class AriaDataViewer:
             T_device_sensor = self.device_calibration.get_transform_device_sensor(
                 magnetometer, get_cad_value=True
             )
-            log_static(f"device/{magnetometer}", ToTransform3D(T_device_sensor))
+            log_static(
+                f"device/{magnetometer}",
+                ToTransform3D(T_device_sensor),
+                rr.TransformAxes3D(
+                    self.PLOT_COLORS_AND_SIZES_3D["default_axis_length"]
+                ),
+            )
             log_static(
                 f"device/{magnetometer}/box",
                 ToBox3D(
@@ -616,7 +638,13 @@ class AriaDataViewer:
             T_device_sensor = self.device_calibration.get_transform_device_sensor(
                 barometer, True
             )
-            log_static(f"device/{barometer}", ToTransform3D(T_device_sensor))
+            log_static(
+                f"device/{barometer}",
+                ToTransform3D(T_device_sensor),
+                rr.TransformAxes3D(
+                    self.PLOT_COLORS_AND_SIZES_3D["default_axis_length"]
+                ),
+            )
             log_static(
                 f"device/{barometer}",
                 ToBox3D(
@@ -626,7 +654,11 @@ class AriaDataViewer:
 
         # Plot CPF (Central Pupil Frame coordinate system)
         T_device_CPF = self.device_calibration.get_transform_device_cpf()
-        log_static("device/CPF_CentralPupilFrame", ToTransform3D(T_device_CPF))
+        log_static(
+            "device/CPF_CentralPupilFrame",
+            ToTransform3D(T_device_CPF),
+            rr.TransformAxes3D(self.PLOT_COLORS_AND_SIZES_3D["default_axis_length"]),
+        )
         log_static(
             "device/CPF_CentralPupilFrame",
             ToBox3D(
@@ -1434,8 +1466,8 @@ class AriaDataViewer:
         )
         rr.log(
             "world/device",
-            ToTransform3D(
-                T_World_Device,
+            ToTransform3D(T_World_Device),
+            rr.TransformAxes3D(
                 axis_length=self.PLOT_COLORS_AND_SIZES_3D["vio"]["device_axis_length"],
             ),
         )

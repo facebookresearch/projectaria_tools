@@ -25,9 +25,7 @@ from projectaria_tools.core.sophus import SE3
 #
 # Rerun helper functions
 #
-def ToTransform3D(
-    pose: SE3, from_parent: bool = False, axis_length: float = 1e-2
-) -> rr.Transform3D:
+def ToTransform3D(pose: SE3, from_parent: bool = False) -> rr.Transform3D:
     """
     Helper function to convert Sophus SE3D pose to a Rerun Transform3D
     """
@@ -35,7 +33,6 @@ def ToTransform3D(
         pose.rotation().to_quat()[0], -1
     )  # change from w,x,y,z to x,y,z,w
     transform_3d = rr.Transform3D(
-        axis_length=axis_length,
         translation=pose.translation()[0],
         rotation=rr.Quaternion(xyzw=quat_xyzw),
     )
