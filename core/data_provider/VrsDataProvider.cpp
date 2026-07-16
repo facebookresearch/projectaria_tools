@@ -169,7 +169,7 @@ DeliverQueuedOptions VrsDataProvider::getDefaultDeliverQueuedOptions() const {
   for (const auto& streamId : interface_->getStreamIds()) {
     streamIdToSubsampleRate.emplace(streamId, 1);
   }
-  return DeliverQueuedOptions(0, 0, streamIdToSubsampleRate);
+  return {0, 0, streamIdToSubsampleRate};
 }
 
 std::optional<calibration::DeviceCalibration> VrsDataProvider::getDeviceCalibration() const {
@@ -214,7 +214,7 @@ SensorDataSequence VrsDataProvider::deliverQueuedSensorData() {
 }
 
 SensorDataSequence VrsDataProvider::deliverQueuedSensorData(DeliverQueuedOptions options) {
-  return SensorDataSequence(this, options);
+  return {this, options};
 }
 
 ImageDataAndRecord VrsDataProvider::getImageDataByIndex(
