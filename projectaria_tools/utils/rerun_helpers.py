@@ -46,10 +46,12 @@ def ToTransform3D(
     return transform_3d
 
 
-def ToBox3D(label: str, size=[1e-3, 1e-3, 1e-3]) -> rr.Boxes3D:
+def ToBox3D(label: str, size=None) -> rr.Boxes3D:
     """
     Helper function to create one 3D box with a given label and size
     """
+    if size is None:
+        size = [1e-3, 1e-3, 1e-3]
     return rr.Boxes3D(
         centers=[0, 0, 0],
         sizes=[size],
