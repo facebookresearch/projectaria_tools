@@ -181,7 +181,7 @@ void SensorMisalignmentStats::checkMisalignment(
   // Create a new time bucket with this sample's timestamp and add the sample to the list if there
   // was no matching bucket for it
   if (!timeBucketFound) {
-    alignmentCheckMap_[newSensorTimestampUs].push_back({newSensorId, newSensorTimestampUs});
+    alignmentCheckMap_[newSensorTimestampUs].emplace_back(newSensorId, newSensorTimestampUs);
   }
   // Reset timestampsToDelete_
   timestampsToDelete_.clear();
