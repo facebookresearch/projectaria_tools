@@ -191,8 +191,7 @@ TEST(VrsDataProvider, multiThreadGetDataByIndex) {
   std::vector<std::vector<std::thread>> threads(numProviderRequests);
   for (size_t i = 0; i < numProviderRequests; ++i) {
     for (const auto streamId : streamIds) {
-      threads[i].emplace_back(
-          std::thread([&provider, streamId]() { checkGetDataByIndex(provider, streamId); }));
+      threads[i].emplace_back([&provider, streamId]() { checkGetDataByIndex(provider, streamId); });
     }
 
     for (auto& thread : threads[i]) {
