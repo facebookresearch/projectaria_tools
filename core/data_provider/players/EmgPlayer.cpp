@@ -153,7 +153,7 @@ DecodedEmgSamples decodeEmgSamples(const EmgData& data) {
         const size_t byteOffset =
             (static_cast<size_t>(s) * data.channelCount + c) * sizeof(uint16_t);
         // Big-endian: the first byte is the most-significant.
-        const uint16_t value = static_cast<uint16_t>(
+        const auto value = static_cast<uint16_t>(
             (static_cast<uint16_t>(bytes[byteOffset]) << 8) |
             static_cast<uint16_t>(bytes[byteOffset + 1]));
         decoded.values.push_back(value);
