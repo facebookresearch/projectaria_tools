@@ -245,7 +245,7 @@ DeliverQueuedOptions VrsDataProvider::getDefaultDeliverQueuedOptions() const {
   for (const auto& streamId : interface_->getStreamIds()) {
     streamIdToSubsampleRate.emplace(streamId, 1);
   }
-  return DeliverQueuedOptions(0, 0, streamIdToSubsampleRate);
+  return {0, 0, streamIdToSubsampleRate};
 }
 
 std::optional<calibration::DeviceCalibration> VrsDataProvider::getDeviceCalibration() const {
@@ -288,7 +288,7 @@ SensorData VrsDataProvider::getSensorDataByIndex(const vrs::StreamId& streamId, 
     }
     return sensorData;
   } else {
-    return SensorData(streamId, std::monostate{}, SensorDataType::NotValid, -1, {});
+    return {streamId, std::monostate{}, SensorDataType::NotValid, -1, {}};
   }
 }
 
@@ -299,7 +299,7 @@ SensorDataSequence VrsDataProvider::deliverQueuedSensorData() {
 }
 
 SensorDataSequence VrsDataProvider::deliverQueuedSensorData(DeliverQueuedOptions options) {
-  return SensorDataSequence(this, options);
+  return {this, options};
 }
 
 ImageDataAndRecord VrsDataProvider::getImageDataByIndex(
@@ -548,7 +548,7 @@ SensorData VrsDataProvider::getSensorDataByTimeNs(
 
   // Check for out-of-bounds index and return NotValid SensorData
   if (index < 0) {
-    return SensorData(streamId, std::monostate{}, SensorDataType::NotValid, -1, {});
+    return {streamId, std::monostate{}, SensorDataType::NotValid, -1, {}};
   }
 
   return getSensorDataByIndex(streamId, index);
