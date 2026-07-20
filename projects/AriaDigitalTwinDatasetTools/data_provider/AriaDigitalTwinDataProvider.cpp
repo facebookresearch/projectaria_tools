@@ -268,8 +268,7 @@ AriaImageDataWithDt AriaDigitalTwinDataProvider::getAriaImageByTimestampNs(
     return {};
   }
 
-  return AriaImageDataWithDt(
-      imageData.first, imageData.second.captureTimestampNs - deviceTimeStampNs);
+  return {imageData.first, imageData.second.captureTimestampNs - deviceTimeStampNs};
 }
 
 int64_t AriaDigitalTwinDataProvider::getDeviceTimeFromTimecodeNs(int64_t timecodeNs) const {
@@ -370,8 +369,7 @@ BoundingBox3dDataWithDt AriaDigitalTwinDataProvider::getObject3dBoundingBoxesByT
     // valid result, insert all dynamic objects into the map and return
     object3dBoundingBoxMap.insert(
         queryDynamicObjectIter->second.cbegin(), queryDynamicObjectIter->second.cend());
-    return BoundingBox3dDataWithDt(
-        object3dBoundingBoxMap, queryDynamicObjectIter->first - deviceTimeStampNs);
+    return {object3dBoundingBoxMap, queryDynamicObjectIter->first - deviceTimeStampNs};
   } else {
     // invalid result
     return {};
