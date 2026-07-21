@@ -172,8 +172,8 @@ def main():
     # Iterate over the data and LOG data as we see fit
     for data in provider.deliver_queued_sensor_data(deliver_option):
         device_time_ns = data.get_time_ns(TimeDomain.DEVICE_TIME)
-        rr.set_time_nanos("device_time", device_time_ns)
-        rr.set_time_sequence("timestamp", device_time_ns)
+        rr.set_time("device_time", duration=device_time_ns * 1e-9)
+        rr.set_time("timestamp", sequence=device_time_ns)
         progress_bar.update(1)
         iteration += 1
 

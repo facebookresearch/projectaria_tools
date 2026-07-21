@@ -1436,7 +1436,12 @@ class AriaDataViewer:
             "world/device",
             ToTransform3D(
                 T_World_Device,
-                axis_length=self.PLOT_COLORS_AND_SIZES_3D["vio"]["device_axis_length"],
+            ),
+        )
+        rr.log(
+            "world/device",
+            rr.TransformAxes3D(
+                length=self.PLOT_COLORS_AND_SIZES_3D["vio"]["device_axis_length"]
             ),
         )
 

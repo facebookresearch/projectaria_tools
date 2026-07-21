@@ -165,7 +165,7 @@ def main():
             "plotly",
             "requests",
             "rerun-notebook==0.26.2",
-            "rerun-sdk==0.26.2",
+            "rerun-sdk==0.33.0",
             "scipy",
             "tqdm",
         ],
