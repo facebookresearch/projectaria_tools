@@ -203,7 +203,7 @@ SensorData VrsDataProvider::getSensorDataByIndex(const vrs::StreamId& streamId, 
     }
     return sensorData;
   } else {
-    return SensorData(streamId, std::monostate{}, SensorDataType::NotValid, -1, {});
+    return {streamId, std::monostate{}, SensorDataType::NotValid, -1, {}};
   }
 }
 
