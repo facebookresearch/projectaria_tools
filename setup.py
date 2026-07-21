@@ -158,7 +158,7 @@ def main():
         install_requires=[
             "numpy",
             "requests",  # Required for datasets downloader
-            "rerun-sdk==0.26.2",
+            "rerun-sdk==0.33.0",
             "tqdm",
         ],
         extras_require={

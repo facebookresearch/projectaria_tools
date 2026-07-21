@@ -224,7 +224,7 @@ frame_set_uids: Dict[str, List[int]] = {}
 #
 for data in tqdm(vrs_data_provider.deliver_queued_sensor_data(deliver_option)):
     device_time_ns = data.get_time_ns(TimeDomain.DEVICE_TIME)
-    rr.set_time_nanos("device_time", device_time_ns)
+    rr.set_time("device_time", duration=device_time_ns * 1e-9)
 
     # Display device pose
     closed_loop_pose = mps_data_provider.get_closed_loop_pose(device_time_ns)
