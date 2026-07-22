@@ -256,7 +256,7 @@ PROJECTARIA_HOST_DEVICE inline size_t Image<T, MaxValue>::channel() const {
 
 template <typename T, int MaxValue>
 PROJECTARIA_HOST_DEVICE inline Eigen::Vector2i Image<T, MaxValue>::dim() const {
-  return Eigen::Vector2i(w_, h_);
+  return {w_, h_};
 }
 
 template <typename T, int MaxValue>
