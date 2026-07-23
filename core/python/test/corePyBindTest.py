@@ -19,10 +19,13 @@ import unittest
 import numpy as np
 from projectaria_tools.core import calibration, data_provider
 from projectaria_tools.core.sensor_data import (
+    CombinedFieldId,
     decode_emg_samples,
     EmgData,
     EmgImuSample,
+    FieldProvenance,
     SensorDataType,
+    SingleFieldId,
     TimeDomain,
     TimeQueryOptions,
     TimeSyncMode,
@@ -545,6 +548,35 @@ class DataProviderTests(unittest.TestCase):
         )
         assert file_metadata.device_id == "f6e94724-e773-437e-a2fb-eb3e108bc54d"
         assert file_metadata.start_time_epoch_sec == 1749702390
+
+    def test_eye_gaze_configuration_gen2(self) -> None:
+        provider = data_provider.create_vrs_data_provider(vrs_filepath_list[1])
+        stream_id = provider.get_stream_id_from_label("eyegaze")
+        config = provider.get_eye_gaze_configuration(stream_id)
+        # The checked-in v1 fixture has no v2 fields; VRS returns defaults.
+        assert config.user_calibration_params_json == ""
+        assert config.field_provenance_single == 0
+        assert config.field_provenance_combined == 0
+        assert (
+            config.get_single_field_provenance(SingleFieldId.GAZE_ORIGIN)
+            == FieldProvenance.SUPPORTED
+        )
+        assert (
+            config.get_combined_field_provenance(CombinedFieldId.SPATIAL_GAZE_POINT)
+            == FieldProvenance.SUPPORTED
+        )
+        # Enum wire-format contract: numeric values are the on-disk bits packed
+        # into field_provenance_single/combined; changing them silently corrupts
+        # every real ML eye-tracking recording, so pin them here.
+        assert FieldProvenance.SUPPORTED.value == 0
+        assert FieldProvenance.CALCULATED.value == 1
+        assert FieldProvenance.HARDCODED.value == 2
+        assert FieldProvenance.NOT_PRODUCED.value == 3
+        assert SingleFieldId.GAZE_ORIGIN.value == 0
+        assert SingleFieldId.GAZE_DIRECTION.value == 1
+        assert SingleFieldId.BLINK.value == 4
+        assert CombinedFieldId.GAZE_ORIGIN_COMBINED.value == 0
+        assert CombinedFieldId.SPATIAL_GAZE_POINT.value == 5
 
     def test_device_version_gen1(self) -> None:
         provider = data_provider.create_vrs_data_provider(vrs_filepath_list[0])

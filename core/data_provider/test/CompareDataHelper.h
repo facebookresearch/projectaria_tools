@@ -401,6 +401,11 @@ inline void compare(
   EXPECT_DOUBLE_EQ(eyeGazeConfig1.nominalRateHz, eyeGazeConfig2.nominalRateHz);
   EXPECT_EQ(eyeGazeConfig1.userCalibrated, eyeGazeConfig2.userCalibrated);
   EXPECT_FLOAT_EQ(eyeGazeConfig1.userCalibrationError, eyeGazeConfig2.userCalibrationError);
+  EXPECT_EQ(eyeGazeConfig1.algorithmName, eyeGazeConfig2.algorithmName);
+  EXPECT_EQ(eyeGazeConfig1.algorithmVersion, eyeGazeConfig2.algorithmVersion);
+  EXPECT_EQ(eyeGazeConfig1.userCalibrationParamsJson, eyeGazeConfig2.userCalibrationParamsJson);
+  EXPECT_EQ(eyeGazeConfig1.fieldProvenanceSingle, eyeGazeConfig2.fieldProvenanceSingle);
+  EXPECT_EQ(eyeGazeConfig1.fieldProvenanceCombined, eyeGazeConfig2.fieldProvenanceCombined);
 }
 
 inline void compare(

@@ -22,6 +22,7 @@
 
 #include <sophus/se3.hpp>
 #include <optional>
+#include <string>
 #include <utility>
 
 namespace projectaria::tools::data_provider {
@@ -31,6 +32,23 @@ struct EyeGazeConfiguration {
   double nominalRateHz;
   bool userCalibrated;
   float userCalibrationError;
+
+  // Populated from EyeGazeConfigurationLayout v2. For v1 recordings, VRS
+  // returns each DataPiece's default (empty string / 0 == all-SUPPORTED).
+  std::string algorithmName;
+  std::string algorithmVersion;
+  std::string userCalibrationParamsJson;
+  uint32_t fieldProvenanceSingle{0};
+  uint32_t fieldProvenanceCombined{0};
+
+  [[nodiscard]] datalayout::FieldProvenance getSingleFieldProvenance(
+      datalayout::SingleFieldId id) const {
+    return datalayout::getFieldProvenance(fieldProvenanceSingle, id);
+  }
+  [[nodiscard]] datalayout::FieldProvenance getCombinedFieldProvenance(
+      datalayout::CombinedFieldId id) const {
+    return datalayout::getFieldProvenance(fieldProvenanceCombined, id);
+  }
 };
 
 using EyeGazeCallback =

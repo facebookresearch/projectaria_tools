@@ -21,6 +21,7 @@
 #include <data_provider/SensorData.h>
 #include <data_provider/SensorDataType.h>
 #include <data_provider/TimeTypes.h>
+#include <data_provider/data_layout/EyeGazeMetadata.h>
 #include <data_provider/data_types/FrontendOutput.h>
 
 #include "ImageDataHelper.h"
@@ -827,6 +828,30 @@ inline void declareFrontendOutput(py::module& m) {
 }
 
 inline void declareOnDeviceMpConfiguration(py::module& m) {
+  py::enum_<datalayout::FieldProvenance>(m, "FieldProvenance")
+      .value("SUPPORTED", datalayout::FieldProvenance::SUPPORTED)
+      .value("CALCULATED", datalayout::FieldProvenance::CALCULATED)
+      .value("HARDCODED", datalayout::FieldProvenance::HARDCODED)
+      .value("NOT_PRODUCED", datalayout::FieldProvenance::NOT_PRODUCED)
+      .export_values();
+
+  py::enum_<datalayout::SingleFieldId>(m, "SingleFieldId")
+      .value("GAZE_ORIGIN", datalayout::SingleFieldId::GazeOrigin)
+      .value("GAZE_DIRECTION", datalayout::SingleFieldId::GazeDirection)
+      .value("ENTRANCE_PUPIL_POSITION", datalayout::SingleFieldId::EntrancePupilPosition)
+      .value("PUPIL_DIAMETER", datalayout::SingleFieldId::PupilDiameter)
+      .value("BLINK", datalayout::SingleFieldId::Blink)
+      .export_values();
+
+  py::enum_<datalayout::CombinedFieldId>(m, "CombinedFieldId")
+      .value("GAZE_ORIGIN_COMBINED", datalayout::CombinedFieldId::GazeOriginCombined)
+      .value("GAZE_DIRECTION_COMBINED", datalayout::CombinedFieldId::GazeDirectionCombined)
+      .value("CONVERGENCE_DISTANCE", datalayout::CombinedFieldId::ConvergenceDistance)
+      .value("INTEROCULAR_DISTANCE", datalayout::CombinedFieldId::InterocularDistance)
+      .value("FOVEATED_GAZE", datalayout::CombinedFieldId::FoveatedGaze)
+      .value("SPATIAL_GAZE_POINT", datalayout::CombinedFieldId::SpatialGazePoint)
+      .export_values();
+
   py::class_<EyeGazeConfiguration>(m, "EyeGazeConfiguration", "Eye gaze sensor configuration type")
       .def(py::init<>())
       .def_readwrite("stream_id", &EyeGazeConfiguration::streamId, "ID of the VRS stream")
@@ -839,7 +864,37 @@ inline void declareOnDeviceMpConfiguration(py::module& m) {
       .def_readwrite(
           "user_calibration_error",
           &EyeGazeConfiguration::userCalibrationError,
-          "indicates the accuracy of the eye tracking calibration. Lower is better");
+          "indicates the accuracy of the eye tracking calibration. Lower is better")
+      .def_readwrite(
+          "algorithm_name",
+          &EyeGazeConfiguration::algorithmName,
+          "name of the on-device eye-tracking algorithm; empty for legacy recordings")
+      .def_readwrite(
+          "algorithm_version",
+          &EyeGazeConfiguration::algorithmVersion,
+          "version of the on-device eye-tracking algorithm; empty for legacy recordings")
+      .def_readwrite(
+          "user_calibration_params_json",
+          &EyeGazeConfiguration::userCalibrationParamsJson,
+          "verbatim per-user calibration parameters JSON for the ML eye-tracking source; empty for the geometric source, when user_calibrated is false, or for legacy recordings")
+      .def_readwrite(
+          "field_provenance_single",
+          &EyeGazeConfiguration::fieldProvenanceSingle,
+          "packed uint32 with 2 bits per SingleFieldId slot describing per-eye field provenance; prefer get_single_field_provenance() over raw bit access")
+      .def_readwrite(
+          "field_provenance_combined",
+          &EyeGazeConfiguration::fieldProvenanceCombined,
+          "packed uint32 with 2 bits per CombinedFieldId slot describing combined/whole-frame field provenance; prefer get_combined_field_provenance() over raw bit access")
+      .def(
+          "get_single_field_provenance",
+          &EyeGazeConfiguration::getSingleFieldProvenance,
+          py::arg("field_id"),
+          "returns the FieldProvenance for a per-eye field indexed by SingleFieldId")
+      .def(
+          "get_combined_field_provenance",
+          &EyeGazeConfiguration::getCombinedFieldProvenance,
+          py::arg("field_id"),
+          "returns the FieldProvenance for a combined/whole-frame field indexed by CombinedFieldId");
 
   py::class_<HandPoseConfiguration>(
       m, "HandPoseConfiguration", "Hand pose sensor configuration type")

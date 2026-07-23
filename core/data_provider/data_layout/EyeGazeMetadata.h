@@ -21,9 +21,51 @@
 
 namespace projectaria::tools::datalayout {
 
+// 2 bits per slot on the packed uint32. Numeric values are the on-disk
+// wire format and must not be renumbered.
+enum class FieldProvenance : uint8_t {
+  SUPPORTED = 0, // direct sensor/model output
+  CALCULATED = 1, // derived on-device from other valid fields
+  HARDCODED = 2, // constant from device calibration; valid==true but does not track state
+  NOT_PRODUCED = 3, // source does not populate the field; valid==false
+};
+
+// Slot indices (2 bits each) inside EyeGazeConfigurationLayout::fieldProvenanceSingle.
+enum class SingleFieldId : uint32_t {
+  GazeOrigin = 0,
+  GazeDirection = 1,
+  EntrancePupilPosition = 2,
+  PupilDiameter = 3,
+  Blink = 4,
+};
+
+// Slot indices (2 bits each) inside EyeGazeConfigurationLayout::fieldProvenanceCombined.
+enum class CombinedFieldId : uint32_t {
+  GazeOriginCombined = 0,
+  GazeDirectionCombined = 1,
+  ConvergenceDistance = 2,
+  InterocularDistance = 3,
+  FoveatedGaze = 4,
+  SpatialGazePoint = 5,
+};
+
+template <typename FieldId>
+constexpr FieldProvenance getFieldProvenance(uint32_t packed, FieldId id) {
+  const auto shift = static_cast<uint32_t>(id) * 2u;
+  return static_cast<FieldProvenance>((packed >> shift) & 0b11u);
+}
+
+template <typename FieldId>
+constexpr uint32_t setFieldProvenance(uint32_t packed, FieldId id, FieldProvenance p) {
+  const auto shift = static_cast<uint32_t>(id) * 2u;
+  return (packed & ~(0b11u << shift)) | ((static_cast<uint32_t>(p) & 0b11u) << shift);
+}
+
 class EyeGazeConfigurationLayout : public vrs::AutoDataLayout {
  public:
-  static constexpr uint32_t kVersion = 1;
+  // v2 adds user_calibration_params_json + field_provenance_{single,combined};
+  // VRS field mapping is name-based so older readers skip transparently.
+  static constexpr uint32_t kVersion = 2;
   vrs::DataPieceValue<uint32_t> streamId{"stream_id"};
   // Algorithm version to distinguish different eye tracking implementations. Formatted in string
   // as "Major.minor",
@@ -36,6 +78,16 @@ class EyeGazeConfigurationLayout : public vrs::AutoDataLayout {
   vrs::DataPieceValue<vrs::Bool> userCalibrated{"user_calibrated"};
   // Indicates the accuracy of the user ET calibration. Lower is better
   vrs::DataPieceValue<float> userCalibrationError{"user_calibration_error"};
+
+  // v2: verbatim calibration_params.json for the ML eye-tracking source.
+  // Empty for the geometric source or when userCalibrated == false.
+  vrs::DataPieceString userCalibrationParamsJson{"user_calibration_params_json"};
+  // v2: per-field provenance for per-eye fields on SingleEyeGazeLayoutStruct.
+  // Packed 2 bits/slot, indexed by SingleFieldId. Applies to both eyes.
+  vrs::DataPieceValue<uint32_t> fieldProvenanceSingle{"field_provenance_single"};
+  // v2: per-field provenance for combined/whole-frame fields on EyeGazeLayout.
+  // Packed 2 bits/slot, indexed by CombinedFieldId.
+  vrs::DataPieceValue<uint32_t> fieldProvenanceCombined{"field_provenance_combined"};
 
   vrs::AutoDataLayoutEnd endLayout;
 };

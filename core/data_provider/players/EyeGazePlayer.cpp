@@ -211,6 +211,14 @@ bool EyeGazePlayer::onDataLayoutRead(
     configRecord_.nominalRateHz = configLayout.nominalRateHz.get();
     configRecord_.userCalibrated = configLayout.userCalibrated.get();
     configRecord_.userCalibrationError = configLayout.userCalibrationError.get();
+    // v2 fields; VRS's no-arg .get() returns the DataPiece's default when
+    // the field is not present on disk (v1 recording), which matches our
+    // struct-member defaults (empty string / 0 == all-SUPPORTED).
+    configRecord_.algorithmName = configLayout.algorithmName.get();
+    configRecord_.algorithmVersion = configLayout.algorithmVersion.get();
+    configRecord_.userCalibrationParamsJson = configLayout.userCalibrationParamsJson.get();
+    configRecord_.fieldProvenanceSingle = configLayout.fieldProvenanceSingle.get();
+    configRecord_.fieldProvenanceCombined = configLayout.fieldProvenanceCombined.get();
     return true;
   } else if (header.recordType == vrs::Record::Type::DATA) {
     // Read data as datalayout data type
