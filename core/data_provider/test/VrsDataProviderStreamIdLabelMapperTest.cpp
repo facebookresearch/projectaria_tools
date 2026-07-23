@@ -82,4 +82,10 @@ TEST(VrsDataProvider, StreamIdLabelMapper_Gen2) {
   const std::string expectedVioHighFreqStreamName = "371-3";
   EXPECT_TRUE(maybeVioHighFreqStream);
   EXPECT_EQ(maybeVioHighFreqStream->getNumericName(), expectedVioHighFreqStreamName);
+
+  // Battery status (502-1) must be labeled on Gen2 so it is not reported as
+  // "not found in Aria Device Model".
+  const auto maybeBatteryStream = mapper->getStreamIdFromLabel("battery-status");
+  EXPECT_TRUE(maybeBatteryStream);
+  EXPECT_EQ(maybeBatteryStream->getNumericName(), "502-1");
 }

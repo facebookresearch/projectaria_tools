@@ -76,6 +76,9 @@ SensorDataType getSensorDataType(const vrs::RecordableTypeId& id, const std::str
       // Temperature
       {vrs::RecordableTypeId::TemperatureRecordableClass, SensorDataType::Temperature},
 
+      // Battery
+      {vrs::RecordableTypeId::BatteryRecordableClass, SensorDataType::BatteryStatus},
+
       // eyegaze
       {vrs::RecordableTypeId::GazeRecordableClass, SensorDataType::EyeGaze},
   };

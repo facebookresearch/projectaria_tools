@@ -108,6 +108,7 @@ std::shared_ptr<StreamIdLabelMapper> getAriaGen2StreamIdLabelMapper(
       {vrs::StreamId::fromNumericName("248-1"), "ppg"},
       {vrs::StreamId::fromNumericName("500-1"), "als"},
       {vrs::StreamId::fromNumericName("241-1"), "emg"},
+      {vrs::StreamId::fromNumericName("502-1"), "battery-status"},
       // MPV Streams
       {vrs::StreamId::fromNumericName("373-1"), "eyegaze"},
   };
