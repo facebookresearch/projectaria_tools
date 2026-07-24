@@ -51,8 +51,8 @@ Today, there are three primary methods of determining a user's best fit.
 | --- | --- | --- | --- | --- |
 | Moderated Fitment | 5-10 minutes for participant and moderator | Used by researchers to scale fitment efforts for large data collection efforts | The fastest and most direct way to size an individual. | Requires a set of 8 SKU sizes |
 | Self-Service | 3-5 minutes | No moderator available. The user tries on available devices and chooses the best fit. | Removes friction and puts the end user into whatever pair of glasses is available. | May affect comfort and duration of use. Can lead to issues with ET, PPG, and Contact Mic. |
-| Remote Fitment Kit | 15 minutes | Used to determine size for glasses that are to be worn by a single primary participant. | Easy to ship and reuse if multiple participants are in one location. | Requires a managed spreadsheet with results |
-
+| Remote Fitment Kit | 15 minutes | Used to determine size for glasses that are to be worn by a single primary participant. | Easy to ship and reuse if multiple participants are in one location. | Requires a managed spreadsheet with results and the Aria team to ship the device (post-sizing). |
+| AR Fitment | 1-2 minutes | Remote self-sizing via smartphone scan for individual partners and onboarding users. | Eliminates shipping delays and kit waiting times; provides instant, same-day size recommendations without an account. | Currently iOS/iPhone only; requires TestFlight installation. |
 ### Moderated Fitment Instructions
 
 Moderated fitment is when an operator guides users through a fitment flow. The same flow can be done without a moderator by an individual to achieve the same results.
@@ -86,6 +86,58 @@ Iterate in this order:
 #### Step 3: Finalize Choice
 
 Continue comparing and contrasting as needed to identify the top 1-2 choices and add stability accessories to the top choice if needed.
+
+### AR Fitment Instructions
+
+AR Fitment allows users to remotely scan their face using an iPhone to get an immediate, accurate Aria Gen 2 size recommendation. This eliminates the need to wait for a physical kit and enables same-day sizing.
+
+#### Prerequisites
+
+- **iOS Device:** An iPhone capable of running TestFlight.
+- **App Access:** Aria Companion App installed via TestFlight.
+- **User Account:** None required — sizing can be completed without logging in or creating an account.
+
+#### Step-by-Step Instructions
+
+1. **Install the App.** Download and install the Aria Companion App via [TestFlight](https://testflight.apple.com/join/G9sm51a8) onto your iPhone, or scan the QR code below.
+
+   <ThemedImage
+     alt="TestFlight QR code for the Aria Companion App"
+     sources={{
+       light: useBaseUrl('/img/fitment_guide/ar_fitment_testflight_qr.png'),
+       dark: useBaseUrl('/img/fitment_guide/ar_fitment_testflight_qr.png'),
+     }}
+   />
+
+2. **Launch Fitment.** Open the Aria Companion App. On the Welcome screen, tap the glasses icon in the top-right corner to start AR Fitment. Do **not** tap "Log in with Meta."
+
+   <ThemedImage
+     alt="Aria Companion App Welcome screen — tap the glasses icon in the top-right corner to start AR Fitment"
+     sources={{
+       light: useBaseUrl('/img/fitment_guide/ar_fitment_welcome_screen.png'),
+       dark: useBaseUrl('/img/fitment_guide/ar_fitment_welcome_screen.png'),
+     }}
+   />
+
+3. **Prepare and Scan.** Remove glasses, hats, and jewelry, and pull your hair away from your face. Tap **Start Face Scan** and follow the on-screen prompts. When the scan finishes, the app shows your recommended size. Write it down.
+
+4. **Submit Your Size.**
+   - **Individual Users:** Save your recommended size for ordering.
+   - **Lab Coordinators / Groups:** Enter each participant's email address alongside their recommended size into the onboarding form (up to 5 users per lab).
+
+We use the email address to create each user's account, and the size to order the right device.
+
+**Lab coordinators:** one person fills out the form for the whole lab. Have each team member who will use a device complete their own AR Fitment (Steps 1 and 2), then collect and enter every user's email address alongside their matching recommended size. Submitting all of them together gives Academic Relations everything needed to order devices and create accounts.
+
+:::note
+**Android Users / Inconclusive Scans:** AR Fitment is currently iOS-only. If you use an Android device or receive an inconclusive scan result, you can request a physical Remote Fitment Kit by emailing [projectariapartners@meta.com](mailto:projectariapartners@meta.com).
+
+**Privacy:** Only your numeric fitment measurements are kept. Raw face images and 3D mesh are not stored.
+:::
+
+Prefer a physical fitment kit? If you use Android, or your scan is inconclusive, email [projectariapartners@meta.com](mailto:projectariapartners@meta.com) and we'll follow up.
+
+Questions? Email [projectariapartners@meta.com](mailto:projectariapartners@meta.com).
 
 ### Remote Fitment Kit Instructions
 
