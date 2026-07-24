@@ -85,8 +85,8 @@ SensorConfiguration VrsDataProvider::getConfiguration(const vrs::StreamId& strea
       return SensorConfiguration(getAlsConfiguration(streamId), sensorDataType);
     case SensorDataType::Temperature:
       return SensorConfiguration(getTemperatureConfiguration(streamId), sensorDataType);
-    case SensorDataType::Emg:
-      return SensorConfiguration(getEmgConfiguration(streamId), sensorDataType);
+    case SensorDataType::NeuralBandBatch:
+      return SensorConfiguration(getNeuralBandBatchConfiguration(streamId), sensorDataType);
     case SensorDataType::BatteryStatus:
       return SensorConfiguration(getBatteryStatusConfiguration(streamId), sensorDataType);
     case SensorDataType::VioHighFreq:
@@ -98,7 +98,6 @@ SensorConfiguration VrsDataProvider::getConfiguration(const vrs::StreamId& strea
     case SensorDataType::HandPose:
       return SensorConfiguration(getHandPoseConfiguration(streamId), sensorDataType);
     case SensorDataType::NotValid:
-    default:
       break;
   }
   return SensorConfiguration(std::monostate{}, SensorDataType::NotValid);
@@ -165,10 +164,11 @@ PpgConfiguration VrsDataProvider::getPpgConfiguration(const vrs::StreamId& strea
   return configMap_->getPpgConfiguration(streamId);
 }
 
-EmgConfiguration VrsDataProvider::getEmgConfiguration(const vrs::StreamId& streamId) const {
+NeuralBandBatchConfiguration VrsDataProvider::getNeuralBandBatchConfiguration(
+    const vrs::StreamId& streamId) const {
   assertStreamIsActive(streamId);
-  assertStreamIsType(streamId, SensorDataType::Emg);
-  return configMap_->getEmgConfiguration(streamId);
+  assertStreamIsType(streamId, SensorDataType::NeuralBandBatch);
+  return configMap_->getNeuralBandBatchConfiguration(streamId);
 }
 
 AlsConfiguration VrsDataProvider::getAlsConfiguration(const vrs::StreamId& streamId) const {
@@ -440,12 +440,14 @@ PpgData VrsDataProvider::getPpgDataByIndex(const vrs::StreamId& streamId, const 
   }
 }
 
-EmgData VrsDataProvider::getEmgDataByIndex(const vrs::StreamId& streamId, const int index) {
+NeuralBandBatch VrsDataProvider::getNeuralBandBatchByIndex(
+    const vrs::StreamId& streamId,
+    const int index) {
   assertStreamIsActive(streamId);
-  assertStreamIsType(streamId, SensorDataType::Emg);
+  assertStreamIsType(streamId, SensorDataType::NeuralBandBatch);
 
   if (interface_->readRecordByIndex(streamId, index)) {
-    return interface_->getLastCachedEmgData(streamId);
+    return interface_->getLastCachedNeuralBandBatch(streamId);
   } else {
     return {};
   }
@@ -635,13 +637,13 @@ PpgData VrsDataProvider::getPpgDataByTimeNs(
   return getPpgDataByIndex(streamId, index);
 }
 
-EmgData VrsDataProvider::getEmgDataByTimeNs(
+NeuralBandBatch VrsDataProvider::getNeuralBandBatchByTimeNs(
     const vrs::StreamId& streamId,
     const int64_t timeNs,
     const TimeDomain& timeDomain,
     const TimeQueryOptions& timeQueryOptions) {
   const int index = getIndexByTimeNs(streamId, timeNs, timeDomain, timeQueryOptions);
-  return getEmgDataByIndex(streamId, index);
+  return getNeuralBandBatchByIndex(streamId, index);
 }
 
 AlsData VrsDataProvider::getAlsDataByTimeNs(

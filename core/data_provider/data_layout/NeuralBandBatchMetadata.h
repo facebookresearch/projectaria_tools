@@ -20,13 +20,10 @@
 
 namespace datalayout {
 
-// Subset of oatmeal::GenericSensorConfigurationLayout for the EMG IMU batch stream: the recorder's
-// factoryCalibration{"calibration"} field is intentionally omitted because PAT does not expose EMG
-// calibration. The DataPiece labels below must match the recorder byte-for-byte (see
-// arvr/projects/oatmeal/vrs/sensors/GenericLayout.h); a recorder-side label rename would make
-// .get() silently return type defaults. These layouts ship in the OSS tree and cannot include the
-// internal recorder headers, so the labels are duplicated here by necessity.
-class EmgConfigurationLayout : public vrs::AutoDataLayout {
+// Labels below MUST match recorder-side labels byte-for-byte; a mismatched
+// rename would make .get() silently return type defaults. Recorder headers
+// are not visible to this tree, so labels are duplicated here.
+class NeuralBandBatchConfigurationLayout : public vrs::AutoDataLayout {
  public:
   static constexpr uint32_t kVersion = 1;
   vrs::DataPieceValue<uint32_t> streamId{"stream_id"};
@@ -38,11 +35,7 @@ class EmgConfigurationLayout : public vrs::AutoDataLayout {
   vrs::AutoDataLayoutEnd endLayout;
 };
 
-// Mirrors oatmeal::EmgImuBatchDataLayout. The DataPiece labels below must match the recorder
-// byte-for-byte (see arvr/projects/oatmeal/vrs/sensors/EmgImuBatchLayout.h); a recorder-side label
-// rename would make .get() silently return type defaults. These layouts ship in the OSS tree and
-// cannot include the internal recorder headers, so the labels are duplicated here by necessity.
-class EmgDataLayout : public vrs::AutoDataLayout {
+class NeuralBandBatchDataLayout : public vrs::AutoDataLayout {
  public:
   static constexpr uint32_t kVersion = 1;
 

@@ -79,9 +79,11 @@ TemperatureConfiguration SensorConfiguration::temperatureConfiguration() const {
       sensorDataType_ == SensorDataType::Temperature, "Sensor data type is not Temperature");
   return std::get<TemperatureConfiguration>(sensorConfigurationVariant_);
 }
-EmgConfiguration SensorConfiguration::emgConfiguration() const {
-  checkAndThrow(sensorDataType_ == SensorDataType::Emg, "Sensor data type is not Emg");
-  return std::get<EmgConfiguration>(sensorConfigurationVariant_);
+NeuralBandBatchConfiguration SensorConfiguration::neuralBandBatchConfiguration() const {
+  checkAndThrow(
+      sensorDataType_ == SensorDataType::NeuralBandBatch,
+      "Sensor data type is not NeuralBandBatch");
+  return std::get<NeuralBandBatchConfiguration>(sensorConfigurationVariant_);
 }
 EyeGazeConfiguration SensorConfiguration::eyeGazeConfiguration() const {
   checkAndThrow(sensorDataType_ == SensorDataType::EyeGaze, "Sensor data type is not EyeGaze");
@@ -127,8 +129,9 @@ double SensorConfiguration::getNominalRateHz() const {
       return alsConfiguration().nominalRateHz;
     case SensorDataType::Temperature:
       return temperatureConfiguration().nominalRateHz;
-    case SensorDataType::Emg:
-      return emgConfiguration().nominalRateHz;
+    case SensorDataType::NeuralBandBatch:
+      // Sample rate not stored in config; infer from sample timestamps.
+      return -1;
     case SensorDataType::EyeGaze:
       return eyeGazeConfiguration().nominalRateHz;
     case SensorDataType::HandPose:
@@ -138,9 +141,9 @@ double SensorConfiguration::getNominalRateHz() const {
     case SensorDataType::VioHighFreq:
       return vioHighFreqConfiguration().nominalRateHz;
     case SensorDataType::NotValid:
-    default:
       return -1;
   }
+  return -1;
 }
 
 } // namespace projectaria::tools::data_provider

@@ -291,8 +291,8 @@ def plot_queued_sensor_data(
             aria_data_viewer.plot_magnetometer(data.magnetometer_data())
         elif data.sensor_data_type() == SensorDataType.BAROMETER:
             aria_data_viewer.plot_barometer(data.barometer_data())
-        elif data.sensor_data_type() == SensorDataType.EMG:
-            aria_data_viewer.plot_emg(data.emg_data(), label, device_time_ns)
+        elif data.sensor_data_type() == SensorDataType.NEURAL_BAND_BATCH:
+            aria_data_viewer.plot_neural_band_batch(data.neural_band_batch_data())
         elif data.sensor_data_type() == SensorDataType.AUDIO:
             aria_data_viewer.plot_audio(
                 data.audio_data_and_record(),
@@ -338,8 +338,8 @@ def log_vrs_to_rerun(
     # Step 3: Create config
     viewer_config: AriaDataViewerConfig = AriaDataViewerConfig()
     viewer_config.enable_gps = True
-    # Only show the EMG panel when this recording actually has an EMG (Ceres wristband) stream.
-    viewer_config.enable_emg = (
+    # VRS stream label is still `emg` (unchanged writer format).
+    viewer_config.enable_neural_band_batch = (
         vrs_data_provider.get_stream_id_from_label("emg") is not None
     )
 

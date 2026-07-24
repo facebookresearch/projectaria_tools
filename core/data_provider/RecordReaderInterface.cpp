@@ -156,7 +156,7 @@ RecordReaderInterface::RecordReaderInterface(
     std::map<vrs::StreamId, std::shared_ptr<PpgPlayer>>& ppgPlayers,
     std::map<vrs::StreamId, std::shared_ptr<AlsPlayer>>& alsPlayers,
     std::map<vrs::StreamId, std::shared_ptr<TemperaturePlayer>>& temperaturePlayers,
-    std::map<vrs::StreamId, std::shared_ptr<EmgPlayer>>& emgPlayers,
+    std::map<vrs::StreamId, std::shared_ptr<NeuralBandBatchPlayer>>& neuralBandBatchPlayers,
     std::map<vrs::StreamId, std::shared_ptr<VioPlayer>>& vioPlayers,
     std::map<vrs::StreamId, std::shared_ptr<VioHighFrequencyPlayer>>& vioHighFreqPlayers,
     std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>>& eyegazePlayers,
@@ -176,7 +176,7 @@ RecordReaderInterface::RecordReaderInterface(
       ppgPlayers_(ppgPlayers),
       alsPlayers_(alsPlayers),
       temperaturePlayers_(temperaturePlayers),
-      emgPlayers_(emgPlayers),
+      neuralBandBatchPlayers_(neuralBandBatchPlayers),
       vioPlayers_(vioPlayers),
       vioHighFreqPlayers_(vioHighFreqPlayers),
       eyegazePlayers_(eyegazePlayers),
@@ -248,9 +248,9 @@ RecordReaderInterface::RecordReaderInterface(
     streamIdToSensorDataType_.emplace(streamId, SensorDataType::Temperature);
   }
 
-  for (const auto& [streamId, _] : emgPlayers_) {
+  for (const auto& [streamId, _] : neuralBandBatchPlayers_) {
     streamIds_.insert(streamId);
-    streamIdToSensorDataType_.emplace(streamId, SensorDataType::Emg);
+    streamIdToSensorDataType_.emplace(streamId, SensorDataType::NeuralBandBatch);
   }
 
   for (const auto& [streamId, _] : vioPlayers_) {
@@ -324,7 +324,7 @@ std::optional<VrsMetadata> RecordReaderInterface::getMetadata() const {
     case calibration::DeviceVersion::Gen2:
       fillMetadataForGen2(metadata, metadataJson);
       break;
-    default:
+    case calibration::DeviceVersion::NotValid:
       throw std::runtime_error(
           fmt::format(
               "Unsupported device version for loading metadata: {}", getName(deviceVersion_)));
@@ -566,8 +566,8 @@ SensorData RecordReaderInterface::getLastCachedSensorData(const vrs::StreamId& s
       }
       return {streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData};
     }
-    case SensorDataType::Emg: {
-      auto data = getLastCachedEmgData(streamId);
+    case SensorDataType::NeuralBandBatch: {
+      auto data = getLastCachedNeuralBandBatch(streamId);
       std::map<TimeSyncMode, int64_t> timeSyncData;
       for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
         const int64_t& syncTimeNs =
@@ -623,7 +623,6 @@ SensorData RecordReaderInterface::getLastCachedSensorData(const vrs::StreamId& s
       return {streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData};
     }
     case SensorDataType::NotValid:
-    default:
       break;
   }
   return {streamId, std::monostate{}, SensorDataType::NotValid, -1, {}};
@@ -728,11 +727,11 @@ BatteryStatusData RecordReaderInterface::getLastCachedBatteryStatusData(
   return batteryStatusData;
 }
 
-EmgData RecordReaderInterface::getLastCachedEmgData(const vrs::StreamId& streamId) {
+NeuralBandBatch RecordReaderInterface::getLastCachedNeuralBandBatch(const vrs::StreamId& streamId) {
   std::unique_lock<std::mutex> readLock(*(streamIdToPlayerMutex_.at(streamId)));
-  auto emgData = emgPlayers_[streamId]->getDataRecord();
+  auto neuralBandBatch = neuralBandBatchPlayers_[streamId]->getDataRecord();
   streamIdToCondition_.at(streamId)->notify_one();
-  return emgData;
+  return neuralBandBatch;
 }
 
 uint32_t RecordReaderInterface::getRgbIspTuningVersion() const {

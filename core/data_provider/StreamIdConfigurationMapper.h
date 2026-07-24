@@ -39,7 +39,7 @@ class StreamIdConfigurationMapper {
       std::map<vrs::StreamId, std::shared_ptr<PpgPlayer>>& ppgPlayers,
       std::map<vrs::StreamId, std::shared_ptr<AlsPlayer>>& alsPlayers,
       std::map<vrs::StreamId, std::shared_ptr<TemperaturePlayer>>& temperaturePlayers,
-      std::map<vrs::StreamId, std::shared_ptr<EmgPlayer>>& emgPlayers,
+      std::map<vrs::StreamId, std::shared_ptr<NeuralBandBatchPlayer>>& neuralBandBatchPlayers,
       std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>>& EyeGazePlayers,
       std::map<vrs::StreamId, std::shared_ptr<HandPosePlayer>>& handPosePlayers,
       std::map<vrs::StreamId, std::shared_ptr<VioPlayer>>& vioPlayers,
@@ -64,7 +64,8 @@ class StreamIdConfigurationMapper {
   [[nodiscard]] AlsConfiguration getAlsConfiguration(const vrs::StreamId& streamId) const;
   [[nodiscard]] TemperatureConfiguration getTemperatureConfiguration(
       const vrs::StreamId& streamId) const;
-  [[nodiscard]] EmgConfiguration getEmgConfiguration(const vrs::StreamId& streamId) const;
+  [[nodiscard]] NeuralBandBatchConfiguration getNeuralBandBatchConfiguration(
+      const vrs::StreamId& streamId) const;
   [[nodiscard]] EyeGazeConfiguration getEyeGazeConfiguration(const vrs::StreamId& streamId) const;
   [[nodiscard]] HandPoseConfiguration getHandPoseConfiguration(const vrs::StreamId& streamId) const;
   [[nodiscard]] VioConfiguration getVioConfiguration(const vrs::StreamId& streamId) const;
@@ -84,7 +85,7 @@ class StreamIdConfigurationMapper {
   std::map<vrs::StreamId, PpgConfiguration> streamIdToPpgConfig_;
   std::map<vrs::StreamId, AlsConfiguration> streamIdToAlsConfig_;
   std::map<vrs::StreamId, TemperatureConfiguration> streamIdToTemperatureConfig_;
-  std::map<vrs::StreamId, EmgConfiguration> streamIdToEmgConfig_;
+  std::map<vrs::StreamId, NeuralBandBatchConfiguration> streamIdToNeuralBandBatchConfig_;
   std::map<vrs::StreamId, EyeGazeConfiguration> streamIdToEyeGazeConfig_;
   std::map<vrs::StreamId, HandPoseConfiguration> streamIdToHandPoseConfig_;
   std::map<vrs::StreamId, VioConfiguration> streamIdToVioConfig_;

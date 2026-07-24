@@ -108,7 +108,10 @@ inline void declareSensorDataType(py::module& m) {
       .value("ALS", SensorDataType::Als, "Ambient Light Sensor (ALS) data streams")
       .value("EYE_GAZE", SensorDataType::EyeGaze, "EyeGaze data streams")
       .value("HAND_POSE", SensorDataType::HandPose, "HandPose data streams")
-      .value("EMG", SensorDataType::Emg, "Electromyography (EMG) IMU batch data streams")
+      .value(
+          "NEURAL_BAND_BATCH",
+          SensorDataType::NeuralBandBatch,
+          "Meta Neural Band batch data streams (EMG + IMU accel + gyro)")
       .value("VIO_HIGH_FREQ", SensorDataType::VioHighFreq, "Vio high frequency data streams")
       .value("VIO", SensorDataType::Vio, "Vio data streams")
       .export_values();
@@ -498,70 +501,51 @@ inline void declarePpgDataRecord(py::module& m) {
           "integration_time_us", &PpgData::integrationTimeUs, "PPG integration time in us");
 }
 
-// Decode an EMG batch's packed blobs into a [num_sub_samples, channel_count] numpy array of raw ADC
-// counts. Shared by EmgData.get_emg_samples() and the module-level decode_emg_samples() helper.
-inline py::array_t<uint16_t> emgSamplesToNumpy(const EmgData& data) {
-  const DecodedEmgSamples decoded = decodeEmgSamples(data);
-  return py::array_t<uint16_t>(
-      {static_cast<size_t>(decoded.numRows), static_cast<size_t>(decoded.numChannels)},
-      {static_cast<size_t>(decoded.numChannels) * sizeof(uint16_t), sizeof(uint16_t)},
-      decoded.values.data());
-}
-
-inline void declareEmgDataRecord(py::module& m) {
-  py::class_<EmgConfiguration>(m, "EmgConfiguration", "EMG sensor configuration type")
+inline void declareNeuralBandBatchDataRecord(py::module& m) {
+  py::class_<NeuralBandBatchConfiguration>(m, "NeuralBandBatchConfiguration")
       .def(py::init<>())
-      .def_readwrite("stream_id", &EmgConfiguration::streamId, "ID of the VRS stream")
-      .def_readwrite("sensor_model", &EmgConfiguration::sensorModel, "sensor model name")
-      .def_readwrite("device_id", &EmgConfiguration::deviceId, "device ID for emg sensor")
+      .def_readwrite("stream_id", &NeuralBandBatchConfiguration::streamId)
       .def_readwrite(
-          "nominal_rate_hz", &EmgConfiguration::nominalRateHz, "number of frames per second")
-      .def_readwrite(
-          "description", &EmgConfiguration::description, "description of the EMG sensor");
+          "sensor_model",
+          &NeuralBandBatchConfiguration::sensorModel,
+          "wristband hardware model string")
+      .def_readwrite("device_id", &NeuralBandBatchConfiguration::deviceId);
 
-  py::class_<EmgImuSample>(m, "EmgImuSample", "A single EMG / IMU sample within an EMG IMU batch")
+  py::class_<NeuralBandEmgSample>(m, "NeuralBandEmgSample")
       .def(py::init<>())
       .def_readwrite(
-          "sequence_number",
-          &EmgImuSample::sequenceNumber,
-          "monotonic sequence number of the sample")
+          "capture_timestamp_ns", &NeuralBandEmgSample::captureTimestampNs, "device timeline, ns")
       .def_readwrite(
-          "timestamp_ns",
-          &EmgImuSample::timestampNs,
-          "capture timestamp of the sample in nanoseconds")
-      .def_property(
-          "packed_channel_data",
-          [](const EmgImuSample& self) { return py::bytes(self.packedChannelData); },
-          [](EmgImuSample& self, const std::string& value) { self.packedChannelData = value; },
-          "packed binary blob of per-channel ADC readings for this sample; unpack using channel_count and bits_per_adc_reading")
-      .def_readwrite(
-          "encoding", &EmgImuSample::encoding, "encoding of the packed channel data (EMG only)");
+          "channel_values",
+          &NeuralBandEmgSample::channelValues,
+          "raw ADC counts, length == emg_channel_count");
 
-  py::class_<EmgData>(m, "EmgData", "EMG IMU batch data type")
+  py::class_<NeuralBandAccelSample>(m, "NeuralBandAccelSample")
       .def(py::init<>())
       .def_readwrite(
-          "capture_timestamp_ns", &EmgData::captureTimestampNs, "timestamp of capturing this batch")
+          "capture_timestamp_ns", &NeuralBandAccelSample::captureTimestampNs, "device timeline, ns")
+      .def_readwrite("accel_msec2", &NeuralBandAccelSample::accelMSec2, "xyz in m/s^2");
+
+  py::class_<NeuralBandGyroSample>(m, "NeuralBandGyroSample")
+      .def(py::init<>())
+      .def_readwrite(
+          "capture_timestamp_ns", &NeuralBandGyroSample::captureTimestampNs, "device timeline, ns")
+      .def_readwrite("gyro_radsec", &NeuralBandGyroSample::gyroRadSec, "xyz in rad/s");
+
+  py::class_<NeuralBandBatch>(
+      m, "NeuralBandBatch", "Neural Band batch: EMG + IMU accel + gyro from the wristband")
+      .def(py::init<>())
+      .def_readwrite(
+          "capture_timestamp_ns", &NeuralBandBatch::captureTimestampNs, "device timeline, ns")
       .def_readwrite(
           "batch_sequence_number",
-          &EmgData::batchSequenceNumber,
-          "monotonic sequence number of the batch")
-      .def_readwrite("emg", &EmgData::emg, "EMG samples in this batch")
-      .def_readwrite("accel", &EmgData::accel, "accelerometer samples in this batch")
-      .def_readwrite("gyro", &EmgData::gyro, "gyroscope samples in this batch")
-      .def_readwrite("channel_count", &EmgData::channelCount, "number of EMG channels")
-      .def_readwrite(
-          "bits_per_adc_reading", &EmgData::bitsPerAdcReading, "number of bits per ADC reading")
-      .def_readwrite("samples_per_batch", &EmgData::samplesPerBatch, "number of samples per batch")
-      .def(
-          "get_emg_samples",
-          [](const EmgData& self) { return emgSamplesToNumpy(self); },
-          "Decode this batch's packed EMG blobs into a [num_sub_samples, channel_count] numpy array of raw ADC counts (big-endian, unsigned 16-bit, offset-binary; no baseline removal or unit conversion). Raises ValueError for unsupported bit depth or encoding.");
-
-  m.def(
-      "decode_emg_samples",
-      [](const EmgData& emgData) { return emgSamplesToNumpy(emgData); },
-      py::arg("emg_data"),
-      "Decode an EmgData batch's packed EMG blobs into a [num_sub_samples, channel_count] numpy array of raw ADC counts (big-endian, unsigned 16-bit, offset-binary, sample-major). Equivalent to EmgData.get_emg_samples(). Raises ValueError for unsupported bit depth or encoding.");
+          &NeuralBandBatch::batchSequenceNumber,
+          "monotonic; gaps indicate dropped batches")
+      .def_readwrite("emg_channel_count", &NeuralBandBatch::emgChannelCount)
+      .def_readwrite("emg_bits_per_adc_reading", &NeuralBandBatch::emgBitsPerAdcReading)
+      .def_readwrite("emg", &NeuralBandBatch::emg)
+      .def_readwrite("accel", &NeuralBandBatch::accel)
+      .def_readwrite("gyro", &NeuralBandBatch::gyro);
 }
 
 inline void declareAlsDataRecord(py::module& m) {
@@ -991,9 +975,9 @@ inline void declareSensorConfiguration(py::module& m) {
           &SensorConfiguration::temperatureConfiguration,
           "Returns the sensor configuration as TemperatureConfiguration")
       .def(
-          "emg_configuration",
-          &SensorConfiguration::emgConfiguration,
-          "Returns the sensor configuration as EmgConfiguration")
+          "neural_band_batch_configuration",
+          &SensorConfiguration::neuralBandBatchConfiguration,
+          "Returns the sensor configuration as NeuralBandBatchConfiguration")
       .def("eye_gaze_configuration", &SensorConfiguration::eyeGazeConfiguration)
       .def("hand_pose_configuration", &SensorConfiguration::handPoseConfiguration)
       .def("vio_configuration", &SensorConfiguration::vioConfiguration)
@@ -1013,7 +997,7 @@ inline void declareSensorData(py::module& m) {
   declareBluetoothDataRecord(m);
   declareBarometerDataRecord(m);
   declarePpgDataRecord(m);
-  declareEmgDataRecord(m);
+  declareNeuralBandBatchDataRecord(m);
   declareAlsDataRecord(m);
   declareTemperatureDataRecord(m);
   declareFrontendTypes(m);
@@ -1041,7 +1025,7 @@ inline void declareSensorData(py::module& m) {
       .def("barometer_data", &SensorData::barometerData)
       .def("magnetometer_data", &SensorData::magnetometerData)
       .def("ppg_data", &SensorData::ppgData)
-      .def("emg_data", &SensorData::emgData)
+      .def("neural_band_batch_data", &SensorData::neuralBandBatchData)
       .def("als_data", &SensorData::alsData)
       .def("temperature_data", &SensorData::temperatureData)
       .def("vio_high_freq_data", &SensorData::vioHighFreqData)

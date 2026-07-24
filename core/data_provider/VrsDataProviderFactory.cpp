@@ -31,10 +31,8 @@
 
 namespace projectaria::tools::data_provider {
 namespace {
-// Stream flavor the oatmeal recorder uses for the EMG IMU batch stream. Canonical definition is
-// oatmeal::kEmgImuBatchRecordingFlavor in arvr/projects/oatmeal/vrs/OatmealVrsUtils.h; it is
-// duplicated here because this OSS file cannot depend on the internal oatmeal headers.
-constexpr const char* kEmgImuBatchFlavor = "device/oatmeal/emg_imu_batch";
+// Must match the recorder's canonical value byte-for-byte (wire tag).
+constexpr const char* kNeuralBandBatchFlavor = "device/oatmeal/emg_imu_batch";
 
 SensorDataType getSensorDataType(const vrs::RecordableTypeId& id, const std::string& streamFlavor) {
   static const std::map<vrs::RecordableTypeId, SensorDataType> sensorTypeMap = {
@@ -98,10 +96,10 @@ SensorDataType getSensorDataType(const vrs::RecordableTypeId& id, const std::str
     }
   }
 
-  // EMG shares ImuRecordableClass with the regular IMU stream, so it must be disambiguated by
-  // stream flavor before the static map maps ImuRecordableClass to SensorDataType::Imu.
-  if (id == vrs::RecordableTypeId::ImuRecordableClass && streamFlavor == kEmgImuBatchFlavor) {
-    return SensorDataType::Emg;
+  // Neural Band shares ImuRecordableClass with the regular IMU stream; disambiguate by flavor
+  // before the map below would classify it as Imu.
+  if (id == vrs::RecordableTypeId::ImuRecordableClass && streamFlavor == kNeuralBandBatchFlavor) {
+    return SensorDataType::NeuralBandBatch;
   }
 
   // For all other cases, check the static map
@@ -153,7 +151,7 @@ class VrsDataProviderFactory {
   std::map<vrs::StreamId, std::shared_ptr<PpgPlayer>> ppgPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<AlsPlayer>> alsPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<TemperaturePlayer>> temperaturePlayers_;
-  std::map<vrs::StreamId, std::shared_ptr<EmgPlayer>> emgPlayers_;
+  std::map<vrs::StreamId, std::shared_ptr<NeuralBandBatchPlayer>> neuralBandBatchPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<VioPlayer>> vioPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<VioHighFrequencyPlayer>> vioHighFreqPlayers_;
   std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>> eyeGazePlayers_;
@@ -284,10 +282,11 @@ void VrsDataProviderFactory::addPlayers() {
         setStreamAndLog(streamId, temperaturePlayers_[streamId].get());
         break;
       }
-      case SensorDataType::Emg: {
-        std::shared_ptr<EmgPlayer> emgPlayer = std::make_shared<EmgPlayer>(streamId);
-        emgPlayers_[streamId] = std::move(emgPlayer);
-        setStreamAndLog(streamId, emgPlayers_[streamId].get());
+      case SensorDataType::NeuralBandBatch: {
+        std::shared_ptr<NeuralBandBatchPlayer> neuralBandBatchPlayer =
+            std::make_shared<NeuralBandBatchPlayer>(streamId);
+        neuralBandBatchPlayers_[streamId] = std::move(neuralBandBatchPlayer);
+        setStreamAndLog(streamId, neuralBandBatchPlayers_[streamId].get());
         break;
       }
       case SensorDataType::Vio: {
@@ -482,7 +481,7 @@ std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
       ppgPlayers_,
       alsPlayers_,
       temperaturePlayers_,
-      emgPlayers_,
+      neuralBandBatchPlayers_,
       vioPlayers_,
       vioHighFreqPlayers_,
       eyeGazePlayers_,
@@ -504,7 +503,7 @@ std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
       ppgPlayers_,
       alsPlayers_,
       temperaturePlayers_,
-      emgPlayers_,
+      neuralBandBatchPlayers_,
       eyeGazePlayers_,
       handPosePlayers_,
       vioPlayers_,

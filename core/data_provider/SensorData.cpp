@@ -92,9 +92,11 @@ TemperatureData SensorData::temperatureData() const {
   return std::get<TemperatureData>(dataVariant_);
 }
 
-EmgData SensorData::emgData() const {
-  checkAndThrow(sensorDataType_ == SensorDataType::Emg, "Sensor data type is not EMG");
-  return std::get<EmgData>(dataVariant_);
+NeuralBandBatch SensorData::neuralBandBatchData() const {
+  checkAndThrow(
+      sensorDataType_ == SensorDataType::NeuralBandBatch,
+      "Sensor data type is not NeuralBandBatch");
+  return std::get<NeuralBandBatch>(dataVariant_);
 }
 
 BatteryStatusData SensorData::batteryStatusData() const {
@@ -150,8 +152,8 @@ int64_t SensorData::getDeviceTime() const {
       return alsData().captureTimestampNs;
     case SensorDataType::Temperature:
       return temperatureData().captureTimestampNs;
-    case SensorDataType::Emg:
-      return emgData().captureTimestampNs;
+    case SensorDataType::NeuralBandBatch:
+      return neuralBandBatchData().captureTimestampNs;
     case SensorDataType::BatteryStatus:
       return batteryStatusData().captureTimestampNs;
 
@@ -194,7 +196,7 @@ int64_t SensorData::getHostTime() const {
     case SensorDataType::Ppg:
     case SensorDataType::Als:
     case SensorDataType::Temperature:
-    case SensorDataType::Emg:
+    case SensorDataType::NeuralBandBatch:
     case SensorDataType::Vio:
     case SensorDataType::VioHighFreq:
     case SensorDataType::EyeGaze:

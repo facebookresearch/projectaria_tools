@@ -24,10 +24,10 @@
 #include <data_provider/players/BarometerPlayer.h>
 #include <data_provider/players/BatteryStatusPlayer.h>
 #include <data_provider/players/BluetoothBeaconPlayer.h>
-#include <data_provider/players/EmgPlayer.h>
 #include <data_provider/players/GpsPlayer.h>
 #include <data_provider/players/ImageSensorPlayer.h>
 #include <data_provider/players/MotionSensorPlayer.h>
+#include <data_provider/players/NeuralBandBatchPlayer.h>
 #include <data_provider/players/PpgPlayer.h>
 #include <data_provider/players/TemperaturePlayer.h>
 #include <data_provider/players/VioPlayer.h>
@@ -70,7 +70,7 @@ class SensorData {
       PpgData,
       AlsData,
       TemperatureData,
-      EmgData,
+      NeuralBandBatch,
       /* on device MP data types*/
       FrontendOutput,
       OnDeviceVioHighFreqData,
@@ -171,10 +171,10 @@ class SensorData {
   [[nodiscard]] TemperatureData temperatureData() const;
 
   /**
-   * @brief Returns the sensor data as EmgData
-   * @pre type is Emg
+   * @brief Returns the sensor data as NeuralBandBatch
+   * @pre type is NeuralBandBatch
    */
-  [[nodiscard]] EmgData emgData() const;
+  [[nodiscard]] NeuralBandBatch neuralBandBatchData() const;
 
   /**
    * @brief Returns the sensor data as BatteryStatusData

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import colorsys
 from dataclasses import dataclass
 from functools import partial
 from typing import Final, List, Optional
@@ -41,9 +42,14 @@ def warn_once(func, message):
         setattr(target, "_warned", True)
 
 
-# Smoothing factor for the per-channel EMG DC baseline (exponential moving average; ~1 s time
-# constant at typical EMG batch rates). Used to center each channel's AC signal around zero.
-EMG_BASELINE_SMOOTHING_FACTOR = 0.99
+NEURAL_BAND_EMG_LABEL: Final = "neural-band-emg"
+NEURAL_BAND_ACCEL_LABEL: Final = "neural-band-accel"
+NEURAL_BAND_GYRO_LABEL: Final = "neural-band-gyro"
+
+# EMA smoothing factor for the per-channel EMG DC baseline. Electrode offsets
+# dominate the raw signal; without subtraction the AC EMG variation is invisible
+# on a shared auto-scaled axis.
+EMG_BASELINE_SMOOTHING_FACTOR: Final = 0.99
 
 
 @dataclass
@@ -149,10 +155,8 @@ class AriaDataViewerConfig:
 
     enable_gps = False
 
-    # Whether to include the EMG panel in the blueprint. Set true only when the recording
-    # actually contains an EMG (Ceres wristband) stream, so other recordings don't get an
-    # empty EMG view taking up vertical space.
-    enable_emg = False
+    # Enable only when a Neural Band stream is present; else the panel wastes vertical space.
+    enable_neural_band_batch = False
 
     enable_crop_visualization = False
 
@@ -252,11 +256,7 @@ class AriaDataViewer:
         self.vio_high_freq_traj_cached_full = []
         # A variable to cache full VIO trajectory
         self.vio_traj_cached_full = []
-        # Timestamp (sec) of the previous EMG sample, used to spread a batch's
-        # sub-samples across the inter-batch interval when plotting.
-        self._prev_emg_time_sec = None
-        # Slowly-adapting per-channel EMG DC baseline (np array, one entry per channel),
-        # subtracted to center each channel's AC signal around zero. None until first batch.
+        self._neural_band_emg_styling_logged = False
         self._emg_baseline = None
         # Scale ratio to convert plot sizes from RGB camera space to SLAM camera space (based on camera resolution ratio)
 
@@ -471,11 +471,23 @@ class AriaDataViewer:
             origin=self.sensor_labels.contact_microphone_label
         )
 
-        # EMG IMU batch view: only included when an EMG (Ceres wristband) stream is present in
-        # the recording, so recordings without one don't get an empty panel wasting space.
-        emg_views = (
-            [rrb.TimeSeriesView(name="emg", origin="emg")]
-            if self.config.enable_emg
+        neural_band_views = (
+            [
+                rrb.Tabs(
+                    contents=[
+                        rrb.TimeSeriesView(
+                            name="Neural Band EMG", origin=NEURAL_BAND_EMG_LABEL
+                        ),
+                        rrb.TimeSeriesView(
+                            name="Neural Band Accel", origin=NEURAL_BAND_ACCEL_LABEL
+                        ),
+                        rrb.TimeSeriesView(
+                            name="Neural Band Gyro", origin=NEURAL_BAND_GYRO_LABEL
+                        ),
+                    ],
+                )
+            ]
+            if self.config.enable_neural_band_batch
             else []
         )
 
@@ -493,7 +505,7 @@ class AriaDataViewer:
             _1d_view_container.contents[0],  # IMU plots
             _1d_view_container.contents[1],  # mic
             contact_mic_1d_view,  # contact mic
-            *emg_views,  # EMG IMU batch (only when present)
+            *neural_band_views,
             _1d_view_container.contents[2],  # Tabbed baro + mag
             *latency_views,  # latency (optional, for streaming)
         )
@@ -844,54 +856,60 @@ class AriaDataViewer:
             rr.Scalars(barometer_data.temperature),
         )  # Degree Celsius
 
-    def plot_emg(self, emg_data, label, device_time_ns):
-        """Plot EMG IMU batch data as one scalar time series per channel.
-
-        `EmgData.get_emg_samples()` (PAT) decodes the batch's packed blobs into a
-        [total_sub_samples, channel_count] array of raw ADC counts (big-endian, unsigned 16-bit,
-        offset-binary). Each channel is then centered by removing a slowly-adapting per-channel DC
-        baseline (exponential moving average) -- electrodes have individual biases, so a per-channel
-        baseline keeps every channel readable on a shared auto-scaled axis. One Rerun time series is
-        logged per channel.
-
-        The batch is anchored on `device_time_ns` (the batch capture time, on the shared device
-        timeline) rather than the per-sample timestamp: the per-sample EMG timestamp is a
-        sensor-internal clock that does not span the recording, so using it collapses all
-        batches into a tiny time window. The sub-samples are evenly spread across the interval
-        since the previous EMG batch.
-
-        NOTE: the channel ordering and the sample-major reshape are assumed; confirm channel
-        ordering with the recording team. The byte-level decode (big-endian, unsigned/offset-binary,
-        confirmed empirically) lives in PAT's `get_emg_samples`.
-        """
-        if emg_data is None:
-            warn_once(self.plot_emg, "EMG data is None")
+    def plot_neural_band_batch(self, batch):
+        if batch is None:
+            warn_once(self.plot_neural_band_batch, "NeuralBandBatch is None")
             return
 
-        channel_count = emg_data.channel_count
-        samples_per_batch = emg_data.samples_per_batch
-        if channel_count <= 0 or samples_per_batch <= 0:
+        self._plot_neural_band_emg(batch)
+        self._plot_neural_band_accel(batch)
+        self._plot_neural_band_gyro(batch)
+
+    def _ensure_neural_band_emg_styling(self, channel_count):
+        """Log a distinct color + legend name per EMG channel, once."""
+        if getattr(self, "_neural_band_emg_styling_logged", False):
+            return
+        for channel in range(channel_count):
+            hue = channel / max(channel_count, 1)
+            r, g, b = colorsys.hsv_to_rgb(hue, 0.85, 0.9)
+            rr.log(
+                f"{NEURAL_BAND_EMG_LABEL}/channels/channel_{channel}",
+                rr.SeriesLines(
+                    colors=[[int(r * 255), int(g * 255), int(b * 255)]],
+                    names=[f"channel_{channel}"],
+                ),
+                static=True,
+            )
+        self._neural_band_emg_styling_logged = True
+
+    def _plot_neural_band_emg(self, batch):
+        if not batch.emg:
+            return
+        channel_count = batch.emg_channel_count
+        if channel_count <= 0:
             warn_once(
-                self.plot_emg,
-                "EMG channel_count/samples_per_batch not populated; skipping EMG plot",
+                self._plot_neural_band_emg,
+                "NeuralBandBatch.emg_channel_count is not populated; skipping EMG plot",
             )
             return
 
-        # Decode every EMG sample in the batch into a single [total_samples, channel_count] array
-        # of raw ADC counts. PAT handles the big-endian, unsigned/offset-binary unpacking and
-        # skips any malformed sample blobs.
-        try:
-            raw_counts = emg_data.get_emg_samples().astype(np.float64)
-        except ValueError as e:
-            warn_once(self.plot_emg, f"EMG decode failed, skipping EMG plot: {e}")
-            return
-        if raw_counts.shape[0] == 0:
+        valid = [s for s in batch.emg if len(s.channel_values) == channel_count]
+        if not valid:
             return
 
-        # Per-channel DC removal: each electrode has its own bias, so subtract a slowly-adapting
-        # per-channel baseline to center the AC EMG around zero.
+        self._ensure_neural_band_emg_styling(channel_count)
+        timestamps_sec = (
+            np.fromiter(
+                (s.capture_timestamp_ns for s in valid),
+                dtype=np.int64,
+                count=len(valid),
+            )
+            * 1e-9
+        )
+        raw_counts = np.array([s.channel_values for s in valid], dtype=np.float64)
+
         batch_mean = raw_counts.mean(axis=0)
-        if self._emg_baseline is None:
+        if self._emg_baseline is None or self._emg_baseline.shape != batch_mean.shape:
             self._emg_baseline = batch_mean
         else:
             self._emg_baseline = (
@@ -899,29 +917,50 @@ class AriaDataViewer:
                 + (1.0 - EMG_BASELINE_SMOOTHING_FACTOR) * batch_mean
             )
         values = raw_counts - self._emg_baseline
-        total_samples = values.shape[0]
-
-        # Spread the batch's sub-samples evenly across the interval since the previous batch,
-        # on the device timeline.
-        end_time_sec = device_time_ns * 1e-9
-        prev_time_sec = (
-            self._prev_emg_time_sec
-            if self._prev_emg_time_sec is not None
-            else end_time_sec
-        )
-        if total_samples > 1 and end_time_sec > prev_time_sec:
-            timestamps_sec = np.linspace(
-                prev_time_sec, end_time_sec, total_samples, endpoint=True
-            )
-        else:
-            timestamps_sec = np.full(total_samples, end_time_sec)
-        self._prev_emg_time_sec = end_time_sec
 
         for channel in range(channel_count):
             rr.send_columns(
-                f"{label}/channel_{channel}",
+                f"{NEURAL_BAND_EMG_LABEL}/channels/channel_{channel}",
                 indexes=[rr.TimeColumn("device_time", timestamp=timestamps_sec)],
                 columns=rr.Scalars.columns(scalars=values[:, channel]),
+            )
+
+    def _plot_neural_band_accel(self, batch):
+        if not batch.accel:
+            return
+        timestamps_sec = (
+            np.fromiter(
+                (s.capture_timestamp_ns for s in batch.accel),
+                dtype=np.int64,
+                count=len(batch.accel),
+            )
+            * 1e-9
+        )
+        values = np.array([s.accel_msec2 for s in batch.accel])
+        for i, axis in enumerate(("x", "y", "z")):
+            rr.send_columns(
+                f"{NEURAL_BAND_ACCEL_LABEL}/{axis}[m-sec2]",
+                indexes=[rr.TimeColumn("device_time", timestamp=timestamps_sec)],
+                columns=rr.Scalars.columns(scalars=values[:, i]),
+            )
+
+    def _plot_neural_band_gyro(self, batch):
+        if not batch.gyro:
+            return
+        timestamps_sec = (
+            np.fromiter(
+                (s.capture_timestamp_ns for s in batch.gyro),
+                dtype=np.int64,
+                count=len(batch.gyro),
+            )
+            * 1e-9
+        )
+        values = np.array([s.gyro_radsec for s in batch.gyro])
+        for i, axis in enumerate(("x", "y", "z")):
+            rr.send_columns(
+                f"{NEURAL_BAND_GYRO_LABEL}/{axis}[rad-sec]",
+                indexes=[rr.TimeColumn("device_time", timestamp=timestamps_sec)],
+                columns=rr.Scalars.columns(scalars=values[:, i]),
             )
 
     def _plot_audio_from_selected_channels(

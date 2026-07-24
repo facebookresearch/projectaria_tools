@@ -37,7 +37,7 @@ StreamIdConfigurationMapper::StreamIdConfigurationMapper(
     std::map<vrs::StreamId, std::shared_ptr<PpgPlayer>>& ppgPlayers,
     std::map<vrs::StreamId, std::shared_ptr<AlsPlayer>>& alsPlayers,
     std::map<vrs::StreamId, std::shared_ptr<TemperaturePlayer>>& temperaturePlayers,
-    std::map<vrs::StreamId, std::shared_ptr<EmgPlayer>>& emgPlayers,
+    std::map<vrs::StreamId, std::shared_ptr<NeuralBandBatchPlayer>>& neuralBandBatchPlayers,
     std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>>& EyeGazePlayers,
     std::map<vrs::StreamId, std::shared_ptr<HandPosePlayer>>& handPosePlayers,
     std::map<vrs::StreamId, std::shared_ptr<VioPlayer>>& vioPlayers,
@@ -90,8 +90,8 @@ StreamIdConfigurationMapper::StreamIdConfigurationMapper(
   for (const auto& [streamId, temperaturePlayer] : temperaturePlayers) {
     streamIdToTemperatureConfig_.emplace(streamId, temperaturePlayer->getConfigRecord());
   }
-  for (const auto& [streamId, emgPlayer] : emgPlayers) {
-    streamIdToEmgConfig_.emplace(streamId, emgPlayer->getConfigRecord());
+  for (const auto& [streamId, neuralBandBatchPlayer] : neuralBandBatchPlayers) {
+    streamIdToNeuralBandBatchConfig_.emplace(streamId, neuralBandBatchPlayer->getConfigRecord());
   }
 }
 
@@ -158,9 +158,9 @@ TemperatureConfiguration StreamIdConfigurationMapper::getTemperatureConfiguratio
   return streamIdToTemperatureConfig_.at(streamId);
 }
 
-EmgConfiguration StreamIdConfigurationMapper::getEmgConfiguration(
+NeuralBandBatchConfiguration StreamIdConfigurationMapper::getNeuralBandBatchConfiguration(
     const vrs::StreamId& streamId) const {
-  return streamIdToEmgConfig_.at(streamId);
+  return streamIdToNeuralBandBatchConfig_.at(streamId);
 }
 
 EyeGazeConfiguration StreamIdConfigurationMapper::getEyeGazeConfiguration(

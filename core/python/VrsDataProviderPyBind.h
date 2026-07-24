@@ -440,7 +440,10 @@ inline void declareVrsDataProvider(py::module& m) {
           &VrsDataProvider::getMagnetometerConfiguration,
           py::arg("stream_id"))
       .def("get_ppg_configuration", &VrsDataProvider::getPpgConfiguration, py::arg("stream_id"))
-      .def("get_emg_configuration", &VrsDataProvider::getEmgConfiguration, py::arg("stream_id"))
+      .def(
+          "get_neural_band_batch_configuration",
+          &VrsDataProvider::getNeuralBandBatchConfiguration,
+          py::arg("stream_id"))
       .def("get_als_configuration", &VrsDataProvider::getAlsConfiguration, py::arg("stream_id"))
       .def(
           "get_temperature_configuration",
@@ -494,8 +497,8 @@ inline void declareVrsDataProvider(py::module& m) {
           py::arg("stream_id"),
           py::arg("index"))
       .def(
-          "get_emg_data_by_index",
-          &VrsDataProvider::getEmgDataByIndex,
+          "get_neural_band_batch_by_index",
+          &VrsDataProvider::getNeuralBandBatchByIndex,
           py::arg("stream_id"),
           py::arg("index"))
       .def(
@@ -594,8 +597,8 @@ inline void declareVrsDataProvider(py::module& m) {
           py::arg("time_domain"),
           py::arg("time_query_options") = TimeQueryOptions::Before)
       .def(
-          "get_emg_data_by_time_ns",
-          &VrsDataProvider::getEmgDataByTimeNs,
+          "get_neural_band_batch_by_time_ns",
+          &VrsDataProvider::getNeuralBandBatchByTimeNs,
           py::arg("stream_id"),
           py::arg("time_ns"),
           py::arg("time_domain"),

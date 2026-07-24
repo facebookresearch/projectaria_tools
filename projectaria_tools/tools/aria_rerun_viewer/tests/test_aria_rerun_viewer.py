@@ -542,15 +542,15 @@ class PlotQueuedSensorDataTest(unittest.TestCase):
             hand_pose_data=interpolated_hp, camera_label="camera-rgb"
         )
 
-    def test_plots_emg_forwards_label_and_time(self) -> None:
-        emg = MagicMock(name="emg")
+    def test_plots_neural_band_batch_forwards_batch(self) -> None:
+        batch = MagicMock(name="batch")
         self.vrs_data_provider.get_label_from_stream_id.return_value = "emg"
-        event = self._make_event(SensorDataType.EMG)
-        event.emg_data.return_value = emg
+        event = self._make_event(SensorDataType.NEURAL_BAND_BATCH)
+        event.neural_band_batch_data.return_value = batch
 
         self._run([event])
 
-        self.aria_data_viewer.plot_emg.assert_called_once_with(emg, "emg", 1000)
+        self.aria_data_viewer.plot_neural_band_batch.assert_called_once_with(batch)
 
     def test_plots_audio_forwards_channel_count_from_mic_config(self) -> None:
         audio_record = MagicMock(name="audio_and_record")
@@ -686,21 +686,20 @@ class LogVrsToRerunTest(unittest.TestCase):
             AriaDataViewerConfig.vio_high_freq_subsample_rate,
         )
 
-    def test_emg_enabled_only_when_emg_stream_present(self) -> None:
-        # Provider WITH emg
+    def test_neural_band_batch_enabled_only_when_emg_stream_present(self) -> None:
+        # VRS stream label is `emg` on the wire.
         with_emg = self._setup_provider(DeviceVersion.Gen2, stream_labels=["emg"])
         self.mock_create_provider.return_value = with_emg
         log_vrs_to_rerun("/some.vrs")
         with_emg_kwargs = self.mock_viewer_cls.call_args.kwargs
-        self.assertTrue(with_emg_kwargs["config"].enable_emg)
+        self.assertTrue(with_emg_kwargs["config"].enable_neural_band_batch)
 
-        # Provider WITHOUT emg
         self.mock_viewer_cls.reset_mock()
         no_emg = self._setup_provider(DeviceVersion.Gen2, stream_labels=["camera-rgb"])
         self.mock_create_provider.return_value = no_emg
         log_vrs_to_rerun("/some.vrs")
         no_emg_kwargs = self.mock_viewer_cls.call_args.kwargs
-        self.assertFalse(no_emg_kwargs["config"].enable_emg)
+        self.assertFalse(no_emg_kwargs["config"].enable_neural_band_batch)
 
     def test_user_subsample_rates_are_parsed_and_applied(self) -> None:
         # Real parse_subsample_rates + real get_deliver_option must translate
