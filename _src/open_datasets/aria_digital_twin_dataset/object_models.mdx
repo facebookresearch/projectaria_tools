@@ -1,0 +1,115 @@
+---
+sidebar_position: 35
+title: Object Models
+---
+# ADT Object Models
+
+## Overview
+
+This page covers how to download the 3D object models associated with the Aria Digital Twin (ADT) dataset,
+and briefly describe the data content and how to visualize the models.
+
+By downloading the object models as described in this page, you agree that you have read and accepted the
+terms of the [Aria Digital Twin Object Models License Agreement](https://www.projectaria.com/datasets/adt/license/).
+
+## Download the ADT Object Models
+
+### Step 0: install project_aria_tools package and create venv if not done before
+
+Follow Step 0 to Step 3 in [Getting Started](/docs/open_datasets/aria_digital_twin_dataset/getting_started).
+
+### Step 1 : Signup and get the download links file
+
+To use the downloader CLI, you need to download a file which contains all data URLs plus some metadata for the downloader script.
+We currently offer two ways of getting this file:
+
+Visit [ADT website](https://www.projectaria.com/datasets/adt/) and sign up.
+
+Scroll down to the bottom of the page. Enter your email and select **Access the Datasets**.
+
+![Screenshot from website showing download dataset](/img/open_datasets/aria_digital_twin_dataset/download_page.png)
+
+Once you've selected **Access the Datasets** you'll be taken back to the top of the ADT page.
+
+Scroll down the page to select **ADT Object 3D Models** link and download the file to the folder $HOME/Downloads.
+
+<div style={{textAlign: 'center'}}>
+
+![ADT Website Signup Image](/img/open_datasets/aria_digital_twin_dataset/download_button.png)
+
+</div>
+
+:::info The download-links file will expire in 14 days
+You can redownload the download links whenever they expire
+:::
+
+
+### Step 2 : Set up a folder for object models
+
+```bash
+mkdir -p $HOME/Documents/adt_object_library
+```
+
+### Step 3 : Download the object models via CLI:
+
+To download all ADT models (~5.5 GB), run the following command from your Python virtual environment:
+
+```bash
+dtc_object_downloader -r ADT -c {PATH_TO_YOUR_CDN_FILE} -o $HOME/Documents/adt_object_library
+```
+
+To download only a select subset of ADT models, run the following command from your Python virtual environment:
+
+```bash
+dtc_object_downloader -r ADT -c {PATH_TO_YOUR_CDN_FILE} -o $HOME/Documents/adt_object_library -l {SELECTED_OBJECT_NAMES}
+```
+
+You can retrieve object names from the ADT data providers using your downloaded sequence data, or have a look at the instances.json file in your sequence data.
+
+:::warning
+For legal reasons, we have **removed** the object **DinoToy** from the available models, however, this object is still present in the ADT sequence data.
+:::
+
+### Troubleshooting
+
+Check [Project Aria Tools troubleshooting](/docs/data_utilities/installation/troubleshooting) if you are having issues using this guide.
+
+## Object Model Data Format
+
+When downloading the object models using dtc_object_downloader, each object will download into its own folder, named using the instance name of the object.
+Under each object folder, there will be three files as shown below.
+
+```
+|InstanceName1|
+    ├──3d-asset.glb  # model file
+    ├──CC_BY-SA.txt  # license file
+    ├──metadata.json
+|InstanceName2|
+    {...}
+```
+
+All poses associated with the objects are stored in each sequence ground truth data, not in the downloaded object data.
+For example code to learn how to load object models and their associated poses (including static and dynamic objects),
+refer to the [ADT Rerun Viewer](https://github.com/facebookresearch/projectaria_tools/blob/main/projectaria_tools/utils/viewer_projects_adt.py)
+
+## Visualizing Object Models
+
+The GLB files for each object model can be viewed using any off-the-shelf GLB viewer.
+For example, the open web browser based [Babylon viewer](https://sandbox.babylonjs.com/) can be used by dragging and dropping the GLB file.
+
+To visualize multiple object models, along with their ground truth poses, the ADT rerun viewer can be used.
+To run the viewer, enter the following command from your virtual environment with projectaria_tools installed:
+
+
+```
+viewer_projects_adt --sequence_path {PATH_TO_YOUR_SEQUENCE} --object_library_path $HOME/Documents/adt_object_library --display_objects {INSTANCE_NAMES}
+```
+![ADT Model Viewer Screenshot](/img/open_datasets/aria_digital_twin_dataset/rerun-adt-models.png)
+
+Example command to produce the above visualization:
+
+```
+viewer_projects_adt --sequence_path $HOME/Documents/adt_sequence_data/Apartment_release_golden_skeleton_seq100_M1292 \
+--object_library_path $HOME/Documents/adt_object_library \
+--display_objects BlackCoffeeTable BirdHouseToy YellowArmChair GreySofa RedArmChair
+```
