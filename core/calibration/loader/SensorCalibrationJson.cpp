@@ -47,6 +47,7 @@ Eigen::VectorXd parseVectorXdFromJson(const nlohmann::json& json) {
 Eigen::Vector3d parseVector3dFromJson(const nlohmann::json& json) {
   XR_CHECK(json.size() == 3, "Expects a 3d vector from json, actual size: {}", json.size());
 
+  // NOLINTNEXTLINE(modernize-return-braced-init-list): Eigen's initializer_list ctor is explicit
   return Eigen::Vector3d(json[0], json[1], json[2]);
 }
 
