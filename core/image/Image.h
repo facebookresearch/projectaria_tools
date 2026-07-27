@@ -256,6 +256,7 @@ PROJECTARIA_HOST_DEVICE inline size_t Image<T, MaxValue>::channel() const {
 
 template <typename T, int MaxValue>
 PROJECTARIA_HOST_DEVICE inline Eigen::Vector2i Image<T, MaxValue>::dim() const {
+  // NOLINTNEXTLINE(modernize-return-braced-init-list): braced init narrows size_t to int
   return Eigen::Vector2i(w_, h_);
 }
 
