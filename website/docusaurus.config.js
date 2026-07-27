@@ -132,6 +132,14 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     {
+      announcementBar: {
+        id: 'projectaria-plugins-v1',
+        content:
+          'New — Install the <a href="https://github.com/facebookresearch/projectaria-plugins" style="color: #ffffff; text-decoration: underline; font-weight: 600;">Project Aria plugin</a> for Claude Code, Codex, or Gemini CLI. Skip the docs, ask your AI, get working code — it already knows Aria.',
+        backgroundColor: '#3F7F7F',
+        textColor: '#ffffff',
+        isCloseable: true,
+      },
       navbar: {
         title: 'Aria Gen 2 Docs',
         logo: {
