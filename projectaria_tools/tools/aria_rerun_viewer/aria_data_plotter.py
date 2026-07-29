@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import colorsys
+import os
 from dataclasses import dataclass
 from functools import partial
 from typing import Final, List, Optional
@@ -40,6 +41,12 @@ def warn_once(func, message):
     if not getattr(target, "_warned", False):
         print(f"[aria_data_plotter][WARNING]: {message}")
         setattr(target, "_warned", True)
+
+
+def _spawn_rerun_viewer(memory_limit: str) -> None:
+    # RERUN_PATH is set by the :aria_rerun_viewer oxx_command_alias to the
+    # buck-built rerun-cli; without it rerun-sdk searches PATH and fails.
+    rr.spawn(memory_limit=memory_limit, executable_path=os.environ.get("RERUN_PATH"))
 
 
 NEURAL_BAND_EMG_LABEL: Final = "neural-band-emg"
@@ -275,7 +282,7 @@ class AriaDataViewer:
             )
         else:
             rr.init("AriaDataViewer")
-            rr.spawn(memory_limit=self.config.rerun_memory_limit)
+            _spawn_rerun_viewer(self.config.rerun_memory_limit)
 
         if device_calibration is not None:
             self.device_calibration = device_calibration
@@ -527,7 +534,7 @@ class AriaDataViewer:
         Rerun recording (including .rbl blueprints) to the viewer.
         """
         rr.init("AriaDataViewer")
-        rr.spawn(memory_limit=memory_limit)
+        _spawn_rerun_viewer(memory_limit)
         rr.log_file_from_path(blueprint_path)
 
     def update_rerun_blueprint(self):
@@ -1480,7 +1487,7 @@ class AriaDataViewer:
         rr.log(
             "world/device",
             rr.TransformAxes3D(
-                length=self.PLOT_COLORS_AND_SIZES_3D["vio"]["device_axis_length"]
+                axis_length=self.PLOT_COLORS_AND_SIZES_3D["vio"]["device_axis_length"]
             ),
         )
 

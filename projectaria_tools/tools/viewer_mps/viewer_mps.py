@@ -161,13 +161,15 @@ def main() -> None:
         exit(1)
 
     # Initializing Rerun viewer
-    rr.init("MPS Data Viewer", spawn=(not args.rrd_output_path and not args.web))
+    rr.init("MPS Data Viewer")
 
     # Run the viewer in the web browser or desktop app
     if args.web:
         rr.serve_web()
     else:
-        rr.spawn()
+        # RERUN_PATH is set by the :viewer_mps oxx_command_alias to the
+        # buck-built rerun-cli; without it rerun-sdk searches PATH and fails.
+        rr.spawn(executable_path=os.environ.get("RERUN_PATH"))
 
     log_mps_to_rerun(
         vrs_path=args.vrs,
