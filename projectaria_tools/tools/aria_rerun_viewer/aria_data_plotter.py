@@ -341,6 +341,36 @@ class AriaDataViewer:
             self.update_rerun_blueprint()
         self.plot_device_extrinsics()
 
+    OPTIONAL_PANEL_CONFIG_FLAGS = {
+        "gps": "enable_gps",
+        "neural_band_batch": "enable_neural_band_batch",
+        "crop_visualization": "enable_crop_visualization",
+    }
+
+    def set_optional_panel_visible(self, panel: str, visible: bool) -> None:
+        """Show or hide an optional panel, rebuilding the blueprint if it changed.
+
+        Idempotent: repeated calls with the same value are no-ops. When a custom
+        blueprint is in use or the first calibration has not yet arrived, the
+        config flag is still updated so it takes effect on the next blueprint
+        build, but no rebuild is triggered here.
+
+        panel: one of the keys in `OPTIONAL_PANEL_CONFIG_FLAGS`
+            (`"gps"`, `"neural_band_batch"`, `"crop_visualization"`).
+        """
+        if panel not in self.OPTIONAL_PANEL_CONFIG_FLAGS:
+            raise ValueError(
+                f"Unknown optional panel {panel!r}; expected one of "
+                f"{sorted(self.OPTIONAL_PANEL_CONFIG_FLAGS)}"
+            )
+        flag = self.OPTIONAL_PANEL_CONFIG_FLAGS[panel]
+        if getattr(self.config, flag) == visible:
+            return
+        setattr(self.config, flag, visible)
+        if self.config.blueprint_path or self.device_calibration is None:
+            return
+        self.update_rerun_blueprint()
+
     def _get_plot_color(self, plot_label):
         """Helper function to get the color for 2D plots."""
         if plot_label in self.PLOT_COLORS_AND_SIZES_2D:
