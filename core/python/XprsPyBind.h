@@ -143,6 +143,23 @@ void declareXprsDecoding(py::module& module) {
 
 inline void exportXprs(py::module& m) {
   declareXprsDecoding(m);
+
+  // Runtime probe so users can branch on GPU availability without crashing
+  // the import. Returns true iff the wheel was built with NVDEC support AND
+  // the CUDA driver is loadable on the current machine.
+  m.def(
+      "has_cuda_support",
+      &xprs::hasCudaSupport,
+      py::call_guard<py::gil_scoped_release>(),
+      R"DOC(
+Returns True if NVIDIA NVDEC GPU-accelerated H.265 decoding is available
+in this process.
+
+This is a runtime check that combines compile-time NVDEC availability with
+a successful CUDA driver load. The result is cached after the first call.
+On machines without an NVIDIA driver / GPU, returns False; PAT will silently
+fall back to the CPU decoder for all VRS reads.
+)DOC");
 }
 
 } // namespace projectaria::tools::data_provider

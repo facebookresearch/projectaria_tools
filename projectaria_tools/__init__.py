@@ -14,3 +14,4 @@
 
 # This makes the modules discoverable when doing dir(projectaria_tools)
 from . import core  # noqa
+from .core.xprs import has_cuda_support  # noqa: F401
