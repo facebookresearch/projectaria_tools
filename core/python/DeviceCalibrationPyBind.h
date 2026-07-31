@@ -22,6 +22,7 @@
 #include <calibration/DeviceCalibration.h>
 #include <calibration/DeviceVersion.h>
 #include <calibration/ImuMagnetometerCalibrationFormat.h>
+#include <calibration/loader/AriaCalibRescaleAndCrop.h>
 #include <calibration/loader/DeviceCalibrationJson.h>
 #include <calibration/utility/Distort.h>
 #include <image/utility/ColorCorrect.h>
@@ -414,6 +415,32 @@ inline void declareCameraCalibration(py::module& m) {
       rotateCameraCalibCW90Deg,
       "Rotate CameraCalibration (Linear model only) clock-wise for 90 degrees (Upright view)",
       py::arg("camera_calibration"));
+
+  m.def(
+      "rescale_camera_calibration",
+      [](const CameraCalibration& cameraCalibration,
+         const Eigen::Vector2i& newResolution,
+         const DeviceVersion& deviceVersion,
+         const std::optional<std::string>& canonicalCameraLabel) {
+        if (!canonicalCameraLabel.has_value()) {
+          return rescaleSingleCamera(cameraCalibration, newResolution, deviceVersion);
+        }
+        return rescaleSingleCamera(
+            cameraCalibration,
+            newResolution,
+            getRescaleParam(
+                RescaleInput{
+                    .deviceVersion = deviceVersion,
+                    .cameraLabel = *canonicalCameraLabel,
+                    .originalResolution = cameraCalibration.getImageSize(),
+                    .newResolution = newResolution,
+                }));
+      },
+      py::arg("camera_calibration"),
+      py::arg("new_resolution"),
+      py::arg("device_version"),
+      py::arg("canonical_camera_label") = py::none(),
+      "Rescale an Aria camera calibration using the canonical device transform.");
 }
 
 inline void declareLinearRectificationModel(py::module& m) {

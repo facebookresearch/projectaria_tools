@@ -507,6 +507,43 @@ class CalibrationTests(unittest.TestCase):
             )
         )
 
+    def test_rescale_camera_calibration(self) -> None:
+        src_calib = calibration.get_linear_camera_calibration(
+            2880, 2880, 1000, "camera-rgb"
+        )
+
+        rescaled_calib = calibration.rescale_camera_calibration(
+            src_calib, (1408, 1408), calibration.DeviceVersion.Gen1
+        )
+
+        expected_calib = src_calib.rescale((1408, 1408), 0.5, np.array([32, 32]))
+        compare_camera_calib(rescaled_calib, expected_calib)
+
+    def test_rescale_camera_calibration_rejects_unsupported_transform(self) -> None:
+        src_calib = calibration.get_linear_camera_calibration(
+            2880, 2880, 1000, "camera-rgb"
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "Unsupported camera rescale input"):
+            calibration.rescale_camera_calibration(
+                src_calib, (1000, 1000), calibration.DeviceVersion.Gen1
+            )
+
+    def test_rescale_camera_calibration_with_canonical_label(self) -> None:
+        src_calib = calibration.get_linear_camera_calibration(
+            2880, 2880, 1000, "custom-rgb"
+        )
+
+        rescaled_calib = calibration.rescale_camera_calibration(
+            src_calib,
+            (1408, 1408),
+            calibration.DeviceVersion.Gen1,
+            "camera-rgb",
+        )
+
+        expected_calib = src_calib.rescale((1408, 1408), 0.5, np.array([32, 32]))
+        compare_camera_calib(rescaled_calib, expected_calib)
+
     def test_vrs_file_tags(self) -> None:
         provider = data_provider.create_vrs_data_provider(vrs_filepath_list[0])
         file_tags = provider.get_file_tags()
