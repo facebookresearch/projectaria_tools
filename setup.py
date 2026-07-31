@@ -63,6 +63,22 @@ class CMakeBuild(build_ext):
             "-DPROJECTARIA_TOOLS_BUILD_PROJECTS_AEA=ON",
             "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
         ]
+
+        # Note: env var uses "CUDA" (recognizable to users), CMake flag uses
+        # "NVCODEC" (precise for build-system maintainers). Intentional.
+        #
+        # Opt-in GPU-accelerated H.265 decoding via NVIDIA CUVID/NVDEC.
+        # Requires Linux x86_64 + nv-codec-headers installed at build time.
+        # The compiled wheel still imports without CUDA on the user's machine
+        # (libcuda/libnvcuvid are dlopen'd at runtime); SW decode is the
+        # automatic fallback if the loader fails.
+        if os.environ.get("PROJECTARIA_ENABLE_CUDA", "").lower() in (
+            "1",
+            "true",
+            "on",
+            "yes",
+        ):
+            cmake_args.append("-DENABLE_NVCODEC=ON")
         build_args = []
         # Adding CMake arguments set as environment variable
         # (needed e.g. to build for ARM OSx on conda-forge)

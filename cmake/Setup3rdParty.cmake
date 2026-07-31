@@ -50,6 +50,14 @@ option(BUILD_TOOLS OFF)
 # Tell VRS to build with XPRS
 set(BUILD_WITH_XPRS ON CACHE BOOL "Enable XPRS support in VRS" FORCE)
 
+# Forward ENABLE_NVCODEC into VRS / xprs. The force-set mirrors the
+# BUILD_WITH_XPRS pattern above for visual consistency. Technically a no-op
+# since the option() at CMakeLists.txt:51 already created the cache entry,
+# but kept for symmetry so the propagation intent is explicit.
+if (ENABLE_NVCODEC)
+  set(ENABLE_NVCODEC ON CACHE BOOL "Enable NVCodec (CUDA) GPU acceleration in XPRS" FORCE)
+endif()
+
 message("Pulling deps: {vrs}")
 FetchContent_MakeAvailable(vrs)
 

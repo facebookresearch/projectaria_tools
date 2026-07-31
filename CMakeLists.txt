@@ -48,6 +48,7 @@ option(BUILD_PYTHON_BINDINGS "Build python binding." OFF)
 option(BUILD_UNIT_TEST "Build tests." OFF)
 option(PROJECTARIA_TOOLS_BUILD_PROJECTS "Build projects." OFF)
 option(PROJECTARIA_TOOLS_BUILD_TOOLS "Build tools." OFF)
+option(ENABLE_NVCODEC "Enable NVIDIA CUVID/NVDEC GPU-accelerated H.265 decoding (Linux x86_64 + nv-codec-headers required)." OFF)
 
 if(BUILD_UNIT_TEST)
   enable_testing()
