@@ -735,6 +735,77 @@ inline void declareNeuralBandEmgCalibration(py::module& m) {
               }));
 }
 
+inline void declareNeuralBandImuCalibration(py::module& m) {
+  py::enum_<NeuralBandImuCalibrationApplied>(m, "NeuralBandImuCalibrationApplied")
+      .value("UNCALIBRATED", NeuralBandImuCalibrationApplied::Uncalibrated)
+      .value("CALIBRATED_ALL", NeuralBandImuCalibrationApplied::CalibratedAll)
+      .value("GYRO_ONLINE_BIAS", NeuralBandImuCalibrationApplied::GyroOnlineBias)
+      .value("ONLINE_BIAS", NeuralBandImuCalibrationApplied::OnlineBias)
+      .export_values();
+
+  py::class_<NeuralBandImuCalibration>(
+      m,
+      "NeuralBandImuCalibration",
+      "Wristband IMU (accel + gyro) calibration; parsed from the CONFIG record.")
+      .def(py::init<>())
+      .def("get_label", &NeuralBandImuCalibration::getLabel)
+      .def(
+          "get_accel_scaling_factor",
+          &NeuralBandImuCalibration::getAccelScalingFactor,
+          "Wire accel scaling factor (g/LSB).")
+      .def(
+          "get_gyro_scaling_factor",
+          &NeuralBandImuCalibration::getGyroScalingFactor,
+          "Wire gyro scaling factor (dps/LSB).")
+      .def("get_calibration_applied", &NeuralBandImuCalibration::getCalibrationApplied)
+      .def("get_offline_accel_offset_g", &NeuralBandImuCalibration::getOfflineAccelOffsetG)
+      .def("get_offline_gyro_offset_dps", &NeuralBandImuCalibration::getOfflineGyroOffsetDps)
+      .def("get_online_accel_offset_g", &NeuralBandImuCalibration::getOnlineAccelOffsetG)
+      .def("get_online_gyro_offset_dps", &NeuralBandImuCalibration::getOnlineGyroOffsetDps)
+      .def(
+          "get_accel_cross_axis_rect_matrix",
+          &NeuralBandImuCalibration::getAccelCrossAxisRectMatrix)
+      .def("get_gyro_cross_axis_rect_matrix", &NeuralBandImuCalibration::getGyroCrossAxisRectMatrix)
+      .def("get_gyro_linear_g_rect_matrix", &NeuralBandImuCalibration::getGyroLinearGRectMatrix)
+      .def("get_sigfigs", &NeuralBandImuCalibration::getSigfigs)
+      .def(
+          "raw_to_rectified_accel",
+          &NeuralBandImuCalibration::rawToRectifiedAccel,
+          py::arg("accel_m_sec2"),
+          "Subtract the online accel bias (if firmware has not already) to yield rectified m/s².")
+      .def(
+          "raw_to_rectified_gyro",
+          &NeuralBandImuCalibration::rawToRectifiedGyro,
+          py::arg("gyro_rad_sec"),
+          "Subtract the online gyro bias (if firmware has not already) to yield rectified rad/s.")
+      .def(
+          "rectified_to_raw_accel",
+          &NeuralBandImuCalibration::rectifiedToRawAccel,
+          py::arg("rectified_m_sec2"),
+          "Inverse of raw_to_rectified_accel.")
+      .def(
+          "rectified_to_raw_gyro",
+          &NeuralBandImuCalibration::rectifiedToRawGyro,
+          py::arg("rectified_rad_sec"),
+          "Inverse of raw_to_rectified_gyro.")
+      .def_static(
+          "from_params_json",
+          &NeuralBandImuCalibration::fromParamsJson,
+          py::arg("json"),
+          py::arg("label") = "imu",
+          "Parse the verbatim CONFIG-record JSON blob (same blob that carries EMG calibration).");
+}
+
+inline void declareNeuralBandBatchCalibration(py::module& m) {
+  py::class_<NeuralBandBatchCalibration>(
+      m,
+      "NeuralBandBatchCalibration",
+      "Container bundling the EMG + IMU calibrations that live on a single NeuralBand batch stream.")
+      .def(py::init<>())
+      .def_readwrite("emg_calib", &NeuralBandBatchCalibration::emg_calib)
+      .def_readwrite("imu_calib", &NeuralBandBatchCalibration::imu_calib);
+}
+
 inline void declareSensorCalibration(py::module& m) {
   declareCameraCalibration(m);
   declareLinearRectificationModel(m);
@@ -743,6 +814,8 @@ inline void declareSensorCalibration(py::module& m) {
   declareBarometerCalibration(m);
   declareMicrophoneCalibration(m);
   declareNeuralBandEmgCalibration(m);
+  declareNeuralBandImuCalibration(m);
+  declareNeuralBandBatchCalibration(m);
 
   py::enum_<SensorCalibrationType>(m, "SensorCalibrationType")
       .value("NOT_VALID", SensorCalibrationType::NotValid)
@@ -753,7 +826,7 @@ inline void declareSensorCalibration(py::module& m) {
       .value("MICROPHONE_CALIBRATION", SensorCalibrationType::MicrophoneCalibration)
       .value("ARIA_ET_CALIBRATION", SensorCalibrationType::AriaEtCalibration)
       .value("ARIA_MIC_CALIBRATION", SensorCalibrationType::AriaMicCalibration)
-      .value("NEURAL_BAND_EMG_CALIBRATION", SensorCalibrationType::NeuralBandEmgCalibration)
+      .value("NEURAL_BAND_BATCH_CALIBRATION", SensorCalibrationType::NeuralBandBatchCalibration)
       .export_values()
       .export_values()
       .def(
@@ -798,9 +871,9 @@ inline void declareSensorCalibration(py::module& m) {
           &SensorCalibration::ariaMicCalibration,
           "Try to get the SensorCalibration as a AriaMicCalibration. Will throw if sensor type does not match.")
       .def(
-          "neural_band_emg_calibration",
-          &SensorCalibration::neuralBandEmgCalibration,
-          "Try to get the SensorCalibration as a NeuralBandEmgCalibration. Will throw if sensor type does not match.")
+          "neural_band_batch_calibration",
+          &SensorCalibration::neuralBandBatchCalibration,
+          "Try to get the SensorCalibration as a NeuralBandBatchCalibration (bundles EMG + IMU). Will throw if sensor type does not match.")
       .def(
           "sensor_calibration_type",
           &SensorCalibration::sensorCalibrationType,
@@ -832,10 +905,10 @@ inline void declareSensorCalibration(py::module& m) {
                   case SensorCalibrationType::AriaMicCalibration:
                     return py::make_tuple(
                         SensorCalibrationType::AriaMicCalibration, calib.ariaMicCalibration());
-                  case SensorCalibrationType::NeuralBandEmgCalibration:
+                  case SensorCalibrationType::NeuralBandBatchCalibration:
                     return py::make_tuple(
-                        SensorCalibrationType::NeuralBandEmgCalibration,
-                        calib.neuralBandEmgCalibration());
+                        SensorCalibrationType::NeuralBandBatchCalibration,
+                        calib.neuralBandBatchCalibration());
                   default:
                     throw std::runtime_error("Unsupported calibration type");
                 }
@@ -861,8 +934,8 @@ inline void declareSensorCalibration(py::module& m) {
                     return SensorCalibration(t[1].cast<AriaEtCalibration>());
                   case SensorCalibrationType::AriaMicCalibration:
                     return SensorCalibration(t[1].cast<AriaMicCalibration>());
-                  case SensorCalibrationType::NeuralBandEmgCalibration:
-                    return SensorCalibration(t[1].cast<NeuralBandEmgCalibration>());
+                  case SensorCalibrationType::NeuralBandBatchCalibration:
+                    return SensorCalibration(t[1].cast<NeuralBandBatchCalibration>());
                   default:
                     throw std::runtime_error("Unsupported calibration type");
                 }

@@ -41,8 +41,11 @@ std::atomic_flag imuSizeMismatchFired = ATOMIC_FLAG_INIT;
 
 constexpr size_t kNeuralBandImuChannelsPerSample = 3;
 constexpr size_t kNeuralBandImuBytesPerSample = kNeuralBandImuChannelsPerSample * sizeof(int16_t);
-constexpr float kAccelGPerLsb = 8.0f / 32768.0f;
-constexpr float kGyroDpsPerLsb = 2000.0f / 32768.0f;
+// LSM6DSV32X datasheet sensitivities at ±8g / ±2000dps. Note the gyro spec
+// (0.070 dps/LSB) is *not* 2000/32768 (~0.061); the theoretical ratio would
+// under-scale gyro by ~15%. Wire-side calibration overrides these when present.
+constexpr float kAccelGPerLsb = 0.000244f;
+constexpr float kGyroDpsPerLsb = 0.070f;
 constexpr float kGravityMSec2 = 9.80665f;
 constexpr float kPiF = std::numbers::pi_v<float>;
 constexpr float kDegToRad = kPiF / 180.0f;
@@ -274,11 +277,12 @@ void decodeEmgSamples(
 void decodeAccelSamples(
     const std::vector<int64_t>& wireTimestampsUs,
     const std::vector<std::string>& channelBlobs,
+    float lsbToMSec2,
     std::vector<NeuralBandAccelSample>& out) {
   decodeImu3AxisSamples(
       wireTimestampsUs,
       channelBlobs,
-      kAccelLsbToMSec2,
+      lsbToMSec2,
       "accel",
       [](NeuralBandAccelSample& s, const std::array<float, 3>& xyz) { s.accelMSec2 = xyz; },
       out);
@@ -287,11 +291,12 @@ void decodeAccelSamples(
 void decodeGyroSamples(
     const std::vector<int64_t>& wireTimestampsUs,
     const std::vector<std::string>& channelBlobs,
+    float lsbToRadSec,
     std::vector<NeuralBandGyroSample>& out) {
   decodeImu3AxisSamples(
       wireTimestampsUs,
       channelBlobs,
-      kGyroLsbToRadSec,
+      lsbToRadSec,
       "gyro",
       [](NeuralBandGyroSample& s, const std::array<float, 3>& xyz) { s.gyroRadSec = xyz; },
       out);
@@ -311,6 +316,8 @@ bool NeuralBandBatchPlayer::onDataLayoutRead(
     if (newJson != configRecord_.emgCalibrationParamsJson) {
       configRecord_.emgCalibrationParamsJson = std::move(newJson);
       configRecord_.emgCalibration = calibration::NeuralBandEmgCalibration::fromParamsJson(
+          configRecord_.emgCalibrationParamsJson);
+      configRecord_.imuCalibration = calibration::NeuralBandImuCalibration::fromParamsJson(
           configRecord_.emgCalibrationParamsJson);
     }
   } else if (r.recordType == vrs::Record::Type::DATA) {
@@ -366,8 +373,15 @@ bool NeuralBandBatchPlayer::onDataLayoutRead(
         dataRecord_.emgChannelCount,
         dataRecord_.emg);
 
-    decodeAccelSamples(accelWireUs, accelChannels, dataRecord_.accel);
-    decodeGyroSamples(gyroWireUs, gyroChannels, dataRecord_.gyro);
+    const float accelLsbToMSec2 = configRecord_.imuCalibration
+        ? configRecord_.imuCalibration->getAccelScalingFactor() * kGravityMSec2
+        : kAccelLsbToMSec2;
+    const float gyroLsbToRadSec = configRecord_.imuCalibration
+        ? configRecord_.imuCalibration->getGyroScalingFactor() * kDegToRad
+        : kGyroLsbToRadSec;
+
+    decodeAccelSamples(accelWireUs, accelChannels, accelLsbToMSec2, dataRecord_.accel);
+    decodeGyroSamples(gyroWireUs, gyroChannels, gyroLsbToRadSec, dataRecord_.gyro);
 
     rebaseWristbandTimestamps(dataRecord_);
 

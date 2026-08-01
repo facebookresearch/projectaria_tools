@@ -24,6 +24,7 @@
 #include <vector>
 
 #include <calibration/NeuralBandEmgCalibration.h>
+#include <calibration/NeuralBandImuCalibration.h>
 #include <data_layout/NeuralBandBatchMetadata.h>
 #include <vrs/RecordFormatStreamPlayer.h>
 
@@ -62,6 +63,7 @@ struct NeuralBandBatchConfiguration {
   uint64_t deviceId{};
   std::string emgCalibrationParamsJson;
   std::optional<calibration::NeuralBandEmgCalibration> emgCalibration;
+  std::optional<calibration::NeuralBandImuCalibration> imuCalibration;
 };
 
 using NeuralBandBatchCallback = std::function<
@@ -134,11 +136,13 @@ void decodeEmgSamples(
 void decodeAccelSamples(
     const std::vector<int64_t>& wireTimestampsUs,
     const std::vector<std::string>& channelBlobs,
+    float lsbToMSec2,
     std::vector<NeuralBandAccelSample>& out);
 
 void decodeGyroSamples(
     const std::vector<int64_t>& wireTimestampsUs,
     const std::vector<std::string>& channelBlobs,
+    float lsbToRadSec,
     std::vector<NeuralBandGyroSample>& out);
 
 } // namespace projectaria::tools::data_provider

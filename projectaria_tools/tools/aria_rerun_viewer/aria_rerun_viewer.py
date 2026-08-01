@@ -377,11 +377,15 @@ def log_vrs_to_rerun(
             if (
                 sensor_calib is not None
                 and sensor_calib.sensor_calibration_type()
-                == SensorCalibrationType.NEURAL_BAND_EMG_CALIBRATION
+                == SensorCalibrationType.NEURAL_BAND_BATCH_CALIBRATION
             ):
-                aria_data_viewer.set_neural_band_emg_calibration(
-                    sensor_calib.neural_band_emg_calibration()
-                )
+                batch_calib = sensor_calib.neural_band_batch_calibration()
+                if batch_calib.emg_calib is not None:
+                    aria_data_viewer.set_neural_band_emg_calibration(
+                        batch_calib.emg_calib
+                    )
+                # TODO: forward batch_calib.imu_calib once the viewer surfaces
+                # rectified accel/gyro (raw accel/gyro tabs already show wire values).
 
     # Step 6: Plot queued sensor data
     plot_queued_sensor_data(

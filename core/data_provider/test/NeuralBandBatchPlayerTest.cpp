@@ -92,8 +92,9 @@ std::string packImuBlobLittleEndian(int16_t x, int16_t y, int16_t z) {
 }
 
 // Independently derived from spec so an impl math error can't mirror-match here.
-constexpr float kAccelLsbToMSec2 = (8.0f / 32768.0f) * 9.80665f;
-constexpr float kGyroLsbToRadSec = (2000.0f / 32768.0f) * (std::numbers::pi_v<float> / 180.0f);
+// LSM6DSV32X datasheet sensitivities — see NeuralBandBatchPlayer.cpp constants comment.
+constexpr float kAccelLsbToMSec2 = 0.000244f * 9.80665f;
+constexpr float kGyroLsbToRadSec = 0.070f * (std::numbers::pi_v<float> / 180.0f);
 
 } // namespace
 
@@ -251,7 +252,7 @@ TEST(NeuralBandBatchPlayerTest, DecodeAccel_WellFormedBlobProducesScaledXyz) {
   const std::vector<std::string> blobs{packImuBlobLittleEndian(100, -200, 300)};
   std::vector<NeuralBandAccelSample> out;
 
-  decodeAccelSamples(tsUs, blobs, out);
+  decodeAccelSamples(tsUs, blobs, kAccelLsbToMSec2, out);
 
   ASSERT_EQ(out.size(), 1u);
   EXPECT_EQ(out[0].captureTimestampNs, 500'000'000);
@@ -269,7 +270,7 @@ TEST(NeuralBandBatchPlayerTest, DecodeAccel_MalformedBlobSkipped) {
   };
   std::vector<NeuralBandAccelSample> out;
 
-  decodeAccelSamples(tsUs, blobs, out);
+  decodeAccelSamples(tsUs, blobs, kAccelLsbToMSec2, out);
 
   ASSERT_EQ(out.size(), 2u);
   EXPECT_EQ(out[0].captureTimestampNs, 100'000);
@@ -281,7 +282,7 @@ TEST(NeuralBandBatchPlayerTest, DecodeAccel_BoundaryInt16Values) {
   const std::vector<std::string> blobs{packImuBlobLittleEndian(INT16_MIN, INT16_MAX, 0)};
   std::vector<NeuralBandAccelSample> out;
 
-  decodeAccelSamples(tsUs, blobs, out);
+  decodeAccelSamples(tsUs, blobs, kAccelLsbToMSec2, out);
 
   ASSERT_EQ(out.size(), 1u);
   EXPECT_FLOAT_EQ(out[0].accelMSec2[0], static_cast<float>(INT16_MIN) * kAccelLsbToMSec2);
@@ -289,12 +290,24 @@ TEST(NeuralBandBatchPlayerTest, DecodeAccel_BoundaryInt16Values) {
   EXPECT_FLOAT_EQ(out[0].accelMSec2[2], 0.0f);
 }
 
+TEST(NeuralBandBatchPlayerTest, DecodeAccel_UsesProvidedScaleFactor) {
+  const std::vector<int64_t> tsUs{0};
+  const std::vector<std::string> blobs{packImuBlobLittleEndian(1000, 0, 0)};
+  std::vector<NeuralBandAccelSample> out;
+  constexpr float kCustomScale = 0.5f;
+
+  decodeAccelSamples(tsUs, blobs, kCustomScale, out);
+
+  ASSERT_EQ(out.size(), 1u);
+  EXPECT_FLOAT_EQ(out[0].accelMSec2[0], 1000.0f * kCustomScale);
+}
+
 TEST(NeuralBandBatchPlayerTest, DecodeGyro_WellFormedBlobProducesScaledXyz) {
   const std::vector<int64_t> tsUs{700'000};
   const std::vector<std::string> blobs{packImuBlobLittleEndian(50, -75, 125)};
   std::vector<NeuralBandGyroSample> out;
 
-  decodeGyroSamples(tsUs, blobs, out);
+  decodeGyroSamples(tsUs, blobs, kGyroLsbToRadSec, out);
 
   ASSERT_EQ(out.size(), 1u);
   EXPECT_EQ(out[0].captureTimestampNs, 700'000'000);
@@ -311,7 +324,7 @@ TEST(NeuralBandBatchPlayerTest, DecodeGyro_MalformedBlobSkipped) {
   };
   std::vector<NeuralBandGyroSample> out;
 
-  decodeGyroSamples(tsUs, blobs, out);
+  decodeGyroSamples(tsUs, blobs, kGyroLsbToRadSec, out);
 
   ASSERT_EQ(out.size(), 1u);
   EXPECT_EQ(out[0].captureTimestampNs, 20'000);
@@ -548,6 +561,90 @@ TEST(NeuralBandBatchPlayerTest, EmgCalibrationParamsJson_EmptyStringLeavesOption
   const auto config = provider->getNeuralBandBatchConfiguration(*streamId);
   EXPECT_TRUE(config.emgCalibrationParamsJson.empty());
   EXPECT_FALSE(config.emgCalibration.has_value());
+  EXPECT_FALSE(config.imuCalibration.has_value());
+}
+
+TEST(NeuralBandBatchPlayerTest, ImuCalibrationParamsJson_ParsedIntoOptionalOnFullPipeline) {
+  const std::string vrsPath = vrs::os::getUniquePath(
+      vrs::os::getTempFolder() + "aria_gen2_unit_test_neural_band_imu_calib");
+  TempFileGuard guard{vrsPath};
+  NeuralBandBatchFixtureSpec spec = makeBackwardCompatSpec();
+  // Non-default gyro scaling factor (0.07 dps/LSB, LSM6DSV32X ±2000dps) — different from the
+  // hardcoded fallback (2000/32768 ≈ 0.061); asserts the reader honors the wire value.
+  spec.emgCalibrationParamsJson = R"({
+    "imu_accel_scaling_factor": 0.000244,
+    "imu_gyro_scaling_factor": 0.07,
+    "imu_calibration_applied": 2,
+    "imu_calibration": {
+      "sigfigs": 6,
+      "offline_accel_offset": [0, 0, 0],
+      "offline_gyro_offset": [0, 0, 0],
+      "online_accel_offset": [0, 0, 0],
+      "online_gyro_offset": [0, 0, 0],
+      "accel_cross_axis_rect_matrix": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "gyro_cross_axis_rect_matrix": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "gyro_linear_g_rect_matrix": [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    }
+  })";
+  // Inject a single accel+gyro packet each so we can assert the wire scaling factor is used.
+  spec.accelTimestampsUs = {300'000};
+  spec.accelBlobs = {packImuBlobLittleEndian(1000, 0, 0)};
+  spec.accelSequenceNumbers = {1};
+  spec.gyroTimestampsUs = {300'000};
+  spec.gyroBlobs = {packImuBlobLittleEndian(1000, 0, 0)};
+  spec.gyroSequenceNumbers = {1};
+
+  ASSERT_NO_FATAL_FAILURE(writeSyntheticNeuralBandBatchVrs(vrsPath, spec));
+
+  auto provider = createVrsDataProvider(vrsPath);
+  ASSERT_NE(provider, nullptr);
+  const auto streamId = provider->getStreamIdFromLabel("emg");
+  ASSERT_TRUE(streamId.has_value());
+
+  const auto config = provider->getNeuralBandBatchConfiguration(*streamId);
+  ASSERT_TRUE(config.imuCalibration.has_value());
+  EXPECT_FLOAT_EQ(config.imuCalibration->getAccelScalingFactor(), 0.000244f);
+  EXPECT_FLOAT_EQ(config.imuCalibration->getGyroScalingFactor(), 0.07f);
+  EXPECT_EQ(
+      config.imuCalibration->getCalibrationApplied(),
+      projectaria::tools::calibration::NeuralBandImuCalibrationApplied::GyroOnlineBias);
+  EXPECT_EQ(config.imuCalibration->getSigfigs(), 6u);
+
+  const NeuralBandBatch batch = provider->getNeuralBandBatchByIndex(*streamId, 0);
+  ASSERT_EQ(batch.accel.size(), 1u);
+  ASSERT_EQ(batch.gyro.size(), 1u);
+  constexpr float kGravity = 9.80665f;
+  constexpr float kDegToRad = std::numbers::pi_v<float> / 180.0f;
+  EXPECT_FLOAT_EQ(batch.accel[0].accelMSec2[0], 1000.0f * 0.000244f * kGravity);
+  EXPECT_FLOAT_EQ(batch.gyro[0].gyroRadSec[0], 1000.0f * 0.07f * kDegToRad);
+}
+
+TEST(NeuralBandBatchPlayerTest, ImuCalibrationParamsJson_FallsBackToHardcodedWhenAbsent) {
+  const std::string vrsPath = vrs::os::getUniquePath(
+      vrs::os::getTempFolder() + "aria_gen2_unit_test_neural_band_imu_fallback");
+  TempFileGuard guard{vrsPath};
+  NeuralBandBatchFixtureSpec spec = makeBackwardCompatSpec();
+  spec.accelTimestampsUs = {300'000};
+  spec.accelBlobs = {packImuBlobLittleEndian(1000, 0, 0)};
+  spec.accelSequenceNumbers = {1};
+  spec.gyroTimestampsUs = {300'000};
+  spec.gyroBlobs = {packImuBlobLittleEndian(1000, 0, 0)};
+  spec.gyroSequenceNumbers = {1};
+
+  ASSERT_NO_FATAL_FAILURE(writeSyntheticNeuralBandBatchVrs(vrsPath, spec));
+  auto provider = createVrsDataProvider(vrsPath);
+  ASSERT_NE(provider, nullptr);
+  const auto streamId = provider->getStreamIdFromLabel("emg");
+  ASSERT_TRUE(streamId.has_value());
+
+  const auto config = provider->getNeuralBandBatchConfiguration(*streamId);
+  EXPECT_FALSE(config.imuCalibration.has_value());
+
+  const NeuralBandBatch batch = provider->getNeuralBandBatchByIndex(*streamId, 0);
+  ASSERT_EQ(batch.accel.size(), 1u);
+  ASSERT_EQ(batch.gyro.size(), 1u);
+  EXPECT_FLOAT_EQ(batch.accel[0].accelMSec2[0], 1000.0f * kAccelLsbToMSec2);
+  EXPECT_FLOAT_EQ(batch.gyro[0].gyroRadSec[0], 1000.0f * kGyroLsbToRadSec);
 }
 
 TEST(NeuralBandBatchPlayerTest, BackwardCompat_ReadsSyntheticGen2FixtureViaFullPipeline) {

@@ -267,11 +267,14 @@ std::optional<calibration::SensorCalibration> VrsDataProvider::getSensorCalibrat
   // factory calibration file — bypass DeviceCalibration.
   if (getSensorDataType(streamId) == SensorDataType::NeuralBandBatch) {
     const auto config = getNeuralBandBatchConfiguration(streamId);
-    if (!config.emgCalibration.has_value()) {
+    if (!config.emgCalibration.has_value() && !config.imuCalibration.has_value()) {
       return {};
     }
+    calibration::NeuralBandBatchCalibration wrapper;
+    wrapper.emg_calib = config.emgCalibration;
+    wrapper.imu_calib = config.imuCalibration;
     return calibration::SensorCalibration{
-        calibration::SensorCalibration::SensorCalibrationVariant{*config.emgCalibration}};
+        calibration::SensorCalibration::SensorCalibrationVariant{std::move(wrapper)}};
   }
   if (!maybeDeviceCalib_) {
     return {};

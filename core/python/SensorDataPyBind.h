@@ -513,11 +513,15 @@ inline void declareNeuralBandBatchDataRecord(py::module& m) {
       .def_readwrite(
           "emg_calibration_params_json",
           &NeuralBandBatchConfiguration::emgCalibrationParamsJson,
-          "verbatim device.emg_calibration JSON blob; empty when absent")
+          "verbatim CONFIG-record JSON blob (carries both EMG + IMU calibration fields); empty when absent")
       .def_readwrite(
           "emg_calibration",
           &NeuralBandBatchConfiguration::emgCalibration,
-          "parsed EMG calibration; None when absent or malformed");
+          "parsed EMG calibration; None when absent or malformed")
+      .def_readwrite(
+          "imu_calibration",
+          &NeuralBandBatchConfiguration::imuCalibration,
+          "parsed IMU (accel + gyro) calibration; None when absent or malformed");
 
   py::class_<NeuralBandEmgSample>(m, "NeuralBandEmgSample")
       .def(py::init<>())
