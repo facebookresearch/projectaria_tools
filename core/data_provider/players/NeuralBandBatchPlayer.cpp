@@ -307,6 +307,12 @@ bool NeuralBandBatchPlayer::onDataLayoutRead(
     configRecord_.streamId = config.streamId.get();
     configRecord_.sensorModel = config.sensorModel.get();
     configRecord_.deviceId = config.deviceId.get();
+    std::string newJson = config.emgCalibrationParamsJson.get();
+    if (newJson != configRecord_.emgCalibrationParamsJson) {
+      configRecord_.emgCalibrationParamsJson = std::move(newJson);
+      configRecord_.emgCalibration = calibration::NeuralBandEmgCalibration::fromParamsJson(
+          configRecord_.emgCalibrationParamsJson);
+    }
   } else if (r.recordType == vrs::Record::Type::DATA) {
     auto& layout = getExpectedLayout<datalayout::NeuralBandBatchDataLayout>(dl, blockIndex);
     dataRecord_.captureTimestampNs = layout.captureTimestampNs.get();

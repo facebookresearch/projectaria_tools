@@ -341,6 +341,7 @@ struct NeuralBandBatchFixtureSpec {
   std::vector<uint64_t> gyroTimestampsUs;
   std::vector<std::string> gyroBlobs;
   std::vector<uint32_t> gyroSequenceNumbers;
+  std::string emgCalibrationParamsJson;
 };
 
 // `spec` is captured by reference — must outlive the recordable.
@@ -359,6 +360,7 @@ class NeuralBandBatchRecordable : public vrs::Recordable {
     config_.deviceId.set(0xC0FFEEULL);
     config_.nominalRateHz.set(1000.0);
     config_.description.stage("");
+    config_.emgCalibrationParamsJson.stage(spec_.emgCalibrationParamsJson);
     return createRecord(0.0, vrs::Record::Type::CONFIGURATION, 1, vrs::DataSource(config_));
   }
 
@@ -498,6 +500,55 @@ NeuralBandBatchFixtureSpec makeBackwardCompatSpec() {
 }
 
 } // namespace
+
+TEST(NeuralBandBatchPlayerTest, EmgCalibrationParamsJson_ParsedIntoOptionalOnFullPipeline) {
+  const std::string vrsPath =
+      vrs::os::getUniquePath(vrs::os::getTempFolder() + "aria_gen2_unit_test_neural_band_calib");
+  TempFileGuard guard{vrsPath};
+  NeuralBandBatchFixtureSpec spec = makeBackwardCompatSpec();
+  spec.emgCalibrationParamsJson = R"({
+    "analog_gain": 30.0,
+    "daq_range_max": 8191,
+    "daq_vref_pos": 1.6,
+    "daq_vref_neg": 0.0,
+    "daq_vref_dc": 0.8,
+    "emg_adc_chip": 3,
+    "emg_truncation_bits_transmitted_per_sample": 13,
+    "emg_truncation_dropped_lsb": 3
+  })";
+  ASSERT_NO_FATAL_FAILURE(writeSyntheticNeuralBandBatchVrs(vrsPath, spec));
+
+  auto provider = createVrsDataProvider(vrsPath);
+  ASSERT_NE(provider, nullptr);
+  const auto streamId = provider->getStreamIdFromLabel("emg");
+  ASSERT_TRUE(streamId.has_value());
+
+  const auto config = provider->getNeuralBandBatchConfiguration(*streamId);
+  EXPECT_FALSE(config.emgCalibrationParamsJson.empty());
+  ASSERT_TRUE(config.emgCalibration.has_value());
+  EXPECT_TRUE(config.emgCalibration->isTruncated());
+  EXPECT_EQ(config.emgCalibration->getStreamedBitWidth(), 13u);
+  EXPECT_EQ(config.emgCalibration->getDroppedLsb(), 3u);
+  EXPECT_EQ(config.emgCalibration->getAdcChipCode(), 3u);
+  EXPECT_FLOAT_EQ(config.emgCalibration->getAnalogGain(), 30.0f);
+}
+
+TEST(NeuralBandBatchPlayerTest, EmgCalibrationParamsJson_EmptyStringLeavesOptionalNullopt) {
+  const std::string vrsPath =
+      vrs::os::getUniquePath(vrs::os::getTempFolder() + "aria_gen2_unit_test_neural_band_no_calib");
+  TempFileGuard guard{vrsPath};
+  const NeuralBandBatchFixtureSpec spec = makeBackwardCompatSpec(); // empty calib string
+  ASSERT_NO_FATAL_FAILURE(writeSyntheticNeuralBandBatchVrs(vrsPath, spec));
+
+  auto provider = createVrsDataProvider(vrsPath);
+  ASSERT_NE(provider, nullptr);
+  const auto streamId = provider->getStreamIdFromLabel("emg");
+  ASSERT_TRUE(streamId.has_value());
+
+  const auto config = provider->getNeuralBandBatchConfiguration(*streamId);
+  EXPECT_TRUE(config.emgCalibrationParamsJson.empty());
+  EXPECT_FALSE(config.emgCalibration.has_value());
+}
 
 TEST(NeuralBandBatchPlayerTest, BackwardCompat_ReadsSyntheticGen2FixtureViaFullPipeline) {
   const std::string vrsPath =

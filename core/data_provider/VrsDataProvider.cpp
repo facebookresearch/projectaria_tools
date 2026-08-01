@@ -263,16 +263,24 @@ calibration::DeviceVersion VrsDataProvider::getDeviceVersion() const {
 
 std::optional<calibration::SensorCalibration> VrsDataProvider::getSensorCalibration(
     const vrs::StreamId& streamId) const {
+  // NeuralBand calibration lives on the stream CONFIG record, not the
+  // factory calibration file — bypass DeviceCalibration.
+  if (getSensorDataType(streamId) == SensorDataType::NeuralBandBatch) {
+    const auto config = getNeuralBandBatchConfiguration(streamId);
+    if (!config.emgCalibration.has_value()) {
+      return {};
+    }
+    return calibration::SensorCalibration{
+        calibration::SensorCalibration::SensorCalibrationVariant{*config.emgCalibration}};
+  }
   if (!maybeDeviceCalib_) {
     return {};
-  } else {
-    auto maybeLabel = getLabelFromStreamId(streamId);
-    if (!maybeLabel) {
-      return {};
-    } else {
-      return maybeDeviceCalib_->getSensorCalib(*maybeLabel);
-    }
   }
+  auto maybeLabel = getLabelFromStreamId(streamId);
+  if (!maybeLabel) {
+    return {};
+  }
+  return maybeDeviceCalib_->getSensorCalib(*maybeLabel);
 }
 
 /* get data from index */

@@ -55,7 +55,7 @@ bool hasCalibration(SensorDataType type) {
   return (
       (type == SensorDataType::Image) || (type == SensorDataType::Imu) ||
       (type == SensorDataType::Magnetometer) || (type == SensorDataType::Barometer) ||
-      (type == SensorDataType::Audio));
+      (type == SensorDataType::Audio) || (type == SensorDataType::NeuralBandBatch));
 }
 
 } // namespace projectaria::tools::data_provider

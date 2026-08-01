@@ -32,6 +32,9 @@ class NeuralBandBatchConfigurationLayout : public vrs::AutoDataLayout {
   vrs::DataPieceValue<double> nominalRateHz{"nominal_rate"};
   vrs::DataPieceString description{"description"};
 
+  // Label MUST match the recorder byte-for-byte; empty when absent from recording.
+  vrs::DataPieceString emgCalibrationParamsJson{"emg_calibration_params_json"};
+
   vrs::AutoDataLayoutEnd endLayout;
 };
 

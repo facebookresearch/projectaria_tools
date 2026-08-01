@@ -15,7 +15,7 @@
 # pyre-strict
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 from projectaria_tools.core.sensor_data import (
@@ -28,6 +28,7 @@ from projectaria_tools.tools.aria_rerun_viewer.aria_data_plotter import (
     AriaDataViewer,
     NEURAL_BAND_ACCEL_LABEL,
     NEURAL_BAND_EMG_LABEL,
+    NEURAL_BAND_EMG_VOLTS_LABEL,
     NEURAL_BAND_GYRO_LABEL,
 )
 
@@ -74,9 +75,8 @@ def _make_neural_band_batch(
 class PlotNeuralBandBatchTest(unittest.TestCase):
     def setUp(self) -> None:
         # Bypass __init__ — the neural-band methods only read instance fields
-        # explicitly seeded here.
+        # via getattr defaults, so nothing needs seeding here.
         self.viewer = AriaDataViewer.__new__(AriaDataViewer)
-        self.viewer._emg_baseline = None
 
         patchers = [
             patch(f"{_PLOTTER_MODULE}.rr.send_columns"),
@@ -113,16 +113,14 @@ class PlotNeuralBandBatchTest(unittest.TestCase):
             np.testing.assert_array_almost_equal(
                 tc_call.kwargs["timestamp"], [1.0, 2.0, 3.0]
             )
-        # First batch seeds the baseline to its own per-channel mean, so the
-        # published scalars are the raw counts minus that mean (channel 0 mean
-        # 11, channel 1 mean 21).
+        # Raw ADC counts are published as-is per channel; no baseline subtraction.
         np.testing.assert_array_almost_equal(
             self.mock_scalars.columns.call_args_list[0].kwargs["scalars"],
-            [-1.0, 0.0, 1.0],
+            [10.0, 11.0, 12.0],
         )
         np.testing.assert_array_almost_equal(
             self.mock_scalars.columns.call_args_list[1].kwargs["scalars"],
-            [-1.0, 0.0, 1.0],
+            [20.0, 21.0, 22.0],
         )
 
     def test_accel_multi_sample_uses_per_axis_entity_paths(self) -> None:
@@ -241,7 +239,11 @@ class PlotNeuralBandBatchTest(unittest.TestCase):
             )
         np.testing.assert_array_almost_equal(
             self.mock_scalars.columns.call_args_list[0].kwargs["scalars"],
-            [-1.0, 1.0],
+            [10.0, 12.0],
+        )
+        np.testing.assert_array_almost_equal(
+            self.mock_scalars.columns.call_args_list[1].kwargs["scalars"],
+            [20.0, 22.0],
         )
 
     def test_emg_all_ragged_produces_no_output(self) -> None:
@@ -269,11 +271,103 @@ class PlotNeuralBandBatchTest(unittest.TestCase):
 
         self.viewer.plot_neural_band_batch(batch)
 
+        # No calibration set → volts helper silently skips.
         entity_paths = [c.args[0] for c in self.mock_send_columns.call_args_list]
         self.assertEqual(len(entity_paths), 8)
-        emg_paths = [p for p in entity_paths if p.startswith(NEURAL_BAND_EMG_LABEL)]
+        emg_paths = [
+            p for p in entity_paths if p.startswith(NEURAL_BAND_EMG_LABEL + "/")
+        ]
+        volts_paths = [
+            p for p in entity_paths if p.startswith(NEURAL_BAND_EMG_VOLTS_LABEL)
+        ]
         accel_paths = [p for p in entity_paths if p.startswith(NEURAL_BAND_ACCEL_LABEL)]
         gyro_paths = [p for p in entity_paths if p.startswith(NEURAL_BAND_GYRO_LABEL)]
         self.assertEqual(len(emg_paths), 2)
+        self.assertEqual(len(volts_paths), 0)
         self.assertEqual(len(accel_paths), 3)
         self.assertEqual(len(gyro_paths), 3)
+
+    def test_volts_no_calibration_skips_send(self) -> None:
+        emg = [
+            _make_emg_sample(1_000_000_000, [10, 20]),
+            _make_emg_sample(2_000_000_000, [11, 21]),
+        ]
+        batch = _make_neural_band_batch(emg=emg, emg_channel_count=2)
+
+        self.viewer._plot_neural_band_emg_volts(batch)
+
+        self.mock_send_columns.assert_not_called()
+
+    def test_volts_uses_calibration_and_per_channel_paths(self) -> None:
+        emg = [
+            _make_emg_sample(1_000_000_000, [10, 20]),
+            _make_emg_sample(2_000_000_000, [11, 21]),
+        ]
+        batch = _make_neural_band_batch(emg=emg, emg_channel_count=2)
+        fake_calib = MagicMock()
+        # Fake calibration: multiply every ADC count by a fixed scale.
+        fake_calib.adc_to_volts.side_effect = lambda cv: [float(v) * 0.001 for v in cv]
+        self.viewer.set_neural_band_emg_calibration(fake_calib)
+
+        with patch(f"{_PLOTTER_MODULE}.rr.log"):
+            self.viewer._plot_neural_band_emg_volts(batch)
+
+        entity_paths = [c.args[0] for c in self.mock_send_columns.call_args_list]
+        self.assertEqual(
+            entity_paths,
+            [
+                f"{NEURAL_BAND_EMG_VOLTS_LABEL}/channels/channel_0",
+                f"{NEURAL_BAND_EMG_VOLTS_LABEL}/channels/channel_1",
+            ],
+        )
+        # Single vectorized call for the whole batch: 2 samples * 2 channels
+        # arrive flattened.
+        self.assertEqual(fake_calib.adc_to_volts.call_count, 1)
+        self.assertEqual(fake_calib.adc_to_volts.call_args.args[0], [10, 20, 11, 21])
+        # Reshape back into per-channel columns.
+        np.testing.assert_array_almost_equal(
+            self.mock_scalars.columns.call_args_list[0].kwargs["scalars"],
+            [0.010, 0.011],  # channel 0
+        )
+        np.testing.assert_array_almost_equal(
+            self.mock_scalars.columns.call_args_list[1].kwargs["scalars"],
+            [0.020, 0.021],  # channel 1
+        )
+
+    def test_volts_channel_count_zero_is_skipped(self) -> None:
+        emg = [_make_emg_sample(1_000_000_000, [10, 20])]
+        batch = _make_neural_band_batch(emg=emg, emg_channel_count=0)
+        self.viewer.set_neural_band_emg_calibration(MagicMock())
+
+        self.viewer._plot_neural_band_emg_volts(batch)
+
+        self.mock_send_columns.assert_not_called()
+
+    def test_volts_empty_emg_is_skipped(self) -> None:
+        batch = _make_neural_band_batch(emg=[], emg_channel_count=2)
+        self.viewer.set_neural_band_emg_calibration(MagicMock())
+
+        self.viewer._plot_neural_band_emg_volts(batch)
+
+        self.mock_send_columns.assert_not_called()
+
+    def test_volts_all_ragged_produces_no_output(self) -> None:
+        emg = [
+            _make_emg_sample(1_000_000_000, [1])
+        ]  # channel_values shorter than count
+        batch = _make_neural_band_batch(emg=emg, emg_channel_count=2)
+        fake_calib = MagicMock()
+        self.viewer.set_neural_band_emg_calibration(fake_calib)
+
+        self.viewer._plot_neural_band_emg_volts(batch)
+
+        self.mock_send_columns.assert_not_called()
+        fake_calib.adc_to_volts.assert_not_called()
+
+    def test_set_neural_band_emg_calibration_replaces_and_clears(self) -> None:
+        fake_calib = MagicMock()
+        self.viewer.set_neural_band_emg_calibration(fake_calib)
+        self.assertIs(self.viewer._neural_band_emg_calibration, fake_calib)
+
+        self.viewer.set_neural_band_emg_calibration(None)
+        self.assertIsNone(self.viewer._neural_band_emg_calibration)

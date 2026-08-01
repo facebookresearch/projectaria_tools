@@ -19,9 +19,11 @@
 #include <array>
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <string>
 #include <vector>
 
+#include <calibration/NeuralBandEmgCalibration.h>
 #include <data_layout/NeuralBandBatchMetadata.h>
 #include <vrs/RecordFormatStreamPlayer.h>
 
@@ -58,6 +60,8 @@ struct NeuralBandBatchConfiguration {
   uint32_t streamId{};
   std::string sensorModel;
   uint64_t deviceId{};
+  std::string emgCalibrationParamsJson;
+  std::optional<calibration::NeuralBandEmgCalibration> emgCalibration;
 };
 
 using NeuralBandBatchCallback = std::function<

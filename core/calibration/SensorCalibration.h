@@ -20,6 +20,7 @@
 #include <calibration/CameraCalibration.h>
 #include <calibration/ImuMagnetometerCalibration.h>
 #include <calibration/MicrophoneCalibration.h>
+#include <calibration/NeuralBandEmgCalibration.h>
 
 namespace projectaria::tools::calibration {
 /**
@@ -44,13 +45,14 @@ enum class SensorCalibrationType {
   BarometerCalibration,
   MicrophoneCalibration,
   AriaEtCalibration,
-  AriaMicCalibration
+  AriaMicCalibration,
+  NeuralBandEmgCalibration
 };
 
 /**
  * @brief An adaptor class to access an arbitrary sensor's calibration, which is a `std::variant` of
  * {CameraCalibration, ImuCalibration, MagnetometerCalibration, BarometerCalibration,
- * MicrophoneCalibration, AriaEtCalibration, AriaMicCalibration}.
+ * MicrophoneCalibration, AriaEtCalibration, AriaMicCalibration, NeuralBandEmgCalibration}.
  */
 class SensorCalibration {
  public:
@@ -62,7 +64,8 @@ class SensorCalibration {
       BarometerCalibration,
       MicrophoneCalibration,
       AriaEtCalibration,
-      AriaMicCalibration>;
+      AriaMicCalibration,
+      NeuralBandEmgCalibration>;
 
  public:
   SensorCalibration() = default;
@@ -104,6 +107,11 @@ class SensorCalibration {
    * does not match.
    */
   [[nodiscard]] AriaMicCalibration ariaMicCalibration() const;
+  /**
+   * @brief Try to get the SensorCalibration as a NeuralBandEmgCalibration. Will throw if sensor
+   * type does not match.
+   */
+  [[nodiscard]] NeuralBandEmgCalibration neuralBandEmgCalibration() const;
 
   /**
    * @brief get the type of this sensor calibration as an enum.

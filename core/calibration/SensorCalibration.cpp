@@ -54,6 +54,11 @@ AriaMicCalibration SensorCalibration::ariaMicCalibration() const {
   data_provider::checkAndThrow(sensorCalibrationType_ == SensorCalibrationType::AriaMicCalibration);
   return std::get<AriaMicCalibration>(calibVariant_);
 }
+NeuralBandEmgCalibration SensorCalibration::neuralBandEmgCalibration() const {
+  data_provider::checkAndThrow(
+      sensorCalibrationType_ == SensorCalibrationType::NeuralBandEmgCalibration);
+  return std::get<NeuralBandEmgCalibration>(calibVariant_);
+}
 
 SensorCalibrationType SensorCalibration::sensorCalibrationType() const {
   return sensorCalibrationType_;

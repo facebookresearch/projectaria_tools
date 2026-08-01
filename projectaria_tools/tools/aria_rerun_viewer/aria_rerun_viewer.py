@@ -22,7 +22,11 @@ try:
 except ImportError:
     from projectaria_tools.core.data_provider import create_vrs_data_provider
 
-from projectaria_tools.core.calibration import DeviceCalibration, DeviceVersion
+from projectaria_tools.core.calibration import (
+    DeviceCalibration,
+    DeviceVersion,
+    SensorCalibrationType,
+)
 from projectaria_tools.core.data_provider import DeliverQueuedOptions, VrsDataProvider
 from projectaria_tools.core.sensor_data import SensorDataType, TimeDomain, TimeSyncMode
 from projectaria_tools.tools.aria_rerun_viewer.aria_data_plotter import (
@@ -365,6 +369,19 @@ def log_vrs_to_rerun(
         rrd_output_path=rrd_output_path,
     )
     aria_data_viewer.plot_device_extrinsics()
+
+    if viewer_config.enable_neural_band_batch:
+        emg_stream_id = vrs_data_provider.get_stream_id_from_label("emg")
+        if emg_stream_id is not None:
+            sensor_calib = vrs_data_provider.get_sensor_calibration(emg_stream_id)
+            if (
+                sensor_calib is not None
+                and sensor_calib.sensor_calibration_type()
+                == SensorCalibrationType.NEURAL_BAND_EMG_CALIBRATION
+            ):
+                aria_data_viewer.set_neural_band_emg_calibration(
+                    sensor_calib.neural_band_emg_calibration()
+                )
 
     # Step 6: Plot queued sensor data
     plot_queued_sensor_data(

@@ -649,6 +649,92 @@ inline void declareMicrophoneCalibration(py::module& m) {
               }));
 }
 
+inline void declareNeuralBandEmgCalibration(py::module& m) {
+  py::class_<NeuralBandEmgCalibration>(
+      m,
+      "NeuralBandEmgCalibration",
+      "Wristband EMG calibration; converts raw ADC counts to voltage at the electrode input.")
+      .def(py::init<>())
+      .def(
+          py::init<
+              std::string,
+              float,
+              uint32_t,
+              float,
+              float,
+              float,
+              bool,
+              uint32_t,
+              uint32_t,
+              uint32_t>())
+      .def("get_label", &NeuralBandEmgCalibration::getLabel)
+      .def("get_analog_gain", &NeuralBandEmgCalibration::getAnalogGain)
+      .def("get_adc_count_levels", &NeuralBandEmgCalibration::getAdcCountLevels)
+      .def("get_adc_vref_pos", &NeuralBandEmgCalibration::getAdcVrefPos)
+      .def("get_adc_vref_neg", &NeuralBandEmgCalibration::getAdcVrefNeg)
+      .def("get_adc_vref_dc", &NeuralBandEmgCalibration::getAdcVrefDc)
+      .def("is_truncated", &NeuralBandEmgCalibration::isTruncated)
+      .def("get_streamed_bit_width", &NeuralBandEmgCalibration::getStreamedBitWidth)
+      .def("get_dropped_lsb", &NeuralBandEmgCalibration::getDroppedLsb)
+      .def(
+          "get_adc_chip_code",
+          &NeuralBandEmgCalibration::getAdcChipCode,
+          "Opaque ADC front-end identifier; 0 means unknown, other codes are hardware-specific.")
+      .def(
+          "adc_to_volts",
+          py::overload_cast<uint32_t>(&NeuralBandEmgCalibration::adcToVolts, py::const_),
+          py::arg("adc_count"),
+          "Convert one ADC count to voltage (V) at the electrode input.")
+      .def(
+          "adc_to_volts",
+          py::overload_cast<const std::vector<uint16_t>&>(
+              &NeuralBandEmgCalibration::adcToVolts, py::const_),
+          py::arg("adc_counts"),
+          "Convert a channel-value batch (typically NeuralBandEmgSample.channel_values) to voltage (V).")
+      .def(
+          "volts_to_adc",
+          &NeuralBandEmgCalibration::voltsToAdc,
+          py::arg("volts"),
+          "Round-to-nearest inverse of adc_to_volts; returns an ADC count.")
+      .def_static(
+          "from_params_json",
+          &NeuralBandEmgCalibration::fromParamsJson,
+          py::arg("json"),
+          py::arg("label") = "emg",
+          "Parse the verbatim device.emg_calibration JSON blob from the CONFIG record.")
+      .def(
+          py::pickle(
+              [](const NeuralBandEmgCalibration& self) {
+                return py::make_tuple(
+                    self.getLabel(),
+                    self.getAnalogGain(),
+                    self.getAdcCountLevels(),
+                    self.getAdcVrefPos(),
+                    self.getAdcVrefNeg(),
+                    self.getAdcVrefDc(),
+                    self.isTruncated(),
+                    self.getStreamedBitWidth(),
+                    self.getDroppedLsb(),
+                    self.getAdcChipCode());
+              },
+              [](const py::tuple& t) {
+                if (t.size() != 10) {
+                  throw std::runtime_error("Invalid state!");
+                }
+                return NeuralBandEmgCalibration(
+                    t[0].cast<std::string>(),
+                    t[1].cast<float>(),
+                    t[2].cast<uint32_t>(),
+                    t[3].cast<float>(),
+                    t[4].cast<float>(),
+                    t[5].cast<float>(),
+                    t[6].cast<bool>(),
+                    t[7].cast<uint32_t>(),
+                    t[8].cast<uint32_t>(),
+                    t[9].cast<uint32_t>());
+              }));
+}
+
 inline void declareSensorCalibration(py::module& m) {
   declareCameraCalibration(m);
   declareLinearRectificationModel(m);
@@ -656,6 +742,7 @@ inline void declareSensorCalibration(py::module& m) {
   declareMagnetometerCalibration(m);
   declareBarometerCalibration(m);
   declareMicrophoneCalibration(m);
+  declareNeuralBandEmgCalibration(m);
 
   py::enum_<SensorCalibrationType>(m, "SensorCalibrationType")
       .value("NOT_VALID", SensorCalibrationType::NotValid)
@@ -666,6 +753,7 @@ inline void declareSensorCalibration(py::module& m) {
       .value("MICROPHONE_CALIBRATION", SensorCalibrationType::MicrophoneCalibration)
       .value("ARIA_ET_CALIBRATION", SensorCalibrationType::AriaEtCalibration)
       .value("ARIA_MIC_CALIBRATION", SensorCalibrationType::AriaMicCalibration)
+      .value("NEURAL_BAND_EMG_CALIBRATION", SensorCalibrationType::NeuralBandEmgCalibration)
       .export_values()
       .export_values()
       .def(
@@ -710,6 +798,10 @@ inline void declareSensorCalibration(py::module& m) {
           &SensorCalibration::ariaMicCalibration,
           "Try to get the SensorCalibration as a AriaMicCalibration. Will throw if sensor type does not match.")
       .def(
+          "neural_band_emg_calibration",
+          &SensorCalibration::neuralBandEmgCalibration,
+          "Try to get the SensorCalibration as a NeuralBandEmgCalibration. Will throw if sensor type does not match.")
+      .def(
           "sensor_calibration_type",
           &SensorCalibration::sensorCalibrationType,
           "get the type of this sensor calibration as an enum.")
@@ -740,6 +832,10 @@ inline void declareSensorCalibration(py::module& m) {
                   case SensorCalibrationType::AriaMicCalibration:
                     return py::make_tuple(
                         SensorCalibrationType::AriaMicCalibration, calib.ariaMicCalibration());
+                  case SensorCalibrationType::NeuralBandEmgCalibration:
+                    return py::make_tuple(
+                        SensorCalibrationType::NeuralBandEmgCalibration,
+                        calib.neuralBandEmgCalibration());
                   default:
                     throw std::runtime_error("Unsupported calibration type");
                 }
@@ -765,6 +861,8 @@ inline void declareSensorCalibration(py::module& m) {
                     return SensorCalibration(t[1].cast<AriaEtCalibration>());
                   case SensorCalibrationType::AriaMicCalibration:
                     return SensorCalibration(t[1].cast<AriaMicCalibration>());
+                  case SensorCalibrationType::NeuralBandEmgCalibration:
+                    return SensorCalibration(t[1].cast<NeuralBandEmgCalibration>());
                   default:
                     throw std::runtime_error("Unsupported calibration type");
                 }

@@ -509,7 +509,15 @@ inline void declareNeuralBandBatchDataRecord(py::module& m) {
           "sensor_model",
           &NeuralBandBatchConfiguration::sensorModel,
           "wristband hardware model string")
-      .def_readwrite("device_id", &NeuralBandBatchConfiguration::deviceId);
+      .def_readwrite("device_id", &NeuralBandBatchConfiguration::deviceId)
+      .def_readwrite(
+          "emg_calibration_params_json",
+          &NeuralBandBatchConfiguration::emgCalibrationParamsJson,
+          "verbatim device.emg_calibration JSON blob; empty when absent")
+      .def_readwrite(
+          "emg_calibration",
+          &NeuralBandBatchConfiguration::emgCalibration,
+          "parsed EMG calibration; None when absent or malformed");
 
   py::class_<NeuralBandEmgSample>(m, "NeuralBandEmgSample")
       .def(py::init<>())

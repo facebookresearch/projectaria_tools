@@ -50,13 +50,9 @@ def _spawn_rerun_viewer(memory_limit: str) -> None:
 
 
 NEURAL_BAND_EMG_LABEL: Final = "neural-band-emg"
+NEURAL_BAND_EMG_VOLTS_LABEL: Final = "neural-band-emg-volts"
 NEURAL_BAND_ACCEL_LABEL: Final = "neural-band-accel"
 NEURAL_BAND_GYRO_LABEL: Final = "neural-band-gyro"
-
-# EMA smoothing factor for the per-channel EMG DC baseline. Electrode offsets
-# dominate the raw signal; without subtraction the AC EMG variation is invisible
-# on a shared auto-scaled axis.
-EMG_BASELINE_SMOOTHING_FACTOR: Final = 0.99
 
 
 @dataclass
@@ -264,7 +260,8 @@ class AriaDataViewer:
         # A variable to cache full VIO trajectory
         self.vio_traj_cached_full = []
         self._neural_band_emg_styling_logged = False
-        self._emg_baseline = None
+        self._neural_band_emg_volts_styling_logged = False
+        self._neural_band_emg_calibration = None
         # Scale ratio to convert plot sizes from RGB camera space to SLAM camera space (based on camera resolution ratio)
 
         if rrd_output_path:
@@ -514,6 +511,10 @@ class AriaDataViewer:
                     contents=[
                         rrb.TimeSeriesView(
                             name="Neural Band EMG", origin=NEURAL_BAND_EMG_LABEL
+                        ),
+                        rrb.TimeSeriesView(
+                            name="Neural Band EMG (V)",
+                            origin=NEURAL_BAND_EMG_VOLTS_LABEL,
                         ),
                         rrb.TimeSeriesView(
                             name="Neural Band Accel", origin=NEURAL_BAND_ACCEL_LABEL
@@ -893,12 +894,16 @@ class AriaDataViewer:
             rr.Scalars(barometer_data.temperature),
         )  # Degree Celsius
 
+    def set_neural_band_emg_calibration(self, calibration):
+        self._neural_band_emg_calibration = calibration
+
     def plot_neural_band_batch(self, batch):
         if batch is None:
             warn_once(self.plot_neural_band_batch, "NeuralBandBatch is None")
             return
 
         self._plot_neural_band_emg(batch)
+        self._plot_neural_band_emg_volts(batch)
         self._plot_neural_band_accel(batch)
         self._plot_neural_band_gyro(batch)
 
@@ -943,23 +948,62 @@ class AriaDataViewer:
             )
             * 1e-9
         )
-        raw_counts = np.array([s.channel_values for s in valid], dtype=np.float64)
-
-        batch_mean = raw_counts.mean(axis=0)
-        if self._emg_baseline is None or self._emg_baseline.shape != batch_mean.shape:
-            self._emg_baseline = batch_mean
-        else:
-            self._emg_baseline = (
-                EMG_BASELINE_SMOOTHING_FACTOR * self._emg_baseline
-                + (1.0 - EMG_BASELINE_SMOOTHING_FACTOR) * batch_mean
-            )
-        values = raw_counts - self._emg_baseline
+        values = np.array([s.channel_values for s in valid], dtype=np.float64)
 
         for channel in range(channel_count):
             rr.send_columns(
                 f"{NEURAL_BAND_EMG_LABEL}/channels/channel_{channel}",
                 indexes=[rr.TimeColumn("device_time", timestamp=timestamps_sec)],
                 columns=rr.Scalars.columns(scalars=values[:, channel]),
+            )
+
+    def _ensure_neural_band_emg_volts_styling(self, channel_count):
+        """Log a distinct color + legend name per EMG-volts channel, once."""
+        if getattr(self, "_neural_band_emg_volts_styling_logged", False):
+            return
+        for channel in range(channel_count):
+            hue = channel / max(channel_count, 1)
+            r, g, b = colorsys.hsv_to_rgb(hue, 0.85, 0.9)
+            rr.log(
+                f"{NEURAL_BAND_EMG_VOLTS_LABEL}/channels/channel_{channel}",
+                rr.SeriesLines(
+                    colors=[[int(r * 255), int(g * 255), int(b * 255)]],
+                    names=[f"channel_{channel}"],
+                ),
+                static=True,
+            )
+        self._neural_band_emg_volts_styling_logged = True
+
+    def _plot_neural_band_emg_volts(self, batch):
+        calibration = getattr(self, "_neural_band_emg_calibration", None)
+        if calibration is None or not batch.emg:
+            return
+        channel_count = batch.emg_channel_count
+        if channel_count <= 0:
+            return
+        valid = [s for s in batch.emg if len(s.channel_values) == channel_count]
+        if not valid:
+            return
+
+        self._ensure_neural_band_emg_volts_styling(channel_count)
+        timestamps_sec = (
+            np.fromiter(
+                (s.capture_timestamp_ns for s in valid),
+                dtype=np.int64,
+                count=len(valid),
+            )
+            * 1e-9
+        )
+        # One vectorized adc_to_volts call for the whole batch, then reshape.
+        flat_adcs = [v for s in valid for v in s.channel_values]
+        volts = np.asarray(
+            calibration.adc_to_volts(flat_adcs), dtype=np.float64
+        ).reshape(len(valid), channel_count)
+        for channel in range(channel_count):
+            rr.send_columns(
+                f"{NEURAL_BAND_EMG_VOLTS_LABEL}/channels/channel_{channel}",
+                indexes=[rr.TimeColumn("device_time", timestamp=timestamps_sec)],
+                columns=rr.Scalars.columns(scalars=volts[:, channel]),
             )
 
     def _plot_neural_band_accel(self, batch):
