@@ -54,6 +54,13 @@ cd /tmp && curl -kOL http://downloads.xiph.org/releases/opus/opus-1.5.2.tar.gz \
   && make install \
   && rm -rf /tmp/opus-1.5.2.tar.gz /tmp/opus-1.5.2 \
 
+# Build nv-codec-headers (header-only) so XPRS can be built with NVDEC GPU
+# H.265 decode. No CUDA toolkit is needed at build time; the driver's
+# libcuda/libnvcuvid are dlopen'd at runtime, keeping the wheel CUDA-agnostic.
+cd /tmp && git clone --depth 1 --branch n12.1.14.0 https://github.com/FFmpeg/nv-codec-headers.git \
+  && make -C nv-codec-headers install PREFIX=/usr \
+  && rm -rf /tmp/nv-codec-headers;
+
 # Build FFmpeg
 cd /project \
   && ./build_third_party_libs/build_ffmpeg_linuxunix.sh
