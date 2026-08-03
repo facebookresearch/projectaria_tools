@@ -34,6 +34,8 @@ target_link_libraries(players
   Sophus::Sophus
   image
   hand_tracking
+  neural_band_emg_calibration
+  neural_band_imu_calibration
   INTERFACE
   data_layout
   PRIVATE
