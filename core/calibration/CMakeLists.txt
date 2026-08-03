@@ -38,15 +38,26 @@ target_include_directories(camera_config_builder PUBLIC "../")
 target_link_libraries(camera_config_builder PUBLIC device_version PRIVATE config_file_loader vrs_logging nlohmann_json::nlohmann_json)
 
 
+add_library(neural_band_emg_calibration
+    NeuralBandEmgCalibration.cpp NeuralBandEmgCalibration.h)
+target_include_directories(neural_band_emg_calibration PUBLIC "../")
+target_link_libraries(neural_band_emg_calibration PRIVATE nlohmann_json::nlohmann_json)
+
+add_library(neural_band_imu_calibration
+    NeuralBandImuCalibration.cpp NeuralBandImuCalibration.h)
+target_include_directories(neural_band_imu_calibration PUBLIC "../")
+target_link_libraries(neural_band_imu_calibration PUBLIC Eigen3::Eigen PRIVATE nlohmann_json::nlohmann_json)
+
 add_library(sensor_calibration
     SensorCalibration.cpp SensorCalibration.h
     CameraCalibration.cpp CameraCalibration.h CameraCalibrationFormat.h
     ImuMagnetometerCalibration.cpp ImuMagnetometerCalibration.h ImuMagnetometerCalibrationFormat.h
     BarometerCalibration.cpp BarometerCalibration.h
     MicrophoneCalibration.cpp MicrophoneCalibration.h
+    NeuralBandBatchCalibration.h
 )
 target_include_directories(sensor_calibration PUBLIC "../")
-target_link_libraries(sensor_calibration PUBLIC format error_handler camera_projection vrs_logging calibration_distort camera_config_builder)
+target_link_libraries(sensor_calibration PUBLIC format error_handler camera_projection vrs_logging calibration_distort camera_config_builder neural_band_emg_calibration neural_band_imu_calibration)
 
 add_library(svd_point_cloud_alignment SvdPointCloudAlignment.cpp SvdPointCloudAlignment.h)
 target_include_directories(svd_point_cloud_alignment PUBLIC "../")
