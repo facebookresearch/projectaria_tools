@@ -40,7 +40,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   vrs
   GIT_REPOSITORY https://github.com/facebookresearch/vrs.git
-  GIT_TAG 125db715b73e2768723defcb88ccb755fabcd43d # main Jun 26, 2026.
+  GIT_TAG 2f4fc9e555311928bc4643ea251a1542216f5e74 # main Aug 3rd, 2026. VRS is updated with CUDA-acceleration support.
 )
 # Override config for vrs
 option(UNIT_TESTS OFF)
