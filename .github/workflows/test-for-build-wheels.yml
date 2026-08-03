@@ -131,6 +131,13 @@ jobs:
           CIBW_BUILD_VERBOSITY: 3
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_BEFORE_BUILD_LINUX: bash build_third_party_libs/install_manylinux_deps.sh
+          # Enable NVDEC GPU H.265 decode in Linux x86_64 wheels. The build needs
+          # only nv-codec-headers (installed by install_manylinux_deps.sh), not a
+          # GPU or CUDA toolkit; the wheel stays CUDA-agnostic.
+          CIBW_ENVIRONMENT_LINUX: "PROJECTARIA_ENABLE_CUDA=1"
+          # libcuda/libnvcuvid are dlopen'd from the driver at runtime and must
+          # never be vendored into the wheel; exclude them from auditwheel repair.
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair --exclude libcuda.so.1 --exclude libnvcuvid.so.1 -w {dest_dir} {wheel}"
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_*"
           CIBW_ARCHS: "x86_64"
       - name: Build wheels for CPython
@@ -158,3 +165,16 @@ jobs:
           export TEST_FOLDER_GEN2="./data/gen2/"
           python -m unittest core/python/test/corePyBindTest.py
           python -m unittest core/python/test/mpsPyBindTest.py
+          # CUDA-agnostic checks. Runners have no GPU, so has_cuda_support() is
+          # expected to return False here; the point is that it runs without a
+          # CUDA install, and the Linux wheel links no CUDA libraries (they are
+          # dlopen'd from the driver at runtime, never bundled).
+          python -c "import projectaria_tools as t; print('has_cuda_support:', t.has_cuda_support())"
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            CORE_SO=$(python -c "import _core_pybinds; print(_core_pybinds.__file__)")
+            echo "Checking $CORE_SO for CUDA linkage"
+            if readelf -d "$CORE_SO" | grep NEEDED | grep -iE 'libcuda|libnvcuvid'; then
+              echo "ERROR: wheel links CUDA libraries; it must be CUDA-agnostic" && exit 1
+            fi
+            echo "OK: no CUDA libraries in NEEDED"
+          fi
