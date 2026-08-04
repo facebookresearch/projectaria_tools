@@ -57,8 +57,13 @@ cd /tmp && curl -kOL http://downloads.xiph.org/releases/opus/opus-1.5.2.tar.gz \
 # Build nv-codec-headers (header-only) so XPRS can be built with NVDEC GPU
 # H.265 decode. No CUDA toolkit is needed at build time; the driver's
 # libcuda/libnvcuvid are dlopen'd at runtime, keeping the wheel CUDA-agnostic.
+#
+# LIBDIR=lib64 is required: the upstream Makefile defaults to LIBDIR=lib, which
+# puts ffnvcodec.pc in /usr/lib/pkgconfig, but the manylinux image's pkg-config
+# only searches /usr/lib64/pkgconfig and /usr/share/pkgconfig, so the xprs
+# pkg_check_modules(ffnvcodec) lookup would fail to find it.
 cd /tmp && git clone --depth 1 --branch n12.1.14.0 https://github.com/FFmpeg/nv-codec-headers.git \
-  && make -C nv-codec-headers install PREFIX=/usr \
+  && make -C nv-codec-headers install PREFIX=/usr LIBDIR=lib64 \
   && rm -rf /tmp/nv-codec-headers;
 
 # Build FFmpeg
