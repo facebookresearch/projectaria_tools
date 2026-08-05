@@ -37,6 +37,10 @@ Time-domain-mapping (TDM) requires one device to emit a periodic timing signal t
 aria_gen2 recording start --profile profile8 --all --broadcaster 1M0YDD5H7K0047
 ```
 
+:::tip External LTC gear as broadcaster
+The broadcaster does not have to be another Aria device. **[Timecode Bridge](/ark/device/timecode-bridge)** is an open-source hardware companion that re-broadcasts SMPTE LTC over the same sub-GHz protocol — set all your glasses as receivers on the Bridge's channel to align Aria captures with LTC-timecoded external gear (mocap systems, professional cameras, audio recorders).
+:::
+
 If you only need coordinated start and stop without timestamp alignment, disable TDM entirely:
 
 ```bash

@@ -30,6 +30,10 @@ Choose one of the following modes based on your device's role:
 | Broadcaster | This device transmits timing signals. This sets the glasses as the primary/reference device. A unique Broadcaster ID is auto-generated. |
 | Receiver | This device listens for timing signals from a Broadcaster (primary device). Use for secondary devices. |
 
+:::tip Sync with external LTC gear
+The Broadcaster does not have to be another Aria device. **[Timecode Bridge](/ark/device/timecode-bridge)** is an open-source hardware companion that broadcasts SMPTE LTC on the same sub-GHz protocol — configure all your glasses as **Receiver** and select the Bridge's channel to align Aria recordings with LTC-timecoded external gear.
+:::
+
 ## Configuring Channel and Broadcaster ID
 
 1. Select a **Channel** from the dropdown. All devices in your recording session must use the same channel.

@@ -1,0 +1,30 @@
+---
+sidebar_position: 4
+title: Timecode Bridge
+---
+
+# Timecode Bridge
+
+**Timecode Bridge** is an open-source hardware companion that lets Aria Gen 2 glasses time-align with external LTC-timecoded video and audio equipment — motion capture systems, professional cameras, audio recorders, and similar gear. It receives SMPTE **LTC (Linear Timecode)** on a BNC input and re-broadcasts the timing on the same **sub-1 GHz radio protocol** that Aria's built-in [Time Domain Mapping](/ark/companion-app/time-domain-mapping) already uses.
+
+From the glasses' perspective nothing new needs to be configured. Timecode Bridge simply acts as an additional **broadcaster** — same protocol, same channels, same regulatory rules. Set the glasses to **Receiver** mode ([Companion App guide](/ark/companion-app/time-domain-mapping) or [Client SDK guide](/ark/client-sdk/multi-device)) and choose the channel and broadcaster ID that the Bridge is transmitting on. Recorded VRS timestamps expose the Bridge's clock through the existing `SubGHz` [TimeDomain queries](/research-tools/projectariatools/pythontutorials/time-sync).
+
+## When to use it
+
+- Your recording rig is anchored to a master clock outside the Aria ecosystem — a mocap system generating LTC, a video switcher, an SMPTE / MTC generator box.
+- You want Aria captures to align with LTC-stamped footage or audio in post-production; tens of microseconds of offset is achievable.
+- You want to run multi-glass sessions where the timing master is external hardware rather than one of the glasses.
+
+## What it is
+
+- STM32-based, open-source firmware and hardware, built on the **STEVAL-FKI868V2** kit (NUCLEO-L053R8 host board + X-NUCLEO-S2915A1 sub-GHz daughterboard).
+- Regulatory channels match the Aria glasses' supported set: ETSI `0–2` (865.6–867.2 MHz) and FCC `10–40` (903.4–927.4 MHz).
+- Fully documented: 3D-printable enclosure, wiring diagram, hardware build guide, and CLI reference in the source repo.
+
+## Get started
+
+The complete hardware BOM, build guide, flashing instructions, and CLI reference live in the source repo:
+
+**[github.com/facebookresearch/projectaria_timecode_bridge](https://github.com/facebookresearch/projectaria_timecode_bridge)**
+
+Follow the repo's `README.md` and `hw/README.md` for step-by-step assembly and firmware flashing, then configure the glasses as a Receiver on the same channel and broadcaster ID.
