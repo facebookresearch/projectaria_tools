@@ -131,15 +131,10 @@ jobs:
           CIBW_BUILD_VERBOSITY: 3
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_BEFORE_BUILD_LINUX: bash build_third_party_libs/install_manylinux_deps.sh
-          # Enable NVDEC GPU H.265 decode in Linux x86_64 wheels. The build needs
-          # only nv-codec-headers (installed by install_manylinux_deps.sh), not a
-          # GPU or CUDA toolkit; the wheel stays CUDA-agnostic.
-          # PKG_CONFIG_PATH covers both pkgconfig dirs so ffnvcodec.pc is found
-          # regardless of which one nv-codec-headers installed into.
-          CIBW_ENVIRONMENT_LINUX: "PROJECTARIA_ENABLE_CUDA=1 PKG_CONFIG_PATH=/usr/lib64/pkgconfig:/usr/lib/pkgconfig"
-          # libcuda/libnvcuvid are dlopen'd from the driver at runtime and must
-          # never be vendored into the wheel; exclude them from auditwheel repair.
-          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair --exclude libcuda.so.1 --exclude libnvcuvid.so.1 -w {dest_dir} {wheel}"
+          # NVDEC GPU H.265 decode is currently disabled in the shipped wheels.
+          # Re-enable by restoring:
+          #   CIBW_ENVIRONMENT_LINUX: "PROJECTARIA_ENABLE_CUDA=1 PKG_CONFIG_PATH=/usr/lib64/pkgconfig:/usr/lib/pkgconfig"
+          #   CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair --exclude libcuda.so.1 --exclude libnvcuvid.so.1 -w {dest_dir} {wheel}"
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_*"
           CIBW_ARCHS: "x86_64"
       - name: Build wheels for CPython
