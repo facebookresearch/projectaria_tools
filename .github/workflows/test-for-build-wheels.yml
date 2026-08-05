@@ -2,8 +2,25 @@ name: Test for build wheels
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'setup.py'
+      - 'pyproject.toml'
+      - 'pyproject_arm64.toml'
+      - 'generate_stubs.py'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'build_third_party_libs/**'
+      - 'core/**'
+      - 'projectaria_tools/**'
+      - '.github/workflows/test-for-build-wheels.yml'
   schedule:
     - cron: '0 16 * * MON'  # Weekly canary, Monday 16:00 UTC = 8 AM PST / 9 AM PDT
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
