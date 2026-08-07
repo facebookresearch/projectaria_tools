@@ -16,7 +16,7 @@ on:
       - 'projectaria_tools/**'
       - '.github/workflows/test-for-build-wheels.yml'
   schedule:
-    - cron: '0 16 * * MON'  # Weekly canary, Monday 16:00 UTC = 8 AM PST / 9 AM PDT
+    - cron: '0 16 * * MON'  # Weekly canary, Monday 16:00 UTC = 8 AM PST / 9 AM PDT.
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -144,10 +144,8 @@ jobs:
           CIBW_BUILD_VERBOSITY: 3
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_BEFORE_BUILD_LINUX: bash build_third_party_libs/install_manylinux_deps.sh
-          # NVDEC GPU H.265 decode is currently disabled in the shipped wheels.
-          # Re-enable by restoring:
-          #   CIBW_ENVIRONMENT_LINUX: "PROJECTARIA_ENABLE_CUDA=1 PKG_CONFIG_PATH=/usr/lib64/pkgconfig:/usr/lib/pkgconfig"
-          #   CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair --exclude libcuda.so.1 --exclude libnvcuvid.so.1 -w {dest_dir} {wheel}"
+          CIBW_ENVIRONMENT_LINUX: "PROJECTARIA_ENABLE_CUDA=1 PKG_CONFIG_PATH=/usr/lib64/pkgconfig:/usr/lib/pkgconfig"
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair --exclude libcuda.so.1 --exclude libnvcuvid.so.1 -w {dest_dir} {wheel}"
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_*"
           CIBW_ARCHS: "x86_64"
       - name: Build wheels for CPython
