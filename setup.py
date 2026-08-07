@@ -170,7 +170,7 @@ def main():
         author="Meta Reality Labs Research",
         cmdclass={"build_ext": CMakeBuild},
         zip_safe=False,
-        python_requires=">=3.9",
+        python_requires=">=3.10",
         install_requires=[
             "jupyter",
             "matplotlib",
