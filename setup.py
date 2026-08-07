@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import platform
 import re
 import subprocess
 import sys
@@ -63,6 +64,14 @@ class CMakeBuild(build_ext):
             "-DPROJECTARIA_TOOLS_BUILD_PROJECTS_AEA=ON",
             "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
         ]
+
+        # Ocean's NEON RGB-conversion code mixes signed/unsigned vector types
+        # in intrinsic calls (e.g. `int8x16_t` passed to `vget_low_u8`), which
+        # Ocean's Android/iOS builds accept because Clang is permissive by
+        # default. GCC on Linux aarch64 refuses the mismatch and requires
+        # `-flax-vector-conversions` to allow it, matching Clang's behavior.
+        if sys.platform.startswith("linux") and platform.machine() == "aarch64":
+            cmake_args.append("-DCMAKE_CXX_FLAGS=-flax-vector-conversions")
 
         # Note: env var uses "CUDA" (recognizable to users), CMake flag uses
         # "NVCODEC" (precise for build-system maintainers). Intentional.
