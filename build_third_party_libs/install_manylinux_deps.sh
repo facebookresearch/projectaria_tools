@@ -22,6 +22,9 @@ sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /
 
 # Install system deps
 # Toolchains
+# EPEL provides gtest-devel and xxhash-devel on manylinux2014_aarch64;
+# already enabled on the x86_64 image, so this is idempotent there.
+yum install -y epel-release
 yum install -y cmake git gtest-devel \
     lz4-devel libzstd-devel xxhash-devel libpng-devel libjpeg-turbo-devel wget
 
@@ -34,9 +37,12 @@ cd /tmp; git clone https://github.com/fmtlib/fmt.git -b 10.2.1 \
     && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE -DFMT_TEST=OFF .; make -j$thread install; rm -rf /tmp/fmt;
 
 # Build lib jpeg turbo
+# libjpeg-turbo 3.0.1's cmake_minimum_required predates CMake 4.x's removal
+# of pre-3.5 policy compatibility; the manylinux2014 image (both arches) now
+# ships CMake 4.4+, so we opt into the CMake-suggested policy floor.
 cd /tmp && git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git -b 3.0.1 \
     && cd libjpeg-turbo \
-    && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_JPEG8=1 -DCMAKE_INSTALL_DEFAULT_PREFIX=/usr .;make -j$thread install; rm -rf /tmp/libjpeg-turbo;
+    && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_JPEG8=1 -DCMAKE_INSTALL_DEFAULT_PREFIX=/usr -DCMAKE_POLICY_VERSION_MINIMUM=3.5 .;make -j$thread install; rm -rf /tmp/libjpeg-turbo;
 
 # Build Boost
 cd /tmp && git clone --recursive https://github.com/boostorg/boost.git -b boost-1.84.0 \

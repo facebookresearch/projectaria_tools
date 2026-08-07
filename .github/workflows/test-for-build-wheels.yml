@@ -91,7 +91,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14, ubuntu-latest] # macos-14 is macSilicon
+        os: [macos-14, ubuntu-latest, ubuntu-24.04-arm]  # macos-14 = macSilicon; ubuntu-24.04-arm = native Linux aarch64
         python-version: ["3.10", "3.11", "3.12"]
         include:
           - python-version: "3.10"
@@ -120,7 +120,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install cibuildwheel==2.21.0
       - name: Install ffmpeg dependency lib
-        if: ${{ (matrix.os == 'macos-14') || (matrix.os == 'ubuntu-latest') }}
+        if: ${{ (matrix.os == 'macos-14') || (matrix.os == 'ubuntu-latest') || (matrix.os == 'ubuntu-24.04-arm') }}
         shell: bash
         run: |
           ./build_third_party_libs/build_ffmpeg_linuxunix.sh
@@ -148,6 +148,20 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair --exclude libcuda.so.1 --exclude libnvcuvid.so.1 -w {dest_dir} {wheel}"
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_*"
           CIBW_ARCHS: "x86_64"
+      - name: Build wheels for CPython
+        if: ${{ (matrix.os == 'ubuntu-24.04-arm') }}
+        shell: bash
+        run: |
+          CMAKE_BUILD_PARALLEL_LEVEL=4 python -m cibuildwheel --output-dir dist
+        env:
+          CIBW_BUILD_VERBOSITY: 3
+          CIBW_BUILD: ${{ matrix.cibw_build }}
+          CIBW_BEFORE_BUILD_LINUX: bash build_third_party_libs/install_manylinux_deps.sh
+          # Unlike the x86_64 leg above, NVDEC is not enabled here: NVIDIA ships
+          # libnvcuvid for x86_64 only, so there is nothing for the CUDA env vars
+          # or the auditwheel exclusions to act on.
+          CIBW_SKIP: "*-manylinux_i686 *-musllinux_*"
+          CIBW_ARCHS: "aarch64"
       - name: Build wheels for CPython
         if: matrix.os == 'windows-2022'
         shell: bash
