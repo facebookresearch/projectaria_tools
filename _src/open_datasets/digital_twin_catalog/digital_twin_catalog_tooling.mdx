@@ -1,0 +1,76 @@
+---
+sidebar_position: 65
+title: DTC Tooling
+---
+
+# DTC Tooling
+
+To help you quickly ramp up using the Digital Twin Catalog (DTC) dataset, we have provided the following Python tools which are available in the [DTC code repo](https://github.com/facebookresearch/DigitalTwinCatalogue.git):
+
+* [Rerun Visualizer Script](#rerun-visualizer)
+* [Mask Generation Script](#mask-generation)
+* [Sequence & Model Download Script](#download-model-with-sequence)
+
+### Step 0: Prepare data and venv if not done before​
+
+* Follow Step 0 to Step 5 in [Dataset Download](digital_twin_catalog_download_dataset#download-the-sample-digital-twin-catalog-dtc-sequence).
+* Follow Step 0 to Step 3 in [Object Models](digital_twin_catalog_object_models#download-the-dtc-object-models).
+
+### Step 1: Clone the code repo to local
+
+```
+mkdir ${PATH_TO_LOCAL_CODE_REPO}
+cd ${PATH_TO_LOCAL_CODE_REPO}
+git clone https://github.com/facebookresearch/DigitalTwinCatalogue.git
+```
+
+## Rerun Visualizer
+
+### Step 2: Run the visualizer
+
+```
+python {PATH TO THE RERUN VIEWER PYTHON SCRIPT} --sequence_folder {PATH_TO_YOUR_SELECTED_ARIA_SEQUENCE_FOLDER} \
+--model_folder ${PATH_TO_YOUR_SELECTED_MODEL_FOLDER}
+```
+The Rerun visualizer will visualize the Aria RGB camera, object model and semi-dense point cloud in the same coordinate frame.
+![](/img/DTC/dtc_tooling_run_visualizer.png)
+
+## Mask Generation
+
+### Step 2: Run the mask generation
+```
+mkdir -p $HOME/Documents/dtc_aria_mask_output
+```
+Run the Aria mask generator, from the python virtual environment. Choose the rectification setting of RGB frame (width, height, focal) and subsample rate of RGB stream (optional)
+```
+python {PATH TO THE OBJECT MASK GENERATOR PYTHON SCRIPT} --sequence_folder {PATH_TO_YOUR_SELECTED_SEQUENCE_FOLDER} \
+--model_folder {PATH_TO_YOUR_SELECTED_MODEL_FOLDER} \
+--output_folder $HOME/Documents/dtc_aria_mask_output \
+--width 800 --height 800 --focal 400 --subsample_rate 5
+```
+
+Three subfolders will be created in the output folder, “image” (containing rectified RGB frames), “mask” (corresponding object masks) and “overlay” (overlay mask frame on top of corresponding RGB image frame). Corresponding frames will look as below
+![](/img/DTC/dtc_tooling_mask_generation.png)
+
+## Download Model with Sequence
+
+### Step 2: Run the download script
+
+```
+mkdir -p $HOME/Documents/dtc_sequence_with_object
+```
+
+Run the download script. It will download specified Aria sequence and its captured 3D model
+
+```
+python {PATH TO THE DOWNLOAD PYTHON SCRIPT} -s ${PATH_TO_YOUR_Aria_Sequence_CDN_FILE} \
+-m ${PATH_TO_YOUR_DTC_MODEL_CDN_FILE} \
+-o $HOME/Documents/dtc_sequence_with_object \
+-l {YOUR_SELECTED_SEQUENCE_NAME}
+```
+
+Two subfolders will be created in the output folder, “sequences” (sequences you specified to download) and “models” (models captured by the sequences).
+
+## Troubleshooting
+
+Go to [Project Aria Tools Troubleshooting](/docs/data_utilities/installation/troubleshooting) if you experience any issues.

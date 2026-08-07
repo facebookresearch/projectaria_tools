@@ -1,0 +1,105 @@
+---
+sidebar_position: 0
+title: Dataset Download
+---
+## Downloading Open Datasets
+
+This page provides guidance on how to use our generic downloader to download any Project Aria dataset.
+
+### Step 0: Install projectaria_tools package and create venv if not done before​
+
+**Follow Step 0 to Step 3 in [Getting Started](/docs/data_utilities/getting_started).**
+
+
+### Step 1 : Signup and get the download links file​
+
+**To use the downloader CLI, you need to download a file which contains all data URLs plus some metadata for the downloader script. We currently offer two ways of getting this file:**
+
+#### Option 1 - Aria Dataset Explorer:
+
+Go to the [Aria Dataset Explorer](https://explorer.projectaria.com/) website and choose a dataset by clicking on "View" button.
+Here you can select sequences according to some filter options, or get the links to all sequences by clicking "Download found sequences".
+
+![Dataset Explorer Image](/img/open_datasets/dataset_explorer.png)
+
+#### Option 2 - Dataset Webpage on projectaria.com:
+
+For example, to download Aria Digital Twin, visit the [ADT Webpage](https://www.projectaria.com/datasets/adt/) on projectaria.com. Scroll down to the bottom of the page. Enter your email and select Access the Datasets.
+Visit and sign up.
+
+![Screenshot from website showing download dataset](/img/open_datasets/download_page.png)
+
+Once you've selected Access the Datasets you'll be taken back to the top of the page.
+
+Scroll down the page to select `<your_dataset>` Download Links and download the file to the folder $HOME/Downloads.
+
+<div style={{textAlign: 'center'}}>
+
+![ADT Website Signup Image](/img/open_datasets/download_button.png)
+
+</div>
+
+:::info The download-links file will expire in 14 days
+You can redownload the download links whenever they expire
+:::
+
+This will download a file called `[your_dataset_name]_download_urls.json`.
+
+### Step 2 : Set up a folder for your dataset
+
+```bash
+mkdir -p $HOME/Documents/projectaria_tools_[your_dataset_name]_data
+
+mv $HOME/Downloads/[your_dataset_name]_download_urls.json $HOME/Documents/projectaria_tools_[your_dataset_name]_data/
+```
+
+### Step 3 : Download the sequences using the downloader CLI
+
+To use the downloader, use the following commands in the virtual environment where you've installed `projectaria_tools`.
+
+To get a description of the arguments that the script needs, run:
+
+```bash
+aria_dataset_downloader --help
+```
+
+The following are some example use cases:
+
+
+#### Download VRS for all sequences
+
+To download VRS files for all sequences, run the following command:
+```bash
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0
+```
+This will download VRS files for all sequences in the CDN file to the specified output folder.
+
+#### Get a list of available data groups
+
+To get a list of the data groups available for download, run the following command:
+```bash
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH}
+```
+This will display a list of the data groups that can be downloaded.
+
+#### Download specific data groups
+
+To download specific data groups, specify their numbers separated by spaces after the `--data_types` argument. For example, to download data groups 0, 1, 2, 3, 4, 5, 6, 7, and 8 for all sequences, run the following command:
+```bash
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 1 2 3 4 5 6 7 8
+```
+This will download the specified data groups for all sequences in the CDN file to the specified output folder.
+
+#### Download VRS for specific sequences
+
+To download VRS files for specific sequences, specify their names after the `--sequence_names` argument. For example, to download VRS files for sequences "Apartment\_release\_clean\_seq131\_M1292" and "Apartment\_release\_clean\_seq133\_M1292", run the following command:
+```bash
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 --sequence_names Apartment_release_clean_seq131_M1292 Apartment_release_clean_seq133_M1292
+```
+This will download VRS files for the specified sequences to the specified output folder.
+
+#### Overwrite existing files
+
+To overwrite existing files when downloading data, use the `--overwrite` flag. For example, to download VRS files for all sequences and overwrite any existing files, run the following command:
+```bash
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 --overwrite

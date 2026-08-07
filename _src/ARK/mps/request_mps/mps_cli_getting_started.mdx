@@ -1,0 +1,122 @@
+---
+sidebar_position: 20
+title: MPS CLI Getting Started
+---
+
+# Getting Started With the MPS CLI
+
+## Overview
+
+The Project Aria Machine Perceptions Services Command Line Interface (MPS CLI) is a command line tool used to request and receive [Machine Perception Services](/ARK/mps/mps.mdx). This page provides basic information to get you started with the MPS CLI, go to the [MPS CLI Guide](mps_cli_guide.mdx) for more details.
+
+The MPS inputs can be a file or directory, and multiple inputs can be listed in a single command.
+
+The MPS CLI has two modes:
+
+* Single
+    * Process each recording individually
+    * Output is always saved next to the input VRS file
+    * The most common way to request MPS
+* Multi
+    * Process multiple recordings to generate multi-sequence SLAM data
+    * User must provide a directory for the outputs
+
+
+:::tip Non-UI options available
+This tutorial uses the the MPS CLI UI, but all processes can also work can without using the UI and can be integrated into automated workflows. See the [Command Line Reference](mps_cli_guide.mdx#command-line-reference) in the User Guide for more details.
+:::
+
+
+## Getting Started
+
+### Install MPS CLI
+
+Please follow this table to install the MPS CLI:
+<table>
+ <tr>
+ <td><strong>Platform</strong></td>
+ <td><strong>Installation Steps</strong></td>
+ </tr>
+ <tr>
+ <td><strong>Mac/Linux</strong></td>
+ <td>Please follow the latest [MPS CLI installation guide](https://facebookresearch.github.io/projectaria_tools/gen2/ark/mps/start#install-project-aria-mps).</td>
+ </tr>
+ <tr>
+ <td><strong>Windows</strong></td>
+ <td>Windows support for the new MPS CLI package is coming soon. Until then, please continue to use [pip installation version of Project Aria Tools](/data_utilities/installation/installation_python.mdx).</td>
+ </tr>
+ </table>
+
+### Download the MPS CLI sample dataset
+
+To try out the following commands on VRS files:
+
+1. Download the sample files:
+    * [Sample 1](https://www.projectaria.com/async/sample/download/?bucket=mps&filename=sample_multi_slam_1.vrs) - single VRS file
+    * [Sample 2](https://www.projectaria.com/async/sample/download/?bucket=mps&filename=sample_multi_slam_2.vrs) - single VRS file
+2. Move them to a directory called Example in your downloads directory
+
+:::info
+You may also wish to use your own recordings.
+:::
+
+### Request MPS for all VRS files in the “Example” directory and it’s subdirectories:
+
+```
+aria_mps single -i ~/Downloads/Example/
+```
+
+You'll be prompted to enter your username and password. Use the Project Aria credentials you use to sign into the Mobile Companion app.
+
+![MPS CLU UI for single mode](/img/ARK/mps/mps_cli_ui_single.png)
+
+Once the request has been processed, the MPS output will be downloaded next to the original VRS file. In this example, a recording in the Example directory called recording1.vrs was used to generate MPS.
+
+```
+    └── Example folder
+        ├── mps_recording1_vrs
+        │   ├── eye_gaze
+        │   │   ├── general_eye_gaze.csv
+        │   │   └── summary.json
+        │   ├── slam
+        │   │   ├── closed_loop_trajectory.csv
+        │   │   ├── online_calibration.jsonl
+        │   │   ├── open_loop_trajectory.csv
+        │   │   ├── semidense_observations.csv.gz
+        │   │   ├── semidense_points.csv.gz
+        │   │   └── summary.json
+        │   ├── hand_tracking
+        │   │   ├── wrist_and_palm_poses.csv
+        │   │   └── summary.json
+        │   ├── vrs_health_check.json
+        │   └── vrs_health_check_slam.json
+        └── recording1.vrs
+```
+Go to [MPS Data Format Basics](/data_formats/mps/mps_summary.mdx) for more details about the folder structure.
+
+### Exit the MPS CLI
+
+To quit the MPS CLI, press `CTRL + Q`. The CLI will ask for confirmation before quitting.
+
+* If you quit the request tool while the files are uploading the uploads will stop.
+* If you resubmit the request the uploads will resume where they left off, progress won’t be lost.
+
+If you quit the request tool once the files have been uploaded, the MPS processes will continue. Once processing is complete, and the request tool is open, MPS files will be automatically downloaded to your VRS files’ location.
+
+
+### Multi Sequence MPS Requests
+
+When you request MPS using `multi` mode, MPS will process a group of recordings together to generate Multi-SLAM MPS. [Multi-SLAM MPS](/data_formats/mps/slam/mps_multi_slam.mdx) creates SLAM MPS outputs in a shared co-ordinate frame. Once the request has been processed, the MPS output will be downloaded to the directory you defined.
+
+```
+aria_mps multi -i ~/Downloads/Example/ -o ~/Documents/multi_slam_output
+```
+
+![MPS CLU UI for single mode](/img/ARK/mps/mps_cli_ui_multi.png)
+
+## Working with MPS data
+
+You may find the following resources helpful when working with MPS data:
+* [MPS Data Formats](/data_formats/mps/mps_summary.mdx)
+* [Visualize MPS Using Python](/data_utilities/visualization/visualization_python.mdx)
+* [Visualize MPS Using C++](/data_utilities/visualization/visualization_cpp.mdx)
