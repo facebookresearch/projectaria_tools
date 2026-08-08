@@ -89,7 +89,29 @@ std::optional<AriaDigitalTwinDataPaths> AriaDigitalTwinDataPathsProvider::getDat
   if (datasetVersion_.compare("2.0") < 0) {
     XR_LOGW(
         "Using getDataPaths with data v1.X will take the first device in the sequence, please use getDataPathsByDeviceNum or getDataPathsByDeviceSerial to select the specific a device.");
-    return getDataPathsByDeviceNum(0, skeletonFlag);
+    if (deviceSerialNumbers_.empty()) {
+      XR_LOGE(
+          "device number {} not available in dataset, total number of devices: {}",
+          0,
+          deviceSerialNumbers_.size());
+      return {};
+    }
+
+    const auto& deviceSerial = deviceSerialNumbers_.front();
+    const auto subtourIter = serialToSubtourName_.find(deviceSerial);
+    if (subtourIter == serialToSubtourName_.cend()) {
+      XR_LOGE("device serial {} not available in dataset", deviceSerial);
+      return {};
+    }
+
+    if (!numSkeletons_ && skeletonFlag) {
+      XR_LOGE(
+          "this sequence does not have skeleton ground-truth recorded, please turn off the skeletonFlag and fetch again");
+      return {};
+    }
+
+    return getDataPathsUsingSubtourName(
+        sequencePath_, subtourIter->second, fileMetadata_, skeletonFlag);
   }
 
   return getDataPathsUsingMainDataPath(sequencePath_, fileMetadata_, skeletonFlag);
