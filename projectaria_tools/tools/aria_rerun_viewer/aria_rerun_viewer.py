@@ -29,6 +29,7 @@ from projectaria_tools.core.calibration import (
 )
 from projectaria_tools.core.data_provider import DeliverQueuedOptions, VrsDataProvider
 from projectaria_tools.core.sensor_data import SensorDataType, TimeDomain, TimeSyncMode
+from projectaria_tools.core.stream_id import StreamId
 from projectaria_tools.tools.aria_rerun_viewer.aria_data_plotter import (
     AriaDataViewer,
     AriaDataViewerConfig,
@@ -135,6 +136,27 @@ def parse_args():
         help="path to save .rrd file (if not provided, will spawn viewer window)",
     )
     return parser.parse_args()
+
+
+def get_recorded_stream_id(vrs_data_provider, label: str) -> Optional[StreamId]:
+    """
+    Get the stream id for `label`, or None if this recording carries no data for it.
+
+    `get_stream_id_from_label()` on its own is not a presence check: for Gen2 it
+    answers from a mostly-static device-model table, so it returns an id for
+    every label the glasses *could* record (`emg` -> 241-1, `gps` -> 281-2, ...)
+    whether or not this particular file has that stream. A panel keyed off it
+    alone would render permanently empty. Streams can also be declared with zero
+    data records, so the record count is checked as well.
+    """
+    maybe_stream_id = vrs_data_provider.get_stream_id_from_label(label)
+    if maybe_stream_id is None:
+        return None
+    if maybe_stream_id not in vrs_data_provider.get_all_streams():
+        return None
+    if vrs_data_provider.get_num_data(maybe_stream_id) == 0:
+        return None
+    return maybe_stream_id
 
 
 def get_deliver_option(
@@ -339,13 +361,17 @@ def log_vrs_to_rerun(
     else:
         raise ValueError(f" Unsupported Aria device version: {device_version}")
 
-    # Step 3: Create config
+    # Step 3: Create config. Optional panels are turned on only for sensors this
+    # recording actually carries, so the layout never reserves space for a panel
+    # that would stay empty for the whole session.
     viewer_config: AriaDataViewerConfig = AriaDataViewerConfig()
-    viewer_config.enable_gps = True
-    # VRS stream label is still `emg` (unchanged writer format).
-    viewer_config.enable_neural_band_batch = (
-        vrs_data_provider.get_stream_id_from_label("emg") is not None
+    viewer_config.enable_gps = any(
+        get_recorded_stream_id(vrs_data_provider, label) is not None
+        for label in ("gps", "gps-app")
     )
+    # VRS stream label is still `emg` (unchanged writer format).
+    emg_stream_id: Optional[StreamId] = get_recorded_stream_id(vrs_data_provider, "emg")
+    viewer_config.enable_neural_band_batch = emg_stream_id is not None
 
     # Step 4: Get configured deliver options
     parsed_subsample_rates: dict[str, int] = (
@@ -370,22 +396,18 @@ def log_vrs_to_rerun(
     )
     aria_data_viewer.plot_device_extrinsics()
 
-    if viewer_config.enable_neural_band_batch:
-        emg_stream_id = vrs_data_provider.get_stream_id_from_label("emg")
-        if emg_stream_id is not None:
-            sensor_calib = vrs_data_provider.get_sensor_calibration(emg_stream_id)
-            if (
-                sensor_calib is not None
-                and sensor_calib.sensor_calibration_type()
-                == SensorCalibrationType.NEURAL_BAND_BATCH_CALIBRATION
-            ):
-                batch_calib = sensor_calib.neural_band_batch_calibration()
-                if batch_calib.emg_calib is not None:
-                    aria_data_viewer.set_neural_band_emg_calibration(
-                        batch_calib.emg_calib
-                    )
-                # TODO: forward batch_calib.imu_calib once the viewer surfaces
-                # rectified accel/gyro (raw accel/gyro tabs already show wire values).
+    if emg_stream_id is not None:
+        sensor_calib = vrs_data_provider.get_sensor_calibration(emg_stream_id)
+        if (
+            sensor_calib is not None
+            and sensor_calib.sensor_calibration_type()
+            == SensorCalibrationType.NEURAL_BAND_BATCH_CALIBRATION
+        ):
+            batch_calib = sensor_calib.neural_band_batch_calibration()
+            if batch_calib.emg_calib is not None:
+                aria_data_viewer.set_neural_band_emg_calibration(batch_calib.emg_calib)
+            # TODO: forward batch_calib.imu_calib once the viewer surfaces
+            # rectified accel/gyro (raw accel/gyro tabs already show wire values).
 
     # Step 6: Plot queued sensor data
     plot_queued_sensor_data(

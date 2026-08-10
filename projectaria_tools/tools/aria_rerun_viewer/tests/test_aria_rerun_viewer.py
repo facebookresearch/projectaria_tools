@@ -28,6 +28,7 @@ from projectaria_tools.tools.aria_rerun_viewer.aria_rerun_viewer import (
     ALL_STREAM_LABELS_GEN1,
     ALL_STREAM_LABELS_GEN2,
     get_deliver_option,
+    get_recorded_stream_id,
     log_vrs_to_rerun,
     main,
     MAX_IMU_BATCH_SIZE,
@@ -156,6 +157,47 @@ class ParseArgsTest(unittest.TestCase):
         with patch.object(sys, "argv", argv):
             with self.assertRaises(SystemExit):
                 parse_args()
+
+
+class GetRecordedStreamIdTest(unittest.TestCase):
+    """Tests for `get_recorded_stream_id()`."""
+
+    def _make_provider(
+        self, label_to_id: dict, recorded: list, num_data: int = 1
+    ) -> MagicMock:
+        provider = MagicMock()
+        provider.get_stream_id_from_label.side_effect = label_to_id.get
+        provider.get_all_streams.return_value = recorded
+        provider.get_num_data.return_value = num_data
+        return provider
+
+    def test_returns_id_for_recorded_stream_with_data(self) -> None:
+        stream_id = MagicMock(name="emg_id")
+        provider = self._make_provider({"emg": stream_id}, recorded=[stream_id])
+
+        self.assertIs(get_recorded_stream_id(provider, "emg"), stream_id)
+
+    def test_returns_none_when_label_is_unknown(self) -> None:
+        provider = self._make_provider({}, recorded=[])
+
+        self.assertIsNone(get_recorded_stream_id(provider, "emg"))
+
+    def test_returns_none_when_stream_absent_from_recording(self) -> None:
+        # The device-model table resolves the label, but the file has no such
+        # stream -- the exact case that left the Neural Band panel always on.
+        stream_id = MagicMock(name="emg_id")
+        provider = self._make_provider({"emg": stream_id}, recorded=[])
+
+        self.assertIsNone(get_recorded_stream_id(provider, "emg"))
+        provider.get_num_data.assert_not_called()
+
+    def test_returns_none_when_stream_has_no_data_records(self) -> None:
+        stream_id = MagicMock(name="emg_id")
+        provider = self._make_provider(
+            {"emg": stream_id}, recorded=[stream_id], num_data=0
+        )
+
+        self.assertIsNone(get_recorded_stream_id(provider, "emg"))
 
 
 class GetDeliverOptionTest(unittest.TestCase):
@@ -578,17 +620,29 @@ class LogVrsToRerunTest(unittest.TestCase):
         self,
         device_version: DeviceVersion,
         stream_labels: list = None,
+        phantom_labels: list = None,
+        empty_labels: list = None,
     ) -> MagicMock:
         """
         Build a mock VRS provider whose helpers cooperate with the real
         `get_deliver_option` implementation. Each label in `stream_labels`
         gets a distinct mock StreamId that flows through both
         `get_stream_id_from_label` and `deliver_options.get_stream_ids()`.
+
+        `phantom_labels` models the Gen2 device-model table in the external
+        StreamIdLabelMapper: the label resolves to a StreamId, but that stream
+        is absent from the recording. `empty_labels` models a stream that is
+        present but carries zero data records.
         """
         stream_labels = stream_labels or []
+        phantom_labels = phantom_labels or []
+        empty_labels = empty_labels or []
+        # Phantom labels resolve to an id but never appear in the file's streams.
         self.stream_id_map = {
-            label: MagicMock(name=f"stream_id_{label}") for label in stream_labels
+            label: MagicMock(name=f"stream_id_{label}")
+            for label in list(stream_labels) + list(phantom_labels)
         }
+        recorded_ids = [self.stream_id_map[label] for label in stream_labels]
 
         provider = MagicMock()
         (
@@ -597,11 +651,14 @@ class LogVrsToRerunTest(unittest.TestCase):
         provider.get_stream_id_from_label.side_effect = (
             lambda label: self.stream_id_map.get(label)
         )
+        provider.get_all_streams.return_value = recorded_ids
+        empty_ids = {self.stream_id_map[label] for label in empty_labels}
+        provider.get_num_data.side_effect = (
+            lambda stream_id: 0 if stream_id in empty_ids else 1
+        )
 
         self.deliver_options = MagicMock()
-        self.deliver_options.get_stream_ids.return_value = list(
-            self.stream_id_map.values()
-        )
+        self.deliver_options.get_stream_ids.return_value = recorded_ids
         provider.get_default_deliver_queued_options.return_value = self.deliver_options
         return provider
 
@@ -686,20 +743,65 @@ class LogVrsToRerunTest(unittest.TestCase):
             AriaDataViewerConfig.vio_high_freq_subsample_rate,
         )
 
-    def test_neural_band_batch_enabled_only_when_emg_stream_present(self) -> None:
-        # VRS stream label is `emg` on the wire.
-        with_emg = self._setup_provider(DeviceVersion.Gen2, stream_labels=["emg"])
-        self.mock_create_provider.return_value = with_emg
-        log_vrs_to_rerun("/some.vrs")
-        with_emg_kwargs = self.mock_viewer_cls.call_args.kwargs
-        self.assertTrue(with_emg_kwargs["config"].enable_neural_band_batch)
-
+    def _config_for(self, provider: MagicMock):
+        """Run the viewer against `provider` and return the config it was built with."""
         self.mock_viewer_cls.reset_mock()
-        no_emg = self._setup_provider(DeviceVersion.Gen2, stream_labels=["camera-rgb"])
-        self.mock_create_provider.return_value = no_emg
+        self.mock_create_provider.return_value = provider
         log_vrs_to_rerun("/some.vrs")
-        no_emg_kwargs = self.mock_viewer_cls.call_args.kwargs
-        self.assertFalse(no_emg_kwargs["config"].enable_neural_band_batch)
+        return self.mock_viewer_cls.call_args.kwargs["config"]
+
+    def test_neural_band_batch_enabled_when_emg_stream_recorded(self) -> None:
+        # VRS stream label is `emg` on the wire.
+        config = self._config_for(
+            self._setup_provider(DeviceVersion.Gen2, stream_labels=["emg"])
+        )
+
+        self.assertTrue(config.enable_neural_band_batch)
+
+    def test_neural_band_batch_disabled_when_label_maps_to_absent_stream(self) -> None:
+        # The external Gen2 StreamIdLabelMapper resolves `emg` from a static
+        # device-model table, so it hands back 241-1 even for a recording that
+        # has no Neural Band stream. Presence in the file is what must decide.
+        config = self._config_for(
+            self._setup_provider(
+                DeviceVersion.Gen2,
+                stream_labels=["camera-rgb"],
+                phantom_labels=["emg"],
+            )
+        )
+
+        self.assertFalse(config.enable_neural_band_batch)
+
+    def test_neural_band_batch_disabled_when_stream_has_no_records(self) -> None:
+        # A declared-but-empty stream would render a panel that never fills.
+        config = self._config_for(
+            self._setup_provider(
+                DeviceVersion.Gen2,
+                stream_labels=["camera-rgb", "emg"],
+                empty_labels=["emg"],
+            )
+        )
+
+        self.assertFalse(config.enable_neural_band_batch)
+
+    def test_gps_enabled_only_when_a_gps_stream_is_recorded(self) -> None:
+        # `gps` and `gps-app` are separate streams; either one earns the map panel.
+        for labels in (["gps"], ["gps-app"], ["gps", "gps-app"]):
+            with self.subTest(stream_labels=labels):
+                config = self._config_for(
+                    self._setup_provider(DeviceVersion.Gen2, stream_labels=labels)
+                )
+                self.assertTrue(config.enable_gps)
+
+        config = self._config_for(
+            self._setup_provider(
+                DeviceVersion.Gen2,
+                stream_labels=["camera-rgb"],
+                phantom_labels=["gps", "gps-app"],
+            )
+        )
+
+        self.assertFalse(config.enable_gps)
 
     def test_user_subsample_rates_are_parsed_and_applied(self) -> None:
         # Real parse_subsample_rates + real get_deliver_option must translate
