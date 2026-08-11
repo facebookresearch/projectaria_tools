@@ -77,18 +77,25 @@ def parse_args():
     )
     parser.add_argument("--jpeg_quality", type=int, default=75, help=argparse.SUPPRESS)
 
-    # If this path is set, we will save the rerun (.rrd) file to the given path
-    parser.add_argument(
-        "--rrd_output_path", type=str, default="", help=argparse.SUPPRESS
-    )
-
     parser.add_argument(
         "--no_rectify_image",
         action="store_true",
         help="If set, the raw fisheye RGB images are shown without being undistorted.",
     )
+
+    # A run feeds exactly one rerun sink, so writing a .rrd and showing a viewer
+    # cannot be combined.
+    sink_group = parser.add_mutually_exclusive_group()
+    sink_group.add_argument(
+        "--rrd_output_path",
+        type=str,
+        default="",
+        help="path to save .rrd file (if not provided, will spawn viewer window)",
+    )
     # User can choose to run the viewer in the web browser
-    parser.add_argument("--web", action="store_true", help="Run viewer in web browser")
+    sink_group.add_argument(
+        "--web", action="store_true", help="Run viewer in web browser"
+    )
 
     return parser.parse_args()
 
@@ -163,10 +170,12 @@ def main() -> None:
     # Initializing Rerun viewer
     rr.init("MPS Data Viewer")
 
-    # Run the viewer in the web browser or desktop app
+    # Run the viewer in the web browser or desktop app. Skipped when writing a
+    # .rrd: log_mps_to_rerun() installs a file sink, and the last sink installed
+    # wins, so a viewer opened here would only sit empty for the whole run.
     if args.web:
         rr.serve_web()
-    else:
+    elif not args.rrd_output_path:
         # RERUN_PATH is set by the :viewer_mps oxx_command_alias to the
         # buck-built rerun-cli; without it rerun-sdk searches PATH and fails.
         rr.spawn(executable_path=os.environ.get("RERUN_PATH"))
