@@ -6,6 +6,28 @@ title: Changelog
 # Changelog
 
 ---
+## Version 1.3.0
+
+### New Features
+
+- Added support for the **Light Flicker Detection stream**: the tool now recognizes this stream and reports it in the output JSON as `Light Flicker Detection Data Class`, with a `bad` check for malformed records
+- Reworked **Meta Neural Band** health checking to be based on the batch sequence number rather than on timestamp cadence, which is unreliable for the stream's bursty batch timestamps. Under `EMG Data Class (emg_imu_batch)` this adds:
+  - `ratio_dropped_batches_over_expected`: batches missing from the sequence, over the number expected across the observed span (fail 50% / warn 10%)
+  - `non_monotonic_sequence`: batches whose sequence number goes backwards
+  - `zero_channel_count` and `mismatched_channel_count`: batches whose EMG channel count is absent or inconsistent
+  - `ratio_dropped_over_expected` is now ignored for this stream, superseded by the sequence-based ratio above
+- Added recording-level temperature tracking to camera stats: `min_temperature_c` and `max_temperature_c` report the coldest and hottest frame temperature seen across the whole recording, alongside the existing `temperature_out_of_range` count. Cameras without a temperature probe (for example the eye-tracking cameras) report non-finite values and are skipped
+
+### Configuration Updates
+
+#### `AriaGen2_CI` configuration:
+- Tightened IMU drop and timing thresholds, so CI recordings are held to a stricter standard than the general-purpose configurations
+
+### Bug Fixes
+
+- The wheel no longer installs a top-level `_core_pybinds` module. It was built and packaged unintentionally, and because `projectaria-tools` installs a module of the same name, whichever package was installed second silently overwrote the other's copy — leaving `import projectaria_tools` failing with an `ImportError` when this package won. The two packages can now be installed in either order
+
+---
 ## Version 1.2.1
 
 ### New Features
