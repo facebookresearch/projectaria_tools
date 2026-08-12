@@ -24,87 +24,200 @@
 
 namespace projectaria::tools::data_provider {
 
+namespace {
+/// Linear interpolation between two clock samples, expressed as a ratio so both
+/// conversion directions share one rounding behaviour.
+int64_t
+interpolate(int64_t fromLeft, int64_t fromRight, int64_t toLeft, int64_t toRight, int64_t from) {
+  if (fromRight == fromLeft) {
+    return toLeft;
+  }
+  const double ratioRight =
+      static_cast<double>(from - fromLeft) / static_cast<double>(fromRight - fromLeft);
+  const double ratioLeft = 1 - ratioRight;
+  return static_cast<int64_t>(
+      ratioLeft * static_cast<double>(toLeft) + ratioRight * static_cast<double>(toRight));
+}
+} // namespace
+
 TimeSyncMapper::TimeSyncMapper(
     const std::shared_ptr<vrs::MultiRecordFileReader>& reader,
-    const std::map<TimeSyncMode, std::shared_ptr<TimeSyncPlayer>>& timesyncPlayers,
-    const MetadataTimeSyncMode metadataTimeSyncMode) {
-  if (timesyncPlayers.empty()) {
-    return;
-  }
-  if (metadataTimeSyncMode == MetadataTimeSyncMode::NotEnabled) {
-    // The file's metadata says no cross-device time sync was enabled during
-    // recording. Even if TimeSync streams are physically present, their records
-    // are unusable — preloading them costs one HTTP RTT per record on remote
-    // file systems and the data is discarded by the conversion APIs anyway.
-    XR_LOGI(
-        "Skipping TimeSyncMapper preload: file metadata reports time-sync NotEnabled "
-        "({} TimeSync stream(s) present but unused).",
-        timesyncPlayers.size());
-    return;
-  }
-  timesyncPlayers_ = timesyncPlayers;
+    const std::map<TimeSyncMode, std::shared_ptr<TimeSyncPlayer>>& timesyncPlayers)
+    : reader_(reader) {
+  const std::scoped_lock lock(mutex_);
   for (const auto& [mode, player] : timesyncPlayers) {
-    vrs::StreamId streamId = player->getStreamId();
-    int numTimeCode = reader->getRecordCount(streamId, vrs::Record::Type::DATA);
-    recordInfoTimeNs_[mode].reserve(numTimeCode);
-    timeSyncData_[mode].reserve(numTimeCode);
-    timeSyncModes_.push_back(mode);
-
-    for (int index = 0; index < numTimeCode; ++index) {
+    const vrs::StreamId streamId = player->getStreamId();
+    // A stream can legitimately carry zero data records -- the UTC stream ticks
+    // once a minute, so a short recording has none. Such a mode is still
+    // registered, and reported as supported, to keep the long-standing contract;
+    // its conversions return -1.
+    const int numRecords = reader->getRecordCount(streamId, vrs::Record::Type::DATA);
+    ModeData modeData;
+    modeData.player = player;
+    modeData.samples.reserve(numRecords);
+    modeData.indexTimeNs.reserve(numRecords);
+    for (int index = 0; index < numRecords; ++index) {
       const vrs::IndexRecord::RecordInfo* recordInfo =
           reader->getRecord(streamId, vrs::Record::Type::DATA, static_cast<uint32_t>(index));
-      checkAndThrow(
-          recordInfo, fmt::format("getRecord failed for {}, index {}", streamId.getName(), index));
-      const int errorCode = reader->readRecord(*recordInfo);
-      if (errorCode != 0) {
-        XR_LOGE(
-            "Fail to read record {} from streamId {} with code {}",
-            index,
-            streamId.getNumericName(),
-            errorCode);
+      if (recordInfo == nullptr) {
         continue;
       }
-      recordInfoTimeNs_[mode].push_back(static_cast<int64_t>(recordInfo->timestamp * 1e9));
-      timeSyncData_[mode].push_back(player->getDataRecord());
+      modeData.samples.push_back(Sample{.recordInfo = recordInfo});
+      modeData.indexTimeNs.push_back(static_cast<int64_t>(recordInfo->timestamp * 1e9));
     }
-    recordInfoTimeNs_[mode].shrink_to_fit();
-    timeSyncData_[mode].shrink_to_fit();
+    modes_.emplace(mode, std::move(modeData));
+    timeSyncModes_.push_back(mode);
   }
 }
 
+const TimeSyncData* TimeSyncMapper::sampleAt(ModeData& modeData, const size_t index) const {
+  if (index >= modeData.samples.size()) {
+    return nullptr;
+  }
+  Sample& sample = modeData.samples[index];
+  if (sample.recordInfo == nullptr) {
+    return nullptr;
+  }
+  if (!sample.loaded) {
+    const int errorCode = reader_->readRecord(*sample.recordInfo);
+    if (errorCode == 0) {
+      sample.data = modeData.player->getDataRecord();
+    } else {
+      XR_LOGE(
+          "Fail to read TimeSync record {} from streamId {} with code {}",
+          index,
+          modeData.player->getStreamId().getNumericName(),
+          errorCode);
+      sample.readFailed = true;
+    }
+    sample.loaded = true;
+  }
+  // A failed read leaves a zeroed sample behind. Handing it out would break the
+  // ordering every search here relies on, so conversions fail instead.
+  return sample.readFailed ? nullptr : &sample.data;
+}
+
+std::optional<size_t> TimeSyncMapper::findBracketByDeviceTime(
+    ModeData& modeData,
+    const int64_t deviceTimeNs) const {
+  const size_t last = modeData.samples.size() - 1;
+  // A sequential sweep keeps landing in the bracket it used last, or the next
+  // one; check those before paying for a search.
+  if (modeData.cursor < last) {
+    const TimeSyncData* left = sampleAt(modeData, modeData.cursor);
+    const TimeSyncData* right = sampleAt(modeData, modeData.cursor + 1);
+    if (left == nullptr || right == nullptr) {
+      return std::nullopt;
+    }
+    if (left->monotonicTimestampNs <= deviceTimeNs && deviceTimeNs <= right->monotonicTimestampNs) {
+      return modeData.cursor;
+    }
+  }
+  // The index timestamps track the samples' own monotonic clock closely enough
+  // to land on or beside the right bracket, but they are not the same numbers,
+  // so the candidate is confirmed against the samples below.
+  const auto it = std::ranges::upper_bound(modeData.indexTimeNs, deviceTimeNs);
+  auto index = static_cast<size_t>(std::distance(modeData.indexTimeNs.begin(), it));
+  index = index == 0 ? 0 : index - 1;
+  while (index > 0) {
+    const TimeSyncData* sample = sampleAt(modeData, index);
+    if (sample == nullptr) {
+      return std::nullopt;
+    }
+    if (sample->monotonicTimestampNs <= deviceTimeNs) {
+      break;
+    }
+    --index;
+  }
+  while (index < last) {
+    const TimeSyncData* next = sampleAt(modeData, index + 1);
+    if (next == nullptr) {
+      return std::nullopt;
+    }
+    if (next->monotonicTimestampNs > deviceTimeNs) {
+      break;
+    }
+    ++index;
+  }
+  modeData.cursor = index;
+  return index;
+}
+
+std::optional<size_t> TimeSyncMapper::findBracketBySyncTime(
+    ModeData& modeData,
+    const int64_t syncTimeNs) const {
+  const size_t last = modeData.samples.size() - 1;
+  if (modeData.cursor < last) {
+    const TimeSyncData* left = sampleAt(modeData, modeData.cursor);
+    const TimeSyncData* right = sampleAt(modeData, modeData.cursor + 1);
+    if (left == nullptr || right == nullptr) {
+      return std::nullopt;
+    }
+    if (left->realTimestampNs <= syncTimeNs && syncTimeNs <= right->realTimestampNs) {
+      return modeData.cursor;
+    }
+  }
+  // The record index carries no sync-clock timestamps, so the search reads the
+  // samples it probes -- O(log n) records rather than the whole stream.
+  size_t low = 0;
+  size_t high = last;
+  while (low < high) {
+    const size_t mid = low + (high - low + 1) / 2;
+    const TimeSyncData* sample = sampleAt(modeData, mid);
+    if (sample == nullptr) {
+      return std::nullopt;
+    }
+    if (sample->realTimestampNs <= syncTimeNs) {
+      low = mid;
+    } else {
+      high = mid - 1;
+    }
+  }
+  modeData.cursor = low;
+  return low;
+}
+
 int64_t TimeSyncMapper::convertFromSyncTimeToDeviceTimeNs(
-    const int64_t timecodeTimeNs,
+    const int64_t syncTimeNs,
     const TimeSyncMode mode) const {
   if (!supportsMode(mode)) {
     return -1;
   }
-  auto timecodeData = timeSyncData_.at(mode);
-
-  if (timecodeTimeNs <= timecodeData.front().realTimestampNs) {
-    return timecodeData.front().monotonicTimestampNs - timecodeData.front().realTimestampNs +
-        timecodeTimeNs;
+  const std::scoped_lock lock(mutex_);
+  const auto modeIt = modes_.find(mode);
+  if (modeIt == modes_.end() || modeIt->second.samples.empty()) {
+    return -1;
   }
-  if (timecodeTimeNs >= timecodeData.back().realTimestampNs) {
-    return timecodeData.back().monotonicTimestampNs - timecodeData.back().realTimestampNs +
-        timecodeTimeNs;
+  ModeData& modeData = modeIt->second;
+  const size_t last = modeData.samples.size() - 1;
+
+  const TimeSyncData* front = sampleAt(modeData, 0);
+  const TimeSyncData* back = sampleAt(modeData, last);
+  if (front == nullptr || back == nullptr) {
+    return -1;
+  }
+  if (syncTimeNs <= front->realTimestampNs) {
+    return front->monotonicTimestampNs - front->realTimestampNs + syncTimeNs;
+  }
+  if (syncTimeNs >= back->realTimestampNs) {
+    return back->monotonicTimestampNs - back->realTimestampNs + syncTimeNs;
   }
 
-  TimeSyncData query;
-  query.realTimestampNs = timecodeTimeNs;
-  auto timecodeIter = std::ranges::upper_bound( // finds first timestamp > query
-      timecodeData,
-      query,
-      [&](const auto& lhs, const auto& rhs) { return lhs.realTimestampNs < rhs.realTimestampNs; });
-  auto lastTimeCodeIter = timecodeIter - 1;
-  int64_t monoTimeRight = timecodeIter->monotonicTimestampNs;
-  int64_t monoTimeLeft = lastTimeCodeIter->monotonicTimestampNs;
-  int64_t realTimeRight = timecodeIter->realTimestampNs;
-  int64_t realTimeLeft = lastTimeCodeIter->realTimestampNs;
-
-  double ratioRight = double(timecodeTimeNs - realTimeLeft) / double(realTimeRight - realTimeLeft);
-  double ratioLeft = 1 - ratioRight;
-
-  return static_cast<int64_t>(ratioLeft * monoTimeLeft + ratioRight * monoTimeRight);
+  const std::optional<size_t> index = findBracketBySyncTime(modeData, syncTimeNs);
+  if (!index.has_value()) {
+    return -1;
+  }
+  const TimeSyncData* left = sampleAt(modeData, *index);
+  const TimeSyncData* right = sampleAt(modeData, std::min(*index + 1, last));
+  if (left == nullptr || right == nullptr) {
+    return -1;
+  }
+  return interpolate(
+      left->realTimestampNs,
+      right->realTimestampNs,
+      left->monotonicTimestampNs,
+      right->monotonicTimestampNs,
+      syncTimeNs);
 }
 
 int64_t TimeSyncMapper::convertFromDeviceTimeToSyncTimeNs(
@@ -113,40 +226,41 @@ int64_t TimeSyncMapper::convertFromDeviceTimeToSyncTimeNs(
   if (!supportsMode(mode)) {
     return -1;
   }
-  auto timecodeData = timeSyncData_.at(mode);
-
-  // Skip if this stream doesn't have any timecode data
-  if (timecodeData.empty()) {
+  const std::scoped_lock lock(mutex_);
+  const auto modeIt = modes_.find(mode);
+  if (modeIt == modes_.end() || modeIt->second.samples.empty()) {
     return -1;
   }
+  ModeData& modeData = modeIt->second;
+  const size_t last = modeData.samples.size() - 1;
 
-  if (deviceTimeNs <= timecodeData.front().monotonicTimestampNs) {
-    return timecodeData.front().realTimestampNs - timecodeData.front().monotonicTimestampNs +
-        deviceTimeNs;
+  const TimeSyncData* front = sampleAt(modeData, 0);
+  const TimeSyncData* back = sampleAt(modeData, last);
+  if (front == nullptr || back == nullptr) {
+    return -1;
   }
-  if (deviceTimeNs >= timecodeData.back().monotonicTimestampNs) {
-    return timecodeData.back().realTimestampNs - timecodeData.back().monotonicTimestampNs +
-        deviceTimeNs;
+  if (deviceTimeNs <= front->monotonicTimestampNs) {
+    return front->realTimestampNs - front->monotonicTimestampNs + deviceTimeNs;
+  }
+  if (deviceTimeNs >= back->monotonicTimestampNs) {
+    return back->realTimestampNs - back->monotonicTimestampNs + deviceTimeNs;
   }
 
-  TimeSyncData query;
-  query.monotonicTimestampNs = deviceTimeNs;
-  auto timecodeIter = std::ranges::upper_bound( // finds first timestamp > query
-      timecodeData,
-      query,
-      [&](const auto& lhs, const auto& rhs) {
-        return lhs.monotonicTimestampNs < rhs.monotonicTimestampNs;
-      });
-  auto lastTimeCodeIter = timecodeIter - 1;
-  int64_t monoTimeRight = timecodeIter->monotonicTimestampNs;
-  int64_t monoTimeLeft = lastTimeCodeIter->monotonicTimestampNs;
-  int64_t realTimeRight = timecodeIter->realTimestampNs;
-  int64_t realTimeLeft = lastTimeCodeIter->realTimestampNs;
-
-  double ratioRight = double(deviceTimeNs - monoTimeLeft) / double(monoTimeRight - monoTimeLeft);
-  double ratioLeft = 1 - ratioRight;
-
-  return static_cast<int64_t>(ratioLeft * realTimeLeft + ratioRight * realTimeRight);
+  const std::optional<size_t> index = findBracketByDeviceTime(modeData, deviceTimeNs);
+  if (!index.has_value()) {
+    return -1;
+  }
+  const TimeSyncData* left = sampleAt(modeData, *index);
+  const TimeSyncData* right = sampleAt(modeData, std::min(*index + 1, last));
+  if (left == nullptr || right == nullptr) {
+    return -1;
+  }
+  return interpolate(
+      left->monotonicTimestampNs,
+      right->monotonicTimestampNs,
+      left->realTimestampNs,
+      right->realTimestampNs,
+      deviceTimeNs);
 }
 
 int64_t TimeSyncMapper::convertFromTimeCodeToDeviceTimeNs(const int64_t timecodeTimeNs) const {
@@ -158,7 +272,7 @@ int64_t TimeSyncMapper::convertFromDeviceTimeToTimeCodeNs(const int64_t deviceTi
 }
 
 bool TimeSyncMapper::supportsMode(const TimeSyncMode mode) const {
-  return (timesyncPlayers_.find(mode) != timesyncPlayers_.end()) &&
+  return (std::ranges::find(timeSyncModes_, mode) != timeSyncModes_.end()) &&
       (mode == TimeSyncMode::TIMECODE || mode == TimeSyncMode::TIC_SYNC ||
        mode == TimeSyncMode::SUBGHZ || mode == TimeSyncMode::UTC);
 }

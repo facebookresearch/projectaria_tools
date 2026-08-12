@@ -576,16 +576,27 @@ class DataProviderTests(unittest.TestCase):
         assert file_metadata.recording_profile == "profile4"
         assert file_metadata.shared_session_id == ""
         assert file_metadata.filename == ""
-        assert (
-            file_metadata.time_sync_mode
-            == data_provider.MetadataTimeSyncMode.NotEnabled
-        )
-        assert (
-            provider.get_time_sync_mode()
-            == data_provider.MetadataTimeSyncMode.NotEnabled
-        )
+        # The fixture carries a UTC time-sync stream (285-1, config mode "APP").
+        # This used to read NotEnabled only because the Gen2 metadata filler
+        # hardcoded it; the mode is now derived from the streams the file has.
+        assert file_metadata.time_sync_mode == data_provider.MetadataTimeSyncMode.Utc
+        assert provider.get_time_sync_mode() == data_provider.MetadataTimeSyncMode.Utc
         assert file_metadata.device_id == "f6e94724-e773-437e-a2fb-eb3e108bc54d"
         assert file_metadata.start_time_epoch_sec == 1749702390
+
+    def test_metadata_time_sync_mode_values_are_bound(self) -> None:
+        # SubGhz and Utc went unregistered for a while, so Python printed
+        # MetadataTimeSyncMode.??? and comparing against them raised AttributeError.
+        for name in (
+            "NotEnabled",
+            "Timecode",
+            "Ntp",
+            "TicSyncClient",
+            "TicSyncServer",
+            "SubGhz",
+            "Utc",
+        ):
+            assert hasattr(data_provider.MetadataTimeSyncMode, name), name
 
     def test_eye_gaze_configuration_gen2(self) -> None:
         provider = data_provider.create_vrs_data_provider(vrs_filepath_list[1])

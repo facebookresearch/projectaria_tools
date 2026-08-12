@@ -464,8 +464,7 @@ std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
 
   const MetadataTimeSyncMode metadataTimeSyncMode =
       determineTimeSyncMode(reader_->getTags(), deviceVersion_, timesyncPlayers_);
-  auto timeSyncMapper =
-      std::make_shared<TimeSyncMapper>(reader_, timesyncPlayers_, metadataTimeSyncMode);
+  auto timeSyncMapper = std::make_shared<TimeSyncMapper>(reader_, timesyncPlayers_);
 
   auto interface = std::make_shared<RecordReaderInterface>(
       reader_,
