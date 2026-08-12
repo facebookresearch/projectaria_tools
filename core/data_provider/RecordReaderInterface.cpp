@@ -63,11 +63,29 @@ MetadataTimeSyncMode determineTimeSyncModeFromJson(
     return MetadataTimeSyncMode::NotEnabled;
   }
   if (deviceVersion == calibration::DeviceVersion::Gen2) {
-    // The OS writes `recording.subghz_mode` only when SubGHz is configured
-    // (broadcaster or receiver); the field is absent otherwise.
-    if (metadataJson.contains("recording") && metadataJson["recording"].is_object() &&
-        metadataJson["recording"].contains("subghz_mode")) {
+    // Recordings made after the OS started writing this field carry it whenever
+    // SubGHz was configured. It is the only way to recognise a broadcaster: the
+    // broadcaster is the clock reference, so it logs no mapping stream of its own.
+    // Only the two role values count -- a value meaning "off", or a spelling this
+    // code does not know, falls through to the streams below, which stay
+    // authoritative for receivers either way.
+    if (metadataJson.contains("recording") && metadataJson["recording"].is_object()) {
+      const auto& recording = metadataJson["recording"];
+      const auto subghzModeIt = recording.find("subghz_mode");
+      if (subghzModeIt != recording.end() && subghzModeIt->is_string()) {
+        const auto subghzMode = subghzModeIt->get<std::string>();
+        if (subghzMode == "receiver" || subghzMode == "broadcaster") {
+          return MetadataTimeSyncMode::SubGhz;
+        }
+      }
+    }
+    // Older recordings predate the field, and SubGHz is not the only sync a Gen 2
+    // file can carry, so fall back to the streams present -- as Gen 1 already does.
+    if (timesyncPlayers.count(TimeSyncMode::SUBGHZ) != 0) {
       return MetadataTimeSyncMode::SubGhz;
+    }
+    if (timesyncPlayers.count(TimeSyncMode::UTC) != 0) {
+      return MetadataTimeSyncMode::Utc;
     }
     return MetadataTimeSyncMode::NotEnabled;
   }

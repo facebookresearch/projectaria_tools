@@ -176,6 +176,12 @@ inline std::string timeSyncModeStr(const MetadataTimeSyncMode& timeSyncMode) {
     case MetadataTimeSyncMode::TicSyncServer:
       timeSyncModeStr = "TicSyncServer";
       break;
+    case MetadataTimeSyncMode::SubGhz:
+      timeSyncModeStr = "SubGhz";
+      break;
+    case MetadataTimeSyncMode::Utc:
+      timeSyncModeStr = "Utc";
+      break;
     default:
       XR_LOGE("Unknown time sync mode: {}", int(timeSyncMode));
       break;
@@ -189,7 +195,9 @@ inline void declareVrsDataProvider(py::module& m) {
       .value("Timecode", MetadataTimeSyncMode::Timecode)
       .value("Ntp", MetadataTimeSyncMode::Ntp)
       .value("TicSyncClient", MetadataTimeSyncMode::TicSyncClient)
-      .value("TicSyncServer", MetadataTimeSyncMode::TicSyncServer);
+      .value("TicSyncServer", MetadataTimeSyncMode::TicSyncServer)
+      .value("SubGhz", MetadataTimeSyncMode::SubGhz)
+      .value("Utc", MetadataTimeSyncMode::Utc);
   py::class_<VrsMetadata>(m, "VrsMetadata")
       .def(py::init<>())
       .def(
