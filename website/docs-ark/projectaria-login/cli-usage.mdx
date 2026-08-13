@@ -1,0 +1,207 @@
+---
+sidebar_position: 3
+title: CLI Usage
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# CLI Usage
+
+The `projectaria_login` command provides login, verify, and logout for shell scripts, CI setups, and manual terminal use. It shares credentials with Aria Studio and MPS CLI via the system keyring, with an encrypted-file fallback when the keyring is unavailable.
+
+## Synopsis
+
+```bash
+projectaria_login [-v | --verbose] <command> [options]
+projectaria_login login --username <username-or-email>
+projectaria_login verify
+projectaria_login logout
+```
+
+## Login
+
+The CLI auto-detects login method based on username. No flag needed to choose MMA vs password.
+
+:::note Already logged in
+If a valid token already exists (in the keyring or the encrypted file), `login` short-circuits before any password/MMA prompt and prints `Already logged in as <alias>`. To explicitly check login status, use the [`verify`](#verify) subcommand instead. To force a fresh login, run `projectaria_login logout` first.
+:::
+
+### Password Login (tfbnw.net / wptst.com distributed accounts)
+
+For distributed accounts ending in `tfbnw.net` or `*.wptst.com`. For `tfbnw.net` accounts you may omit the domain suffix — it is appended automatically. `*.wptst.com` accounts are **not** auto-completed, so you must pass the full email (e.g. `--username myuser@sub.wptst.com`); running `login --username myuser` for a wptst account would resolve to `myuser@tfbnw.net` and fail.
+
+```bash
+projectaria_login login --username myuser
+# or
+projectaria_login login --username myuser@tfbnw.net
+# wptst accounts require the full domain
+projectaria_login login --username myuser@sub.wptst.com
+```
+
+You will be prompted securely for password (input hidden, no echo):
+
+```
+Password:
+Successfully logged in as myuser
+Your login token has been saved for future use.
+```
+
+If the token could not be persisted (no keyring and no usable encryption key), the login still succeeds but prints a warning instead:
+
+```
+Password:
+Successfully logged in as myuser
+Warning: the token could not be saved. You will need to log in again next time.
+```
+
+### MMA Login (Managed Meta Accounts)
+
+For Meta Work accounts (email like `user@company.com` or `@meta.com`). Detected automatically when `has_mma_account` returns a UID.
+
+```bash
+projectaria_login login --username user@meta.com
+```
+
+Output:
+
+```
+To log in, visit: https://work.meta.com/cli
+Enter the code: ABCD-EFGH
+
+Waiting for authorization...
+Successfully logged in as user
+Your login token has been saved for future use.
+```
+
+**Steps:**
+
+1. CLI prints verification URL and user code. Open URL in browser (automatically uses device flow, no password typed in terminal).
+2. Log in with Meta Work SSO in browser, enter code when prompted.
+3. CLI polls every 5 seconds until you authorize, or until the device code expires (about 5 minutes) — see the timeout note below.
+4. On success, token validated and saved.
+
+:::note Timeout
+Authorization must complete within about **5 minutes**. After that the device code expires and you must re-run `projectaria_login login` to get a new code.
+:::
+
+### Verbose Logging
+
+Add `-v` or `--verbose` to see debug logs: HTTP requests, keyring operations, token validation steps, and encrypted-file fallback messages.
+
+```bash
+projectaria_login -v login --username myuser
+```
+
+Log levels:
+
+* default: WARNING and above — only errors and key actions printed
+* `-v`: DEBUG — full HTTP helper traces, keyring load/save attempts, GraphQL responses (tokens redacted)
+
+## Encrypted File Fallback
+
+When the system keyring is unavailable (headless servers, containers, CI/CD, minimal OS images), the token is stored in an encrypted local file at `~/.projectaria/auth_token.enc` instead. The file is encrypted with AES-256-GCM using a key derived (via PBKDF2-HMAC-SHA256) from one of:
+
+* **`PROJECTARIA_TOKEN_KEY` environment variable** — recommended for automation. When set, it is used automatically for both saving and loading, with no prompt.
+* **An interactive passphrase** — when the keyring is unavailable and no env var is set, the CLI prompts for an encryption passphrase at login and prompts again to decrypt the file when you run `verify` or `logout` (up to 3 attempts each).
+
+The key material must be at least **12 characters**; shorter material is rejected and the token is not saved. At login you get up to **3 attempts** to enter a valid, matching passphrase; if none succeeds, the token is left unsaved and you will need to log in again next time.
+
+```bash
+# Automation: no prompt, key comes from the environment
+export PROJECTARIA_TOKEN_KEY="a-strong-secret-passphrase"
+projectaria_login login --username myuser
+```
+
+Example interactive login when the keyring is unavailable:
+
+```
+System keyring is unavailable, so the login token will be stored in an encrypted file at /home/user/.projectaria/auth_token.enc.
+Tip: set the PROJECTARIA_TOKEN_KEY environment variable to avoid this prompt in automated environments.
+The token is encrypted with AES-256-GCM; anyone with the passphrase and file access can decrypt it.
+The passphrase must be at least 12 characters.
+
+Encryption passphrase:
+Confirm passphrase:
+Successfully logged in as myuser
+Your login token has been saved for future use.
+```
+
+In a non-interactive session with neither a `PROJECTARIA_TOKEN_KEY` nor a passphrase available, the token is not saved (a warning is logged) and you will need to log in again next time. See [Token Storage](/ark/projectaria-login/token-storage#encrypted-file-fallback) for the full security model.
+
+## Verify
+
+Check whether a valid stored token exists without logging in again:
+
+```bash
+projectaria_login verify
+```
+
+It loads the token from the keyring or the encrypted file, validates it via `query_me`, and reports the result. If the encrypted file is passphrase-protected, it prompts for the passphrase and allows up to **3 attempts**. A wrong (but long-enough) passphrase leaves the file in place so you can retry; even after all 3 attempts fail the file is **kept**, so you can try again later with the correct passphrase. The file is removed only when it is structurally unusable (a malformed blob, an unsupported format, or a payload that decrypts but is not a valid token).
+
+```
+Token is valid. Logged in as myuser
+```
+
+If no valid token is found it prints `No valid token found. Please log in.` and exits with code `1`.
+
+## Logout
+
+```bash
+projectaria_login logout
+```
+
+Performs:
+
+1. Loads the token from the keyring, or from the encrypted file (prompting for the passphrase if it is passphrase-protected)
+2. POST to `https://graph.oculus.com/logout` to invalidate the server-side session — best effort, continues on failure
+3. Deletes the keyring entry `projectaria_tools / session_auth_token`
+4. Deletes the encrypted file `~/.projectaria/auth_token.enc` if present
+5. Clears in-memory state
+
+Server-side invalidation requires a usable token, so the outcome depends on what could be loaded:
+
+| Situation | Message | Exit code |
+|---|---|---|
+| A valid token was found, invalidated server-side, and local state cleared | `Successfully logged out.` | 0 |
+| Local credentials cleared, but the server-side logout request failed (e.g. a network or HTTP error) | `Local credentials were cleared, but the server-side logout request failed. Your session may still be active; if so, sign out from your account settings.` | 0 |
+| No usable stored token — nothing stored, or a stored token that could not be loaded/decrypted (any unusable file is then removed) | `No valid stored token was available to invalidate server-side. The session may still be active, sign out from your account settings to close it.` | 0 |
+| A passphrase-protected file could not be decrypted (wrong passphrase, retries exhausted, or no passphrase available) — the file is kept and server-side logout is skipped | `Could not decrypt the stored token, so the encrypted file was kept and server-side logout was skipped. Retry with the correct passphrase, or delete ~/.projectaria/auth_token.enc to remove it.` | 1 |
+
+Output on the common path:
+
+```
+Successfully logged out.
+```
+
+After a successful logout, Aria Studio and MPS CLI will prompt for login on next use because the shared keyring entry is gone.
+
+## Exit Codes
+
+| Code | Meaning |
+|---|---|
+| 0 | Success. For `logout` this includes the cases where local credentials were cleared even if the server-side POST failed or no usable token was found. |
+| 1 | Any command failure: login failed or was cancelled, `verify` found no valid token, `logout` could not decrypt a passphrase-protected file (so it was kept and server-side logout was skipped), or no command specified |
+| 2 | Invalid or missing command-line arguments (argparse usage error) |
+
+## Examples
+
+**Check current login status** — run `verify`: it validates the stored token and reports whether you are logged in, without prompting for a fresh login.
+
+```bash
+projectaria_login verify
+# Token is valid. Logged in as myuser
+```
+
+**Force re-login** by logging out first:
+
+```bash
+projectaria_login logout
+projectaria_login login --username myuser
+```
+
+**Use in scripts**: the CLI always prompts for the password via `getpass` for security, so it cannot accept a non-interactive password. Set `PROJECTARIA_TOKEN_KEY` and log in once interactively, then reuse the stored token in later non-interactive runs.
+
+## Next Steps
+
+* [Token Storage](/ark/projectaria-login/token-storage) to understand keyring backends and the encrypted-file fallback

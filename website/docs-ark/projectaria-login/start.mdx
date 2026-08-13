@@ -1,0 +1,46 @@
+---
+sidebar_position: 1
+title: Overview
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Project Aria Login — Overview
+
+`projectaria_login` is a standalone authentication library for Project Aria tools. It was extracted from the `aria_mps_cli` package to allow other Aria tools — such as Aria Studio, MPS CLI, and custom scripts — to authenticate users without depending on the full MPS CLI.
+
+The library provides both **password-based login** for distributed accounts (`tfbnw.net` / `*.wptst.com`) and **MMA (Managed Meta Account) device-flow login** for Meta Work accounts, with secure token storage via the system keyring and an encrypted-file fallback when no keyring is available.
+
+The PyPI package is published as [`projectaria-login`](https://pypi.org/project/projectaria-login/).
+
+## Key Features
+
+* **Two login methods, auto-detected**: password for `tfbnw.net` / `*.wptst.com` distributed accounts, MMA device flow for Work accounts.
+* **Secure storage**: tokens saved to OS keyring under service name `projectaria_tools`, shared with MPS CLI and Aria Studio.
+* **Encrypted-file fallback**: when the keyring is unavailable, the token is persisted to an encrypted local file (`~/.projectaria/auth_token.enc`, AES-256-GCM with a PBKDF2-derived key) using either the `PROJECTARIA_TOKEN_KEY` environment variable or an interactive passphrase.
+* **Async Python API**: built on `aiohttp`, fully typed with `# pyre-strict`.
+* **CLI included**: `projectaria_login login`, `projectaria_login verify`, and `projectaria_login logout` for shell scripts and manual use.
+
+## When to Use It
+
+| Use case | Recommended surface |
+|---|---|
+| Log in once from terminal before running MPS CLI or Aria Studio | CLI: `projectaria_login login --username ...` |
+| Automate authentication in Python scripts, notebooks, or services | Python API: the `ProjectAriaLogin` facade |
+| Share credentials across tools on same machine | Keyring storage — automatic, no extra code |
+| Build a custom Aria tool needing Project Aria auth | Depend on `projectaria-login` PyPI package, not on `aria_mps_cli` |
+
+## Token Lifecycle
+
+1. **Login**: run the CLI or call `ProjectAriaLogin.login(username)`. The right login method is auto-detected and your session is stored securely.
+2. **Resume**: on later runs, `ProjectAriaLogin.resume()` restores your saved session so you don't have to log in again. Expired sessions are cleared automatically.
+3. **Share**: Aria Studio, MPS CLI, and `projectaria_login` share the same stored credentials, so logging in once enables all tools.
+4. **Logout**: `ProjectAriaLogin.logout()` signs you out and clears your saved session.
+
+## Next Steps
+
+* [Installation](/ark/projectaria-login/installation) — install from PyPI
+* [CLI Usage](/ark/projectaria-login/cli-usage) — login, verify, logout, verbose logging
+* [Token Storage](/ark/projectaria-login/token-storage) — keyring backends, encrypted-file fallback, shared credentials
+* [Troubleshooting](/ark/support/projectaria_login) — common errors and solutions

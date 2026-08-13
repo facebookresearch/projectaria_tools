@@ -1,0 +1,121 @@
+---
+sidebar_position: 5
+title: Token Storage
+---
+
+# Token Storage and Shared Credentials
+
+`projectaria_login`, Aria Studio, and MPS CLI share the same credential store so you log in once and all tools work.
+
+## Keyring Backend by Platform
+
+Tokens are stored via Python `keyring` library under service `"projectaria_tools"` and username `"session_auth_token"`.
+
+| Platform | Backend | Where to inspect |
+|---|---|---|
+| macOS | Keychain | Keychain Access app → search "projectaria_tools" |
+| Linux | Secret Service API | `secret-tool lookup service projectaria_tools username session_auth_token` or Seahorse GUI |
+| Windows | Windows Credential Manager | Credential Manager → Windows Credentials → `projectaria_tools` |
+| Headless Linux without Secret Service | Falls back to the encrypted file (see below) | `~/.projectaria/auth_token.enc` |
+
+If keyring save fails, login still succeeds and the token is written to the encrypted file fallback (or, if no key material is available, kept in memory only). When nothing can be persisted, the CLI prints a warning and the Python API returns `LoginResult.SUCCESS_IN_MEMORY` — you are logged in for the current session but will need to log in again next time.
+
+### Linux Keyring Setup
+
+On fresh Ubuntu/Debian/Fedora without desktop environment:
+
+```bash
+sudo apt install gnome-keyring  # or dnf install gnome-keyring
+eval $(gnome-keyring-daemon --start)
+# unlock once
+python3 -c "import keyring; keyring.set_password('test','k','v')"
+```
+
+For headless servers, do **not** install a plaintext keyring backend such as `keyrings.alt`'s `PlaintextKeyring`. Doing so makes `keyring` report as "available" and writes the token in plaintext to `~/.local/share/python_keyring/keyring_pass.cfg`, which also disables the safer automatic encrypted-file fallback described below. Instead, leave the system keyring unavailable and set `PROJECTARIA_TOKEN_KEY` so the token is persisted to the AES-256-GCM encrypted file:
+
+```bash
+export PROJECTARIA_TOKEN_KEY='your-strong-passphrase'  # at least 12 characters
+```
+
+## Encrypted File Fallback
+
+When the system keyring is unavailable (headless servers, containers, CI/CD, minimal OS images), the token is persisted to an encrypted local file at `~/.projectaria/auth_token.enc`. The token is encrypted with **AES-256-GCM** using a key derived via **PBKDF2-HMAC-SHA256** from one of two key-material sources:
+
+| Key source | When used | Prompt |
+|---|---|---|
+| `PROJECTARIA_TOKEN_KEY` environment variable | Whenever it is set (recommended for automation) | None — used automatically for both save and load |
+| Interactive passphrase | Keyring unavailable and no env var set | Prompts at login; prompts again on `verify`/`logout` to decrypt |
+
+The key material (passphrase or `PROJECTARIA_TOKEN_KEY` value) must be at least **12 characters**. Shorter key material is rejected and the token is not saved. In non-interactive sessions with neither a `PROJECTARIA_TOKEN_KEY` nor a passphrase available, the token is not saved (a warning is logged) and you will need to log in again next time.
+
+### On-disk format
+
+The file is a JSON object holding the AES-256-GCM parameters and ciphertext (all binary fields base64-encoded):
+
+```json
+{
+  "version": 1,
+  "key_source": "passphrase",
+  "kdf": "pbkdf2",
+  "iterations": 600000,
+  "salt": "...",
+  "nonce": "...",
+  "tag": "...",
+  "ciphertext": "..."
+}
+```
+
+`key_source` is `passphrase` when an interactive passphrase was used, or `env` when the token was encrypted with a key from the `PROJECTARIA_TOKEN_KEY` environment variable.
+
+### Security model
+
+* **File permissions.** On macOS and Linux the file is written atomically with owner-only permissions (`0o600`): it is written to a temporary file in the same directory and `os.replace()`d into place, so the ciphertext is never world-readable or partially written, and an interrupted save never destroys an existing token. On Windows the POSIX `0o600` mode bits do not map cleanly (access is governed by inherited NTFS ACLs), so owner-only permissions are not guaranteed — though in practice Windows uses the Credential Manager keyring and this encrypted-file fallback rarely applies. The atomic-replace guarantee still holds on all platforms.
+* **Threat model.** The fallback protects the token at rest against other principals who cannot derive the key. It does **not** protect against an attacker who has both file access *and* the key material — anyone with the passphrase (or the `PROJECTARIA_TOKEN_KEY` value) and read access to the file can decrypt the token. On shared hosts, prefer the system keyring and treat the passphrase / env var as a secret. The encrypted blob is enough to mount an offline brute-force attack against a weak passphrase, so choose a strong one.
+* **Decrypt failures.** A wrong or too-short **interactive passphrase** — an AES-GCM authentication-tag mismatch on the passphrase path — is treated as **recoverable**: the file is **kept** so a single typo never deletes a still-valid token. A wrong `PROJECTARIA_TOKEN_KEY` is **not** handled the same way: an env-var key is resolved and decryption is attempted immediately on load, so on an authentication-tag mismatch the file is **removed** (like a structurally unusable file). The file is otherwise **removed** only when it is structurally unusable: a malformed blob, an unsupported format version or KDF, an out-of-range iteration count, or a payload that decrypts cleanly but is not a valid Aria token. When loading interactively (`login`, `verify`, or `logout`) the CLI allows up to **3** passphrase attempts; after all of them fail the file is **kept** (not cleared), so you can retry later with the correct passphrase; a passphrase-protected file is also left untouched when no key material is available to attempt decryption at all (e.g. a non-interactive session with no provider, or `PROJECTARIA_TOKEN_KEY` unset).
+* **Tamper resistance on load.** The PBKDF2 iteration count is read from the file but bounded to a safe maximum on load, so a tampered file cannot force unbounded key-derivation work (a local denial of service) during decryption.
+
+## Shared Credentials Matrix
+
+| Action in Tool A | Effect in Tool B |
+|---|---|
+| `projectaria_login login` | Aria Studio auto-login on next launch; MPS CLI auto-login |
+| Aria Studio login with Remember Me (Gen1) or MMA (Gen2) | `projectaria_login` reports "Already logged in"; MPS CLI auto-login |
+| MPS CLI login with --save-token | Same as above |
+| `projectaria_login logout` | Keyring entry (and encrypted file) cleared — Aria Studio redirects to login screen; MPS CLI prompts next run |
+| Aria Studio logout | Same — keyring (and encrypted file) cleared, all tools logged out |
+
+Shared entry means **single logout logs out everywhere** — intentional for security.
+
+## Token Validation
+
+Every time a tool starts, the stored token is validated against the server. If it is expired or invalid, it is automatically removed from wherever it was stored (keyring or encrypted file) and you are prompted to log in again.
+
+Validation happens on every startup, not on a timer. Long-running processes should handle `401` responses and re-prompt.
+
+## Security Notes
+
+* Token is an access token scoped to Project Aria APIs, not a Meta Work SSO token.
+* Keyring backends encrypt at rest using OS user login password (Keychain, Credential Manager, Secret Service with login keyring).
+* When the keyring is unavailable, the encrypted-file fallback stores the token as AES-256-GCM ciphertext with a PBKDF2-derived key (see [Encrypted File Fallback](#encrypted-file-fallback)); it is never written in plaintext.
+* Password-based login encrypts password in transit with RSA public key fetched from Meta servers plus AES-GCM with random IV per request. Password never stored locally.
+* MMA flow never handles password in CLI or library — browser handles SSO, CLI only receives device code and polls for auth code.
+
+## Configuration File
+
+Optional INI at `~/.projectaria/projectaria.ini` controls retry behavior for HTTP helper:
+
+```ini
+[DEFAULT]
+LOG_DIR = /tmp/logs/projectaria/login/
+
+[GRAPHQL]
+BACKOFF = 1.5        # retry backoff factor (1.0–10.0)
+INTERVAL_SEC = 4     # seconds between retries (1–10)
+RETRIES = 3          # number of retries for a failed request
+```
+
+Values are clamped to safe bounds. Invalid file is ignored with warning and defaults are used instead.
+
+## Troubleshooting Keyring
+
+See [Troubleshooting](/ark/support/projectaria_login#keyring-issues) for "No keyring backend", "token not saved", and headless Linux solutions.

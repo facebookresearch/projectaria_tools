@@ -1,0 +1,26 @@
+---
+sidebar_position: 90
+title: Changelog
+---
+
+# Changelog
+
+---
+## Version 0.2.0
+*August 2026*
+
+- **Public facade:** Introduced `ProjectAriaLogin` as the single public entry point, exported from the top-level package. It owns the full token lifecycle behind the verbs `login`, `resume`, `logout`, and `adopt_token`, and drives all user interaction (MMA instructions, password entry, encrypted-file passphrase) through async UI callbacks. The CLI was rewritten onto the facade.
+- **Internal API boundary:** The low-level auth/token/storage classes (`AuthenticationManager`, `TokenManager`, the MMA and legacy authenticators, and the encrypted-storage store) now live in a private `projectaria_login.login._internal` subpackage. Only the `ProjectAriaLogin` facade and its result, config, and callback types are public — import everything from the top-level `projectaria_login` package.
+- **Encrypted file fallback:** When the system keyring is unavailable (headless servers, containers, CI/CD, minimal OS images), the login token is now persisted to an encrypted local file at `~/.projectaria/auth_token.enc`, encrypted with AES-256-GCM using a key derived from the `PROJECTARIA_TOKEN_KEY` environment variable or an interactive passphrase. Removed the legacy plaintext file storage conversion.
+- **Passphrase attempt limit:** Interactive passphrase entry now gives up after a fixed number of attempts (and on non-interactive EOF) instead of looping forever, leaving the token unsaved with a clear message rather than hanging.
+- **Reusable login API:** Exposed `register_commands()` and `run_command()` so other CLIs can mount the `login`/`verify`/`logout` subcommands without duplicating parser definitions. The auth flows now return a success/failure result that maps to the process exit code.
+- **Shared commons package:** Extracted the generic configuration, async HTTP, and GraphQL helpers into a new `projectaria-commons` package (now an automatically-installed runtime dependency) so other Project Aria tools can reuse them without depending on the full login library.
+
+---
+## Version 0.1.0
+*June 2026*
+
+- **Initial release:** Standalone `projectaria_login` authentication library, extracted and refactored from the MPS CLI so other Aria tools can authenticate users without depending on the full MPS CLI. Includes the login library, a CLI wrapper, unit tests, Buck build targets, and a Python wheel build script.
+- **Configurable retries:** Added a config class that controls GraphQL request retry behavior.
+- **Integration features:** Added a `save_token` option across the authentication flow, exposed `HttpHelper` as a property on `RequestHelper`, and exposed login URLs and docs as constants for easier integration with applications.
+- Relicensed project files under Apache License 2.0.
