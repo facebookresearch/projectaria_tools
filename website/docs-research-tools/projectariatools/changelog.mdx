@@ -5,6 +5,37 @@ title: Changelog
 
 # Changelog
 
+## Version 2.2.0
+
+### New Features
+
+- **Official support for ML Eye Tracking (ML ET)**: ML ET is our new machine-learning-based eye-tracking algorithm. It replaces the previous approach and delivers noticeably better gaze quality. `projectaria-tools` now officially supports ML ET results from both sources — gaze computed on-device and recorded into the VRS `eyegaze` stream, and gaze produced by Machine Perception Services (MPS). Both are returned as the same `EyeGaze` structure, so existing code needs no changes: read on-device results with `get_eye_gaze_data_by_index()` and `get_eye_gaze_data_by_time_ns()`, and MPS results with `mps.read_eyegaze()` or `MpsDataProvider`
+- **Neural Band (sEMG) data support**: Aria Gen2 recordings paired with a Neural Band now expose an `emg` stream. Access it through `get_neural_band_batch_by_index()`, `get_neural_band_batch_by_time_ns()`, and `get_neural_band_batch_configuration()`. Each `NeuralBandBatch` carries its EMG sub-samples, accelerometer and gyroscope readings, channel count, and ADC bit depth
+- **EMG calibration**: `NeuralBandEmgCalibration` converts raw ADC counts to physical units via `adc_to_volts()` and `volts_to_adc()`, alongside accessors for analog gain, ADC reference voltages, and bit width. Channel values are raw ADC counts, not volts, until converted
+- **Eye gaze configuration with field provenance**: `EyeGazeConfiguration` now reports `algorithm_name`, `algorithm_version`, `nominal_rate_hz`, and `user_calibrated`. Per-field provenance is available through `get_single_field_provenance()` and `get_combined_field_provenance()`, each returning `SUPPORTED`, `CALCULATED`, `HARDCODED`, or `NOT_PRODUCED` — so you can tell a measured value from a derived or placeholder one
+- **Battery status stream**: Gen2 recordings expose `502-1 battery-status`
+- **`rescale_camera_calibration()`**: rescales a camera calibration to a different image resolution
+- **NVDEC hardware decoding on Linux x86_64**: H.265 RGB video decodes on the GPU where CUDA is available, complementing the VideoToolbox path already used on macOS. Only the RGB camera takes the hardware path; mono 4:0:0 streams such as SLAM and eye-tracking cameras are decoded on the CPU by design. `has_cuda_support()` reports build capability
+- **Linux aarch64 wheels**: published alongside x86_64 and macOS arm64
+
+### Improvements
+
+- `aria_rerun_viewer` gained an EMG panel, and now enables the GPS and Neural Band panels only when the recording actually contains those streams
+- `viewer_mps` runs properly headless: `--rrd_output_path` is a documented flag, is mutually exclusive with `--web`, and no longer attempts to open a viewer window when writing to a file
+- Migrated to Rerun SDK 0.33.0
+- Dependencies are now flat: everything the toolset needs is a base requirement, so `pip install projectaria-tools` installs the complete package. The `[all]` extra is no longer defined and has become a no-op
+- Upgraded the C++ standard from C++17 to C++20
+
+### Bug Fixes
+
+- Fixed a shared library symbol collision that could occur when `projectaria-tools` and `vrs_health_check` are installed into the same environment
+
+### Behavior Changes
+
+- `get_time_sync_mode()` now returns `SubGhz` for Gen2 broadcaster and receiver recordings, rather than skipping the mode
+- **Python 3.9 is no longer supported.** The minimum supported version is Python 3.10; wheels are published for 3.10, 3.11, and 3.12
+
+---
 ## Version 2.1.4
 
 ### New Features
