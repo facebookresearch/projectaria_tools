@@ -81,7 +81,7 @@
     "brace-expansion": "^1.1.13",
     "cheerio": "1.0.0-rc.12",
     "docusaurus-lunr-search": "^3.5.0",
-    "dompurify": "^3.4.1",
+    "dompurify": "^3.4.11",
     "fast-uri": "^3.1.2",
     "flatted": "^3.4.2",
     "follow-redirects": "^1.16.0",
