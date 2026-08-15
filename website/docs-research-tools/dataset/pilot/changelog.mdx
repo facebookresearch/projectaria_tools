@@ -1,0 +1,29 @@
+---
+sidebar_position: 4
+title: Changelog
+---
+
+# Changelog
+
+Release history for the `projectaria-gen2-pilot-dataset` Python package.
+
+## Version 1.1.0
+
+Compatibility release for `projectaria-tools` 2.2.0.
+
+### Improvements
+
+- Updated to `projectaria-tools` 2.2.0. This raises the minimum supported Python version to 3.10
+- Updated to Rerun SDK 0.33.0
+
+### Bug Fixes
+
+- Fixed hand-object interaction segmentation masks displaying incorrectly in the viewer. The
+  overlay hid the RGB camera image, so any frame carrying masks appeared black with the masks
+  drawn on top of it. This was introduced by the Rerun SDK upgrade
+
+---
+
+## Version 1.0.0
+
+Initial release of the Aria Gen 2 Pilot Dataset loader and visualizer.
