@@ -89,7 +89,15 @@ std::optional<AriaDigitalTwinDataPaths> AriaDigitalTwinDataPathsProvider::getDat
   if (datasetVersion_.compare("2.0") < 0) {
     XR_LOGW(
         "Using getDataPaths with data v1.X will take the first device in the sequence, please use getDataPathsByDeviceNum or getDataPathsByDeviceSerial to select the specific a device.");
-    return getDataPathsByDeviceNum(0, skeletonFlag);
+    if (deviceSerialNumbers_.empty()) {
+      XR_LOGE(
+          "device number {} not available in dataset, total number of devices: {}",
+          0,
+          deviceSerialNumbers_.size());
+      return {};
+    }
+
+    return getDataPathsByDeviceSerial(deviceSerialNumbers_.front(), skeletonFlag);
   }
 
   return getDataPathsUsingMainDataPath(sequencePath_, fileMetadata_, skeletonFlag);
