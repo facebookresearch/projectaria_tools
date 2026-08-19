@@ -6,6 +6,14 @@ title: Changelog
 # Changelog
 
 ---
+## Version 1.3.0
+- Integrate the unified login surface — projectaria-login — into the MPS CLI. When the system keyring is unavailable (headless servers, containers, CI), the auth token is now saved to an encrypted local file instead of not being saved at all
+- Always re-run the VRS health check instead of reusing an existing vrs_health_check.json, so results never come from an older VRS Health Check version
+- Update projectaria-vrs-health-check to v1.3.0
+- Update aiohttp to 3.14.3
+
+
+---
 ## Version 1.2.3
 - Minor bug fixes
 
