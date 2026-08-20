@@ -55,7 +55,13 @@ Note that if the above command emits some error, please refer to the [troublesho
 
 Project Aria MPS CLI is only available if you install the pip installation version of Project Aria MPS. This installation has been designed to be simple to use, even if you are not familiar with programming languages.
 :::info Dependencies
-Project Aria MPS pypi package automatically installs the [projectaria-tools](/research-tools/projectariatools/installation#installing) package and [projectaria-vrs-health-check](/ark/vrs_health_check/installation#installing-vrs-health-check) package
+The Project Aria MPS pypi package automatically installs these packages:
+
+- [projectaria-tools](/research-tools/projectariatools/installation#installing)
+- [projectaria-vrs-health-check](/ark/vrs_health_check/installation#installing-vrs-health-check)
+- [projectaria-login](/ark/projectaria-login/installation) — handles authentication and secure [token storage](/ark/projectaria-login/token-storage)
+
+It also pulls in the shared `projectaria-commons` helper package (configuration, HTTP, and GraphQL utilities).
 :::
 
 ## Supported Platforms
@@ -85,6 +91,10 @@ aria_mps single -i ~/Downloads/Example/
 
 You'll be prompted to enter your username and then authenticate either via password on managed account login. Use the Project Aria credentials you use to sign into the Mobile Companion app.
 
+:::info Token storage
+After you log in, your authentication token is cached so you don't have to sign in every time. It's stored in your operating system keyring when one is available. On headless machines, containers, or CI where no keyring is available, the token is instead saved to an encrypted file at `~/.projectaria/auth_token.enc` (AES-256-GCM). In that case you'll be asked for a passphrase of at least 12 characters to encrypt the token (a passphrase prompt in the UI, or at the terminal in `--no-ui` mode), and for the same passphrase to decrypt it on the next run. To skip the prompt in automation, set the `PROJECTARIA_TOKEN_KEY` environment variable to a secret of at least 12 characters; it will be used as the encryption key instead.
+:::
+
 ![MPS CLI UI for single mode](/img/docs-ark/mps/mps_cli_ui_single.png)
 
 Once the request has been processed, the MPS output will be downloaded next to the original VRS file. In this example, a recording in the Example directory called gen2_sample2.vrs was used to generate MPS.
@@ -106,6 +116,36 @@ Once the request has been processed, the MPS output will be downloaded next to t
         └── gen2_sample2.vrs
 ```
 Go to [MPS Data Format Basics](/technical-specs/mps/data_formats/slam/basics) for more details about the folder structure.
+
+## Authentication and token storage
+
+The first time you run the MPS CLI you'll authenticate with your Project Aria credentials. After a successful login, the auth token is cached so you don't have to log in every time:
+
+* When a system keyring is available, the token is stored there automatically.
+* When no keyring is available (for example on headless servers, containers, or CI), the token is instead saved to an encrypted file at `~/.projectaria/auth_token.enc` (AES-256-GCM). By default you'll be prompted for an **encryption passphrase** (at least 12 characters) at login, and for the same passphrase again on later runs to decrypt the token.
+
+To skip the passphrase prompt in automated environments, set the `PROJECTARIA_TOKEN_KEY` environment variable (at least 12 characters) before running the CLI. When set, it is used automatically to encrypt and decrypt the token file with no prompt:
+
+```
+export PROJECTARIA_TOKEN_KEY=<at least 12 characters>
+```
+
+:::note
+Anyone with both read access to the encrypted file and the passphrase (or `PROJECTARIA_TOKEN_KEY` value) can decrypt the token. On shared hosts, prefer the system keyring and treat the passphrase / env var as a secret.
+:::
+
+When running headless (`--no-ui`), you can pass `--no-save-token` to avoid persisting the token; the ephemeral token is invalidated server-side when the run finishes.
+
+### Log out
+
+To invalidate your session server-side and remove the cached token from both the keyring and the encrypted file:
+
+```
+aria_mps logout
+```
+
+If the token is held only in a passphrase-protected encrypted file, you'll be prompted for the passphrase so it can be decrypted for server-side invalidation (an env-protected file is decrypted automatically from `PROJECTARIA_TOKEN_KEY`). If no valid passphrase / key is provided, the encrypted file is kept and server-side logout is skipped — provide the passphrase / key and retry to log out fully.
+
 
 ## Exit the MPS CLI
 

@@ -285,27 +285,54 @@ or
 ```
 
 :::info Note
-This will only work for legacy Aria accounts.
+`--password` only applies to legacy Aria accounts. Managed (MMA) accounts do not use a password — pass just `--username` and approve the login in your browser.
 :::
 
-If you have a legacy Aria credentials, you can also supply the username and password via CLI input. This option is more suited for running MPS as part of a batch script or other automated workflows.
+If you have legacy Aria credentials, you can supply the username and password via CLI input. This is well suited to running MPS as part of a batch script or other automated workflows.
 
-If you have a new Aria account, that requires you to authenticate via the https://work.meta.com/cli link, you will have to use the UI in the CLI to complete the authentication. Once you have authenticated, the auth token is cached on the machine and you can run MPS CLI as part of a script or other automated workflows.
+If you have a managed (MMA) Aria account, pass just `--username`. The CLI shows a code and the https://work.meta.com/cli link — printed to the terminal in `--no-ui` mode, or shown in the UI otherwise — for you to approve the login in your browser. Once you have authenticated, the auth token is cached on the machine and you can run the MPS CLI as part of a script or other automated workflows.
 
 
 #### Token storage
-If keychain is accessible, the login token is saved there automatically. This means that once you’ve authenticated, you can run the MPS CLI without having to re-enter your username and password.
+If the system keyring (macOS Keychain, Windows Credential Manager, or Linux Secret Service) is accessible, the login token is saved there automatically. This means that once you’ve authenticated, you can run the MPS CLI without having to re-enter your credentials.
 
-If you request MPS using `--no-ui` , you'll have the option to pass `--no-save-token`. This means the token won't be saved. Once processing is complete the MPS CLI will also logout and invalidate any existing tokens.
+When the keyring is unavailable (for example on headless servers, containers, or CI/CD), the token is instead saved to an encrypted file at `~/.projectaria/auth_token.enc` (AES-256-GCM). The encryption key comes from one of two sources:
+
+* The `PROJECTARIA_TOKEN_KEY` environment variable. Set it to a strong secret (at least 12 characters) to save and load the token without any prompt — recommended for automated and CI workflows.
+* An interactive passphrase. If `PROJECTARIA_TOKEN_KEY` is not set, you'll be prompted to choose a passphrase (at least 12 characters) at login, and prompted for it again whenever the token needs to be decrypted (for example on a later run or at logout).
+
+In a non-interactive session with neither `PROJECTARIA_TOKEN_KEY` nor a passphrase available, the token is not saved and you'll need to log in again next time. See [Token Storage](/ark/projectaria-login/token-storage) for the full encrypted-file format and security model.
+
+When you unlock a saved token, a mistyped passphrase does not delete it — the encrypted file is kept so a single typo never discards a valid login, and you can simply try again. In `--no-ui` mode you get up to three attempts per run (a wrong or too-short passphrase uses up an attempt); after they are exhausted the encrypted file is kept so you can retry on a later run. It is removed only when it is structurally unusable (a malformed file, an unsupported format, or a payload that decrypts but is not a valid token). Providing a usable `PROJECTARIA_TOKEN_KEY` skips the passphrase prompt entirely.
+
+The encrypted file records which key source protected it — `PROJECTARIA_TOKEN_KEY` or an interactive passphrase — and loading enforces that source: an env-protected file can only be decrypted with the same `PROJECTARIA_TOKEN_KEY` value, and a passphrase-protected file only with the original passphrase (setting `PROJECTARIA_TOKEN_KEY` does not unlock it). If the original key material is no longer available, the CLI cannot reuse the saved token and asks you to log in again; the next successful login re-saves the token under the current source.
+
+To use the environment variable, export it before running the CLI:
+
+```
+export PROJECTARIA_TOKEN_KEY=<at least 12 characters>
+```
+
+:::note
+Anyone with both read access to the encrypted file and the passphrase (or `PROJECTARIA_TOKEN_KEY` value) can decrypt the token. On shared hosts, prefer the system keyring and treat the passphrase / env var as a secret.
+:::
+
+If you request MPS using `--no-ui` , you'll have the option to pass `--no-save-token`. It applies only to a fresh login via `--username`: the newly obtained token is kept in memory for that run, is not persisted to the keyring or the encrypted file, and is invalidated server-side once processing completes. When you are instead resuming a previously saved session, `--no-save-token` is a no-op — your cached token is left in place. It can only be used together with `--no-ui`.
+
+```
+--no-save-token
+```
 
 
 #### Log out
 
-Use the following command to log out the authentication token and delete it from the system. Next time you run the CLI, it will ask for username and password again.
+Use the following command to invalidate the token server-side and remove it from the system, clearing it from both the keyring and the encrypted file. Next time you run the CLI, it will ask for your credentials again.
 
 ```
 aria_mps logout
 ```
+
+If the token is held only in a passphrase-protected encrypted file, you are prompted for the passphrase so the token can be decrypted for server-side invalidation (an env-protected file is decrypted automatically from `PROJECTARIA_TOKEN_KEY`, with no prompt). If no valid passphrase / key is provided, the encrypted file is kept and server-side logout is skipped — provide the passphrase / key and retry to log out fully.
 
 
 ### Request options for any mode
@@ -360,7 +387,7 @@ Instead of the MPS CLI UI, you’ll see the raw outputs and processes in the com
 ```
 
 :::note
-You will need to pass username and password via CLI input if you use this option or you should have already authenticated via the UI.
+With `--no-ui`, pass `--username` (and `--password` for legacy accounts) to log in, or rely on a cached session from a previous login. Managed (MMA) accounts approve the login via the code and link printed to the terminal — no password is required.
 :::
 
 ### Single Recording mode
