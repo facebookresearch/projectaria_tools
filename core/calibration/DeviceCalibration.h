@@ -188,10 +188,23 @@ class DeviceCalibration {
       const;
   /**
    * @brief returns calibrated sensor extrinsics in CPF frame given a label.
-   * You can return the CAD extrinsics value by specifying `getCadValue = true`.
+   * <br>The two arguments select independent things, and neither implies the other:
+   * @param getCadValue Which sensor pose: the per-instance calibrated one (`false`, default), or
+   * the CAD design value (`true`).
+   * @param useSvd Which CPF: the CAD-defined frame (`false`, default), or the SVD-aligned one
+   * (`true`). Same meaning and same default as the argument of `getT_Device_Cpf`, so that
+   * `getT_Device_Cpf(useSvd) * getT_Cpf_Sensor(label, getCadValue, useSvd)` reproduces
+   * `getT_Device_Sensor(label, getCadValue)` for `getCadValue = false`.
+   * <br>`getCadValue = true` composes a CAD sensor pose with the CAD CPF and so is answered
+   * straight from the CAD table; asking for the SVD CPF as well would pair a CAD sensor pose with
+   * a frame solved against the measured cameras, which names no single device estimate, so
+   * `getCadValue = true, useSvd = true` throws `std::invalid_argument`.
+   * <br>TODO: revisit this API. `getCadValue` has very few callers here and the pair of flags is
+   * hard to reason about; the intent is to drop it and let callers reach for
+   * `getT_Device_Sensor(label, true)` when they want CAD sensor poses.
    */
-  std::optional<Sophus::SE3d> getT_Cpf_Sensor(const std::string& label, bool getCadValue = false)
-      const;
+  std::optional<Sophus::SE3d>
+  getT_Cpf_Sensor(const std::string& label, bool getCadValue = false, bool useSvd = false) const;
 
   /**
    * @brief obtain the definition of Origin (or Device in T_Device_Sensor)

@@ -19,6 +19,7 @@
 #include <logging/Checks.h>
 #include <filesystem>
 #include <fstream>
+#include <stdexcept>
 #define DEFAULT_LOG_CHANNEL "DeviceCalibration"
 #include <logging/Log.h>
 
@@ -302,14 +303,26 @@ std::optional<Sophus::SE3d> DeviceCalibration::getT_Device_Sensor(
   } // end if getCadValue
 }
 
-std::optional<Sophus::SE3d> DeviceCalibration::getT_Cpf_Sensor(
-    const std::string& label,
-    bool getCadValue) const {
+std::optional<Sophus::SE3d>
+DeviceCalibration::getT_Cpf_Sensor(const std::string& label, bool getCadValue, bool useSvd) const {
+  if (getCadValue && useSvd) {
+    throw std::invalid_argument(
+        "getT_Cpf_Sensor: getCadValue=true and useSvd=true name no single device estimate. The CAD"
+        " sensor pose is anchored to the CAD device frame, while the SVD CPF is solved against the"
+        " measured cameras. Pass useSvd=false for the CAD frame, or getCadValue=false to place the"
+        " calibrated sensor pose in the SVD CPF.");
+  }
+  if (getCadValue) {
+    // Both ends are CAD, so this is the CAD table's own T_Cpf_Sensor. Reading it back out
+    // directly says that plainly and avoids a round trip through the CAD device frame.
+    return deviceCadExtrinsics_.getT_Cpf_Sensor(label);
+  }
   auto const maybeT_Device_Sensor = getT_Device_Sensor(label, getCadValue);
   if (maybeT_Device_Sensor) {
-    // Use consistent T_Device_Cpf: CAD-only when getCadValue is true,
-    // SVD-aligned otherwise.
-    const bool useSvd = !getCadValue;
+    // Which sensor pose and which CPF are separate choices, so `useSvd` is its own argument
+    // rather than being derived from `getCadValue`. Deriving it also silently disagreed with the
+    // default of `getT_Device_Cpf`, which left the two accessors naming the same frame while
+    // returning poses a whole CAD-to-measured deviation apart.
     return getT_Device_Cpf(useSvd).inverse() * maybeT_Device_Sensor.value();
   } else {
     return {};

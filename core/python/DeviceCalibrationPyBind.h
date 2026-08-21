@@ -1108,8 +1108,13 @@ inline void declareDeviceCalibration(py::module& m) {
           &DeviceCalibration::getT_Cpf_Sensor,
           py::arg("label"),
           py::arg("get_cad_value") = false,
+          py::arg("use_svd") = false,
           "returns calibrated sensor extrinsics in CPF frame given a label."
-          " You can return the CAD extrinsics value by specifying `get_cad_value = True`.")
+          " `get_cad_value = True` returns the CAD design pose of the sensor instead of the"
+          " per-instance calibrated one. `use_svd` selects the CPF, exactly as it does in"
+          " `get_transform_device_cpf`, and defaults to the CAD-defined frame."
+          " Passing `get_cad_value = True, use_svd = True` raises ValueError: a CAD sensor pose"
+          " and a CPF solved against the measured cameras name no single device estimate.")
       .def(
           "get_origin_label",
           &DeviceCalibration::getOriginLabel,

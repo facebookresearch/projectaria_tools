@@ -372,6 +372,39 @@ class CalibrationTests(unittest.TestCase):
                 ):
                     assert calib.aria_mic_calibration().get_label() == label
 
+    def test_transform_cpf_sensor_flags_are_independent(self) -> None:
+        for vrs_filepath in vrs_filepath_list:
+            provider = data_provider.create_vrs_data_provider(vrs_filepath)
+            device_calib = provider.get_device_calibration()
+            assert device_calib is not None
+
+            for label in device_calib.get_camera_labels():
+                # The default stays on the CAD CPF, which is what consumers read before the SVD
+                # variant existed.
+                default = device_calib.get_transform_cpf_sensor(label)
+                cad_cpf = device_calib.get_transform_cpf_sensor(label, False, False)
+                assert np.allclose(default.to_matrix(), cad_cpf.to_matrix())
+
+                # Picking the SVD CPF must move the result, otherwise the flag does nothing.
+                svd_cpf = device_calib.get_transform_cpf_sensor(label, False, True)
+                assert not np.allclose(cad_cpf.to_matrix(), svd_cpf.to_matrix())
+
+                # Both accessors resolve the same CPF, so they compose back to T_Device_Sensor.
+                for use_svd in [False, True]:
+                    composed = device_calib.get_transform_device_cpf(
+                        use_svd
+                    ) @ device_calib.get_transform_cpf_sensor(label, False, use_svd)
+                    assert np.allclose(
+                        composed.to_matrix(),
+                        device_calib.get_transform_device_sensor(label).to_matrix(),
+                    )
+
+                # A CAD sensor pose in the SVD CPF mixes two device estimates and is rejected.
+                with self.assertRaisesRegex(
+                    ValueError, "name no single device estimate"
+                ):
+                    device_calib.get_transform_cpf_sensor(label, True, True)
+
     def test_random_accessor_index(self) -> None:
         for vrs_filepath in vrs_filepath_list:
             provider = data_provider.create_vrs_data_provider(vrs_filepath)
