@@ -1,0 +1,46 @@
+---
+sidebar_position: 61
+title: Getting Started
+---
+
+# Getting Started With DTC
+
+## Overview
+
+This section provides a step-by-step guide to set up the Python environment that the Digital Twin Catalog (DTC) tool requires.
+
+## Environment Set Up
+
+### Step 0 : Check system requirements and download codebase
+
+[Ensure your system is supported and then download projectaria_tools codebase from the github](/docs/data_utilities/installation/download_codebase.mdx)
+
+### Step 1 : Install Python
+
+See [Python Package Installation](/docs/data_utilities/installation/installation_python.mdx) for detailed instructions.
+
+### Step 2 : Create a virtual environment
+
+```
+rm -rf $HOME/projectaria_tools_python_env
+
+python3 -m venv $HOME/projectaria_tools_python_env
+
+source $HOME/projectaria_tools_python_env/bin/activate
+```
+
+### Step 3 : Install projectaria_tools from PyPI
+
+```
+python3 -m pip install --upgrade pip
+
+python3 -m pip install projectaria-tools'[all]'
+```
+
+### Step 4 : Install Other Dependent Python Package:
+```
+python3 -m pip install opencv-python trimesh
+```
+
+## Troubleshooting​
+Go to [Data Utilities Troubleshooting](/docs/data_utilities/installation/troubleshooting.mdx) if you have issues implementing this guide.

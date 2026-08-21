@@ -1,0 +1,36 @@
+---
+sidebar_position: 20
+title: EgoBlur
+---
+
+# EgoBlur
+
+## Overview
+
+EgoBlur is an open source AI model from Meta to preserve privacy by detecting and blurring PII from images. We provide two FasterRCNN-based detector models, for face blurring and license plates, and perform consistently across the full range of ‘responsible AI labels’, as defined by the [CCV2 dataset](https://ai.meta.com/datasets/casual-conversations-v2-dataset/).
+
+Our models are on-par with the other publicly available anonymization models on non-egocentric data, while significantly outperforming other models on egocentric data that is collected using Project Aria glasses.
+
+* Trained on 23M images, 790M bounding boxes.
+* The EgoBlur face and license plate models are approximately 400 MB each and have ~104 million parameters.
+* Based on the Faster RCNN model with a ResNext backbone. The models are trained using Meta’s publicly available [Detectron2](https://ai.meta.com/tools/detectron2/) and [Detectron2go](https://ai.meta.com/blog/d2go-brings-detectron2-to-mobile/) libraries.
+* Benchmarked against the [Aria Pilot Dataset](https://www.projectaria.com/datasets/apd/) and the [CCV2 Dataset](https://ai.meta.com/datasets/casual-conversations-v2-dataset/).
+* EgoBlur models are only trained to locate the position of faces and license plates of vehicles within color or grayscale images. The models are not used to track or identify individual faces or license plates.
+* EgoBlur tooling is available to apply the models to PNG, JPEG, MP4 and VRS files.
+
+### Further reading
+
+* EgoBlur Research Paper - [EgoBlur: Responsible Innovation in Aria](https://arxiv.org/abs/2308.13093)
+* EgoBlur FAQ, at the bottom of [projectaria.com/tools/egoblur](https://www.projectaria.com/tools/egoblur/)
+
+
+## Getting Started
+
+To demonstrate how EgoBlur models can be applied and to support privacy preserving research we provide:
+
+* EgoBlur VRS Utilities - C++ tool for working with Aria VRS files
+    * Go to the [EgoBlur VRS Utilities Readme](https://github.com/facebookresearch/EgoBlur/blob/main/gen1/tools/README.md) for detailed instructions
+* EgoBlur Demo - Python3 tool for working with PNG, JPEG or MP4 files
+    * Go to the [EgoBlur Readme](https://github.com/facebookresearch/EgoBlur/blob/main/README.md) for detailed instructions
+
+For these tools, we focused our testing on Fedora 37 and Ubuntu 22.04/20.04 with Nvidia V100 16GB GPU and CUDA 12.1.
