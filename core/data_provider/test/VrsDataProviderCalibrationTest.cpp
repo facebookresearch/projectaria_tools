@@ -81,7 +81,7 @@ TEST(VrsDataProvider, rescaledCalibration) {
   auto maybeCalib = provider->getDeviceCalibration();
   EXPECT_TRUE(maybeCalib);
 
-  static const vrs::StreamId kRgbCameraStreamId{vrs::RecordableTypeId::RgbCameraRecordableClass, 1};
+  constexpr vrs::StreamId kRgbCameraStreamId{vrs::RecordableTypeId::RgbCameraRecordableClass, 1};
   const auto rgbStreamIdLabel = provider->getLabelFromStreamId(kRgbCameraStreamId).value();
   const auto rgbCameraCalib = maybeCalib.value().getCameraCalib(rgbStreamIdLabel).value();
   auto rgbSensorCalib = provider->getSensorCalibration(kRgbCameraStreamId)->cameraCalibration();
@@ -99,7 +99,7 @@ TEST(VrsDataProvider, rescaledCalibration) {
   EXPECT_EQ(rgbCameraCalib.getImageSize().y(), rgbSensorCalib.getImageSize().y());
 
   // Check eye tracking camera scale
-  static const vrs::StreamId kEyeCameraStreamId{vrs::RecordableTypeId::EyeCameraRecordableClass, 1};
+  constexpr vrs::StreamId kEyeCameraStreamId{vrs::RecordableTypeId::EyeCameraRecordableClass, 1};
   const auto eyeCameraLabel = provider->getLabelFromStreamId(kEyeCameraStreamId).value();
   // eyeCameraLabel = "camera-et", which should not contain calibrations
   // only "camera-et-left" and "camera-et-right" can obtain calibrations

@@ -25,9 +25,9 @@ using namespace projectaria::tools::data_provider;
 
 namespace {
 
-const vrs::StreamId kStream1{vrs::RecordableTypeId::SlamCameraData, 1};
-const vrs::StreamId kStream2{vrs::RecordableTypeId::SlamCameraData, 2};
-const vrs::StreamId kUnknownStream{vrs::RecordableTypeId::RgbCameraRecordableClass, 99};
+constexpr vrs::StreamId kStream1{vrs::RecordableTypeId::SlamCameraData, 1};
+constexpr vrs::StreamId kStream2{vrs::RecordableTypeId::SlamCameraData, 2};
+constexpr vrs::StreamId kUnknownStream{vrs::RecordableTypeId::RgbCameraRecordableClass, 99};
 
 DeliverQueuedOptions makeDefaultOptions() {
   std::map<vrs::StreamId, size_t> rates = {{kStream1, 1}, {kStream2, 3}};
