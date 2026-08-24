@@ -31,22 +31,34 @@
 namespace projectaria::tools::data_provider {
 
 struct NeuralBandEmgSample {
-  int64_t captureTimestampNs{};
+  /// Wristband clock. The wire carries one timestamp per packet, so every
+  /// sub-sample of a packet repeats it; resolution is 1 us.
+  int64_t wristbandTimestampNs{};
+  /// Same instant on the device clock, empty when no mapping is available.
+  std::optional<int64_t> deviceTimestampNs;
+  /// Raw ADC counts, length == `NeuralBandBatch::emgChannelCount`.
   std::vector<uint16_t> channelValues;
 };
 
+/// The IMU and the ADC are read on separate triggers, so accel and gyro share a
+/// wristband timestamp with each other but not with the same batch's EMG.
 struct NeuralBandAccelSample {
-  int64_t captureTimestampNs{};
+  int64_t wristbandTimestampNs{};
+  std::optional<int64_t> deviceTimestampNs;
   std::array<float, 3> accelMSec2{};
 };
 
 struct NeuralBandGyroSample {
-  int64_t captureTimestampNs{};
+  int64_t wristbandTimestampNs{};
+  std::optional<int64_t> deviceTimestampNs;
   std::array<float, 3> gyroRadSec{};
 };
 
 struct NeuralBandBatch {
-  int64_t captureTimestampNs{};
+  /// Device-clock instant the glasses took this batch off the wristband link.
+  /// A receive time, not a sampling instant, and it inherits the link's burst
+  /// arrival pattern. The VRS index is ordered by it, so queries resolve on it.
+  int64_t arrivalTimestampNs{};
   uint32_t batchSequenceNumber{};
   uint32_t emgChannelCount{};
   uint32_t emgBitsPerAdcReading{};
@@ -55,8 +67,8 @@ struct NeuralBandBatch {
   std::vector<NeuralBandGyroSample> gyro;
 };
 
-// Sample rate is not stored here; infer from the delta between consecutive
-// sample timestamps.
+/// No nominal rate field: nothing in the recording states one, and the
+/// wristband timestamps of consecutive batches measure the period directly.
 struct NeuralBandBatchConfiguration {
   uint32_t streamId{};
   std::string sensorModel;
@@ -114,16 +126,9 @@ class NeuralBandBatchPlayer : public vrs::RecordFormatStreamPlayer {
   bool verbose_ = false;
 };
 
-void rebaseWristbandTimestamps(NeuralBandBatch& batch);
-
-int64_t deriveBatchWideEmgPeriodNs(
-    const std::vector<int64_t>& wireTimestampsUs,
-    uint32_t timeStepsPerPacket);
-
-void synthesizeEmgSubSampleTimestamps(
-    NeuralBandBatch& batch,
-    uint32_t timeStepsPerPacket,
-    int64_t periodNs);
+/// Split each decoded EMG packet into its `timeStepsPerPacket` sub-samples, one
+/// row of `emgChannelCount` ADC counts each, all sharing the packet's timestamp.
+void expandEmgPacketsToSubSamples(NeuralBandBatch& batch, uint32_t timeStepsPerPacket);
 
 void decodeEmgSamples(
     const std::vector<int64_t>& wireTimestampsUs,

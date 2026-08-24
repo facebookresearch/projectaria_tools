@@ -897,6 +897,32 @@ class AriaDataViewer:
     def set_neural_band_emg_calibration(self, calibration):
         self._neural_band_emg_calibration = calibration
 
+    def _neural_band_times_sec(self, samples, panel):
+        """Device-timeline seconds for a batch's samples, or None if unmapped.
+
+        No fallback: the wristband clock the samples also carry is a different
+        timebase, seconds away from the device one, so plotting on it would put
+        the trace somewhere it was not recorded.
+
+        `panel` is the plotting method asking. Sub-streams are mapped
+        independently, so keying the warning on it lets each panel report its own
+        skip instead of the first one silencing the rest.
+        """
+        device_times_ns = [s.device_timestamp_ns for s in samples]
+        if any(t is None for t in device_times_ns):
+            name = panel.__name__.removeprefix("_plot_neural_band_")
+            warn_once(
+                panel,
+                f"Neural Band {name} samples carry no device timestamp; "
+                "that panel stays empty",
+            )
+            return None
+        return np.fromiter(
+            (t * 1e-9 for t in device_times_ns),
+            dtype=np.float64,
+            count=len(device_times_ns),
+        )
+
     def plot_neural_band_batch(self, batch):
         if batch is None:
             warn_once(self.plot_neural_band_batch, "NeuralBandBatch is None")
@@ -939,15 +965,10 @@ class AriaDataViewer:
         if not valid:
             return
 
+        timestamps_sec = self._neural_band_times_sec(valid, self._plot_neural_band_emg)
+        if timestamps_sec is None:
+            return
         self._ensure_neural_band_emg_styling(channel_count)
-        timestamps_sec = (
-            np.fromiter(
-                (s.capture_timestamp_ns for s in valid),
-                dtype=np.int64,
-                count=len(valid),
-            )
-            * 1e-9
-        )
         values = np.array([s.channel_values for s in valid], dtype=np.float64)
 
         for channel in range(channel_count):
@@ -985,15 +1006,12 @@ class AriaDataViewer:
         if not valid:
             return
 
-        self._ensure_neural_band_emg_volts_styling(channel_count)
-        timestamps_sec = (
-            np.fromiter(
-                (s.capture_timestamp_ns for s in valid),
-                dtype=np.int64,
-                count=len(valid),
-            )
-            * 1e-9
+        timestamps_sec = self._neural_band_times_sec(
+            valid, self._plot_neural_band_emg_volts
         )
+        if timestamps_sec is None:
+            return
+        self._ensure_neural_band_emg_volts_styling(channel_count)
         # One vectorized adc_to_volts call for the whole batch, then reshape.
         flat_adcs = [v for s in valid for v in s.channel_values]
         volts = np.asarray(
@@ -1009,14 +1027,11 @@ class AriaDataViewer:
     def _plot_neural_band_accel(self, batch):
         if not batch.accel:
             return
-        timestamps_sec = (
-            np.fromiter(
-                (s.capture_timestamp_ns for s in batch.accel),
-                dtype=np.int64,
-                count=len(batch.accel),
-            )
-            * 1e-9
+        timestamps_sec = self._neural_band_times_sec(
+            batch.accel, self._plot_neural_band_accel
         )
+        if timestamps_sec is None:
+            return
         values = np.array([s.accel_msec2 for s in batch.accel])
         for i, axis in enumerate(("x", "y", "z")):
             rr.send_columns(
@@ -1028,14 +1043,11 @@ class AriaDataViewer:
     def _plot_neural_band_gyro(self, batch):
         if not batch.gyro:
             return
-        timestamps_sec = (
-            np.fromiter(
-                (s.capture_timestamp_ns for s in batch.gyro),
-                dtype=np.int64,
-                count=len(batch.gyro),
-            )
-            * 1e-9
+        timestamps_sec = self._neural_band_times_sec(
+            batch.gyro, self._plot_neural_band_gyro
         )
+        if timestamps_sec is None:
+            return
         values = np.array([s.gyro_radsec for s in batch.gyro])
         for i, axis in enumerate(("x", "y", "z")):
             rr.send_columns(

@@ -153,7 +153,9 @@ int64_t SensorData::getDeviceTime() const {
     case SensorDataType::Temperature:
       return temperatureData().captureTimestampNs;
     case SensorDataType::NeuralBandBatch:
-      return neuralBandBatchData().captureTimestampNs;
+      // This stream has no device-clock capture time; arrival is what the
+      // index is ordered by.
+      return neuralBandBatchData().arrivalTimestampNs;
     case SensorDataType::BatteryStatus:
       return batteryStatusData().captureTimestampNs;
 

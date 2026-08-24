@@ -673,44 +673,52 @@ class DataProviderTests(unittest.TestCase):
     def test_neural_band_batch_python_access(self) -> None:
         # Round-trip user-visible fields through pybind; decoding lives in C++.
         batch = NeuralBandBatch()
-        batch.capture_timestamp_ns = 2_000_000_000
+        batch.arrival_timestamp_ns = 2_000_000_000
         batch.batch_sequence_number = 42
         batch.emg_channel_count = 2
         batch.emg_bits_per_adc_reading = 16
 
         emg_sub0 = NeuralBandEmgSample()
-        emg_sub0.capture_timestamp_ns = 1_999_500_000
+        emg_sub0.wristband_timestamp_ns = 1_999_500_000
+        emg_sub0.device_timestamp_ns = 2_014_770_000
         emg_sub0.channel_values = [0x0102, 0x0304]
         emg_sub1 = NeuralBandEmgSample()
-        emg_sub1.capture_timestamp_ns = 2_000_000_000
+        emg_sub1.wristband_timestamp_ns = 2_000_000_000
+        # Left unset: the mapping is optional, and None has to survive the bind.
         emg_sub1.channel_values = [0x0506, 0x0708]
         batch.emg = [emg_sub0, emg_sub1]
 
         accel_sample = NeuralBandAccelSample()
-        accel_sample.capture_timestamp_ns = 2_000_000_000
+        accel_sample.wristband_timestamp_ns = 2_000_000_000
+        accel_sample.device_timestamp_ns = 2_015_270_000
         accel_sample.accel_msec2 = [1.0, -2.0, 3.0]
         batch.accel = [accel_sample]
 
         gyro_sample = NeuralBandGyroSample()
-        gyro_sample.capture_timestamp_ns = 2_000_000_000
+        gyro_sample.wristband_timestamp_ns = 2_000_000_000
+        gyro_sample.device_timestamp_ns = 2_015_270_000
         gyro_sample.gyro_radsec = [0.1, -0.2, 0.3]
         batch.gyro = [gyro_sample]
 
-        assert batch.capture_timestamp_ns == 2_000_000_000
+        assert batch.arrival_timestamp_ns == 2_000_000_000
         assert batch.batch_sequence_number == 42
         assert batch.emg_channel_count == 2
         assert batch.emg_bits_per_adc_reading == 16
 
         assert len(batch.emg) == 2
-        assert batch.emg[0].capture_timestamp_ns == 1_999_500_000
+        assert batch.emg[0].wristband_timestamp_ns == 1_999_500_000
+        assert batch.emg[0].device_timestamp_ns == 2_014_770_000
         assert list(batch.emg[0].channel_values) == [0x0102, 0x0304]
-        assert batch.emg[1].capture_timestamp_ns == 2_000_000_000
+        assert batch.emg[1].wristband_timestamp_ns == 2_000_000_000
+        assert batch.emg[1].device_timestamp_ns is None
         assert list(batch.emg[1].channel_values) == [0x0506, 0x0708]
 
         assert len(batch.accel) == 1
-        assert batch.accel[0].capture_timestamp_ns == 2_000_000_000
+        assert batch.accel[0].wristband_timestamp_ns == 2_000_000_000
+        assert batch.accel[0].device_timestamp_ns == 2_015_270_000
         assert np.allclose(np.asarray(batch.accel[0].accel_msec2), [1.0, -2.0, 3.0])
 
         assert len(batch.gyro) == 1
-        assert batch.gyro[0].capture_timestamp_ns == 2_000_000_000
+        assert batch.gyro[0].wristband_timestamp_ns == 2_000_000_000
+        assert batch.gyro[0].device_timestamp_ns == 2_015_270_000
         assert np.allclose(np.asarray(batch.gyro[0].gyro_radsec), [0.1, -0.2, 0.3])

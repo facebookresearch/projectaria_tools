@@ -36,24 +36,28 @@ _PLOTTER_MODULE = "projectaria_tools.tools.aria_rerun_viewer.aria_data_plotter"
 
 
 def _make_emg_sample(
-    timestamp_ns: int, channel_values: list[int]
+    timestamp_ns: int | None, channel_values: list[int]
 ) -> NeuralBandEmgSample:
     sample = NeuralBandEmgSample()
-    sample.capture_timestamp_ns = timestamp_ns
+    sample.device_timestamp_ns = timestamp_ns
     sample.channel_values = channel_values
     return sample
 
 
-def _make_accel_sample(timestamp_ns: int, xyz: list[float]) -> NeuralBandAccelSample:
+def _make_accel_sample(
+    timestamp_ns: int | None, xyz: list[float]
+) -> NeuralBandAccelSample:
     sample = NeuralBandAccelSample()
-    sample.capture_timestamp_ns = timestamp_ns
+    sample.device_timestamp_ns = timestamp_ns
     sample.accel_msec2 = xyz
     return sample
 
 
-def _make_gyro_sample(timestamp_ns: int, xyz: list[float]) -> NeuralBandGyroSample:
+def _make_gyro_sample(
+    timestamp_ns: int | None, xyz: list[float]
+) -> NeuralBandGyroSample:
     sample = NeuralBandGyroSample()
-    sample.capture_timestamp_ns = timestamp_ns
+    sample.device_timestamp_ns = timestamp_ns
     sample.gyro_radsec = xyz
     return sample
 
@@ -63,8 +67,10 @@ def _make_neural_band_batch(
     accel: list[NeuralBandAccelSample] | None = None,
     gyro: list[NeuralBandGyroSample] | None = None,
     emg_channel_count: int = 0,
+    arrival_timestamp_ns: int = 9_000_000_000,
 ) -> NeuralBandBatch:
     batch = NeuralBandBatch()
+    batch.arrival_timestamp_ns = arrival_timestamp_ns
     batch.emg = emg if emg is not None else []
     batch.accel = accel if accel is not None else []
     batch.gyro = gyro if gyro is not None else []
@@ -82,10 +88,12 @@ class PlotNeuralBandBatchTest(unittest.TestCase):
             patch(f"{_PLOTTER_MODULE}.rr.send_columns"),
             patch(f"{_PLOTTER_MODULE}.rr.TimeColumn"),
             patch(f"{_PLOTTER_MODULE}.rr.Scalars"),
+            patch(f"{_PLOTTER_MODULE}.rr.log"),
         ]
         self.mock_send_columns = patchers[0].start()
         self.mock_time_column = patchers[1].start()
         self.mock_scalars = patchers[2].start()
+        self.mock_log = patchers[3].start()
         for p in patchers:
             self.addCleanup(p.stop)
 
@@ -200,6 +208,32 @@ class PlotNeuralBandBatchTest(unittest.TestCase):
         batch = _make_neural_band_batch()
 
         self.viewer.plot_neural_band_batch(batch)
+
+        self.mock_send_columns.assert_not_called()
+
+    def test_emg_without_device_timestamps_is_skipped(self) -> None:
+        emg = [_make_emg_sample(None, [10, 20]), _make_emg_sample(None, [11, 21])]
+        batch = _make_neural_band_batch(emg=emg, emg_channel_count=2)
+
+        self.viewer._plot_neural_band_emg(batch)
+
+        self.mock_send_columns.assert_not_called()
+        # Styling is static and would leave empty named series behind.
+        self.mock_log.assert_not_called()
+
+    def test_accel_without_device_timestamps_is_skipped(self) -> None:
+        accel = [_make_accel_sample(None, [1.0, 2.0, 3.0])]
+        batch = _make_neural_band_batch(accel=accel)
+
+        self.viewer._plot_neural_band_accel(batch)
+
+        self.mock_send_columns.assert_not_called()
+
+    def test_gyro_without_device_timestamps_is_skipped(self) -> None:
+        gyro = [_make_gyro_sample(None, [0.1, 0.2, 0.3])]
+        batch = _make_neural_band_batch(gyro=gyro)
+
+        self.viewer._plot_neural_band_gyro(batch)
 
         self.mock_send_columns.assert_not_called()
 

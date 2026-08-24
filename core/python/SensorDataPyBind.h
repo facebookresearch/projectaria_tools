@@ -526,7 +526,13 @@ inline void declareNeuralBandBatchDataRecord(py::module& m) {
   py::class_<NeuralBandEmgSample>(m, "NeuralBandEmgSample")
       .def(py::init<>())
       .def_readwrite(
-          "capture_timestamp_ns", &NeuralBandEmgSample::captureTimestampNs, "device timeline, ns")
+          "wristband_timestamp_ns",
+          &NeuralBandEmgSample::wristbandTimestampNs,
+          "wristband clock, as reported on the wire; 1 us resolution")
+      .def_readwrite(
+          "device_timestamp_ns",
+          &NeuralBandEmgSample::deviceTimestampNs,
+          "device timeline, derived from the wristband clock; None when the mapping is unavailable")
       .def_readwrite(
           "channel_values",
           &NeuralBandEmgSample::channelValues,
@@ -535,20 +541,34 @@ inline void declareNeuralBandBatchDataRecord(py::module& m) {
   py::class_<NeuralBandAccelSample>(m, "NeuralBandAccelSample")
       .def(py::init<>())
       .def_readwrite(
-          "capture_timestamp_ns", &NeuralBandAccelSample::captureTimestampNs, "device timeline, ns")
+          "wristband_timestamp_ns",
+          &NeuralBandAccelSample::wristbandTimestampNs,
+          "wristband clock, as reported on the wire; 1 us resolution")
+      .def_readwrite(
+          "device_timestamp_ns",
+          &NeuralBandAccelSample::deviceTimestampNs,
+          "device timeline, derived from the wristband clock; None when the mapping is unavailable")
       .def_readwrite("accel_msec2", &NeuralBandAccelSample::accelMSec2, "xyz in m/s^2");
 
   py::class_<NeuralBandGyroSample>(m, "NeuralBandGyroSample")
       .def(py::init<>())
       .def_readwrite(
-          "capture_timestamp_ns", &NeuralBandGyroSample::captureTimestampNs, "device timeline, ns")
+          "wristband_timestamp_ns",
+          &NeuralBandGyroSample::wristbandTimestampNs,
+          "wristband clock, as reported on the wire; 1 us resolution")
+      .def_readwrite(
+          "device_timestamp_ns",
+          &NeuralBandGyroSample::deviceTimestampNs,
+          "device timeline, derived from the wristband clock; None when the mapping is unavailable")
       .def_readwrite("gyro_radsec", &NeuralBandGyroSample::gyroRadSec, "xyz in rad/s");
 
   py::class_<NeuralBandBatch>(
       m, "NeuralBandBatch", "Neural Band batch: EMG + IMU accel + gyro from the wristband")
       .def(py::init<>())
       .def_readwrite(
-          "capture_timestamp_ns", &NeuralBandBatch::captureTimestampNs, "device timeline, ns")
+          "arrival_timestamp_ns",
+          &NeuralBandBatch::arrivalTimestampNs,
+          "device clock instant the glasses took this batch off the wristband link; not a sampling instant")
       .def_readwrite(
           "batch_sequence_number",
           &NeuralBandBatch::batchSequenceNumber,

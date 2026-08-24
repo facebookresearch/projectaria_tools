@@ -31,11 +31,6 @@ namespace {
 
 // Guard latches. Each `atomic_flag` fires once per process to prevent log
 // spam from a systematic firmware regression. Not observable outside logs.
-std::atomic_flag conventionFired = ATOMIC_FLAG_INIT;
-std::atomic_flag monotonicityFired = ATOMIC_FLAG_INIT;
-std::atomic_flag zeroDeltaFired = ATOMIC_FLAG_INIT;
-std::atomic_flag singlePacketFired = ATOMIC_FLAG_INIT;
-std::atomic_flag negativeTimestampFired = ATOMIC_FLAG_INIT;
 std::atomic_flag emgSizeMismatchFired = ATOMIC_FLAG_INIT;
 std::atomic_flag imuSizeMismatchFired = ATOMIC_FLAG_INIT;
 
@@ -103,7 +98,7 @@ void decodeImu3AxisSamples(
     }
     const auto* bytes = reinterpret_cast<const uint8_t*>(blob.data());
     SampleT s;
-    s.captureTimestampNs = wireTimestampsUs[p] * kMicrosToNanos;
+    s.wristbandTimestampNs = wireTimestampsUs[p] * kMicrosToNanos;
     assign(
         s,
         std::array<float, 3>{
@@ -117,85 +112,7 @@ void decodeImu3AxisSamples(
 
 } // namespace
 
-// Sync sample timestamps from the wristband clock onto the device clock via a
-// per-sub-stream delta. On entry each sample's captureTimestampNs holds the
-// wristband boot clock in ns (converted at decode); batch.captureTimestampNs is
-// on the device clock in ns. The two clocks are independent — no on-device
-// synchronization — so the only way to get device-timeline sub-sample times is
-// to compute the delta between one shared point on both timelines and apply it
-// to every sample.
-//
-// Shared point: by convention, the packet's wire timestamp is the time of its
-// LAST sub-sample, so `samples.back()` corresponds to `batch.captureTimestampNs`.
-//   delta_ns = batch.captureTimestampNs - samples.back().captureTimestampNs
-//   for each sample: sample.captureTimestampNs += delta_ns
-// Relative structure between samples is preserved (same period, same order);
-// only the absolute reference is translated to the device clock.
-void rebaseWristbandTimestamps(NeuralBandBatch& batch) {
-  const auto rebaseSubStream = [&](auto& samples) {
-    if (samples.empty()) {
-      return;
-    }
-    const int64_t offsetNs = batch.captureTimestampNs - samples.back().captureTimestampNs;
-    for (auto& s : samples) {
-      s.captureTimestampNs += offsetNs;
-    }
-  };
-  rebaseSubStream(batch.emg);
-  rebaseSubStream(batch.accel);
-  rebaseSubStream(batch.gyro);
-}
-
-int64_t deriveBatchWideEmgPeriodNs(
-    const std::vector<int64_t>& wireTimestampsUs,
-    uint32_t timeStepsPerPacket) {
-  if (timeStepsPerPacket == 0) {
-    return 0;
-  }
-  if (wireTimestampsUs.size() < 2) {
-    if (wireTimestampsUs.size() == 1) {
-      if (!singlePacketFired.test_and_set()) {
-        XR_LOGW(
-            "Single-packet Neural Band batch: no wire cadence available; EMG sub-samples collapse to step function.");
-      }
-    }
-    return 0;
-  }
-  const int64_t deltaUs = wireTimestampsUs.back() - wireTimestampsUs.front();
-  const int64_t deltaNs = deltaUs * kMicrosToNanos;
-  const int64_t periodNs =
-      deltaNs / (static_cast<int64_t>(wireTimestampsUs.size() - 1) * timeStepsPerPacket);
-  if (periodNs < 0) {
-    if (!monotonicityFired.test_and_set()) {
-      XR_LOGW(
-          "Neural Band wire packet timestamps non-monotonic; derived EMG period is negative ({} ns).",
-          periodNs);
-    }
-  } else if (periodNs == 0) {
-    if (!zeroDeltaFired.test_and_set()) {
-      XR_LOGW(
-          "Neural Band wire packet timestamps have zero delta across {} packets; EMG sub-samples collapse to step function.",
-          wireTimestampsUs.size());
-    }
-  }
-  return periodNs;
-}
-
-// Expand each EMG packet into per-sub-sample timestamps. The wire ships one
-// timestamp per packet — by convention the LAST sub-sample time — so the
-// earlier sub-samples must be back-filled by stepping backward from that
-// anchor one period at a time.
-//
-// For sub-sample k in [0, timeStepsPerPacket-1]:
-//   subTsNs = packet.captureTimestampNs - (timeStepsPerPacket - 1 - k) * periodNs
-// So k=timeStepsPerPacket-1 lands exactly on the anchor, and k=0 sits
-// (timeStepsPerPacket-1) periods earlier.
-// `periodNs` is the batch-wide period derived from wire packet cadence (see
-// `deriveBatchWideEmgPeriodNs`). Negative timestamps are clamped to 0.
-void synthesizeEmgSubSampleTimestamps(
-    NeuralBandBatch& batch,
-    uint32_t timeStepsPerPacket,
-    int64_t periodNs) {
+void expandEmgPacketsToSubSamples(NeuralBandBatch& batch, uint32_t timeStepsPerPacket) {
   if (batch.emg.empty() || timeStepsPerPacket == 0) {
     return;
   }
@@ -203,17 +120,8 @@ void synthesizeEmgSubSampleTimestamps(
   expanded.reserve(batch.emg.size() * timeStepsPerPacket);
   for (const auto& packet : batch.emg) {
     for (uint32_t k = 0; k < timeStepsPerPacket; ++k) {
-      const int64_t subTsNs =
-          packet.captureTimestampNs - static_cast<int64_t>(timeStepsPerPacket - 1 - k) * periodNs;
-      if (subTsNs < 0) {
-        if (!negativeTimestampFired.test_and_set()) {
-          XR_LOGW(
-              "Post-rebase Neural Band EMG sub-sample timestamp is negative ({} ns); rebase-offset bug or firmware convention drift.",
-              subTsNs);
-        }
-      }
       NeuralBandEmgSample sub;
-      sub.captureTimestampNs = subTsNs < 0 ? 0 : subTsNs;
+      sub.wristbandTimestampNs = packet.wristbandTimestampNs;
       const size_t rowStart = static_cast<size_t>(k) * batch.emgChannelCount;
       const size_t rowEnd = rowStart + batch.emgChannelCount;
       if (rowEnd <= packet.channelValues.size()) {
@@ -261,7 +169,7 @@ void decodeEmgSamples(
       continue;
     }
     NeuralBandEmgSample packetSample;
-    packetSample.captureTimestampNs = wireTimestampsUs[p] * kMicrosToNanos;
+    packetSample.wristbandTimestampNs = wireTimestampsUs[p] * kMicrosToNanos;
     packetSample.channelValues.reserve(static_cast<size_t>(timeStepsPerPacket) * emgChannelCount);
     const auto* bytes = reinterpret_cast<const uint8_t*>(blob.data());
     for (uint32_t t = 0; t < timeStepsPerPacket; ++t) {
@@ -322,7 +230,7 @@ bool NeuralBandBatchPlayer::onDataLayoutRead(
     }
   } else if (r.recordType == vrs::Record::Type::DATA) {
     auto& layout = getExpectedLayout<datalayout::NeuralBandBatchDataLayout>(dl, blockIndex);
-    dataRecord_.captureTimestampNs = layout.captureTimestampNs.get();
+    dataRecord_.arrivalTimestampNs = layout.captureTimestampNs.get();
     dataRecord_.batchSequenceNumber = layout.batchSequenceNumber.get();
     dataRecord_.emgChannelCount = layout.channelCount.get();
     dataRecord_.emgBitsPerAdcReading = layout.bitsPerAdcReading.get();
@@ -349,22 +257,6 @@ bool NeuralBandBatchPlayer::onDataLayoutRead(
     const std::vector<int64_t> accelWireUs = toInt64Vec(accelTimestampsUsRaw);
     const std::vector<int64_t> gyroWireUs = toInt64Vec(gyroTimestampsUsRaw);
 
-    const auto conventionCheck = [&](const std::vector<int64_t>& wireUs, const char* stream) {
-      if (wireUs.empty() || wireUs.back() * kMicrosToNanos <= dataRecord_.captureTimestampNs) {
-        return;
-      }
-      if (!conventionFired.test_and_set()) {
-        XR_LOGW(
-            "Neural Band convention guard ({}): last wire timestamp ({} ns) > batch captureTimestampNs ({} ns); packet.wireTimestamp = LAST sub-sample convention may be broken.",
-            stream,
-            wireUs.back() * kMicrosToNanos,
-            dataRecord_.captureTimestampNs);
-      }
-    };
-    conventionCheck(emgWireUs, "emg");
-    conventionCheck(accelWireUs, "accel");
-    conventionCheck(gyroWireUs, "gyro");
-
     decodeEmgSamples(
         emgWireUs,
         emgChannels,
@@ -383,10 +275,7 @@ bool NeuralBandBatchPlayer::onDataLayoutRead(
     decodeAccelSamples(accelWireUs, accelChannels, accelLsbToMSec2, dataRecord_.accel);
     decodeGyroSamples(gyroWireUs, gyroChannels, gyroLsbToRadSec, dataRecord_.gyro);
 
-    rebaseWristbandTimestamps(dataRecord_);
-
-    const int64_t periodNs = deriveBatchWideEmgPeriodNs(emgWireUs, timeStepsPerPacket);
-    synthesizeEmgSubSampleTimestamps(dataRecord_, timeStepsPerPacket, periodNs);
+    expandEmgPacketsToSubSamples(dataRecord_, timeStepsPerPacket);
 
     callback_(dataRecord_, configRecord_, verbose_);
   }

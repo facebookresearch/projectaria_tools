@@ -589,7 +589,7 @@ SensorData RecordReaderInterface::getLastCachedSensorData(const vrs::StreamId& s
       std::map<TimeSyncMode, int64_t> timeSyncData;
       for (const auto& mode : timeSyncMapper_->getTimeSyncModes()) {
         const int64_t& syncTimeNs =
-            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(data.captureTimestampNs, mode);
+            timeSyncMapper_->convertFromDeviceTimeToSyncTimeNs(data.arrivalTimestampNs, mode);
         timeSyncData.emplace(mode, syncTimeNs);
       }
       return {streamId, std::move(data), sensorDataType, recordTimeNs, timeSyncData};

@@ -37,32 +37,22 @@
 namespace projectaria::tools::data_provider {
 namespace {
 
-// Populates captureTimestampNs with the wristband boot clock in ns (µs * 1000),
-// matching the post-decode / pre-rebase state. Channel data left empty;
-// timestamp tests don't read it.
-NeuralBandBatch makeBatchWithWirePackets(
-    int64_t captureNs,
-    const std::vector<int64_t>& emgWireUs,
-    const std::vector<int64_t>& accelWireUs,
-    const std::vector<int64_t>& gyroWireUs) {
-  NeuralBandBatch batch;
-  batch.captureTimestampNs = captureNs;
-  for (const int64_t t : emgWireUs) {
-    NeuralBandEmgSample s;
-    s.captureTimestampNs = t * 1000;
-    batch.emg.push_back(std::move(s));
+std::vector<std::vector<uint16_t>> collectChannelValues(const NeuralBandBatch& batch) {
+  std::vector<std::vector<uint16_t>> rows;
+  rows.reserve(batch.emg.size());
+  for (const auto& sample : batch.emg) {
+    rows.push_back(sample.channelValues);
   }
-  for (const int64_t t : accelWireUs) {
-    NeuralBandAccelSample s;
-    s.captureTimestampNs = t * 1000;
-    batch.accel.push_back(s);
+  return rows;
+}
+
+std::vector<int64_t> collectWristbandTimes(const NeuralBandBatch& batch) {
+  std::vector<int64_t> times;
+  times.reserve(batch.emg.size());
+  for (const auto& sample : batch.emg) {
+    times.push_back(sample.wristbandTimestampNs);
   }
-  for (const int64_t t : gyroWireUs) {
-    NeuralBandGyroSample s;
-    s.captureTimestampNs = t * 1000;
-    batch.gyro.push_back(s);
-  }
-  return batch;
+  return times;
 }
 
 // Sample-major uint16, little-endian — matches EMG wire format.
@@ -98,153 +88,76 @@ constexpr float kGyroLsbToRadSec = 0.070f * (std::numbers::pi_v<float> / 180.0f)
 
 } // namespace
 
-TEST(NeuralBandBatchPlayerTest, RebaseWristbandTimestamps_AnchorsLastSampleToBatchCapture) {
-  auto batch = makeBatchWithWirePackets(
-      /*captureNs=*/1'000'000'000,
-      /*emgWireUs=*/{500'000, 504'000, 508'000},
-      /*accelWireUs=*/{500'000, 508'000},
-      /*gyroWireUs=*/{500'000, 508'000});
-
-  rebaseWristbandTimestamps(batch);
-
-  EXPECT_EQ(batch.emg.back().captureTimestampNs, 1'000'000'000);
-  EXPECT_EQ(batch.accel.back().captureTimestampNs, 1'000'000'000);
-  EXPECT_EQ(batch.gyro.back().captureTimestampNs, 1'000'000'000);
-  EXPECT_EQ(batch.emg.front().captureTimestampNs, 992'000'000);
-  EXPECT_EQ(batch.emg[1].captureTimestampNs, 996'000'000);
-}
-
-TEST(NeuralBandBatchPlayerTest, RebaseWristbandTimestamps_EmptySubStreamIsNoOp) {
-  NeuralBandBatch batch;
-  batch.captureTimestampNs = 500'000'000;
-  rebaseWristbandTimestamps(batch);
-  EXPECT_TRUE(batch.emg.empty());
-  EXPECT_TRUE(batch.accel.empty());
-  EXPECT_TRUE(batch.gyro.empty());
-}
-
-TEST(NeuralBandBatchPlayerTest, RebaseWristbandTimestamps_SinglePacketAnchorsExactly) {
-  auto batch = makeBatchWithWirePackets(
-      /*captureNs=*/2'000'000'000,
-      /*emgWireUs=*/{750'000},
-      /*accelWireUs=*/{},
-      /*gyroWireUs=*/{});
-  rebaseWristbandTimestamps(batch);
-  EXPECT_EQ(batch.emg.front().captureTimestampNs, 2'000'000'000);
-}
-
-TEST(NeuralBandBatchPlayerTest, DeriveEmgPeriod_UniformCadence) {
-  // 3 packets * 4us spacing * 8 sub-samples => 8_000_000 / (2*8) = 500_000 ns.
-  const int64_t period = deriveBatchWideEmgPeriodNs({500'000, 504'000, 508'000}, 8);
-  EXPECT_EQ(period, 500'000);
-}
-
-TEST(NeuralBandBatchPlayerTest, DeriveEmgPeriod_SinglePacketReturnsZero) {
-  const int64_t period = deriveBatchWideEmgPeriodNs({500'000}, 8);
-  EXPECT_EQ(period, 0);
-}
-
-TEST(NeuralBandBatchPlayerTest, DeriveEmgPeriod_EmptyInputReturnsZero) {
-  const int64_t period = deriveBatchWideEmgPeriodNs({}, 8);
-  EXPECT_EQ(period, 0);
-}
-
-TEST(NeuralBandBatchPlayerTest, DeriveEmgPeriod_NonMonotonicWireGivesNegativePeriod) {
-  const int64_t period = deriveBatchWideEmgPeriodNs({500'000, 490'000, 480'000}, 8);
-  EXPECT_LT(period, 0);
-}
-
-TEST(NeuralBandBatchPlayerTest, DeriveEmgPeriod_ZeroDeltaAcrossMultiplePacketsReturnsZero) {
-  const int64_t period = deriveBatchWideEmgPeriodNs({500'000, 500'000, 500'000}, 8);
-  EXPECT_EQ(period, 0);
-}
-
-TEST(NeuralBandBatchPlayerTest, DeriveEmgPeriod_ZeroTimeStepsPerPacketReturnsZero) {
-  const int64_t period = deriveBatchWideEmgPeriodNs({500'000, 508'000}, 0);
-  EXPECT_EQ(period, 0);
-}
-
-TEST(NeuralBandBatchPlayerTest, SynthesizeEmgSubSampleTimestamps_ThreePacketsEightStepsMonotonic) {
-  NeuralBandBatch batch;
-  batch.captureTimestampNs = 1'000'000'000;
-  batch.emgChannelCount = 2;
-  constexpr uint32_t timeSteps = 8;
-  constexpr int64_t period = 500'000;
-  // 500 us cadence * 8 sub-samples = 4 ms per packet spacing (post-rebase ns).
-  const std::vector<int64_t> packetTsNs{992'000'000, 996'000'000, 1'000'000'000};
-  for (const int64_t ts : packetTsNs) {
-    NeuralBandEmgSample s;
-    s.captureTimestampNs = ts;
-    s.channelValues.assign(timeSteps * batch.emgChannelCount, 0);
-    batch.emg.push_back(std::move(s));
-  }
-
-  synthesizeEmgSubSampleTimestamps(batch, timeSteps, period);
-
-  EXPECT_EQ(batch.emg.size(), packetTsNs.size() * timeSteps);
-  EXPECT_EQ(batch.emg[timeSteps - 1].captureTimestampNs, packetTsNs[0]);
-  EXPECT_EQ(batch.emg[2 * timeSteps - 1].captureTimestampNs, packetTsNs[1]);
-  EXPECT_EQ(batch.emg.back().captureTimestampNs, packetTsNs[2]);
-  EXPECT_EQ(batch.emg.front().captureTimestampNs, packetTsNs[0] - 7 * period);
-  for (size_t i = 1; i < batch.emg.size(); ++i) {
-    EXPECT_LT(batch.emg[i - 1].captureTimestampNs, batch.emg[i].captureTimestampNs)
-        << "sub-sample " << i << " not > sub-sample " << (i - 1);
-  }
-}
-
-TEST(
-    NeuralBandBatchPlayerTest,
-    SynthesizeEmgSubSampleTimestamps_PeriodZeroCollapsesToStepFunction) {
-  NeuralBandBatch batch;
-  batch.captureTimestampNs = 1'000'000'000;
-  batch.emgChannelCount = 1;
-  constexpr uint32_t timeSteps = 4;
-  const std::vector<int64_t> packetTsNs{500'000'000, 1'000'000'000};
-  for (const int64_t ts : packetTsNs) {
-    NeuralBandEmgSample s;
-    s.captureTimestampNs = ts;
-    s.channelValues.assign(timeSteps, 0);
-    batch.emg.push_back(std::move(s));
-  }
-
-  synthesizeEmgSubSampleTimestamps(batch, timeSteps, 0);
-
-  ASSERT_EQ(batch.emg.size(), packetTsNs.size() * timeSteps);
-  for (uint32_t k = 0; k < timeSteps; ++k) {
-    EXPECT_EQ(batch.emg[k].captureTimestampNs, packetTsNs[0]);
-    EXPECT_EQ(batch.emg[timeSteps + k].captureTimestampNs, packetTsNs[1]);
-  }
-}
-
-TEST(NeuralBandBatchPlayerTest, SynthesizeEmgSubSampleTimestamps_EmptyBatchIsNoOp) {
+TEST(NeuralBandBatchPlayerTest, ExpandEmgPacketsToSubSamples_SplitsBlobIntoRows) {
   NeuralBandBatch batch;
   batch.emgChannelCount = 2;
-  synthesizeEmgSubSampleTimestamps(batch, 8, 500'000);
-  EXPECT_TRUE(batch.emg.empty());
-}
-
-TEST(
-    NeuralBandBatchPlayerTest,
-    SynthesizeEmgSubSampleTimestamps_ExpandsPerPacketChannelValuesRowwise) {
-  NeuralBandBatch batch;
-  batch.captureTimestampNs = 1'000;
-  batch.emgChannelCount = 2;
-  constexpr uint32_t timeSteps = 3;
   NeuralBandEmgSample packet;
-  packet.captureTimestampNs = 1'000;
+  packet.wristbandTimestampNs = 750'000'000;
   // Row-major [3 timesteps, 2 channels]: rows are {10,20}, {30,40}, {50,60}.
   packet.channelValues = {10, 20, 30, 40, 50, 60};
   batch.emg.push_back(std::move(packet));
 
-  synthesizeEmgSubSampleTimestamps(batch, timeSteps, 0);
+  expandEmgPacketsToSubSamples(batch, /*timeStepsPerPacket=*/3);
 
-  ASSERT_EQ(batch.emg.size(), timeSteps);
-  const std::vector<uint16_t> expectedRow0{10, 20};
-  const std::vector<uint16_t> expectedRow1{30, 40};
-  const std::vector<uint16_t> expectedRow2{50, 60};
-  EXPECT_EQ(batch.emg[0].channelValues, expectedRow0);
-  EXPECT_EQ(batch.emg[1].channelValues, expectedRow1);
-  EXPECT_EQ(batch.emg[2].channelValues, expectedRow2);
+  const std::vector<std::vector<uint16_t>> expectedRows{{10, 20}, {30, 40}, {50, 60}};
+  EXPECT_EQ(collectChannelValues(batch), expectedRows);
+  const std::vector<int64_t> expectedTimes{750'000'000, 750'000'000, 750'000'000};
+  EXPECT_EQ(collectWristbandTimes(batch), expectedTimes);
+}
+
+TEST(NeuralBandBatchPlayerTest, ExpandEmgPacketsToSubSamples_PacketsKeepTheirOwnWireTime) {
+  NeuralBandBatch batch;
+  batch.emgChannelCount = 1;
+  for (const auto& [ts, blob] : std::vector<std::pair<int64_t, std::vector<uint16_t>>>{
+           {100'000'000, {1, 2}}, {200'000'000, {3, 4}}, {300'000'000, {5, 6}}}) {
+    NeuralBandEmgSample packet;
+    packet.wristbandTimestampNs = ts;
+    packet.channelValues = blob;
+    batch.emg.push_back(std::move(packet));
+  }
+
+  expandEmgPacketsToSubSamples(batch, /*timeStepsPerPacket=*/2);
+
+  const std::vector<std::vector<uint16_t>> expectedRows{{1}, {2}, {3}, {4}, {5}, {6}};
+  EXPECT_EQ(collectChannelValues(batch), expectedRows);
+  const std::vector<int64_t> expectedTimes{
+      100'000'000, 100'000'000, 200'000'000, 200'000'000, 300'000'000, 300'000'000};
+  EXPECT_EQ(collectWristbandTimes(batch), expectedTimes);
+}
+
+TEST(NeuralBandBatchPlayerTest, ExpandEmgPacketsToSubSamples_LeavesDeviceTimeUnset) {
+  NeuralBandBatch batch;
+  batch.emgChannelCount = 1;
+  NeuralBandEmgSample packet;
+  packet.wristbandTimestampNs = 1'000;
+  packet.channelValues = {7, 8};
+  batch.emg.push_back(std::move(packet));
+
+  expandEmgPacketsToSubSamples(batch, /*timeStepsPerPacket=*/2);
+
+  ASSERT_EQ(batch.emg.size(), 2u);
+  EXPECT_FALSE(batch.emg[0].deviceTimestampNs.has_value());
+  EXPECT_FALSE(batch.emg[1].deviceTimestampNs.has_value());
+}
+
+TEST(NeuralBandBatchPlayerTest, ExpandEmgPacketsToSubSamples_EmptyBatchIsNoOp) {
+  NeuralBandBatch batch;
+  batch.emgChannelCount = 2;
+  expandEmgPacketsToSubSamples(batch, 8);
+  EXPECT_TRUE(batch.emg.empty());
+}
+
+TEST(NeuralBandBatchPlayerTest, ExpandEmgPacketsToSubSamples_ZeroTimeStepsLeavesPacketsAsIs) {
+  NeuralBandBatch batch;
+  batch.emgChannelCount = 2;
+  NeuralBandEmgSample packet;
+  packet.channelValues = {10, 20};
+  batch.emg.push_back(std::move(packet));
+
+  expandEmgPacketsToSubSamples(batch, 0);
+
+  const std::vector<std::vector<uint16_t>> unchanged{{10, 20}};
+  EXPECT_EQ(collectChannelValues(batch), unchanged);
 }
 
 TEST(NeuralBandBatchPlayerTest, DecodeAccel_WellFormedBlobProducesScaledXyz) {
@@ -255,7 +168,7 @@ TEST(NeuralBandBatchPlayerTest, DecodeAccel_WellFormedBlobProducesScaledXyz) {
   decodeAccelSamples(tsUs, blobs, kAccelLsbToMSec2, out);
 
   ASSERT_EQ(out.size(), 1u);
-  EXPECT_EQ(out[0].captureTimestampNs, 500'000'000);
+  EXPECT_EQ(out[0].wristbandTimestampNs, 500'000'000);
   EXPECT_FLOAT_EQ(out[0].accelMSec2[0], 100.0f * kAccelLsbToMSec2);
   EXPECT_FLOAT_EQ(out[0].accelMSec2[1], -200.0f * kAccelLsbToMSec2);
   EXPECT_FLOAT_EQ(out[0].accelMSec2[2], 300.0f * kAccelLsbToMSec2);
@@ -273,8 +186,8 @@ TEST(NeuralBandBatchPlayerTest, DecodeAccel_MalformedBlobSkipped) {
   decodeAccelSamples(tsUs, blobs, kAccelLsbToMSec2, out);
 
   ASSERT_EQ(out.size(), 2u);
-  EXPECT_EQ(out[0].captureTimestampNs, 100'000);
-  EXPECT_EQ(out[1].captureTimestampNs, 300'000);
+  EXPECT_EQ(out[0].wristbandTimestampNs, 100'000);
+  EXPECT_EQ(out[1].wristbandTimestampNs, 300'000);
 }
 
 TEST(NeuralBandBatchPlayerTest, DecodeAccel_BoundaryInt16Values) {
@@ -310,7 +223,7 @@ TEST(NeuralBandBatchPlayerTest, DecodeGyro_WellFormedBlobProducesScaledXyz) {
   decodeGyroSamples(tsUs, blobs, kGyroLsbToRadSec, out);
 
   ASSERT_EQ(out.size(), 1u);
-  EXPECT_EQ(out[0].captureTimestampNs, 700'000'000);
+  EXPECT_EQ(out[0].wristbandTimestampNs, 700'000'000);
   EXPECT_FLOAT_EQ(out[0].gyroRadSec[0], 50.0f * kGyroLsbToRadSec);
   EXPECT_FLOAT_EQ(out[0].gyroRadSec[1], -75.0f * kGyroLsbToRadSec);
   EXPECT_FLOAT_EQ(out[0].gyroRadSec[2], 125.0f * kGyroLsbToRadSec);
@@ -327,7 +240,7 @@ TEST(NeuralBandBatchPlayerTest, DecodeGyro_MalformedBlobSkipped) {
   decodeGyroSamples(tsUs, blobs, kGyroLsbToRadSec, out);
 
   ASSERT_EQ(out.size(), 1u);
-  EXPECT_EQ(out[0].captureTimestampNs, 20'000);
+  EXPECT_EQ(out[0].wristbandTimestampNs, 20'000);
 }
 
 // Full-pipeline tests write a synthetic VRS fixture and open it via
@@ -662,7 +575,7 @@ TEST(NeuralBandBatchPlayerTest, BackwardCompat_ReadsSyntheticGen2FixtureViaFullP
 
   const NeuralBandBatch batch = provider->getNeuralBandBatchByIndex(*streamId, 0);
 
-  EXPECT_EQ(batch.captureTimestampNs, kFixtureBatchCaptureNs);
+  EXPECT_EQ(batch.arrivalTimestampNs, kFixtureBatchCaptureNs);
   EXPECT_EQ(batch.batchSequenceNumber, kFixtureBatchSeq);
   EXPECT_EQ(batch.emgChannelCount, kFixtureChannelCount);
   EXPECT_EQ(batch.emgBitsPerAdcReading, kFixtureBitsPerAdcReading);
@@ -676,22 +589,16 @@ TEST(NeuralBandBatchPlayerTest, BackwardCompat_ReadsSyntheticGen2FixtureViaFullP
   const std::vector<uint16_t> expectedLastRow{encodeEmgCount(2, 3, 0), encodeEmgCount(2, 3, 1)};
   EXPECT_EQ(batch.emg.back().channelValues, expectedLastRow);
 
-  // See kFixtureBatchCaptureNs comment for the period math.
-  EXPECT_EQ(batch.emg.back().captureTimestampNs, kFixtureBatchCaptureNs);
-  constexpr int64_t kExpectedPeriodNs = 25'000'000;
-  constexpr int64_t kExpectedPacket0AnchorNs = 100'000'000;
-  EXPECT_EQ(
-      batch.emg.front().captureTimestampNs,
-      kExpectedPacket0AnchorNs -
-          static_cast<int64_t>(kFixtureTimeStepsPerPacket - 1) * kExpectedPeriodNs);
+  // Wire us reaches the samples as ns; first and last packet.
+  EXPECT_EQ(batch.emg.front().wristbandTimestampNs, 100'000'000);
+  EXPECT_EQ(batch.emg.back().wristbandTimestampNs, 300'000'000);
+  EXPECT_FALSE(batch.emg.front().deviceTimestampNs.has_value());
 
   EXPECT_TRUE(batch.accel.empty());
   EXPECT_TRUE(batch.gyro.empty());
 }
 
-// Guards against a regression that would move period derivation to after
-// decodeEmgSamples (using only surviving packets rather than all wire).
-TEST(NeuralBandBatchPlayerTest, Integration_MalformedEmgPacketSkippedButPeriodDerivedFromAllWire) {
+TEST(NeuralBandBatchPlayerTest, Integration_MalformedEmgPacketSkippedSurvivorsIntact) {
   constexpr int64_t kBatchCaptureNs = 300'000'000;
   constexpr uint32_t kTimeStepsPerPacket = 2;
   constexpr uint32_t kChannelCount = 1;
@@ -730,13 +637,9 @@ TEST(NeuralBandBatchPlayerTest, Integration_MalformedEmgPacketSkippedButPeriodDe
 
   ASSERT_EQ(batch.emg.size(), 2u * kTimeStepsPerPacket);
 
-  // Post-rebase: packet-2 anchor => kBatchCaptureNs; packet-0 => kBatchCaptureNs - 200_000 us.
-  constexpr int64_t kAllWirePeriodNs = 50'000'000;
-  constexpr int64_t kPacket0AnchorNs = kBatchCaptureNs - 200'000'000;
-  EXPECT_EQ(batch.emg[0].captureTimestampNs, kPacket0AnchorNs - kAllWirePeriodNs);
-  EXPECT_EQ(batch.emg[1].captureTimestampNs, kPacket0AnchorNs);
-  EXPECT_EQ(batch.emg[2].captureTimestampNs, kBatchCaptureNs - kAllWirePeriodNs);
-  EXPECT_EQ(batch.emg[3].captureTimestampNs, kBatchCaptureNs);
+  // Packet 1 is the malformed one.
+  const std::vector<int64_t> expectedTimes{100'000'000, 100'000'000, 300'000'000, 300'000'000};
+  EXPECT_EQ(collectWristbandTimes(batch), expectedTimes);
 
   const std::vector<uint16_t> row0Packet0{0x0001};
   const std::vector<uint16_t> row1Packet0{0x0002};
