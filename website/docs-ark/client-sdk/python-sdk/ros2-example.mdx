@@ -525,7 +525,10 @@ def raw_message_callback(raw_message: AriaRaw):
 #### 4. Image Data Processing
 
 ```python
-if message_id == sdk_gen2.MessageType.SLAM_CAMERA_FRAME:
+if message_id in (
+    sdk_gen2.MessageType.SLAM_CAMERA_FRAME,
+    sdk_gen2.MessageType.RAW_SLAM_CAMERA_FRAME,
+):
     image_data, image_record = converter.to_image_data_and_record(message)
     if image_data is not None:
         print(
@@ -539,6 +542,11 @@ if message_id == sdk_gen2.MessageType.SLAM_CAMERA_FRAME:
 - **SLAM cameras** (4 monochrome tracking cameras at 512x512)
 - **ET cameras** (2 eye-tracking cameras)
 - **POV/RGB camera** (single color camera at 2016x1512)
+
+SLAM frames arrive under one of two message IDs depending on the profile's declared encoding:
+`SLAM_CAMERA_FRAME` for a compressed (H.265) stream and `RAW_SLAM_CAMERA_FRAME` for an
+uncompressed (RAW8) one, such as `profile3`. Matching on only one of the pair silently receives no
+frames under profiles using the other encoding.
 
 **Conversion result:**
 - `image_data`: NumPy array with pixel data
