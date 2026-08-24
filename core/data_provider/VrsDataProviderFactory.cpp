@@ -465,6 +465,8 @@ std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
   const MetadataTimeSyncMode metadataTimeSyncMode =
       determineTimeSyncMode(reader_->getTags(), deviceVersion_, timesyncPlayers_);
   auto timeSyncMapper = std::make_shared<TimeSyncMapper>(reader_, timesyncPlayers_);
+  auto neuralBandTimeMapper =
+      std::make_shared<NeuralBandTimeMapper>(reader_, neuralBandBatchPlayers_);
 
   auto interface = std::make_shared<RecordReaderInterface>(
       reader_,
@@ -486,6 +488,7 @@ std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
       eyeGazePlayers_,
       handPosePlayers_,
       timeSyncMapper,
+      neuralBandTimeMapper,
       metadataTimeSyncMode);
 
   auto configMap = std::make_shared<StreamIdConfigurationMapper>(
@@ -509,7 +512,12 @@ std::shared_ptr<VrsDataProvider> VrsDataProviderFactory::createProvider() {
       vioHighFreqPlayers_);
 
   return std::make_shared<VrsDataProvider>(
-      interface, configMap, timeSyncMapper, streamIdLabelMapper_, maybeDeviceCalib_);
+      interface,
+      configMap,
+      timeSyncMapper,
+      neuralBandTimeMapper,
+      streamIdLabelMapper_,
+      maybeDeviceCalib_);
 }
 } // namespace
 

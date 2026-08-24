@@ -18,6 +18,7 @@
 
 #include <data_provider/VrsDataProvider.h>
 #include <data_provider/data_layout/MotionSensorMetadata.h>
+#include <data_provider/test/NeuralBandBatchFixture.h>
 
 #include <vrs/DataSource.h>
 #include <vrs/RecordFileWriter.h>
@@ -35,6 +36,11 @@
 #include <vector>
 
 namespace projectaria::tools::data_provider {
+
+using test::NeuralBandBatchFixtureSpec;
+using test::TempFileGuard;
+using test::writeSyntheticNeuralBandBatchVrs;
+
 namespace {
 
 std::vector<std::vector<uint16_t>> collectChannelValues(const NeuralBandBatch& batch) {
@@ -247,142 +253,6 @@ TEST(NeuralBandBatchPlayerTest, DecodeGyro_MalformedBlobSkipped) {
 // createVrsDataProvider — they exercise the wiring only reachable when a
 // record traverses the whole reader path.
 namespace {
-
-// Must match the factory's dispatch flavor tag.
-constexpr const char* kNeuralBandBatchFlavorForTest = "device/oatmeal/emg_imu_batch";
-
-struct NeuralBandBatchFixtureSpec {
-  int64_t captureNs{};
-  uint32_t batchSequence{};
-  uint32_t channelCount{};
-  uint32_t bitsPerAdcReading{};
-  uint32_t timeStepsPerPacket{};
-  std::vector<uint64_t> emgTimestampsUs;
-  std::vector<std::string> emgBlobs;
-  std::vector<uint32_t> emgEncodings;
-  std::vector<uint32_t> emgSequenceNumbers;
-  std::vector<uint64_t> accelTimestampsUs;
-  std::vector<std::string> accelBlobs;
-  std::vector<uint32_t> accelSequenceNumbers;
-  std::vector<uint64_t> gyroTimestampsUs;
-  std::vector<std::string> gyroBlobs;
-  std::vector<uint32_t> gyroSequenceNumbers;
-  std::string emgCalibrationParamsJson;
-};
-
-// `spec` is captured by reference — must outlive the recordable.
-class NeuralBandBatchRecordable : public vrs::Recordable {
- public:
-  explicit NeuralBandBatchRecordable(const NeuralBandBatchFixtureSpec& spec)
-      : vrs::Recordable(vrs::RecordableTypeId::ImuRecordableClass, kNeuralBandBatchFlavorForTest),
-        spec_(spec) {
-    addRecordFormat(vrs::Record::Type::CONFIGURATION, 1, config_.getContentBlock(), {&config_});
-    addRecordFormat(vrs::Record::Type::DATA, 1, data_.getContentBlock(), {&data_});
-  }
-
-  const vrs::Record* createConfigurationRecord() override {
-    config_.streamId.set(0);
-    config_.sensorModel.stage("wristband-test");
-    config_.deviceId.set(0xC0FFEEULL);
-    config_.nominalRateHz.set(1000.0);
-    config_.description.stage("");
-    config_.emgCalibrationParamsJson.stage(spec_.emgCalibrationParamsJson);
-    return createRecord(0.0, vrs::Record::Type::CONFIGURATION, 1, vrs::DataSource(config_));
-  }
-
-  const vrs::Record* createStateRecord() override {
-    return createRecord(0.0, vrs::Record::Type::STATE, 1);
-  }
-
-  const vrs::Record* writeDataRecord() {
-    data_.captureTimestampNs.set(spec_.captureNs);
-    data_.batchSequenceNumber.set(spec_.batchSequence);
-    data_.emgSampleCount.set(static_cast<uint32_t>(spec_.emgTimestampsUs.size()));
-    data_.accelSampleCount.set(static_cast<uint32_t>(spec_.accelTimestampsUs.size()));
-    data_.gyroSampleCount.set(static_cast<uint32_t>(spec_.gyroTimestampsUs.size()));
-    data_.channelCount.set(spec_.channelCount);
-    data_.bitsPerAdcReading.set(spec_.bitsPerAdcReading);
-    data_.samplesPerBatch.set(spec_.timeStepsPerPacket);
-    if (!spec_.emgTimestampsUs.empty()) {
-      data_.emgTimestampsNs.stage(spec_.emgTimestampsUs);
-      data_.emgChannels.stage(spec_.emgBlobs);
-      data_.emgEncodings.stage(spec_.emgEncodings);
-      data_.emgSequenceNumbers.stage(spec_.emgSequenceNumbers);
-    }
-    if (!spec_.accelTimestampsUs.empty()) {
-      data_.accelTimestampsNs.stage(spec_.accelTimestampsUs);
-      data_.accelChannels.stage(spec_.accelBlobs);
-      data_.accelSequenceNumbers.stage(spec_.accelSequenceNumbers);
-    }
-    if (!spec_.gyroTimestampsUs.empty()) {
-      data_.gyroTimestampsNs.stage(spec_.gyroTimestampsUs);
-      data_.gyroChannels.stage(spec_.gyroBlobs);
-      data_.gyroSequenceNumbers.stage(spec_.gyroSequenceNumbers);
-    }
-    return createRecord(1.0, vrs::Record::Type::DATA, 1, vrs::DataSource(data_));
-  }
-
- private:
-  const NeuralBandBatchFixtureSpec& spec_;
-  ::datalayout::NeuralBandBatchConfigurationLayout config_;
-  ::datalayout::NeuralBandBatchDataLayout data_;
-};
-
-// Satisfies factory's "at least one image or IMU player" invariant.
-class PlaceholderImuRecordable : public vrs::Recordable {
- public:
-  PlaceholderImuRecordable()
-      : vrs::Recordable(vrs::RecordableTypeId::SlamImuData, "device/oatmeal") {
-    addRecordFormat(vrs::Record::Type::CONFIGURATION, 1, config_.getContentBlock(), {&config_});
-    addRecordFormat(vrs::Record::Type::DATA, 1, data_.getContentBlock(), {&data_});
-  }
-
-  const vrs::Record* createConfigurationRecord() override {
-    return createRecord(0.0, vrs::Record::Type::CONFIGURATION, 1, vrs::DataSource(config_));
-  }
-
-  const vrs::Record* createStateRecord() override {
-    return createRecord(0.0, vrs::Record::Type::STATE, 1);
-  }
-
-  // No writeDataRecord() — factory only needs the stream to exist.
-
- private:
-  ::datalayout::MotionSensorConfigRecordMetadata config_;
-  ::datalayout::MotionSensorDataRecordMetadata data_;
-};
-
-// RAII so an early ASSERT can't leak the temp file.
-struct TempFileGuard {
-  std::string path;
-  ~TempFileGuard() {
-    if (!path.empty()) {
-      vrs::os::remove(path);
-    }
-  }
-};
-
-void writeSyntheticNeuralBandBatchVrs(
-    const std::string& path,
-    const NeuralBandBatchFixtureSpec& spec) {
-  vrs::RecordFileWriter writer;
-  // Tags loadDeviceVersion() as Gen2 so the "emg" label is present.
-  writer.setTag("device_type", "Oatmeal");
-
-  NeuralBandBatchRecordable emg(spec);
-  PlaceholderImuRecordable imu;
-  writer.addRecordable(&emg);
-  writer.addRecordable(&imu);
-
-  emg.createConfigurationRecord();
-  emg.createStateRecord();
-  ASSERT_NE(emg.writeDataRecord(), nullptr);
-
-  imu.createConfigurationRecord();
-  imu.createStateRecord();
-
-  ASSERT_EQ(writer.writeToFile(path), 0);
-}
 
 // Assertions below assume:
 //   - 3 EMG packets at wire us {100_000, 200_000, 300_000} (uniform 100 ms cadence)

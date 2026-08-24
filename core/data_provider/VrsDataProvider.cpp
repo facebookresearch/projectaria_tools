@@ -33,12 +33,14 @@ VrsDataProvider::VrsDataProvider(
     const std::shared_ptr<RecordReaderInterface>& interface,
     const std::shared_ptr<StreamIdConfigurationMapper>& configMap,
     const std::shared_ptr<TimeSyncMapper>& timeSyncMapper,
+    const std::shared_ptr<NeuralBandTimeMapper>& neuralBandTimeMapper,
     const std::shared_ptr<StreamIdLabelMapper>& streamIdLabelMapper,
     const std::optional<calibration::DeviceCalibration>& maybeDeviceCalib)
     : interface_(interface),
       configMap_(configMap),
       timeQuery_(std::make_shared<TimestampIndexMapper>(interface_)),
       timeSyncMapper_(timeSyncMapper),
+      neuralBandTimeMapper_(neuralBandTimeMapper),
       streamIdLabelMapper_(streamIdLabelMapper),
       maybeDeviceCalib_(maybeDeviceCalib) {
   rgbIspTuningVersion_ = interface_ ? interface_->getRgbIspTuningVersion() : 0;
@@ -462,6 +464,32 @@ NeuralBandBatch VrsDataProvider::getNeuralBandBatchByIndex(
   } else {
     return {};
   }
+}
+
+std::optional<int64_t> VrsDataProvider::convertFromWristbandTimeToDeviceTimeNs(
+    const int64_t wristbandTimeNs,
+    const vrs::StreamId& streamId) const {
+  if (neuralBandTimeMapper_ == nullptr) {
+    return std::nullopt;
+  }
+  return neuralBandTimeMapper_->convertFromWristbandTimeToDeviceTimeNs(wristbandTimeNs, streamId);
+}
+
+std::optional<int64_t> VrsDataProvider::convertFromDeviceTimeToWristbandTimeNs(
+    const int64_t deviceTimeNs,
+    const vrs::StreamId& streamId) const {
+  if (neuralBandTimeMapper_ == nullptr) {
+    return std::nullopt;
+  }
+  return neuralBandTimeMapper_->convertFromDeviceTimeToWristbandTimeNs(deviceTimeNs, streamId);
+}
+
+std::optional<int64_t> VrsDataProvider::getNeuralBandEmgSamplePeriodNs(
+    const vrs::StreamId& streamId) const {
+  if (neuralBandTimeMapper_ == nullptr) {
+    return std::nullopt;
+  }
+  return neuralBandTimeMapper_->getEmgSamplePeriodNs(streamId);
 }
 
 AlsData VrsDataProvider::getAlsDataByIndex(const vrs::StreamId& streamId, const int index) {

@@ -22,6 +22,7 @@
 #include <set>
 
 #include <calibration/DeviceVersion.h>
+#include <data_provider/NeuralBandTimeMapper.h>
 #include <data_provider/SensorData.h>
 #include <data_provider/TimeSyncMapper.h>
 #include <data_provider/VrsMetadata.h>
@@ -72,6 +73,7 @@ class RecordReaderInterface {
       std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>>& eyegazePlayers,
       std::map<vrs::StreamId, std::shared_ptr<HandPosePlayer>>& handPosePlayers,
       const std::shared_ptr<TimeSyncMapper>& timeSyncMapper,
+      const std::shared_ptr<NeuralBandTimeMapper>& neuralBandTimeMapper,
       MetadataTimeSyncMode metadataTimeSyncMode);
 
   [[nodiscard]] std::set<vrs::StreamId> getStreamIds() const;
@@ -179,9 +181,11 @@ class RecordReaderInterface {
   std::map<vrs::StreamId, std::shared_ptr<HandPosePlayer>> handPosePlayers_;
 
   std::shared_ptr<TimeSyncMapper> timeSyncMapper_;
+  std::shared_ptr<NeuralBandTimeMapper> neuralBandTimeMapper_;
   const MetadataTimeSyncMode metadataTimeSyncMode_ = MetadataTimeSyncMode::NotEnabled;
 
-  std::unique_ptr<std::mutex> readerMutex_;
+  /// Shared with the Neural Band mapper, which reads the same reader on demand.
+  std::shared_ptr<std::mutex> readerMutex_;
   std::map<vrs::StreamId, std::unique_ptr<std::mutex>> streamIdToPlayerMutex_;
   std::map<vrs::StreamId, std::unique_ptr<std::condition_variable>> streamIdToCondition_;
   std::map<vrs::StreamId, const vrs::IndexRecord::RecordInfo*> streamIdToLastReadRecord_;

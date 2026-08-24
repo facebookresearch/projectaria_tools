@@ -232,6 +232,7 @@ inline void declareVrsDataProvider(py::module& m) {
               const std::shared_ptr<RecordReaderInterface>&,
               const std::shared_ptr<StreamIdConfigurationMapper>&,
               const std::shared_ptr<TimeSyncMapper>&,
+              const std::shared_ptr<NeuralBandTimeMapper>&,
               const std::shared_ptr<StreamIdLabelMapper>&,
               const std::optional<calibration::DeviceCalibration>&>())
       .def(
@@ -409,6 +410,23 @@ inline void declareVrsDataProvider(py::module& m) {
           py::arg("device_time_ns"),
           py::arg("mode"),
           "Convert DeviceTime timestamp into synchronized timestamp in nanoseconds.")
+      .def(
+          "convert_from_wristband_time_to_device_time_ns",
+          &VrsDataProvider::convertFromWristbandTimeToDeviceTimeNs,
+          py::arg("wristband_time_ns"),
+          py::arg("stream_id"),
+          "Convert a Neural Band wristband timestamp to the device timeline; None when the recording cannot relate the two clocks")
+      .def(
+          "convert_from_device_time_to_wristband_time_ns",
+          &VrsDataProvider::convertFromDeviceTimeToWristbandTimeNs,
+          py::arg("device_time_ns"),
+          py::arg("stream_id"),
+          "Inverse of convert_from_wristband_time_to_device_time_ns")
+      .def(
+          "get_neural_band_emg_sample_period_ns",
+          &VrsDataProvider::getNeuralBandEmgSamplePeriodNs,
+          py::arg("stream_id"),
+          "Measured EMG sample period in ns, read from the recording rather than assumed")
       .def(
           "convert_from_synctime_to_device_time_ns",
           &VrsDataProvider::convertFromSyncTimeToDeviceTimeNs,

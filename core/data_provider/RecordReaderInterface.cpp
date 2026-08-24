@@ -180,6 +180,7 @@ RecordReaderInterface::RecordReaderInterface(
     std::map<vrs::StreamId, std::shared_ptr<EyeGazePlayer>>& eyegazePlayers,
     std::map<vrs::StreamId, std::shared_ptr<HandPosePlayer>>& handPosePlayers,
     const std::shared_ptr<TimeSyncMapper>& timeSyncMapper,
+    const std::shared_ptr<NeuralBandTimeMapper>& neuralBandTimeMapper,
     MetadataTimeSyncMode metadataTimeSyncMode)
     : reader_(reader),
       imagePlayers_(imagePlayers),
@@ -200,8 +201,11 @@ RecordReaderInterface::RecordReaderInterface(
       eyegazePlayers_(eyegazePlayers),
       handPosePlayers_(handPosePlayers),
       timeSyncMapper_(timeSyncMapper),
+      neuralBandTimeMapper_(neuralBandTimeMapper),
       metadataTimeSyncMode_(metadataTimeSyncMode),
-      readerMutex_(std::make_unique<std::mutex>()) {
+      readerMutex_(
+          neuralBandTimeMapper != nullptr ? neuralBandTimeMapper->readerMutex()
+                                          : std::make_shared<std::mutex>()) {
   // Determine device version
   const std::string deviceTypeString = reader_->getTag("device_type");
   deviceVersion_ = calibration::fromDeviceClassName(deviceTypeString);
@@ -749,6 +753,12 @@ NeuralBandBatch RecordReaderInterface::getLastCachedNeuralBandBatch(const vrs::S
   std::unique_lock<std::mutex> readLock(*(streamIdToPlayerMutex_.at(streamId)));
   auto neuralBandBatch = neuralBandBatchPlayers_[streamId]->getDataRecord();
   streamIdToCondition_.at(streamId)->notify_one();
+  readLock.unlock();
+  // Outside the player lock: filling reads further records, and the mapper takes
+  // the reader lock to do it.
+  if (neuralBandTimeMapper_ != nullptr) {
+    neuralBandTimeMapper_->fillDeviceTimestamps(neuralBandBatch, streamId);
+  }
   return neuralBandBatch;
 }
 

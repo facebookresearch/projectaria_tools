@@ -21,6 +21,7 @@
 #include <string>
 
 #include <calibration/DeviceCalibration.h>
+#include <data_provider/NeuralBandTimeMapper.h>
 #include <data_provider/RecordReaderInterface.h>
 #include <data_provider/SensorConfiguration.h>
 #include <data_provider/SensorDataSequence.h>
@@ -350,6 +351,27 @@ class VrsDataProvider {
    */
   int64_t convertFromDeviceTimeToSyncTimeNs(int64_t deviceTimeNs, TimeSyncMode mode) const;
 
+  /**
+   * @brief Convert a Neural Band sample's wristband timestamp to the device
+   * timeline. Empty when the recording does not carry enough of the stream to
+   * relate the two clocks.
+   */
+  std::optional<int64_t> convertFromWristbandTimeToDeviceTimeNs(
+      int64_t wristbandTimeNs,
+      const vrs::StreamId& streamId) const;
+
+  /** @brief Inverse of `convertFromWristbandTimeToDeviceTimeNs`. */
+  std::optional<int64_t> convertFromDeviceTimeToWristbandTimeNs(
+      int64_t deviceTimeNs,
+      const vrs::StreamId& streamId) const;
+
+  /**
+   * @brief Measured EMG sample period of a Neural Band stream, in nanoseconds.
+   * Read from the recording rather than assumed, so it reflects the band's own
+   * crystal. Empty when the stream is absent or too short to measure.
+   */
+  std::optional<int64_t> getNeuralBandEmgSamplePeriodNs(const vrs::StreamId& streamId) const;
+
   /*
     call the functions below if you know the modality of the streamId
     This avoid conversion among the variant and the specific type, e.g. between SensorData and
@@ -491,6 +513,7 @@ class VrsDataProvider {
       const std::shared_ptr<RecordReaderInterface>& interface,
       const std::shared_ptr<StreamIdConfigurationMapper>& configMap,
       const std::shared_ptr<TimeSyncMapper>& timeSyncMapper,
+      const std::shared_ptr<NeuralBandTimeMapper>& neuralBandTimeMapper,
       const std::shared_ptr<StreamIdLabelMapper>& streamIdLabelMapper,
       const std::optional<calibration::DeviceCalibration>& maybeDeviceCalib);
 
@@ -548,6 +571,7 @@ class VrsDataProvider {
   const std::shared_ptr<StreamIdConfigurationMapper> configMap_;
   const std::shared_ptr<TimestampIndexMapper> timeQuery_;
   const std::shared_ptr<TimeSyncMapper> timeSyncMapper_;
+  const std::shared_ptr<NeuralBandTimeMapper> neuralBandTimeMapper_;
   const std::shared_ptr<StreamIdLabelMapper> streamIdLabelMapper_;
   std::optional<calibration::DeviceCalibration> maybeDeviceCalib_;
 
