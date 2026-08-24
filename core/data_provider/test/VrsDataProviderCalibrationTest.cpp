@@ -93,7 +93,7 @@ void checkCalibrationsForSingleVrs(
 void checkEyetrackingRescaleForGen1(
     const std::shared_ptr<VrsDataProvider> provider,
     const DeviceCalibration& deviceCalib) {
-  static const vrs::StreamId kEyeCameraStreamId{vrs::RecordableTypeId::EyeCameraRecordableClass, 1};
+  constexpr vrs::StreamId kEyeCameraStreamId{vrs::RecordableTypeId::EyeCameraRecordableClass, 1};
   const auto eyeCameraLabel = provider->getLabelFromStreamId(kEyeCameraStreamId).value();
   // eyeCameraLabel = "camera-et", which should not contain calibrations
   // only "camera-et-left" and "camera-et-right" can obtain calibrations
@@ -124,9 +124,9 @@ void checkEyetrackingRescaleForGen1(
 void checkEyetrackingRescaleForGen2(
     const std::shared_ptr<VrsDataProvider> provider,
     const DeviceCalibration& deviceCalib) {
-  static const vrs::StreamId kLeftEyeCameraStreamId{
+  constexpr vrs::StreamId kLeftEyeCameraStreamId{
       vrs::RecordableTypeId::EyeCameraRecordableClass, 1};
-  static const vrs::StreamId kRightEyeCameraStreamId{
+  constexpr vrs::StreamId kRightEyeCameraStreamId{
       vrs::RecordableTypeId::EyeCameraRecordableClass, 2};
   const auto leftCameraLabel = provider->getLabelFromStreamId(kLeftEyeCameraStreamId).value();
   const auto rightCameraLabel = provider->getLabelFromStreamId(kRightEyeCameraStreamId).value();
@@ -173,7 +173,7 @@ void checkRescaleForSingleVrs(const std::string& dataPath, const DeviceVersion& 
   EXPECT_TRUE(maybeCalib);
 
   /********** Check for RGB camera ************/
-  static const vrs::StreamId kRgbCameraStreamId{vrs::RecordableTypeId::RgbCameraRecordableClass, 1};
+  constexpr vrs::StreamId kRgbCameraStreamId{vrs::RecordableTypeId::RgbCameraRecordableClass, 1};
   const auto rgbStreamIdLabel = provider->getLabelFromStreamId(kRgbCameraStreamId).value();
   const auto rgbCameraCalib = maybeCalib.value().getCameraCalib(rgbStreamIdLabel).value();
   auto rgbSensorCalib = provider->getSensorCalibration(kRgbCameraStreamId)->cameraCalibration();
