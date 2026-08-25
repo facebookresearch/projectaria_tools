@@ -432,6 +432,51 @@ class MPSEyeGaze(unittest.TestCase):
   ASSERT_NEAR(0.96278858
         """
 
+    def test_get_gaze_vector_reprojection_uses_calibrated_extrinsics(self) -> None:
+        # The projection must use the device's own calibrated T_device_camera. The gaze
+        # point is projected with the per-device intrinsics, so pairing them with the
+        # nominal CAD extrinsics would add a per-device reprojection offset.
+        from projectaria_tools.core.mps.utils import get_gaze_vector_reprojection
+
+        vrs_filepath = os.path.join(
+            os.getenv("TEST_FOLDER_GEN2"), "aria_gen2_unit_test_sequence.vrs"
+        )
+        provider = data_provider.create_vrs_data_provider(vrs_filepath)
+        device_calibration = provider.get_device_calibration()
+        rgb_label = provider.get_label_from_stream_id(StreamId("214-1"))
+        rgb_camera = device_calibration.get_camera_calib(rgb_label)
+
+        eye_gaze = mps.EyeGaze()
+        eye_gaze.tracking_timestamp = datetime.timedelta(seconds=0)
+        eye_gaze.yaw = 0.0
+        eye_gaze.pitch = 0.0
+        eye_gaze.depth = 1.0
+        eye_gaze.spatial_gaze_point_in_cpf = np.array(
+            [0.05, 0.0, 0.5], dtype=np.float32
+        )
+        eye_gaze.combined_gaze_origin_in_cpf = np.zeros(3, dtype=np.float32)
+        eye_gaze.spatial_gaze_point_valid = True
+        eye_gaze.combined_gaze_valid = True
+
+        transform_device_cpf = device_calibration.get_transform_device_cpf()
+        gaze_center_in_cpf = np.asarray(eye_gaze.spatial_gaze_point_in_cpf)
+
+        def project(use_cad_extrinsics: bool) -> np.ndarray:
+            transform_device_camera = device_calibration.get_transform_device_sensor(
+                rgb_label, use_cad_extrinsics
+            )
+            transform_camera_cpf = (
+                transform_device_camera.inverse() @ transform_device_cpf
+            )
+            return rgb_camera.project(transform_camera_cpf @ gaze_center_in_cpf)
+
+        pixel = get_gaze_vector_reprojection(
+            eye_gaze, rgb_label, device_calibration, rgb_camera, depth_m=1.0
+        )
+        self.assertIsNotNone(pixel)
+        np.testing.assert_allclose(pixel, project(False), rtol=0, atol=1e-6)
+        self.assertFalse(np.allclose(pixel, project(True)))
+
 
 mps_root_path = os.path.join(TEST_FOLDER, "mps_sample")
 

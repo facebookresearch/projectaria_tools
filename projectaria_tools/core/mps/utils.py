@@ -195,9 +195,8 @@ def get_gaze_vector_reprojection(
     # Default, not a pinned frame: this has to name the CPF that gaze_center_in_cpf is already
     # expressed in, which the provider and MPS both resolve the same way per generation.
     transform_device_cpf = device_calibration.get_transform_device_cpf()
-    # CAD, because the ET model predicts against the CAD camera.
     transform_device_camera = device_calibration.get_transform_device_sensor(
-        stream_id_label, True
+        stream_id_label
     )
     # if we want to project on an upright image we will rotate T_device_camera by 90deg cw
     if make_upright:
