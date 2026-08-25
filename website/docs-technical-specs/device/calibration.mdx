@@ -14,7 +14,7 @@ Aria Gen2 devices contain multiple sensors with factory calibration data. Depend
 - **Intrinsic calibration**: Corrects for sensor-specific distortions and biases (e.g., camera lens distortion, IMU bias, microphone sensitivity)
 - **Extrinsic calibration**: Defines spatial relationships (position and orientation) between sensors in the device coordinate frame (available for cameras, IMUs, and LED rings)
 
-The calibration data is stored in a standardized JSON format and is accessible as Python `DeviceCalibration` objects through [`Client SDK`](/technical-specs/client-sdk/api#register_device_calib_callbackcallback-callable) or from [Project Aria Tools](/research-tools/projectariatools/pythontutorials/calibration).
+The calibration data is stored in a standardized JSON format and is accessible as Python `DeviceCalibration` objects through [`Client SDK`](/technical-specs/client-sdk/api#register_device_calib_callbackcallback-callable) or from [Project Aria Tools](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_2_device_calibration.ipynb).
 
 ---
 
@@ -71,5 +71,5 @@ For more details on coordinate frame convention, please visit [Coordinate Conven
 
 - [Coordinate Frame Conventions](/technical-specs/coordinate/3d-coor) - 3D Coordinate Frame Conventions for Project Aria Glasses
 - [Client SDK API Reference](/technical-specs/client-sdk/api) - Complete API documentation
-- [Calibration Tutorial](/research-tools/projectariatools/pythontutorials/calibration) - Working with calibration data
+- [Calibration Tutorial](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_2_device_calibration.ipynb) - Working with calibration data
 - [Device Profiles](/technical-specs/device/profile) - Sensor configurations and profiles

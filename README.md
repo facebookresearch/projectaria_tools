@@ -73,33 +73,32 @@ On-device algorithms powered by a custom Meta co-processor:
 
 Comprehensive tutorials covering Aria Gen2 data processing:
 
-1. [![Tutorial 1](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_1_vrs_data_provider_basics.ipynb)
-   **VrsDataProvider Basics** - how to perform basic operations in loading and
-   access data in an Aria VRS file.
+1. [![Tutorial 1](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_1_vrs_data_provider_basics.ipynb)
+   **VrsDataProvider Basics** - Load an Aria VRS file and access its streams.
 
-2. [![Tutorial 2](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_2_device_calibration.ipynb)
-   **Device Calibration** - how to work with device calibration in Aria VRS.
+2. [![Tutorial 2](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_2_device_calibration.ipynb)
+   **Device Calibration** - Sensor intrinsics and extrinsics, projection, undistortion.
 
-3. [![Tutorial 3](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_3_sequential_access_multi_sensor_data.ipynb)
-   **Sequential Multi-Sensor Access** - how to use the unified queued API to
-   efficiently “stream” multi-sensor data.
+3. [![Tutorial 3](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_3_sequential_access_multi_sensor_data.ipynb)
+   **Sequential Multi-Sensor Access** - The queued API for streaming several sensors in timestamp order.
 
-4. [![Tutorial 4](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_4_on_device_eyetracking_handtracking.ipynb)
-   **Eye Tracking & Hand Tracking** - how to work with on-device-generated
-   EyeGaze and Hand-tracking signals from Aria Gen2 glasses.
+4. [![Tutorial 4](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_4_timestamp_alignment.ipynb)
+   **Device Time Alignment** - Time domains, timestamp queries, and multi-device alignment over SubGHz.
 
-5. [![Tutorial 5](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_5_on_device_vio.ipynb)
-   **On-Device VIO** - how to work with on-device-generated VIO data from Aria
-   Gen2 glasses.
+5. [![Tutorial 5](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_5_mps_basics.ipynb)
+   **MPS Basics** - MPS output layout, `MpsDataPathsProvider` and `MpsDataProvider`.
 
-6. [![Tutorial 6](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_6_timestamp_alignment_in_aria_gen2.ipynb)
-   **Time Synchronization** - understanding timestamp mapping in Aria data, and
-   how to use timestamp mapping in multi-device recording.
+6. [![Tutorial 6](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_6_vio_and_trajectory.ipynb)
+   **VIO and Trajectory** - Device pose: on-device VIO, and the MPS trajectory and semi-dense point cloud.
 
-7. [![Tutorial 7](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/main/examples/Gen2/python_notebooks/Tutorial_7_mps_data_provider_basics.ipynb)
-   **MPS (Machine Perception Services)** - how to load and visualize output data
-   from
-   [Aria MP services](https://facebookresearch.github.io/projectaria_tools/gen2/ark/mps/start).
+7. [![Tutorial 7](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_7_hand_tracking.ipynb)
+   **Hand Tracking** - Hands from both sources: the on-device stream and the MPS result.
+
+8. [![Tutorial 8](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_8_eyetracking.ipynb)
+   **Eye Tracking** - Gaze from all three sources: on-device geometric, on-device ML, and MPS.
+
+9. [![Tutorial 9](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_9_neural_band_emg.ipynb)
+   **Neural Band sEMG** - The Meta Neural Band `emg` stream, its batch model and its two clocks.
 
 ### **Aria Gen1 Tutorials**
 

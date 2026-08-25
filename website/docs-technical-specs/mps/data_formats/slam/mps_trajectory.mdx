@@ -10,7 +10,7 @@ title: Trajectory
 * `open_loop_trajectory.csv` file
 * `closed_loop_trajectory.csv` file
 
-This data can be visualized using the MPS Viewer in [Python](/research-tools/projectariatools/pythontutorials/mps).
+This data can be visualized using the MPS Viewer in [Python](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_6_vio_and_trajectory.ipynb).
 
 ## Open loop trajectory
 
@@ -18,7 +18,7 @@ Open loop trajectory is the high frequency (IMU rate, which is 1kHz) odometry es
 
 The open loop trajectory has good “relative” and “local” accuracy: the relative transformation between two poses is accurate when the time span between two frames is short (within a few minutes). However, the open loop trajectory has increased drift error accumulated over time spent and travel distance. Consider using closed loop trajectory if you are looking for trajectory without drift error.
 
-For the utility function to load the open loop trajectory in Python, please check the [python notebook tutorial](/research-tools/projectariatools/pythontutorials/mps#loading-closed-loop-trajectory)
+For the utility function to load the open loop trajectory in Python, please check the [python notebook tutorial](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_6_vio_and_trajectory.ipynb)
 
 |Column	|Type	|Description	|
 |---	|---	|---	|
@@ -39,7 +39,7 @@ Closed loop trajectories are fully bundle adjusted with detected loop closures, 
 
 In some open datasets we also share and use this format for trajectory pose ground truth from simulation or Optitrack, and the files will be called in a different file name aria_gt_trajectory.csv.
 
-For the utility function to load the closed loop trajectory in Python and C++, please check the [code examples](/research-tools/projectariatools/pythontutorials/mps#loading-open-loop-trajectory)
+For the utility function to load the closed loop trajectory in Python and C++, please check the [code examples](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_6_vio_and_trajectory.ipynb)
 
 |Column	|Type	|Description	|
 |---	|---	|---	|

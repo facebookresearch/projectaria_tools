@@ -7,7 +7,7 @@ title: Timecode Bridge
 
 **Timecode Bridge** is an open-source hardware companion that lets Aria Gen 2 glasses time-align with external LTC-timecoded video and audio equipment — motion capture systems, professional cameras, audio recorders, and similar gear. It receives SMPTE **LTC (Linear Timecode)** on a BNC input and re-broadcasts the timing on the same **sub-1 GHz radio protocol** that Aria's built-in [Time Domain Mapping](/ark/companion-app/time-domain-mapping) already uses.
 
-From the glasses' perspective nothing new needs to be configured. Timecode Bridge simply acts as an additional **broadcaster** — same protocol, same channels, same regulatory rules. Set the glasses to **Receiver** mode ([Companion App guide](/ark/companion-app/time-domain-mapping) or [Client SDK guide](/ark/client-sdk/multi-device)) and choose the channel and broadcaster ID that the Bridge is transmitting on. Recorded VRS timestamps expose the Bridge's clock through the existing `SubGHz` [TimeDomain queries](/research-tools/projectariatools/pythontutorials/time-sync).
+From the glasses' perspective nothing new needs to be configured. Timecode Bridge simply acts as an additional **broadcaster** — same protocol, same channels, same regulatory rules. Set the glasses to **Receiver** mode ([Companion App guide](/ark/companion-app/time-domain-mapping) or [Client SDK guide](/ark/client-sdk/multi-device)) and choose the channel and broadcaster ID that the Bridge is transmitting on. Recorded VRS timestamps expose the Bridge's clock through the existing `SubGHz` [TimeDomain queries](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_4_timestamp_alignment.ipynb).
 
 ## When to use it
 

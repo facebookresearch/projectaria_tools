@@ -26,15 +26,27 @@ If you're new to `projectaria-tools`, start here:
 
 ## Python Notebook Tutorials
 
-Explore our comprehensive Python tutorials to learn how to work with Aria data:
+The tutorials are runnable Jupyter notebooks kept in the GitHub repository rather than
+duplicated here, so what you read is always what you run. Open one in Colab to run it
+with no local setup -- each notebook installs `projectaria-tools` and downloads the
+sample data it needs.
 
-- [Tutorial 1: VrsDataProvider Basics](/docs-research-tools/projectariatools/pythontutorials/dataprovider.mdx): how to perform basic operations in loading and access data in an Aria VRS file.
-- [Tutorial 2: Device Calibration](/docs-research-tools/projectariatools/pythontutorials/calibration.mdx): how to work with device calibration in Aria VRS.
-- [Tutorial 3: Queued Sensor Data](/docs-research-tools/projectariatools/pythontutorials/queue.mdx): how to use the unified queued API to efficiently “stream” multi-sensor data.
-- [Tutorial 4: On-Device Eye Tracking and Hand Tracking](/docs-research-tools/projectariatools/pythontutorials/eyetracking-handtracking.mdx): how to work with on-device-generated EyeGaze and Hand-tracking signals from Aria Gen2 glasses.
-- [Tutorial 5: On-Device VIO](/docs-research-tools/projectariatools/pythontutorials/vio.mdx): how to work with on-device-generated VIO data from Aria Gen2 glasses.
-- [Tutorial 6: Timestamp Mapping in Single- and Multi-Device Recordings](/docs-research-tools/projectariatools/pythontutorials/time-sync.mdx): understanding timestamp mapping in Aria data, and how to use timestamp mapping in multi-device recording.
-- [Tutorial 7: Machine Perception Services (MPS) Data Loading](/docs-research-tools/projectariatools/pythontutorials/mps.mdx): how to load and visualize output data from Aria MP.
+| | Tutorial | Run it | What it covers |
+| :-- | :-- | :-- | :-- |
+| 1 | [VrsDataProvider Basics](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_1_vrs_data_provider_basics.ipynb) | [Open in Colab](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_1_vrs_data_provider_basics.ipynb) | Load an Aria VRS file and access its streams. |
+| 2 | [Device Calibration](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_2_device_calibration.ipynb) | [Open in Colab](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_2_device_calibration.ipynb) | Sensor intrinsics and extrinsics, projection, undistortion. |
+| 3 | [Sequential Multi-Sensor Access](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_3_sequential_access_multi_sensor_data.ipynb) | [Open in Colab](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_3_sequential_access_multi_sensor_data.ipynb) | The queued API for streaming several sensors in timestamp order. |
+| 4 | [Device Time Alignment](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_4_timestamp_alignment.ipynb) | [Open in Colab](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_4_timestamp_alignment.ipynb) | Time domains, timestamp queries, and multi-device alignment over SubGHz. |
+| 5 | [MPS Basics](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_5_mps_basics.ipynb) | [Open in Colab](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_5_mps_basics.ipynb) | MPS output layout, `MpsDataPathsProvider` and `MpsDataProvider`. |
+| 6 | [VIO and Trajectory](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_6_vio_and_trajectory.ipynb) | [Open in Colab](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_6_vio_and_trajectory.ipynb) | Device pose: on-device VIO, and the MPS trajectory and semi-dense point cloud. |
+| 7 | [Hand Tracking](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_7_hand_tracking.ipynb) | [Open in Colab](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_7_hand_tracking.ipynb) | Hands from both sources: the on-device stream and the MPS result. |
+| 8 | [Eye Tracking](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_8_eyetracking.ipynb) | [Open in Colab](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_8_eyetracking.ipynb) | Gaze from all three sources: on-device geometric, on-device ML, and MPS. |
+| 9 | [Neural Band sEMG](https://github.com/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_9_neural_band_emg.ipynb) | [Open in Colab](https://colab.research.google.com/github/facebookresearch/projectaria_tools/blob/2.3.0/examples/Gen2/python_notebooks/Tutorial_9_neural_band_emg.ipynb) | The Meta Neural Band `emg` stream, its batch model and its two clocks. |
+
+Tutorials 1-4 cover reading a recording. Tutorial 5 covers reading MPS output. Tutorials
+6-8 each cover one algorithm across every source that produces it, on-device and MPS
+alike, since choosing between those sources is usually the real question. Tutorial 9
+covers the Neural Band stream.
 
 
 ## Visualization Tools
