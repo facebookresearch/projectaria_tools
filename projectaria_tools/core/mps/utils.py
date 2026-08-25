@@ -192,25 +192,21 @@ def get_gaze_vector_reprojection(
         gaze_center_in_cpf = get_eyegaze_point_at_depth(
             eye_gaze.yaw, eye_gaze.pitch, depth_m
         )
-    # these changes are needed to ensure gaze projections are always using CAD extrinsics
-    transform_device_cpf_cad = (
-        device_calibration.get_transform_device_cpf()
-    )  # this is always CAD
-    transform_device_camera_cad = device_calibration.get_transform_device_sensor(
+    # Default, not a pinned frame: this has to name the CPF that gaze_center_in_cpf is already
+    # expressed in, which the provider and MPS both resolve the same way per generation.
+    transform_device_cpf = device_calibration.get_transform_device_cpf()
+    # CAD, because the ET model predicts against the CAD camera.
+    transform_device_camera = device_calibration.get_transform_device_sensor(
         stream_id_label, True
-    )  # this will ensure T_device_camera is CAD value
+    )
     # if we want to project on an upright image we will rotate T_device_camera by 90deg cw
     if make_upright:
         transform_camera_cw90 = SE3.from_matrix(
             np.array([[0, 1, 0, 0], [-1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
         )
-        transform_device_camera_cad = (
-            transform_device_camera_cad @ transform_camera_cw90
-        )
-    transform_camera_cpf_cad = (
-        transform_device_camera_cad.inverse() @ transform_device_cpf_cad
-    )
+        transform_device_camera = transform_device_camera @ transform_camera_cw90
+    transform_camera_cpf = transform_device_camera.inverse() @ transform_device_cpf
 
-    gaze_center_in_camera = transform_camera_cpf_cad @ gaze_center_in_cpf
+    gaze_center_in_camera = transform_camera_cpf @ gaze_center_in_cpf
     gaze_center_in_pixels = camera_calibration.project(gaze_center_in_camera)
     return gaze_center_in_pixels

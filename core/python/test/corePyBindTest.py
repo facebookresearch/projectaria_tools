@@ -378,32 +378,68 @@ class CalibrationTests(unittest.TestCase):
             device_calib = provider.get_device_calibration()
             assert device_calib is not None
 
-            for label in device_calib.get_camera_labels():
-                # The default stays on the CAD CPF, which is what consumers read before the SVD
-                # variant existed.
-                default = device_calib.get_transform_cpf_sensor(label)
-                cad_cpf = device_calib.get_transform_cpf_sensor(label, False, False)
-                assert np.allclose(default.to_matrix(), cad_cpf.to_matrix())
+            is_gen2 = (
+                device_calib.get_device_version() == calibration.DeviceVersion.Gen2
+            )
 
-                # Picking the SVD CPF must move the result, otherwise the flag does nothing.
-                svd_cpf = device_calib.get_transform_cpf_sensor(label, False, True)
+            generation_default = (
+                calibration.CpfType.SvdBased
+                if is_gen2
+                else calibration.CpfType.CadBased
+            )
+
+            for label in device_calib.get_camera_labels():
+                # Default resolves per generation.
+                default = device_calib.get_transform_cpf_sensor(label)
+                resolved = device_calib.get_transform_cpf_sensor(
+                    label, False, generation_default
+                )
+                assert np.allclose(default.to_matrix(), resolved.to_matrix())
+
+                # The two frames must actually differ.
+                cad_cpf = device_calib.get_transform_cpf_sensor(
+                    label, False, calibration.CpfType.CadBased
+                )
+                svd_cpf = device_calib.get_transform_cpf_sensor(
+                    label, False, calibration.CpfType.SvdBased
+                )
                 assert not np.allclose(cad_cpf.to_matrix(), svd_cpf.to_matrix())
 
-                # Both accessors resolve the same CPF, so they compose back to T_Device_Sensor.
-                for use_svd in [False, True]:
+                # On the CAD path Default stays on CAD rather than following the generation.
+                assert np.allclose(
+                    device_calib.get_transform_cpf_sensor(
+                        label, True, calibration.CpfType.Default
+                    ).to_matrix(),
+                    device_calib.get_transform_cpf_sensor(
+                        label, True, calibration.CpfType.CadBased
+                    ).to_matrix(),
+                )
+
+                # The two accessors compose back to T_Device_Sensor.
+                for get_cad_value, cpf_type in [
+                    (False, calibration.CpfType.CadBased),
+                    (False, calibration.CpfType.SvdBased),
+                    (True, calibration.CpfType.CadBased),
+                ]:
                     composed = device_calib.get_transform_device_cpf(
-                        use_svd
-                    ) @ device_calib.get_transform_cpf_sensor(label, False, use_svd)
+                        cpf_type
+                    ) @ device_calib.get_transform_cpf_sensor(
+                        label, get_cad_value, cpf_type
+                    )
                     assert np.allclose(
                         composed.to_matrix(),
-                        device_calib.get_transform_device_sensor(label).to_matrix(),
+                        device_calib.get_transform_device_sensor(
+                            label, get_cad_value
+                        ).to_matrix(),
                     )
 
-                # A CAD sensor pose in the SVD CPF mixes two device estimates and is rejected.
+                # get_cad_value=True with SvdBased is rejected.
                 with self.assertRaisesRegex(
                     ValueError, "name no single device estimate"
                 ):
-                    device_calib.get_transform_cpf_sensor(label, True, True)
+                    device_calib.get_transform_cpf_sensor(
+                        label, True, calibration.CpfType.SvdBased
+                    )
 
     def test_random_accessor_index(self) -> None:
         for vrs_filepath in vrs_filepath_list:

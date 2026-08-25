@@ -28,6 +28,23 @@
 namespace projectaria::tools::calibration {
 
 /**
+ * @brief An enum to represent which central pupil frame (CPF) an accessor reports against
+ * <br>`CadBased` is the CAD design value, which Aria Gen1 publishes against. `SvdBased` aligns
+ * CAD onto the unit's own calibrated camera positions, which Aria Gen2 reports its eye gaze
+ * against, and falls back to `CadBased` when that alignment is not possible. The two differ by
+ * the unit's manufacturing tolerance, 1.15 to 2.53 deg across the Aria Gen2 units sampled, so
+ * eye gaze read against the wrong one is rotated by that much.
+ * <br>`Default` resolves per generation, `CadBased` on Gen1 and `SvdBased` on Gen2. That is a
+ * convention rather than a measurement, since the deviation is per unit; pass a frame explicitly
+ * when it matters.
+ */
+enum class CpfType {
+  CadBased,
+  SvdBased,
+  Default,
+};
+
+/**
  * @brief A class to store and access calibration information of a device,
  * including: camera, imu, magnetometer, barometer, and microphones.
  */
@@ -173,12 +190,9 @@ class DeviceCalibration {
   /**
    * @brief returns relative pose between device frame (anchored to a particular sensor defined by
    * `originLabel`) and CPF (central pupil frame).
-   * @param useSvd If true, uses SVD-based alignment between per-instance camera
-   * calibration and CAD extrinsics to account for manufacturing tolerances. Falls back to CAD-only
-   * value if SVD alignment is not possible (e.g. fewer than 3 cameras).
-   * If false (default), returns the pure CAD design value.
+   * @param cpfType Which CPF to report against; see `CpfType`.
    */
-  Sophus::SE3d getT_Device_Cpf(bool useSvd = false) const;
+  Sophus::SE3d getT_Device_Cpf(CpfType cpfType = CpfType::Default) const;
 
   /**
    * @brief returns calibrated `T_Device_Sensor` given a label.
@@ -191,20 +205,14 @@ class DeviceCalibration {
    * <br>The two arguments select independent things, and neither implies the other:
    * @param getCadValue Which sensor pose: the per-instance calibrated one (`false`, default), or
    * the CAD design value (`true`).
-   * @param useSvd Which CPF: the CAD-defined frame (`false`, default), or the SVD-aligned one
-   * (`true`). Same meaning and same default as the argument of `getT_Device_Cpf`, so that
-   * `getT_Device_Cpf(useSvd) * getT_Cpf_Sensor(label, getCadValue, useSvd)` reproduces
-   * `getT_Device_Sensor(label, getCadValue)` for `getCadValue = false`.
-   * <br>`getCadValue = true` composes a CAD sensor pose with the CAD CPF and so is answered
-   * straight from the CAD table; asking for the SVD CPF as well would pair a CAD sensor pose with
-   * a frame solved against the measured cameras, which names no single device estimate, so
-   * `getCadValue = true, useSvd = true` throws `std::invalid_argument`.
-   * <br>TODO: revisit this API. `getCadValue` has very few callers here and the pair of flags is
-   * hard to reason about; the intent is to drop it and let callers reach for
-   * `getT_Device_Sensor(label, true)` when they want CAD sensor poses.
+   * @param cpfType Which CPF to express that pose in; see `CpfType`. `getCadValue = true` is
+   * answered from the CAD table, so it rejects `CpfType::SvdBased` with `std::invalid_argument`
+   * and keeps `CpfType::Default` on CAD rather than following the generation.
    */
-  std::optional<Sophus::SE3d>
-  getT_Cpf_Sensor(const std::string& label, bool getCadValue = false, bool useSvd = false) const;
+  std::optional<Sophus::SE3d> getT_Cpf_Sensor(
+      const std::string& label,
+      bool getCadValue = false,
+      CpfType cpfType = CpfType::Default) const;
 
   /**
    * @brief obtain the definition of Origin (or Device in T_Device_Sensor)
@@ -247,6 +255,9 @@ class DeviceCalibration {
   std::map<std::string, SensorCalibration> allCalibs_;
 
   Sophus::SE3d computeSvdT_Device_Cpf() const;
+
+  /** @brief resolves `CpfType::Default` against this device's generation */
+  CpfType resolveCpfType(CpfType cpfType) const;
 
   DeviceCadExtrinsics deviceCadExtrinsics_;
   Sophus::SE3d svdT_Device_Cpf_;

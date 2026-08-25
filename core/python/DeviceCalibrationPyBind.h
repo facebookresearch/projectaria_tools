@@ -67,6 +67,35 @@ inline void declareDeviceVersion(py::module& m) {
       py::arg("name"));
 }
 
+inline void declareCpfType(py::module& m) {
+  py::enum_<CpfType>(
+      m,
+      "CpfType",
+      "A enum class that represents which central pupil frame (CPF) an accessor reports against:"
+      " CadBased, SvdBased, Default. Default resolves per generation, CadBased on Gen1 and"
+      " SvdBased on Gen2.")
+      .value("CadBased", CpfType::CadBased)
+      .value("SvdBased", CpfType::SvdBased)
+      .value("Default", CpfType::Default)
+      // No export_values(): `calibration.Default` is too generic a name to publish.
+      .def(
+          py::pickle(
+              [](const CpfType& cpfType) { // __getstate__
+                return static_cast<int>(cpfType);
+              },
+              [](int state) { // __setstate__
+                switch (static_cast<CpfType>(state)) {
+                  case CpfType::CadBased:
+                  case CpfType::SvdBased:
+                  case CpfType::Default:
+                    return static_cast<CpfType>(state);
+                }
+                throw std::invalid_argument(
+                    "CpfType.__setstate__: " + std::to_string(state) +
+                    " is not a valid CpfType value");
+              }));
+}
+
 inline void declareCameraCalibration(py::module& m) {
   using namespace projectaria::tools::calibration;
 
@@ -1092,10 +1121,10 @@ inline void declareDeviceCalibration(py::module& m) {
       .def(
           "get_transform_device_cpf",
           &DeviceCalibration::getT_Device_Cpf,
-          py::arg("use_svd") = false,
+          py::arg("cpf_type") = CpfType::Default,
           "returns relative pose between device frame (anchored to a particular sensor defined by"
-          " `origin_label`) and CPF (central pupil frame). Set use_svd=True to use SVD-based"
-          " alignment between per-instance calibration and CAD extrinsics.")
+          " `origin_label`) and CPF (central pupil frame). `cpf_type` selects which CPF; see"
+          " CpfType.")
       .def(
           "get_transform_device_sensor",
           &DeviceCalibration::getT_Device_Sensor,
@@ -1108,13 +1137,11 @@ inline void declareDeviceCalibration(py::module& m) {
           &DeviceCalibration::getT_Cpf_Sensor,
           py::arg("label"),
           py::arg("get_cad_value") = false,
-          py::arg("use_svd") = false,
+          py::arg("cpf_type") = CpfType::Default,
           "returns calibrated sensor extrinsics in CPF frame given a label."
           " `get_cad_value = True` returns the CAD design pose of the sensor instead of the"
-          " per-instance calibrated one. `use_svd` selects the CPF, exactly as it does in"
-          " `get_transform_device_cpf`, and defaults to the CAD-defined frame."
-          " Passing `get_cad_value = True, use_svd = True` raises ValueError: a CAD sensor pose"
-          " and a CPF solved against the measured cameras name no single device estimate.")
+          " per-instance calibrated one, and is answered from the CAD table; CpfType.SvdBased is"
+          " rejected there with ValueError, and CpfType.Default stays on CAD.")
       .def(
           "get_origin_label",
           &DeviceCalibration::getOriginLabel,
@@ -1408,6 +1435,7 @@ inline void declareColorCorrectAll(py::module& m) {
 inline void exportDeviceCalibration(py::module& m) {
   // For submodule documentation, see: projectaria_tools/projectaria_tools/core/calibration.py
   declareDeviceVersion(m);
+  declareCpfType(m);
   declareSensorCalibration(m);
   declareDeviceCalibration(m);
   declareDistortByCalibrationAll(m);

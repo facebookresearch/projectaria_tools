@@ -848,9 +848,8 @@ def log_mps_to_rerun(
         device_calibration.get_device_version() == DeviceVersion.Gen1
     )
 
-    T_device_CPF = (
-        device_calibration.get_transform_device_cpf()
-    )  # this is always CAD value
+    # Default: has to match the frame MPS reports against, which differs per generation.
+    T_device_CPF = device_calibration.get_transform_device_cpf()
     rgb_stream_id = StreamId("214-1")
     rgb_stream_label = provider.get_label_from_stream_id(rgb_stream_id)
     rgb_camera_calibration = device_calibration.get_camera_calib(rgb_stream_label)
