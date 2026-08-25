@@ -5,6 +5,40 @@ title: Changelog
 
 # Changelog
 
+## Version 2.3.0
+
+### Breaking Changes
+
+- Neural Band timestamps renamed: `NeuralBandBatch.capture_timestamp_ns` is now `arrival_timestamp_ns`, and the sub-sample `capture_timestamp_ns` is replaced by `wristband_timestamp_ns` plus `device_timestamp_ns` (`Optional[int]`). No silent fallback — old names raise
+- `getT_Device_Cpf()` and `getT_Cpf_Sensor()` take a `CpfType` (`CadBased`, `SvdBased`, `Default`) instead of a `bool useSvd`. Not implicitly convertible from `bool`, so existing call sites must be updated
+
+### New Features
+
+- Neural Band wristband-to-device clock mapping, exposed as `convert_from_wristband_time_to_device_time_ns()`, `convert_from_device_time_to_wristband_time_ns()` and `get_neural_band_emg_sample_period_ns()`. All return `None` when the recording cannot relate the two clocks
+- `CpfType.Default` resolves per generation: CAD on Gen1, SVD on Gen2
+
+### Behavior Changes
+
+- On Gen2, `get_transform_device_cpf()` now returns the SVD-aligned CPF by default, matching how gaze is reported elsewhere in the stack. On-device vs MPS eye gaze agreement improves from 44.05 mrad to 8.74 mrad. Gen1 unchanged
+- EMG sub-samples no longer carry synthesized timestamps. `wristband_timestamp_ns` repeats the packet timestamp; the spread lives in `device_timestamp_ns`
+
+### Bug Fixes
+
+- `getT_Cpf_Sensor()` no longer derives the CPF choice from `getCadValue`, so it composes with `getT_Device_Cpf()` again (was off by 2.53 deg on the unit measured)
+- Fixed the open-source CMake build: `NeuralBandTimeMapper.cpp` was missing from `core/data_provider/CMakeLists.txt`, and the VRS pin predated `vrs::StreamId` becoming a literal type (GitHub PR #394)
+
+### Improvements
+
+- Aria stream identifier constants are now `constexpr`
+
+### Documentation
+
+- Gen2 tutorials restructured onto one axis and renumbered: 1-4 read a recording, 5 reads MPS output, 6-8 cover one algorithm each across both on-device and MPS (VIO and trajectory, hand tracking, eye tracking), 9 covers Neural Band sEMG
+- New eye tracking and Neural Band sEMG tutorials; every tutorial now downloads its own sample data and runs end to end on Colab
+- Website tutorial pages removed in favour of linking the notebooks on GitHub
+- Camera frames logged to Rerun are JPEG compressed, fixing dropped frames past the notebook viewer's 1 GiB budget
+
+---
 ## Version 2.2.0
 
 ### New Features
