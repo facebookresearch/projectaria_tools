@@ -40,7 +40,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   vrs
   GIT_REPOSITORY https://github.com/facebookresearch/vrs.git
-  GIT_TAG 29a40dcb4d50a0e59e0d79240d6ce3531d460718 # main Aug 7th, 2026.
+  GIT_TAG b38c59659f343ff46bcf1283ce0b55929c5cf71c # main Aug 24th, 2026.
 )
 # Override config for vrs
 option(UNIT_TESTS OFF)

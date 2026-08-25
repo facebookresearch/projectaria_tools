@@ -70,10 +70,15 @@ add_library(timesync_mapper STATIC TimeSyncMapper.cpp TimeSyncMapper.h)
 target_include_directories(timesync_mapper PUBLIC "../")
 target_link_libraries(timesync_mapper PUBLIC error_handler file_metadata vrslib players)
 
+add_library(neural_band_time_mapper STATIC NeuralBandTimeMapper.cpp NeuralBandTimeMapper.h)
+target_include_directories(neural_band_time_mapper PUBLIC "../")
+target_link_libraries(neural_band_time_mapper PUBLIC vrslib players)
+
 add_library(record_reader_interface STATIC RecordReaderInterface.cpp RecordReaderInterface.h)
 target_include_directories(record_reader_interface PUBLIC "../")
 target_link_libraries(record_reader_interface PUBLIC
         device_version
+        neural_band_time_mapper
         sensor_data
         nlohmann_json::nlohmann_json
 )
@@ -101,6 +106,7 @@ target_link_libraries(vrs_data_provider PUBLIC
         aria_stream_ids
         deliver_queued_options
         file_metadata
+        neural_band_time_mapper
         record_reader_interface
         sensor_configuration
         sensor_data
