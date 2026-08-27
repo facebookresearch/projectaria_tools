@@ -73,4 +73,7 @@ Some users have reported that the MPS CLI UI has display issues in Terminal. Usi
 | 115 | Error when checking the processing status of the MPS request. Check error logs for more information. |
 | 116 | Error when downloading the MPS results. Check error logs for more information. |
 | 117 | The requested service is not supported on the device generation where the recording was made. |
+| 118 | Multi-Recording processing error. The recordings in the group were made on mixed device generations. All recordings in a multi-SLAM group must come from the same device generation. |
+| 119 | Submit failed because you requested to bypass the VRS Health Check failure but do not have the required permission to do so. |
+| 120 | The downloaded MPS result failed validation before it could be unzipped. The server returned an empty, placeholder, or truncated result for a request it had previously reported as succeeded (for example a 1-byte file). Resubmit the request with the `--force` flag to reprocess the recording from scratch and regenerate a fresh result. |
 | All other error codes | Server side failure. Reach out to support with the error code and log file. |

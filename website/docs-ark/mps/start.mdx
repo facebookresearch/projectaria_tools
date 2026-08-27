@@ -117,6 +117,16 @@ Once the request has been processed, the MPS output will be downloaded next to t
 ```
 Go to [MPS Data Format Basics](/technical-specs/mps/data_formats/slam/basics) for more details about the folder structure.
 
+:::caution Invalid or empty result (error code 120)
+If a request fails with **download validation error code `120`** — for example a message like `Server returned an invalid/empty result (1 byte) for results.zip` (the name is the downloaded file, not the feature) — the server returned a corrupt, empty, or truncated result for a recording it had previously marked as succeeded.
+
+To recover, resubmit the request with the `--force` flag so the VRS file is reprocessed from scratch and a fresh result is generated:
+
+```
+aria_mps single -i <path to vrs file or directory> --force
+```
+:::
+
 ## Authentication and token storage
 
 The first time you run the MPS CLI you'll authenticate with your Project Aria credentials. After a successful login, the auth token is cached so you don't have to log in every time:
