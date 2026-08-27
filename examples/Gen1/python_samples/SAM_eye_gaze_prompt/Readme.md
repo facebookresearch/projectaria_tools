@@ -39,7 +39,7 @@ python -m pip install projectaria_tools
 
 Running on sample data requires a VRS file and an MPS eye gaze output:
 ```
-python SAM_eye_prompt_demo.py --vrs ../../../../data/mps_sample/sample.vrs --eyegaze ../../../../data/mps_sample/eye_gaze/generalized_eye_gaze.csv
+python SAM_eye_prompt_demo.py --vrs ../../../../data/gen1/mps_sample/sample.vrs --eyegaze ../../../../data/gen1/mps_sample/eye_gaze/generalized_eye_gaze.csv
 ```
 
 > [!NOTE]

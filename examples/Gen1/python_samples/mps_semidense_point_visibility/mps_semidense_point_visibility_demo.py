@@ -63,7 +63,7 @@ RGB_STREAM_ID = StreamId("214-1")
 #
 # Configure Data Loading
 # MPS output paths
-mps_folder_data = "../../../../data/mps_sample"
+mps_folder_data = "../../../../data/gen1/mps_sample"
 vrs_file = os.path.join(mps_folder_data, "sample.vrs")
 
 
