@@ -36,7 +36,7 @@ Running on the MPS sample VRS file:
 ```
 cd /path_to/projectaria_tools/tools/samples/python/SAM2_vrs_object_annotation/
 
-python SAM2_vrs_object_annotation_demo.py --vrs ../../../../data/mps_sample/sample.vrs --checkpoint $HOME/Documents/sam2/checkpoints/sam2.1_hiera_large.pt --config /$HOME/Documents/sam2/sam2/configs/sam2.1/sam2.1_hiera_l.yaml --output $HOME/Documents/sam2_demo_output
+python SAM2_vrs_object_annotation_demo.py --vrs ../../../../data/gen1/mps_sample/sample.vrs --checkpoint $HOME/Documents/sam2/checkpoints/sam2.1_hiera_large.pt --config /$HOME/Documents/sam2/sam2/configs/sam2.1/sam2.1_hiera_l.yaml --output $HOME/Documents/sam2_demo_output
 ```
 
 The script will first ask you to pick a few points, including positive and negative points (if needed):
