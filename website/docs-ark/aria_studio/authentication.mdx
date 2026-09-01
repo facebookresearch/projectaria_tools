@@ -72,19 +72,41 @@ Select **Forgot username or password?** on the login page. You'll be directed to
 
 ## Credential storage
 
-Aria Studio stores authentication tokens using your operating system's secure credential manager:
+Aria Studio delegates authentication and token storage to the shared [Project Aria Login](/ark/projectaria-login/token-storage) module. By default your token is stored in your operating system's secure credential manager:
 
 | **Platform** | **Storage backend** |
 |--|--|
 | macOS | macOS Keychain |
 | Linux | Secret Service (GNOME Keyring / KWallet) |
 
+### Encrypted file fallback
+
+When no system keyring is available — for example on a headless Linux host, a container, or a minimal OS image — Project Aria Login can instead persist the token to an encrypted local file at `~/.projectaria/auth_token.enc`. The token is encrypted with **AES-256-GCM** using a key derived from the `PROJECTARIA_TOKEN_KEY` environment variable.
+
+:::note Aria Studio requires `PROJECTARIA_TOKEN_KEY`
+Aria Studio has **no UI for entering an encryption passphrase**. It can therefore use the encrypted file **only when the `PROJECTARIA_TOKEN_KEY` environment variable is set** to a secret of at least **12 characters** before Aria Studio starts:
+
+```bash
+export PROJECTARIA_TOKEN_KEY=<at least 12 characters>
+```
+
+- With `PROJECTARIA_TOKEN_KEY` set and no keyring available, your token is saved to and restored from the encrypted file automatically — no prompt.
+- Without `PROJECTARIA_TOKEN_KEY` (and no keyring), the token is kept **in memory only** for the current session; you'll need to log in again the next time Aria Studio starts.
+- A **passphrase-protected** encrypted file created by another tool (for example, the [MPS CLI](/ark/mps/start) prompting for a passphrase) **cannot be unlocked by Aria Studio at all** — not even by setting `PROJECTARIA_TOKEN_KEY`. The file records which key source protected it, and setting `PROJECTARIA_TOKEN_KEY` unlocks only files that were originally *written* with that env var (even the identical secret in the env var will not decrypt a passphrase-written file). To use the encrypted file with Aria Studio, re-create it with the env var set: set `PROJECTARIA_TOKEN_KEY`, then log in again (e.g. via the [CLI](/ark/projectaria-login/cli-usage) or MPS CLI) so the token is written with the env-var key source.
+:::
+
+:::note
+Anyone with both read access to the encrypted file and the `PROJECTARIA_TOKEN_KEY` value can decrypt the token. On shared hosts, prefer the system keyring and treat the env var as a secret.
+:::
+
+See [Token Storage](/ark/projectaria-login/token-storage) for the full storage policy, on-disk format, and security model.
+
 ### How "Remember me" works
 
 | **Login method** | **Default behavior** | **With "Remember me"** |
 |--|--|--|
-| Gen 2 (MMA) | Token is **always saved** to the system keyring | Not applicable (always saved) |
-| Gen 1 (password) | Token is held in memory only — lost when the app closes | Token is saved to the system keyring |
+| Gen 2 (MMA) | Token is **always saved** to the system keyring (or the encrypted file when no keyring is available and `PROJECTARIA_TOKEN_KEY` is set) | Not applicable (always saved) |
+| Gen 1 (password) | Token is held in memory only — lost when the app closes | Token is saved to the system keyring (or the encrypted file when no keyring is available and `PROJECTARIA_TOKEN_KEY` is set) |
 
 When a token is saved, Aria Studio automatically logs you in on the next launch — no need to re-enter credentials.
 
@@ -95,7 +117,11 @@ Aria Studio and the [MPS CLI](/ark/mps/start) share the same credential store. T
 - If you log in via MPS CLI with `--save-token`, Aria Studio will auto-log-in on next launch.
 - If you log in via Aria Studio with "Remember me" (Gen 1) or via MMA (Gen 2), MPS CLI will auto-log-in on next run.
 
-Both tools use the same entry in your system's secure credential store.
+Both tools use the same entry in your system's secure credential store, and — when no keyring is available — the same encrypted file at `~/.projectaria/auth_token.enc`.
+
+:::note
+The shared encrypted file is only usable by Aria Studio when it was written with a `PROJECTARIA_TOKEN_KEY` key (not an interactive passphrase), and the same `PROJECTARIA_TOKEN_KEY` is set for Aria Studio. If the MPS CLI wrote the file using a passphrase prompt, Aria Studio cannot read it.
+:::
 
 ### Legacy token migration
 
@@ -105,10 +131,10 @@ Older versions of Aria Studio and MPS CLI stored tokens in a plain text file at 
 
 Each time Aria Studio starts, it attempts to restore your previous session:
 
-1. Checks the system keyring for a saved token.
+1. Checks the system keyring for a saved token (or, when no keyring is available and `PROJECTARIA_TOKEN_KEY` is set, the encrypted file at `~/.projectaria/auth_token.enc`).
 2. Validates the token against the server.
 3. If valid, you're logged in automatically and taken to the Home screen.
-4. If the token has expired or is invalid, it's removed from the keyring and you're shown the login screen.
+4. If the token has expired or is invalid, it's removed from the keyring (or encrypted file) and you're shown the login screen.
 
 ## Logout
 
@@ -126,7 +152,7 @@ Each time Aria Studio starts, it attempts to restore your previous session:
 Logging out performs a complete cleanup:
 
 - **Server-side session** is invalidated.
-- **Saved credentials** are removed from the system keyring and any legacy token files.
+- **Saved credentials** are removed from the system keyring, the encrypted file (`~/.projectaria/auth_token.enc`), and any legacy token files.
 - **In-memory token** is cleared.
 - **MPS request caches** (individual and group) are reset.
 - **Recording profile preferences** are cleared from local storage.

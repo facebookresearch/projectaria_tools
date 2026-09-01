@@ -6,6 +6,18 @@ title: Changelog
 # Changelog
 
 ---
+## Version 2.0.1
+*August 2026*
+
+- **Authentication now runs on Project Aria Login (PAL):** Aria Studio shares a single login stack with the MPS CLI and the `projectaria-login` module, so signing in with one tool signs you in across all of them.
+- **Encrypted-file token storage on keyless hosts:** on machines without a system keyring (headless Linux, containers, minimal images), your token can be persisted to an AES-256-GCM encrypted file at `~/.projectaria/auth_token.enc`. Aria Studio uses this file only when the `PROJECTARIA_TOKEN_KEY` environment variable is set (Aria Studio has no UI to enter a passphrase). See [Authentication](/ark/aria_studio/authentication#encrypted-file-fallback).
+- **More reliable Gen 1 sign-in:** legacy (Gen 1) password login now falls back correctly when the managed-account pre-check is unavailable, so degraded backend checks no longer block the password screen.
+- **MPS requests always re-validate your recording:** each submission now re-runs the VRS health check instead of reusing a previous result, so validation always reflects the latest checks. See [Request lifecycle](/ark/aria_studio/mps#request-lifecycle).
+- **More reliable Gen 2 imports:** Gen 2 downloads now retry automatically instead of failing silently, and the import flow shows accurate progress and a clear error when a transfer fails or every file is skipped.
+- **UI fixes:** fixed rendering in the Rerun-based viewers, a blank data-collection interval on the Settings page, and sticky headers and confirmation on the directory and logs views.
+- Bug fixes and stability improvements
+
+---
 ## Version 2.0.0
 *June 2026*
 

@@ -35,7 +35,7 @@ Hover over any status icon to see a detailed tooltip with the current state.
 
 When you submit an MPS request, it goes through these stages:
 
-1. **Preparing** — File is being hashed and validated.
+1. **Preparing** — File is being hashed and validated. A VRS health check runs on every submission, so a recording is always re-validated even if you submitted it before.
 2. **Uploading** — VRS file is being encrypted and uploaded to the cloud.
 3. **Processing** — Cloud servers are running the requested MPS features.
 4. **Downloading** — Results are being downloaded to your local machine.
