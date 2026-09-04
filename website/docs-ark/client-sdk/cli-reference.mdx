@@ -22,11 +22,15 @@ Before using **any** device control commands (recording, streaming, etc.), you *
 
 These go **before** the subcommand, not after it.
 
+:::warning The `--ble*` flags are experimental
+They work on macOS and have only been exercised on Fedora among Linux distributions; they are **not supported on Ubuntu**. See [BLE Device Control](/ark/client-sdk/ble-control).
+:::
+
 | Flag | Description |
 |------|-------------|
 | `--serial <serial>` | Target a specific device by ADB serial. Mandatory when several devices are plugged in over USB |
 | `--device-ip <ipv4>` | Target a device by IP address instead of USB |
-| `--ble` | Connect over BLE instead of USB/Wi-Fi. Requires `--serial`. Recording and streaming are **not** available over BLE |
+| `--ble` | Connect over BLE instead of USB/Wi-Fi. Uses the only BLE-paired device; add `--serial` when several are paired. Recording and streaming are **not** available over BLE. The CLI also falls back to BLE on its own when a device is not found over USB/Wi-Fi — see [BLE Device Control](/ark/client-sdk/ble-control) |
 | `--ble-scan` | In `device list`, scan to report which BLE-paired devices are in range. Off by default because it costs a few seconds |
 | `--ble-scan-timeout <sec>` | How long `--ble-scan` runs (default `12`). BLE discovery latency is irregular, so shorter windows report present devices as missing |
 | `-v` / `--version` | Print the installed SDK version and exit |

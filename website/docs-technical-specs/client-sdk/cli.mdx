@@ -25,7 +25,7 @@ These options apply to all device commands and must be given **before** the subc
 
 ### `--serial <serial_number>`
 
-Connect to a specific device by ADB serial number. Mandatory when multiple devices are connected via USB.
+Connect to a specific device by ADB serial number. Mandatory when multiple devices are reachable; with a single device the CLI selects it automatically. The same rule applies over [`--ble`](#--ble), where the candidates are the devices paired over BLE on this host rather than the ones on USB.
 
 ```bash
 aria_gen2 --serial IM0XXXXXXX device status
@@ -41,7 +41,17 @@ aria_gen2 --device-ip 192.168.1.42 device status
 
 ### `--ble`
 
-Connect over BLE instead of USB/Wi-Fi. Requires `--serial`. Recording and streaming are **not** available over BLE.
+Connect over BLE instead of USB/Wi-Fi. Uses the only device paired over BLE on this host; add `--serial` when more than one is paired. Recording and streaming are **not** available over BLE.
+
+The CLI also falls back to BLE on its own when a device cannot be found over USB or Wi-Fi. See [Automatic fallback to BLE](/ark/client-sdk/ble-control#automatic-fallback-to-ble).
+
+:::note The 2.5.0 `--help` text is wrong here
+`aria_gen2 --help` describes `--ble` as requiring `--serial`. It does not, when exactly one device is paired.
+:::
+
+:::warning Experimental, and not on Ubuntu
+The `--ble*` flags are experimental. They work on macOS and have only been exercised on Fedora among Linux distributions; they are **not supported on Ubuntu**. See [BLE Device Control](/ark/client-sdk/ble-control).
+:::
 
 ```bash
 aria_gen2 --ble --serial IM0XXXXXXX device status
