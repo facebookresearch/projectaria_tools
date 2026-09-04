@@ -397,10 +397,12 @@ With `--no-ui`, pass `--username` (and `--password` for legacy accounts) to log 
 
 #### Select the MPS you wish to generate
 
-By default, SLAM and Hand Tracking MPS is generated and that is the only supported service for Aria gen2 at this time. In the future, we will support more MPS services.
+By default, the single-recording command requests Eye Gaze, SLAM, and Hand Tracking. All three services are supported for Aria Gen1 and Gen2 recordings, subject to the [recording profile requirements](/technical-specs/device/profile) for each service.
+
+Pass one or more space-separated values: `EYE_GAZE`, `SLAM`, or `HAND_TRACKING`. For example, request Eye Gaze and SLAM with:
 
 ```
---features {SLAM, HAND_TRACKING}
+--features EYE_GAZE SLAM
 ```
 
 #### Provide an eye gaze calibration recording
