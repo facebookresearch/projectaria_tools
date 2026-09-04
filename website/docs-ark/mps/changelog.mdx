@@ -6,6 +6,17 @@ title: Changelog
 # Changelog
 
 ---
+## Version 1.4.0
+- Add Eye Gaze processing for Aria Gen 2 recordings
+- Add the optional single-mode `--calib` input for personalized Eye Gaze results
+- Upload each calibration once per run, link it only to requests that submit Eye Gaze, and show upload and link status without internal recording IDs
+- Warn when a calibration file is not marked as such, and do not upload it when Eye Gaze is not requested
+- Submit a fresh Eye Gaze request instead of reusing a prior server request, so it does not inherit an unknown calibration state; `--retry-failed` therefore has no effect on Eye Gaze
+- Validate downloaded MPS results before extraction, retry incomplete transfers, and report actionable errors for invalid results (`120`), calibration upload failures (`121`), and missing Gen 2 eye tracking streams (`122`)
+- Keep encrypted calibration uploads beside the calibration VRS instead of creating a result-style output folder
+
+
+---
 ## Version 1.3.0
 - Integrate the unified login surface — projectaria-login — into the MPS CLI. When the system keyring is unavailable (headless servers, containers, CI), the auth token is now saved to an encrypted local file instead of not being saved at all
 - Always re-run the VRS health check instead of reusing an existing vrs_health_check.json, so results never come from an older VRS Health Check version
