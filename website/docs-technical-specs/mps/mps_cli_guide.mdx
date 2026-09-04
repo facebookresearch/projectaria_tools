@@ -420,3 +420,5 @@ This option is only available in single mode, and is optional.
 
 The path must be an existing `.vrs` file. If you pass several recordings in one command, the calibration recording is uploaded once and linked to each resulting request that submits Eye Gaze. A calibration file that also sits inside an `-i` folder is not processed as a recording in its own right.
 :::
+
+The CLI reports whether the file is marked as an eye gaze calibration recording, but does not require it — a file with no such marking is still uploaded, with a warning.

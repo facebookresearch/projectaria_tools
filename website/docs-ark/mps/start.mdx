@@ -127,6 +127,12 @@ Keep a local copy of the calibration VRS. To reprocess recordings with the same 
 Use the calibration recorded for the same wearer and pair of glasses. The CLI does not verify this association; a mismatch may reduce Eye Gaze accuracy.
 :::
 
+The CLI also checks whether the file you passed really is an eye gaze calibration recording. A recording captured through the Companion App's eye gaze calibration flow is marked as such, and the panel shows a tick next to its name. If the file carries no such marking, the panel says so and **the upload still proceeds**:
+
+![Unmarked eye gaze calibration recording warning](/img/docs-ark/mps/mps_calibration_unmarked.png)
+
+This is advice, not a rejection. A calibration recording captured by something other than the Companion App carries no marking, so the CLI reports what it sees and lets you decide rather than blocking the submission. The same message is written to the log file, so it is visible when running with `--no-ui`.
+
 If the calibration file lives inside a folder you passed to `-i`, it is excluded from the recordings to be processed — it is uploaded as the calibration only, not submitted for MPS features in its own right.
 
 ### MPS output
