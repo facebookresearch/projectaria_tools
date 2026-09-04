@@ -400,3 +400,23 @@ By default, SLAM and Hand Tracking MPS is generated and that is the only support
 ```
 --features {SLAM, HAND_TRACKING}
 ```
+
+#### Provide an eye gaze calibration recording
+
+Supply an eye gaze calibration VRS file alongside the recording you are processing. When Eye Gaze is requested, the file is uploaded and linked to each applicable request. It is processed only to generate eye gaze calibration parameters.
+
+```
+--calib CALIB
+```
+
+For example:
+
+```
+aria_mps single -i ~/Downloads/Example/recording.vrs --calib ~/Downloads/Example/calibration.vrs
+```
+
+:::note
+This option is only available in single mode, and is optional.
+
+The path must be an existing `.vrs` file. If you pass several recordings in one command, the calibration recording is uploaded once and linked to each resulting request that submits Eye Gaze. A calibration file that also sits inside an `-i` folder is not processed as a recording in its own right.
+:::

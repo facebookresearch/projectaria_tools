@@ -13,6 +13,10 @@ Instead of submitting VRS files one at a time, you can point the MPS CLI to a fo
 - Discover all VRS files in the specified folder(s) recursively
 - Concurrenty process `n` (default 25) recordings at a time and queue the rest.
 
+This page covers batch processing with `aria_mps single`, where each discovered recording is submitted as its own MPS request. The `aria_mps multi` command is a separate Multi-SLAM workflow.
+
+In this single-mode workflow, a VRS file passed as `--calib` is excluded from discovery, even when it sits inside one of the `-i` folders. It is uploaded once as the eye gaze calibration recording and linked to each request that submits Eye Gaze, rather than being submitted for processing itself.
+
 ## Usage
 
 ### Process all VRS files in a folder

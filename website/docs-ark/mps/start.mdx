@@ -97,11 +97,50 @@ After you log in, your authentication token is cached so you don't have to sign 
 
 ![MPS CLI UI for single mode](/img/docs-ark/mps/mps_cli_ui_single.png)
 
+### Providing an eye gaze calibration recording
+
+An eye gaze calibration recording is a VRS created by the Eye Gaze Calibration flow in the Aria Companion App for a specific wearer and pair of glasses. Download it from the glasses with the Client SDK. A matching calibration can improve Eye Gaze accuracy.
+
+In single mode you can optionally supply an eye gaze calibration VRS file with `--calib`:
+
+```
+aria_mps single -i ~/Downloads/Example/ --calib ~/Downloads/Example/calibration.vrs
+```
+
+When Eye Gaze is requested, the calibration file is uploaded and linked to each applicable request. It is processed only to generate eye gaze calibration parameters. See the [MPS CLI Guide](/technical-specs/mps/mps_cli_guide) for the full flag reference.
+
+The calibration recording is uploaded **once**, no matter how many recordings you pass, and the same uploaded recording is linked to each request that submits Eye Gaze. A dedicated calibration panel above the request table shows its file name, size and live upload progress:
+
+![Eye gaze calibration upload in progress](/img/docs-ark/mps/mps_calibration_uploading.png)
+
+Once the upload lands, the panel reports the uploaded recording and how many requests carry the link, and a `CALIB` column in the request table shows the link per recording:
+
+![Uploaded eye gaze calibration linked to an MPS request](/img/docs-ark/mps/mps_calibration_uploaded.png)
+
+The `CALIB` column shows `Linked` only for a recording that submits an Eye Gaze request. Other rows show `-`, so the linked count can be lower than the number of recordings.
+
+:::warning Keep the calibration recording
+Keep a local copy of the calibration VRS. To reprocess recordings with the same calibration, pass that file again with `--calib`.
+:::
+
+:::warning Match recordings to their calibration
+Use the calibration recorded for the same wearer and pair of glasses. The CLI does not verify this association; a mismatch may reduce Eye Gaze accuracy.
+:::
+
+If the calibration file lives inside a folder you passed to `-i`, it is excluded from the recordings to be processed — it is uploaded as the calibration only, not submitted for MPS features in its own right.
+
+### MPS output
+
 Once the request has been processed, the MPS output will be downloaded next to the original VRS file. In this example, a recording in the Example directory called gen2_sample2.vrs was used to generate MPS.
 
 ```
     └── Example
         ├── mps_gen2_sample2_vrs
+        │    ├── eye_gaze
+        │    │   ├── calibration_params.json
+        │    │   ├── general_eye_gaze.csv
+        │    │   ├── personalized_eye_gaze.csv
+        │    │   └── summary.json
         │    ├── hand_tracking
         │    │   ├── hand_tracking_results.csv
         │    │   └── summary.json
@@ -115,6 +154,8 @@ Once the request has been processed, the MPS output will be downloaded next to t
         │    └── vrs_health_check.json
         └── gen2_sample2.vrs
 ```
+`calibration_params.json` and `personalized_eye_gaze.csv` are generated when an eye gaze calibration is used.
+
 Go to [MPS Data Format Basics](/technical-specs/mps/data_formats/slam/basics) for more details about the folder structure.
 
 :::caution Invalid or empty result (error code 120)
