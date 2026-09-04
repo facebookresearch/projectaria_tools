@@ -135,6 +135,12 @@ This is advice, not a rejection. A calibration recording captured by something o
 
 If the calibration file lives inside a folder you passed to `-i`, it is excluded from the recordings to be processed — it is uploaded as the calibration only, not submitted for MPS features in its own right.
 
+A calibration is only ever consumed by eye gaze. If you pass `--calib` but do not ask for `EYE_GAZE` in `--features`, nothing in the run can use the file, so it is **not uploaded** and the panel reports that instead of an upload:
+
+![Calibration not uploaded because eye gaze was not requested](/img/docs-ark/mps/mps_calibration_not_uploaded.png)
+
+The `CALIB` column is dropped from the request table in that case, since no recording will ever carry a link.
+
 ### MPS output
 
 Once the request has been processed, the MPS output will be downloaded next to the original VRS file. In this example, a recording in the Example directory called gen2_sample2.vrs was used to generate MPS.
