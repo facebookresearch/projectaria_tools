@@ -141,9 +141,7 @@ Each device gets its own fresh `StreamDataInterface`. The factory registers both
 
 ```python
 def setup_stream_handler() -> StreamDataInterface:
-    handler = StreamDataInterface(
-        enable_image_decoding=True, enable_raw_stream=False
-    )
+    handler = StreamDataInterface(enable_image_decoding=True)
     handler.register_time_domain_mapping_callback(time_domain_mapping_callback)
     handler.register_rgb_callback(rgb_callback)
     handlers.append(handler)

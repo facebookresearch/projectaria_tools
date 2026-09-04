@@ -18,6 +18,25 @@ Before using **any** device control commands (recording, streaming, etc.), you *
 
 ---
 
+## Global Options
+
+These go **before** the subcommand, not after it.
+
+| Flag | Description |
+|------|-------------|
+| `--serial <serial>` | Target a specific device by ADB serial. Mandatory when several devices are plugged in over USB |
+| `--device-ip <ipv4>` | Target a device by IP address instead of USB |
+| `--ble` | Connect over BLE instead of USB/Wi-Fi. Requires `--serial`. Recording and streaming are **not** available over BLE |
+| `--ble-scan` | In `device list`, scan to report which BLE-paired devices are in range. Off by default because it costs a few seconds |
+| `--ble-scan-timeout <sec>` | How long `--ble-scan` runs (default `12`). BLE discovery latency is irregular, so shorter windows report present devices as missing |
+| `-v` / `--version` | Print the installed SDK version and exit |
+
+```bash
+aria_gen2 --serial 1M0YDB5H7B0020 device status
+```
+
+---
+
 ## System Setup
 
 ### `aria_doctor`
@@ -45,6 +64,26 @@ aria_gen2 device list
 **Expected Output:**
 ```
 [AriaGen2Cli:App][INFO]: 1M0YDB5H7B0020
+```
+
+---
+
+### `aria_gen2 device status`
+
+**Purpose:** Report battery, charging state, Wi-Fi, thermals, the device's default recording profile, and device mode.
+
+```bash
+aria_gen2 device status
+```
+
+---
+
+### `aria_gen2 device data-quality-stats`
+
+**Purpose:** Report per-sensor data quality statistics — drop counts, quality score, sequential drops, timestamp errors — during an **active** recording or streaming session.
+
+```bash
+aria_gen2 device data-quality-stats
 ```
 
 ---
@@ -86,19 +125,48 @@ aria_gen2 device profile list
 
 ---
 
-### `aria_gen2 device profile --upload-profile`
+### `aria_gen2 device profile add`
 
-**Purpose:** Upload a custom profile JSON file to the device for use with recording or streaming.
+**Purpose:** Add a custom profile JSON file to the device for use with recording or streaming. Non-destructive — existing profiles are left in place.
 
-| Flag | Required | Description |
-|------|----------|-------------|
-| `--upload-profile` | Yes | Path to custom profile JSON file |
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `<profile>` | Yes | Path to a JSON file containing a **single** custom profile (positional) |
 
 ```bash
-aria_gen2 device profile --upload-profile /path/to/custom_profile.json
+aria_gen2 device profile add /path/to/custom_profile.json
 ```
 
 For details on creating custom profile JSON files, see [Custom Profile Example](/technical-specs/device/profile#custom_profile_example).
+
+---
+
+### `aria_gen2 device profile remove`
+
+**Purpose:** Remove a custom profile from the device by name.
+
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `<name>` | Yes | Name of the profile to remove (positional) |
+
+```bash
+aria_gen2 device profile remove my_custom_profile
+```
+
+---
+
+### `aria_gen2 device profile pull`
+
+**Purpose:** Download a profile's JSON from the device by name.
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `<name>` | Yes | Name of the profile to pull (positional) |
+| `-o` / `--output` | No | Output file path for the profile JSON |
+
+```bash
+aria_gen2 device profile pull my_custom_profile -o ./my_custom_profile.json
+```
 
 ---
 
@@ -138,6 +206,53 @@ aria_gen2 auth check
 
 ---
 
+### `aria_gen2 auth unpair`
+
+**Purpose:** Unpair this PC from the device.
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `--ble` | No | Remove only the locally stored BLE credentials for the selected device |
+
+```bash
+aria_gen2 auth unpair
+```
+
+---
+
+### `aria_gen2 auth remove-certs` / `aria_gen2 auth remove-ble-creds`
+
+**Purpose:** Clear locally stored credentials. Neither needs a connected device.
+
+- `remove-certs` — remove any locally stored SDK authentication certificates
+- `remove-ble-creds` — remove all locally stored BLE credentials, for every paired device
+
+```bash
+aria_gen2 auth remove-certs
+aria_gen2 auth remove-ble-creds
+```
+
+---
+
+## Account Commands
+
+### `aria_gen2 user login` / `verify` / `logout`
+
+**Purpose:** Log in to a Project Aria account. No device required — this group is served by [Project Aria Login](/ark/projectaria-login/start), not the device CLI.
+
+| Command | Flags | Description |
+|---------|-------|-------------|
+| `user login` | `--username` (required) | Log in to Project Aria |
+| `user verify` | — | Verify the stored authentication token |
+| `user logout` | — | Log out and discard the stored token |
+
+```bash
+aria_gen2 user login --username user@example.com
+aria_gen2 user verify
+```
+
+---
+
 ## Recording Commands
 
 ### `aria_gen2 recording start`
@@ -148,9 +263,11 @@ aria_gen2 auth check
 
 | Flag | Required | Default | Description |
 |------|----------|---------|-------------|
-| `--profile` | Yes | — | Recording profile (`profile8`, `profile9`, `profile10`) |
+| `--profile` | No | device default | Recording profile (e.g. `profile8`, `profile9`, `profile10`). When omitted, the device's default recording profile is used — read it from `aria_gen2 device status` |
 | `--recording-name` | No | timestamp | Custom name for the recording |
 | `--json-profile` | No | — | Path to a custom JSON profile file |
+| `--cross-device-camera-sync` | No | — | Multi-device: receivers align their CV camera triggers to the broadcaster's trigger timing |
+| `--cross-device-camera-sync-offset-us <N>` | No | `0` | Multi-device: microsecond offset for cross-device camera sync. Positive = after the broadcaster, negative = before. Receivers only |
 | `--all` | No | — | Multi-device: orchestrate all connected devices. See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device) |
 | `--broadcaster <serial>` | No | smallest serial | Multi-device: serial of the TDM broadcaster (requires `--all`) |
 | `--disable-time-domain-mapping` | No | — | Multi-device: skip TDM, coordinate start/stop only (requires `--all`) |
@@ -171,7 +288,8 @@ aria_gen2 recording start --profile profile8 --recording-name my_experiment
 | Flag | Required | Default | Description |
 |------|----------|---------|-------------|
 | `--all` | No | — | Multi-device: stop recording on all connected devices |
-| `--serial <serial>` | No | auto-detected | Stop recording on a specific device |
+
+To target one device out of several, pass the global `--serial` **before** the subcommand: `aria_gen2 --serial <serial> recording stop`.
 
 ```bash
 aria_gen2 recording stop
@@ -279,6 +397,12 @@ aria_gen2 recording delete-all
 | `--url` | No | — | Remote server URL for remote streaming |
 | `--streaming-cert-name` | No | — | Use the named certificate already installed by [`install-certs`](#aria_gen2-streaming-install-certs) instead of generating and installing a new pair. See [Start Order and Streaming Certificates](/ark/client-sdk/streaming#start-order-and-streaming-certificates) |
 | `--no-verify-server-certs` | No | — | Skip server certificate verification |
+| `--use-ephemeral-certs` | No | — | Use ephemeral certs on device and host instead of the persistent pair |
+| `--local-certs-dir` | No | — | Local streaming certificates directory |
+| `--keep-streaming-on-disconnection` | No | — | Keep streaming after Wi-Fi disconnection |
+| `--header "name:value"` | No | — | Extra HTTP headers to send with streaming requests. Accepts multiple values |
+| `--cross-device-camera-sync` | No | — | Multi-device: receivers align their CV camera triggers to the broadcaster's trigger timing |
+| `--cross-device-camera-sync-offset-us <N>` | No | `0` | Multi-device: microsecond offset for cross-device camera sync. Receivers only |
 | `--all` | No | — | Multi-device: orchestrate all connected devices. See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device) |
 | `--broadcaster <serial>` | No | smallest serial | Multi-device: serial of the TDM broadcaster (requires `--all`) |
 | `--disable-time-domain-mapping` | No | — | Multi-device: skip TDM, coordinate start/stop only (requires `--all`) |
@@ -392,7 +516,10 @@ aria_gen2 streaming webrtc stop
 | Flag | Required | Default | Description |
 |------|----------|---------|-------------|
 | `--all` | No | — | Multi-device: stop streaming on all connected devices |
-| `--serial <serial>` | No | auto-detected | Stop streaming on a specific device |
+| `--remove-ephemeral-certs` | No | — | Also remove ephemeral streaming certs from the local host |
+| `--local-certs-dir <path>` | No | — | Local streaming certificates directory |
+
+To target one device out of several, pass the global `--serial` **before** the subcommand: `aria_gen2 --serial <serial> streaming stop`.
 
 ```bash
 aria_gen2 streaming stop
@@ -413,6 +540,26 @@ aria_gen2 streaming install-certs
 ```
 
 **Output includes a cert name** (e.g., `cert_1769712774692532015`) needed for `--streaming-cert-name`. Pinning that name on [`streaming start`](#aria_gen2-streaming-start) also makes the start order irrelevant — see [Start Order and Streaming Certificates](/ark/client-sdk/streaming#start-order-and-streaming-certificates).
+
+---
+
+### `aria_gen2 streaming uninstall-certs`
+
+**Purpose:** Remove streaming certificates from both the device and the local host.
+
+```bash
+aria_gen2 streaming uninstall-certs
+```
+
+---
+
+### `aria_gen2 streaming profiles`
+
+**Purpose:** List the streaming profiles the device supports.
+
+```bash
+aria_gen2 streaming profiles
+```
 
 ---
 
@@ -500,22 +647,32 @@ aria_streaming_viewer --real-time --interpolate \
 
 ---
 
-### `multi_device_streaming_viewer.py`
+### `aria_multi_device_streaming_viewer`
 
-**Purpose:** Live Rerun visualization for two or more Aria Gen 2 devices streaming simultaneously, with TDM-corrected timestamps for synchronized cross-device replay. Bundled with the Python SDK samples — export it via [Export Example Code](/ark/client-sdk/python-sdk/python-interface#export-example-code) before first use.
+**Purpose:** Live Rerun visualization for two or more Aria Gen 2 devices streaming simultaneously, with TDM-corrected timestamps for synchronized cross-device replay. Installed as a console script by the Client SDK — no sample export needed.
 
 :::tip Recommended order (opposite of `aria_streaming_viewer`)
-This tool is the HTTPS server that devices push to, so launching it before `aria_gen2 streaming start --all` lets frames land from the first push attempt. Reverse order also works — devices retry on connection-refused. **Hard prerequisite:** a streaming cert must already be installed via `aria_gen2 streaming install-certs` (the viewer does not auto-generate). Recommended sequence:
+This tool is the HTTPS server that devices push to, so launching it before `aria_gen2 streaming start --all` lets frames land from the first push attempt. Reverse order also works — devices retry on connection-refused. **Hard prerequisite:** a streaming cert must already be installed via `aria_gen2 streaming install-certs` (this viewer never auto-generates one, unlike `aria_streaming_viewer`). Recommended sequence:
 1. `aria_gen2 streaming install-certs --device <SERIAL> [--device <SERIAL>]` (one-time, REQUIRED)
-2. `python ~/Downloads/projectaria_client_sdk_samples_gen2/multi_device_streaming_viewer.py` (terminal 1)
+2. `aria_multi_device_streaming_viewer` (terminal 1)
 3. `aria_gen2 streaming start --profile profile9 --all` (terminal 2)
 :::
 
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--broadcaster <serial>` | lowest-sorted serial | Explicit broadcaster serial. Use only if you passed `--broadcaster` to `streaming start` |
+| `--expected-device-count <N>` | passive | Strict mode: hard-error if fewer than N devices connect within the wait window |
+| `--skip-tdm-validation` | — | Proceed even when a receiver fails TDM validation. Logically impossible cases still hard-error |
+| `--port <port>` | `6768` | HTTP server port. Override only when running alongside `aria_streaming_viewer` on the same host |
+| `--streaming-cert-name <name>` | installed cert | Verify the installed cert's name up front, turning a silent TLS-handshake failure into a clear startup error |
+| `--jpeg-quality <q>` | `50` | JPEG decode quality |
+| `--rerun-memory-limit <limit>` | `4GB` | Buffering scales as *N devices × per-frame size*; use e.g. `16GB` for long sessions |
+
 ```bash
-python ~/Downloads/projectaria_client_sdk_samples_gen2/multi_device_streaming_viewer.py
+aria_multi_device_streaming_viewer --expected-device-count 2
 ```
 
-See [Multi-Device Recording & Streaming → Live Visualization](/ark/client-sdk/multi-device#live-visualization-with-multi_device_streaming_viewer) for flags and validation behavior.
+See [Multi-Device Recording & Streaming → Live Visualization](/ark/client-sdk/multi-device#live-visualization-with-multi_device_streaming_viewer) for the full workflow and validation behavior.
 
 ---
 

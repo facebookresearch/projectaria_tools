@@ -413,9 +413,7 @@ def setup_streaming_receiver(self):
     config.port = 6768
 
     # setup the receiver
-    stream_receiver = receiver.StreamReceiver(
-        enable_image_decoding=True, enable_raw_stream=True
-    )
+    stream_receiver = receiver.StreamReceiver(enable_image_decoding=True)
     stream_receiver.set_server_config(config)
 
     # register callbacks for each type of data

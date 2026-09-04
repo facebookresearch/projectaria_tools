@@ -681,9 +681,7 @@ def setup_remote_streaming_server(certs_dir):
     config.certificate.key = subscriber_key_path
 
     # Create and configure the receiver
-    stream_receiver = receiver.StreamReceiver(
-        enable_image_decoding=True, enable_raw_stream=False
-    )
+    stream_receiver = receiver.StreamReceiver(enable_image_decoding=True)
     stream_receiver.set_server_config(config)
 
     # Register callbacks (same as local streaming)

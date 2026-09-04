@@ -154,7 +154,7 @@ Skip the explicit install step. When `streaming start --all` runs and finds no c
 aria_gen2 streaming start --profile profile9 --all ...
 ```
 
-Pick Option 1 when you want the cert name printed up front (e.g. to pass to `multi_device_streaming_viewer.py` — see [Live Visualization](#live-visualization-with-multi_device_streaming_viewer) below — or to pin it across runs). Pick Option 2 for zero-setup runs where the cert name is implementation detail. If both an installed cert AND `--streaming-cert-name` exist and they don't match, the CLI errors loudly so you don't silently ship the wrong cert.
+Pick Option 1 when you want the cert name printed up front (e.g. to pass to `aria_multi_device_streaming_viewer` — see [Live Visualization](#live-visualization-with-multi_device_streaming_viewer) below — or to pin it across runs). Pick Option 2 for zero-setup runs where the cert name is implementation detail. If both an installed cert AND `--streaming-cert-name` exist and they don't match, the CLI errors loudly so you don't silently ship the wrong cert.
 
 ### Start streaming on all devices
 
@@ -176,16 +176,16 @@ aria_gen2 streaming stop
 
 ## Live Visualization with multi_device_streaming_viewer
 
-`multi_device_streaming_viewer.py` is a live Rerun visualization tool that receives RGB streams from every connected device and renders them side-by-side with TDM-corrected timestamps. The Rerun timeline scrubber on `device_time` produces synchronized cross-device replay.
+`aria_multi_device_streaming_viewer` is a live Rerun visualization tool that receives RGB streams from every connected device and renders them side-by-side with TDM-corrected timestamps. The Rerun timeline scrubber on `device_time` produces synchronized cross-device replay.
 
-The script ships with the Python SDK samples and is not on `$PATH` after install — export it once via the [example-code instructions](/ark/client-sdk/python-sdk/python-interface#export-example-code), then run it with `python` from your activated SDK virtual environment. The Quick Start below assumes the default export location `~/Downloads/projectaria_client_sdk_samples_gen2/`.
+It is installed as a console script by the Client SDK, so it is on `$PATH` in your activated SDK virtual environment — no sample export needed.
 
 :::tip Recommended order: viewer first, then streaming
 Launch the viewer before `aria_gen2 streaming start --all` so device frames land from the first push attempt. Reverse order also works — devices retry on connection-refused and the viewer picks them up once it binds the port — but you'll see a noticeable lag, and (in `--expected-device-count` strict mode) the connection-wait window starts ticking from the *viewer's* first connect, not from `streaming start`.
 :::
 
 :::warning Viewer requires preinstalled cert
-Unlike `aria_gen2 streaming start --all` (which auto-installs a cert when none exists), `multi_device_streaming_viewer.py` does **not** auto-generate a cert. You must run `streaming install-certs` once before launching the viewer, otherwise the viewer exits immediately with a clear startup error. This asymmetry is deliberate — the viewer reads the cert name from disk to verify it matches devices' presented certs.
+Unlike `aria_gen2 streaming start --all` (which auto-installs a cert when none exists), `aria_multi_device_streaming_viewer` does **not** auto-generate a cert. You must run `streaming install-certs` once before launching the viewer, otherwise the viewer exits immediately with a clear startup error. This asymmetry is deliberate — the viewer reads the cert name from disk to verify it matches devices' presented certs.
 :::
 
 ### Quick start
@@ -195,7 +195,7 @@ Unlike `aria_gen2 streaming start --all` (which auto-installs a cert when none e
 aria_gen2 streaming install-certs --device 1M0YDB6H800117 --device 1M0YDD5H7K0047
 
 # 2. Launch the viewer (terminal 1)
-python ~/Downloads/projectaria_client_sdk_samples_gen2/multi_device_streaming_viewer.py
+aria_multi_device_streaming_viewer
 
 # 3. Start streaming on all devices (terminal 2)
 aria_gen2 streaming start --profile profile9 --all
@@ -229,7 +229,7 @@ For scripts and notebooks that consume per-device callback data without the live
 
 | When to use | Tool |
 |---|---|
-| Live cross-device visualization with synchronized timeline scrubbing | `multi_device_streaming_viewer.py` (this page) |
+| Live cross-device visualization with synchronized timeline scrubbing | `aria_multi_device_streaming_viewer` (this page) |
 | Headless data collection, custom processing, notebooks, perception pipelines | [`multi_device_streaming_example.py`](/ark/client-sdk/python-sdk/multi-device-streaming-example) |
 
 ---

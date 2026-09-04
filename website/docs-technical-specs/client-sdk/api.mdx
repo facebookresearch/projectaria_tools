@@ -7,6 +7,12 @@ title: Application Programming Interface
 
 This page provides a comprehensive reference for the Aria Client SDK Python API, which enables control and data streaming from Aria devices.
 
+It documents `aria.sdk_gen2` as shipped in `projectaria-client-sdk` **2.5.0**. The package also ships type stubs — `sdk_gen2.pyi` in `site-packages/aria/` — which your editor picks up automatically.
+
+:::note Gen1 and Gen2 are separate modules
+Aria Gen2 uses `import aria.sdk_gen2`; Aria Gen1 uses `import aria.sdk`. They are **not** interchangeable. A few shared types — `Level`, `StreamingSecurityOptions`, `DeviceStatus` — are defined in `aria.sdk` and reused by the Gen2 API.
+:::
+
 ## Utility Functions
 
 ### `set_log_level(level: Level) -> None`
@@ -21,7 +27,7 @@ Set the SDK log verbosity level.
 import aria.sdk_gen2 as sdk_gen2
 from aria.sdk import Level
 
-sdk_gen2.set_log_level(Level.INFO)
+sdk_gen2.set_log_level(Level.Info)
 ```
 
 ---
@@ -81,11 +87,11 @@ Get a list of devices available via USB network connection.
 
 **Raises:** `RuntimeError` if unable to query devices
 
-##### `usb_devices() -> List[Any]`
+##### `usb_devices() -> List[Tuple[str, str]]`
 
-Get a list of USB devices.
+Get the attached USB devices.
 
-**Returns:** List of USB device objects
+**Returns:** List of `(serial, usb_path)` tuples, one per attached device
 
 ##### `active_connections() -> List[Device]`
 
@@ -118,6 +124,37 @@ Configure the device client settings.
 **Parameters:**
 - `config` (DeviceClientConfig): Configuration object for the client
 
+##### `set_observer(observer: object) -> None`
+
+Register an object that receives device discovery and connection lifecycle events.
+
+The observer is duck-typed: the SDK looks up each callback by name at registration time, and any method you do not define is simply not called.
+
+**Recognized methods:**
+
+| Method | Called when |
+|--------|-------------|
+| `on_device_discovered(target: DeviceTarget)` | A device is discovered |
+| `on_device_disappeared(serial: str)` | A device disappears |
+| `on_connection_state_changed(device: Device, state: ConnectionState)` | A device connects or disconnects |
+| `on_device_client_failure(device: Device, error_code: int, message: str)` | The client hits an error for a device |
+
+**Example:**
+```python
+import aria.sdk_gen2 as sdk_gen2
+
+class Observer:
+    def on_device_discovered(self, target):
+        print(f"discovered {target.serial} at {target.ip}")
+
+    def on_connection_state_changed(self, device, state):
+        if state == sdk_gen2.ConnectionState.DISCONNECTED:
+            print("device dropped")
+
+client = sdk_gen2.DeviceClient()
+client.set_observer(Observer())
+```
+
 ---
 
 ### Device
@@ -136,7 +173,7 @@ Get the unique connection identifier for this device.
 
 Get current device status.
 
-**Returns:** `DeviceStatus` object
+**Returns:** `aria.sdk.DeviceStatus` object — see [DeviceStatus](#devicestatus)
 
 **Raises:** `RuntimeError` if unable to retrieve device status
 
@@ -148,19 +185,34 @@ Get the device serial number.
 
 **Raises:** `RuntimeError` if unable to retrieve serial number
 
+##### `get_data_quality_stats() -> str`
+
+Get per-sensor data quality statistics for the active recording or streaming session.
+
+**Returns:** JSON-encoded string with per-sensor quality metrics — total drops, quality score, sequential drops, and timestamp errors
+
+**Raises:** `RuntimeError` if unable to retrieve the statistics
+
 #### Streaming Methods
 
-##### `start_streaming()`
+##### `start_streaming(record: bool = False) -> None`
 
 Start streaming data from the device.
+
+**Parameters:**
+- `record` (bool, optional): Also record to VRS on-device for the duration of the streaming session. Defaults to False.
 
 **Returns:** None
 
 **Raises:** `RuntimeError` if unable to start streaming
 
-##### `stop_streaming()`
+:::note `record=True` is WebRTC only
+On-device recording during streaming is only supported on the WebRTC transport. `start_streaming(record=True)` fails with `OperationNotAllowed` unless a WebRTC config was set first via `set_webrtc_streaming_config()`.
+:::
 
-Stop streaming data from the device.
+##### `stop_streaming() -> None`
+
+Stop streaming data from the device. Also ends an on-device recording started by `start_streaming(record=True)`.
 
 **Returns:** None
 
@@ -180,23 +232,30 @@ Get information about the current streaming session.
 
 ##### `set_streaming_config(streaming_config: HttpStreamingConfig) -> None`
 
-Configure streaming settings.
+Configure HTTP streaming settings.
 
 **Parameters:**
 - `streaming_config` (HttpStreamingConfig): Streaming configuration object
 
-##### `install_streaming_certs(streaming_certificates: Optional[StreamingCertsPem] = None)`
+##### `set_webrtc_streaming_config(streaming_config: WebRtcStreamingConfig) -> None`
 
-Install streaming certificates on the device. If no certificates are provided, default certificates are installed.
+Configure WebRTC streaming settings. Selects the WebRTC transport for the next `start_streaming()` call.
 
 **Parameters:**
-- `streaming_certificates` (StreamingCertsPem, optional): Custom certificates in PEM format. Defaults to None (uses default certs).
+- `streaming_config` (WebRtcStreamingConfig): WebRTC streaming configuration object
+
+##### `install_streaming_certs(streaming_certificates: StreamingCertsPem = ...) -> None`
+
+Install streaming certificates on the device. Overloaded: called with no arguments, the SDK generates and installs a certificate pair; called with a `StreamingCertsPem`, it installs the certificates you supply.
+
+**Parameters:**
+- `streaming_certificates` (StreamingCertsPem, optional): Custom certificates in PEM format
 
 **Returns:** None
 
 **Raises:** `RuntimeError` if certificate installation fails
 
-##### `uninstall_streaming_certs()`
+##### `uninstall_streaming_certs() -> None`
 
 Remove streaming certificates from the device.
 
@@ -221,7 +280,7 @@ Start recording on the device.
 
 **Raises:** `RuntimeError` if unable to start recording
 
-##### `stop_recording()`
+##### `stop_recording() -> None`
 
 Stop the current recording.
 
@@ -255,18 +314,18 @@ Get a list of all recordings on the device.
 
 **Raises:** `RuntimeError` if unable to list recordings
 
-##### `recording_info(uuid: str) -> RecordingInfo`
+##### `recording_info(uuid: str) -> None`
 
-Get detailed information about a specific recording.
+Log the details of a specific recording — name, size in bytes, and metadata — to the SDK log.
 
 **Parameters:**
 - `uuid` (str): Recording UUID
 
-**Returns:** `RecordingInfo` object
+**Returns:** None. This is a CLI-facing convenience that prints rather than returns; to get a `RecordingInfo` object in Python, use `list_recordings()` and filter on `name`.
 
-**Raises:** `RuntimeError` if recording not found or unable to retrieve info
+**Raises:** `RuntimeError` if the recording is not found
 
-##### `delete_recording(uuid: str)`
+##### `delete_recording(uuid: str) -> None`
 
 Delete a specific recording from the device.
 
@@ -277,7 +336,7 @@ Delete a specific recording from the device.
 
 **Raises:** `RuntimeError` if unable to delete recording
 
-##### `download_recording(uuid: str, output_path: str = "")`
+##### `download_recording(uuid: str, output_path: str = "") -> None`
 
 Download a specific recording from the device.
 
@@ -289,7 +348,7 @@ Download a specific recording from the device.
 
 **Raises:** `RuntimeError` if download fails
 
-##### `download_all_recordings(output_path: str = "")`
+##### `download_all_recordings(output_path: str = "") -> None`
 
 Download all recordings from the device.
 
@@ -300,7 +359,7 @@ Download all recordings from the device.
 
 **Raises:** `RuntimeError` if download fails
 
-##### `delete_all_recordings()`
+##### `delete_all_recordings() -> None`
 
 Delete all recordings from the device.
 
@@ -308,7 +367,7 @@ Delete all recordings from the device.
 
 **Raises:** `RuntimeError` if unable to delete recordings
 
-##### `download_thumbnail(uuid: str, output_path: str = "")`
+##### `download_thumbnail(uuid: str, output_path: str = "") -> None`
 
 Download a thumbnail for a specific recording.
 
@@ -318,7 +377,7 @@ Download a thumbnail for a specific recording.
 
 **Returns:** None
 
-##### `download_all_thumbnails(uuid: str, output_dir: str = "")`
+##### `download_all_thumbnails(uuid: str, output_dir: str = "") -> None`
 
 Download all thumbnails for a specific recording.
 
@@ -350,9 +409,26 @@ for category, profile_list in profiles.items():
         print(f"  {profile.name}: {profile.description} (type: {profile.type})")
 ```
 
+#### Time Sync Methods
+
+##### `set_ntp_sync(enabled: bool) -> None`
+
+Enable or disable syncing the device clock against an NTP server.
+
+Use this when a signaling server rejects the device for timestamp skew. The device must be able to reach the NTP server over Wi-Fi.
+
+**Parameters:**
+- `enabled` (bool): Whether to enable NTP sync
+
+##### `ntp_sync() -> bool`
+
+Check whether NTP sync is enabled on the device.
+
+**Returns:** `bool`
+
 #### Text-to-Speech Methods
 
-##### `render_tts(text: str)`
+##### `render_tts(text: str) -> None`
 
 Render text-to-speech on the device.
 
@@ -363,7 +439,7 @@ Render text-to-speech on the device.
 
 **Raises:** `RuntimeError` if TTS rendering fails
 
-##### `stop_tts()`
+##### `stop_tts() -> None`
 
 Stop current text-to-speech playback.
 
@@ -375,23 +451,41 @@ Stop current text-to-speech playback.
 
 ### StreamDataInterface
 
-The `StreamDataInterface` class handles receiving and processing streaming data from the device.
+The `StreamDataInterface` class handles receiving and processing streaming data from the device. It is used by both the HTTP and WebRTC transports.
 
 #### Constructor
 
 ```python
-StreamDataInterface(enable_image_decoding: bool, enable_raw_stream: bool)
+StreamDataInterface(enable_image_decoding: bool)
 ```
 
 **Parameters:**
-- `enable_image_decoding` (bool): Enable automatic image decoding
-- `enable_raw_stream` (bool): Enable raw stream data access
+- `enable_image_decoding` (bool): Decode incoming images before delivering them to the image callbacks. When False, image callbacks receive the encoded access units and you decode them yourself.
+
+#### Attributes
+
+- `device_serial` (str): Serial of the device this interface is bound to
+
+#### Per-device callbacks
+
+Every `register_*_callback` method supports an optional `device_id` parameter in the callback signature. When present, the SDK detects it with `inspect.signature()` at registration time and passes the source device's serial on every call. Callbacks without the parameter are unaffected, so the same callback can serve single- and multi-device code.
+
+```python
+def rgb_callback(image_data, image_record, device_id: str | None = None):
+    print(f"[{device_id}] frame received")
+
+handler.register_rgb_callback(rgb_callback)
+```
+
+:::caution Callbacks fire on SDK threads
+Callbacks are invoked from internal SDK threads, not the main thread. Any state shared between callbacks — per-device counters, frame buffers, offset tables — must be guarded by a `threading.Lock`, including simple counter increments.
+:::
 
 #### Methods
 
 ##### `record_to_vrs(vrs_path: str) -> None`
 
-Save streaming data to a VRS file.
+Save streaming data to a VRS file on the host.
 
 **Parameters:**
 - `vrs_path` (str): Path where VRS file from received streaming data will be saved
@@ -409,7 +503,7 @@ The following methods register callbacks for different data types:
 Register callback for raw messages before they are decoded.
 
 **Parameters:**
-- `callback` (Callable): Function called for each raw message
+- `callback` (Callable): Function `callback(message: SharedMessage, message_id: int)` called for each raw message
 
 ##### `register_imu_callback(callback: Callable)`
 
@@ -437,7 +531,7 @@ Register callback for eye gaze tracking data.
 Register callback for hand pose tracking data.
 
 **Parameters:**
-- `callback` (Callable): Function `callback(hand_pose_data: projectaria_tools.core.mps.hand_tracking)` called for hand pose samples
+- `callback` (Callable): Function `callback(hand_pose_data: projectaria_tools.core.mps.hand_tracking.HandTrackingResult)` called for hand pose samples
 
 ##### `register_audio_callback(callback: Callable)`
 
@@ -486,35 +580,44 @@ Register callback for magnetometer data.
 Register callback for GPS/GNSS data.
 
 **Parameters:**
-- `callback` (Callable): Function called for GPS samples
+- `callback` (Callable): Function `callback(gps_data: projectaria_tools.core.sensor_data.GpsData)` called for GPS samples
 
 ##### `register_phone_location_callback(callback: Callable)`
 
 Register callback for companion phone location data.
 
 **Parameters:**
-- `callback` (Callable): Function called for phone location samples
+- `callback` (Callable): Function `callback(gps_data: projectaria_tools.core.sensor_data.GpsData)` called for phone location samples
 
 ##### `register_ppg_callback(callback: Callable)`
 
 Register callback for PPG (photoplethysmogram) data.
 
 **Parameters:**
-- `callback` (Callable): Function called for PPG samples
+- `callback` (Callable): Function `callback(ppg_data: projectaria_tools.core.sensor_data.PpgData)` called for PPG samples
+
+##### `register_neural_band_batch_callback(callback: Callable)`
+
+Register callback for sEMG neural band batches.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(batch: projectaria_tools.core.sensor_data.NeuralBandBatch, config: projectaria_tools.core.sensor_data.NeuralBandBatchConfiguration)` called for each band batch. Raises if the callback does not take two positional arguments.
+
+`config.emg_calibration` and `config.imu_calibration` are `None` when the session carries no band calibration, and remain so until the calibration arrives — WebRTC delivers calibration unordered against sensor data. Compare bands by these parsed objects rather than by `config.emg_calibration_params_json`: the same calibration is re-serialized on the way here, so the string need not match a recording's byte for byte.
 
 ##### `register_bluetooth_beacon_callback(callback: Callable)`
 
 Register callback for Bluetooth beacon data.
 
 **Parameters:**
-- `callback` (Callable): Function called for Bluetooth beacon scans
+- `callback` (Callable): Function `callback(beacon_data: projectaria_tools.core.sensor_data.BluetoothBeaconData)` called for Bluetooth beacon scans
 
 ##### `register_wifi_beacon_callback(callback: Callable)`
 
 Register callback for WiFi beacon data.
 
 **Parameters:**
-- `callback` (Callable): Function called for WiFi beacon scans
+- `callback` (Callable): Function `callback(beacon_data: projectaria_tools.core.sensor_data.WifiBeaconData)` called for WiFi beacon scans
 
 ##### `register_vio_callback(callback: Callable)`
 
@@ -536,6 +639,17 @@ Register callback for device calibration updates.
 
 **Parameters:**
 - `callback` (Callable): Function `callback(device_calibration: projectaria_tools.core.calibration.DeviceCalibration)` called when calibration is received
+
+##### `register_time_domain_mapping_callback(callback: Callable)`
+
+Register callback for [time domain mapping](/ark/companion-app/time-domain-mapping) samples, used to align timestamps across multiple devices.
+
+**Parameters:**
+- `callback` (Callable): Function `callback(capture_timestamp_ns: int, broadcaster_timestamp_ns: int, broadcaster_id: int)` called for each mapping sample
+
+:::note Only receivers report time domain mapping
+The broadcaster's `DEVICE_TIME` *is* the reference, so it has nothing to map and never fires this callback. With N devices you should expect mapping output from N−1 of them.
+:::
 
 ##### Queue Size Configuration Methods
 
@@ -613,67 +727,197 @@ Set the queue size for VIO data.
 
 ##### Queue Size Getter Methods
 
-The following methods retrieve queue sizes for different data streams:
+Each setter has a matching getter that returns the current queue size as an `int`:
 
-##### `get_rgb_queue_size() -> int`
+`get_rgb_queue_size()`, `get_slam_queue_size()`, `get_et_queue_size()`, `get_imu_queue_size()`, `get_imu_batch_queue_size()`, `get_vio_queue_size()`, `get_vio_high_freq_queue_size()`, `get_vio_high_freq_batch_queue_size()`, `get_eye_gaze_queue_size()`, `get_hand_pose_queue_size()`
 
-Get the queue size for RGB image data.
+---
 
-**Returns:** Queue size (int)
+## WebRTC Classes
 
-##### `get_slam_queue_size() -> int`
+WebRTC is an alternative receive transport to the HTTP server. It needs no streaming certificates. See [WebRTC Streaming](/ark/client-sdk/webrtc).
 
-Get the queue size for SLAM image data.
+### `create_webrtc_stream_data() -> StreamDataInterface`
 
-**Returns:** Queue size (int)
+Create a `StreamDataInterface` for the WebRTC transport. Register your callbacks on it, then pass it to `AriaGen2WebRtcClient`.
 
-##### `get_imu_queue_size() -> int`
+It is the same class as the HTTP path uses and exposes the same callback and queue-size surface, plus what WebRTC forces on top: it learns the device clock offset that RTP does not carry, and moves encoded video off the RTP track into the shared image queues.
 
-Get the queue size for IMU data.
+**Returns:** `StreamDataInterface`
 
-**Returns:** Queue size (int)
+:::note Images arrive encoded
+Image callbacks deliver encoded H.265 access units — decoding happens on the Python side, matching the HTTP path built without a decoder.
+:::
 
-##### `get_imu_batch_queue_size() -> int`
+### AriaGen2WebRtcClient
 
-Get the queue size for batched IMU data.
+Decode-free WebRTC receive transport for Aria Gen2 glasses — the WebRTC counterpart of `AriaGen2HttpServer`. It owns the transport and hands what it receives to the `StreamDataInterface` you construct it with.
 
-**Returns:** Queue size (int)
+#### Constructor
 
-##### `get_et_queue_size() -> int`
+```python
+AriaGen2WebRtcClient(stream_data: StreamDataInterface)
+```
 
-Get the queue size for eye tracking image data.
+**Parameters:**
+- `stream_data` (StreamDataInterface): The interface returned by `create_webrtc_stream_data()`. Register all callbacks on it **before** calling `start_server()`.
 
-**Returns:** Queue size (int)
+#### Methods
 
-##### `get_vio_queue_size() -> int`
+##### `set_server_config(config: WebRtcConfig) -> None`
 
-Get the queue size for VIO data.
+Apply the WebRTC transport configuration.
 
-**Returns:** Queue size (int)
+##### `start_server() -> None`
 
-##### `get_vio_high_freq_queue_size() -> int`
+Start the WebRTC transport.
 
-Get the queue size for high-frequency VIO data.
+##### `stop_server() -> None`
 
-**Returns:** Queue size (int)
+Stop the WebRTC transport.
 
-##### `get_vio_high_freq_batch_queue_size() -> int`
+##### `is_connected() -> bool`
 
-Get the queue size for batched high-frequency VIO data.
+**Returns:** `bool` - True if a peer connection is established
 
-**Returns:** Queue size (int)
+##### `send_data(data: bytes) -> bool`
 
-##### `get_eye_gaze_queue_size() -> int`
+Send bytes back to the device over the WebRTC data channel.
 
-Get the queue size for eye gaze data.
+**Returns:** `bool` - True if the data was queued for sending
 
-**Returns:** Queue size (int)
+##### `push_audio(pcm: List[float], sample_rate: int, channels: int) -> None`
 
-##### `get_hand_pose_queue_size() -> int`
+Push host audio to the device.
 
-Get the queue size for hand pose data.
+**Parameters:**
+- `pcm` (List[float]): PCM samples
+- `sample_rate` (int): Sample rate in Hz
+- `channels` (int): Channel count
 
-**Returns:** Queue size (int)
+##### `set_mic_muted(muted: bool) -> None`
+
+Mute or unmute the outgoing microphone.
+
+##### `set_volume(volume: float) -> None`
+
+Set the playback volume.
+
+##### `get_waveform() -> Tuple[List[float], float]`
+
+Get the current inbound audio waveform and its level, for a terminal or GUI level meter.
+
+**Returns:** Tuple of (samples, level)
+
+### WebRtcStreamingConfig
+
+Device-side WebRTC streaming configuration, applied with `Device.set_webrtc_streaming_config()`.
+
+**Attributes:**
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `profile_name` | str | `""` | Streaming profile name |
+| `profile_json` | str | `""` | Custom streaming profile as JSON |
+| `streaming_interface` | StreamingInterface | `WIFI_STA` | Network interface. WebRTC is Wi-Fi only |
+| `signaling_url` | str | `""` | Signaling server URL |
+| `auth_token` | str | `""` | Bearer token presented to the signaling server |
+| `room` | str | `"default"` | Signaling room/channel id |
+| `room_password` | str | `""` | Optional shared secret to join the room |
+| `stun_servers` | List[WebRtcStunServer] | `[]` | STUN servers |
+| `turn_servers` | List[WebRtcTurnServer] | `[]` | TURN servers |
+| `pcie_batch_period_ms` | int | `10` | Batch period for messages through the PCIe channel. Minimum 10 |
+| `time_domain_mapping_config` | TimeDomainMappingConfig | `None` | Multi-device time alignment |
+
+### WebRtcConfig
+
+Host-side (receiver) WebRTC configuration, applied with `AriaGen2WebRtcClient.set_server_config()`.
+
+**Attributes:**
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `signaling_url` | str | `""` | Signaling server URL `<scheme>://<host>:<port>`; scheme `tcp`, `https` or `http`. Supersedes `signaling_host` / `signaling_port` |
+| `signaling_host` | str | `""` | Signaling host, for `tcp` signaling |
+| `signaling_port` | int | `8443` | Signaling port, for `tcp` signaling |
+| `verify_server_certificates` | bool | `True` | Verify the signaling server's certificate |
+| `ca_root` | str | `"Public"` | Trust anchor for an `https` signaling URL — a named root (`Public`, `MetaProd`, `MetaCloud`, `Test`) or a path to a PEM CA bundle |
+| `listen_port` | int | `0` | Direct-P2P listen port, used when there is no signaling server |
+| `stun` | str | `""` | STUN server URL |
+| `turn` | str | `""` | TURN server URL |
+| `turn_username` | str | `""` | TURN username |
+| `turn_password` | str | `""` | TURN credential |
+| `auth_token` | str | `""` | Bearer token presented to the signaling server |
+| `room_id` | str | `""` | Signaling room to join |
+| `room_password` | str | `""` | Optional shared secret to join the room |
+| `enable_audio` | bool | `True` | Enable the audio track |
+
+### WebRtcStunServer
+
+**Constructor:** `WebRtcStunServer(url: str = "")`
+
+**Attributes:**
+- `url` (str): STUN server URL, e.g. `stun:<host>:<port>`
+
+### WebRtcTurnServer
+
+**Constructor:** `WebRtcTurnServer(url: str = "", username: str = "", credential: str = "")`
+
+**Attributes:**
+- `url` (str): TURN server URL, e.g. `turn:<host>:<port>`
+- `username` (str): TURN username
+- `credential` (str): TURN credential
+
+---
+
+## Replay
+
+Paced, in-process replay of a recording through the same `StreamDataInterface` callbacks a live session uses. Useful for developing and testing stream consumers without glasses attached.
+
+### `create_replay_source(config: ReplaySourceConfig, stream_data: StreamDataInterface) -> ReplaySession`
+
+Start a replay session.
+
+**Parameters:**
+- `config` (ReplaySourceConfig): Which file to replay and how fast
+- `stream_data` (StreamDataInterface): The interface whose callbacks receive the replayed data
+
+**Returns:** `ReplaySession`
+
+**Example:**
+```python
+import aria.sdk_gen2 as sdk_gen2
+
+handler = sdk_gen2.StreamDataInterface(enable_image_decoding=True)
+handler.register_rgb_callback(rgb_callback)
+
+config = sdk_gen2.ReplaySourceConfig()
+config.filename = "/path/to/recording.vrs"
+config.speed_multiplier = 1.0
+
+session = sdk_gen2.create_replay_source(config, handler)
+while not session.is_finished():
+    time.sleep(0.1)
+session.stop()
+```
+
+### ReplaySourceConfig
+
+**Attributes:**
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `filename` | str | `""` | Path to the recording to replay |
+| `speed_multiplier` | float | `1.0` | Replay speed relative to real time. `0.0` replays as fast as the data can be read, which is usually what you want in a test |
+| `start_time_sec` | Optional[float] | `None` | Optional sub-range start, in seconds from the recording start |
+| `end_time_sec` | Optional[float] | `None` | Optional sub-range end, in seconds from the recording start |
+| `metadata_path` | Optional[str] | `None` | Optional path to a sidecar metadata file |
+
+### ReplaySession
+
+**Methods:**
+- `is_finished() -> bool`: True once the replay has reached the end of the file or range
+- `stop() -> None`: Stop the replay early
 
 ---
 
@@ -684,8 +928,12 @@ Get the queue size for hand pose data.
 Configuration for the device client.
 
 **Attributes:**
-- `reconnection_attempts` (int): Number of reconnection attempts
-- `enable_device_monitoring` (bool): Enable automatic device monitoring
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `adb_path` | str | `None` | Explicit path to the `adb` binary. When unset, the SDK resolves `adb` from `PATH` |
+| `reconnection_attempts` | int | `2` | Number of reconnection attempts |
+| `enable_device_monitoring` | bool | `False` | Enable automatic device monitoring |
 
 ### DeviceTarget
 
@@ -707,29 +955,52 @@ DeviceTarget(ip: str = "", serial: str = "")
 **Methods:**
 - `empty() -> bool`: Returns True if both ip and serial are empty
 
+### TimeDomainMappingConfig
+
+Sub-GHz radio time alignment across multiple Aria Gen2 devices. Attach it to a `RecordingConfig`, `HttpStreamingConfig`, or `WebRtcStreamingConfig`. See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device) and [Time Domain Mapping](/ark/companion-app/time-domain-mapping).
+
+**Attributes:**
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `mode` | TimeDomainMappingMode | `BROADCASTER` | Whether this device broadcasts its timestamps or receives them |
+| `channel_number` | int | `0` | Sub-GHz radio channel. Allowed values depend on the glasses' country code: ETSI permits `0–2`, FCC permits `10–40` |
+| `broadcaster_id` | int | `0` | Non-zero uint32 shared by every device in the session. Required for receivers |
+| `rate_hz` | float | `2.0` | Mapping signal rate in Hz |
+| `cross_device_camera_sync` | bool | `False` | Receivers align their CV camera triggers to the broadcaster's trigger timing |
+| `cross_device_camera_sync_offset_us` | int | `0` | Microsecond offset for cross-device camera sync. Positive = trigger after the broadcaster, negative = before. Receivers only |
+
 ### HttpStreamingConfig
 
 Configuration for HTTP-based streaming.
 
 **Attributes:**
-- `profile_name` (str): Name of the streaming profile to use
-- `profile_json` (str): Custom streaming profile in JSON format
-- `streaming_cert_name` (str): Name of the streaming certificate
-- `streaming_interface` (StreamingInterface): Network interface to use for streaming
-- `security_options` (StreamingSecurityOptions): Security settings for streaming
-- `advanced_config` (HttpStreamerConfig): Advanced streaming configuration
-- `batch_period_ms` (int): Batch period in milliseconds
-- `keep_streaming_on_disconnection` (bool): Continue streaming if disconnected
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `profile_name` | str | `""` | Name of the streaming profile to use |
+| `profile_json` | str | `""` | Custom streaming profile in JSON format |
+| `streaming_cert_name` | str | `""` | Name of the streaming certificate |
+| `streaming_interface` | StreamingInterface | `USB_NCM` | Network interface to use for streaming |
+| `security_options` | StreamingSecurityOptions | — | Security settings for streaming |
+| `advanced_config` | HttpStreamerConfig | — | Advanced streaming configuration |
+| `batch_period_ms` | int | `0` | Batch period in milliseconds. 0 is real-time; larger values reduce thermal load on wireless links |
+| `keep_streaming_on_disconnection` | bool | `False` | Continue streaming if the network drops |
+| `time_domain_mapping_config` | TimeDomainMappingConfig | `None` | Multi-device time alignment |
 
 ### RecordingConfig
 
 Configuration for on-device recording.
 
 **Attributes:**
-- `profile_name` (str): Name of the recording profile to use
-- `custom_profile` (str): Custom recording profile in JSON format
-- `recording_name` (str): Name for the recording
-- `recording_type` (RecordingType): Type of recording
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `profile_name` | str | `""` | Name of the recording profile to use. Empty means the device default |
+| `custom_profile` | str | `""` | Custom recording profile in JSON format |
+| `recording_name` | str | `""` | Name for the recording |
+| `recording_type` | RecordingType | `RECORDING_TYPE_PROTOTYPE` | Type of recording |
+| `time_domain_mapping_config` | TimeDomainMappingConfig | `None` | Multi-device time alignment |
 
 ### StreamingCertsPem
 
@@ -741,6 +1012,21 @@ Streaming certificates in PEM format.
 - `publisher_key` (str): Publisher private key in PEM format
 - `key_password` (str): Password for the private key
 - `cert_name` (str): Name for this certificate set
+
+### StreamingSecurityOptions
+
+Defined in `aria.sdk` and re-exported by `aria.sdk_gen2`.
+
+**Attributes:**
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `use_ephemeral_certs` | bool | `False` | Regenerate certificates each session instead of using the persistent pair |
+| `local_certs_root_path` | str | `""` | Local streaming certificates directory |
+
+:::caution Viewers only load persistent certificates
+`aria_streaming_viewer` and `aria_multi_device_streaming_viewer` read from `~/.aria/streaming-certs/persistent/`. If you stream with `use_ephemeral_certs = True`, the viewer's TLS handshake fails silently — it appears to start but shows no data.
+:::
 
 ### HttpStreamerConfig
 
@@ -754,9 +1040,21 @@ Advanced HTTP streamer configuration.
 HTTP endpoint configuration.
 
 **Attributes:**
-- `url` (str): Endpoint URL
-- `verify_server_certificates` (bool): Whether to verify server certificates
-- `auth` (SslAuthentication): SSL authentication credentials
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `url` | str | `https://oatmeal_server.local:6768` | Endpoint URL |
+| `verify_server_certificates` | bool | `False` | Whether to verify server certificates |
+| `auth` | SslAuthentication | `None` | SSL authentication credentials |
+
+### SslAuthentication
+
+Client-side SSL credentials for a streaming endpoint.
+
+**Attributes:**
+- `certificate` (str): Client certificate in PEM format
+- `private_key` (str): Client private key in PEM format
+- `key_password` (str): Password for the private key
 
 ---
 
@@ -818,7 +1116,11 @@ A collection of recording profiles with a hash identifier.
 
 ### DeviceStatus
 
-Comprehensive device status information.
+Comprehensive device status information, returned by `Device.status()`.
+
+:::note Defined in `aria.sdk`
+This class is registered by the Gen1 module and reused by Gen2, so `aria.sdk_gen2.DeviceStatus` does not exist. Import it from `aria.sdk` if you need the type for an annotation — you never construct it yourself.
+:::
 
 **Attributes:**
 - `battery_level` (int): Battery level percentage
@@ -832,6 +1134,7 @@ Comprehensive device status information.
 - `wifi_ssid` (str): Connected WiFi SSID
 - `logged_in` (bool): Whether a user is logged in
 - `developer_mode` (bool): Whether developer mode is enabled
+- `adb_enabled` (bool): Whether ADB is enabled on the device
 - `thermal_mitigation_triggered` (bool): Whether thermal mitigation is active
 - `skin_temp_celsius` (float): Device skin temperature in Celsius
 - `default_recording_profile` (str): Name of the default recording profile
@@ -886,18 +1189,40 @@ Compute the latency between capture and reception.
 
 ### AriaGen2HttpServer
 
-HTTP server for receiving streaming data from devices.
+HTTP server for receiving streaming data from devices. One server can serve many devices at once.
 
 #### Constructor
 
 ```python
-AriaGen2HttpServer(config: HttpServerConfig, handler: Any, time_sync_ref: Optional[TimeSyncRef] = None)
+AriaGen2HttpServer(
+    config: HttpServerConfig,
+    handler: Callable[[], StreamDataInterface],
+    time_sync_ref: Optional[TimeSyncRef] = None,
+)
 ```
 
 **Parameters:**
 - `config` (HttpServerConfig): Server configuration
-- `handler` (Any): Stream data handler (e.g., a `StreamDataInterface` instance)
+- `handler` (Callable): A **factory, not an instance** — called with no arguments once per incoming device connection, and must return the `StreamDataInterface` that connection's callbacks are registered on
 - `time_sync_ref` (TimeSyncRef, optional): Time synchronization reference for latency measurement. Defaults to None.
+
+**Example:**
+```python
+import aria.sdk_gen2 as sdk_gen2
+
+def setup_stream_handler() -> sdk_gen2.StreamDataInterface:
+    handler = sdk_gen2.StreamDataInterface(enable_image_decoding=True)
+    handler.register_rgb_callback(rgb_callback)
+    return handler
+
+config = sdk_gen2.HttpServerConfig()
+config.address = "0.0.0.0"
+config.port = 6768
+
+server = sdk_gen2.AriaGen2HttpServer(config, setup_stream_handler)
+```
+
+See [Multi-Device Streaming Example](/ark/client-sdk/python-sdk/multi-device-streaming-example) for the full multi-device pattern.
 
 #### Methods
 
@@ -909,19 +1234,33 @@ Stop the HTTP server.
 
 Wait for the server to finish.
 
+##### `connections() -> List[Dict[str, str]]`
+
+Snapshot of the currently active device connections.
+
+**Returns:** A list of dicts, each with keys:
+- `device_serial` (str): The device serial number from the request headers
+- `connection_id` (str): Unique per HTTP connection; changes on reconnect
+- `client_ip` (str): The device's IP address
+
+Poll this to detect connect / reconnect / disconnect events. A new `connection_id` for the same `device_serial` indicates a reconnect.
+
 ### HttpServerConfig
 
 Configuration for the HTTP server.
 
 **Attributes:**
-- `address` (str): Server bind address
-- `port` (int): Server port
-- `use_ssl` (bool): Enable SSL/TLS
-- `mdns_hostname` (str): mDNS hostname for discovery
-- `certificate` (Certificate): Server SSL certificate
-- `ca_root` (str): CA root certificate
-- `threads` (int): Number of server threads
-- `idle_timeout_sec` (int): Idle timeout in seconds
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `address` | str | `0.0.0.0` | Server bind address |
+| `port` | int | `6768` | Server port |
+| `use_ssl` | bool | `True` | Enable SSL/TLS |
+| `mdns_hostname` | str | `oatmeal_server` | mDNS hostname devices resolve to reach this server |
+| `certificate` | Certificate | — | Server SSL certificate |
+| `ca_root` | str | `""` | CA root certificate |
+| `threads` | int | `1` | Number of server threads |
+| `idle_timeout_sec` | int | `60` | Idle timeout in seconds |
 
 ### Certificate
 
@@ -945,6 +1284,18 @@ Available network interfaces for streaming.
 - `USB_RNDIS` - USB RNDIS (Windows)
 - `USB_NCM` - USB NCM (Linux/Mac)
 - `WIFI_SAP` - WiFi Soft Access Point mode
+- `WIFI_PROXY` - Wi-Fi phone proxy: the companion app creates a Wi-Fi Direct group and bridges the connection
+- `WIFI_ANY` - Wi-Fi station *or* phone proxy, whichever is available
+
+The `aria_gen2` CLI's `--interface` flag exposes `usb`, `wifi_sta` and `wifi_sap`; the remaining values are reachable only through the Python API.
+
+### TimeDomainMappingMode
+
+Role a device plays in a multi-device time domain mapping session.
+
+**Values:**
+- `BROADCASTER` - Device transmits its timestamps; its clock is the session reference
+- `RECEIVER` - Device records timestamp pairs against the broadcaster
 
 ### ProfileType
 
@@ -974,6 +1325,20 @@ Actions to take when a file conflict occurs during download.
 - `REPLACE` - Replace the existing file
 - `STOP` - Stop the download
 
+### ConnectionState
+
+Connection lifecycle state, delivered to an observer's `on_connection_state_changed`.
+
+**Values:**
+- `CONNECTED`
+- `DISCONNECTED`
+
+### Level
+
+Log verbosity, passed to `set_log_level()`. Defined in `aria.sdk`.
+
+**Values:** `Disabled`, `Error`, `Warning`, `Info`, `Debug`, `Trace`
+
 ---
 
 ## Message Types
@@ -986,10 +1351,11 @@ The `MessageType` class provides constants and utility functions for working wit
 
 Message IDs are organized by category:
 
-**Camera Frames (0x8010-0x8012):**
+**Camera Frames (0x8010-0x8016):**
 - `SLAM_CAMERA_FRAME` (0x8010) - SLAM camera image data
 - `ET_CAMERA_FRAME` (0x8011) - Eye tracking camera image data
 - `POV_CAMERA_FRAME` (0x8012) - RGB/POV camera image data
+- `RAW_SLAM_CAMERA_FRAME` (0x8016) - Undecoded SLAM camera frame
 
 **Sensor Events (0x8020-0x8028):**
 - `IMU_EVENT` (0x8020) - IMU (accelerometer/gyroscope) data
@@ -1007,6 +1373,9 @@ Message IDs are organized by category:
 - `MP_HT_RESULT` (0x8031) - Hand tracking result
 - `MP_VIO_RESULT` (0x8032) - Visual-Inertial Odometry result
 - `MP_VIO_HIGH_FREQUENCY_POSE` (0x8033) - High-frequency VIO pose updates
+
+**Neural Band (0x8046):**
+- `EMG_IMU_BATCH` (0x8046) - sEMG + IMU batch from the neural band
 
 **Data and Utilities (0x8000-0x800A):**
 - `ERROR` (0x8000) - Error message
@@ -1070,16 +1439,16 @@ print(unknown)  # None
 
 ### SharedMessage
 
-Low-level message data structure.
+Low-level message data structure, as delivered to `register_raw_message_callback`.
 
 **Attributes:**
 - `id` (int, read-only): Message ID
-- `payload` (IBuffer, read-only): Message payload
+- `payload` (Optional[IBuffer], read-only): Message payload
 
 **Methods:**
 - `size() -> int`: Get message size in bytes
 - `timestamp() -> int`: Get message timestamp in nanoseconds
-- `arrival_timestamp_ns() -> int`: Get arrival timestamp in nanoseconds (returns -1 if not set)
+- `arrival_timestamp_ns() -> int`: Get arrival timestamp in nanoseconds (returns -1 if the message carries no arrival timestamp)
 
 **Constructor:**
 ```python
@@ -1109,11 +1478,11 @@ print(f"Timestamp: {msg.timestamp()} ns")
 
 ### IBuffer
 
-Buffer interface for binary data.
+Read-only view over a message payload owned by the SDK.
 
 **Methods:**
-- `data() -> bytes`: Get buffer data as bytes
-- `as_memoryview() -> Optional[memoryview]`: Get buffer as Python memoryview (returns None if buffer is empty or null)
+- `as_memoryview() -> Optional[memoryview]`: Get the payload as a Python memoryview for zero-copy access. Returns None when the payload is empty.
+- `data() -> int`: The raw `const uint8_t*` address the buffer wraps. Prefer `as_memoryview()`, which is explicitly typed and bounds-checked.
 
 **Example:**
 ```python
@@ -1464,5 +1833,3 @@ if message.id == sdk_gen2.MessageType.PPG_EVENT:
     if ppg_data:
         print(f"PPG value: {ppg_data.value}")
 ```
-
----
