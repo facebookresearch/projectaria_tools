@@ -1,0 +1,121 @@
+---
+sidebar_position: 8
+title: Offline Replay Example
+---
+
+# Offline Replay Example
+
+Drive the SDK from a `.vrs` recording instead of a device. Sensor messages are pushed into a `StreamDataInterface` on a background thread, paced by the original device timestamps, so **every callback you would wire to real glasses fires on replay** — same signatures, same delivery order, no hardware attached.
+
+That turns most callback-level development into an offline loop, and makes streaming callbacks testable in CI where no device exists.
+
+**Script:** `replay_vrs.py` ([export the samples](/ark/client-sdk/python-sdk/python-interface#export-example-code) to get it)
+
+## Prerequisites
+
+- [Client SDK installed](/ark/client-sdk/start) and virtual environment activated
+- A `.vrs` recording — download one with `aria_gen2 recording download`, or use any Aria Gen 2 VRS file you have
+
+:::tip No device needed
+This is the one example here that needs no glasses, no USB cable, and no `aria_gen2 auth pair`.
+:::
+
+## Run it
+
+```bash
+# Real time
+python ~/Downloads/projectaria_client_sdk_samples_gen2/replay_vrs.py path/to/recording.vrs
+
+# Longer than the default 10 s wall-clock budget
+python ~/Downloads/projectaria_client_sdk_samples_gen2/replay_vrs.py path/to/recording.vrs \
+    --duration-sec 30
+
+# As fast as the data can be read
+python ~/Downloads/projectaria_client_sdk_samples_gen2/replay_vrs.py path/to/recording.vrs \
+    --speed 0.0
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `vrs_path` *(positional)* | *(required)* | Recording to replay |
+| `--duration-sec <sec>` | `10.0` | Wall-clock deadline, after which the script stops the session |
+| `--speed <multiplier>` | `1.0` | Pacing relative to the original timestamps. `0.0` = as fast as possible, `2.0` = twice real time |
+
+The two are independent: `--duration-sec` is a wall-clock budget, `--speed` is how fast the recording is consumed.
+
+```
+opening replay source: recording.vrs (speed=1.0x)
+[calib] calibration received
+[raw] id=0x8010 size=114353B
+[rgb] 2016x1512 ts=5048213203431ns
+[imu] accel=[9.59, 2.15, 0.40] ts=5045688456090ns batch=16
+[replay] finished
+```
+
+## Worth knowing
+
+**Replay reuses the live `StreamDataInterface`,** so callbacks are registered exactly as they would be for streaming, and only fire for streams the recording actually contains. Nothing in your callback code needs to know whether it is being driven by a device or a file.
+
+**`ReplaySourceConfig` can replay a sub-range,** which is what you want against a long capture:
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `filename` | `""` | Path to the recording |
+| `speed_multiplier` | `1.0` | `0.0` runs as fast as the data can be read |
+| `start_time_sec` | `None` | Sub-range start, seconds from the recording start |
+| `end_time_sec` | `None` | Sub-range end |
+| `metadata_path` | `None` | Optional sidecar metadata file |
+
+**Two distinct failure modes.** `create_replay_source()` **raises** `RuntimeError` for problems surfaced from the C++ layer, and separately **returns `None`** when the source could not be opened at all. Handle both — the script does:
+
+```python
+try:
+    session = sdk_gen2.create_replay_source(config, stream_data)
+except RuntimeError as e:
+    ...      # missing file, unsupported extension
+if session is None:
+    ...      # could not open the source
+```
+
+:::danger A malformed `.vrs` kills the process
+A corrupt file trips an internal VRS assertion that terminates the interpreter outright — there is no exception to catch and no traceback. `RuntimeError` covers the recoverable cases only.
+:::
+
+**The session runs on a background thread.** Poll `is_finished()`, and call `stop()` to end it early. Anything your assertions read must be safe to touch after `is_finished()` returns `True`.
+
+## Using replay as a test fixture
+
+`speed_multiplier = 0.0` makes a short capture replay in a fraction of a second, which is what makes this usable in CI:
+
+```python
+def test_rgb_callback_counts_frames():
+    frames = []
+
+    stream_data = sdk_gen2.StreamDataInterface(enable_image_decoding=True)
+    stream_data.register_rgb_callback(lambda img, rec: frames.append(rec))
+
+    config = sdk_gen2.ReplaySourceConfig()
+    config.filename = "testdata/short_session.vrs"
+    config.speed_multiplier = 0.0          # as fast as the data can be read
+
+    session = sdk_gen2.create_replay_source(config, stream_data)
+    assert session is not None
+    while not session.is_finished():
+        time.sleep(0.01)
+
+    assert frames, "expected at least one RGB frame"
+```
+
+## Troubleshooting
+
+**`create_replay_source` returns `None`.** The file is missing, or the extension is not `.vrs` / `.bin`. Confirm it opens in `aria_rerun_viewer --vrs <path>`.
+
+**The process dies with no traceback.** A malformed recording, as above. Re-download or re-export it, and validate with [VRS Health Check](/ark/vrs_health_check/installation).
+
+**A callback never fires.** The recording does not contain that stream. Check its contents in `aria_rerun_viewer` — only streams present in the file are replayed.
+
+## Next steps
+
+* [Streaming Example](/ark/client-sdk/python-sdk/streaming-example) — the callbacks replay drives
+* [`ReplaySession` reference](/technical-specs/client-sdk/api#replay)
+* [All Python SDK examples](/ark/client-sdk/python-sdk/python-interface)

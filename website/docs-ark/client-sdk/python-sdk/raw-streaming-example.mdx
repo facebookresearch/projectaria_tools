@@ -1,0 +1,119 @@
+---
+sidebar_position: 6
+title: Raw Streaming Example
+---
+
+# Raw Streaming Example
+
+Receive every message through a **single raw callback** instead of per-sensor typed callbacks, and decode the payloads yourself with `OssDataConverter`.
+
+**Script:** `device_raw_streaming.py` ([export the samples](/ark/client-sdk/python-sdk/python-interface#export-example-code) to get it)
+
+The [Streaming Example](/ark/client-sdk/python-sdk/streaming-example) is the right default. Reach for the raw path when you want to **forward messages without decoding them** (the [ROS2 publisher](/ark/client-sdk/python-sdk/ros2-example) does exactly this), **see message types that have no typed callback**, or **filter before paying for conversion**.
+
+## Prerequisites
+
+- [Client SDK installed](/ark/client-sdk/start) and virtual environment activated
+- Device connected via USB and [authenticated](/ark/client-sdk/authentication)
+- Port 6768 available and not blocked by a firewall
+
+## Run it
+
+```bash
+# USB-NCM, images left compressed
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_raw_streaming.py
+
+# Over Wi-Fi
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_raw_streaming.py --interface wifi_sta
+
+# Decode camera frames instead of forwarding the bitstream
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_raw_streaming.py --decode-images
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--profile-name <name>` | `profile9` | Streaming profile |
+| `--interface <usb\|wifi_sta\|wifi_sap>` | `usb` | Streaming interface |
+| `--decode-images` | off | Decode compressed camera frames. Off by default, since raw consumers usually forward the encoded payload |
+
+## Message type to converter
+
+This is the mapping the script's dispatch encodes, collected in one place. Each `MessageType` has exactly one `OssDataConverter` method:
+
+| `MessageType` | Converter method | Returns |
+|---|---|---|
+| `SLAM_CAMERA_FRAME` | `to_image_data_and_record()` | `(ImageData, ImageDataRecord)` |
+| `RAW_SLAM_CAMERA_FRAME` | `to_image_data_and_record()` | `(ImageData, ImageDataRecord)` |
+| `ET_CAMERA_FRAME` | `to_image_data_and_record()` | `(ImageData, ImageDataRecord)` |
+| `POV_CAMERA_FRAME` | `to_image_data_and_record()` | `(ImageData, ImageDataRecord)` |
+| `AUDIO_REC_DATA` | `to_audio()` | `(AudioData, AudioDataRecord)` |
+| `IMU_EVENT` | `to_imu()` | `List[MotionData]` |
+| `MAG_EVENT` | `to_magnetometer()` | `List[MotionData]` |
+| `BARO_EVENT` | `to_barometer()` | `BarometerData` |
+| `GNSS_EVENT` | `to_gnss()` | `GpsData` |
+| `PHONE_LOCATION_DATA` | `to_phone_location()` | `GpsData` |
+| `PPG_EVENT` | `to_ppg()` | `PpgData` |
+| `BLE_BEACONS` | `to_bluetooth_beacon()` | `List[BluetoothBeaconData]` |
+| `WIFI_BEACONS` | `to_wifi_beacon()` | `List[WifiBeaconData]` |
+| `MP_ET_RESULT` | `to_eye_gaze()` | `EyeGaze` *(needs calibration)* |
+| `MP_HT_RESULT` | `to_hand_pose()` | `HandTrackingResult` *(needs calibration)* |
+| `MP_VIO_RESULT` | `to_vio_result()` | `FrontendOutput` *(needs calibration)* |
+| `MP_VIO_HIGH_FREQUENCY_POSE` | `to_vio_high_freq_pose()` | `List[OpenLoopTrajectoryPose]` *(needs calibration)* |
+
+Every converter returns `None` (or `(None, None)`) on failure, so check before using the result.
+
+Other message types reach the raw callback but have **no** converter — `ALS_EVENT`, `TEMP_EVENT`, `BATTERY_STATUS_DATA`, `ASR_DATA`, `GNSS_VISIBLE_SATELLITES_EVENT`, `EMG_IMU_BATCH`, `FACTORY_CALIBRATION`. Identify them with `sdk_gen2.MessageType.to_string(id)`; the [full ID list](/technical-specs/client-sdk/api#message-type-constants) is in the API reference.
+
+## Worth knowing
+
+**Register the calibration callback before the raw one.** `to_eye_gaze()`, `to_hand_pose()`, `to_vio_result()` and `to_vio_high_freq_pose()` all fail until `converter.set_calibration()` has been called. The script wires calibration first for exactly this reason:
+
+```python
+stream_receiver.register_device_calib_callback(device_calib_callback)
+stream_receiver.register_raw_message_callback(raw_message_callback)
+```
+
+Expect a few conversion failures on the machine-perception branches while calibration is still in flight. Sensor conversions — images, IMU, audio, barometer, GNSS, beacons — need no calibration.
+
+:::warning SLAM frames arrive under two different message IDs
+Which one depends on the profile's declared encoding: `SLAM_CAMERA_FRAME` for a compressed (H.265) stream, `RAW_SLAM_CAMERA_FRAME` for an uncompressed (RAW8) one such as `profile3`. Matching on only one of the pair **silently receives no SLAM frames** under profiles using the other encoding — no error, the branch just never fires.
+
+The sample matches only `SLAM_CAMERA_FRAME`. If you adapt it and change profiles, match both:
+
+```python
+if message_id in (
+    sdk_gen2.MessageType.SLAM_CAMERA_FRAME,
+    sdk_gen2.MessageType.RAW_SLAM_CAMERA_FRAME,
+):
+```
+:::
+
+**Prefer `as_memoryview()` over `data()`.** `as_memoryview()` is bounds-checked and returns `None` on an empty payload; `data()` hands back the raw pointer address. Some message types do arrive with empty payloads, so check before reconstructing a `SharedMessage`.
+
+**`enable_image_decoding` defaults to off here,** unlike the typed-callback example. That is the point of the raw path: if you are forwarding frames rather than looking at pixels, decoding is wasted work.
+
+## Raw vs typed callbacks
+
+| | Typed callbacks | Raw callback |
+|---|---|---|
+| Registration | One `register_*_callback` per sensor | One `register_raw_message_callback` |
+| You receive | Decoded objects (`ImageData`, `MotionData`, …) | `SharedMessage` with a FlatBuffer payload |
+| Decoding | Done by the SDK | You call `OssDataConverter` |
+| Message coverage | Sensors that have a typed callback | Every message the device sends |
+| Best for | Application code consuming sensor data | Forwarding, bridging, filtering before decode |
+
+They are not exclusive — registering a raw callback and typed callbacks on the same receiver works, and the ROS2 publisher does that with calibration plus raw messages.
+
+## Troubleshooting
+
+**Conversion failures on eye gaze / hand pose / VIO.** Calibration had not arrived yet. Register `register_device_calib_callback` before the raw callback and tolerate the first few.
+
+**Image conversions return `None`.** The payload is still compressed. Pass `--decode-images`, or decode it yourself.
+
+**Nothing arrives at all.** See [Streaming Example → Troubleshooting](/ark/client-sdk/python-sdk/streaming-example#troubleshooting) — port 6768, VPN, firewall.
+
+## Next steps
+
+* [Streaming Example](/ark/client-sdk/python-sdk/streaming-example) — the typed-callback path
+* [ROS2 Example](/ark/client-sdk/python-sdk/ros2-example) — raw messages forwarded onto ROS2 topics
+* [`OssDataConverter` reference](/technical-specs/client-sdk/api#data-converter)

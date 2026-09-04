@@ -5,7 +5,7 @@ title: WebRTC Streaming
 
 # WebRTC Streaming
 
-Stream over **WebRTC** instead of the HTTP transport used by [USB, WiFi router and hotspot streaming](/ark/client-sdk/streaming). The receiver interface is unified — in Python you swap only the receiver class and its config (see [WebRTC Streaming Example](/ark/client-sdk/python-sdk/streaming-example#webrtc-streaming)) — and the `aria_streaming_viewer` selects the transport with `--transport {http,webrtc}` (default `http`).
+Stream over **WebRTC** instead of the HTTP transport used by [USB, WiFi router and hotspot streaming](/ark/client-sdk/streaming). The receiver interface is unified — in Python you swap only the receiver class and its config (see [WebRTC Streaming Example](/ark/client-sdk/python-sdk/webrtc-streaming-example)) — and the `aria_streaming_viewer` selects the transport with `--transport {http,webrtc}` (default `http`).
 
 ## Why WebRTC
 
@@ -326,5 +326,5 @@ The controls are skipped automatically when the viewer's input is not an interac
 * Back to [Streaming Control](/ark/client-sdk/streaming) for the HTTP transports (USB, WiFi router, on-device hotspot)
 * The viewer's [Rerun blueprint layouts](/ark/client-sdk/streaming#custom-layout-with-a-rerun-blueprint) and [shutdown behaviour](/ark/client-sdk/streaming#stopping-the-viewer) are documented there and behave the same on WebRTC
 * Stand up cross-network streaming with [Deploying a Signaling Server](/ark/client-sdk/webrtc/signaling-server)
-* Build a custom receiver with the [WebRTC Streaming Example](/ark/client-sdk/python-sdk/streaming-example#webrtc-streaming)
+* Build a custom receiver with the [WebRTC Streaming Example](/ark/client-sdk/python-sdk/webrtc-streaming-example)
 * Check the [CLI Quick Reference](/ark/client-sdk/cli-reference#aria_gen2-streaming-webrtc-start) for every `streaming webrtc` flag

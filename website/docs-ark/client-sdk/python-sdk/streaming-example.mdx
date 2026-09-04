@@ -5,872 +5,171 @@ title: Streaming Example
 
 # Streaming Example
 
-This example demonstrates how to programmatically control streaming on your Aria Gen2 device using the Python SDK. You'll learn how to start streaming, implement custom callbacks for real-time data processing, and optionally record streaming data to VRS files.
+Stream live sensor data from the device to your PC over HTTP, with a typed callback per sensor, and optionally record what arrives to a VRS file on the host.
+
+**Script:** `device_streaming.py` ([export the samples](/ark/client-sdk/python-sdk/python-interface#export-example-code) to get it)
 
 ## Prerequisites
 
 - [Client SDK installed](/ark/client-sdk/start) and virtual environment activated
 - Device connected via USB and [authenticated](/ark/client-sdk/authentication)
-- [Example code exported](/ark/client-sdk/python-sdk/python-interface#export-example-code)
-- Port 6768 available and not blocked by firewall
+- Port 6768 available and not blocked by a firewall
 
 :::caution One-Time Setup: Device Authentication Required
-Before running this example, you **must** authenticate your device by running `aria_gen2 auth pair` (see [Device Authentication](/ark/client-sdk/authentication)). This only needs to be done **once** per device-PC combination, but **all device operations (recording, streaming, etc.) will fail without it**.
+All device operations fail until you have run `aria_gen2 auth pair` once for this device-PC pair. See [Device Authentication](/ark/client-sdk/authentication).
 :::
 
-## Quick Start
-
-Run the streaming example script:
+## Run it
 
 ```bash
+# USB streaming, print sensor data for 10 seconds
 python ~/Downloads/projectaria_client_sdk_samples_gen2/device_streaming.py
-```
 
-To save streaming data to a VRS file:
+# Over Wi-Fi instead of USB
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_streaming.py --interface wifi_sta
 
-```bash
-python ~/Downloads/projectaria_client_sdk_samples_gen2/device_streaming.py --record-to-vrs /path
-```
-
----
-
-## What This Example Does
-
-The script performs the following operations:
-1. Connects to the device
-2. Configures streaming settings (profile, interface)
-3. Starts streaming on the device
-4. Sets up a streaming receiver with custom callbacks
-5. Processes real-time data from all sensors (cameras, IMU, audio, machine perception)
-6. Optionally records streaming data to a VRS file
-
----
-
-## Code Walkthrough
-
-:::tip Multi-device callbacks
-For multi-device streaming, add an optional `device_id: str | None = None` parameter to any callback to receive the source device's serial — the SDK auto-detects it via `inspect.signature()`. See [Multi-Device Streaming Example](/ark/client-sdk/python-sdk/multi-device-streaming-example).
-:::
-
-### Step 1: Import Required Modules
-
-```python
-import argparse
-import signal
-import sys
-import aria.sdk_gen2 as sdk_gen2
-import aria.stream_receiver as receiver
-from projectaria_tools.core.mps import EyeGaze, hand_tracking
-from projectaria_tools.core.sensor_data import (
-    AudioData, AudioDataRecord, FrontendOutput, ImageData, ImageDataRecord, MotionData,
-)
-```
-
-**Key Modules:**
-* `aria.sdk_gen2`: Main SDK for device control
-* `aria.stream_receiver`: Receives and processes streaming data
-* `projectaria_tools.core`: Data structures for sensor data and machine perception
-
----
-
-### Step 2: Parse Command-Line Arguments
-
-```python
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--record-to-vrs",
-        dest="record_to_vrs",
-        type=str,
-        default="",
-        required=False,
-        help="Output directory to save the received streaming into VRS",
-    )
-    return parser.parse_args()
-```
-
-**Available Options:**
-* `--record-to-vrs`: Optional path to save streaming data as a VRS file
-* If not specified, data is only processed in callbacks (not saved)
-
-**Important:** Data drops can occur with poor streaming connections. The saved VRS file will reflect any data drops that occurred during streaming.
-
----
-
-### Step 3: Connect to Device and Start Streaming
-
-```python
-# Create device client
-device_client = sdk_gen2.DeviceClient()
-
-# Establish connection to the device
-config = sdk_gen2.DeviceClientConfig()
-device_client.set_client_config(config)
-device = device_client.connect()
-
-# Set recording config with profile name
-streaming_config = sdk_gen2.HttpStreamingConfig()
-streaming_config.profile_name = "profile9"
-device.set_streaming_config(streaming_config)
-
-# Start and stop recording
-device.start_streaming()
-```
-
-**Streaming Configuration:**
-* `profile_name`: Use `mp_streaming_demo` for smooth visualization with all machine perception data
-* `streaming_interface`: Current support:
-  - `USB_NCM`: USB connection (default)
-
----
-
-### Step 4: Define Data Callbacks
-
-Callbacks are functions that process data as it arrives from the device. Here's how to implement callbacks for each data type:
-
-#### Image Callback
-
-Processes all camera streams: RGB (1x), SLAM (4x), and Eye Tracking (2x):
-
-```python
-def image_callback(image_data: ImageData, image_record: ImageDataRecord):
-    """Called for each image frame from any camera."""
-    image_array = image_data.to_numpy_array()
-    timestamp_ns = image_record.capture_timestamp_ns
-
-    print(f"Received image: shape={image_array.shape}, timestamp={timestamp_ns} ns")
-
-    # Example: Process the image
-    # - image_array is a numpy array you can process with OpenCV, PIL, etc.
-    # - image_record contains metadata like timestamp, camera ID, exposure
-```
-
----
-
-#### Audio Callback
-
-Processes audio data from all 8 microphone channels:
-
-```python
-def audio_callback(audio_data: AudioData, audio_record: AudioDataRecord, num_channels: int):
-    """Called for each audio data packet."""
-    num_samples = len(audio_data.data)
-    num_timestamps = len(audio_record.capture_timestamps_ns)
-
-    print(f"Received audio: samples={num_samples}, timestamps={num_timestamps}, channels={num_channels}")
-
-    # Example: Process audio
-    # - audio_data.data contains the raw audio samples
-    # - audio_record.capture_timestamps_ns contains per-sample timestamps
-```
-
----
-
-#### IMU Callback
-
-Processes high-frequency IMU data from both IMU sensors at 800Hz:
-
-```python
-def imu_callback(imu_data: MotionData, sensor_label: str):
-    """Called for each IMU data sample from imu-left or imu-right."""
-    accel = imu_data.accel_msec2  # Acceleration in m/s²
-    gyro = imu_data.gyro_radsec   # Gyroscope in rad/s
-
-    print(f"Received {sensor_label}: accel={accel}, gyro={gyro}")
-
-    # Example: Process IMU data
-    # - Use for motion tracking.
-```
-
----
-
-#### Eye Gaze Callback
-
-Processes eye tracking data with gaze direction and depth:
-
-```python
-def eyegaze_callback(eyegaze_data: EyeGaze):
-    """Called for each eye gaze estimate."""
-    timestamp_sec = eyegaze_data.tracking_timestamp.total_seconds()
-    yaw_rad = eyegaze_data.yaw
-    pitch_rad = eyegaze_data.pitch
-    depth_m = eyegaze_data.depth
-
-    print(f"Eye Gaze: timestamp={timestamp_sec}s, yaw={yaw_rad:.3f}, pitch={pitch_rad:.3f}, depth={depth_m:.3f}m")
-
-    # Example: Use eye gaze data
-    # - Track where user is looking
-    # - Estimate focus depth
-    # - Build attention maps
-```
-
----
-
-#### Hand Tracking Callback
-
-Processes hand pose estimates for both left and right hands:
-
-```python
-def handtracking_callback(handtracking_data: hand_tracking.HandTrackingResult):
-    """Called for each hand tracking estimate."""
-    timestamp_sec = handtracking_data.tracking_timestamp.total_seconds()
-    print(f"Hand Tracking: timestamp={timestamp_sec}s")
-
-    # Process left hand
-    if handtracking_data.left_hand is not None:
-        left_hand = handtracking_data.left_hand
-        print(f"  Left hand confidence: {left_hand.confidence:.3f}")
-        print(f"  Left wrist position: {left_hand.get_wrist_position_device()}")
-        print(f"  Left palm position: {left_hand.get_palm_position_device()}")
-        if left_hand.wrist_and_palm_normal_device is not None:
-            normals = left_hand.wrist_and_palm_normal_device
-            print(f"  Left wrist normal: {normals.wrist_normal_device}")
-            print(f"  Left palm normal: {normals.palm_normal_device}")
-    else:
-        print("  Left hand: No data")
-
-
-    # Process right hand (similar to left hand)
-    if handtracking_data.right_hand is not None:
-        right_hand = handtracking_data.right_hand
-        print(f"  Right hand confidence: {right_hand.confidence:.3f}")
-        print(f"  Right wrist position: {right_hand.get_wrist_position_device()}")
-        print(f"  Right palm position: {right_hand.get_palm_position_device()}")
-        if right_hand.wrist_and_palm_normal_device is not None:
-            normals = right_hand.wrist_and_palm_normal_device
-            print(f"  Right wrist normal: {normals.wrist_normal_device}")
-            print(f"  Right palm normal: {normals.palm_normal_device}")
-    else:
-        print("  Right hand: No data")
-```
-
----
-
-#### VIO Callback
-
-Processes Visual-Inertial Odometry data (6-DOF pose estimates):
-
-```python
-def vio_callback(vio_data: FrontendOutput):
-    """Called for each VIO pose estimate."""
-    timestamp_ns = vio_data.capture_timestamp_ns
-    rotation = vio_data.transform_odometry_bodyimu.rotation().log()
-    translation = vio_data.transform_odometry_bodyimu.translation()
-
-    print(f"VIO: timestamp={timestamp_ns}ns, rotation={rotation}, translation={translation}")
-
-    # Example: Use VIO data
-    # - Track device position and orientation
-    # - Build 3D maps
-    # - Enable AR applications
-```
-
----
-
-### Step 5: Set Up the Streaming Receiver
-
-The streaming receiver listens for data and dispatches it to your callbacks:
-
-```python
-def setup_streaming_receiver(device, record_to_vrs):
-    """Configure and start the streaming receiver."""
-    # Configure server
-    config = sdk_gen2.HttpServerConfig()
-    config.address = "0.0.0.0"  # Listen on all interfaces
-    config.port = 6768           # Default streaming port
-
-    # Create receiver
-    stream_receiver = receiver.StreamReceiver()
-    stream_receiver.set_server_config(config)
-
-    # Optional: Record to VRS
-    if record_to_vrs != "":
-        stream_receiver.record_to_vrs(record_to_vrs)
-
-    # Register all callbacks
-    stream_receiver.register_slam_callback(image_callback)
-    stream_receiver.register_rgb_callback(image_callback)
-    stream_receiver.register_audio_callback(audio_callback)
-    stream_receiver.register_eye_gaze_callback(eyegaze_callback)
-    stream_receiver.register_hand_pose_callback(handtracking_callback)
-    stream_receiver.register_vio_callback(vio_callback)
-
-    # Start receiving data
-    stream_receiver.start_server()
-
-    return stream_receiver
-```
-
-**Important Configuration Notes:**
-* **Port 6768**: Ensure this port is open and not blocked by firewall
-* **VPN**: Disable VPN to allow streaming data to be received
-* **`0.0.0.0`**: Listens on all network interfaces (required for device to connect)
-
----
-
-### Step 6: Main Function
-
-Tie everything together:
-
-```python
-if __name__ == "__main__":
-    args = parse_args()
-
-    # Connect and start streaming
-    device = device_streaming()
-
-    # Set up receiver with callbacks
-    stream_receiver = setup_streaming_receiver(device, args.record_to_vrs)
-
-    # Keep running until interrupted
-    print("Streaming... Press Ctrl+C to stop")
-    try:
-        signal.pause()  # Wait for interrupt signal
-    except KeyboardInterrupt:
-        print("\nStopping streaming...")
-        device.stop_streaming()
-        print("Streaming stopped")
-```
-
----
-
-## Complete Example Code
-
-Here's the full streaming script structure:
-
-```python
-import argparse
-import time
-
-import aria.sdk_gen2 as sdk_gen2
-import aria.stream_receiver as receiver
-
-from projectaria_tools.core.mps import EyeGaze, hand_tracking, OpenLoopTrajectoryPose
-from projectaria_tools.core.sensor_data import (
-    AudioData,
-    AudioDataRecord,
-    FrontendOutput,
-    ImageData,
-    ImageDataRecord,
-    MotionData,
-)
-
-# Set up the device client to initiate connection to the device
-device_client = sdk_gen2.DeviceClient()
-
-
-def device_streaming():
-    # Set up the device client config to specify the device to be connected to e.g. device serial number.
-    # If nothing is specified, the first device in the list of connected devices will be connected to
-    config = sdk_gen2.DeviceClientConfig()
-    device_client.set_client_config(config)
-    device = device_client.connect()
-
-    # Set recording config with profile name
-    streaming_config = sdk_gen2.HttpStreamingConfig()
-    streaming_config.profile_name = "profile9"
-    device.set_streaming_config(streaming_config)
-
-    # Start and stop recording
-    device.start_streaming()
-    return device
-
-
-def image_callback(image_data: ImageData, image_record: ImageDataRecord):
-    print(
-        f"Received image data of size {image_data.to_numpy_array().shape} with timestamp {image_record.capture_timestamp_ns} ns"
-    )
-
-
-def audio_callback(
-    audio_data: AudioData, audio_record: AudioDataRecord, num_channels: int
-):
-    print(
-        f"Received audio data with {len(audio_data.data)} samples and {len(audio_record.capture_timestamps_ns)} timestamps and num channels {num_channels}"
-    )
-
-
-def imu_callback(imu_data: MotionData, sensor_label: str):
-    print(
-        f"Received {sensor_label} accel data {imu_data.accel_msec2} and gyro {imu_data.gyro_radsec}"
-    )
-
-
-def eyegaze_callback(eyegaze_data: EyeGaze):
-    print(
-        f"Received EyeGaze data at timestamp {eyegaze_data.tracking_timestamp.total_seconds()} sec "
-        f"with yaw={eyegaze_data.yaw:.3f} rad, pitch={eyegaze_data.pitch:.3f} rad, "
-        f"depth={eyegaze_data.depth:.3f} m"
-    )
-
-
-def handtracking_callback(handtracking_data: hand_tracking.HandTrackingResult):
-    print(
-        f"Received HandTracking data at timestamp {handtracking_data.tracking_timestamp.total_seconds()} sec"
-    )
-
-    # Check left hand data
-    if handtracking_data.left_hand is not None:
-        left_hand = handtracking_data.left_hand
-        print(f"  Left hand confidence: {left_hand.confidence:.3f}")
-        print(f"  Left wrist position: {left_hand.get_wrist_position_device()}")
-        print(f"  Left palm position: {left_hand.get_palm_position_device()}")
-        if left_hand.wrist_and_palm_normal_device is not None:
-            normals = left_hand.wrist_and_palm_normal_device
-            print(f"  Left wrist normal: {normals.wrist_normal_device}")
-            print(f"  Left palm normal: {normals.palm_normal_device}")
-    else:
-        print("  Left hand: No data")
-
-    # Check right hand data
-    if handtracking_data.right_hand is not None:
-        right_hand = handtracking_data.right_hand
-        print(f"  Right hand confidence: {right_hand.confidence:.3f}")
-        print(f"  Right wrist position: {right_hand.get_wrist_position_device()}")
-        print(f"  Right palm position: {right_hand.get_palm_position_device()}")
-        if right_hand.wrist_and_palm_normal_device is not None:
-            normals = right_hand.wrist_and_palm_normal_device
-            print(f"  Right wrist normal: {normals.wrist_normal_device}")
-            print(f"  Right palm normal: {normals.palm_normal_device}")
-    else:
-        print("  Right hand: No data")
-
-
-def vio_callback(vio_data: FrontendOutput):
-    print(
-        f"Received VIO data at timestamp {vio_data.capture_timestamp_ns} with transform_odometry_bodyimu: {vio_data.transform_odometry_bodyimu.rotation().log()} and {vio_data.transform_odometry_bodyimu.translation()} ns"
-    )
-
-
-def calib_callback(calib_json_str: str):
-    print(f"Received calibration: {calib_json_str}")
-
-
-def setup_streaming_receiver(device, record_to_vrs):
-    # setup the server to receive streaming data from the device
-    # IP address : 0.0.0.0 means that the server is listening on all available interfaces
-    # Port : 6768 is the port number that the server is listening on
-    config = sdk_gen2.HttpServerConfig()
-    config.address = "0.0.0.0"
-    config.port = 6768
-
-    # setup the receiver
-    stream_receiver = receiver.StreamReceiver()
-    stream_receiver.set_server_config(config)
-    if record_to_vrs != "":
-        stream_receiver.record_to_vrs(record_to_vrs)
-
-    # register callbacks for each type of data
-    stream_receiver.register_slam_callback(image_callback)
-    stream_receiver.register_rgb_callback(image_callback)
-    stream_receiver.register_audio_callback(audio_callback)
-    stream_receiver.register_eye_gaze_callback(eyegaze_callback)
-    stream_receiver.register_hand_pose_callback(handtracking_callback)
-    stream_receiver.register_vio_callback(vio_callback)
-
-    # start the server
-    stream_receiver.start_server()
-
-    time.sleep(10)
-
-    # stop streaming and terminate the server
-    device.stop_streaming()
-
-    time.sleep(2)
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--record-to-vrs",
-        dest="record_to_vrs",
-        type=str,
-        default="",
-        required=False,
-        help="Output directory to save the received streaming into VRS",
-    )
-
-    return parser.parse_args()
-
-
-if __name__ == "__main__":
-    args = parse_args()
-    # setup device to start streaming
-    device = device_streaming()
-
-    # setup streaming receiver to receive streaming data with callbacks
-    setup_streaming_receiver(device, args.record_to_vrs)
-```
-
----
-
-## Usage Examples
-
-### Basic Streaming with Console Output
-
-```bash
-python ~/Downloads/projectaria_client_sdk_samples_gen2/device_streaming.py
-```
-
-**What happens:**
-* Connects to device and starts streaming
-* Prints real-time data from all sensors to console
-* Data is NOT saved
-
----
-
-### Streaming and Recording to VRS
-
-```bash
+# Also save the received stream to a VRS file on this host
 python ~/Downloads/projectaria_client_sdk_samples_gen2/device_streaming.py \
     --record-to-vrs ~/Downloads/streaming_capture.vrs
 ```
 
-**What happens:**
-* Streams data with real-time callbacks
-* Simultaneously records all data to VRS file
-* VRS file can be played back later with `aria_rerun_viewer`
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--record-to-vrs <path>` | *(off)* | Save the received stream to a VRS file on the host |
+| `--profile-name <name>` | `profile9` | Streaming profile name |
+| `--custom-profile-path <path>` | *(none)* | Custom profile file. Takes priority over `--profile-name` |
+| `--interface <usb\|wifi_sta\|wifi_sap>` | `usb` | `usb` for USB-NCM, `wifi_sta` for a Wi-Fi network, `wifi_sap` for the on-device hotspot |
 
----
+The script streams for a fixed 10 seconds and exits. For a long-running session, replace that `time.sleep(10)` with your own loop.
 
+## The callbacks
+
+This is the part worth studying in the script. Each `register_*_callback` takes a function with a fixed positional shape:
+
+| Method | Callback signature |
+|---|---|
+| `register_rgb_callback` | `(ImageData, ImageDataRecord)` |
+| `register_slam_callback` | `(ImageData, ImageDataRecord)` |
+| `register_et_callback` | `(ImageData, ImageDataRecord)` |
+| `register_audio_callback` | `(AudioData, AudioDataRecord, num_channels: int)` |
+| `register_imu_callback` | `(MotionData, sensor_label: str)` — label is `imu-left` / `imu-right` |
+| `register_imu_batch_callback` | `(List[MotionData], sensor_label: str)` |
+| `register_magnetometer_callback` | `(MotionData, sensor_label: str)` |
+| `register_barometer_callback` | `(BarometerData)` |
+| `register_gps_callback` | `(GpsData)` |
+| `register_eye_gaze_callback` | `(EyeGaze)` |
+| `register_hand_pose_callback` | `(HandTrackingResult)` |
+| `register_vio_callback` | `(FrontendOutput)` |
+| `register_vio_high_frequency_callback` | `(OpenLoopTrajectoryPose)` |
+| `register_device_calib_callback` | `(DeviceCalibration)` |
+
+The sensor objects are `projectaria_tools` types, not SDK-local ones, so anything you already use to process a VRS recording works unchanged on a live stream. `image_data.to_numpy_array()` gives you a frame ready for OpenCV or PIL. The full list, including the queue-size setters, is in the [Python API reference](/technical-specs/client-sdk/api#streamdatainterface).
+
+Two things about `FrontendOutput` that are easy to miss: `transform_odometry_bodyimu` is the pose, and `online_calib` carries the calibration the device estimated during this session — per-camera intrinsics and per-IMU biases, which drift from the factory values as the device warms up.
+
+## Worth knowing
+
+**Callbacks run on SDK receive threads, not your main thread.** Any state a callback shares with another callback or with the main thread needs a lock, including simple counter increments. Slow work inside a callback blocks delivery and shows up as dropped frames — see [Feeding the stream to a model](#feeding-the-stream-to-a-model) below.
+
+**`enable_image_decoding` controls whether you get pixels or bitstream.** `StreamReceiver(enable_image_decoding=True)` decodes incoming H.265 frames before the image callbacks fire. Pass `False` to receive the encoded access units and decode them yourself — which is what you want when forwarding frames rather than looking at them.
+
+**The server address must be `0.0.0.0`.** The device connects *to* your host, so the receiver has to listen on all interfaces. Binding to `127.0.0.1` produces a receiver that never sees a connection.
+
+**For multiple devices, add `device_id` to any callback.** Declaring `device_id: str | None = None` makes the SDK pass the source device's serial on every fire; it detects the parameter via `inspect.signature()` at registration time. Callbacks without it are unaffected. See the [Multi-Device Streaming Example](/ark/client-sdk/python-sdk/multi-device-streaming-example).
 
 ## Troubleshooting
 
-### No Data in Callbacks
+**Streaming starts but callbacks never fire.** In rough order of likelihood: a VPN is active (disconnect it — VPNs block the device→host path), port 6768 is blocked by a firewall, the server address is not `0.0.0.0`, or another process already holds the port (`sudo lsof -i :6768`). `aria_doctor` fixes most port and USB-networking problems.
 
-**Problem:** Streaming starts but callbacks are never called.
-
-**Solutions:**
-1. **Check port 6768 is open:**
-   ```bash
-   # On Linux/macOS
-   sudo lsof -i :6768
-   ```
-
-2. **Disable VPN:**
-   * VPNs block streaming data
-   * Disconnect from VPN/Lighthouse
-
-3. **Check firewall:**
-   * Ensure firewall allows port 6768
-   * Add exception for Python script
-
-4. **Verify server address:**
-   * Must be `0.0.0.0` to listen on all interfaces
-
-5. **Run aria_doctor:**
-   ```bash
-   aria_doctor
-   ```
-
----
-
-### High Data Drop Rate
-
-**Problem:** VRS file shows many dropped frames.
-
-**Solutions:**
-* **Close other applications** consuming bandwidth
-* **Check system resources** (CPU, memory)
-* **Reduce callback processing** time
-* **Increase message queue size**
+**The VRS file shows many dropped frames.** Data drops happen with a poor connection and the saved file reflects them faithfully. Close other bandwidth-heavy applications, reduce the work done inside callbacks, and increase the relevant queue size (`set_rgb_queue_size()` and friends).
 
 ---
 
 ## HTTP Streaming to Remote Server
 
-This section demonstrates how to stream data to a remote server running at a specific IP address and port. This is useful when you want to run your streaming receiver on a different machine than the one connected to the Aria device.
+None of this is in the sample script — it is the setup you need when the receiver runs on a *different* machine from the one holding the USB cable, e.g. to process data on a more powerful host.
 
-### Overview
-
-Remote streaming allows you to:
-- **Run the receiver on a dedicated server**: Process streaming data on a more powerful machine
-- **Stream across the network**: Send data to a receiver running on a remote IP address
-- **Secure communication**: Use TLS certificates for encrypted streaming
-
-### Workflow Overview
-
-To set up remote streaming, follow these steps in order:
-
-1. **Install certificates** on the device (outputs a cert name)
-2. **Copy certificates** to the remote server
-3. **Start the streaming server** on the remote machine
-4. **Start streaming** on the device with the cert name
-
-:::warning Important
-Always start streaming with the correct certificate name or install certificates **before** starting the streaming server. Starting streaming without specifying the cert name will default to installing new certificates, which would invalidate any old certificates already copied to the server. This is the same rule that governs the local start order — see [Start Order and Streaming Certificates](/ark/client-sdk/streaming#start-order-and-streaming-certificates).
+:::warning Order matters
+Install certificates **before** starting the streaming server, and always pass the cert name when starting streaming. Starting streaming without `--streaming-cert-name` installs *new* certificates, invalidating the ones you already copied to the server. This is the same rule that governs the local start order — see [Start Order and Streaming Certificates](/ark/client-sdk/streaming#start-order-and-streaming-certificates).
 :::
 
----
+### 1. Install streaming certificates
 
-### Step 1: Install Streaming Certificates
-
-On the machine connected to the Aria Gen2 device via USB, install the streaming certificates:
+On the machine connected to the device over USB:
 
 ```bash
-# Install certificates on the device
 aria_gen2 streaming install-certs
 ```
 
-This command:
-- Generates new streaming certificates
-- Installs the publisher certificate on the Aria Gen2 device
-- Saves the subscriber certificates locally to `~/.aria/streaming-certs/persistent/`
-- Outputs the **cert name** that you'll use when starting streaming
+This generates a certificate pair, installs the publisher cert on the device, and saves the subscriber certs locally under `~/.aria/streaming-certs/persistent/`. It prints the **cert name** you will need in step 4:
 
-**Example output:**
 ```
 [AriaGen2SDK:Device][INFO]: Installing local streaming certs under: "/home/xxx/.aria/streaming-certs/persistent"
 [AriaGen2SDK:Device][INFO]: Request installing streaming certs on device: cert_1769712774692532015
 [AriaGen2Cli:App][INFO]: successfully installed streaming cert.
 ```
 
-**Note the cert name** (e.g., `cert_1769712774692532015`) - you'll need it in Step 4.
-
-#### Certificate Files
-
-After installation, the following files are created in `~/.aria/streaming-certs/persistent/`:
-
 | File | Description |
 |------|-------------|
-| `root_ca.pem` | Root CA certificate that verifies the device's publisher certificate |
+| `root_ca.pem` | Root CA that verifies the device's publisher certificate |
 | `subscriber.pem` | Subscriber certificate for the streaming server |
-| `subscriber-key.pem` | Subscriber private key for the streaming server |
-| `publisher-cert-name` | Contains the certificate name |
+| `subscriber-key.pem` | Subscriber private key |
+| `publisher-cert-name` | The certificate name |
 
----
-
-### Step 2: Copy Certificates to Remote Server
-
-Copy the certificate directory to your remote server:
+### 2. Copy the certificates to the remote server
 
 ```bash
-# Copy certificates to the remote server
 scp -r ~/.aria/streaming-certs/persistent/ user@<remote-server-ip>:~/.aria/streaming-certs/persistent/
 ```
 
----
+### 3. Point the receiver at them
 
-### Step 3: Start the Streaming Server
-
-On the remote server, start the streaming server with the copied certificates.
-
-#### Python SDK Configuration
+The only difference from a local receiver is three TLS fields on `HttpServerConfig`:
 
 ```python
-import os
-import aria.sdk_gen2 as sdk_gen2
-import aria.stream_receiver as receiver
+config = sdk_gen2.HttpServerConfig()
+config.address = "0.0.0.0"
+config.port = 6768
 
-def setup_remote_streaming_server(certs_dir):
-    """Configure streaming receiver for remote connections with TLS certificates."""
-
-    # Certificate paths from copied directory
-    root_ca_path = os.path.join(certs_dir, "root_ca.pem")
-    subscriber_cert_path = os.path.join(certs_dir, "subscriber.pem")
-    subscriber_key_path = os.path.join(certs_dir, "subscriber-key.pem")
-
-    # Configure server with remote IP and port
-    config = sdk_gen2.HttpServerConfig()
-    config.address = "0.0.0.0"  # Listen on all interfaces for remote connections
-    config.port = 6768           # Default streaming port
-
-    # Configure TLS with subscriber certificates
-    config.ca_root = root_ca_path
-    config.certificate.cert = subscriber_cert_path
-    config.certificate.key = subscriber_key_path
-
-    # Create and configure the receiver
-    stream_receiver = receiver.StreamReceiver(enable_image_decoding=True)
-    stream_receiver.set_server_config(config)
-
-    # Register callbacks (same as local streaming)
-    stream_receiver.register_slam_callback(image_callback)
-    stream_receiver.register_rgb_callback(image_callback)
-    stream_receiver.register_audio_callback(audio_callback)
-    stream_receiver.register_eye_gaze_callback(eyegaze_callback)
-    stream_receiver.register_hand_pose_callback(handtracking_callback)
-    stream_receiver.register_vio_callback(vio_callback)
-
-    # Start the server
-    stream_receiver.start_server()
-
-    return stream_receiver
+config.ca_root = os.path.join(certs_dir, "root_ca.pem")
+config.certificate.cert = os.path.join(certs_dir, "subscriber.pem")
+config.certificate.key = os.path.join(certs_dir, "subscriber-key.pem")
 ```
 
----
+Callback registration and the rest of the receiver are unchanged.
 
-### Step 4: Start Streaming on Device
+### 4. Start streaming with the cert name
 
-On the machine connected to the Aria device, start streaming with the cert name from Step 1:
+Back on the USB-connected machine:
 
 ```bash
-# Start streaming to the remote server
 aria_gen2 streaming start \
-    --url https://<remote-server-ip>:<remote-server-port> \
+    --url https://<remote-server-ip>:<port> \
     --streaming-cert-name <cert-name-from-step-1>
 ```
 
-**Options:**
-- `--url`: The URL of the remote streaming server (e.g., `https://192.168.1.100:6768`)
-- `--streaming-cert-name`: The cert name output from Step 1 (e.g., `cert_1767647798330102000`)
+### Remote streaming troubleshooting
+
+**Connection refused** — the server is not running, not listening on that port, or the port is closed in the server's firewall.
+
+**Certificate errors** — the publisher cert on the device and the subscriber certs on the server must come from the same `install-certs` run. If you ran `streaming start` without `--streaming-cert-name` after copying, new certs were installed and the copied ones are stale: re-install and re-copy.
+
+**No data received** — confirm the device actually started streaming, that it can reach the server's IP, and that the URL is right.
 
 ---
 
-### Network Configuration
+## Feeding the stream to a model
 
-Ensure the following for remote streaming:
+The callbacks are the integration point, and nothing says they have to print or visualize — the same handlers can forward what arrives to a model. WebRTC suits this better than HTTP: lower latency, and an audio path back to the wearer.
 
-1. **Firewall**: Open port 6768 (or your custom port) on the remote server
-2. **Network connectivity**: The Aria Gen2 device must be able to reach the remote server IP
-3. **Certificate matching**: The publisher certificate on the device must match the subscriber certificates on the server (issued from the same Aria CA)
+* **Images to a vision-language model.** `register_rgb_callback` hands you a numpy array per frame, ready for a VLM — hosted or local — for scene description, visual Q&A, or grounding what the wearer is looking at.
+* **Audio to a realtime model.** `register_audio_callback` delivers PCM as it is captured, which is the shape a streaming speech or omni model wants.
+* **The answer back to the glasses.** Synthesized speech goes out over the WebRTC uplink with [`push_audio()`](/ark/client-sdk/python-sdk/webrtc-streaming-example#pushing-audio-to-the-glasses), so the loop closes inside the same session.
 
-### Troubleshooting Remote Streaming
+Eye gaze, hand pose and VIO arrive alongside all of this, so a prompt can carry where the wearer was looking or pointing at the moment the frame was captured.
 
-**Connection refused:**
-- Verify the server is running and listening on the correct port
-- Check firewall rules on the server
-
-**Certificate errors:**
-- Ensure all certificate files exist in the specified directory
-- Verify you installed certs (`aria_gen2 streaming install-certs`) **before** copying them to the server
-- If you ran `streaming start` after copying certs, new certs will been installed - reinstall and recopy
-- Check that the cert name used in `--streaming-cert-name` matches the one from `install-certs` output
-
-**No data received:**
-- Confirm the device started streaming successfully
-- Check network connectivity between device and server
-- Verify the streaming URL is correct
-
----
-
-## WebRTC Streaming
-
-The SDK exposes **WebRTC** through the same receiver interface as HTTP. To switch transport you keep every callback and swap only the receiver class (`StreamReceiver` → `WebRtcStreamReceiver`) and its config (`HttpServerConfig` → `WebRtcConfig`). The typed sensor objects your callbacks receive are identical, and H.265 frames are decoded in Python by the same `ImageDecoder`.
-
-### Receiver Setup
-
-This mirrors [`setup_streaming_receiver`](#step-5-set-up-the-streaming-receiver) above — note that only the config and receiver class differ; the callback registrations are unchanged:
-
-```python
-import aria.sdk_gen2 as sdk_gen2
-import aria.stream_receiver as receiver
-
-
-def setup_webrtc_receiver():
-    # Swap ONLY the config: WebRtcConfig instead of HttpServerConfig
-    config = sdk_gen2.WebRtcConfig()
-    config.listen_port = 9000   # same-network direct peer-to-peer
-    config.enable_audio = True
-
-    # Swap ONLY the receiver class: WebRtcStreamReceiver instead of StreamReceiver
-    stream_receiver = receiver.WebRtcStreamReceiver()
-    stream_receiver.set_server_config(config)
-
-    # The callbacks are IDENTICAL to the HTTP example above
-    stream_receiver.register_slam_callback(image_callback)
-    stream_receiver.register_rgb_callback(image_callback)
-    stream_receiver.register_audio_callback(audio_callback)
-    stream_receiver.register_eye_gaze_callback(eyegaze_callback)
-    stream_receiver.register_hand_pose_callback(handtracking_callback)
-    stream_receiver.register_vio_callback(vio_callback)
-
-    # Same lifecycle as HTTP: start_server / stop_server / is_connected
-    stream_receiver.start_server()
-    return stream_receiver
-```
-
-You can also import the classes directly:
-
-```python
-from aria.stream_receiver import WebRtcStreamReceiver
-from aria.sdk_gen2 import WebRtcConfig
-```
-
-#### Cross-network Configuration
-
-To reach a device on a different network, point the signaling fields at a signaling server instead of setting `listen_port`. Everything else in `setup_webrtc_receiver` — the receiver class, the callback registrations, the lifecycle — is unchanged:
-
-```python
-def webrtc_config_cross_network():
-    config = sdk_gen2.WebRtcConfig()
-    config.signaling_host = "example.com"
-    config.signaling_port = 8443
-    config.room_id = "my-room"
-    config.room_password = "..."
-    config.auth_token = "..."
-
-    # Optional, for NAT traversal:
-    config.stun = "stun:example.com:3478"
-    config.turn = "turn:example.com:3478"
-    config.turn_username = "aria"
-    config.turn_password = "..."
-
-    config.enable_audio = True
-    return config
-```
-
-Replace `example.com` with your own host.
-
-The signaling server ships as a separate PyPI wheel that you run on a host both the glasses and the receiver can reach — see [WebRTC Streaming](/ark/client-sdk/webrtc). Each field maps to an `aria_streaming_viewer` flag; the pairing is listed in [WebRtcConfig Fields](/ark/client-sdk/python-sdk/python-interface#webrtcconfig-fields).
-
-### WebRTC-only Receiver Methods
-
-Beyond the shared lifecycle (`set_server_config`, `start_server`, `stop_server`, `is_connected`), `WebRtcStreamReceiver` adds methods for the bidirectional WebRTC connection:
-
-```python
-# Control the receiver's outbound microphone and incoming audio playback
-stream_receiver.set_mic_muted(True)
-stream_receiver.set_volume(0.8)
-
-# Read the current audio waveform (e.g. to drive a level meter)
-samples, peak = stream_receiver.get_waveform()
-
-# Push your own PCM (a clip, TTS, a synthesized tone) to the device over the
-# audio uplink — any sample rate / channel count, float samples in [-1, 1].
-stream_receiver.push_audio(pcm_samples, sample_rate=16000, channels=1)
-```
-
-:::tip `push_audio` vs the microphone
-`push_audio` sends caller-supplied PCM on the host→device uplink from your data instead of the mic hardware — use it for talk-back clips, TTS, or synthesized audio. While pushed audio is active it **replaces** the host microphone on the uplink, so it plays even with the mic muted.
-:::
-
-For a complete, runnable script — it starts a WebRTC session, mutes the mic, and plays a generated tone (or a WAV file) to the glasses' speaker — see the **`device_push_audio.py`** sample:
-
-```bash
-# Export the samples (once), then run it. This host listens; the device dials it.
-python -m aria.extract_sdk_samples --output ~/Downloads/
-python ~/Downloads/projectaria_client_sdk_samples_gen2/device_push_audio.py \
-    --signaling-url tcp://<laptop_ip>:9000 --listen
-
-# Play a 16-bit PCM WAV instead of the default tone:
-python ~/Downloads/projectaria_client_sdk_samples_gen2/device_push_audio.py \
-    --signaling-url tcp://<laptop_ip>:9000 --listen --wav /path/to/clip.wav
-```
-
-### Feeding the Stream to a Model
-
-The callbacks are the integration point, and nothing says they have to print or visualize: the
-same handlers can forward what arrives to a model. Prefer WebRTC for this — its lower latency
-and the audio path back to the wearer both help when a model is in the loop.
-
-* **Images to a vision-language model.** `register_rgb_callback` (or the SLAM and eye-tracking
-  ones) hands you a numpy array per frame, ready for a VLM — hosted API or a local model — for
-  scene description, visual Q&A, or grounding what the wearer is looking at.
-* **Audio to a realtime model.** `register_audio_callback` delivers PCM as it is captured,
-  which is the shape a streaming speech or omni model wants on its input.
-* **The answer back to the glasses.** Synthesized speech goes out over the uplink with
-  [`push_audio`](#webrtc-only-receiver-methods), so the loop closes inside the same session
-  without any second channel.
-
-Eye gaze, hand pose and VIO arrive on the data channel alongside all of this, so a prompt can
-carry where the wearer was looking or pointing at the moment the frame was captured.
-
-:::caution Run the inference off the callback thread
-Callbacks execute on the receive path. A network round-trip to a model API, or a local forward
-pass, blocks delivery for as long as it takes and shows up as dropped frames. Hand the data to
-a bounded queue and let a worker consume it — dropping frames when inference falls behind is
-what keeps the stream live.
+:::caution Run inference off the callback thread
+Callbacks execute on the receive path. A network round-trip to a model API, or a local forward pass, blocks delivery for as long as it takes and shows up as dropped frames. Hand the data to a bounded queue and let a worker consume it — dropping frames when inference falls behind is what keeps the stream live.
 :::
 
 ```python
@@ -899,32 +198,27 @@ stream_receiver.register_rgb_callback(rgb_callback)
 threading.Thread(target=inference_worker, args=(stream_receiver,), daemon=True).start()
 ```
 
-Start from the `low_latency_streaming` profile here — it is sized for exactly this kind of
-interactive loop, see [Choosing a profile](/ark/client-sdk/webrtc#choosing-a-profile).
-
-### Visualizing a WebRTC Stream
-
-The quickest way to see a WebRTC stream is the viewer. Run these two commands in separate terminals, in **either order** — the viewer listens on the port and the device connects once streaming starts, retrying until the viewer is up. WebRTC installs no streaming certificates on the device, so it has none of the ordering constraint that [HTTP](/ark/client-sdk/streaming#start-order-and-streaming-certificates) has. The `--listen` port must match the port in the device's `--signaling-url`.
-
-```bash
-# Open the viewer over WebRTC, listening for a direct P2P connection:
-aria_streaming_viewer --transport webrtc --listen 9000
-# Start streaming on the device (in another terminal), dialing this host:
-aria_gen2 streaming webrtc start --signaling-url tcp://<this-host-ip>:9000 \
-    --profile low_latency_streaming --interface wifi_sta
-```
-
-See [WebRTC Streaming](/ark/client-sdk/webrtc) for the cross-network signaling setup, the separate signaling-server wheel, and the full flag list.
-
-:::caution WebRTC timestamps: RTP video uses host receive time
-On WebRTC, `capture_timestamp_ns` for the **RTP video streams (RGB, SLAM, ET)** is the **host receive time** (RTP carries no device capture timestamp), expressed in the device clock via an offset tracked from the data-channel streams. Everything that arrives on the data channel — IMU, VIO, eye gaze, hand pose, magnetometer, barometer, GPS, audio, and cropped POV images — keeps its **device-clock** timestamps. HTTP timestamps are unchanged.
-:::
+Start from the `low_latency_streaming` profile for this kind of interactive loop — see [Choosing a profile](/ark/client-sdk/webrtc#choosing-a-profile).
 
 ---
 
-## Next Steps
+## Switching to WebRTC
 
-* Learn about [text-to-speech commands](/ark/client-sdk/python-sdk/text-to-speech-example)
-* Review [all Python SDK examples](/ark/client-sdk/python-sdk/python-interface)
-* Explore the [Streaming Guide](/ark/client-sdk/streaming) for CLI streaming
-* Check [Troubleshooting](/ark/support/sdk) for common issues
+WebRTC is an alternative transport through the *same* receiver interface. Every `register_*_callback` name and signature is identical and your callbacks receive the same typed objects; you swap two things:
+
+| | HTTP | WebRTC |
+|---|---|---|
+| Receiver class | `receiver.StreamReceiver()` | `receiver.WebRtcStreamReceiver()` |
+| Transport config | `sdk_gen2.HttpServerConfig()` | `sdk_gen2.WebRtcConfig()` |
+| Lifecycle | `set_server_config` / `start_server` / `stop_server` / `is_connected` | *identical* |
+| Streaming certificates | Required | Not used |
+| Audio uplink to the device | No | Yes (`push_audio()`) |
+
+For the device-side config, signaling topologies, on-device recording during a session, and the teardown sequence WebRTC needs, see the [WebRTC Streaming Example](/ark/client-sdk/python-sdk/webrtc-streaming-example).
+
+## Next steps
+
+* [WebRTC Streaming Example](/ark/client-sdk/python-sdk/webrtc-streaming-example) — the lower-latency transport
+* [Raw Streaming Example](/ark/client-sdk/python-sdk/raw-streaming-example) — one callback for every message, decoded by you
+* [Multi-Device Streaming Example](/ark/client-sdk/python-sdk/multi-device-streaming-example) — several devices into one server
+* [All Python SDK examples](/ark/client-sdk/python-sdk/python-interface)

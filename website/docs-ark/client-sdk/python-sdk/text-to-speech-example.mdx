@@ -1,241 +1,64 @@
 ---
-sidebar_position: 6
+sidebar_position: 9
 title: Text-to-Speech Example
 ---
 
 # Text-to-Speech Example
 
-This example demonstrates how to programmatically send text-to-speech (TTS) commands to your Aria Gen2 device using the Python SDK. You can use TTS to provide audio feedback, instructions, or notifications to the device wearer.
+Send text to the device and have it spoken through the built-in speakers — useful for prompting or instructing the wearer during a session.
+
+**Script:** `device_tts.py` ([export the samples](/ark/client-sdk/python-sdk/python-interface#export-example-code) to get it)
 
 ## Prerequisites
 
 - [Client SDK installed](/ark/client-sdk/start) and virtual environment activated
 - Device connected via USB and [authenticated](/ark/client-sdk/authentication)
-- [Example code exported](/ark/client-sdk/python-sdk/python-interface#export-example-code)
 
 :::caution One-Time Setup: Device Authentication Required
-Before running this example, you **must** authenticate your device by running `aria_gen2 auth pair` (see [Device Authentication](/ark/client-sdk/authentication)). This only needs to be done **once** per device-PC combination, but **all device operations (recording, streaming, TTS, etc.) will fail without it**.
+Before running this example you **must** authenticate your device by running `aria_gen2 auth pair` (see [Device Authentication](/ark/client-sdk/authentication)). This only needs to be done **once** per device-PC combination, but **all device operations will fail without it**.
 :::
 
-## Quick Start
-
-Run the text-to-speech example script:
+## Run it
 
 ```bash
 python ~/Downloads/projectaria_client_sdk_samples_gen2/device_tts.py --text "Hello from Aria"
 ```
 
-The device will speak the text through its built-in speakers.
+`--text` is required. The TTS engine handles numbers and punctuation naturally, so `"You have 3 notifications. Check your device."` reads the way you would expect.
 
----
+## Worth knowing
 
-## What This Example Does
+**`render_tts()` returns before the audio finishes.** The call sends the text and returns immediately; the device synthesizes and plays asynchronously. A script that exits right after calling it may cut the utterance short, and a long utterance keeps playing while your code moves on.
 
-The script performs the following operations:
-1. Connects to the device
-2. Sends a text-to-speech command with your specified text
-3. The device converts the text to speech and plays it through the speakers
-4. Returns once the command is sent (device plays audio asynchronously)
-
----
-
-## Code Walkthrough
-
-### Step 1: Import Required Modules
+`stop_tts()` interrupts playback:
 
 ```python
-import argparse
-import aria.sdk_gen2 as sdk_gen2
+device.render_tts("This is a long announcement that we will interrupt")
+time.sleep(1)
+device.stop_tts()
 ```
 
----
+The CLI equivalents are `aria_gen2 device tts start --tts-text "..."` and `aria_gen2 device tts stop`.
 
-### Step 2: Parse Command-Line Arguments
-
-```python
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--text",
-        dest="text",
-        type=str,
-        default="",
-        required=True,
-        help="TTS text to rendered by the device.",
-    )
-    return parser.parse_args()
-```
-
-**Required Argument:**
-* `--text`: The text string you want the device to speak
-
----
-
-### Step 3: Connect to Device
-
-```python
-device_client = sdk_gen2.DeviceClient()
-config = sdk_gen2.DeviceClientConfig()
-device_client.set_client_config(config)
-
-try:
-    device = device_client.connect()
-    print(f"Connected to device {device.connection_id()}")
-except Exception as e:
-    print(f"Failed to connect: {e}")
-    return
-```
-
-This establishes a connection to the first available device.
-
----
-
-### Step 4: Send Text-to-Speech Command
-
-```python
-text = args.text
-print(f"Sending text-to-speech: '{text}'")
-device.render_tts(text)
-print("Text-to-speech command sent successfully")
-```
-
-**How it works:**
-* The `render_tts(text)` method sends the text to the device
-* The device processes the text and generates speech
-* Audio is played through the device's built-in speakers
-* The function returns immediately (audio plays asynchronously)
-
----
-
-## Complete Example Code
-
-Here's the full text-to-speech script:
-
-```python
-import argparse
-import aria.sdk_gen2 as sdk_gen2
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--text",
-        dest="text",
-        type=str,
-        default="",
-        required=True,
-        help="TTS text to rendered by the device.",
-    )
-    return parser.parse_args()
-
-
-if __name__ == "__main__":
-    args = parse_args()
-
-    # Set up the device client to initiate connection to the device
-    device_client = sdk_gen2.DeviceClient()
-    # Set up the device client config to specify the device to be connected to e.g. device serial number.
-    # If nothing is specified, the first device in the list of connected devices will be connected to
-    config = sdk_gen2.DeviceClientConfig()
-
-    device_client.set_client_config(config)
-    device = device_client.connect()
-    print(f"Connected to device: {device.connection_id()}")
-    print(f"Rendering TTS: {args.text}")
-    device.render_tts(text=args.text)
-```
-
----
-
-## Usage Examples
-
-### Simple Message
-
-```bash
-python ~/Downloads/projectaria_client_sdk_samples_gen2/device_tts.py --text "Recording started"
-```
-
----
-
-### Multi-Word Message
-
-```bash
-python ~/Downloads/projectaria_client_sdk_samples_gen2/device_tts.py --text "Please look at the target"
-```
-
----
-
-### Instructions
-
-```bash
-python ~/Downloads/projectaria_client_sdk_samples_gen2/device_tts.py --text "Turn left at the next intersection"
-```
-
----
-
-### Numbers and Punctuation
-
-```bash
-python ~/Downloads/projectaria_client_sdk_samples_gen2/device_tts.py --text "You have 3 notifications. Check your device."
-```
-
-The TTS engine handles numbers and punctuation naturally.
-
----
-
+**`render_tts()` synthesizes on the device.** To play audio *you* produced — a recorded clip, your own TTS engine's output, a synthesized tone — use `push_audio()` over a WebRTC session instead. See [WebRTC Streaming Example → Pushing Audio to the Glasses](/ark/client-sdk/python-sdk/webrtc-streaming-example#pushing-audio-to-the-glasses).
 
 ## Troubleshooting
 
-### TTS Command Sent But No Audio
+**Command succeeds but the device is silent.** Check that device audio is not muted and the volume is up in the Companion App. A very low battery can also affect audio output.
 
-**Problem:** The `render_tts()` command succeeds but device doesn't speak.
+**Connection drops when sending TTS.** Verify the USB connection is stable and re-check `aria_gen2 auth check`. Reconnect and retry:
 
-**Solutions:**
-1. **Check device volume:**
-   * Ensure device audio is not muted
-   * Check volume level in Companion App
+```python
+try:
+    device.render_tts(text)
+except Exception as e:
+    print(f"Connection lost: {e}")
+    device = device_client.connect()
+    device.render_tts(text)
+```
 
-2. **Check device status:**
-   * Verify device is powered on and functioning
-   * Check battery level (low battery may affect audio)
+## Next steps
 
-3. **Verify connection:**
-   ```python
-   device = device_client.connect()
-   print(f"Connected: {device.connection_id()}")
-   ```
-
-4. **Test with simple message:**
-   ```python
-   device.render_tts("Test")
-   ```
-
----
-
-### Connection Lost During TTS
-
-**Problem:** Device disconnects when sending TTS.
-
-**Solutions:**
-1. **Verify USB connection** is stable
-2. **Check authentication:**
-   ```bash
-   aria_gen2 auth check
-   ```
-3. **Reconnect if needed:**
-   ```python
-   try:
-       device.render_tts(text)
-   except Exception as e:
-       print(f"Connection lost: {e}")
-       device = device_client.connect()  # Reconnect
-       device.render_tts(text)  # Retry
-   ```
----
-
-## Next Steps
-
-* Review [all Python SDK examples](/ark/client-sdk/python-sdk/python-interface)
-* Learn about [recording control](/ark/client-sdk/python-sdk/recording-example)
-* Explore [streaming with callbacks](/ark/client-sdk/python-sdk/streaming-example)
-* Check [troubleshooting](/ark/support/sdk) for common issues
+* [Recording Example](/ark/client-sdk/python-sdk/recording-example) — capture data on the device
+* [Streaming Example](/ark/client-sdk/python-sdk/streaming-example) — process sensor data live
+* [All Python SDK examples](/ark/client-sdk/python-sdk/python-interface)

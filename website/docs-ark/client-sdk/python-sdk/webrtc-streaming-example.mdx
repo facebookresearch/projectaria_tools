@@ -1,0 +1,159 @@
+---
+sidebar_position: 5
+title: WebRTC Streaming Example
+---
+
+# WebRTC Streaming Example
+
+Stream over **WebRTC** instead of HTTP: low-latency peer-to-peer, works across the internet through a signaling server, needs **no streaming certificates**, and carries a bidirectional audio track so the host can talk back to the wearer.
+
+**Scripts:** `device_webrtc_streaming.py`, `device_push_audio.py` ([export the samples](/ark/client-sdk/python-sdk/python-interface#export-example-code) to get them)
+
+The callbacks and typed sensor objects are identical to the HTTP path in [`device_streaming.py`](/ark/client-sdk/python-sdk/streaming-example) — only the receiver class and its config differ.
+
+## Prerequisites
+
+- [Client SDK installed](/ark/client-sdk/start) and virtual environment activated
+- Device connected via USB and [authenticated](/ark/client-sdk/authentication)
+- Device and host on the same Wi-Fi network, for the `--listen` peer-to-peer mode
+
+:::caution WebRTC is Wi-Fi only
+`--interface` accepts `wifi_sta` or `wifi_sap`; there is no USB option. USB is still needed for the control connection that starts and stops the session.
+:::
+
+## Run it
+
+```bash
+# Same-network P2P: this host listens on :9000, the device dials it
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_webrtc_streaming.py \
+    --signaling-url tcp://<laptop_ip>:9000 --listen
+
+# Across the internet, through a signaling server with STUN/TURN
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_webrtc_streaming.py \
+    --signaling-url tcp://<server_ip>:8443 \
+    --stun stun:<server_ip>:3478 \
+    --turn turn:<server_ip>:3478,<user>,<pass> \
+    --auth-token <token> --room <room_id>
+
+# Record to VRS on-device during the same session
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_webrtc_streaming.py \
+    --signaling-url tcp://<laptop_ip>:9000 --listen \
+    --record --recording-profile low_latency_streaming_capture
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--signaling-url <url>` | *(required)* | `tcp://<host>:<port>`. With `--listen`, its port is the one **this host** binds |
+| `--listen` | off | Same-network P2P: bind that port here and let the device dial it, instead of both sides dialing a signaling server |
+| `--profile-name <name>` | `profile9` | Streaming profile |
+| `--custom-profile-path <path>` | *(none)* | Custom profile JSON. Takes priority over `--profile-name` |
+| `--interface <wifi_sta\|wifi_sap>` | `wifi_sta` | Wi-Fi network, or on-device hotspot |
+| `--room <id>` | `default` | Signaling room id |
+| `--auth-token <token>` | *(none)* | Bearer token for the signaling server |
+| `--room-password <pw>` | *(none)* | Shared secret to join the room |
+| `--stun <url>` | *(none)* | STUN server. Repeatable |
+| `--turn <url,user,cred>` | *(none)* | TURN server. Repeatable |
+| `--ntp-sync` | off | Sync the device clock before starting |
+| `--record` | off | Also record to VRS on-device |
+| `--recording-profile <name>` | `low_latency_streaming_capture` | Recording profile, when `--record` is set |
+| `--duration <sec>` | `30` | How long to stream before stopping |
+
+## Worth knowing
+
+**`--listen` decides which half of `WebRtcConfig` gets filled in.** This is the least obvious thing in the script. With `--listen`, the host binds the port itself and there is no signaling server at all; without it, the same URL is parsed as a server to dial:
+
+```python
+if args.listen:
+    config.listen_port = port          # host binds; device dials it
+else:
+    config.signaling_host = host       # both sides dial a signaling server
+    config.signaling_port = port
+```
+
+**The device and the receiver take STUN/TURN differently.** `WebRtcStreamingConfig` (device side) takes *lists* — `stun_servers`, `turn_servers`. `WebRtcConfig` (receiver side) takes *one of each* — `stun`, `turn`, `turn_username`, `turn_password`. The script passes `args.stun[0]` to the receiver for this reason.
+
+**`--ntp-sync` exists because signaling handshakes are timestamped.** A server may refuse a device whose clock has drifted, since a stale handshake is rejected. With the flag, the device syncs against an NTP server before the session starts. It must be able to reach that server over Wi-Fi, and the sync is a precondition rather than best-effort — the session does not start if it fails.
+
+**Recording during streaming is WebRTC-only, and needs the config set first.** `start_streaming(record=True)` fails with `OperationNotAllowed` unless `set_webrtc_streaming_config()` was called. The recording profile is independent of the streaming profile — one governs the on-device VRS, the other what goes over the wire. One stop ends both.
+
+:::warning Reconnect before tearing down
+The device reconfigures its network when a wireless session starts, which can drop the USB control connection. Issuing `stop_streaming()` over the original connection may fail. The script reconnects first, mirroring what the CLI does for each `aria_gen2 streaming webrtc stop`:
+
+```python
+device = device_client.connect()      # fresh control connection
+device.stop_streaming()
+time.sleep(2)                         # let in-flight frames drain
+```
+
+and puts `stream_receiver.stop_server()` in a `finally`, so a failed stop does not leave the receiver holding the port with its queue threads alive.
+:::
+
+After a `--record` session, download the on-device VRS with `aria_gen2 recording download-all -o ./out`.
+
+:::caution RTP video uses host receive time
+`capture_timestamp_ns` for the **RTP video streams (RGB, SLAM, ET)** is the **host receive time**, because RTP does not carry the device capture timestamp. It is expressed in the device clock using an offset the client tracks from the data-channel streams, so images still cross-correlate with the sensors — with the transport delay included.
+
+Everything on the data channel — IMU, VIO, eye gaze, hand pose, magnetometer, barometer, GPS, **audio**, and **cropped POV images** — keeps its **device-clock** timestamps. HTTP timestamps are unchanged.
+:::
+
+## Pushing audio to the glasses
+
+WebRTC's audio track is bidirectional, so the host can play audio on the glasses' speaker. `device_push_audio.py` starts a session, mutes the mic, and plays either a generated tone sweep or a WAV file.
+
+```bash
+# Generated sweep for 8 s
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_push_audio.py \
+    --signaling-url tcp://<laptop_ip>:9000 --listen
+
+# A 16-bit PCM WAV (mono or stereo, any sample rate)
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_push_audio.py \
+    --signaling-url tcp://<laptop_ip>:9000 --listen --wav /path/to/clip.wav
+```
+
+Besides the shared signaling flags, it takes `--wav <path>`, `--low <hz>` / `--high <hz>` (sweep range, default `300`/`1200`) and `--duration <sec>` (default `8`; the ~2 s sweep repeats to fill it).
+
+The methods it relies on exist only on `WebRtcStreamReceiver`:
+
+```python
+stream_receiver.set_mic_muted(True)
+stream_receiver.set_volume(0.8)
+samples, peak = stream_receiver.get_waveform()      # e.g. to drive a level meter
+stream_receiver.push_audio(pcm, sample_rate=16000, channels=1)
+```
+
+:::tip `push_audio` replaces the microphone
+While pushed audio is active it takes over the host→device uplink from the mic hardware, so it plays even with the mic muted. Use it for talk-back clips, TTS, or synthesized audio.
+
+The PCM is downmixed to mono and resampled to the 16 kHz uplink with plain linear interpolation and no anti-alias filter, so downsampling wideband audio (44.1/48 kHz) can alias. Supply 16 kHz mono for best fidelity.
+:::
+
+## Seeing it without writing a receiver
+
+Point the viewer at the same session. Run these in two terminals in **either order** — the viewer listens and the device retries until it is up. Because WebRTC installs no streaming certificates on the device, it has none of the start-order constraint that [HTTP streaming](/ark/client-sdk/streaming#start-order-and-streaming-certificates) carries. The `--listen` port must match the port in the device's `--signaling-url`.
+
+```bash
+aria_streaming_viewer --transport webrtc --listen 9000
+
+aria_gen2 streaming webrtc start --signaling-url tcp://<this-host-ip>:9000 \
+    --profile low_latency_streaming --interface wifi_sta
+```
+
+On WebRTC the viewer also shows terminal audio controls — press <kbd>m</kbd> to mute/unmute the mic, and watch the incoming level meter.
+
+## Troubleshooting
+
+**Signaling server rejects the device.** Clock drift; the timestamped handshake is stale. Add `--ntp-sync`.
+
+**`--signaling-url must be tcp://<host>:<port>`.** The URL is missing a scheme or a port. Use the full form.
+
+**Device connects but no frames arrive.** With `--listen`, the port the device dials must be the one this host bound. Check the URL's port and any firewall on it.
+
+**`OperationNotAllowed` from `start_streaming(record=True)`.** No WebRTC config was set — call `set_webrtc_streaming_config()` first.
+
+**Control commands fail once streaming starts.** The USB control connection dropped when the device reconfigured its network. Reconnect before issuing stop or status.
+
+## Next steps
+
+* [Streaming Example](/ark/client-sdk/python-sdk/streaming-example) — the HTTP transport, and the callback reference
+* [WebRTC Streaming](/ark/client-sdk/webrtc) — signaling server deployment and topologies
+* [All Python SDK examples](/ark/client-sdk/python-sdk/python-interface)

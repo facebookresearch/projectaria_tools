@@ -5,298 +5,69 @@ title: Connection Example
 
 # Connection Example
 
-This example demonstrates how to establish a connection to your Aria Gen2 device using the Python SDK. Once authenticated, you can connect to devices by their serial number or IP address.
+Connect to an already-authenticated device, optionally picking one out of several.
+
+**Script:** `device_connect.py` ([export the samples](/ark/client-sdk/python-sdk/python-interface#export-example-code) to get it)
 
 ## Prerequisites
 
 - [Client SDK installed](/ark/client-sdk/start) and virtual environment activated
 - Device connected via USB and [authenticated](/ark/client-sdk/authentication)
-- [Example code exported](/ark/client-sdk/python-sdk/python-interface#export-example-code)
 
 :::caution One-Time Setup: Device Authentication Required
-Before running this example, you **must** authenticate your device by running `aria_gen2 auth pair` (see [Device Authentication](/ark/client-sdk/authentication)). This only needs to be done **once** per device-PC combination, but the `device_client.connect()` call will **fail** without it.
+`device_client.connect()` **fails** until you have run `aria_gen2 auth pair` once for this device-PC pair. See [Device Authentication](/ark/client-sdk/authentication).
 :::
 
-## Quick Start
-
-Run the connection example script:
+## Run it
 
 ```bash
+# First available device
 python ~/Downloads/projectaria_client_sdk_samples_gen2/device_connect.py
-```
 
-The script connects to the first available device and displays its information.
-
----
-
-## What This Example Does
-
-The script performs the following steps:
-1. Creates a device client
-2. Configures the client to connect to a specific device (or first available)
-3. Establishes a connection
-4. Displays device information
-
----
-
-## Code Walkthrough
-
-### Step 1: Import Required Modules
-
-```python
-import argparse
-import aria.sdk_gen2 as sdk_gen2
-```
-
----
-
-### Step 2: Parse Command-Line Arguments
-
-```python
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--serial",
-        dest="serial",
-        type=str,
-        default="",
-        required=False,
-        help="Serial number of the device which will be connected. (e.g. 1M0YDB5H7B0020)",
-    )
-    return parser.parse_args()
-```
-
-**Available Options:**
-* `--serial`: Specify a device by its serial number (e.g., `1M0YDB5H7B0020`)
-* If nothing is specified, connects to the first available device
-
----
-
-### Step 3: Create and Configure Device Client
-
-```python
-device_client = sdk_gen2.DeviceClient()
-config = sdk_gen2.DeviceClientConfig()
-
-config.device_serial = serial
-
-device_client.set_client_config(config)
-```
-
-**How Configuration Works:**
-* **Default (no arguments)**: Connects to the first available device
-* **By Serial**: Targets a specific device by its unique serial number
-
----
-
-### Step 4: Establish Connection
-
-```python
-try:
-    device = device_client.connect()
-    print(f"Successfully connected to device {device.connection_id()}")
-except Exception as e:
-    print(f"Failed to connect to device: {e}")
-    return
-```
-
-**What Happens:**
-* The `connect()` method establishes a session with the device
-* Returns a `Device` object that provides access to all device features
-* Throws an exception if connection fails
-
----
-
-## Complete Example Code
-
-Here's the full connection script:
-
-```python
-import argparse
-import aria.sdk_gen2 as sdk_gen2
-
-def device_connect(serial):
-    # Set up the device client to initiate connection to the device
-    device_client = sdk_gen2.DeviceClient()
-    # Set up the device client config to specify the device to be connected to e.g. device serial number.
-    # If nothing is specified, the first device in the list of connected devices will be connected to
-    config = sdk_gen2.DeviceClientConfig()
-    config.device_serial = serial
-    device_client.set_client_config(config)
-
-    # try to connect to the device
-    try:
-        device = device_client.connect()
-        print(f"Successfully connected to device {device.connection_id()}")
-    except Exception:
-        print("Failed to connect to device.")
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--serial",
-        dest="serial",
-        type=str,
-        default="",
-        required=False,
-        help="Serial number of the device which will be connected. (e.g. 1M0YDB5H7B0020)",
-    )
-
-    return parser.parse_args()
-
-if __name__ == "__main__":
-    args = parse_args()
-    device_connect(args.serial)
-```
-
----
-
-## Usage Examples
-
-### Connect to First Available Device
-
-```bash
-python ~/Downloads/projectaria_client_sdk_samples_gen2/device_connect.py
-```
-
-**Output:**
-```
-Successfully connected to device 1M0YDB5H7B0020
-```
-
----
-
-### Connect by Serial Number
-
-```bash
+# A specific device
 python ~/Downloads/projectaria_client_sdk_samples_gen2/device_connect.py --serial 1M0YDB5H7B0020
 ```
 
-**When to Use:**
-* Multiple devices are connected
-* You need to ensure you're using a specific device
-* Scripts that require consistent device selection
+Get serial numbers from `aria_gen2 device list`.
 
----
+## Worth knowing
 
-## Finding Device Information
+**Device selection happens on `connect()`, not on the client config.** This is the most common mistake here, because the two objects have similar names and only one of them picks the device.
 
-### Get Device Serial Number
-
-Use the CLI to list all available devices:
-
-```bash
-aria-gen2 device list
-
-# Output example:
-# [AriaGen2Cli:App][INFO]: 1M0YDB5H7B0020
-```
-
----
-
-## Troubleshooting
-
-### Connection Failed: Device Not Found
-
-**Problem:** Script cannot find or connect to the device.
-
-**Solutions:**
-1. **Check device is connected:**
-   ```bash
-   aria-gen2 device list
-   ```
-
-2. **Verify authentication:**
-   ```bash
-   aria-gen2 auth check
-   ```
-
-3. **Run aria-doctor:**
-   ```bash
-   aria-doctor
-   ```
-
-4. **Check USB connection:**
-   * Try a different USB port
-   * Use a high-quality USB cable
-   * Ensure device is powered on
-
----
-
-### Connection Failed: Wrong Serial Number
-
-**Problem:** Specified serial number doesn't match any device.
-
-**Solutions:**
-* List available devices:
-  ```bash
-  aria-gen2 device list
-  ```
-* Use the correct serial number from the output
-* Serial numbers are case-sensitive
-
----
-
-## Connection Modes
-
-### USB Connection (Default)
-
-**How it works:**
-* Device connected via USB cable
-* Most reliable connection method
-
-**Usage:**
-```python
-# Connects via USB to first available device
-config = sdk_gen2.DeviceClientConfig()
-```
-
----
-
-## Key Concepts
-
-### DeviceClientConfig
-
-The configuration object controls how the client connects to devices:
+`DeviceClientConfig` holds client-wide settings, applied once and unrelated to *which* device you reach:
 
 ```python
 config = sdk_gen2.DeviceClientConfig()
-
-# Option 1: Connect to first available device (default)
-# Leave config empty
-
-# Option 2: Connect by serial number
-config.device_serial = "1M0YDB5H7B0020"
-
-# Apply configuration
+config.reconnection_attempts = 2         # default
+config.enable_device_monitoring = False  # default
 device_client.set_client_config(config)
 ```
 
----
-
-### Device Object
-
-Once connected, the `Device` object provides:
+`DeviceTarget` picks the device, and is passed to `connect()`:
 
 ```python
+# First available device
 device = device_client.connect()
 
-# Device information
-device.connection_id()    # Get connection identifier
+# By serial
+device = device_client.connect(sdk_gen2.DeviceTarget(serial="1M0YDB5H7B0020"))
 
-# Device operations (covered in other examples)
-device.start_recording()  # Start recording
-device.start_streaming()  # Start streaming
-device.render_tts(text)   # Text-to-speech
+# By IP
+device = device_client.connect(sdk_gen2.DeviceTarget(ip="192.168.1.42"))
 ```
 
----
+An empty `DeviceTarget` — the default — means "first available". `DeviceClientConfig` has no `device_serial` attribute; assigning one raises `AttributeError`.
 
+**Discovery spans both transports in one pass.** `connect()` looks for devices over mDNS *and* over USB simultaneously, so a device is found whether it is reachable over the network, over USB, or both. Devices visible on both paths are de-duplicated by serial. When several devices are discovered and you did not name one, every serial is reported so you can disambiguate.
 
-## Next Steps
+## Troubleshooting
 
-* Learn how to [control recording](/ark/client-sdk/python-sdk/recording-example) with your connected device
-* Explore [real-time streaming](/ark/client-sdk/python-sdk/streaming-example)
-* Send [text-to-speech commands](/ark/client-sdk/python-sdk/text-to-speech-example)
-* Review [all Python SDK examples](/ark/client-sdk/python-sdk/python-interface)
+**Connection failed, device not found.** Work through: `aria_gen2 device list` (is it visible?), `aria_gen2 auth check` (is it paired?), `aria_doctor` (are ports and USB networking set up?). Then try a different USB port or cable.
+
+**Wrong serial number.** Serial numbers are case-sensitive. Copy the exact string from `aria_gen2 device list`.
+
+## Next steps
+
+* [Recording Example](/ark/client-sdk/python-sdk/recording-example) — capture data on the connected device
+* [Streaming Example](/ark/client-sdk/python-sdk/streaming-example) — process sensor data live
+* [All Python SDK examples](/ark/client-sdk/python-sdk/python-interface)
