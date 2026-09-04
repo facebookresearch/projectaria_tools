@@ -1,0 +1,98 @@
+---
+sidebar_position: 10
+title: Eye Gaze
+---
+
+# MPS Output - Eye Gaze
+
+## Overview
+
+Eye Gaze Machine Perception Services (MPS) estimates where the wearer is looking from the recording's eye tracking camera images. Each CSV row contains one gaze estimate in the [Central Pupil Frame (CPF)](/technical-specs/coordinate/3d-coor#the-nominal-central-pupil-frame-cpf).
+
+Request Eye Gaze with the [MPS CLI](/technical-specs/mps/mps_cli_guide). The downloaded `eye_gaze` folder can contain these files:
+
+| File | Device generation | Description |
+| --- | --- | --- |
+| `general_eye_gaze.csv` | Gen1 and Gen2 | Gaze estimates from the general Eye Gaze model. |
+| `personalized_eye_gaze.csv` | Gen1 and Gen2 | Gaze estimates adjusted with an eye gaze calibration. This file is present only when calibration is applied successfully. |
+| `calibration_params.json` | Gen2 | The calibration parameters used to produce `personalized_eye_gaze.csv`. This file is present only when calibration is applied successfully. |
+| `summary.json` | Gen1 and Gen2 | Generation-specific model, calibration, and output metadata. |
+
+Within each device generation, `general_eye_gaze.csv` and `personalized_eye_gaze.csv` use the same schema.
+
+## Aria Gen2 CSV schema
+
+All gaze angles are in radians in CPF. Eye origins are translations from the CPF origin in meters.
+
+| Column | Type | Description |
+| --- | --- | --- |
+| `tracking_timestamp_us` | int | Timestamp of the eye tracking camera frame, in microseconds in the device time domain. |
+| `yaw_rads_cpf` | float | Yaw of the combined gaze direction. |
+| `pitch_rads_cpf` | float | Pitch of the combined gaze direction. |
+| `left_yaw_rads_cpf` | float | Yaw of the left-eye gaze direction. |
+| `right_yaw_rads_cpf` | float | Yaw of the right-eye gaze direction. |
+| `left_pitch_rads_cpf` | float | Pitch of the left-eye gaze direction. |
+| `right_pitch_rads_cpf` | float | Pitch of the right-eye gaze direction. |
+| `tx_left_eye_cpf` | float | X-coordinate of the left-eye origin. |
+| `ty_left_eye_cpf` | float | Y-coordinate of the left-eye origin. |
+| `tz_left_eye_cpf` | float | Z-coordinate of the left-eye origin. |
+| `tx_right_eye_cpf` | float | X-coordinate of the right-eye origin. |
+| `ty_right_eye_cpf` | float | Y-coordinate of the right-eye origin. |
+| `tz_right_eye_cpf` | float | Z-coordinate of the right-eye origin. |
+
+The Gen2 CSV does not store a depth or 3D gaze point. When Project Aria Tools loads the file, it derives `combined_gaze_origin_in_cpf`, `spatial_gaze_point_in_cpf`, and `depth` from the two eye rays. Check `spatial_gaze_point_valid` before using the derived point or depth. A depth of `0` means that depth is unavailable.
+
+## Aria Gen1 CSV schema
+
+Gen1 gaze angles are in radians in CPF, depth and eye-origin coordinates are in meters, and confidence bounds are angular bounds in radians.
+
+| Column | Type | Description |
+| --- | --- | --- |
+| `tracking_timestamp_us` | int | Timestamp of the eye tracking camera frame, in microseconds in the device time domain. |
+| `left_yaw_rads_cpf` | float | Yaw of the left-eye gaze direction. |
+| `right_yaw_rads_cpf` | float | Yaw of the right-eye gaze direction. |
+| `pitch_rads_cpf` | float | Pitch shared by the left- and right-eye gaze directions. |
+| `depth_m` | float | Distance from the CPF origin to the estimated 3D gaze point. |
+| `left_yaw_low_rads_cpf` | float | Lower confidence bound for left-eye yaw. |
+| `right_yaw_low_rads_cpf` | float | Lower confidence bound for right-eye yaw. |
+| `pitch_low_rads_cpf` | float | Lower confidence bound for pitch. |
+| `left_yaw_high_rads_cpf` | float | Upper confidence bound for left-eye yaw. |
+| `right_yaw_high_rads_cpf` | float | Upper confidence bound for right-eye yaw. |
+| `pitch_high_rads_cpf` | float | Upper confidence bound for pitch. |
+| `tx_left_eye_cpf` | float | X-coordinate of the left-eye origin. |
+| `ty_left_eye_cpf` | float | Y-coordinate of the left-eye origin. |
+| `tz_left_eye_cpf` | float | Z-coordinate of the left-eye origin. |
+| `tx_right_eye_cpf` | float | X-coordinate of the right-eye origin. |
+| `ty_right_eye_cpf` | float | Y-coordinate of the right-eye origin. |
+| `tz_right_eye_cpf` | float | Z-coordinate of the right-eye origin. |
+| `session_uid` | string | Identifier for the calibration session within the recording. |
+
+## Load Eye Gaze data
+
+Use `mps.read_eyegaze()` to load either CSV:
+
+```python
+from projectaria_tools.core import mps
+
+eye_gazes = mps.read_eyegaze(
+    "mps_recording_vrs/eye_gaze/general_eye_gaze.csv"
+)
+
+for eye_gaze in eye_gazes:
+    print(eye_gaze.tracking_timestamp, eye_gaze.yaw, eye_gaze.pitch)
+```
+
+## `summary.json`
+
+### Aria Gen2
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `eye_gaze_version` | string | Version of the Eye Gaze model that processed the recording. |
+| `calibrated` | boolean | Whether personalized gaze was generated. |
+| `calibration` | object or null | Calibration parameters used for personalized gaze, or `null` when calibration was not applied. |
+| `outputs` | object | Maps `general` and, when present, `personalized` to their CSV filenames. |
+
+### Aria Gen1
+
+For Gen1, `summary.json` reports the model `version` and the status of the processing stages that ran. These include `GazeInference` and, when applicable, `PreComputedCalibration`, `InSessionCalibration`, and `CalibrationCorrection`.
