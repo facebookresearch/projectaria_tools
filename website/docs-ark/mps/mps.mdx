@@ -18,7 +18,7 @@ When research partners submit data for processing, the data is only used to serv
 
 The following MPS can be requested, as long as the data has been recorded with a compatible Recording Profile. Go to the [Recording Profiles](/technical-specs/device/profile) for information about each profile.
 
-MPS offerings are grouped into SLAM and Hand Tracking services.
+MPS offerings are grouped into SLAM, Eye Gaze, and Hand Tracking services.
 
 ## SLAM services
 
@@ -35,6 +35,10 @@ MPS provides two types of high frequency (1kHz) trajectories:
 
 ### Online sensor calibration
 The [time-varying intrinsic and extrinsic calibrations](/technical-specs/mps/data_formats/slam/mps_calibration) of cameras and IMUs are estimated at the frequency of the SLAM (mono scene) cameras by our multi-sensor state estimation pipeline.
+
+## Eye Gaze services
+
+Eye Gaze estimates gaze direction for Aria Gen 1 and Gen 2 recordings. The recording must include the eye tracking camera stream. In single-recording mode, you can optionally provide an eye gaze calibration recording with `--calib` to personalize the result. See the [MPS CLI Guide](/technical-specs/mps/mps_cli_guide) for details.
 
 ## Hand Tracking services
 
