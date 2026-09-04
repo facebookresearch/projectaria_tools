@@ -73,7 +73,9 @@ Some users have reported that the MPS CLI UI has display issues in Terminal. Usi
 | 115 | Error when checking the processing status of the MPS request. Check error logs for more information. |
 | 116 | Error when downloading the MPS results. Check error logs for more information. |
 | 117 | The requested service is not supported on the device generation where the recording was made. |
-| 118 | Multi-Recording processing error. The recordings in the group were made on mixed device generations. All recordings in a multi-SLAM group must come from the same device generation. |
-| 119 | Submit failed because you requested to bypass the VRS Health Check failure but do not have the required permission to do so. |
+| 118 | Multi-Recording processing error. The recordings in the group were not all made on the same Aria device generation. Multi-SLAM requires every recording in a group to come from the same generation. |
+| 119 | You asked to bypass a VRS Health Check failure, but your account is not permitted to do so. Process the recording without that option, or reach out to support. |
 | 120 | The downloaded MPS result failed validation before it could be unzipped. The server returned an empty, placeholder, or truncated result for a request it had previously reported as succeeded (for example a 1-byte file). Resubmit the request with the `--force` flag to reprocess the recording from scratch and regenerate a fresh result. |
+| 121 | The eye gaze calibration recording supplied with `--calib` could not be hashed, encrypted, or uploaded. This aborts the combined request, so every pending feature reports error 121. Use `--force` to retry. |
+| 122 | An Aria Gen 2 recording requested for Eye Gaze has no eye tracking camera stream. Other eligible MPS services requested in the same run are still submitted. |
 | All other error codes | Server side failure. Reach out to support with the error code and log file. |
