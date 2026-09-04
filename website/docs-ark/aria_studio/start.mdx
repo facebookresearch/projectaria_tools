@@ -21,10 +21,15 @@ Aria Studio is a desktop application for managing [Project Aria](https://www.pro
 
 | OS / Platform                 | OS / Distro Details                                                | Aria Gen2 Support | Supported Python Versions |
 | :---------------------------- | :----------------------------------------------------------------- | :---------------- | :------------------------ |
-| Linux (x64)                   | Fedora **36–38**; Ubuntu **20.04 LTS (focal)** / **22.04 LTS (jammy)** | ✅ Supported       | 3.11+                     |
-| macOS (Apple Silicon / ARM64) | macOS **11+ (Big Sur or newer)** on M1/M2/M3/M4                       | ✅ Supported       | 3.11+                     |
-| macOS (Intel / x64)           | macOS **11+ (Big Sur or newer)**                                       | ⚠️ Deprecated — use PyPI install only (one-click installer removed in v1.1.0) | 3.11+     |
-| Windows (x64)                 | Windows **10 / 11**                                                    | 🔜 Planned — previous one-click installer available for [v1.0.3 and earlier](/ark/aria_studio/changelog); native support planned pending Client SDK for Windows | 3.11+ |
+| Linux (x64)                   | Ubuntu **22.04 LTS (jammy)** / **24.04 LTS (Noble Numbat)**, and recent Fedora releases. Requires **glibc 2.34 or newer** | ✅ Supported       | 3.11+                     |
+| Linux (ARM64 / aarch64)       | —                                                                      | ❌ Not supported — VRS Health Check has no ARM64 wheel | —          |
+| macOS (Apple Silicon / ARM64) | macOS **14+ (Sonoma or newer)** on M1/M2/M3/M4                        | ✅ Supported       | 3.11+                     |
+| macOS (Intel / x64)           | —                                                                      | ❌ Not supported — no `x86_64` macOS wheels exist for the packages Aria Studio depends on | —     |
+| Windows (x64)                 | —                                                                      | 🚧 Planned — previous one-click installer available for [v1.0.3 and earlier](/ark/aria_studio/changelog); native support pending Client SDK for Windows | — |
+
+:::note Where these limits come from
+Aria Studio is pure Python, so its platform matrix is inherited from what it installs: `projectaria-client-sdk` sets the **glibc 2.34** floor (Ubuntu 22.04 and newer), `projectaria-tools` sets **macOS 14+**, and `projectaria-vrs-health-check` — which has no ARM64 wheel — is what rules out ARM64 Linux. Python 3.11+ is Aria Studio's own requirement, stricter than the 3.10 the rest of the toolchain accepts.
+:::
 
 ## Installation
 

@@ -9,12 +9,17 @@ VRS Health Check is a comprehensive tool for analyzing and validating VRS record
 It performs quality checks on data streams including Camera, IMU, VIO, and GPS, detects issues like dropped frames and sensor misalignments, and provides detailed statistics about recording health.
 
 ## Supported Platforms
-| OS / Platform                 | OS / Distro Details                                                | Aria Gen2 Support (projectaria-tools ≥2.0) | Supported Python Versions |
+| OS / Platform                 | OS / Distro Details                                                | Aria Gen2 Support | Supported Python Versions |
 | :---------------------------- | :----------------------------------------------------------------- | :----------------------------------------- | :------------------------ |
-| Linux (x64)                   | Fedora **40/41**; Ubuntu **22.04 LTS (jammy)** / **24.04 LTS ( Noble Numbat)**| ✅ Supported                  | 3.10 – 3.12              |
+| Linux (x64)                   | Ubuntu **22.04 LTS (jammy)** / **24.04 LTS (Noble Numbat)**, and recent Fedora releases. Requires **glibc 2.17 or newer** | ✅ Supported                  | 3.10 – 3.12              |
+| Linux (ARM64 / aarch64)       | —                                                                     | ❌ Not supported — no ARM64 wheel is published | —              |
 | macOS (Apple Silicon / ARM64) | macOS **14+ (Sonoma or newer)** on M1/M2/M3/M4                        | ✅ Supported                               | 3.10 – 3.12              |
-| macOS (Intel)                 | macOS **13 (Ventura)**                                   | :x: Deprecated                               | 3.10 – 3.12              |
-| Windows (x64)                 | MSVC **2019/2022**                                                 | 🚧 Planned                               | 3.10 – 3.12              |
+| macOS (Intel / x64)           | —                                                                     | ❌ Not supported                            | —              |
+| Windows (x64)                 | —                                                                     | 🚧 Planned                               | —              |
+
+:::caution No ARM64 build
+Unlike `projectaria-client-sdk` and `projectaria-tools`, VRS Health Check publishes **no `aarch64` wheel**. This is what keeps [MPS](/ark/mps/start) and [Aria Studio](/ark/aria_studio/start) — both of which depend on it — off ARM64 Linux.
+:::
 
 
 ## Installing VRS Health Check

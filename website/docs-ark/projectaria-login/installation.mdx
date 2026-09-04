@@ -66,11 +66,19 @@ eval $(gnome-keyring-daemon --start)
 
 ## Supported Platforms
 
-| OS | Keyring Backend | Python |
-|---|---|---|
-| macOS 14+ Apple Silicon | macOS Keychain | 3.9 – 3.12 |
-| Linux x64 Ubuntu 22.04/24.04, Fedora 40/41 | Secret Service / GNOME Keyring / KWallet | 3.9 – 3.12 |
-| Windows x64 | Windows Credential Manager | 3.9 – 3.12 |
+| OS / Platform                 | OS / Distro Details                                                | Aria Gen2 Support | Supported Python Versions |
+| :---------------------------- | :----------------------------------------------------------------- | :----------------------------------------- | :------------------------ |
+| Linux (x64)                   | Ubuntu, Fedora and others. Tokens stored via Secret Service / GNOME Keyring / KWallet | ✅ Supported                  | 3.9 – 3.12               |
+| Linux (ARM64 / aarch64)       | Same keyring backends as x64                                          | ✅ Supported                               | 3.9 – 3.12              |
+| macOS (Apple Silicon / ARM64) | Tokens stored in the macOS Keychain                                   | ✅ Supported                               | 3.9 – 3.12              |
+| macOS (Intel / x64)           | Tokens stored in the macOS Keychain                                   | ✅ Supported                               | 3.9 – 3.12              |
+| Windows (x64)                 | Tokens stored in the Windows Credential Manager                       | ✅ Supported                               | 3.9 – 3.12              |
+
+:::note This matrix is wider than the rest of the toolchain
+`projectaria-login` is pure Python — no compiled wheel, so no platform, architecture or glibc restriction of its own. That is why Windows, Intel Macs and ARM64 Linux are supported here but not on the other pages.
+
+Installed alongside the Client SDK, the stricter constraints win: Apple Silicon or x64 Linux only, and Python **3.10 – 3.12** rather than 3.9. See [Client SDK supported platforms](/ark/client-sdk/start#supported-platforms).
+:::
 
 ## Next Steps
 

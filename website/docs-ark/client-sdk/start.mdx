@@ -21,10 +21,19 @@ Install the Client SDK to control and interact with Aria Gen 2 devices from your
 
 | OS / Platform                 | OS / Distro Details                                                | Aria Gen2 Support (projectaria-tools ≥2.3.0) | Supported Python Versions |
 | :---------------------------- | :----------------------------------------------------------------- | :----------------------------------------- | :------------------------ |
-| Linux (x64)                   | Fedora **40/41**; Ubuntu **22.04 LTS (jammy)** / **24.04 LTS ( Noble Numbat)**| ✅ Supported                  | 3.10 – 3.12              |
+| Linux (x64)                   | Ubuntu **22.04 LTS (jammy)** / **24.04 LTS (Noble Numbat)**, and recent Fedora releases. Requires **glibc 2.34 or newer** | ✅ Supported                  | 3.10 – 3.12              |
+| Linux (ARM64 / aarch64)       | e.g. NVIDIA Jetson. Same glibc floor as x64                           | 🧪 Experimental — partial toolchain        | 3.10 – 3.12              |
 | macOS (Apple Silicon / ARM64) | macOS **14+ (Sonoma or newer)** on M1/M2/M3/M4                        | ✅ Supported                               | 3.10 – 3.12              |
-| macOS (Intel)                 | macOS **13 (Ventura)**                                   | :x: Deprecated                               | 3.10 – 3.12              |
-| Windows (x64)                 | MSVC **2019/2022**                                                 | 🚧 Planned                               | 3.10 – 3.12              |
+| macOS (Intel / x64)           | —                                                                     | ❌ Not supported                            | —              |
+| Windows (x64)                 | —                                                                     | 🚧 Planned                               | —              |
+
+:::info Linux ARM64 is experimental, and only part of the toolchain runs there
+`projectaria-client-sdk` and `projectaria-tools` publish `aarch64` wheels, so the SDK installs on ARM64 Linux hosts such as NVIDIA Jetson. **Not everything follows**: `projectaria-vrs-health-check` has no ARM64 wheel, so [VRS Health Check](/ark/vrs_health_check/installation), [MPS](/ark/mps/start) and [Aria Studio](/ark/aria_studio/start) cannot be installed there. Treat ARM64 as usable for device control and capture, not as a drop-in replacement for an x64 host.
+:::
+
+:::note No macOS Intel builds
+No `x86_64` macOS wheels are published, so `pip install` fails outright on Intel Macs rather than installing an older build. Apple Silicon is required.
+:::
 
 :::warning Ubuntu 22.04 Known Issue
 If you encounter a `GLIBCXX_3.4.31 not found` error when running CLI commands on Ubuntu 22.04, you'll need to update your C++ standard library.

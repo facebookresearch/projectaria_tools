@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React, {useEffect, useMemo, useState} from 'react';
 import CodeBlock from '@theme/CodeBlock';
 // If your CSS module is under src/css/, keep this import.
@@ -64,7 +80,7 @@ python3 -m pip install projectaria-tools'[all]'==1.7.1`;
       }
       return String.raw`${venv}
 
-python3 -m pip install projectaria-tools'[all]'==2.1.0`;
+python3 -m pip install projectaria-tools`;
     }
 
     // source
@@ -89,7 +105,7 @@ git clone https://github.com/facebookresearch/projectaria_tools.git -b gen1_lega
         return String.raw`${venv}
 
 # Clone the correct branch of projectaria_tools
-git clone https://github.com/facebookresearch/projectaria_tools.git -b 2.1.0
+git clone https://github.com/facebookresearch/projectaria_tools.git -b 2.3.0
 
 # Then follow instructions in "Advanced Installation From Source Code" to build from source.`;
       }
