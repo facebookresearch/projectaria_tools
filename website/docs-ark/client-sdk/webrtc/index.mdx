@@ -13,7 +13,7 @@ WebRTC is not simply another way to move the same bytes. It buys four things HTT
 
 * **Two-way audio.** WebRTC opens a bidirectional audio path: you hear the glasses, and the host microphone is sent *to* the glasses on the uplink. Nothing equivalent exists on HTTP, which is receive-only.
 * **Built for low latency.** The transport is tuned for realtime delivery rather than throughput, which makes it the right choice for interactive work — teleoperation, live assistance, anything with a human in the loop reacting to what they see.
-* **It crosses networks.** With a signaling server, the glasses and the receiver find each other from different networks and connect directly peer-to-peer. When NAT or a firewall blocks a direct path, a TURN server relays the media instead, so the session still works. Neither case needs an inbound port on the receiver.
+* **It crosses networks.** With a [signaling server](/ark/client-sdk/webrtc/signaling-server), the glasses and the receiver find each other from different networks and connect directly peer-to-peer. When NAT or a firewall blocks a direct path, a TURN server relays the media instead, so the session still works. Neither case needs an inbound port on the receiver.
 * **Recording while streaming.** The glasses can capture full-rate VRS locally for the duration of the session, which is useful when the streamed profile is downscaled or the network drops frames. See [Recording While Streaming](#recording-while-streaming).
 
 Everything else is deliberately the same: the `register_*_callback` surface and the typed sensor objects are identical to the HTTP path, so application code is unchanged across transports.
@@ -114,7 +114,7 @@ for the other ways to load it and how to save your own.
 Cross-network WebRTC needs a **signaling server** to broker the initial connection. It ships as a **separate PyPI wheel** that you run on a host reachable by both the glasses and the receiver, then point `--signaling-url` (or `--signaling-host` / `--signaling-port`) at it. Same-network `--listen` peer-to-peer streaming needs no signaling server.
 :::
 
-The signaling server only introduces the peers — it passes SDP and ICE between them and then steps out of the media path. Media goes directly peer-to-peer whenever the two networks allow it. When they do not, a TURN server relays it:
+[Deploying a Signaling Server](/ark/client-sdk/webrtc/signaling-server) covers standing one up. The signaling server only introduces the peers — it passes SDP and ICE between them and then steps out of the media path. Media goes directly peer-to-peer whenever the two networks allow it. When they do not, a TURN server relays it:
 
 ```mermaid
 flowchart LR
@@ -285,7 +285,7 @@ watch the glasses' temperature across a full-length session rather than a short 
 
 These flags apply when the viewer is run with `--transport webrtc`; they are ignored on the
 default HTTP transport. Every flag below except `--transport` and `--no-audio-controls` sets
-the matching `WebRtcConfig` field — see [WebRtcConfig Fields](/ark/client-sdk/python-sdk/python-interface#webrtcconfig-fields) for the Python equivalents.
+the matching `WebRtcConfig` field — see [WebRtcConfig Fields](/ark/client-sdk/python-sdk/python-interface#webrtcconfig-fields) for the Python equivalents. Putting the signaling channel itself behind TLS is covered in [TLS on the signaling channel](/ark/client-sdk/webrtc/signaling-server#signaling-over-tls-https).
 
 | Flag | `WebRtcConfig` field | Description |
 |------|----------------------|-------------|
@@ -325,5 +325,6 @@ The controls are skipped automatically when the viewer's input is not an interac
 
 * Back to [Streaming Control](/ark/client-sdk/streaming) for the HTTP transports (USB, WiFi router, on-device hotspot)
 * The viewer's [Rerun blueprint layouts](/ark/client-sdk/streaming#custom-layout-with-a-rerun-blueprint) and [shutdown behaviour](/ark/client-sdk/streaming#stopping-the-viewer) are documented there and behave the same on WebRTC
+* Stand up cross-network streaming with [Deploying a Signaling Server](/ark/client-sdk/webrtc/signaling-server)
 * Build a custom receiver with the [WebRTC Streaming Example](/ark/client-sdk/python-sdk/streaming-example#webrtc-streaming)
 * Check the [CLI Quick Reference](/ark/client-sdk/cli-reference#aria_gen2-streaming-webrtc-start) for every `streaming webrtc` flag

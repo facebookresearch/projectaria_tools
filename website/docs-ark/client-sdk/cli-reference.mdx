@@ -482,7 +482,7 @@ On HTTP, run [`aria_gen2 streaming start`](#aria_gen2-streaming-start) first and
 aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
 ```
 
-**WebRTC transport:** add `--transport webrtc` to stream over WebRTC instead of HTTP — use `--listen <port>` for a same-network direct peer-to-peer connection, or `--signaling-url` (or the older `--signaling-host` / `--signaling-port`), plus `--room`, `--room-password`, `--auth-token`, `--stun`, `--turn`, `--turn-username`, `--turn-password`, for cross-network streaming through a signaling server. An `https://` signaling URL puts the signaling channel behind TLS; `--ca-root` picks the trust anchor, see [Trusting a TLS signaling server](/ark/client-sdk/webrtc#trusting-a-tls-signaling-server). See [WebRTC Streaming](/ark/client-sdk/webrtc).
+**WebRTC transport:** add `--transport webrtc` to stream over WebRTC instead of HTTP — use `--listen <port>` for a same-network direct peer-to-peer connection, or `--signaling-url` (or the older `--signaling-host` / `--signaling-port`), plus `--room`, `--room-password`, `--auth-token`, `--stun`, `--turn`, `--turn-username`, `--turn-password`, for cross-network streaming through a signaling server. An `https://` signaling URL puts the signaling channel behind TLS; `--ca-root` picks the trust anchor, see [Trusting a TLS signaling server](/ark/client-sdk/webrtc#trusting-a-tls-signaling-server). See [WebRTC Streaming](/ark/client-sdk/webrtc) and [TLS on the signaling channel](/ark/client-sdk/webrtc/signaling-server#signaling-over-tls-https).
 
 ```bash
 # Same-network direct peer-to-peer over WebRTC
