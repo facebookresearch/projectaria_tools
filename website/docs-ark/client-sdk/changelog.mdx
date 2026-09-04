@@ -9,6 +9,144 @@ This page tracks the version history and changes made to the Aria Gen2 ClientSDK
 
 ---
 
+## Version 2.5.0
+
+**Release Date:** Sep 2026
+
+### ⚠️ Breaking Changes
+
+#### `enable_raw_stream` removed from `StreamDataInterface`
+
+`StreamDataInterface` took two constructor arguments in 2.4.0; it now takes one.
+
+```python
+# 2.4.0
+handler = StreamDataInterface(enable_image_decoding, enable_raw_stream)
+
+# 2.5.0
+handler = StreamDataInterface(enable_image_decoding)
+```
+
+Raw message delivery is no longer opt-in at construction — register a raw message callback when you want it, and pay nothing when you do not. `register_raw_message_callback()` is unchanged apart from being properly typed (see below).
+
+#### `device profile --upload-profile` replaced by subcommands
+
+Profile management moved from a single flag to explicit subcommands, so profiles can now be removed and read back rather than only added.
+
+```bash
+# 2.4.0
+aria_gen2 device profile --upload-profile my_profile.json
+
+# 2.5.0
+aria_gen2 device profile add my_profile.json
+```
+
+#### Dependency bounds
+
+- `projectaria-tools` moves from `~=2.1` to `~=2.3.0` — 2.3.x only, rather than any 2.x from 2.1 up. The SDK is pinned to the `projectaria-tools` minor it is built against.
+- `projectaria-login ~=0.2` and `rerun-sdk ~=0.33.0` are now required dependencies. If you pin `rerun-sdk` yourself, note that Rerun is pre-1.0 and breaks its Python API across minor versions.
+
+### New Features
+
+#### WebRTC Streaming
+
+Aria Gen 2 can now stream over WebRTC in addition to the existing HTTP transport, through the **same** callback surface — an existing receiver works unchanged apart from the transport it is configured with.
+
+**Key additions:**
+- `aria_gen2 streaming webrtc start` / `stop`
+- `WebRtcStreamingConfig`, `WebRtcStunServer`, and `WebRtcTurnServer` in `aria.sdk_gen2`, with `set_webrtc_streaming_config()` on the device client
+- `set_ntp_sync()` / `ntp_sync()` for NTP-synchronized sessions
+- `--transport {http,webrtc}` on `aria_streaming_viewer`
+- Frames are stamped in the **device** clock rather than the host clock, so images and sensors share a single time domain for pairing
+- New sample: `device_webrtc_streaming.py`
+
+#### Offline Replay from a VRS Recording
+
+A recorded `.vrs` file can now drive the SDK in place of a live device. Its sensor messages are pushed into a `StreamDataInterface` on a background thread, paced by the original device timestamps, so **every callback you would wire to real glasses fires on replay** — same signatures, same delivery order, no hardware attached.
+
+This turns most callback-level development and debugging into an offline loop: capture a session once, then iterate against it as many times as you like. It also makes streaming callbacks testable in CI, where no device exists.
+
+**Key additions:**
+- `create_replay_source(config, stream_data)` returns a `ReplaySession` with `is_finished()` and `stop()`
+- `ReplaySourceConfig` takes `filename`, `speed_multiplier`, and an optional `start_time_sec` / `end_time_sec` sub-range
+- `speed_multiplier` defaults to real-time (`1.0`); set it to `0.0` to run as fast as the data can be read, which is what you usually want in a test
+- New sample: `replay_vrs.py`, including `--duration-sec` and `--speed`
+
+:::note
+A malformed `.vrs` file aborts the process through an internal VRS assertion rather than raising. Catching `RuntimeError` covers the recoverable cases — a missing file or an unsupported extension.
+:::
+
+#### Bluetooth LE Wireless Control
+
+Devices can now be reached over Bluetooth LE, with no USB cable.
+
+**Key additions:**
+- connect over BLE instead of USB
+- `--ble-scan` makes `device list` report which BLE-paired devices are in range. Off by default because the scan costs several seconds; without it, paired devices are listed from this host's stored pairings without a presence check
+- `--ble-scan-timeout` (default 12s) — discovery latency is irregular, so a short window can report a present device as missing
+- `aria_gen2 auth remove-ble-creds` to clear stored BLE credentials
+
+:::note
+Recording and streaming are **not** available over BLE. Use BLE for pairing, status, and device control; use USB or Wi-Fi for data.
+:::
+
+#### Linux ARM64 Wheels
+
+`projectaria_client_sdk` now publishes `linux_aarch64` wheels alongside x86_64 and macOS arm64, so the SDK installs on ARM64 Linux hosts such as NVIDIA Jetson.
+
+#### User Authentication
+
+User-level authentication, separate from device pairing.
+
+**Key additions:**
+- `aria_gen2 user login`, `user verify`, and `user logout`
+
+#### Per-Device Profile Management
+
+**Key additions:**
+- `device profile add` — install a custom profile without disturbing the ones already on the device
+- `device profile remove` — remove a single profile by name
+- `device profile pull` — read a profile's JSON back off the device
+
+#### Meta Neural Band Sensor Stream
+
+Streaming sessions can now deliver the Meta Neural Band batch stream (EMG plus accelerometer and gyroscope).
+
+**Key additions:**
+- `NeuralBandBatch` and `NeuralBandBatchConfiguration` delivered to a registered neural-band callback, with decoded per-sub-sample structs rather than a packed payload
+- EMG calibration is delivered on streaming sessions, matching what recording already provided
+
+#### Smaller Additions
+
+**Key additions:**
+- `start_streaming(record=True)` starts an on-device recording alongside the stream
+- Audio can be pushed from the host to the device over the streaming uplink — see the new `device_push_audio.py` and `audio_terminal.py` samples
+- A Rerun blueprint ships with the samples, so the viewer opens with a usable layout
+- `--device-ip` on every command, to address a device by IP directly
+
+### Improvements
+
+#### Fully Typed Python Stubs
+
+Every `register_*_callback` in `sdk_gen2.pyi` was previously typed as `Callable[..., Any]`, which told editors and type checkers nothing about what a callback receives. They now carry precise signatures.
+
+**Key additions:**
+- Named callback aliases for every sensor, referencing the real `projectaria_tools` types (`ImageData`, `MotionData`, `EyeGaze`, `HandTrackingResult`, `FrontendOutput`, `NeuralBandBatch`, and the rest)
+- `SharedMessage` and `IBuffer` are documented types with `as_memoryview()` for raw message payloads
+- `usb_devices()` is typed as `List[Tuple[str, str]]` — `(serial, usb path)` — instead of `List[Any]`
+
+### Bug Fixes
+
+#### Hardware-Accelerated Decode Was Inverted
+
+The decoder was passed the hardware-acceleration flag where it expected the *disable* flag, so requesting hardware acceleration turned it off and vice versa. Hardware decode (VideoToolbox on macOS) now engages when requested, substantially reducing CPU use on high-rate RGB profiles.
+
+#### RGB Decode Errors at Session Start
+
+Decoding began on the first frame received, so any frames arriving before the stream's first keyframe produced a burst of decode errors. Decoding now waits for a keyframe per camera before starting.
+
+---
+
 ## Version 2.4.0
 
 **Release Date:** Jun 2026
