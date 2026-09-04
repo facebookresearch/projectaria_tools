@@ -23,13 +23,18 @@ from projectaria_tools.core.sensor_data import (
     NeuralBandBatch,
     NeuralBandEmgSample,
     NeuralBandGyroSample,
+    TrackingQuality,
+    VioStatus,
 )
 from projectaria_tools.tools.aria_rerun_viewer.aria_data_plotter import (
     AriaDataViewer,
+    AriaDataViewerConfig,
+    FadingTrajectory,
     NEURAL_BAND_ACCEL_LABEL,
     NEURAL_BAND_EMG_LABEL,
     NEURAL_BAND_EMG_VOLTS_LABEL,
     NEURAL_BAND_GYRO_LABEL,
+    TRAJECTORY_FADE_MIN_ALPHA,
 )
 
 _PLOTTER_MODULE = "projectaria_tools.tools.aria_rerun_viewer.aria_data_plotter"
@@ -405,3 +410,313 @@ class PlotNeuralBandBatchTest(unittest.TestCase):
 
         self.viewer.set_neural_band_emg_calibration(None)
         self.assertIsNone(self.viewer._neural_band_emg_calibration)
+
+
+class _FakePose:
+    """The bare SE3 surface `plot_vio_*` touches: `@` then `translation()`."""
+
+    def __init__(self, position) -> None:
+        self._position: np.ndarray = np.asarray([position], dtype=np.float64)
+
+    def __matmul__(self, other: "_FakePose") -> "_FakePose":
+        return self
+
+    def translation(self) -> np.ndarray:
+        return self._position
+
+
+def _make_vio_data(timestamp_ns: int, position: list[float]) -> MagicMock:
+    vio_data = MagicMock()
+    vio_data.status = VioStatus.VALID
+    vio_data.pose_quality = TrackingQuality.GOOD
+    vio_data.capture_timestamp_ns = timestamp_ns
+    vio_data.transform_odometry_bodyimu = _FakePose(position)
+    vio_data.transform_bodyimu_device = _FakePose(position)
+    vio_data.gravity_in_odometry = np.array([0.0, 0.0, -9.81])
+    return vio_data
+
+
+def _make_vio_high_freq_data(timestamp_sec: float, position: list[float]) -> MagicMock:
+    data = MagicMock()
+    data.tracking_timestamp.total_seconds.return_value = timestamp_sec
+    data.transform_odometry_device = _FakePose(position)
+    return data
+
+
+class FadingTrajectoryTest(unittest.TestCase):
+    """The trail's own bookkeeping, with no Rerun in the picture."""
+
+    _COLOR = [173, 216, 255]
+
+    def _trail(self, window_sec: float, count: int, step_sec: float = 10.0):
+        trail = FadingTrajectory(window_sec)
+        for i in range(count):
+            trail.append(i * step_sec, [float(i), 0.0, 0.0])
+        return trail
+
+    def test_an_unbounded_window_keeps_everything_in_one_opaque_strip(self) -> None:
+        trail = self._trail(0.0, 50)
+        strips, colors = trail.strips_and_colors(self._COLOR)
+        self.assertEqual(len(trail), 50)
+        self.assertEqual(len(strips), 1)
+        self.assertEqual(len(strips[0]), 50)
+        np.testing.assert_array_equal(colors, [self._COLOR + [255]])
+
+    def test_a_negative_window_is_read_as_unbounded(self) -> None:
+        # Not as "drop everything": a nonsense window must not blank the view.
+        trail = self._trail(-1.0, 50)
+        self.assertEqual(len(trail), 50)
+        self.assertEqual(len(trail.strips_and_colors(self._COLOR)[0]), 1)
+
+    def test_positions_older_than_the_window_are_dropped(self) -> None:
+        # 20 minutes of track at 0.1 Hz against a 10 minute window.
+        trail = self._trail(600.0, 121)
+        self.assertEqual(len(trail), 61)
+        strips, _ = trail.strips_and_colors(self._COLOR)
+        oldest_kept = strips[0][0]
+        # x == index, so the surviving head is the sample exactly one window old.
+        self.assertEqual(float(oldest_kept[0]), 60.0)
+
+    def test_two_positions_always_survive_so_the_line_never_vanishes(self) -> None:
+        # A window shorter than the sample interval would otherwise trim the
+        # trail down to a single invisible vertex.
+        trail = self._trail(1.0, 20, step_sec=10.0)
+        self.assertEqual(len(trail), 2)
+        strips, colors = trail.strips_and_colors(self._COLOR)
+        self.assertEqual(len(strips), 1)
+        self.assertEqual(len(colors), 1)
+
+    def test_a_lone_position_draws_nothing(self) -> None:
+        strips, colors = self._trail(600.0, 1).strips_and_colors(self._COLOR)
+        self.assertEqual(list(strips), [])
+        self.assertEqual(len(colors), 0)
+
+    def test_an_empty_trail_draws_nothing(self) -> None:
+        strips, colors = FadingTrajectory(600.0).strips_and_colors(self._COLOR)
+        self.assertEqual(list(strips), [])
+        self.assertEqual(len(colors), 0)
+
+    def test_alpha_ramps_from_faint_at_the_tail_to_opaque_at_the_head(self) -> None:
+        strips, colors = self._trail(600.0, 61).strips_and_colors(self._COLOR)
+        self.assertEqual(len(colors), len(strips))
+        alphas = [color[3] for color in colors]
+        self.assertEqual(alphas, sorted(alphas))
+        self.assertLess(alphas[0], TRAJECTORY_FADE_MIN_ALPHA + 10)
+        self.assertGreater(alphas[-1], 240)
+        np.testing.assert_array_equal(colors[:, :3], [self._COLOR] * len(colors))
+
+    def test_consecutive_strips_share_a_vertex_so_the_trail_has_no_gaps(self) -> None:
+        strips, _ = self._trail(600.0, 61).strips_and_colors(self._COLOR)
+        self.assertGreater(len(strips), 1)
+        for previous, following in zip(strips[:-1], strips[1:]):
+            np.testing.assert_array_equal(previous[-1], following[0])
+
+    def test_a_young_trail_is_not_mostly_thrown_away(self) -> None:
+        # The chunks have to be equal length to go over as one array, so the
+        # remainder is dropped from the far end. Sized wrong that remainder is
+        # a fifth of a trail that has only just started.
+        for count in range(2, 200):
+            with self.subTest(count=count):
+                # 0.1 s apart, so the window itself never trims and the only
+                # thing that can shorten the trail is the chunk remainder.
+                trail = self._trail(600.0, count, step_sec=0.1)
+                strips, _ = trail.strips_and_colors(self._COLOR)
+                drawn = strips.shape[0] * (strips.shape[1] - 1) + 1
+                self.assertGreaterEqual(drawn, count - max(1, (count - 1) // 24))
+                # Whatever is dropped comes off the old end; the trail must
+                # still reach the newest position.
+                self.assertEqual(float(strips[-1][-1][0]), float(count - 1))
+
+    def test_a_trail_shorter_than_the_segment_count_yields_drawable_strips(
+        self,
+    ) -> None:
+        # `linspace` repeats indices on a short trail; collapsing them is what
+        # keeps single-vertex (invisible) strips out of the output.
+        strips, colors = self._trail(600.0, 3).strips_and_colors(self._COLOR)
+        self.assertEqual(len(strips), len(colors))
+        for strip in strips:
+            self.assertGreaterEqual(len(strip), 2)
+
+    def test_a_windowed_trail_settles_into_a_capacity_it_never_exceeds(self) -> None:
+        # The point of the whole exercise: 100 minutes of 10 Hz VIO must cost
+        # the same as the first ten, or an 8 hour session degrades as it runs.
+        trail = FadingTrajectory(600.0)
+        for i in range(60_000):
+            trail.append(i * 0.1, [float(i), 0.0, 0.0])
+        self.assertEqual(len(trail), 6001)
+        self.assertLessEqual(trail._positions.shape[0], 4 * trail._INITIAL_CAPACITY)
+
+    def test_compaction_preserves_the_trail_it_moves(self) -> None:
+        # `_make_room` copies live samples to the front of the buffer; an
+        # off-by-one there would silently shift or duplicate the track.
+        trail = FadingTrajectory(600.0)
+        for i in range(20_000):
+            trail.append(i * 0.1, [float(i), 2.0 * i, 0.0])
+        strips, _ = trail.strips_and_colors(self._COLOR)
+        track = np.concatenate([strip[:-1] for strip in strips] + [strips[-1][-1:]])
+        self.assertEqual(len(track), len(trail))
+        expected_x = np.arange(20_000 - 6001, 20_000, dtype=np.float32)
+        np.testing.assert_array_equal(track[:, 0], expected_x)
+        np.testing.assert_array_equal(track[:, 1], 2.0 * expected_x)
+
+    def test_an_unbounded_trail_is_still_free_to_grow(self) -> None:
+        trail = self._trail(0.0, 10_000, step_sec=0.1)
+        self.assertEqual(len(trail), 10_000)
+        strips, _ = trail.strips_and_colors(self._COLOR)
+        self.assertEqual(len(strips[0]), 10_000)
+
+    def test_time_running_backwards_stays_within_the_alpha_range(self) -> None:
+        # A reattached stream can restate its clock; age is measured against
+        # the newest sample, so this must clamp rather than overflow.
+        trail = FadingTrajectory(600.0)
+        trail.append(100.0, [0.0, 0.0, 0.0])
+        trail.append(50.0, [1.0, 0.0, 0.0])
+        _, colors = trail.strips_and_colors(self._COLOR)
+        for color in colors:
+            self.assertGreaterEqual(color[3], TRAJECTORY_FADE_MIN_ALPHA)
+            self.assertLessEqual(color[3], 255)
+
+
+class VioTrajectoryWindowTest(unittest.TestCase):
+    """`plot_vio_*` honouring `vio_trajectory_window_sec`."""
+
+    def setUp(self) -> None:
+        patchers = [
+            patch(f"{_PLOTTER_MODULE}.rr"),
+            patch(f"{_PLOTTER_MODULE}.ToTransform3D"),
+            patch(f"{_PLOTTER_MODULE}.AriaGlassesOutline"),
+        ]
+        self.mock_rr = patchers[0].start()
+        for p in patchers[1:]:
+            p.start()
+        for p in patchers:
+            self.addCleanup(p.stop)
+
+    def _viewer(self, window_sec: float) -> AriaDataViewer:
+        viewer = AriaDataViewer.__new__(AriaDataViewer)
+        viewer.config = AriaDataViewerConfig()
+        viewer.config.vio_trajectory_window_sec = window_sec
+        viewer.vio_trajectory = FadingTrajectory(window_sec)
+        viewer.vio_high_freq_trajectory = FadingTrajectory(window_sec)
+        viewer._low_rate_vio_trajectory_cleared = False
+        viewer.device_calibration = MagicMock()
+        viewer.sensor_labels = MagicMock(
+            vio_label="vio", vio_high_freq_label="vio_high_frequency"
+        )
+        return viewer
+
+    def _last_strips(self):
+        return self.mock_rr.LineStrips3D.call_args_list[-1].args[0]
+
+    def test_vio_drops_track_older_than_the_window(self) -> None:
+        viewer = self._viewer(600.0)
+        for i in range(121):
+            viewer.plot_vio_data(_make_vio_data(i * 10_000_000_000, [float(i), 0, 0]))
+        self.assertEqual(len(viewer.vio_trajectory), 61)
+        self.assertEqual(float(self._last_strips()[0][0][0]), 60.0)
+
+    def test_vio_high_freq_drops_track_older_than_the_window(self) -> None:
+        viewer = self._viewer(600.0)
+        for i in range(121):
+            viewer.plot_vio_high_freq_data(
+                _make_vio_high_freq_data(i * 10.0, [float(i), 0, 0])
+            )
+        self.assertEqual(len(viewer.vio_high_freq_trajectory), 61)
+        self.assertEqual(float(self._last_strips()[0][0][0]), 60.0)
+
+    def test_a_zero_window_keeps_the_whole_session(self) -> None:
+        # The recording viewer's default: a bounded file wants its whole track.
+        viewer = self._viewer(0.0)
+        for i in range(121):
+            viewer.plot_vio_data(_make_vio_data(i * 10_000_000_000, [float(i), 0, 0]))
+        self.assertEqual(len(viewer.vio_trajectory), 121)
+
+    def test_an_invalid_pose_is_not_added_to_the_trail(self) -> None:
+        viewer = self._viewer(600.0)
+        vio_data = _make_vio_data(0, [0.0, 0.0, 0.0])
+        vio_data.status = VioStatus.INVALID
+        viewer.plot_vio_data(vio_data)
+        self.assertEqual(len(viewer.vio_trajectory), 0)
+
+    def test_the_default_config_keeps_the_whole_session(self) -> None:
+        self.assertEqual(AriaDataViewerConfig().vio_trajectory_window_sec, 0.0)
+
+
+class OnlyOneVioTrailIsDrawnTest(unittest.TestCase):
+    """`vio` and `vio_high_frequency` are the same path at different rates.
+
+    Drawn together they are two same-radius tubes in the same place, which
+    z-fight into a line that alternates between their two colours.
+    """
+
+    def setUp(self) -> None:
+        patchers = [
+            patch(f"{_PLOTTER_MODULE}.rr"),
+            patch(f"{_PLOTTER_MODULE}.ToTransform3D"),
+            patch(f"{_PLOTTER_MODULE}.AriaGlassesOutline"),
+        ]
+        self.mock_rr = patchers[0].start()
+        for p in patchers[1:]:
+            p.start()
+        for p in patchers:
+            self.addCleanup(p.stop)
+
+        self.viewer = AriaDataViewer.__new__(AriaDataViewer)
+        self.viewer.config = AriaDataViewerConfig()
+        self.viewer.vio_trajectory = FadingTrajectory(600.0)
+        self.viewer.vio_high_freq_trajectory = FadingTrajectory(600.0)
+        self.viewer._low_rate_vio_trajectory_cleared = False
+        self.viewer.device_calibration = MagicMock()
+        self.viewer.sensor_labels = MagicMock(
+            vio_label="vio", vio_high_freq_label="vio_high_frequency"
+        )
+
+    def _payloads(self, entity: str) -> list:
+        """What was logged to `entity`, in order. `rr` is a mock, so each entry
+        is the archetype mock's return value and is identity-comparable."""
+        return [
+            call.args[1]
+            for call in self.mock_rr.log.call_args_list
+            if len(call.args) > 1 and call.args[0] == entity
+        ]
+
+    def test_high_frequency_suppresses_the_low_rate_trail(self) -> None:
+        for i in range(5):
+            self.viewer.plot_vio_high_freq_data(
+                _make_vio_high_freq_data(i * 0.1, [float(i), 0, 0])
+            )
+            self.viewer.plot_vio_data(_make_vio_data(i * 100_000_000, [float(i), 0, 0]))
+        self.assertEqual(len(self.viewer.vio_trajectory), 0)
+        # `world/vio` is touched once, to clear it -- never with geometry.
+        self.assertEqual(self._payloads("world/vio"), [self.mock_rr.Clear.return_value])
+        self.assertEqual(
+            self._payloads("world/vio_high_frequency"),
+            [self.mock_rr.LineStrips3D.return_value] * 5,
+        )
+
+    def test_the_low_rate_trail_is_the_fallback_when_nothing_else_arrives(
+        self,
+    ) -> None:
+        # A recording, or a `--stream-labels` selection, carrying only `vio`
+        # must still show a trajectory.
+        for i in range(5):
+            self.viewer.plot_vio_data(_make_vio_data(i * 100_000_000, [float(i), 0, 0]))
+        self.assertEqual(len(self.viewer.vio_trajectory), 5)
+        self.assertEqual(
+            self._payloads("world/vio"), [self.mock_rr.LineStrips3D.return_value] * 5
+        )
+        self.mock_rr.Clear.assert_not_called()
+
+    def test_a_late_first_high_frequency_sample_clears_the_stub_once(self) -> None:
+        # The low-rate stream can win the race by a few samples; whatever it
+        # drew has to go, and the clear must not then fire on every sample.
+        for i in range(3):
+            self.viewer.plot_vio_data(_make_vio_data(i * 100_000_000, [float(i), 0, 0]))
+        for i in range(3, 8):
+            self.viewer.plot_vio_high_freq_data(
+                _make_vio_high_freq_data(i * 0.1, [float(i), 0, 0])
+            )
+            self.viewer.plot_vio_data(_make_vio_data(i * 100_000_000, [float(i), 0, 0]))
+        self.assertEqual(self.mock_rr.Clear.call_count, 1)
+        # The stub stopped growing the moment the high-frequency trail started.
+        self.assertEqual(len(self.viewer.vio_trajectory), 3)

@@ -16,7 +16,7 @@ import colorsys
 import os
 from dataclasses import dataclass
 from functools import partial
-from typing import Final, List, Optional
+from typing import Final, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import rerun as rr
@@ -53,6 +53,166 @@ NEURAL_BAND_EMG_LABEL: Final = "neural-band-emg"
 NEURAL_BAND_EMG_VOLTS_LABEL: Final = "neural-band-emg-volts"
 NEURAL_BAND_ACCEL_LABEL: Final = "neural-band-accel"
 NEURAL_BAND_GYRO_LABEL: Final = "neural-band-gyro"
+
+
+# A trail is emitted as this many chunks so its colour can ramp along its
+# length: Rerun colours a line strip as a whole, never per vertex, so a
+# gradient has to be built out of pieces. Set for legibility alone -- the
+# chunks go over as one strided array (see `strips_and_colors`), so the cost of
+# a log does not move with this number.
+TRAJECTORY_FADE_SEGMENT_COUNT: Final = 24
+
+# Alpha the trail has reached once it is a full window old -- the instant
+# before it is dropped. Non-zero so the far end still reads as "where I came
+# from", low enough that its removal is not a visible pop.
+TRAJECTORY_FADE_MIN_ALPHA: Final = 25
+
+
+class FadingTrajectory:
+    """A trail of positions that forgets its own tail.
+
+    A live session runs for hours, so a trajectory that is only ever appended
+    to grows without bound -- in memory, and in the cost of the whole-strip
+    re-log that every new sample pays. Positions older than ``window_sec`` are
+    dropped, and what survives is handed back as a run of strips whose alpha
+    ramps from ``TRAJECTORY_FADE_MIN_ALPHA`` at the far end to opaque at the
+    newest sample, so the tail dissolves instead of being cut.
+
+    Age is measured against the newest sample rather than wall-clock: the same
+    plotter replays recorded VRS, where "now" is wherever playback has reached.
+    """
+
+    # Samples live in a flat buffer that doubles when it fills. 4096 holds ten
+    # minutes of 10 Hz VIO outright, so a steady-state session never
+    # reallocates and never rebuilds an array per sample.
+    _INITIAL_CAPACITY: Final = 4096
+
+    def __init__(
+        self,
+        window_sec: float = 0.0,
+        segment_count: int = TRAJECTORY_FADE_SEGMENT_COUNT,
+    ) -> None:
+        # <= 0 keeps everything, which is what replaying a recording of bounded
+        # length wants.
+        self.window_sec: float = max(0.0, float(window_sec))
+        self._segment_count: int = max(1, int(segment_count))
+        self._timestamps_sec: np.ndarray = np.empty(
+            self._INITIAL_CAPACITY, dtype=np.float64
+        )
+        # float32 because that is what Rerun stores positions as; keeping the
+        # buffer in the wire dtype saves a full-trail conversion per log.
+        self._positions: np.ndarray = np.empty(
+            (self._INITIAL_CAPACITY, 3), dtype=np.float32
+        )
+        # Live samples are `[_start, _end)`. Expiry only advances `_start`, so
+        # dropping the tail costs nothing; the dead prefix is reclaimed in bulk
+        # by `_make_room`.
+        self._start: int = 0
+        self._end: int = 0
+
+    def __len__(self) -> int:
+        return self._end - self._start
+
+    def append(self, timestamp_sec: float, position: Sequence[float]) -> None:
+        """Add one position, then drop whatever has aged out of the window."""
+        if self._end == len(self._timestamps_sec):
+            self._make_room()
+        self._timestamps_sec[self._end] = timestamp_sec
+        self._positions[self._end] = position
+        self._end += 1
+        if self.window_sec <= 0.0:
+            return
+        cutoff_sec = self._timestamps_sec[self._end - 1] - self.window_sec
+        # Two positions are the least that still draws a line, so the trail
+        # never shrinks to a single invisible vertex.
+        while (
+            self._end - self._start > 2
+            and self._timestamps_sec[self._start] < cutoff_sec
+        ):
+            self._start += 1
+
+    def _make_room(self):
+        """Slide the live samples to the front, growing only if they fill it.
+
+        Amortises the cost of expiry: without this, dropping the oldest sample
+        would memmove the whole trail on every append. A windowed trail settles
+        into a capacity it never exceeds and stops reallocating for good.
+        """
+        live = self._end - self._start
+        capacity = len(self._timestamps_sec)
+        # `.copy()` because compaction in place reads and writes one buffer.
+        timestamps_sec = self._timestamps_sec[self._start : self._end].copy()
+        positions = self._positions[self._start : self._end].copy()
+        if live * 2 > capacity:
+            capacity *= 2
+            self._timestamps_sec = np.empty(capacity, dtype=np.float64)
+            self._positions = np.empty((capacity, 3), dtype=np.float32)
+        self._timestamps_sec[:live] = timestamps_sec
+        self._positions[:live] = positions
+        self._start = 0
+        self._end = live
+
+    def strips_and_colors(
+        self, rgb: Sequence[int]
+    ) -> Tuple[Union[np.ndarray, List[np.ndarray]], np.ndarray]:
+        """The trail as (strips, per-strip RGBA), ready for `rr.LineStrips3D`.
+
+        Nothing here copies the trail: the strips are strided views onto the
+        live buffer. They stay valid until the next ``append`` compacts, which
+        is long after `rr.log` has taken its own copy -- but it does mean they
+        are for logging now, not for keeping.
+        """
+        count = self._end - self._start
+        if count < 2:
+            return [], np.empty((0, 4), dtype=np.uint8)
+        points = self._positions[self._start : self._end]
+        base_color = np.asarray(rgb, dtype=np.uint8)[:3]
+        if self.window_sec <= 0.0:
+            return [points], np.array([[*base_color, 255]], dtype=np.uint8)
+
+        # Equal-length chunks, so the fade goes to Rerun as ONE
+        # (segments, chunk + 1, 3) array rather than a list of that many
+        # strips. Rerun charges ~5 us per strip for the list form -- 130 us a
+        # sample at 24 strips -- while the array form costs the same 30 us as
+        # one undivided strip. That is what makes the fade free rather than a
+        # 4x tax on every VIO sample.
+        # Size the chunk first, then fit whole chunks into the trail. Sizing it
+        # the other way round -- fix the count, divide -- strands a remainder of
+        # up to `segment_count` positions, which on a trail that has only just
+        # started is most of it.
+        span = count - 1
+        chunk = max(1, span // self._segment_count)
+        segments = span // chunk
+        # The chunks tile backwards from the newest position, so the trail
+        # always reaches the current pose and the remainder -- always under one
+        # chunk, of the oldest and faintest track -- falls off the far end.
+        offset = span - segments * chunk
+        head = points[offset:]
+        # Consecutive chunks overlap by their shared boundary vertex -- without
+        # it the trail is drawn with a gap at every colour step. Overlapping is
+        # also why this is a strided view and not a reshape.
+        strips = np.lib.stride_tricks.as_strided(
+            head,
+            shape=(segments, chunk + 1, 3),
+            strides=(chunk * head.strides[0], head.strides[0], head.strides[1]),
+        )
+
+        # Same tiling over the timestamps: one edge per chunk boundary.
+        edges_sec = self._timestamps_sec[self._start + offset : self._end : chunk]
+        # Alpha is taken at each chunk's midpoint, so a chunk is not coloured by
+        # whichever of its two ends happens to be sampled.
+        midpoints_sec = 0.5 * (edges_sec[:-1] + edges_sec[1:])
+        freshness = np.clip(
+            1.0 - (edges_sec[-1] - midpoints_sec) / self.window_sec, 0.0, 1.0
+        )
+        # Built as one array rather than a list comprehension: per-chunk Python
+        # rounding costs more than everything else in this method put together.
+        colors = np.empty((segments, 4), dtype=np.uint8)
+        colors[:, :3] = base_color
+        colors[:, 3] = np.rint(
+            TRAJECTORY_FADE_MIN_ALPHA + (255 - TRAJECTORY_FADE_MIN_ALPHA) * freshness
+        )
+        return strips, colors
 
 
 @dataclass
@@ -170,6 +330,13 @@ class AriaDataViewerConfig:
     # launch Rerun with this blueprint and skip the auto-generated layout.
     blueprint_path: Optional[str] = None
 
+    # How much VIO trajectory history stays on screen, in seconds. Older track
+    # is dropped, and what is left fades out towards that age so the tail
+    # dissolves rather than being cut. 0 keeps the whole session, which is
+    # right for replaying a recording of bounded length; a live session has no
+    # bound, so the streaming viewer sets a window instead.
+    vio_trajectory_window_sec: float = 0.0
+
     # Whether to show latency plot in the blueprint (only relevant for streaming)
     show_latency: bool = False
 
@@ -255,10 +422,14 @@ class AriaDataViewer:
         """
 
         self.config = config if config is not None else AriaDataViewerConfig()
-        # A variable to cache full VIO high frequency trajectory
-        self.vio_high_freq_traj_cached_full = []
-        # A variable to cache full VIO trajectory
-        self.vio_traj_cached_full = []
+        # Both VIO trails are bounded and faded by
+        # `config.vio_trajectory_window_sec`, but only one of them is ever
+        # drawn -- see `_plot_low_rate_vio_trajectory`.
+        self.vio_high_freq_trajectory = FadingTrajectory(
+            self.config.vio_trajectory_window_sec
+        )
+        self.vio_trajectory = FadingTrajectory(self.config.vio_trajectory_window_sec)
+        self._low_rate_vio_trajectory_cleared = False
         self._neural_band_emg_styling_logged = False
         self._neural_band_emg_volts_styling_logged = False
         self._neural_band_emg_calibration = None
@@ -1537,14 +1708,20 @@ class AriaDataViewer:
         # Set and plot Aria Device for the current timestamp
         T_World_Device = vio_high_freq_data.transform_odometry_device
 
-        # Plot VIO high-freq trajectory that are cached so far
+        # Plot VIO high-freq trajectory that is still inside the fade window
         # TODO: Optimize VIO high-freq trajectory plotting.
-        self.vio_high_freq_traj_cached_full.append(T_World_Device.translation()[0])
+        self.vio_high_freq_trajectory.append(
+            vio_high_freq_data.tracking_timestamp.total_seconds(),
+            T_World_Device.translation()[0],
+        )
+        strips, colors = self.vio_high_freq_trajectory.strips_and_colors(
+            self.PLOT_COLORS_AND_SIZES_3D["vio_high_freq"]["color"]
+        )
         rr.log(
             f"world/{self.sensor_labels.vio_high_freq_label}",
             rr.LineStrips3D(
-                self.vio_high_freq_traj_cached_full,
-                colors=[self.PLOT_COLORS_AND_SIZES_3D["vio_high_freq"]["color"]],
+                strips,
+                colors=colors,
                 radii=self.PLOT_COLORS_AND_SIZES_3D["vio_high_freq"][
                     "trajectory_radius"
                 ],
@@ -1606,13 +1783,45 @@ class AriaDataViewer:
             static=False,
         )
 
-        # Plot VIO trajectory that are cached so far
-        self.vio_traj_cached_full.append(T_World_Device.translation()[0])
+        self._plot_low_rate_vio_trajectory(
+            vio_data.capture_timestamp_ns * 1e-9, T_World_Device.translation()[0]
+        )
+
+    def _plot_low_rate_vio_trajectory(self, timestamp_sec, position) -> None:
+        """Draw the `vio` trail, but only when it is the only trail there is.
+
+        `vio` and `vio_high_frequency` are the same odometry-to-device path,
+        differing in rate. Drawn together they are two tubes of identical
+        radius in identical positions, which z-fight into a dashed line that
+        alternates between the two trails' colours -- so the high-frequency
+        one, which carries the finer motion, wins whenever it is present.
+
+        It cannot simply be dropped: `vio` and `vio_high_frequency` are
+        separately selectable streams, and a recording (or a `--stream-labels`
+        selection) that has only the low-rate one would then show no trajectory
+        at all. Hence the fallback, resolved from the data rather than declared
+        up front.
+        """
+        if len(self.vio_high_freq_trajectory) > 0:
+            # A stream can deliver a few `vio` samples before the first
+            # high-frequency one; clear whatever they already drew, once.
+            if not self._low_rate_vio_trajectory_cleared:
+                self._low_rate_vio_trajectory_cleared = True
+                rr.log(
+                    f"world/{self.sensor_labels.vio_label}",
+                    rr.Clear(recursive=False),
+                )
+            return
+
+        self.vio_trajectory.append(timestamp_sec, position)
+        strips, colors = self.vio_trajectory.strips_and_colors(
+            self.PLOT_COLORS_AND_SIZES_3D["vio"]["color"]
+        )
         rr.log(
             f"world/{self.sensor_labels.vio_label}",
             rr.LineStrips3D(
-                self.vio_traj_cached_full,
-                colors=[self.PLOT_COLORS_AND_SIZES_3D["vio"]["color"]],
+                strips,
+                colors=colors,
                 radii=self.PLOT_COLORS_AND_SIZES_3D["vio"]["trajectory_radius"],
             ),
             static=False,
