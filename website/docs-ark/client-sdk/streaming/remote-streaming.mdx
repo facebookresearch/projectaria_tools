@@ -1,11 +1,14 @@
 ---
-sidebar_position: 4
+sidebar_position: 1
 title: Remote Streaming
+slug: /client-sdk/remote-streaming
 ---
 
 # Remote Streaming
 
 Stream Aria Gen2 data directly to a remote server over the internet, without requiring a local relay machine.
+
+This page uses the **HTTP transport** — the device POSTs to an HTTPS endpoint you run, the same transport as [USB, WiFi router and hotspot streaming](/ark/client-sdk/streaming). If you want the device and receiver to reach each other across networks without standing up an HTTPS ingest server, [WebRTC Streaming](/ark/client-sdk/webrtc) does that through a signaling server instead.
 
 ## Prerequisites
 
@@ -33,7 +36,7 @@ By default, Aria streams data to a local development machine via USB or WiFi on 
 
 ## Architecture Comparison
 
-**Local Streaming (default):**
+**Local Streaming (default, HTTP transport):**
 ```
 ┌─────────────────┐    USB/WiFi     ┌─────────────────┐
 │  Aria Glasses   │ ─────────────►  │  Local Machine  │
@@ -41,7 +44,7 @@ By default, Aria streams data to a local development machine via USB or WiFi on 
 └─────────────────┘                 └─────────────────┘
 ```
 
-**Remote Streaming:**
+**Remote Streaming (HTTP transport):**
 ```
 ┌─────────────────┐   WiFi/Internet   ┌─────────────────┐
 │  Aria Glasses   │ ───────────────►  │  Cloud Server   │
@@ -409,6 +412,6 @@ aria_gen2_cli streaming stop
 
 ## Next Steps
 
-* [Streaming Control](/ark/client-sdk/streaming) - Learn about local streaming options
+* [HTTP Streaming Control](/ark/client-sdk/streaming) - Learn about local streaming options
 * [Program with SDK](/ark/client-sdk/python-sdk/python-interface) - Build custom applications
 * [API Reference](/technical-specs/client-sdk/api) - Complete SDK documentation

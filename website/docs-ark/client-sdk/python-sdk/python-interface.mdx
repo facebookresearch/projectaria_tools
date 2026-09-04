@@ -42,12 +42,15 @@ This creates a `projectaria_client_sdk_samples_gen2` directory containing all ex
 ```bash
 ls ~/Downloads/projectaria_client_sdk_samples_gen2
 
-device_auth.py          # Authentication example
-device_connect.py       # Connection example
-device_record.py        # Recording example
-device_streaming.py     # Streaming example
-device_tts.py           # Text-to-speech example
+aria_video_focused_rerun_0.33.rbl   # Video-focused aria_streaming_viewer layout
+device_auth.py                      # Authentication example
+device_connect.py                   # Connection example
+device_record.py                    # Recording example
+device_streaming.py                 # Streaming example
+device_tts.py                       # Text-to-speech example
 ```
+
+Load the blueprint with `aria_streaming_viewer --blueprint <path>`, or drop it onto a running Rerun window — see [Custom Layout with a Rerun Blueprint](/ark/client-sdk/streaming#custom-layout-with-a-rerun-blueprint).
 
 ---
 
@@ -173,10 +176,21 @@ recording_config.profile_name = "profile8"
 recording_config.recording_name = "my_recording"
 device.set_recording_config(recording_config)
 
-# Streaming configuration
+# HTTP streaming configuration
 streaming_config = sdk_gen2.HttpStreamingConfig()
 streaming_config.profile_name = "mp_streaming_demo"
 device.set_streaming_config(streaming_config)
+
+# WebRTC streaming configuration
+webrtc_config = sdk_gen2.WebRtcStreamingConfig()
+webrtc_config.profile_name = "low_latency_streaming"
+webrtc_config.signaling_url = "tcp://example.com:8443"
+device.set_webrtc_streaming_config(webrtc_config)
+
+# Optional: sync the device clock via NTP before the session starts. Use this when a
+# signaling server rejects the device for timestamp skew. The device must be able to
+# reach an NTP server over Wi-Fi, and the session fails to start if the sync fails.
+device.set_ntp_sync(True)
 ```
 
 ---
@@ -198,6 +212,82 @@ The SDK detects the `device_id` parameter via `inspect.signature()` at registrat
 **Single-device** recording and streaming are fully supported from Python — `device.set_recording_config()` + `device.start_recording()` and `device.set_streaming_config()` + `device.start_streaming()`. See [Recording Example](/ark/client-sdk/python-sdk/recording-example) and [Streaming Example](/ark/client-sdk/python-sdk/streaming-example).
 
 **Multi-device orchestration** — starting/stopping recordings or streams across all connected devices in one call — is exposed only through the CLI by design (`aria_gen2 recording start --all` / `streaming start --all`). The Python SDK exposes the per-device primitives and receiver-side multi-device support (factory-per-connection in `AriaGen2HttpServer`, plus the optional `device_id` callback parameter for per-device identity); combine the CLI for orchestration with a Python receiver for end-to-end multi-device pipelines.
+
+---
+
+## WebRTC Streaming Transport
+
+The SDK supports **WebRTC** as a first-class streaming transport alongside HTTP, through a *unified* receiver interface. Switching transport is a **swap of the receiver class and its config only** — every `register_*_callback` name and signature is identical, and your callbacks receive the same typed sensor objects (`ImageData`, `AudioData`, `MotionData`, `EyeGaze`, `hand_tracking.HandTrackingResult`, `FrontendOutput`, ...). H.265 image frames are decoded in Python by the same `ImageDecoder` used for HTTP.
+
+| | HTTP | WebRTC |
+|---|---|---|
+| Receiver class | `receiver.StreamReceiver()` | `receiver.WebRtcStreamReceiver()` |
+| Transport config | `sdk_gen2.HttpServerConfig()` | `sdk_gen2.WebRtcConfig()` |
+| Lifecycle | `set_server_config` / `start_server` / `stop_server` / `is_connected` | *identical* |
+| `register_*_callback` | Yes | Yes (same names & signatures) |
+| Typed sensor objects | Yes | *identical* |
+
+```python
+from aria.stream_receiver import WebRtcStreamReceiver
+from aria.sdk_gen2 import WebRtcConfig
+
+config = WebRtcConfig()
+config.listen_port = 9000   # same-network direct peer-to-peer
+config.enable_audio = True
+
+stream_receiver = WebRtcStreamReceiver()
+stream_receiver.set_server_config(config)
+
+# Register the SAME callbacks you already use with StreamReceiver
+stream_receiver.register_rgb_callback(image_callback)
+stream_receiver.register_slam_callback(image_callback)
+stream_receiver.register_audio_callback(audio_callback)
+stream_receiver.register_eye_gaze_callback(eyegaze_callback)
+stream_receiver.register_hand_pose_callback(handtracking_callback)
+stream_receiver.register_vio_callback(vio_callback)
+
+stream_receiver.start_server()
+```
+
+### WebRtcConfig Fields
+
+`WebRtcConfig` (from `aria.sdk_gen2`) configures how the receiver reaches the device. For same-network streaming, set `listen_port` for a direct peer-to-peer connection. For cross-network streaming, point the signaling fields at a signaling server (with optional STUN/TURN for NAT traversal).
+
+Each field has a matching `aria_streaming_viewer` flag, listed here so the two surfaces stay readable side by side — see [WebRTC Viewer Flags](/ark/client-sdk/webrtc#webrtc-viewer-flags).
+
+| Field | Viewer flag | Description |
+|---|---|---|
+| `signaling_url` | `--signaling-url <url>` | Signaling server as one `<scheme>://<host>:<port>` URL, scheme `tcp`, `https` or `http` — the same spelling the device takes. Selects the signaling transport, and is the only way to ask for TLS. Supersedes `signaling_host`/`signaling_port`. |
+| `signaling_host` | `--signaling-host <host>` | Hostname of the signaling server (cross-network rendezvous), on plain TCP. Leave unset for same-network direct P2P. |
+| `signaling_port` | `--signaling-port <port>` | Port of the signaling server. |
+| `ca_root` | `--ca-root <root>` | Trust anchor used to verify the signaling server's certificate on an `https` URL: a named root (`Public`, `MetaProd`, `MetaCloud`, `Test`, matched case-insensitively) or a path to a PEM CA bundle. Defaults to `Public`, the system root store — which is what a publicly-issued certificate chains to. Inert on `tcp`. |
+| `verify_server_certificates` | `--no-verify-server-certs` | Whether that certificate is verified at all. On by default; the opt-out accepts **any** certificate, including an attacker's, so it is rejected for anything but a loopback signaling host (`localhost`, `127.0.0.1`, `::1`). Trust a remote self-signed deployment with `ca_root` instead. |
+| `listen_port` | `--listen <port>` | Local port for direct peer-to-peer connections on the same network. |
+| `stun` | `--stun <url>` | STUN server URL for NAT traversal. |
+| `turn` | `--turn <url>` | TURN server URL for relayed connectivity when direct/STUN fails. |
+| `turn_username` | `--turn-username <user>` | Username for the TURN server. |
+| `turn_password` | `--turn-password <pw>` | Credential for the TURN server. |
+| `auth_token` | `--auth-token <token>` | Authentication token presented to the signaling server. |
+| `room_id` | `--room <id>` | Signaling room the device and receiver rendezvous in. |
+| `room_password` | `--room-password <pw>` | Password protecting the signaling room. |
+| `enable_audio` | *(none)* | Enable the audio track over the WebRTC connection. The viewer leaves this at its default. |
+
+### WebRTC-only Receiver Methods
+
+Beyond the shared lifecycle, `WebRtcStreamReceiver` adds a few methods that only make sense over a bidirectional WebRTC connection:
+
+| Method | Description |
+|---|---|
+| `set_mic_muted(muted: bool)` | Mute (`True`) or unmute (`False`) the receiver's outbound microphone. |
+| `set_volume(volume: float)` | Playback gain for the incoming audio track: `0.0` = silent, `1.0` = unity (default); values `> 1.0` amplify. |
+| `get_waveform() -> (samples: list[float], peak: float)` | Recent incoming-audio samples (each in `[-1, 1]`) and their peak magnitude — e.g. to drive a level meter. Empty / `0.0` when audio is disabled. |
+| `push_audio(pcm: list[float], sample_rate: int, channels: int)` | Send PCM (float samples in `[-1, 1]`) to the device over the WebRTC audio uplink. Any sample rate / channel count is accepted — it is downmixed to mono, resampled to 16 kHz, and sent as the device uplink. While pushed audio is active it **replaces** the host microphone on the uplink, so it plays even with the mic muted. Requires `enable_audio`. Resampling is plain linear interpolation with no anti-alias filter, so downsampling wideband audio (e.g. 44.1/48 kHz) can alias — supply 16 kHz mono for best fidelity. |
+
+:::caution WebRTC timestamps: RTP video uses host receive time
+On the WebRTC transport, `capture_timestamp_ns` for the **RTP video streams (RGB, SLAM, ET)** is the **host receive time**, because RTP does not carry the device capture timestamp. It is expressed in the device clock, using an offset the client tracks from the data-channel streams — so images can still be cross-correlated with the sensors, just with the transport delay included. Everything on the data channel — IMU, VIO, eye gaze, hand pose, magnetometer, barometer, GPS, **audio**, and **cropped POV images** — keeps its **device-clock** timestamps. HTTP timestamps are unchanged.
+:::
+
+See the [WebRTC Streaming Example](/ark/client-sdk/python-sdk/streaming-example#webrtc-streaming) for a complete walkthrough and [WebRTC Streaming](/ark/client-sdk/webrtc) for the `aria_streaming_viewer --transport webrtc` workflow.
 
 ---
 

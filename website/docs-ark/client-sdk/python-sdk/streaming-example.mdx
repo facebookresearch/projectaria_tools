@@ -598,7 +598,7 @@ To set up remote streaming, follow these steps in order:
 4. **Start streaming** on the device with the cert name
 
 :::warning Important
-Always start streaming with the correct certificate name or install certificates **before** starting the streaming server. Starting streaming without specifying the cert name will default to installing new certificates, which would invalidate any old certificates already copied to the server.
+Always start streaming with the correct certificate name or install certificates **before** starting the streaming server. Starting streaming without specifying the cert name will default to installing new certificates, which would invalidate any old certificates already copied to the server. This is the same rule that governs the local start order — see [Start Order and Streaming Certificates](/ark/client-sdk/streaming#start-order-and-streaming-certificates).
 :::
 
 ---
@@ -725,7 +725,7 @@ Ensure the following for remote streaming:
 
 1. **Firewall**: Open port 6768 (or your custom port) on the remote server
 2. **Network connectivity**: The Aria Gen2 device must be able to reach the remote server IP
-3. **Certificate matching**: The publisher certificate on the device must match the subscriber certificates on the server (issued from the same Nebula CA)
+3. **Certificate matching**: The publisher certificate on the device must match the subscriber certificates on the server (issued from the same Aria CA)
 
 ### Troubleshooting Remote Streaming
 
@@ -743,6 +743,184 @@ Ensure the following for remote streaming:
 - Confirm the device started streaming successfully
 - Check network connectivity between device and server
 - Verify the streaming URL is correct
+
+---
+
+## WebRTC Streaming
+
+The SDK exposes **WebRTC** through the same receiver interface as HTTP. To switch transport you keep every callback and swap only the receiver class (`StreamReceiver` → `WebRtcStreamReceiver`) and its config (`HttpServerConfig` → `WebRtcConfig`). The typed sensor objects your callbacks receive are identical, and H.265 frames are decoded in Python by the same `ImageDecoder`.
+
+### Receiver Setup
+
+This mirrors [`setup_streaming_receiver`](#step-5-set-up-the-streaming-receiver) above — note that only the config and receiver class differ; the callback registrations are unchanged:
+
+```python
+import aria.sdk_gen2 as sdk_gen2
+import aria.stream_receiver as receiver
+
+
+def setup_webrtc_receiver():
+    # Swap ONLY the config: WebRtcConfig instead of HttpServerConfig
+    config = sdk_gen2.WebRtcConfig()
+    config.listen_port = 9000   # same-network direct peer-to-peer
+    config.enable_audio = True
+
+    # Swap ONLY the receiver class: WebRtcStreamReceiver instead of StreamReceiver
+    stream_receiver = receiver.WebRtcStreamReceiver()
+    stream_receiver.set_server_config(config)
+
+    # The callbacks are IDENTICAL to the HTTP example above
+    stream_receiver.register_slam_callback(image_callback)
+    stream_receiver.register_rgb_callback(image_callback)
+    stream_receiver.register_audio_callback(audio_callback)
+    stream_receiver.register_eye_gaze_callback(eyegaze_callback)
+    stream_receiver.register_hand_pose_callback(handtracking_callback)
+    stream_receiver.register_vio_callback(vio_callback)
+
+    # Same lifecycle as HTTP: start_server / stop_server / is_connected
+    stream_receiver.start_server()
+    return stream_receiver
+```
+
+You can also import the classes directly:
+
+```python
+from aria.stream_receiver import WebRtcStreamReceiver
+from aria.sdk_gen2 import WebRtcConfig
+```
+
+#### Cross-network Configuration
+
+To reach a device on a different network, point the signaling fields at a signaling server instead of setting `listen_port`. Everything else in `setup_webrtc_receiver` — the receiver class, the callback registrations, the lifecycle — is unchanged:
+
+```python
+def webrtc_config_cross_network():
+    config = sdk_gen2.WebRtcConfig()
+    config.signaling_host = "example.com"
+    config.signaling_port = 8443
+    config.room_id = "my-room"
+    config.room_password = "..."
+    config.auth_token = "..."
+
+    # Optional, for NAT traversal:
+    config.stun = "stun:example.com:3478"
+    config.turn = "turn:example.com:3478"
+    config.turn_username = "aria"
+    config.turn_password = "..."
+
+    config.enable_audio = True
+    return config
+```
+
+Replace `example.com` with your own host.
+
+The signaling server ships as a separate PyPI wheel that you run on a host both the glasses and the receiver can reach — see [WebRTC Streaming](/ark/client-sdk/webrtc). Each field maps to an `aria_streaming_viewer` flag; the pairing is listed in [WebRtcConfig Fields](/ark/client-sdk/python-sdk/python-interface#webrtcconfig-fields).
+
+### WebRTC-only Receiver Methods
+
+Beyond the shared lifecycle (`set_server_config`, `start_server`, `stop_server`, `is_connected`), `WebRtcStreamReceiver` adds methods for the bidirectional WebRTC connection:
+
+```python
+# Control the receiver's outbound microphone and incoming audio playback
+stream_receiver.set_mic_muted(True)
+stream_receiver.set_volume(0.8)
+
+# Read the current audio waveform (e.g. to drive a level meter)
+samples, peak = stream_receiver.get_waveform()
+
+# Push your own PCM (a clip, TTS, a synthesized tone) to the device over the
+# audio uplink — any sample rate / channel count, float samples in [-1, 1].
+stream_receiver.push_audio(pcm_samples, sample_rate=16000, channels=1)
+```
+
+:::tip `push_audio` vs the microphone
+`push_audio` sends caller-supplied PCM on the host→device uplink from your data instead of the mic hardware — use it for talk-back clips, TTS, or synthesized audio. While pushed audio is active it **replaces** the host microphone on the uplink, so it plays even with the mic muted.
+:::
+
+For a complete, runnable script — it starts a WebRTC session, mutes the mic, and plays a generated tone (or a WAV file) to the glasses' speaker — see the **`device_push_audio.py`** sample:
+
+```bash
+# Export the samples (once), then run it. This host listens; the device dials it.
+python -m aria.extract_sdk_samples --output ~/Downloads/
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_push_audio.py \
+    --signaling-url tcp://<laptop_ip>:9000 --listen
+
+# Play a 16-bit PCM WAV instead of the default tone:
+python ~/Downloads/projectaria_client_sdk_samples_gen2/device_push_audio.py \
+    --signaling-url tcp://<laptop_ip>:9000 --listen --wav /path/to/clip.wav
+```
+
+### Feeding the Stream to a Model
+
+The callbacks are the integration point, and nothing says they have to print or visualize: the
+same handlers can forward what arrives to a model. Prefer WebRTC for this — its lower latency
+and the audio path back to the wearer both help when a model is in the loop.
+
+* **Images to a vision-language model.** `register_rgb_callback` (or the SLAM and eye-tracking
+  ones) hands you a numpy array per frame, ready for a VLM — hosted API or a local model — for
+  scene description, visual Q&A, or grounding what the wearer is looking at.
+* **Audio to a realtime model.** `register_audio_callback` delivers PCM as it is captured,
+  which is the shape a streaming speech or omni model wants on its input.
+* **The answer back to the glasses.** Synthesized speech goes out over the uplink with
+  [`push_audio`](#webrtc-only-receiver-methods), so the loop closes inside the same session
+  without any second channel.
+
+Eye gaze, hand pose and VIO arrive on the data channel alongside all of this, so a prompt can
+carry where the wearer was looking or pointing at the moment the frame was captured.
+
+:::caution Run the inference off the callback thread
+Callbacks execute on the receive path. A network round-trip to a model API, or a local forward
+pass, blocks delivery for as long as it takes and shows up as dropped frames. Hand the data to
+a bounded queue and let a worker consume it — dropping frames when inference falls behind is
+what keeps the stream live.
+:::
+
+```python
+import queue
+import threading
+
+frames = queue.Queue(maxsize=2)   # bounded: prefer fresh frames over a backlog
+
+
+def rgb_callback(image_data: ImageData, image_record: ImageDataRecord):
+    try:
+        frames.put_nowait(image_data.to_numpy_array())
+    except queue.Full:
+        pass                      # inference is behind; keep the newest frames moving
+
+
+def inference_worker(stream_receiver):
+    while True:
+        frame = frames.get()
+        answer = my_vlm.describe(frame)               # hosted API or a local model
+        pcm, sample_rate = my_tts.synthesize(answer)
+        stream_receiver.push_audio(pcm, sample_rate=sample_rate, channels=1)
+
+
+stream_receiver.register_rgb_callback(rgb_callback)
+threading.Thread(target=inference_worker, args=(stream_receiver,), daemon=True).start()
+```
+
+Start from the `low_latency_streaming` profile here — it is sized for exactly this kind of
+interactive loop, see [Choosing a profile](/ark/client-sdk/webrtc#choosing-a-profile).
+
+### Visualizing a WebRTC Stream
+
+The quickest way to see a WebRTC stream is the viewer. Run these two commands in separate terminals, in **either order** — the viewer listens on the port and the device connects once streaming starts, retrying until the viewer is up. WebRTC installs no streaming certificates on the device, so it has none of the ordering constraint that [HTTP](/ark/client-sdk/streaming#start-order-and-streaming-certificates) has. The `--listen` port must match the port in the device's `--signaling-url`.
+
+```bash
+# Open the viewer over WebRTC, listening for a direct P2P connection:
+aria_streaming_viewer --transport webrtc --listen 9000
+# Start streaming on the device (in another terminal), dialing this host:
+aria_gen2 streaming webrtc start --signaling-url tcp://<this-host-ip>:9000 \
+    --profile low_latency_streaming --interface wifi_sta
+```
+
+See [WebRTC Streaming](/ark/client-sdk/webrtc) for the cross-network signaling setup, the separate signaling-server wheel, and the full flag list.
+
+:::caution WebRTC timestamps: RTP video uses host receive time
+On WebRTC, `capture_timestamp_ns` for the **RTP video streams (RGB, SLAM, ET)** is the **host receive time** (RTP carries no device capture timestamp), expressed in the device clock via an offset tracked from the data-channel streams. Everything that arrives on the data channel — IMU, VIO, eye gaze, hand pose, magnetometer, barometer, GPS, audio, and cropped POV images — keeps its **device-clock** timestamps. HTTP timestamps are unchanged.
+:::
 
 ---
 

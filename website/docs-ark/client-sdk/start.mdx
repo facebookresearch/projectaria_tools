@@ -19,7 +19,7 @@ Install the Client SDK to control and interact with Aria Gen 2 devices from your
 
 ## Supported Platforms
 
-| OS / Platform                 | OS / Distro Details                                                | Aria Gen2 Support (projectaria-tools ≥2.0) | Supported Python Versions |
+| OS / Platform                 | OS / Distro Details                                                | Aria Gen2 Support (projectaria-tools ≥2.3.0) | Supported Python Versions |
 | :---------------------------- | :----------------------------------------------------------------- | :----------------------------------------- | :------------------------ |
 | Linux (x64)                   | Fedora **40/41**; Ubuntu **22.04 LTS (jammy)** / **24.04 LTS ( Noble Numbat)**| ✅ Supported                  | 3.10 – 3.12              |
 | macOS (Apple Silicon / ARM64) | macOS **14+ (Sonoma or newer)** on M1/M2/M3/M4                        | ✅ Supported                               | 3.10 – 3.12              |
@@ -58,6 +58,19 @@ source $HOME/projectaria_gen2_python_env/bin/activate
 ```bash
 pip install projectaria-client-sdk
 ```
+
+`pip` pulls the runtime dependencies in for you — you do not install them separately:
+
+| Dependency | Version | Used for |
+| :--------- | :------ | :------- |
+| `projectaria-tools` | `~=2.3.0` | VRS reading, device calibration, sensor data types |
+| `projectaria-login` | `~=0.2` | Device authentication |
+| `rerun-sdk` | `~=0.33.0` | The `aria_streaming_viewer` visualization window |
+| `numpy`, `termcolor` | any | Array handling and CLI output |
+
+:::note Rerun is pinned to a minor version
+`rerun-sdk` is pre-1.0 and changes its Python API across minor releases, so the Client SDK pins the minor it is built against. If your environment already has a different `rerun-sdk`, install into a fresh virtual environment (Step 2) rather than forcing the versions together — a mismatched Rerun fails when `aria_streaming_viewer` starts.
+:::
 
 ## Verify Installation
 

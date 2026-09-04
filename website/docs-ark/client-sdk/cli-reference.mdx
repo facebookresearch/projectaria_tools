@@ -277,7 +277,7 @@ aria_gen2 recording delete-all
 | `--batch-period-ms` | No | — | Message batching period (required for wireless) |
 | `--profile` | No | `mp_streaming_demo` | Streaming profile |
 | `--url` | No | — | Remote server URL for remote streaming |
-| `--streaming-cert-name` | No | — | Certificate name for remote streaming |
+| `--streaming-cert-name` | No | — | Use the named certificate already installed by [`install-certs`](#aria_gen2-streaming-install-certs) instead of generating and installing a new pair. See [Start Order and Streaming Certificates](/ark/client-sdk/streaming#start-order-and-streaming-certificates) |
 | `--no-verify-server-certs` | No | — | Skip server certificate verification |
 | `--all` | No | — | Multi-device: orchestrate all connected devices. See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device) |
 | `--broadcaster <serial>` | No | smallest serial | Multi-device: serial of the TDM broadcaster (requires `--all`) |
@@ -303,6 +303,84 @@ aria_gen2 streaming start --url "https://server:6768" --interface wifi_sta --bat
 **Expected Output:**
 ```
 [AriaGen2Cli:App][INFO]: Streaming started successfully
+```
+
+---
+
+### `aria_gen2 streaming webrtc start`
+
+**Purpose:** Start a WebRTC streaming session instead of HTTP. See [WebRTC Streaming](/ark/client-sdk/webrtc) for the two supported topologies.
+
+**Prerequisites:** Device authenticated (`aria_gen2 auth check`). No streaming certificates to install. A TLS (`https://`) signaling URL is the exception: the device accepts one only when the signaling server's certificate chains to a trust anchor built into the device — see [Trusting a TLS signaling server](/ark/client-sdk/webrtc#trusting-a-tls-signaling-server).
+
+| Flag | Required | Default | Description |
+|------|----------|---------|-------------|
+| `--signaling-url` | Yes | — | Signaling server URL, e.g. `tcp://<host>:<port>`. `https://` selects TLS signaling, which the device can use only against a server certificate chaining to its built-in trust anchor — there is no trust-anchor option here, unlike the receiver's `--ca-root` |
+| `--interface` | No | `wifi_sta` | `wifi_sta` or `wifi_sap` (WebRTC is Wi-Fi only) |
+| `--profile` | No | `mp_streaming_demo` | Streaming profile name |
+| `--json-profile` | No | — | Streaming profile JSON file. Takes precedence over `--profile` when both are given |
+| `--room` | No | `default` | Signaling room to join |
+| `--room-password` | No | — | Shared secret required to join the room. Must match the receiver's `aria_streaming_viewer --room-password` |
+| `--auth-token` | No | — | Auth token presented to the signaling server |
+| `--stun` | No | — | STUN server URL. Repeatable |
+| `--turn` | No | — | TURN server as `url,username,credential`. Repeatable |
+| `--ntp-sync` | No | — | Sync the device clock against an NTP server before starting the session. See below |
+| `--pcie-batch-period-ms` | No | `10` | PCIe batch period in ms (minimum 10) |
+| `-r`, `--record` | No | — | Also record to VRS on-device during the session. WebRTC only — see below |
+| `--recording-profile` | No | — | Recording profile name to use (requires `--record`) |
+| `--recording-json-profile` | No | — | Recording profile JSON file to use (requires `--record`). Takes precedence over `--recording-profile` |
+
+```bash
+# Same-network direct peer-to-peer
+aria_gen2 streaming webrtc start --signaling-url tcp://<host-ip>:9000 \
+    --profile low_latency_streaming --interface wifi_sta
+
+# Cross-network through a signaling server, syncing the device clock first
+aria_gen2 streaming webrtc start \
+    --signaling-url tcp://example.com:8443 \
+    --profile low_latency_streaming \
+    --room my-room --auth-token "$AUTH_TOKEN" \
+    --stun stun:example.com:3478 \
+    --turn turn:example.com:3478,aria,"$TURN_PASSWORD" \
+    --interface wifi_sta \
+    --ntp-sync
+```
+
+Replace `example.com` with your own host.
+
+**`--ntp-sync`:** a signaling server may refuse a device whose clock has drifted, because the
+authentication handshake is timestamped and stale handshakes are rejected. `--ntp-sync` makes
+the device sync its clock against an NTP server before the session starts. The device must be
+able to reach that server over Wi-Fi, and the sync is a precondition rather than best-effort:
+if it fails the session does not start. Without the flag no clock sync is performed and the
+device starts the session on its default time source.
+
+**`-r` / `--record`:** records to VRS on the device for the duration of the streaming session,
+so you get a full-rate on-device capture alongside the live stream. `--recording-profile` or
+`--recording-json-profile` selects the recording profile — both require `--record`, and they
+are independent of `--profile`, which selects the *streaming* profile. One
+`aria_gen2 streaming webrtc stop` ends both the stream and the recording. See
+[Recording While Streaming](/ark/client-sdk/webrtc#recording-while-streaming).
+
+:::note Recording while streaming is WebRTC only
+`aria_gen2 streaming start` (HTTP) has no `--record` flag. In Python,
+`device.start_streaming(record=True)` fails with `OperationNotAllowed` unless a WebRTC config
+was set first via `set_webrtc_streaming_config()`.
+:::
+
+**Expected Output:**
+```
+[AriaGen2Cli:App][INFO]: Streaming started successfully
+```
+
+---
+
+### `aria_gen2 streaming webrtc stop`
+
+**Purpose:** Stop the active WebRTC streaming session.
+
+```bash
+aria_gen2 streaming webrtc stop
 ```
 
 ---
@@ -334,7 +412,7 @@ aria_gen2 streaming stop
 aria_gen2 streaming install-certs
 ```
 
-**Output includes a cert name** (e.g., `cert_1769712774692532015`) needed for `--streaming-cert-name`.
+**Output includes a cert name** (e.g., `cert_1769712774692532015`) needed for `--streaming-cert-name`. Pinning that name on [`streaming start`](#aria_gen2-streaming-start) also makes the start order irrelevant — see [Start Order and Streaming Certificates](/ark/client-sdk/streaming#start-order-and-streaming-certificates).
 
 ---
 
@@ -396,14 +474,28 @@ aria_gen2 streaming sessions info <session-id>
 
 **Purpose:** Open the real-time streaming viewer (run in a separate terminal while streaming is active).
 
-:::warning Start Streaming Before Opening Viewer
-You **must** start streaming (`aria_gen2 streaming start`) **before** launching `aria_streaming_viewer`. The viewer connects to an already-active stream — if no stream is running, the viewer will **not** display any data. Always follow this order:
-1. `aria_gen2 streaming start` (in terminal 1)
-2. `aria_streaming_viewer` (in terminal 2)
+:::note Start streaming before opening the viewer
+On HTTP, run [`aria_gen2 streaming start`](#aria_gen2-streaming-start) first and `aria_streaming_viewer` second, in two terminals. Pinning an already-installed certificate with `--streaming-cert-name` lets you run them in either order — see [Start Order and Streaming Certificates](/ark/client-sdk/streaming#start-order-and-streaming-certificates) for more details. WebRTC installs no streaming certificates, so the order never matters there — including when the signaling channel runs over TLS, which involves the signaling server's certificate rather than a per-device one.
 :::
 
 ```bash
 aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
+```
+
+**WebRTC transport:** add `--transport webrtc` to stream over WebRTC instead of HTTP — use `--listen <port>` for a same-network direct peer-to-peer connection, or `--signaling-url` (or the older `--signaling-host` / `--signaling-port`), plus `--room`, `--room-password`, `--auth-token`, `--stun`, `--turn`, `--turn-username`, `--turn-password`, for cross-network streaming through a signaling server. An `https://` signaling URL puts the signaling channel behind TLS; `--ca-root` picks the trust anchor, see [Trusting a TLS signaling server](/ark/client-sdk/webrtc#trusting-a-tls-signaling-server). See [WebRTC Streaming](/ark/client-sdk/webrtc).
+
+```bash
+# Same-network direct peer-to-peer over WebRTC
+aria_streaming_viewer --transport webrtc --listen 9000
+```
+
+On WebRTC the viewer also shows terminal audio controls — press <kbd>m</kbd> to mute/unmute the microphone, and watch the incoming audio level meter. Add `--no-audio-controls` to turn them off; they are skipped automatically when the terminal is not interactive. See [Terminal Audio Controls](/ark/client-sdk/webrtc#terminal-audio-controls).
+
+**Custom layout:** `--blueprint <path.rbl>` replaces the auto-generated Rerun layout with a saved [Rerun blueprint](https://rerun.io/docs/concepts/blueprint). The SDK ships `aria_video_focused_rerun_0.33.rbl` with the [example code](/ark/client-sdk/python-sdk/python-interface#export-example-code); a blueprint can also be dragged onto the Rerun window or opened from its menu. The viewer exits with an error if the path does not exist. See [Custom Layout with a Rerun Blueprint](/ark/client-sdk/streaming#custom-layout-with-a-rerun-blueprint).
+
+```bash
+aria_streaming_viewer --real-time --interpolate \
+    --blueprint ~/Downloads/projectaria_client_sdk_samples_gen2/aria_video_focused_rerun_0.33.rbl
 ```
 
 ---

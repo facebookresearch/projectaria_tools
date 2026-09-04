@@ -1,14 +1,16 @@
 ---
 sidebar_position: 3
-title: Streaming Control
+title: HTTP Streaming Control
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import ThemedImage from '@theme/ThemedImage';
 
 
-# Streaming Control
+# HTTP Streaming Control
 
 The ClientSDK provides powerful streaming capabilities that allow you to receive real-time data from your Aria Gen2 device. You can stream sensor data including camera feeds, IMU data, eye tracking, hand tracking, and machine perception outputs.
+
+Every method on this page — USB, WiFi router and on-device hotspot — streams over the **HTTP transport**, which is what `aria_streaming_viewer` uses by default (`--transport http`). The alternative transport has its own page: see [WebRTC Streaming](/ark/client-sdk/webrtc) for low-latency peer-to-peer and cross-network streaming.
 
 ## Prerequisites
 
@@ -63,17 +65,59 @@ Custom profiles are especially useful when you need specific sensor combinations
 
 ## Choose Your Streaming Method
 
-Select the streaming method that best fits your use case:
+Select the streaming method that best fits your use case. The first four all run over the HTTP transport and are documented on this page; WebRTC is a different transport with its own page.
 
-| Method | Best For | Pros | Cons |
-|--------|----------|------|------|
-| **[USB Streaming](#usb-streaming)** | Extended sessions, highest quality | Most reliable, no thermal issues | Requires cable connection |
-| **[WiFi Router Streaming](#wifi-router-streaming)** | Untethered development, mobility | Wireless freedom, good for demos | Thermal concerns, requires network |
-| **[On-Device Hotspot Streaming](#on-device-hotspot-streaming)** | Field work, no network available | No external network needed | Highest thermal impact, limited duration |
-| **[Remote Server Streaming](/ark/client-sdk/python-sdk/streaming-example#http-streaming-to-remote-server)** | Dedicated processing server, distributed systems | Process on powerful remote machine | Requires network setup, TLS certificates |
+| Method | Transport | Best For | Pros | Cons |
+|--------|-----------|----------|------|------|
+| **[USB Streaming](#usb-streaming)** | HTTP | Extended sessions, highest quality | Most reliable, no thermal issues | Requires cable connection |
+| **[WiFi Router Streaming](#wifi-router-streaming)** | HTTP | Untethered development, mobility | Wireless freedom, good for demos | Thermal concerns, requires network |
+| **[On-Device Hotspot Streaming](#on-device-hotspot-streaming)** | HTTP | Field work, no network available | No external network needed | Highest thermal impact, limited duration |
+| **[Remote Server Streaming](/ark/client-sdk/python-sdk/streaming-example#http-streaming-to-remote-server)** | HTTP | Dedicated processing server, distributed systems | Process on powerful remote machine | Requires network setup, TLS certificates |
+| **[WebRTC Streaming](/ark/client-sdk/webrtc)** | WebRTC | Low-latency P2P; cross-network via signaling | Direct P2P on same network; NAT traversal across networks; [can record to VRS while streaming](/ark/client-sdk/webrtc#recording-while-streaming) | Image timestamps are host receive time |
 
 :::tip Getting Started
 **New to streaming?** Start with [USB Streaming](#usb-streaming) - it's the simplest and most reliable method.
+:::
+
+---
+
+## Start Order and Streaming Certificates
+
+Over HTTP, **start streaming on the device first, then open the viewer**:
+
+```bash
+aria_gen2 streaming start                                        # terminal 1
+aria_streaming_viewer --real-time --interpolate                  # terminal 2
+```
+
+The reason is certificate handling, not connection retries. HTTP streaming is mutually authenticated with TLS: the device holds a publisher certificate, and the host holds the matching subscriber certificate and root CA in `~/.aria/streaming-certs/persistent/`. When `aria_gen2 streaming start` runs **without** `--streaming-cert-name`, it deletes those host files, generates a new root CA and key pairs in their place, and installs the new publisher certificate on the device. `aria_streaming_viewer` reads the host files once, when it starts, and holds the resulting TLS context for its lifetime — so a viewer opened first is still verifying against the previous root CA, and the device's connection fails the handshake.
+
+### Making the Order Irrelevant
+
+Give `streaming start` a certificate that is already installed, so it does not mint a new one. Install one once with [`aria_gen2 streaming install-certs`](/ark/client-sdk/cli-reference#aria_gen2-streaming-install-certs), note the cert name it prints, and pass that name on every subsequent start:
+
+```bash
+# Once per host + device pair. Prints the cert name:
+#   [AriaGen2SDK:Device][INFO]: Request installing streaming certs on device: cert_1769712774692532015
+aria_gen2 streaming install-certs
+
+# From then on these two can be run in either order:
+aria_streaming_viewer --real-time --interpolate
+aria_gen2 streaming start --streaming-cert-name cert_1769712774692532015
+```
+
+With `--streaming-cert-name` naming an already-installed certificate, `streaming start` installs nothing, the files the viewer read at startup stay valid, and the device retries the connection until the viewer is listening — so either order works. The cert name survives across runs, so this is a one-time setup.
+
+`--local-certs-dir` has the same effect: pointed at a directory that already holds certificates, `streaming start` adopts the installed cert instead of generating one. Use the viewer's own directory, since `aria_streaming_viewer` has no certificate flag of its own and always reads `~/.aria/streaming-certs/persistent/`:
+
+```bash
+aria_gen2 streaming start --local-certs-dir ~/.aria/streaming-certs/persistent
+```
+
+The Python API behaves the same way — `device.start_streaming()` regenerates unless the `HttpStreamingConfig` you pass to `set_streaming_config()` sets `streaming_cert_name` (or `security_options.local_certs_root_path`).
+
+:::tip WebRTC installs no streaming certificates
+[WebRTC](/ark/client-sdk/webrtc) does not install streaming certificates on the device, so `aria_gen2 streaming webrtc start` and `aria_streaming_viewer --transport webrtc` can always be started in either order. The one certificate it can involve is the signaling server's own, when the signaling channel runs over TLS — that is a trust anchor you point each peer at, not something installed per device, and it does not affect the start order. See [Trusting a TLS signaling server](/ark/client-sdk/webrtc#trusting-a-tls-signaling-server).
 :::
 
 ---
@@ -91,18 +135,18 @@ Stream data over USB connection for maximum bandwidth and reliability. This is t
 
 ### Quick Start
 
-:::warning Start Streaming Before Opening Viewer
-You **must** start streaming (`aria_gen2 streaming start`) **before** launching `aria_streaming_viewer`. The viewer connects to an already-active stream — if no stream is running, the viewer will **not** display any data. Always start streaming first, then open the viewer in a separate terminal.
+:::note Start streaming before opening the viewer
+Run `aria_gen2 streaming start` first and `aria_streaming_viewer` second, in two terminals. Pinning an already-installed certificate with `--streaming-cert-name` lets you run them in either order — see [Start Order and Streaming Certificates](#start-order-and-streaming-certificates) for more details.
 :::
 
 ```bash
 # 1. Connect device via USB and verify connection
 aria_gen2 device list
 
-# 2. Start streaming (MUST be done before opening viewer)
+# 2. Start streaming (do this before opening the viewer)
 aria_gen2 streaming start
 
-# 3. In another terminal, visualize the stream (streaming must already be active)
+# 3. In another terminal, visualize the stream
 aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
 
 # 4. When done, stop streaming
@@ -202,13 +246,14 @@ aria_gen2 device list
 
 # 2. Verify device is on WiFi (check Companion App)
 
-# 3. Start streaming with batch period for thermal management (MUST be done before opening viewer)
+# 3. Start streaming with batch period for thermal management
+#    Do this before opening the viewer.
 #    Use 200ms batch period for a balance of latency and thermal performance
 aria_gen2 streaming start --batch-period-ms 200 --interface wifi_sta
 
 # 4. Unplug the USB cable - streaming will continue over WiFi
 
-# 5. In another terminal, visualize the stream (streaming must already be active)
+# 5. In another terminal, visualize the stream
 aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
 
 # 6. When done, plug the USB cable back in, then stop streaming
@@ -270,13 +315,14 @@ aria_gen2 device list
 
 # 3. Connect your computer to Aria's WiFi hotspot
 
-# 4. Start streaming with aggressive batching for thermal management (MUST be done before opening viewer)
+# 4. Start streaming with aggressive batching for thermal management
+#    Do this before opening the viewer.
 #    800ms batch period is recommended to extend usable time
 aria_gen2 streaming start --batch-period-ms 800 --interface --wifi_sap
 
 # 5. Unplug the USB cable - streaming will continue over WiFi hotspot
 
-# 6. In another terminal, visualize the stream (streaming must already be active)
+# 6. In another terminal, visualize the stream
 aria_streaming_viewer --real-time --interpolate --rerun-memory-limit 4GB
 
 # 7. When done, plug the USB cable back in, then stop streaming
@@ -330,8 +376,8 @@ aria_gen2 streaming stop
 
 ### Visualize Streaming Data
 
-:::warning Start Streaming Before Opening Viewer
-You **must** start streaming **before** launching the viewer. The viewer connects to an already-active stream — if no stream is running, the viewer will **not** display any data.
+:::note Start streaming before opening the viewer
+Run `aria_gen2 streaming start` first and `aria_streaming_viewer` second, in two terminals. Pinning an already-installed certificate with `--streaming-cert-name` lets you run them in either order — see [Start Order and Streaming Certificates](#start-order-and-streaming-certificates) for more details.
 :::
 
 Open the streaming viewer in a separate terminal while streaming is active:
@@ -345,6 +391,41 @@ The viewer shows:
 * Machine perception data (VIO trajectory, eye gaze, hand pose)
 * Sensor readings (IMU, magnetometer, etc.)
 * Performance metrics (frame rates, latency)
+
+#### Custom Layout with a Rerun Blueprint
+
+By default the viewer generates its layout from the device calibration. A [Rerun blueprint](https://rerun.io/docs/concepts/blueprint) — a `.rbl` file — replaces that layout with a saved arrangement of views, panels, and visibility settings, so you can keep a workspace you like across sessions.
+
+The SDK ships one ready-made blueprint, `aria_video_focused_rerun_0.33.rbl`: a video-focused layout with the RGB camera at the center, the SLAM cameras arranged around it, and eye gaze overlaid on the video streams. Export it together with the sample scripts:
+
+```bash
+python -m aria.extract_sdk_samples --output ~/Downloads/
+```
+
+There are three ways to load it. All three work the same on the HTTP and WebRTC transports.
+
+**1. The `--blueprint` flag.** Pass the file when starting the viewer and it is applied before the first frame arrives:
+
+```bash
+aria_streaming_viewer --real-time --interpolate \
+    --blueprint ~/Downloads/projectaria_client_sdk_samples_gen2/aria_video_focused_rerun_0.33.rbl
+```
+
+The viewer checks that the path exists and exits with an error if it does not. While `--blueprint` is set, the auto-generated layout is skipped entirely — the blueprint *is* the layout.
+
+**2. Drag and drop.** With the Rerun window already open, drag the `.rbl` from your file manager onto the window. The live stream keeps running; only the layout changes.
+
+**3. The Rerun menu.** In the Rerun window, open the menu from the button at the top-left of the viewer and choose **Open file…**, then pick the `.rbl`. Rerun's file dialog accepts `.rbl` blueprints alongside `.rrd` recordings.
+
+To make your own, arrange the views however you like in a running viewer, then use the same menu's **Save blueprint…** entry — "Save the current viewer setup as a Rerun blueprint file (.rbl)" — and pass the result back with `--blueprint`.
+
+:::caution Blueprints are tied to a Rerun version
+The `.rbl` format tracks the Rerun release, which is why the shipped file carries `rerun_0.33` in its name — the Rerun a `rerun-sdk ~=0.33.0` install [brings in](/ark/client-sdk/start#step-3-install-the-client-sdk-python-package). Rerun migrates older blueprints forward when it opens them, but a blueprint saved by a *newer* Rerun than the one you are running may load with missing or misplaced views. If a blueprint does not look right, re-save it from the Rerun version you are running, or drop `--blueprint` to fall back to the auto-generated layout.
+:::
+
+#### Stopping the Viewer
+
+This applies to both the HTTP and WebRTC transports. Press <kbd>CTRL</kbd>+<kbd>C</kbd>, or simply **close the Rerun window** — the viewer shuts the receiver down and exits on its own, so it does not keep receiving and decoding into a window that is no longer there. Pass `--no-exit-on-viewer-close` to keep the session running after the window is closed.
 
 
 #### Example Visualization
@@ -408,6 +489,7 @@ Choose the right tool for your needs:
 
 ## Next Steps
 
+* Switch transport with [WebRTC Streaming](/ark/client-sdk/webrtc) for low-latency P2P and cross-network sessions
 * Learn about [Recording](/ark/client-sdk/recording) to save data for offline analysis
 * Check out [Streaming Examples](/ark/client-sdk/python-sdk/streaming-example) to build custom streaming applications
 * Visit the [CLI Technical Specs](/technical-specs/client-sdk/cli) for complete command reference

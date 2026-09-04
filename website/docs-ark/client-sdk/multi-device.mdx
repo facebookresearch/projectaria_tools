@@ -162,7 +162,7 @@ Pick Option 1 when you want the cert name printed up front (e.g. to pass to `mul
 aria_gen2 streaming start --profile profile9 --all --interface wifi_sta
 ```
 
-`--all` orchestrates every connected device; the broadcaster starts first so TDM is active before receivers lock. All single-device streaming flags from [Streaming Control](/ark/client-sdk/streaming) (server URL, batching, cert verification, etc.) work identically when combined with `--all`. Add `--streaming-cert-name <name>` if you installed an explicit cert via Option 1 above and want to pin it.
+`--all` orchestrates every connected device; the broadcaster starts first so TDM is active before receivers lock. All single-device streaming flags from [HTTP Streaming Control](/ark/client-sdk/streaming) (server URL, batching, cert verification, etc.) work identically when combined with `--all`. Add `--streaming-cert-name <name>` if you installed an explicit cert via Option 1 above and want to pin it.
 
 ### Inspect and stop
 
@@ -252,6 +252,6 @@ For scripts and notebooks that consume per-device callback data without the live
 ## See Also
 
 - [Recording Control](/ark/client-sdk/recording) — single-device recording
-- [Streaming Control](/ark/client-sdk/streaming) — single-device streaming
+- [HTTP Streaming Control](/ark/client-sdk/streaming) — single-device streaming
 - [CLI Quick Reference](/ark/client-sdk/cli-reference#multi-device-sessions) — flag-by-flag reference (added in 2.4.0)
 - [Multi-Device Streaming Example](/ark/client-sdk/python-sdk/multi-device-streaming-example) — programmatic walkthrough
