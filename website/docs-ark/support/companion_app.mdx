@@ -1,0 +1,82 @@
+---
+sidebar_position: 1.5
+title: Companion App Troubleshooting
+---
+
+Solutions to issues you may encounter while recording, streaming, or calibrating with the Aria Companion App.
+
+To report a problem to the Aria team from inside the app, see [Companion App Rage Shake](/ark/support/rageshake).
+
+---
+
+## Streaming
+
+### Streaming Not Allowed
+
+> Streaming is not allowed with these glasses.
+
+The glasses are not provisioned for streaming.
+
+**Solution:** Contact [AriaOps@meta.com](mailto:AriaOps@meta.com) with your device serial number.
+
+### Streaming via Wi-Fi is incompatible with Wi-Fi scanning
+
+> Streaming via Wi-Fi is incompatible with Wi-Fi scanning.
+>
+> Please choose a recording profile without Wi-Fi scanning.
+
+A profile the session is using enables Wi-Fi scanning, which cannot run at the same time as Wi-Fi streaming.
+
+The message says "recording profile" because the app uses one profile format throughout, but the profile to change depends on the session type: for a **Streaming** session it is the **Streaming Profile**, and for a **Recording & Streaming** session check the **Recording Profile** as well.
+
+**Solution:** Select a profile that does not enable Wi-Fi scanning. See [Recording Profiles](/ark/companion-app/recording-profiles).
+
+### Unable to connect to Wi-Fi
+
+> Unable to connect to Wi-Fi. Please check your Wi-Fi settings and try again.
+
+The glasses could not join the network.
+
+**Solution:** Open the glasses details screen from the dashboard and re-check the Wi-Fi setup. Confirm the network is reachable and that the glasses are in range.
+
+### A session will not stop
+
+> Streaming Stop Error — Press the glasses' Capture button to stop.
+
+Or, when the request timed out:
+
+> Streaming Stop Timed Out — Glasses may still stop streaming after an additional delay. If not, press the glasses' Capture button to stop.
+
+The app could not confirm that the glasses stopped the session.
+
+**Solution:** Press the Capture button on the glasses to stop the session directly. If that does not work, use **Report** in the alert to send a report.
+
+---
+
+## Eye Tracking Calibration
+
+### Calibration Unsuccessful
+
+> We were unable to process your eye gaze data.
+
+The calibration ran but the gaze data could not be processed.
+
+**Solution:** Check that the glasses are well seated on the face, that no face coverings are in the way, and that the lighting is even and moderate — avoid facing a window, a bright light, or a reflective surface. Then run the calibration again. See [Eye Tracking Calibration](/ark/companion-app/start#eye-tracking-calibration) for the full requirements.
+
+### Face Not Detected
+
+> If the circle is empty, the phone did not detect a face. Please check phone camera and lighting.
+
+The phone's face tracking cannot see your face.
+
+**Solution:** Hold the phone vertically at arm's length, as you would to take a selfie, and make sure your face is evenly lit and unobstructed.
+
+---
+
+## Additional Resources
+
+- [Get Started](/ark/companion-app/start) — installation, pairing, and Eye Tracking Calibration
+- [Control Recording & Streaming](/ark/companion-app/recording) — sessions, profiles, and WebRTC settings
+- [Recording Profiles](/ark/companion-app/recording-profiles) — choosing and customizing profiles
+- [WebRTC Streaming](/ark/client-sdk/webrtc) — the receiver side of a streaming session
+- [Companion App Rage Shake](/ark/support/rageshake) — reporting device and app issues

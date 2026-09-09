@@ -18,8 +18,9 @@ The Aria Companion App allows you to set up and record using your Aria Gen 2 gla
 - Handle and select between multiple paired Aria Gen 2 glasses
 - Update glasses to the latest firmware
 - Select and start recording profiles directly from the app
+- Start recording, streaming over WebRTC, or [both at once](/ark/companion-app/recording#stream-to-a-computer)
 - Data quality signals during recording and streaming
-- Eye Gaze Calibration
+- [Eye Tracking Calibration](#eye-tracking-calibration)
 - Manage security certificates for SDK/CLI access
 
 ## Get the app
@@ -32,7 +33,7 @@ The current version of the Companion App is v285. Go to ARK Software Release Not
     If you're using iOS, your mobile device will need:
 
 - OS version must be iOS 14 or above
-- (Optional) TrueDepth camera (iPhone X or later) needed for eye-tracking calibration
+- (Optional) TrueDepth camera (iPhone X or later) needed for [Eye Tracking Calibration](#eye-tracking-calibration)
 
 ### Download and Install
 The Aria Mobile Companion app is available on iOS as a beta app through TestFlight.
@@ -54,7 +55,7 @@ to open the [Aria Testflight invitation](https://testflight.apple.com/join/G9sm5
 
 - Android OS version 10 or above installed
 - ARM64 processor preferred
-- (Optional) ARCore Depth API (https://developers.google.com/ar/devices) support needed for eye-tracking calibration
+- (Optional) ARCore Depth API (https://developers.google.com/ar/devices) support needed for [Eye Tracking Calibration](#eye-tracking-calibration)
 - 64-bit is preferred, although 32-bit is supported
 
 ### Download and install
@@ -110,6 +111,56 @@ Once your glasses are set up, you'll be taken to the dashboard. The dashboard is
 
 ![Dashboard](/img/docs-ark/companion-app/dashboard.jpg)
 
+## Eye Tracking Calibration
+
+Aria Gen 2 estimates gaze on-device using a general model that works for any wearer. **Eye Tracking Calibration** measures how one specific person's eyes sit behind one specific pair of glasses, and produces a calibration recording that personalizes the gaze estimate for that pairing.
+
+The calibration is worth running when gaze accuracy matters to your study — and it is what [MPS Eye Gaze](/ark/mps/start#providing-an-eye-gaze-calibration-recording) consumes to produce personalized results.
+
+:::note One flow, two names
+**Eye Tracking Calibration** is the name of the flow in the Companion App. The MPS documentation describes the same flow as the eye gaze calibration flow, and calls the file it produces an **eye gaze calibration recording** — because MPS consumes it for its Eye Gaze feature. They are the same thing.
+:::
+
+### Requirements
+
+- Aria Gen 2 glasses, on the wearer's face, with the privacy switch slid forward
+- Glasses running a current OS version. If an update is needed, the app prompts you to install it first and the calibration starts once the update finishes
+- A phone with face tracking: a TrueDepth camera (iPhone X or later), or an Android device with [ARCore Depth API](https://developers.google.com/ar/devices) support
+- Even, moderate lighting. Avoid facing a window, a bright light, or a reflective surface, and remove any face coverings
+
+### Run a calibration
+
+1. From the dashboard tab, tap your glasses name at the top of the card to open the glasses details screen.
+2. Select **Eye Tracking Calibration** ("Personalize and calibrate eye tracking sensors").
+3. Work through the short tutorial, which explains the three things you need to do: keep your eyes fixed on the number, point your nose in the direction of the arrow while your eyes stay put, and freeze your head between steps while looking at the blinking dot. Tap **Start Eye Calibration** to begin, or **Skip** to go straight to the calibration steps without the tutorial.
+4. When prompted, put the glasses on and tap **Got It**. The glasses record for the duration of the calibration.
+5. Hold the phone vertically at arm's length — "just like you would when taking a selfie" — and tap **Continue**.
+6. Follow the on-screen target. Move your head slowly: you are being calibrated as you move.
+
+On success the app confirms that you've "successfully calibrated your Aria device". If it reports **Calibration Unsuccessful**, see [Companion App Troubleshooting](/ark/support/companion_app#eye-tracking-calibration).
+
+:::note Calibration is per wearer, per pair of glasses
+A calibration describes one person wearing one specific device. If a different person wears those glasses, or the same person switches to another pair, run the calibration again for that combination.
+:::
+
+### Re-calibrating
+
+The app asks you to re-calibrate when the glasses report that their calibration has gone stale — for example after an OS update — and at most once a week when you start a session with an eye-tracking profile. That prompt is titled **Calibrate Your Eye Tracking**; choose **Calibrate Now** to run it, or **Not Now** to continue with the session.
+
+### Using the calibration with MPS
+
+Calibration writes a VRS recording to the glasses, tagged so that downstream tools recognize it as an eye gaze calibration. To use it:
+
+1. Download the calibration recording from the glasses with the [Client SDK](/ark/client-sdk/recording).
+2. Pass it to the MPS CLI with `--calib` when requesting Eye Gaze:
+
+```bash
+aria_mps single -i ~/Downloads/Example/ --calib ~/Downloads/Example/calibration.vrs
+```
+
+Keep a local copy of the calibration VRS — you need the same file to reprocess those recordings later. See [Providing an eye gaze calibration recording](/ark/mps/start#providing-an-eye-gaze-calibration-recording) for the full workflow, including what the CLI reports when a file is not marked as a calibration.
+
 ## Next steps
 - [Make your first recording](/ark/companion-app/recording)
+- [Stream to a computer](/ark/companion-app/recording#stream-to-a-computer)
 - [Set up the ClientSDK](/ark/client-sdk/start)
