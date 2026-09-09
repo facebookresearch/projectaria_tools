@@ -1,0 +1,108 @@
+---
+sidebar_position: 20
+title: Dataset Download
+---
+
+# How to Download the AEA Dataset
+
+## Overview
+
+This page covers how to download sample Aria Everyday Activities (AEA) sequences, as well as how to download specific sequences and types of data. Follow the instructions to download the sample sequence and from there you'll be able to use the CLI to download more data.
+
+By downloading the datasets you agree that you have read and accepted the terms of the Aria Everyday Activities Dataset License Agreement.
+
+
+## Download the sample AEA sequence
+
+
+### Step 0: Install project_aria_tools package and create a virtual environment if not already done
+
+Follow Step 0 to Step 3 in [Getting Started](aea_getting_started.mdx).
+
+
+### Step 1 : Visit the [AEA website](https://www.projectaria.com/datasets/aea/) and sign up.
+
+Scroll down to the bottom of the page. Enter your email and select **Access the Datasets**.
+
+![Screenshot of the bottom of the page, showing "Enter email here"](/img/open_datasets/aria_everyday_activities_dataset/aea_downloads_1.png)
+
+
+### Step 2 : Download the download-links file
+
+Once you've selected **Access the Datasets** you'll be taken back to the top of the AEA page.
+
+Scroll down the page to select AEA Download Links and download the file to the folder $HOME/Downloads.
+
+
+:::warning The download-links file will expire in 14 days
+
+You can re-download the download-links whenever they expire
+:::
+
+
+### Step 3 : Set up a folder for AEA data
+
+```
+mkdir -p $HOME/Documents/projectaria_tools_aea_data
+
+mv $HOME/Downloads/aria_everyday_activities_dataset_download_urls.json $HOME/Documents/projectaria_tools_aea_data/
+```
+
+
+## Download the AEA dataset
+
+
+### Data size
+
+The AEA dataset contains 143 sequences and the total size of the dataset is about 353GB.
+The dataset is split into main VRS data, annotations, and MPS outputs
+Go to [Project Aria Machine Perception Services](/ARK/mps/mps.mdx) for more information about MPS data.
+The MPS data is also broken into chunks that can be included or excluded at download time.
+
+
+### Download via CLI
+
+AEA uses the general Aria dataset downloader, which is available in the [`projectaria_tools` PyPI (pip install) package](/data_utilities/installation/installation_python.mdx).
+
+To use the downloader, use the following commands in the virtual environment where you've installed `projectaria_tools`:
+
+```bash
+aria_dataset_downloader
+```
+
+To get a description of the arguments that the script needs, run:
+
+```bash
+aria_dataset_downloader --help
+```
+
+### Download Examples
+
+:::tip
+
+All these commands must be run from your Python virtual environment that has the projectaria-tools package and dependencies installed.
+:::
+
+
+#### Download all data for a single sequence
+
+```
+aria_dataset_downloader -c ${PATH_TO_YOUR_CDN_FILE} -o ${OUTPUT_FOLDER_PATH} -l loc5_script4_seq6_rec1
+```
+
+#### Download VRS only for all sequences
+
+```
+aria_dataset_downloader -c ${PATH_TO_YOUR_CDN_FILE} -o ${OUTPUT_FOLDER_PATH} -d 0
+```
+
+
+#### Download all data for all sequences
+
+```
+aria_dataset_downloader -c ${PATH_TO_YOUR_CDN_FILE} -o ${OUTPUT_FOLDER_PATH}
+```
+
+
+## Troubleshooting
+Go to [troubleshooting](data_utilities/installation/troubleshooting.mdx) if you experience issues using this guide.

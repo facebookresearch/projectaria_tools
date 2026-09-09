@@ -1,0 +1,37 @@
+---
+sidebar_position: 70
+title: Reduce VRS File Size
+---
+# How to Reduce VRS File Size
+
+## Overview
+
+If an MPS request times out, you may need to reduce the size of the VRS file or try using the [MPS CLI](/ARK/mps/request_mps/mps_cli.mdx) Finding a faster internet connection may also help.
+
+
+Because VRS files store each sensor stream separately, you can use VRS tooling to create copies of VRS files that do not include specific sensor streams. The MPS output can then be used in combination with the original VRS file (with all sensor streams).
+
+
+
+MPS does not need the following sensor streams that contain a lot of data:
+
+* RGB Sensor Streams (214-1)
+   * Should more than halve your file size
+   * Just removing this stream may be sufficient
+* Microphone Sensor Streams (231-1), contains 8 audio channels
+
+## Instructions
+
+### Prerequisites
+
+These instructions use the VRS tools to create a VRS file without a specific sensor stream.
+
+* [Install and Build VRS](https://github.com/facebookresearch/vrs#getting-started)
+
+
+
+### Command
+
+In this example, a copy of the VRS file is created that does not include RGB Sensor Streams (214-1)
+
+`vrs copy <path/to/recording.vrs> --to <path/to/recording_norgb.vrs> - 214-1`
