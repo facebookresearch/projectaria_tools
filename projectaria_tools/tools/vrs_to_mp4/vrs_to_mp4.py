@@ -43,7 +43,7 @@ def parse_args():
         "--log_folder",
         type=str,
         required=False,
-        help="Folder to store the log: mp4_to_vrs_time_map.csv, audio_log.json, audio.wav",
+        help="Folder to store the log: mp4_to_vrs_time_ns.csv, vrs_to_mp4_log.json",
     )
     parser.add_argument(
         "--downsample",
