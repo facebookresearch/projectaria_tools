@@ -145,6 +145,10 @@ The decoder was passed the hardware-acceleration flag where it expected the *dis
 
 Decoding began on the first frame received, so any frames arriving before the stream's first keyframe produced a burst of decode errors. Decoding now waits for a keyframe per camera before starting.
 
+#### No More Crash on Exit After Successful Commands
+
+Shutting down used to abort the process (SIGABRT) when a teardown disconnect went unanswered, so a command that had already printed correct output still exited as a failure. Teardown failures are now logged as warnings and the process exits cleanly.
+
 ---
 
 ## Version 2.4.0
