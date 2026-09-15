@@ -1,0 +1,46 @@
+---
+sidebar_position: 5
+title: Aria CLI
+---
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+# Aria CLI
+
+## Overview
+This page provides an overview of Aria CLI features and a few useful commands, go to the [Command Reference page](/docs/ARK/sdk/cli/api_reference) for a full list.
+
+## About the CLI
+
+`Aria CLI` is a simple command line binary available on Linux and Mac which allows users to control their Project Aria glasses via CLI commands.
+
+The CLI currently provides the ability to:
+- Pair the glasses via USB or Wi-Fi
+- Connect to the glasses via USB or Wi-Fi
+- Retrieve the device status and information
+- Control Aria recording capabilities
+- Control Aria streaming capabilities
+
+The CLI does not enable you to download Aria data. Go to the [Downloads section](/ARK/ARK_quickstart.mdx#download-data) of the [Project Aria Glasses Quickstart Guide](/ARK/ARK_quickstart.mdx) for ways to download Aria data.
+
+
+:::caution
+To be able to use these commands, follow the [setup instructions](/docs/ARK/sdk/setup.mdx) to install the CLI, and pair your glasses.
+:::
+
+## Help
+
+```
+aria --help
+```
+
+will show you available options and subcommands.
+
+## Connecting
+
+You can connect to Aria glasses via Wi-Fi or USB.
+
+- Wi-Fi: you will need to specify the option `--device-ip`
+    - Pair your Aria glasses with the Mobile Companion app to get their IP address by tapping Wi-Fi in the Dashboard
+    - Go to the [Mobile Companion app page](/docs/ARK/mobile_companion_app/#dashboard) for screenshots and further instructions
+- USB: you don't need to manually input the device IP when it is plugged in via USB, the CLI will automatically connect
+    - Use the option `--serial`, if more than one device is plugged in via USB

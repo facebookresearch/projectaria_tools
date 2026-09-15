@@ -1,0 +1,47 @@
+---
+sidebar_position: 10
+title: Aria Dataset Explorer
+---
+# Aria Dataset Explorer
+
+## Overview
+
+The [Aria Dataset Explorer](https://explorer.projectaria.com/) is a centralized hub for Project Aria public datasets that helps users efficiently find, preview and download Aria data. For this initial launch the Explorer supports browsing and downloading the Aria Digital Twin (ADT) dataset and provides a preview of Nymeria.
+
+Through the Explorer, researchers can:
+
+* Better understand the contents of research datasets captured using Project Aria glasses
+* Preview the data using Project Aria Tools visualizations
+* Preview the raw and MPS data
+* Filter and download a subset of the data
+
+## Using Aria Dataset Explorer
+
+### Primary Explorer View
+
+Select which dataset you’d like to search from the dropdown next to the [filter field](dataset_explorer_filters.mdx).
+
+To change what metadata is displayed, you can add metadata properties to the filter.
+
+![Screenshot of Data Explorer Properties](/img/open_datasets/dataset_explorer/dataset_explorer_properties.png)
+
+If you select **Download found sequences** you will download a JSON file that contains the download links for all the recordings. The first time you try to download data for a specific dataset, you’ll need to provide your email address. That will give you a JSON file with download links that last for thirty days.
+
+
+#### JSON file with download information
+
+The JSON file you download contains download urls for each sequence provided in the filter view. Each type of data in the sequence has its own download url. The downloader script uses the pip install version of Project Aria Tools.
+
+* [How to download ADT data](/open_datasets/aria_digital_twin_dataset/dataset_download.mdx)
+* Instructions for downloading the Nymeria dataset coming soon
+
+The sha1sum value listed for each output is the SHA-1 hash string of the contents of the file. It can be used as a checksum to ensure the integrity of the downloaded data.
+
+
+### Sequence View
+
+Select any recording from the primary Explorer view to open a preview of that sequence.
+
+On the sequence view, you can preview visualizations available for that dataset using the buttons to the right of the visualization.
+
+The preview page also contains a list of all metadata stored with the sequence, and provides the ability to download specific components from that sequence (e.g. main_vrs, depth, segmentation etc).
