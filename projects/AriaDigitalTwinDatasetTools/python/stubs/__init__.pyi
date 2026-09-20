@@ -31,6 +31,20 @@ class MotionType(enum.IntEnum):
     DYNAMIC = enum.auto()
 
 class AriaDigitalTwinDataPaths:
+    sequence_name: str
+    aria_vrs_filepath: str
+    aria_trajectory_filepath: str
+    object_trajectories_filepath: str
+    object_boundingbox_3d_filepath: str
+    boundingboxes_2d_filepath: str
+    segmentations_filepath: str
+    depth_images_filepath: str
+    synthetic_vrs_filepath: str
+    eyegazes_filepath: str
+    skeletons_filepaths: dict[int, str]
+    skeleton_metadata_filepath: str
+    metadata_filepath: str
+    instances_filepath: str
     def __str__(self) -> str: ...
 
 class AriaDigitalTwinDataPathsProvider:
