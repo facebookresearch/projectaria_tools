@@ -35,7 +35,6 @@ class SingleRecordingMps:
     def __init__(
         self,
         recording: Path,
-        # TODO: T190558252: Allow directly tracking requests through SingleRecordingMps
         features: Set[MpsFeature],
         force: bool,
         retry_failed: bool,
