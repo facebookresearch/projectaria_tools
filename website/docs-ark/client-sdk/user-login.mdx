@@ -1,0 +1,177 @@
+---
+sidebar_position: 6
+title: User Login
+---
+
+# User Login
+
+Log in to your Project Aria account from the command line with `aria_gen2`. This authenticates
+**you** (your Meta / Project Aria account) — it is separate from
+[Device Authentication](/ark/client-sdk/authentication), which pairs the **glasses** with your PC.
+
+:::caution Login is optional
+No Client SDK feature currently requires you to be logged in. Recording, streaming, device
+management, and everything else in the SDK work exactly the same whether or not you log in. This
+feature is released ahead of upcoming account-backed features — until then, you can skip this page
+entirely.
+:::
+
+`aria_gen2` shares a single credential store with Aria Studio and MPS CLI (the system keyring,
+with an encrypted-file fallback), so logging in once enables all three tools. The one gap is the
+encrypted-file fallback: Aria Studio has no passphrase UI, so it can only read that file when it
+was written with a `PROJECTARIA_TOKEN_KEY` key and the same variable is set for Aria Studio. See
+[Aria Studio Authentication](/ark/aria_studio/authentication#encrypted-file-fallback).
+
+:::info User login vs. device pairing
+- **`aria_gen2 user login`** — authenticates your Project Aria **account**. Optional today; done
+  once per machine, or again after you log out or the token expires.
+- **`aria_gen2 auth pair`** — authenticates a **device** to your PC over USB. Done once per
+  device-PC combination. See [Device Authentication](/ark/client-sdk/authentication).
+
+The two are independent: pairing a device does not log in your account, and vice versa.
+:::
+
+## Prerequisites
+
+- [Client SDK installed](/ark/client-sdk/start) and virtual environment activated
+- A Project Aria account (a Meta Work / Managed Meta Account, or a distributed `tfbnw.net` /
+  `*.wptst.com` account)
+
+---
+
+## Log In
+
+```bash
+aria_gen2 user login --username <username-or-email>
+```
+
+Add `--verbose` before the subcommand (`aria_gen2 --verbose user login ...`) to enable debug
+logging.
+
+The login method is detected automatically from your username — you do not choose between the
+password and Managed Meta Account (MMA) flows.
+
+- **Managed Meta Account** (e.g. `user@meta.com`): the command prints a verification URL and a
+  code. Open the URL in a browser, sign in, and enter the code to authorize.
+
+  ```
+  To log in, visit: https://work.meta.com/cli
+  Enter the code: ABCD-EFGH
+
+  Waiting for authorization...
+  Successfully logged in as user
+  Your login token has been saved for future use.
+  ```
+
+  :::note Authorize within ~5 minutes
+  The device code expires after about 5 minutes. If it expires, re-run the command to get a new code.
+  :::
+
+- **Distributed account** (`tfbnw.net` / `*.wptst.com`): you are prompted securely for your
+  password (input hidden). For `tfbnw.net` accounts the domain suffix is appended automatically if
+  you omit it; `*.wptst.com` accounts are not auto-completed, so pass the full email
+  (e.g. `--username myuser@sub.wptst.com`).
+
+  ```
+  Password:
+  Successfully logged in as myuser
+  Your login token has been saved for future use.
+  ```
+
+If a valid token already exists, the command reports `Already logged in as <user>` and does nothing.
+
+### Token Storage
+
+On success the token is saved to your system keyring so you stay logged in. When the keyring is
+unavailable (headless servers, containers, CI), the token is stored in an encrypted file at
+`~/.projectaria/auth_token.enc` instead. That file needs key material: with no
+`PROJECTARIA_TOKEN_KEY` set you are prompted for a passphrase at login, and prompted again on
+`verify` / `logout` to decrypt. For automation, set the environment variable before logging in:
+
+```bash
+export PROJECTARIA_TOKEN_KEY="a-strong-secret-passphrase"  # at least 12 characters
+aria_gen2 user login --username myuser
+```
+
+The key material must be at least **12 characters** — shorter material is rejected and the token
+is not saved. If no key material is available at all (a non-interactive session with no passphrase
+prompt and no `PROJECTARIA_TOKEN_KEY`), the login itself still succeeds and warns, but nothing is
+persisted, so you will have to log in again next time.
+
+:::caution The key source is fixed when the file is written
+Each encrypted file records whether it was encrypted from `PROJECTARIA_TOKEN_KEY` or from a
+passphrase, and later reads use only that source. So setting `PROJECTARIA_TOKEN_KEY` does **not**
+silence the prompt for a file that was already saved with a passphrase — `verify` and `logout`
+keep asking for that passphrase, and the env var is ignored. Conversely, a file written from the
+env var can only be read back with the same variable set; if it is missing, the command reports
+that the variable is required instead of prompting.
+
+To switch an existing file over, set the variable and log in again (a fresh save prefers the env
+var and rewrites the file), or delete `~/.projectaria/auth_token.enc` and log in.
+:::
+
+See [Token Storage](/ark/projectaria-login/token-storage) for the full credential-store and
+security model.
+
+---
+
+## Verify
+
+Check whether a valid stored token exists, without logging in again:
+
+```bash
+aria_gen2 user verify
+```
+
+Expected output:
+
+```
+Token is valid. Logged in as myuser
+```
+
+If no valid token is found, it prints `No valid token found. Please log in.` and exits with a
+non-zero code.
+
+---
+
+## Log Out
+
+Invalidate the stored session and clear local credentials:
+
+```bash
+aria_gen2 user logout
+```
+
+Logout invalidates the session server-side (best effort) and removes the keyring entry and the
+encrypted file, if present. There are four possible outcomes:
+
+| Output | Meaning | Exit code |
+|--------|---------|-----------|
+| `Successfully logged out.` | The session was invalidated server-side and local credentials were cleared. | `0` |
+| `Local credentials were cleared, but the server-side logout request failed. ...` | The local token is gone, but the invalidation request did not reach the server (network or HTTP error), so the session may still be live. Sign out from your account settings to close it. | `0` |
+| `No valid stored token was available to invalidate server-side. ...` | Nothing usable was stored (no token, or one that could not be loaded), so there was nothing to invalidate. Any still-live session was left alone. | `0` |
+| `Could not decrypt the stored token, so the encrypted file was kept ...` | A passphrase-protected file could not be decrypted (wrong passphrase, retries exhausted, or no passphrase available). The file is kept and server-side logout is skipped. Retry with the correct passphrase, or delete `~/.projectaria/auth_token.enc` yourself. | `1` |
+
+The first three all report success: local credentials are cleared either way, so the command only
+fails when a token file is left behind.
+
+Because the credential store is shared, Aria Studio and MPS CLI will prompt for login on next use
+after you log out.
+
+---
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| `0`  | Success |
+| `1`  | Command failed (login failed or was cancelled, `verify` found no valid token, `logout` could not decrypt a passphrase-protected file — so it was kept and server-side logout was skipped — or no command specified). A `logout` that clears local credentials but cannot reach the server, or finds nothing to invalidate, still exits `0` |
+| `2`  | Invalid or missing command-line arguments (argparse usage error) |
+
+---
+
+## Next Steps
+
+1. [Authenticate your device](/ark/client-sdk/authentication) to control it from your PC
+2. Explore the [Python SDK examples](/ark/client-sdk/python-sdk/python-interface) for programmatic control
+3. See the [CLI Quick Reference](/ark/client-sdk/cli-reference#account-commands) for a command overview
