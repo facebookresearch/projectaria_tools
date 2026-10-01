@@ -36,6 +36,10 @@ MPS provides two types of high frequency (1kHz) trajectories:
 ### Online sensor calibration
 The [time-varying intrinsic and extrinsic calibrations](/technical-specs/mps/data_formats/slam/mps_calibration) of cameras and IMUs are estimated at the frequency of the SLAM (mono scene) cameras by our multi-sensor state estimation pipeline.
 
+### Multi-Sequence Trajectory (MST)
+
+[Multi-Sequence Trajectory (MST)](/technical-specs/mps/data_formats/slam/mps_multi_slam), called **Multi-SLAM** in the MPS CLI and Aria Studio, processes two or more recordings captured in the same space. It generates the standard SLAM outputs for every recording and aligns their world-coordinate data into a shared coordinate frame.
+
 ## Eye Gaze services
 
 Eye Gaze estimates gaze direction for Aria Gen 1 and Gen 2 recordings. The recording must include the eye tracking camera stream. In single-recording mode, you can optionally provide an eye gaze calibration recording with `--calib` to personalize the result. See the [MPS CLI Guide](/technical-specs/mps/mps_cli_guide) for details.

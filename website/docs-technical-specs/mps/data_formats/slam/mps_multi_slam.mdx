@@ -1,0 +1,72 @@
+---
+sidebar_position: 40
+title: Multi-Sequence Trajectory (MST)
+---
+
+# MPS Output - Multi-Sequence Trajectory
+
+Multi-Sequence Trajectory (MST), called **Multi-SLAM** in the MPS CLI and Aria Studio, processes two or more recordings captured in the same space. It generates the standard [MPS SLAM outputs](data_formats.mdx) for every recording and aligns the outputs expressed in world coordinates into a shared coordinate frame.
+
+You can request MST with the [MPS CLI](/ark/mps/start) or [Aria Studio](/ark/aria_studio/groups). With the CLI, pass the VRS recordings as inputs and select a separate output directory:
+
+```bash
+aria_mps multi -i <VRS file or directory> -o <output directory>
+```
+
+MST is intended for two or more recordings; use `aria_mps single` for one recording. All recordings in one multi-recording request must come from the same Aria device generation and use a recording profile with CV cameras and IMU enabled. If the service cannot align every recording into one component, the result can contain multiple disconnected components, as described below.
+
+For request and processing failures, see [MPS Troubleshooting](/ark/support/mps).
+
+## Output structure
+
+The default extracted output directory contains one numbered subdirectory per input recording, a group-level `summary.json`, and a `vrs_to_multi_slam.json` mapping file:
+
+```
+multi_slam_output/
+├── 0/
+│   ├── slam/
+│   │   ├── closed_loop_trajectory.csv
+│   │   ├── online_calibration.jsonl
+│   │   ├── open_loop_trajectory.csv
+│   │   ├── semidense_observations.csv.gz
+│   │   ├── semidense_points.csv.gz
+│   │   └── summary.json
+│   └── vrs_health_check.json
+├── 1/
+│   ├── slam/
+│   │   └── ...
+│   └── vrs_health_check.json
+├── summary.json
+└── vrs_to_multi_slam.json
+```
+
+Each `slam/` directory uses the same per-file schemas as a single-recording SLAM request:
+
+- [Trajectory](mps_trajectory.mdx)
+- [Semi-Dense Point Cloud](mps_pointcloud.mdx)
+- [Online Sensor Calibration](mps_calibration.mdx)
+
+`vrs_health_check.json` contains the client-side health check for that recording. The root-level `summary.json` contains the processing summaries for the group-level MST stages; each `slam/summary.json` describes the SLAM processing for one recording.
+
+By default, the CLI deletes each downloaded `slam.zip` archive after extracting it into `slam/`. If the `delete_zip` setting is disabled, `slam.zip` remains next to the extracted directory.
+
+## Map recordings to output directories
+
+`vrs_to_multi_slam.json` maps each input VRS path to its numbered output directory. Use this file instead of assuming that a recording has a particular directory number. For example:
+
+```json
+{
+  "/data/session/recording-1.vrs": "0",
+  "/data/session/recording-2.vrs": "1"
+}
+```
+
+## Shared coordinate frames
+
+MST aligns the world-coordinate outputs from each recording:
+
+- `closed_loop_trajectory.csv` and `semidense_points.csv.gz` entries with the same `graph_uid` are expressed in the same world coordinate frame.
+- `open_loop_trajectory.csv` remains in a per-recording odometry frame identified by its `session_uid`.
+- A result can contain multiple disconnected alignment components. Data with different `graph_uid` values does not share a coordinate frame and must not be overlaid directly.
+
+MST aligns spatial coordinate frames; it does not synchronize `tracking_timestamp_us` across recording sessions or devices. See [MPS File Structure and Common Terminologies](basics.mdx) for timestamp and coordinate-frame definitions.

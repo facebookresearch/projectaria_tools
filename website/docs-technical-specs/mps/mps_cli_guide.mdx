@@ -428,3 +428,17 @@ The path must be an existing `.vrs` file. If you pass several recordings in one 
 The CLI reports whether the file is marked as an eye gaze calibration recording, but does not require it — a file with no such marking is still uploaded, with a warning.
 
 A calibration is only consumed by eye gaze. If you pass `--calib` without `EYE_GAZE` in `--features`, the file is not uploaded at all and the CLI says so.
+
+### Multi-recording mode
+
+Multi mode requests [Multi-Sequence Trajectory (MST)](/technical-specs/mps/data_formats/slam/mps_multi_slam), called **Multi-SLAM** in the CLI. It processes a group of recordings and aligns their SLAM outputs in a shared coordinate frame.
+
+The output directory is required:
+
+```bash
+aria_mps multi -i <VRS file or directory> -o <output directory>
+```
+
+Use `-n` or `--name` to assign an optional name to the request. Use `aria_mps single` for one recording. All recordings in one multi-recording request must come from the same Aria device generation.
+
+For Multi-SLAM-specific error codes and recovery guidance, see [MPS Troubleshooting](/ark/support/mps).

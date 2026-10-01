@@ -185,6 +185,16 @@ aria_mps single -i <path to vrs file or directory> --force
 ```
 :::
 
+## Request Multi-Sequence Trajectory (MST)
+
+Multi-Sequence Trajectory (MST), called **Multi-SLAM** in the MPS CLI, processes two or more recordings together and aligns their SLAM outputs in a shared coordinate frame. Put the recordings in one directory, then provide that directory and a separate output directory:
+
+```bash
+aria_mps multi -i ~/Downloads/Example/ -o ~/Documents/multi_slam_output
+```
+
+All recordings in the request must come from the same Aria device generation. See the [MST data format](/technical-specs/mps/data_formats/slam/mps_multi_slam) for the output layout, the recording-to-directory mapping, and shared-coordinate-frame semantics.
+
 ## Authentication and token storage
 
 The first time you run the MPS CLI you'll authenticate with your Project Aria credentials. After a successful login, the auth token is cached so you don't have to log in every time:
