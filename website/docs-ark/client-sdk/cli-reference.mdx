@@ -275,8 +275,10 @@ aria_gen2 user verify
 | `--all` | No | — | Multi-device: orchestrate all connected devices. See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device) |
 | `--broadcaster <serial>` | No | smallest serial | Multi-device: serial of the TDM broadcaster (requires `--all`) |
 | `--disable-time-domain-mapping` | No | — | Multi-device: skip TDM, coordinate start/stop only (requires `--all`) |
+| `--external-broadcaster-id <N>` | No | — | Multi-device: start every device as a TDM receiver locked to an external broadcaster with ID `N` (requires `--all`; excludes `--broadcaster`, `--disable-time-domain-mapping`, `--time-domain-mapping-mode`, `--time-domain-mapping-broadcaster-id`) |
+| `--time-domain-mapping-mode <mode>` | No | — | TDM role for this device: `broadcaster` emits the timing signal, `receiver` locks onto a broadcaster's ID |
 | `--time-domain-mapping-channel <N>` | No | auto | TDM radio channel. Allowed values depend on the device's country code (read from `wifi_country_code`): ETSI permits `0–2`; FCC permits `10–40`. Auto-picked for the resolved region when omitted. |
-| `--time-domain-mapping-broadcaster-id <N>` | No | `0` | TDM broadcaster identifier |
+| `--time-domain-mapping-broadcaster-id <N>` | No | auto | Non-zero TDM broadcaster ID shared by every device in the session; devices reject `0`. Required with `--time-domain-mapping-mode receiver`; generated automatically for a broadcaster and for every device in a single `--all` call |
 | `--time-domain-mapping-rate-hz <N>` | No | `2.0` | TDM signal rate in Hz |
 
 ```bash
@@ -410,8 +412,10 @@ aria_gen2 recording delete-all
 | `--all` | No | — | Multi-device: orchestrate all connected devices. See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device) |
 | `--broadcaster <serial>` | No | smallest serial | Multi-device: serial of the TDM broadcaster (requires `--all`) |
 | `--disable-time-domain-mapping` | No | — | Multi-device: skip TDM, coordinate start/stop only (requires `--all`) |
+| `--external-broadcaster-id <N>` | No | — | Multi-device: start every device as a TDM receiver locked to an external broadcaster with ID `N` (requires `--all`; excludes `--broadcaster`, `--disable-time-domain-mapping`, `--time-domain-mapping-mode`, `--time-domain-mapping-broadcaster-id`) |
+| `--time-domain-mapping-mode <mode>` | No | — | TDM role for this device: `broadcaster` emits the timing signal, `receiver` locks onto a broadcaster's ID |
 | `--time-domain-mapping-channel <N>` | No | auto | TDM radio channel. Allowed values depend on the device's country code (read from `wifi_country_code`): ETSI permits `0–2`; FCC permits `10–40`. Auto-picked for the resolved region when omitted. |
-| `--time-domain-mapping-broadcaster-id <N>` | No | `0` | TDM broadcaster identifier |
+| `--time-domain-mapping-broadcaster-id <N>` | No | auto | Non-zero TDM broadcaster ID shared by every device in the session; devices reject `0`. Required with `--time-domain-mapping-mode receiver`; generated automatically for a broadcaster and for every device in a single `--all` call |
 | `--time-domain-mapping-rate-hz <N>` | No | `2.0` | TDM signal rate in Hz |
 
 ```bash

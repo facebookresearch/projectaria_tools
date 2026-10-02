@@ -9,6 +9,34 @@ This page tracks the version history and changes made to the Aria Gen2 ClientSDK
 
 ---
 
+## Version 2.5.1
+
+**Release Date:** Oct 2026
+
+### New Features
+
+#### External TDM broadcaster for multi-device sessions
+
+`recording start --all` and `streaming start --all` take a new `--external-broadcaster-id` flag. Every discovered device starts as a TDM **receiver** locked to the external broadcaster's ID, so a non-Aria source — such as a [Timecode Bridge](/ark/device/timecode-bridge) re-broadcasting SMPTE LTC — can drive the session clock instead of one of the glasses.
+
+**Only one device needs the Companion App.** The TDM radio channel depends on the device's country code, which a device gets from its Companion App connection. Previously, syncing glasses to an external broadcaster meant starting each one as a receiver individually, so **every** device had to be connected to the Companion App at start time. With `--external-broadcaster-id`, one device connected to the Companion App is enough — its country code is applied to the whole session, and all the other devices start without a Companion App connection.
+
+```bash
+aria_gen2 recording start --profile profile8 --all --external-broadcaster-id <broadcaster-id>
+```
+
+`<broadcaster-id>` is the non-zero ID your external broadcaster transmits; `0` is not a valid broadcaster ID and devices reject it. The flag requires `--all`, and is mutually exclusive with `--broadcaster`, `--disable-time-domain-mapping`, `--time-domain-mapping-mode`, and `--time-domain-mapping-broadcaster-id`.
+
+### Bug Fixes
+
+#### `aria_doctor` configures every connected Gen 2 device on Linux
+
+In 2.5.0, `aria_doctor` gave every Aria Gen 2 USB network adapter the same interface name, so with more than one pair of glasses plugged in, only the first got a working USB network connection. Gen 2 interfaces are now named after the device serial, and a single NetworkManager profile covers all connected Gen 2 devices. The command that reloads udev rules after installing them was also broken and is fixed.
+
+**After upgrading on Linux,** re-run `aria_doctor`, then unplug and re-plug your glasses — the new interface names only apply when a device is connected.
+
+---
+
 ## Version 2.5.0
 
 **Release Date:** Sep 2026
