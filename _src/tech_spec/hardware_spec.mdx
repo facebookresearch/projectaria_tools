@@ -1,0 +1,133 @@
+---
+sidebar_position: 10
+title: Hardware Specifications
+---
+
+# Project Aria Hardware Specifications
+
+Project Aria glasses have five cameras (two Mono Scene, one RGB, and two Eye Tracking cameras) as well as non-visual sensors (two IMUs, magnetometer, barometer, GPS, Wi-Fi beacon, Bluetooth beacon and Microphones). Mono Scene Cameras are often used to support SLAM algorithms, but they can have other applications.
+
+The glasses support multiple recording profiles that enable users to choose which sensors to record with, as well as what settings to use.
+
+
+![Project Aria Glasses Sensor Diagram](/img/tech_spec/aria_hardware_diagram.png)
+
+**Figure 1:** *Project Aria Glasses Sensor Diagram*
+
+## Sensor specifications
+
+### Visual sensors
+
+The following table summarizes the specs for the five glasses on Aria glasses (two Mono Scene/SLAM, one RGB, and two ET cameras).
+
+**Table 1:** *Aria Glasses Camera Specs*
+
+<table>
+  <thead>
+    <tr>
+      <th><b>Camera</b></th>
+      <th>HFOV (deg)</th>
+      <th>VFOV (deg)</th>
+      <th>IFOV (deg/pix)</th>
+      <th>Maximum resolution (pix)</th>
+      <th>Downsampled resolution (pix)</th>
+      <th>Max frame rate (FPS)</th>
+      <th>Nominal frame rate (FPS)</th>
+      <th>Shutter</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Mono Scene (x2)</td>
+      <td>150</td>
+      <td>120</td>
+      <td>0.26</td>
+      <td>640x480</td>
+      <td>-</td>
+      <td>30</td>
+      <td>10</td>
+      <td>global</td>
+    </tr>
+    <tr>
+      <td>RGB (x1)</td>
+      <td>110</td>
+      <td>110</td>
+      <td>0.038</td>
+      <td>2880x2880</td>
+      <td>1408x1408</td>
+      <td>30</td>
+      <td>10</td>
+      <td>rolling</td>
+    </tr>
+    <tr>
+      <td>ET (x2)</td>
+      <td>64</td>
+      <td>48</td>
+      <td>0.2</td>
+      <td>640x480</td>
+      <td>320x240</td>
+      <td>90</td>
+      <td>10</td>
+      <td>global</td>
+    </tr>
+  </tbody>
+</table>
+
+:::note
+Cameras on Project Aria devices are installed sideways. Project Aria Tools visualizers rotate the images to show a more natural view.
+:::
+
+### Non-visual sensors
+
+The non-visual sensors in Aria glasses are:
+
+* Two IMUs operating at 1000Hz and 800Hz respectively
+* One Magnetometer operating at 10Hz
+* One barometer operating at 50Hz
+* Seven-channel spatial microphone array with a sampling rate of 48kHz
+    * The microphone also has a stereo mode where only two channels record
+* One GPS receiver, Wi-Fi beacon, and Bluetooth beacon.
+
+All cameras, as well as the IMU, magnetometer, barometer and microphone are calibrated and all sensor measurements are timestamped on a common clock at nanosecond resolution. The SLAM and RGB cameras have [fisheye](https://en.wikipedia.org/wiki/Fisheye_lens) lenses to maximize the visible field of view.
+
+### Coordinate systems
+
+Applications like stereo vision and navigation usually handle 2D and 3D points in different spaces, and transformations need to be conducted between them. With Project Aria data, we attach a local R3 coordinate frame to each sensor.
+
+![Diagram of Project Aria coordinates, showing the Optical center and the Lens FOV](/img/data_formats/aria_local_frames.png)
+
+**Figure 2:** *Sensors and Sensor Directions on Project Aria Devices*
+
+To find out more about the coordinate systems and access calibration data, go to:
+* [2D Image Coordinate System Conventions](/docs/data_formats/coordinate_convention/2d_image_coordinate_system_convention)
+* [3D Coordinate Frame Conventions](/docs/data_formats/coordinate_convention/3d_coordinate_frame_convention)
+* [Calibration Code Snippets](/docs/data_utilities/core_code_snippets/calibration)
+
+
+## Other hardware specifications
+
+### Compute
+
+* Qualcomm SD835, 4GB RAM, 128GB storage
+* Flash memory (UFS)
+* Android 7.1
+* SW configurable user button and switch
+
+### Weight & Size
+
+75g in two sizes 147mm and 152mm frame width, with adjustable nose pads and temple arms (87% fit coverage).
+
+### Visual Correction
+
+Removable lenses with plano (Non-Rx) or single vision Rx correction [-4.5D to +3.5D].
+
+### Battery Life
+
+Capacity is 2.5Wh. Operating time depends on the [recording profile](/docs/tech_spec/recording_profiles).
+Battery life is 1.5 hours of continuous recording + 30 hours standby when using profile 0:
+* 10 FPS ET x 2
+* 10 FPS Mono Scene (SLAM) x 2
+* 1 FPS RGB 8MP
+* IMU, Wi-Fi + GPS and 7-channel audio on at nominal FPS
+
+Aria glasses connects to USB via a magnetic connector on the right temple arm.
