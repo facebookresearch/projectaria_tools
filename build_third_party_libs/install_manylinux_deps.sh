@@ -16,9 +16,16 @@
 set -euo pipefail
 echo "=== STARTING manylinux deps install ==="
 
-# Update the mirror list for Centos mirror deprecation
-sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
-sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+# manylinux2014 is CentOS 7, whose mirrors moved to the vault. manylinux_2_28 is
+# AlmaLinux 8: it has no CentOS repo files, and gtest-devel is in PowerTools.
+if compgen -G "/etc/yum.repos.d/CentOS-*" > /dev/null; then
+    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+fi
+if command -v dnf > /dev/null; then
+    dnf install -y dnf-plugins-core
+    dnf config-manager --set-enabled powertools
+fi
 
 # Install system deps
 # Toolchains

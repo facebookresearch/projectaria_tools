@@ -84,3 +84,35 @@ if(PROJECTARIA_TOOLS_BUILD_TOOLS AND NOT BUILD_PYTHON_BINDINGS)
   message("- Compiling Tools.")
   add_subdirectory(tools)
 endif()
+
+# The Python extensions statically link VRS, and so does pyvrs (the `vrs` wheel),
+# built as C++17. Exported weak C++ symbols are merged across loaded modules, so
+# exporting our VRS makes the copies share one definition of each inline static;
+# loading both in one process then crashes (mutex errors, SIGBUS) or silently
+# misreads recordings. The same happens between our own modules, each of which
+# links its own copy of this library. So every module exports only PyInit, except
+# _core_pybinds, which also exports the projectaria API: the Client SDK's macOS
+# extensions resolve those symbols from it at runtime.
+function(limit_python_module_exports dir)
+  get_property(targets DIRECTORY "${dir}" PROPERTY BUILDSYSTEM_TARGETS)
+  foreach(target IN LISTS targets)
+    get_target_property(target_type ${target} TYPE)
+    if (NOT target_type STREQUAL "MODULE_LIBRARY")
+      continue()
+    endif()
+    if (APPLE)
+      set(exports "${PROJECT_SOURCE_DIR}/cmake/python_module_exports.txt")
+      if (target STREQUAL "_core_pybinds")
+        set(exports "${PROJECT_SOURCE_DIR}/cmake/python_core_module_exports.txt")
+      endif()
+      target_link_options(${target} PRIVATE "LINKER:-exported_symbols_list,${exports}")
+    elseif (UNIX)
+      target_link_options(${target} PRIVATE "LINKER:--exclude-libs,ALL")
+    endif()
+  endforeach()
+  get_property(subdirs DIRECTORY "${dir}" PROPERTY SUBDIRECTORIES)
+  foreach(subdir IN LISTS subdirs)
+    limit_python_module_exports("${subdir}")
+  endforeach()
+endfunction()
+limit_python_module_exports("${CMAKE_CURRENT_SOURCE_DIR}")

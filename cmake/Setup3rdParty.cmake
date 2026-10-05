@@ -61,6 +61,26 @@ endif()
 message("Pulling deps: {vrs}")
 FetchContent_MakeAvailable(vrs)
 
+# VRS sets C++17 for its own targets, while this project is C++20. Both compile
+# VRS headers, and mixing standards across those translation units is an ODR
+# violation: function-local statics can be constant-initialized into read-only
+# memory by one and dynamically initialized by the other, which crashes the
+# Python module at import. Build every VRS target at this project's standard.
+function(set_cxx_standard_for_directory dir)
+  get_property(targets DIRECTORY "${dir}" PROPERTY BUILDSYSTEM_TARGETS)
+  foreach(target IN LISTS targets)
+    get_target_property(target_type ${target} TYPE)
+    if (NOT target_type STREQUAL "INTERFACE_LIBRARY" AND NOT target_type STREQUAL "UTILITY")
+      set_target_properties(${target} PROPERTIES CXX_STANDARD ${CMAKE_CXX_STANDARD})
+    endif()
+  endforeach()
+  get_property(subdirs DIRECTORY "${dir}" PROPERTY SUBDIRECTORIES)
+  foreach(subdir IN LISTS subdirs)
+    set_cxx_standard_for_directory("${subdir}")
+  endforeach()
+endfunction()
+set_cxx_standard_for_directory("${vrs_SOURCE_DIR}")
+
 
 FetchContent_Declare(
   Sophus
@@ -96,7 +116,7 @@ include(ExternalProject)
 ExternalProject_Add(
   fast-cpp-csv-parser
   GIT_REPOSITORY https://github.com/ben-strasser/fast-cpp-csv-parser.git
-  GIT_TAG origin/master
+  GIT_TAG 574a9fe4d323ba63416877a4a5fe59088d37aa34 # master, Sept 30th, 2026.
   SOURCE_DIR "${CMAKE_BINARY_DIR}/_deps/fast-cpp-csv-parser"
   # disable following, since it is not needed
   CONFIGURE_COMMAND ""

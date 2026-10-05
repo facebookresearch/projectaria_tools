@@ -1,0 +1,4 @@
+_PyInit_*
+__ZN11projectaria*
+__ZNK11projectaria*
+__ZT*11projectaria*

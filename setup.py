@@ -54,6 +54,10 @@ class CMakeBuild(build_ext):
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
+            # pybind11's FindPython mode reads Python_EXECUTABLE, not the legacy
+            # PYTHON_EXECUTABLE; without it CMake can pick another interpreter.
+            f"-DPython_EXECUTABLE={sys.executable}",
+            f"-DPython3_EXECUTABLE={sys.executable}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
             "-DBUILD_PYTHON_BINDINGS=ON",
             "-DBUILD_UNIT_TEST=OFF",

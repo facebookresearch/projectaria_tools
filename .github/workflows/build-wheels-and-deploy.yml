@@ -39,7 +39,7 @@ jobs:
       - name: Upgrade pip and python packages
         run: |
           python -m pip install --upgrade pip
-          python -m pip install cibuildwheel==2.21.0 pybind11-stubgen==1.1
+          python -m pip install cibuildwheel==4.2.1 pybind11-stubgen==1.1
       - name: Install dependencies
         shell: bash
         run: |
@@ -90,14 +90,27 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-14, ubuntu-latest, ubuntu-24.04-arm]  # macos-14 = macSilicon; ubuntu-24.04-arm = native Linux aarch64
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
         include: # Customize cibuildwheel python version to build
+          # manylinux_image is pinned per version rather than left to the cibuildwheel
+          # default, which moved to manylinux_2_28 in 3.0. Holding 3.10-3.12 on
+          # manylinux2014 keeps their existing glibc 2.17 floor; 3.13 and 3.14 are not
+          # available on that EOL image and take the newer one.
           - python-version: "3.10"
             cibw_build: "cp310-*"
+            manylinux_image: "manylinux2014"
           - python-version: "3.11"
             cibw_build: "cp311-*"
+            manylinux_image: "manylinux2014"
           - python-version: "3.12"
             cibw_build: "cp312-*"
+            manylinux_image: "manylinux2014"
+          - python-version: "3.13"
+            cibw_build: "cp313-*"
+            manylinux_image: "manylinux_2_28"
+          - python-version: "3.14"
+            cibw_build: "cp314-*"
+            manylinux_image: "manylinux_2_28"
 
 
     steps:
@@ -110,6 +123,13 @@ jobs:
         with:
           name: projectaria_tools_stubs
           path: projectaria_tools
+      # cibuildwheel needs >=3.11 to run, so it gets its own interpreter. The matrix
+      # version stays the default because the wheel test below installs into it.
+      - name: Set up Python for cibuildwheel
+        id: cibw_python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -117,7 +137,8 @@ jobs:
       - name: Upgrade pip and python packages
         run: |
           python -m pip install --upgrade pip
-          python -m pip install cibuildwheel==2.21.0
+          ${{ steps.cibw_python.outputs.python-path }} -m pip install --upgrade pip
+          ${{ steps.cibw_python.outputs.python-path }} -m pip install cibuildwheel==4.2.1
       - name: Install ffmpeg dependency lib
         if: ${{ (matrix.os == 'macos-14') || (matrix.os == 'ubuntu-latest') || (matrix.os == 'ubuntu-24.04-arm') }}
         shell: bash
@@ -127,7 +148,7 @@ jobs:
         if: matrix.os == 'macos-14'
         shell: bash
         run: |
-          CMAKE_BUILD_PARALLEL_LEVEL=4 python -m cibuildwheel --output-dir dist
+          CMAKE_BUILD_PARALLEL_LEVEL=4 ${{ steps.cibw_python.outputs.python-path }} -m cibuildwheel --output-dir dist
         env:
           CIBW_BUILD_VERBOSITY: 3
           CIBW_BUILD: ${{ matrix.cibw_build }}
@@ -138,7 +159,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         shell: bash
         run: |
-          CMAKE_BUILD_PARALLEL_LEVEL=4 python -m cibuildwheel --output-dir dist
+          CMAKE_BUILD_PARALLEL_LEVEL=4 ${{ steps.cibw_python.outputs.python-path }} -m cibuildwheel --output-dir dist
         env:
           CIBW_BUILD_VERBOSITY: 3
           CIBW_BUILD: ${{ matrix.cibw_build }}
@@ -147,11 +168,12 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair --exclude libcuda.so.1 --exclude libnvcuvid.so.1 -w {dest_dir} {wheel}"
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_*"
           CIBW_ARCHS: "x86_64"
+          CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.manylinux_image }}
       - name: Build wheels for CPython
         if: ${{ matrix.os == 'ubuntu-24.04-arm' }}
         shell: bash
         run: |
-          CMAKE_BUILD_PARALLEL_LEVEL=4 python -m cibuildwheel --output-dir dist
+          CMAKE_BUILD_PARALLEL_LEVEL=4 ${{ steps.cibw_python.outputs.python-path }} -m cibuildwheel --output-dir dist
         env:
           CIBW_BUILD_VERBOSITY: 3
           CIBW_BUILD: ${{ matrix.cibw_build }}
@@ -161,11 +183,12 @@ jobs:
           # or the auditwheel exclusions to act on.
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_*"
           CIBW_ARCHS: "aarch64"
+          CIBW_MANYLINUX_AARCH64_IMAGE: ${{ matrix.manylinux_image }}
       - name: Build wheels for CPython
         if: matrix.os == 'windows-2022'
         shell: bash
         run: |
-          python -m cibuildwheel --output-dir dist
+          ${{ steps.cibw_python.outputs.python-path }} -m cibuildwheel --output-dir dist
         env:
           CIBW_BUILD_VERBOSITY: 3
           CIBW_BUILD: ${{ matrix.cibw_build }}
