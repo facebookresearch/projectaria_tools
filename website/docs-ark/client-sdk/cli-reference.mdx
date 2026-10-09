@@ -212,14 +212,22 @@ aria_gen2 auth check
 
 ### `aria_gen2 auth unpair`
 
-**Purpose:** Unpair this PC from the device.
+**Purpose:** Unpair this PC from the device. The device must be connected over USB or Wi-Fi: the command revokes this PC's certificate on the glasses, then removes it locally, so the glasses stop accepting this PC and the Companion App no longer lists it.
+
+If the glasses cannot be reached, the local certificate is still removed and a warning says the glasses may still trust it. Revoke it in the Companion App, or reconnect the device and run `auth pair` followed by `auth unpair`.
 
 | Flag | Required | Description |
 |------|----------|-------------|
-| `--ble` | No | Remove only the locally stored BLE credentials for the selected device |
+| `--ble` | No | Unpair BLE instead: revoke this PC's BLE credential on the glasses over BLE, then remove it locally |
+| `--local-only` | No | With `--ble`, only remove the local BLE credentials, without contacting the glasses (for glasses that are gone or reflashed) |
 
 ```bash
 aria_gen2 auth unpair
+```
+
+**Expected Output:**
+```
+[AriaGen2Cli:App][INFO]: Revoked this host's certificate on device 1M0YDB5H7B0020 and removed it locally
 ```
 
 ---
@@ -228,7 +236,7 @@ aria_gen2 auth unpair
 
 **Purpose:** Clear locally stored credentials. Neither needs a connected device.
 
-- `remove-certs` — remove any locally stored SDK authentication certificates
+- `remove-certs` — remove any locally stored SDK authentication certificates. This does not revoke them on the glasses; use `auth unpair` for that
 - `remove-ble-creds` — remove all locally stored BLE credentials, for every paired device
 
 ```bash

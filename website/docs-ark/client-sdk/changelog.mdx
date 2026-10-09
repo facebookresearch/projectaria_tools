@@ -163,6 +163,12 @@ Every `register_*_callback` in `sdk_gen2.pyi` was previously typed as `Callable[
 - `SharedMessage` and `IBuffer` are documented types with `as_memoryview()` for raw message payloads
 - `usb_devices()` is typed as `List[Tuple[str, str]]` — `(serial, usb path)` — instead of `List[Any]`
 
+#### `auth unpair` Revokes the Pairing on the Glasses
+
+`auth unpair` used to delete only the certificate on this PC, so the glasses kept trusting it and the Companion App kept listing it. It now revokes the certificate on the glasses over USB or Wi-Fi before removing it locally. When the glasses cannot be reached, the local certificate is still removed, with a warning to revoke it in the Companion App. `auth remove-certs` is unchanged and remains local-only.
+
+`auth unpair --ble` likewise revokes this PC's BLE credential on the glasses, over BLE, before removing it locally, on firmware that lets a host revoke its own credential. The new `--local-only` flag keeps the previous local-only behavior for glasses that are gone or reflashed, and `auth remove-ble-creds` remains local-only.
+
 ### Bug Fixes
 
 #### Hardware-Accelerated Decode Was Inverted

@@ -116,12 +116,17 @@ BLE discovery latency is irregular — a device that is present has been measure
 ## Managing credentials
 
 ```bash
-# Remove BLE credentials for one device
+# Revoke this PC's BLE credential on one device, then remove it locally
 aria_gen2 --serial 1M0YDB5H7B0020 auth unpair --ble
 
-# Remove all stored BLE credentials, for every paired device
+# Remove the local BLE credentials only, without contacting the device
+aria_gen2 --serial 1M0YDB5H7B0020 auth unpair --ble --local-only
+
+# Remove all stored BLE credentials, for every paired device (local only)
 aria_gen2 auth remove-ble-creds
 ```
+
+`auth unpair --ble` connects to the glasses over BLE to revoke this PC's credential, so they stop accepting it. The local credentials are removed even when the glasses cannot be reached; the CLI then warns that the glasses may still trust this PC, and you can revoke it in the Companion App. Glasses running firmware that predates self-revocation refuse the request with the same warning. Use `--local-only` for glasses that are gone or reflashed, to skip the BLE connection attempt.
 
 `remove-ble-creds` is host-local and needs no connected device. Neither command touches the SSL authentication — the device stays paired for USB and Wi-Fi.
 
