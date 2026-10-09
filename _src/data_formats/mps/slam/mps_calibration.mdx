@@ -1,0 +1,21 @@
+---
+sidebar_position: 50
+title: Calibration Data
+---
+
+# MPS Output - Calibration
+
+Online calibration is generated as part of SLAM [MPS requests](/ARK/mps/mps.mdx).
+
+* `online_calibration.jsonl` file
+
+The [Aria Sensor Viewer](/data_utilities/visualization/visualization_python.mdx#run-aria-sensor-viewer) displays the relative position and orientation of most Project Aria glasses sensors (cameras, IMUs, microphones, magnetometer & barometer) in a common reference.
+
+
+## Online calibration
+
+`online_calibration.jsonl` contains one json online calibration record per line. Each record is a json dict object that contains timestamp metadata and the result of online calibration for the cameras and IMUs. Note that after the v1.1.0 MPS SLAM release, we improved the RGB camera online calibration for time offsets estimation, intrinsics/extrinsics estimation, as well as exposing the image readout time for compensating the rolling shutter effect.
+
+The calibration parameters contain [intrinsics](/tech_insights/camera_intrinsic_models.mdx) and [extrinsics](/data_formats/coordinate_convention/3d_coordinate_frame_convention.mdx) parameters for each sensor as well as a time offsets which best temporally align their data.
+
+For how to load and read online calibrations in Python and C++, please check the [code example](/data_utilities/core_code_snippets/mps.mdx#online-calibration)

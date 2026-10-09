@@ -1,0 +1,92 @@
+---
+sidebar_position: 40
+title: VRS command line tool
+---
+
+The `vrs` command line tool is a Swiss army knife utility to manipulate VRS files (operations such as inspection, or copy/filter editing).
+
+:::Note
+VRS file format has been created to be immutable, but files can be copied, record-by-record, and during copies, certain transformations can be applied.
+:::
+
+## File validation
+
+_Commands: `check`, `checksum`
+
+### File Integrity Validation
+
+The `check` command "simply" decodes every record in the VRS file and prints how many records were decoded successfully. It proves that the VRS file is correct at the VRS level.
+
+```bash
+vrs check file.vrs
+```
+
+### Checksums
+
+A logical data checksum can be generated for a VRS file. Could be use to ensure data integrity while doing VRS file transfer/Download when providing datasets.
+
+```bash
+vrs checksum file.vrs
+```
+
+## File inspection
+
+To peek into a VRS file, simply run:
+
+```bash
+vrs sample_file.vrs
+```
+
+It will print a lot of information, that can be overwhelming the first time you see what's in a VRS file!
+
+To have a simpler view and list only the the available streams and number of records you can do:
+
+```bash
+vrs sample_file.vrs | grep records
+```
+
+## Trimming
+
+You will find here instructions on how to TRIM data from an existing VRS file (instructions can be combined):
+- Trimming by stream_id
+- Trimming by time
+
+### Stream removal
+
+_Options: `[+|-]<stream_id>`
+
+As an example, we are here removing the EyeTracking stream (["211-1"]):
+
+```bash
+vrs copy original.vrs --to new.vrs - 211
+```
+
+### Time cropping
+
+_Options: `--before [+|-]<max-timestamp>`, `--after [+|-]<min-timestamp>`, ` --range [+|-]<min-timestamp> [+|-]<max-timestamp>`, `--around [+|-]<timestamp> <time-range>`._
+
+To use _relative timing, i.e 10 seconds of a file while skipping the first 2 seconds of data records, use:
+
+```bash
+vrs copy original.vrs --to new.vrs --range +2 +12
+```
+
+You can also choose to trim only from a given relative time with (i.e. keep everything after the first 2 seconds):
+
+```bash
+vrs copy original.vrs --to new.vrs --after +2
+```
+
+To use _absolute timestamps, use:
+
+```bash
+vrs copy original.vrs --to new.vrs --range 149002622 158702622
+```
+
+:::Note
+For more in-depth details feel free to explore this [VRS Cli Tool page](https://facebookresearch.github.io/vrs/docs/VrsCliTool).
+:::
+
+## VRS tools installation
+
+Please follow our [VRS Tools installation guide](aria_vrs_tools_installation.mdx)

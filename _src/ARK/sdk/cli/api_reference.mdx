@@ -1,0 +1,287 @@
+---
+sidebar_position: 10
+title: Command Reference
+---
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+# Aria CLI Command References
+
+## Overview
+This page provides all of the commands available when using the Project Aria CLI (installed as part of the [Client SDK](/docs/ARK/sdk)). You can also use [ADB](https://developer.android.com/studio/command-line/adb) to interact with Project Aria glasses.
+
+For any command with [OPTIONS], use --help or -h to find out about the options and subcommands available.
+
+## Authentication
+
+Manage device pairing with external client over Wi-Fi and USB
+
+```
+aria auth [OPTIONS] SUBCOMMAND
+```
+
+### pair
+
+Pair device with client
+
+```
+aria auth pair
+```
+
+### unpair
+
+Unpair device from client
+
+```
+aria auth unpair
+```
+
+## Device
+
+Control device.
+
+```
+aria device [OPTIONS] SUBCOMMAND
+```
+
+
+### list
+
+List connected USB devices.
+
+```
+aria device list
+```
+
+### info
+
+Get device info.
+
+```
+aria device info
+```
+
+
+### status
+
+Get device status.
+
+```
+aria device status
+```
+
+### default-profile
+
+Manage default profile.
+
+```
+aria device default-profile [OPTIONS] SUBCOMMAND
+```
+
+#### Subcommands include
+
+```
+--status
+```
+
+Get default profile status.
+
+```
+--set
+```
+
+Set default profile.
+
+## Recording
+
+Control device recording.
+
+```bash
+aria recording [OPTIONS] SUBCOMMAND
+```
+
+
+### start
+
+Start recording.
+
+```
+aria recording start [OPTIONS]
+```
+
+
+#### Options
+
+```
+--profile (string)
+```
+
+Recording profile name.
+
+### stop
+
+Stop recording.
+
+```
+aria recording stop
+```
+
+:::tip
+Go to the [Downloads section](/ARK/ARK_quickstart.mdx#download-data) of the [Project Aria Glasses Quickstart Guide](/ARK/ARK_quickstart.mdx) for ways to download Aria data.
+:::
+
+### profiles
+
+List recording profiles.
+
+```
+aria recording profiles [OPTIONS]
+```
+
+#### Options
+
+```
+--save-json (string)
+```
+
+Save profiles as JSON files.
+
+```
+--json-dir (string)
+```
+
+Location of directory where profiles will be saved as JSON files.
+
+## Streaming
+
+Control device streaming.
+
+```
+aria streaming [OPTIONS] SUBCOMMAND
+```
+
+
+### start
+
+Start streaming
+
+
+```
+aria streaming start [OPTIONS]
+```
+
+
+#### Options
+
+```
+--profile (string)
+```
+
+Streaming profile name.
+
+```
+--topic-prefix (string)
+```
+
+Streaming topic prefix.
+
+```
+--interface (string)
+```
+
+Streaming interface name. Values can be:[usb] - Streaming over USB. [wifi] - Streaming over Wi-Fi network. [hotspot] - Streaming over Aria Wi-Fi hotspot.
+
+```
+--use-ephemeral-certs (flag)
+```
+
+Use ephemeral streaming certs on both device and local host (see aria streaming install-certs --help)
+
+```
+--local-certs-dir (string)
+```
+
+Local streaming certificates directory. Use to specify the local directory where local streaming certificates are installed on local host.
+
+### Stop
+
+Stop streaming.
+
+```
+aria streaming stop [OPTIONS]
+```
+
+### Options
+
+```
+--remove-ephemeral-certs (flag)
+```
+
+Remove ephemeral streaming certs from local host.
+
+Use aria streaming uninstall-certs --help for commands to uninstall ephemeral certs on Aria glasses and local host.
+
+:::info
+Ephemeral certificates should automatically expire and be removed when streaming stops.
+:::
+
+```
+--local-certs-dir (string)
+```
+
+Local streaming certificates directory.
+
+Use to specify the local directory where local streaming certificates are installed on local host.
+
+### profiles
+
+List streaming profiles.
+
+```
+aria streaming profiles [OPTIONS]
+```
+
+#### Options
+
+```
+--save-json (flag)
+```
+
+Save profiles as JSON files.
+
+```
+--json-dir (string)
+```
+
+Location of directory where profiles will be saved as JSON files.
+
+### install-certs
+
+Installs streaming certificates on Aria glasses and on the local host.
+
+```
+aria streaming install-certs [OPTIONS]
+```
+
+#### Options
+
+```
+--local-certs-dir (string)
+```
+
+Local streaming certificates directory. Use to specify the local directory where local streaming certificates are installed on local host.
+
+### uninstall-certs
+
+Removes streaming certificates on Aria glasses and on the local host.
+
+```
+aria streaming uninstall-certs [OPTIONS]
+```
+
+#### Options
+
+```
+--local-certs-dir (string)
+```
+
+Local streaming certificates directory. Use to specify the local directory where local streaming certificates are installed on local host.

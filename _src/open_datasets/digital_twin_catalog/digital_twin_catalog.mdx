@@ -1,0 +1,46 @@
+---
+sidebar_position: 60
+title: Digital Twin Catalog Dataset
+---
+
+## About the data
+
+The Digital Twin Catalog (DTC) dataset provides static objects capturing sequences collected using Project Aria glasses and digital single-lens reflex (DSLR) cameras,
+combined with high quality ground truth data including device trajectories, reconstructed objects’ digital twin copies with geometry and material assets,
+aligned object poses. We also provide processed sensor data from our [Machine Perception Services](/docs/ARK/mps). Go to [DTC Data Format](digital_twin_catalog_data_format.mdx) to see a full list of the data we provide.
+
+The DTC dataset contains 2000 accurately scanned and reconstructed 3D models with detailed geometry and material information (in .glb),
+200 Aria sequences and 100 DSLR sequences recording static objects whose digital twin copies are within the 2000 released models.
+In the Aria sequences, there are 100 single-instance static objects each recorded under two different human walking trajectories,
+active and passive (casual). In the DSLR sequences, there are 50 single-instance static objects each recorded under two different lighting conditions.
+
+Go to the [Dataset Download](digital_twin_catalog_download_dataset.mdx) page to get started with the sequence data. For more info on downloading and viewing captured models, see [Object Models](digital_twin_catalog_object_models.mdx) page.
+
+### Active Trajectory
+
+100 Aria sequences were recorded by taking a 360 walk around the captured objects. Each sequence will record one single object.
+The Aria glasses will stay within a relatively close distance to the object.
+
+### Passive (Casual) Trajectory
+
+100 Aria sequences were recorded by taking a casual walk around the captured objects. Each sequence will record one single object.
+The sequence will include trajectories such as walking towards the object, circling around the object and walking away from the object.
+
+### DSLR Sequence
+
+105 DSLR sequences were recorded under 2 different lighting conditions. The sequences were recorded using three DSLR cameras mounted on robot arms with three different viewing directions towards the object. We also provide 2 corresponding lighting environment maps for the DSLR sequences.
+
+### Documentation
+
+The DTC section of the wiki covers:
+
+- [Getting Started](digital_twin_catalog_getting_started.mdx)
+  - A quick start tutorial available to install Project Aria Tools Python package to run locally.
+- [Dataset Download](digital_twin_catalog_download_dataset.mdx)
+  - A walkthrough of using aria_dataset_downloader to download the DTC sequence dataset.
+- [Object Models](digital_twin_catalog_object_models.mdx)
+  - Everything you need to know about the released DTC object models including: a walkthrough of using dtc_object_downloader to download the DTC object models, and brief description of data content and how to visualize the models
+- [Data Format](digital_twin_catalog_data_format.mdx)
+  - How DTC data is organized and stored
+- [Tooling](digital_twin_catalog_tooling.mdx)
+  - Run our tools using an example that access DTC data in Python.

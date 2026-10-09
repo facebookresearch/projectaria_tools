@@ -1,0 +1,68 @@
+---
+sidebar_position: 1
+title: Aria Synthetic Environments Dataset
+---
+
+
+## Overview
+
+Project Aria Tools provides Python and C++ APIs to access the Aria Synthetic Environments (ASE) dataset.
+
+## About the data
+
+[Aria Synthetic Environments (ASE)](https://www.projectaria.com/datasets/ase/) is a large scale dataset of 100K unique procedurally-generated scenes of interior layouts of apartments filled with 3D objects, and simulated with the sensor characteristics of Aria glasses. For each scene we have the rendering of a person walking around the synthetically generated rooms of the layout. These rooms vary from living rooms, bedrooms & kitchens to bathrooms. In addition to the renders, each of these scenes come with semi-dense maps for the Aria walkthrough, which are aligned to the Ground Truth (GT) scene layout.
+
+This dataset was created to provide the wider research community with a dataset large enough to surface new challenges and research opportunities for first person object detection and tracking that had not been feasible.
+
+In the [ASE: Scene Reconstruction Challenge](ase_challenges.mdx), we invite researchers to train full scene structured language description models, drawing from the 100K annotated scenes, and then test their models on 1K test scenes provided in the challenge.
+
+
+## **Dataset Contents**
+
+* 100,000 unique multi-room interior scenes
+* Simulated with realistic device trajectories
+* Across ~2-minute trajectories
+* Populated with ~8000 3D objects
+* With semi-dense map representations
+* Annotated using ASE Scene Language
+    * User oriented natural language mapping with architectural features, such as doors, windows and pillars, described with a CAD-like language that includes the feature type, location and dimensions
+    * Unlocks new exciting ways to tackle research challenges related to reconstruction and detection tasks
+
+**Simulated sensor data per sequence**
+* 1 x outward-facing RGB camera stream
+* Simulated Aria camera & lens characteristics
+
+**Ground Truth Annotations**
+* 6DoF camera trajectory
+* 3D floor plan in Euston Structure Scene Language (SSL) format
+* 2D instance segmentation
+    * With per-scene mappings from the object instance image IDs to object classes
+* 2D depth map
+
+
+## **Dataset Statistics**
+
+* Number of scenes: 100K
+* Number of images: 58M+
+* Trajectories
+    * Total time: 67 days
+    * Total distance: London -> San Francisco(7800 km)
+* Rooms: Up to 5 complex Manhattan rooms
+    * All surfaces in the world are aligned with three dominant directions, typically corresponding to the X, Y, and Z axes
+* Dataset size: ~23TB
+
+
+### Documentation
+
+The ASE section of this wiki covers:
+
+* [Getting started](/open_datasets/aria_synthetic_environments_dataset/ase_getting_started.mdx)
+    * A quickstart tutorial for installing the necessary tooling, download the dataset and visualize the data
+* [Dataset download](/open_datasets/aria_synthetic_environments_dataset/ase_download_dataset.mdx)
+    * A walkthrough using `aria_synthetic_environments_downloader `to download the ASE dataset.
+* [Data Format](/open_datasets/aria_synthetic_environments_dataset/ase_data_format.mdx)
+    * Aria Synthetic Environments (ASE) data formats and organization
+* [Data Tools and Visualization](/open_datasets/aria_synthetic_environments_dataset/ase_data_tools.mdx)
+    * Data helper tools
+    * Visualization notebook
+* [ASE Scene Reconstruction 2023-4 Challenge](ase_challenges.mdx)
