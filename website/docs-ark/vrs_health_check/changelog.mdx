@@ -8,6 +8,11 @@ title: Changelog
 ---
 ## Unreleased
 
+### New Features
+
+- Proximity Sensor Data Class records are now parsed and checked, not only counted. A record with a nonpositive capture timestamp or an unrecognized sensor state counts as `bad`, and timestamps that go backward count as out of order. `invalid` is a legitimate sensor state, reported separately as `invalid_value_samples`
+- Proximity streams from producers other than the Oatmeal recorder are skipped with a warning rather than checked
+
 ### Configuration Updates
 
 #### `AriaGen2_Default` configuration, inherited by `AriaGen2_Location` and `AriaGen2_CI`:
@@ -15,6 +20,13 @@ title: Changelog
 - Added GPS `utc_non_monotonic`, which warns when a good fix's UTC time doesn't move forward
 - GPS `bad_samples_with_valid_fix` is now ignored, since every sample it counts also raises `bad`
 - GPS stats add `no_fix_samples`, `inconsistent_fix_samples` and `utc_non_monotonic`
+
+#### `AriaGen2_Default` configuration, for proximity:
+- `Proximity Sensor Data Class` adds `bad` (fail above 0) and `ratio_out_of_order_over_total` (warn above 0.001, fail above 0.01)
+- `Proximity Sensor Data Class` is now non-periodic, so the cadence-derived checks no longer apply to it
+
+#### `AriaGen2_CI` configuration:
+- Inherits the proximity checks above. Its `longest_consecutive_drop` ignore for `Proximity Sensor Data Class` is removed, since a non-periodic stream doesn't receive that check
 
 ### Bug Fixes
 
