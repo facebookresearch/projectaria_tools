@@ -722,3 +722,69 @@ If `aria_diagnostics` fails to run, you may need to install `net-tools`:
 sudo apt install net-tools
 ```
 :::
+
+---
+
+### `aria_gen2 report`
+
+**Purpose:** Report a problem to Meta. Files a bug report from the glasses and a report about this computer under the same debug session id, so support sees both as one issue.
+
+**Prerequisites:**
+- Device connected over USB and [authenticated](/ark/client-sdk/authentication).
+- Logged in to your Project Aria account (`aria_gen2 user login --username <you>`), so the report about this computer can be sent.
+- The glasses need Wi-Fi, because they upload their own report themselves.
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `--description` | Yes | What went wrong, in your own words |
+| `--error` | No | Error code or message, if you have one |
+| `--serial` | No | Which glasses, when more than one is connected |
+| `--device-ip` | No | Reach the glasses at this IPv4 address |
+| `--ble` | No | Reach the glasses over BLE. With more than one pair paired over BLE, pick one with `--serial` |
+| `--verbosity` | No | Client SDK log level: `trace`, `debug`, `info` or `error` |
+| `--yes` | No | Skip the confirmation prompt. Required when reporting from a script |
+
+`--serial`, `--device-ip`, `--ble` and `--verbosity` also work before `report`, as for every other command. The other global options do not apply to `report`.
+
+```bash
+aria_gen2 report --description "streaming drops after 30s" --error DDS_TIMEOUT
+aria_gen2 --serial 1M0YDB5H7B0020 report --description "recording stops early"
+```
+
+**Expected Output:**
+```
+Reporting sends the following to Meta:
+  - the tool and Python versions, and this machine's OS, CPU and disk, with a listing of your ~/.projectaria folder -- names, kinds and sizes only, never the contents
+  - a bug report captured by your glasses (their logs and state), which they upload themselves over their own Wi-Fi
+  - the Aria glasses attached to or paired with this computer, and the connected glasses' firmware, status (battery, temperature, and the name and address of their Wi-Fi network), recording and streaming state, and sensor data quality
+  - the logs Project Aria tools on this computer (Aria Studio, the MPS CLI, the login, and this report) kept from recent sessions: what they did and any errors, including server responses, your account name and id, and file paths (which can include your user name)
+Continue? [y/N] y
+Sent to Meta as report 424242 (debug session 7b70666c-134a-4a7a-9419-bbe77d1431d6).
+If this is blocking your work, email AriaOps@meta.com (or ask on the Project Aria Discord) and include debug session 7b70666c-134a-4a7a-9419-bbe77d1431d6.
+```
+
+Quote the debug session id when you follow up with support: it finds both the report about this computer and the one your glasses filed.
+
+:::info If the report cannot be sent
+When you are not logged in, or the computer is offline, the report is kept in `~/.projectaria/debug-reports` and the command says so:
+```
+Not logged in to Project Aria, or the saved login could not be unlocked.
+Not sent yet. Your report is saved on this computer.
+Send it with: aria-debug-report drain
+```
+Run `aria-debug-report drain` once you are logged in or back online. Why it failed is written to the log, not the console.
+:::
+
+:::info What is shared
+Exactly the lines listed in the prompt, and nothing is collected until you answer it. Answering anything other than `y` or `yes` cancels, and so does running without anyone to answer. Pass `--yes` to report from a script: the lines are still printed, without the question.
+
+If the glasses cannot be reached, the command says so and files the report about this computer alone. When the cause is something you can fix, such as glasses that are asleep or not paired with this computer, it says what to do.
+:::
+
+:::info Project Aria session logs
+The Project Aria tools on this computer write their logs to one folder, `/tmp/logs/projectaria` unless `LOG_DIR` in `~/.projectaria/projectaria.ini` says otherwise. A report attaches the `.log` files there only if you agree to that line of the prompt, and only files that belong to you.
+:::
+
+:::caution Wi-Fi required for the glasses' report
+The glasses upload their own bug report over Wi-Fi after accepting the request, so keep them online until it finishes. If they have no usable Wi-Fi address, the command warns you: they cannot upload until that is fixed.
+:::
