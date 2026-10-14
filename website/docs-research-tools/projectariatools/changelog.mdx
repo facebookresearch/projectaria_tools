@@ -5,6 +5,20 @@ title: Changelog
 
 # Changelog
 
+## Version 2.3.1
+
+### Platform Support
+
+- Wheels for Python 3.13 and 3.14, on macOS (Apple Silicon) and Linux (x64 and ARM64). The Linux wheels for 3.13 and 3.14 need glibc 2.28 or newer; 3.10 to 3.12 keep the glibc 2.17 floor
+
+### Improvements
+
+- `aria_streaming_viewer` no longer re-sends the whole VIO trajectory on every sample. The trail is bounded and fades, so CPU use stays flat over long live sessions
+
+### Bug Fixes
+
+- `vrs_to_mp4 --help` names the files `--log_folder` actually keeps: `mp4_to_vrs_time_ns.csv` and `vrs_to_mp4_log.json`
+
 ## Version 2.3.0
 
 ### Breaking Changes
