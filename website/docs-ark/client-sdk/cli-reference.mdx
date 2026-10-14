@@ -410,7 +410,7 @@ aria_gen2 recording delete-all
 | `--profile` | No | `mp_streaming_demo` | Streaming profile |
 | `--url` | No | — | Remote server URL for remote streaming |
 | `--streaming-cert-name` | No | — | Use the named certificate already installed by [`install-certs`](#aria_gen2-streaming-install-certs) instead of generating and installing a new pair. See [Start Order and Streaming Certificates](/ark/client-sdk/streaming#start-order-and-streaming-certificates) |
-| `--no-verify-server-certs` | No | — | Skip server certificate verification |
+| `--verify-server-certs` | No | off | Verify the streaming server's certificate. Verification is off by default; pass this flag to enable it |
 | `--use-ephemeral-certs` | No | — | Use ephemeral certs on device and host instead of the persistent pair |
 | `--local-certs-dir` | No | — | Local streaming certificates directory |
 | `--keep-streaming-on-disconnection` | No | — | Keep streaming after Wi-Fi disconnection |
