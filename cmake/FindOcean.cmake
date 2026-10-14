@@ -30,7 +30,7 @@ include(FetchContent)
 FetchContent_Declare(
   ocean
   GIT_REPOSITORY https://github.com/facebookresearch/ocean.git
-  GIT_TAG        5fca1d27a9f37e868738b6db09a6b1e00723d80f # master branch, 2025.11.07
+  GIT_TAG        1b1b2b9f303c7d71a0a57d6924195e05784a2d55 # main branch, 2026.10.13
 )
 set(OCEAN_BUILD_MINIMAL ON)
 set(OCEAN_BUILD_TEST    OFF)
