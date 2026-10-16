@@ -97,6 +97,12 @@ bool ImageSensorPlayer::onDataLayoutRead(
     if (!std::isnan(data.temperature.get())) {
       dataRecord_.temperature = data.temperature.get();
     }
+    uint16_t intentionalDropCount = 0;
+    if (data.intentionalDropCount.get(intentionalDropCount)) {
+      dataRecord_.intentionalDropCount = intentionalDropCount;
+    } else {
+      dataRecord_.intentionalDropCount.reset();
+    }
     nextTimestampSec_ = std::nextafter(r.timestamp, std::numeric_limits<double>::max());
   }
   return readContent_;
