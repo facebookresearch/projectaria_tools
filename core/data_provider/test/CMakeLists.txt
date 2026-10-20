@@ -13,6 +13,20 @@
 # limitations under the License.
 
 find_package(GTest)
+include(GoogleTest)
+
+add_executable(als_flicker_detection_player_test AlsFlickerDetectionPlayerTest.cpp)
+target_include_directories(als_flicker_detection_player_test
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../..
+)
+target_link_libraries(als_flicker_detection_player_test
+    PUBLIC
+        players
+        GTest::Main
+)
+gtest_discover_tests(als_flicker_detection_player_test)
+add_test(NAME als_flicker_detection_player_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+             COMMAND $<TARGET_FILE:als_flicker_detection_player_test>)
 
 add_executable(substream_selector_test SubstreamSelectorTest.cpp)
 target_link_libraries(substream_selector_test

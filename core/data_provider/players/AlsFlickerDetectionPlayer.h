@@ -34,7 +34,7 @@ constexpr size_t kAlsFlickerDetectionFreqCount = 3;
 struct AlsFlickerDetectionConfiguration {
   uint32_t streamId{}; ///< ID of the VRS stream
   uint64_t deviceId{}; ///< device ID for the ALS sensor
-  double nominalRateHz{}; ///< number of samples per second
+  double nominalRateHz{}; ///< number of samples per second, NaN if the record lacks it
   std::string sensorModel; ///< sensor model name
 };
 
@@ -42,15 +42,16 @@ struct AlsFlickerDetectionConfiguration {
  * @brief A single light flicker frequency/magnitude pair
  */
 struct AlsFlickerFrequencyData {
-  float frequencyHz{}; ///< detected flicker frequency in Hz
-  float magnitude{}; ///< magnitude of the detected flicker
+  float frequencyHz{}; ///< detected flicker frequency in Hz, NaN for an unused slot
+  float magnitude{}; ///< magnitude of the detected flicker, 0 for an unused slot,
+                     ///< NaN if the record lacks this pair's frequency or magnitude
 };
 
 /**
  * @brief ALS light flicker detection data type
  */
 struct AlsFlickerDetectionData {
-  // Timestamp of capturing this sample.
+  // Timestamp of capturing this sample, or -1 if the record lacks it.
   int64_t captureTimestampNs{};
   // Top detected flicker frequency/magnitude pairs.
   std::array<AlsFlickerFrequencyData, kAlsFlickerDetectionFreqCount> flickerData{};
