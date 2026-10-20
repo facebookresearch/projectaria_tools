@@ -52,17 +52,18 @@ bool VioHighFrequencyPlayer::onDataLayoutRead(
 
 bool VioHighFrequencyPlayer::onVioHighFrequencyResultDataLayoutRead(
     const datalayout::VioHighFrequencyResultDataLayout& dataLayout) {
+  mps::OpenLoopTrajectoryPose record = dataRecord_;
   // Parsing timestamp
   int64_t timestampNs;
   if (dataLayout.captureTimestampNs.get(timestampNs)) {
-    dataRecord_.trackingTimestamp = std::chrono::duration_cast<std::chrono::microseconds>(
+    record.trackingTimestamp = std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::nanoseconds(timestampNs));
   } else {
     fmt::print("Missing captureTimestamp in VIO result data layout!");
     return false;
   }
 
-  if (!dataLayout.frontendSessionUuid.get(dataRecord_.sessionUid)) {
+  if (!dataLayout.frontendSessionUuid.get(record.sessionUid)) {
     fmt::print("Missing captureTimestampNs in VIO result data layout!");
     return false;
   }
@@ -72,7 +73,7 @@ bool VioHighFrequencyPlayer::onVioHighFrequencyResultDataLayoutRead(
     fmt::print("Missing gravityVec_Odometry in VIO result data layout!");
     return false;
   }
-  dataRecord_.gravity_odometry = mapToEigenVector(gravityVec_Odometry);
+  record.gravity_odometry = mapToEigenVector(gravityVec_Odometry);
 
   // txyz_Odometry_Device, stored as translation and quaternion separately
   vrs::Point3Dd txyz_Odometry_Device;
@@ -85,25 +86,30 @@ bool VioHighFrequencyPlayer::onVioHighFrequencyResultDataLayoutRead(
     fmt::print("Missing qxyzw_Odometry_Device in VIO result data layout!");
     return false;
   }
-  dataRecord_.T_odometry_device =
-      populateToSE3<double>(qxyzw_Odometry_Device, txyz_Odometry_Device);
+  const auto maybeT_odometry_device = populateToSE3OrLog<double>(
+      qxyzw_Odometry_Device, txyz_Odometry_Device, "T_Odometry_Device", "VIO result");
+  if (!maybeT_odometry_device) {
+    return false;
+  }
+  record.T_odometry_device = *maybeT_odometry_device;
 
   vrs::Point3Dd linearVelocity_Odometry;
   if (!dataLayout.linearVelocity_Odometry.get(linearVelocity_Odometry)) {
     fmt::print("Missing linearVelocity_Odometry in VIO result data layout!");
     return false;
   }
-  dataRecord_.deviceLinearVelocity_odometry = mapToEigenVector(linearVelocity_Odometry);
+  record.deviceLinearVelocity_odometry = mapToEigenVector(linearVelocity_Odometry);
 
   vrs::Point3Dd angularVelocity_Device;
   if (!dataLayout.angularVelocity_Device.get(angularVelocity_Device)) {
     fmt::print("Missing angularVelocity_Device in VIO result data layout!");
     return false;
   }
-  dataRecord_.angularVelocity_device = mapToEigenVector(angularVelocity_Device);
+  record.angularVelocity_device = mapToEigenVector(angularVelocity_Device);
 
-  dataRecord_.qualityScore = dataLayout.qualityScore.get();
+  record.qualityScore = dataLayout.qualityScore.get();
 
+  dataRecord_ = std::move(record);
   if (highFrequencyCallback_) {
     highFrequencyCallback_(dataRecord_, configRecord_);
   }

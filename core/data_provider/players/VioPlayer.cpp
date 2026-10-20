@@ -54,7 +54,8 @@ bool VioPlayer::onDataLayoutRead(
 }
 
 bool VioPlayer::onVioResultDataLayoutRead(const datalayout::VioResultDataLayout& dataLayout) {
-  if (!dataLayout.captureTimestampNs.get(dataRecord_.captureTimestampNs)) {
+  FrontendOutput record = dataRecord_;
+  if (!dataLayout.captureTimestampNs.get(record.captureTimestampNs)) {
     fmt::print("Missing captureTimestampNs in VIO result data layout!");
     return false;
   }
@@ -70,7 +71,7 @@ bool VioPlayer::onVioResultDataLayoutRead(const datalayout::VioResultDataLayout&
     fmt::print("Parsing FrontendSessionUid from string has failed!");
     return false;
   }
-  dataRecord_.frontendSessionUid = uidAndFlag.first;
+  record.frontendSessionUid = uidAndFlag.first;
 
   // Parse frame id
   int32_t frameId = 0;
@@ -80,7 +81,7 @@ bool VioPlayer::onVioResultDataLayoutRead(const datalayout::VioResultDataLayout&
         frameId);
     return false;
   }
-  dataRecord_.frameID = static_cast<FrameSetId>(frameId);
+  record.frameID = static_cast<FrameSetId>(frameId);
 
   // Parse VIO status
   int8_t vioStatus;
@@ -88,14 +89,14 @@ bool VioPlayer::onVioResultDataLayoutRead(const datalayout::VioResultDataLayout&
     fmt::print("Missing vioStatus in VIO result data layout!");
     return false;
   }
-  dataRecord_.status = static_cast<VioStatus>(vioStatus);
+  record.status = static_cast<VioStatus>(vioStatus);
 
   // Parse tracker health status
   // TODO: change this when VRS records is written as enum
   bool poseQualityIsGood = dataLayout.isTrackerHealthy.get();
-  dataRecord_.poseQuality = poseQualityIsGood ? TrackingQuality::GOOD : TrackingQuality::BAD;
+  record.poseQuality = poseQualityIsGood ? TrackingQuality::GOOD : TrackingQuality::BAD;
   bool visualTrackingQualityIsGood = dataLayout.isMapTrackingHealthy.get();
-  dataRecord_.visualTrackingQuality =
+  record.visualTrackingQuality =
       visualTrackingQualityIsGood ? VisualTrackingQuality::GOOD : VisualTrackingQuality::BAD;
 
   // Parse gravity vec
@@ -104,7 +105,7 @@ bool VioPlayer::onVioResultDataLayoutRead(const datalayout::VioResultDataLayout&
     fmt::print("Missing gravityVec_Odometry in VIO result data layout!");
     return false;
   }
-  dataRecord_.gravityInOdometry = mapToEigenVector<double, float, 3>(gravityVecInOdometry);
+  record.gravityInOdometry = mapToEigenVector<double, float, 3>(gravityVecInOdometry);
 
   // Parse T_BodyImu_Device
   vrs::Point3Dd txyz_BodyImu_Device;
@@ -117,8 +118,12 @@ bool VioPlayer::onVioResultDataLayoutRead(const datalayout::VioResultDataLayout&
     fmt::print("Missing qxyzw_BodyImu_Device in VIO result data layout!");
     return false;
   }
-  dataRecord_.T_BodyImu_Device =
-      populateToSE3<double, float>(qxyzw_BodyImu_Device, txyz_BodyImu_Device);
+  const auto maybeT_BodyImu_Device = populateToSE3OrLog<double, float>(
+      qxyzw_BodyImu_Device, txyz_BodyImu_Device, "T_BodyImu_Device", "VIO result");
+  if (!maybeT_BodyImu_Device) {
+    return false;
+  }
+  record.T_BodyImu_Device = *maybeT_BodyImu_Device;
 
   // T_Odometry_BodyImu, stored as translation and quaternion separately
   vrs::Point3Dd txyz_Odometry_BodyImu;
@@ -131,8 +136,12 @@ bool VioPlayer::onVioResultDataLayoutRead(const datalayout::VioResultDataLayout&
     fmt::print("Missing qxyzw_Odometry_BodyImu in VIO result data layout!");
     return false;
   }
-  dataRecord_.T_Odometry_BodyImu =
-      populateToSE3<double, float>(qxyzw_Odometry_BodyImu, txyz_Odometry_BodyImu);
+  const auto maybeT_Odometry_BodyImu = populateToSE3OrLog<double, float>(
+      qxyzw_Odometry_BodyImu, txyz_Odometry_BodyImu, "T_Odometry_BodyImu", "VIO result");
+  if (!maybeT_Odometry_BodyImu) {
+    return false;
+  }
+  record.T_Odometry_BodyImu = *maybeT_Odometry_BodyImu;
 
   // Parse velocity
   vrs::Point3Dd linearVelocityInOdometry;
@@ -140,16 +149,14 @@ bool VioPlayer::onVioResultDataLayoutRead(const datalayout::VioResultDataLayout&
     fmt::print("Missing linearVelocity_Odometry in VIO result data layout!");
     return false;
   }
-  dataRecord_.linearVelocityInOdometry =
-      mapToEigenVector<double, float, 3>(linearVelocityInOdometry);
+  record.linearVelocityInOdometry = mapToEigenVector<double, float, 3>(linearVelocityInOdometry);
 
   vrs::Point3Dd angularVelocityInBodyImu;
   if (!dataLayout.angularVelocityInBodyImu.get(angularVelocityInBodyImu)) {
     fmt::print("Missing angularVelocity_BodyImu in VIO result data layout!");
     return false;
   }
-  dataRecord_.angularVelocityInBodyImu =
-      mapToEigenVector<double, float, 3>(angularVelocityInBodyImu);
+  record.angularVelocityInBodyImu = mapToEigenVector<double, float, 3>(angularVelocityInBodyImu);
 
   // Read online calibration
   std::string onlineCalibString;
@@ -163,9 +170,10 @@ bool VioPlayer::onVioResultDataLayoutRead(const datalayout::VioResultDataLayout&
       fmt::print("Cannot correctly parse online calibration string in VIO result data layout!");
       return false;
     }
-    dataRecord_.onlineCalib = maybeOnlineCalib.value();
+    record.onlineCalib = maybeOnlineCalib.value();
   }
 
+  dataRecord_ = std::move(record);
   if (callback_) {
     callback_(dataRecord_);
   }

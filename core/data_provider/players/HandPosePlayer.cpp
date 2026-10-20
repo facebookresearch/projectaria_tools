@@ -53,8 +53,12 @@ std::optional<HandTrackingResult::OneSide> populateOneSideHand(
     fmt::print("Missing wristTranslationMeterXyz in hand pose data layout!");
     return {};
   }
-  oneSide.T_Device_Wrist =
-      populateToSE3<float, double>(wristRotationXyzw, wristTranslationMeterXyz);
+  const auto maybeT_Device_Wrist = populateToSE3OrLog<float, double>(
+      wristRotationXyzw, wristTranslationMeterXyz, "T_Device_Wrist", "hand pose");
+  if (!maybeT_Device_Wrist) {
+    return {};
+  }
+  oneSide.T_Device_Wrist = *maybeT_Device_Wrist;
 
   // Parse hand confidences
   oneSide.confidence = singleHandPoseLayout.handConfidence.get();

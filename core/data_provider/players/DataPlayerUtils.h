@@ -16,10 +16,14 @@
 
 #pragma once
 
+#include <fmt/format.h>
 #include <mps/HandTracking.h>
 #include <sophus/se3.hpp>
 #include <vrs/DataPieceTypes.h>
 #include <Eigen/Core>
+
+#include <optional>
+#include <string_view>
 
 namespace projectaria::tools::data_provider {
 template <typename T>
@@ -55,20 +59,47 @@ auto mapToEigenVector(const vrs::PointND<TIn, N>& point) {
   }
 }
 
+/// Builds an SE3 from a VRS quaternion/translation pair, or returns nullopt when
+/// the stored values are not a pose Sophus can represent. On-device trackers
+/// write NaN or zeroed poses for records they could not solve, and Sophus::SO3
+/// aborts the process rather than throwing when handed one, so callers must
+/// treat a stored pose as optional.
 template <typename TIn, typename TOut = TIn>
-inline Sophus::SE3<TOut> populateToSE3(
+inline std::optional<Sophus::SE3<TOut>> populateToSE3(
     const vrs::PointND<TIn, 4>& rotation,
     const vrs::PointND<TIn, 3>& translation) {
-  Eigen::Matrix<TIn, 3, 1> eigenTranslation = {translation[0], translation[1], translation[2]};
+  const Eigen::Matrix<TOut, 3, 1> eigenTranslation{
+      static_cast<TOut>(translation[0]),
+      static_cast<TOut>(translation[1]),
+      static_cast<TOut>(translation[2])};
   // xyzw -> eigen::wxyz
-  Eigen::Quaternion<TIn> eigenRotation = {rotation[3], rotation[0], rotation[1], rotation[2]};
+  const Eigen::Quaternion<TOut> eigenRotation{
+      static_cast<TOut>(rotation[3]),
+      static_cast<TOut>(rotation[0]),
+      static_cast<TOut>(rotation[1]),
+      static_cast<TOut>(rotation[2])};
 
-  if constexpr (std::is_same_v<TIn, TOut>) {
-    return Sophus::SE3<TIn>(eigenRotation, eigenTranslation);
-  } else {
-    return Sophus::SE3<TOut>(
-        eigenRotation.template cast<TOut>(), eigenTranslation.template cast<TOut>());
+  // Mirrors the SOPHUS_ENSURE in SO3Base::normalize(); a NaN norm also fails it.
+  if (!eigenRotation.coeffs().allFinite() || !eigenTranslation.allFinite() ||
+      eigenRotation.norm() < Sophus::Constants<TOut>::epsilon()) {
+    return {};
   }
+  return Sophus::SE3<TOut>{eigenRotation, eigenTranslation};
+}
+
+/// populateToSE3 plus the diagnostic every player prints when a record's stored
+/// pose is unusable, so callers only keep the early return.
+template <typename TIn, typename TOut = TIn>
+inline std::optional<Sophus::SE3<TOut>> populateToSE3OrLog(
+    const vrs::PointND<TIn, 4>& rotation,
+    const vrs::PointND<TIn, 3>& translation,
+    std::string_view fieldName,
+    std::string_view layoutName) {
+  std::optional<Sophus::SE3<TOut>> pose = populateToSE3<TIn, TOut>(rotation, translation);
+  if (!pose) {
+    fmt::print("Unrepresentable {} in {} data layout!", fieldName, layoutName);
+  }
+  return pose;
 }
 
 template <typename T, int N>
