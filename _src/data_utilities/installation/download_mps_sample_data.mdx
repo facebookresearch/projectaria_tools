@@ -1,0 +1,29 @@
+---
+sidebar_position: 11
+title: Download MPS Sample Data
+---
+
+# How to Download MPS sample dataset
+
+This sample (hosted at projectaria.com) contains a raw VRS file and all the corresponding MPS outputs.
+
+:::info
+If you are in zsh (default on Mac OS), you may need to run `setopt shwordsplit` for the following instructions to work
+:::
+
+```bash
+export MPS_SAMPLE_PATH=/tmp/mps_sample
+export BASE_URL="https://www.projectaria.com/async/sample/download/?bucket=mps&filename="
+mkdir -p $MPS_SAMPLE_PATH
+
+export OPTIONS="-C - -O -L"
+curl -o $MPS_SAMPLE_PATH/sample.vrs $OPTIONS "${BASE_URL}sample.vrs"
+curl -o $MPS_SAMPLE_PATH/slam.zip $OPTIONS "${BASE_URL}slam_v1_1_0.zip"
+curl -o $MPS_SAMPLE_PATH/eye_gaze.zip $OPTIONS "${BASE_URL}eye_gaze_v3_1_0.zip"
+curl -o $MPS_SAMPLE_PATH/hand_tracking.zip $OPTIONS "${BASE_URL}hand_tracking_v2_0_0.zip"
+
+unzip -o $MPS_SAMPLE_PATH/eye_gaze.zip  -d $MPS_SAMPLE_PATH
+unzip -o $MPS_SAMPLE_PATH/slam.zip -d $MPS_SAMPLE_PATH
+unzip -o $MPS_SAMPLE_PATH/hand_tracking.zip  -d $MPS_SAMPLE_PATH
+```
+The above commands will download the most recent sample dataset from Project Aria. You can also download a more limited [sample dataset](https://github.com/facebookresearch/projectaria_tools/tree/main/data/mps_sample) from our GitHub repository.

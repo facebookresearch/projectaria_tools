@@ -1,0 +1,78 @@
+---
+sidebar_position: 20
+title: Dataset Explorer Filters
+---
+# Aria Dataset Explorer Filters
+
+The following filters can be used with the [Aria Dataset Explorer](https://explorer.projectaria.com/).
+
+## Universal filters
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| video_uid | String | UID of sequence |
+| device_serial | String | Serial number of the Project Aria glasses used to make the recording, eg 1WM103600M1292 |
+| duration_s | float | Number of seconds a recording took, eg 122.47 |
+| sensor.slam_camera_fps | int | Number of frames per second recorded by the monoscene/SLAM cameras, eg 30 |
+| sensor.rgb_camera_fps | int | Number of frames per second recorded by the RGB camera, eg 30 |
+| sensor.et_camera_fps | int | Number of frames per second recorded by the Eye Tracking cameras |
+| sensor.rgb_image_height | int | How many pixels high the image is, eg 1408 |
+| sensor.rgb_image_width | int | How many pixels wide the image is, eg 1408 |
+| light_intensity_lux_median | float | Median level of illumination in a recording, measured in lux, eg 107.26 |
+| computed.trajectory_length_m | float | Number of meters traversed in the recording, derived from MPS [Closed Loop Trajectory](/data_formats/mps/slam/mps_trajectory.mdx) data, eg 63.41. This is calculated by summing the total distance in between each image frame. |
+| computed.covered_area_m2 | float | Area traversed in the recording in meters squared, derived from MPS [Closed Loop Trajectory](/data_formats/mps/slam/mps_trajectory.mdx) data, eg 28.20. This is calculated by computing a bounding box in the xy plane defined by the trajectory, and taking its area. |
+| computed.covered_volume_m3 | float | Volume traversed in the recording in meters cubed, derived from MPS [Closed Loop Trajectory](/data_formats/mps/slam/mps_trajectory.mdx) data, eg 17.12. This is calculated by computing a 3D bounding box in the xyz plane defined by the trajectory, and taking its volume. |
+| computed.speed_mps_mean | float | Average speed in the recording in meters per second, calculated by dividing the trajectory length by the duration of the recording, eg 0.5177 |
+
+## Dataset Specific Filters
+
+Some datasets have additional metadata that can be used as filters, such as activities or objects interacted with in the Aria Digital Twin (ADT) dataset.
+
+
+### ADT Specific Filters
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| Scene | String | Scene name for the sequence (either Apartment or Office) |
+| is_multi_person | Bool | True if the sequence was recording concurrently with another sequence |
+| num_skeletons | Int | Number of skeletons tracked in the sequence |
+| gt_creation_time | String | Date and timestamp of when the data was collected |
+| activity | String | Activity name associated with this sequence. Go to [ADT Documentation for a list of activities](/open_datasets/aria_digital_twin_dataset/aria_digital_twin_dataset.mdx#activities). |
+| visible_object_names | String | Objects that were visible in the sequence. An object is considered visible if the visibility ratio is larger than 0 for at least one frame |
+| visible_object_categories | String | Categories of objects that were visible in the sequence. This filters by categories object included in the visible_object_names list |
+| object_names_interacted_with | String | Objects that have been moved during the sequence. An object is considered to have been moved if the total motion is greater than 0.5m |
+| object_categories_interacted_with | String | Categories of objects that have been moved during the sequence. This filters by categories of object that were included in the object_names_interacted_with list |
+
+Go to [ADT Documentation](/open_datasets/aria_digital_twin_dataset/aria_digital_twin_dataset.mdx) for more details.
+
+
+### Nymeria Specific Filters
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| date | String | Date the data was captured |
+| participant_id | String | ID of the participant |
+| act_id | String | The index of recording sequences per participant |
+| location | String | Location where the data was collected |
+| script | String | Recording script used |
+| action_duration_sec | float | Activity duration in second |
+| has_two_participants | bool | True, if the sequence has two participants |
+| pt2 | String | For two-participant sequences, this field records the UID of the other associated sequence. For single-participant sequences, this field is empty. |
+| body_motion | bool | True, if the sequence includes ground-truth full-body motion |
+| [head/left_wrist/right_wrist/observer]_data | bool | Each individual flag is true, if the sequence includes the raw data from the participant’s Project Aria glasses, participant’s left miniAria wristband, participant’s right miniAria wristband, and observer’s Project Aria glasses, respectively. |
+| [head/left_wrist/right_wrist/observer]_slam | bool | Each individual flag is true, if the sequence includes the MPS location output for the participant’s Project Aria glasses, participant’s left miniAria wristband, participant’s right miniAria wristband, and observer’s Project Aria glasses, respectively. |
+| [head/left_wrist/right_wrist/observer]_trajectory_m | float | Each float value is the corresponding device moving trajectory length in meters for the participant’s Project Aria glasses, participant’s left miniAria wristband, participant’s right miniAria wristband, and observer’s Project Aria glasses, respectively. |
+| [head/left_wrist/right_wrist/observer]_duration_sec | float | Each float value is the device recording time in seconds for the participant’s Project Aria glasses, participant’s left miniAria wristband, participant’s right miniAria wristband, and observer’s Project Aria glasses, respectively. |
+| [head/observer]_general_gaze | bool | True, if the sequence includes the generalized eye gaze estimation for the participant and the observer, respectively. |
+| [head/observer]_personalized_gaze | bool | True, if the sequence includes the personalized eye gaze estimation for the participant and the observer, respectively. |
+| timesync | bool | True, if all devices are synchronized. |
+| motion_narration | bool | True, if the sequence is annotated with body motion narration. |
+| atomic_action | bool | True, if the sequence is annotated with atomic action. |
+| activity_summarization | bool | True, if the sequence is annotated with the activity summarization. |
+| participant_gender | String | Assigned gender at birth reported by participants. |
+| participant_height_cm | float | Height of the participant in centimeter as measured and used in mocap calibration |
+| participant_weight_kg | float | Weight of participants in Kg as self-reported values |
+| participant_bmi | float | BMI of participants according to CDC formula |
+| participant_age_group | String | Age group of participants. Possible values are 18-24, 25-30, 36-40, 41-45, 46-50 |
+| participant_ethnicity | String | Ethnicity of participants. Possible values are caucasian, hispanic, african american, east asian, south asian, southeast asian, and other/mixed |
+| participant_xsens_suit_size | String | XSens suit size worn by participants. Possible values are M, L, XL, 2XL, 4XL |
