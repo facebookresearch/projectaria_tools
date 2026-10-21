@@ -3,7 +3,7 @@ sidebar_position: 1.5
 title: Companion App Troubleshooting
 ---
 
-Solutions to issues you may encounter while recording, streaming, or calibrating with the Aria Companion App.
+Solutions to issues you may encounter while recording, streaming, using Live Preview, or calibrating with the Aria Companion App.
 
 To report a problem to the Aria team from inside the app, see [Companion App Rage Shake](/ark/support/rageshake).
 
@@ -53,6 +53,65 @@ The app could not confirm that the glasses stopped the session.
 
 ---
 
+## Live Preview
+
+### No Live Preview tile
+
+The **Live Preview** tile only appears in **Quick Actions** when your glasses are connected to the app and their OS supports Live Preview.
+
+**Solution:** Swipe the Quick Actions row to the left, since the tile is the last one. If it still isn't there, check that the dashboard shows your glasses as connected, then [update your glasses' OS](/ark/companion-app/start#updating-glasses).
+
+### iPhone needs an update
+
+> This iPhone needs iOS 26 or later. Update in Settings › General › Software Update, then come back.
+
+Live Preview on iOS uses Wi-Fi Aware, which needs iOS 26 or later.
+
+**Solution:** Update your iPhone, then open Live Preview again.
+
+### iPhone can't use Wi-Fi Aware
+
+> This iPhone can't use Wi-Fi Aware, which Live Preview needs.
+
+This iPhone doesn't support Wi-Fi Aware, so it can't run Live Preview.
+
+**Solution:** Use an iPhone that supports Wi-Fi Aware, or an Android phone.
+
+### Pairing didn't finish
+
+> Pairing didn't finish. Keep your glasses close and try again.
+
+Your iPhone and glasses didn't finish pairing, for example because the iOS pairing prompt was closed.
+
+**Solution:** Keep your glasses on and next to your phone, tap **Try Again**, and enter the new PIN when iOS asks you to pair.
+
+### Remove the old pairing
+
+> Remove the old pairing to pair again.
+
+Your iPhone still holds an earlier Wi-Fi Aware pairing, for example with glasses that have since been reset. iOS has to remove it before your iPhone can pair again.
+
+**Solution:** Tap **Remove Old Pairing** and confirm in the iOS prompt. Pairing then continues with a new PIN.
+
+### Couldn't reach your glasses
+
+> Couldn't reach your glasses. Check they're on and nearby.
+
+Live Preview couldn't start the stream from your glasses.
+
+**Solution:**
+- Keep your glasses on and close to your phone, with your phone's Wi-Fi turned on, then tap **Try Again**.
+- On Android 13 and later, check that the Aria app has the **Nearby devices** permission in your phone's settings.
+- If it keeps failing, close Live Preview, restart your glasses with a [force reset](/ark/device/manual#force-reset) (which keeps your data), and try again.
+
+### Turn On Wi-Fi
+
+> Network Sharing needs your phone's Wi-Fi turned on to connect to your glasses. You don't need to join a Wi-Fi network; your glasses can still use your mobile data.
+
+**Solution:** Turn on your phone's Wi-Fi. You don't need to connect to a network.
+
+---
+
 ## Eye Tracking Calibration
 
 ### Calibration Unsuccessful
@@ -77,6 +136,7 @@ The phone's face tracking cannot see your face.
 
 - [Get Started](/ark/companion-app/start) — installation, pairing, and Eye Tracking Calibration
 - [Control Recording & Streaming](/ark/companion-app/recording) — sessions, profiles, and WebRTC settings
+- [Live Preview](/ark/companion-app/live-preview) — viewing the glasses' cameras live in the app
 - [Recording Profiles](/ark/companion-app/recording-profiles) — choosing and customizing profiles
 - [WebRTC Streaming](/ark/client-sdk/webrtc) — the receiver side of a streaming session
 - [Companion App Rage Shake](/ark/support/rageshake) — reporting device and app issues
