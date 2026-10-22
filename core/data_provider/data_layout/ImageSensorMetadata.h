@@ -103,6 +103,10 @@ struct ImageSensorDataRecordMetadata : public vrs::AutoDataLayout {
   // Set to NaN if not available.
   vrs::DataPieceValue<double> temperature{"temperature_deg_c"};
 
+  // Frames the device withheld on purpose since the previous frame of this stream, for example
+  // blurry frames. Not available if the recording does not report them.
+  vrs::DataPieceValue<std::uint16_t> intentionalDropCount{"intentional_drop_count"};
+
   vrs::AutoDataLayoutEnd end;
 };
 
