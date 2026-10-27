@@ -22,7 +22,7 @@ find_package(fmt REQUIRED)
 # Eigen is required by Ocean
 FetchContent_Declare(
   eigen
-  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+  GIT_REPOSITORY https://github.com/eigen-mirror/eigen.git
   GIT_TAG 19cacd3ecb9dab73c2dd7bc39d9193e06ba92bdd # 3.4.90
 )
 FetchContent_MakeAvailable(eigen)
