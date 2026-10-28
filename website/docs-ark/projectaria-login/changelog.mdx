@@ -6,6 +6,16 @@ title: Changelog
 # Changelog
 
 ---
+## Version 1.0.0
+*October 27, 2026*
+
+- **Per-application identity:** Each Project Aria application now authenticates as its own registered application rather than sharing the MPS CLI's. The `projectaria_login` CLI authenticates as Project Aria Login, and `run_command()` accepts a caller-supplied `AuthenticationConfig` so an embedding CLI is attributed to its own application. The stored token is still shared between the tools.
+- **Account identity on the facade:** `ProjectAriaLogin` now exposes `current_account` (the account's stable alias), `current_user_id` (the account ID), and `current_app_id` (the ID of the application the token is scoped to) alongside `current_user`. `current_user` is the Managed Meta Account name when the account has one and falls back to the account alias, so it can change — key persisted state on `current_account` instead.
+- **Single-request token validation:** Startup validation resolves the whole identity in one `query_current_user` GraphQL request, replacing `query_me`. A response missing the account alias or the application ID is treated as an invalid token, and the stored token is removed as before.
+- **Commons 1.0.0 dependency:** Requires `projectaria-commons~=1.0.0`, installed automatically by pip. Python support remains 3.9 or later.
+- **Logging:** The CLI console stays at WARNING by default even when commons enables DEBUG file logging; `-v` enables DEBUG output in the console. Credentials and signed URLs are redacted at their logging sites.
+
+---
 ## Version 0.2.0
 *August 2026*
 
