@@ -88,7 +88,9 @@ Shared entry means **single logout logs out everywhere** — intentional for sec
 
 ## Token Validation
 
-Every time a tool starts, the stored token is validated against the server. If it is expired or invalid, it is automatically removed from wherever it was stored (keyring or encrypted file) and you are prompted to log in again.
+Every time a tool starts, the stored token is validated against the server by a single `query_current_user` request, which also resolves the account's display name, its stable alias, the account ID, and the application the token is scoped to. If the token is expired or invalid — or the server answers with a partial identity, missing the alias or the application ID — it is automatically removed from wherever it was stored (keyring or encrypted file) and you are prompted to log in again.
+
+The display name is the Managed Meta Account name when the account has one, and falls back to the account alias otherwise. It is for display only: it changes when the account's display name changes, so key any persisted state on the alias instead.
 
 Validation happens on every startup, not on a timer. Long-running processes should handle `401` responses and re-prompt.
 

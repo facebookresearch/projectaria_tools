@@ -38,6 +38,36 @@ The PyPI package is published as [`projectaria-login`](https://pypi.org/project/
 3. **Share**: Aria Studio, MPS CLI, and `projectaria_login` share the same stored credentials, so logging in once enables all tools.
 4. **Logout**: `ProjectAriaLogin.logout()` signs you out and clears your saved session.
 
+## Python API and Application Identity
+
+Import the public facade and types from the top-level `projectaria_login` package. Construct `ProjectAriaLogin` with your application's registered `AuthenticationConfig`; provide the async callbacks needed for MMA instructions, password entry, and encrypted-file passphrases. Use the facade as an async context manager so its HTTP session is closed after use.
+
+After a successful `login()`, `resume()`, or `adopt_token()`, read identity from these properties:
+
+| Property | Meaning |
+|---|---|
+| `current_user` | Display name: the Managed Meta Account name, falling back to the account alias. Use for display only. |
+| `current_account` | Stable account alias. Use this instead of `current_user` to key persisted state. |
+| `current_user_id` | Account ID. |
+| `current_app_id` | ID of the application the current token is scoped to. |
+
+These properties are `None` when no identity has been resolved. The shared credential store does not make every token belong to the currently running application: a resumed token retains the application identity of the tool that issued it. `current_app_id` reports that token's scope, not the configuration of the tool reading it.
+
+When embedding the login commands in another CLI, mount them with `register_commands()` from `projectaria_login.cli` and pass your application's configuration to `run_command()`:
+
+```python
+from projectaria_login.cli import run_command
+
+# auth_config is your application's registered AuthenticationConfig.
+success = run_command("login", username="user@company.com", config=auth_config)
+```
+
+Pass the same configuration when dispatching `verify` and `logout`. Omitting `config` uses Project Aria Login's own application identity. `run_command()` returns a boolean for the caller to map to an exit code; it is a synchronous CLI helper, not an async API.
+
+:::note Upgrading from 0.2.0
+If your application used `current_user` as an account key, switch to `current_account`: in 1.0.0, `current_user` may be an MMA display name rather than the alias. Embedding CLIs should supply their own `AuthenticationConfig` rather than relying on the default application identity. The keyring entry and encrypted-file format are unchanged; a valid stored token can still be resumed.
+:::
+
 ## Next Steps
 
 * [Installation](/ark/projectaria-login/installation) — install from PyPI

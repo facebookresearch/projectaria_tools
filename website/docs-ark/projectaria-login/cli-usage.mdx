@@ -24,7 +24,7 @@ projectaria_login logout
 The CLI auto-detects login method based on username. No flag needed to choose MMA vs password.
 
 :::note Already logged in
-If a valid token already exists (in the keyring or the encrypted file), `login` short-circuits before any password/MMA prompt and prints `Already logged in as <alias>`. To explicitly check login status, use the [`verify`](#verify) subcommand instead. To force a fresh login, run `projectaria_login logout` first.
+If a valid token already exists (in the keyring or the encrypted file), `login` short-circuits before any password/MMA prompt and prints `Already logged in as <display-name>`. To explicitly check login status, use the [`verify`](#verify) subcommand instead. To force a fresh login, run `projectaria_login logout` first.
 :::
 
 ### Password Login (tfbnw.net / wptst.com distributed accounts)
@@ -87,7 +87,7 @@ Authorization must complete within about **5 minutes**. After that the device co
 
 ### Verbose Logging
 
-Add `-v` or `--verbose` to see debug logs: HTTP requests, keyring operations, token validation steps, and encrypted-file fallback messages.
+Add `-v` or `--verbose` to see debug logs in the terminal: HTTP requests, keyring operations, token validation steps, and encrypted-file fallback messages.
 
 ```bash
 projectaria_login -v login --username myuser
@@ -95,8 +95,10 @@ projectaria_login -v login --username myuser
 
 Log levels:
 
-* default: WARNING and above — only errors and key actions printed
-* `-v`: DEBUG — full HTTP helper traces, keyring load/save attempts, GraphQL responses (tokens redacted)
+* default console: WARNING and above — debug records stay out of the terminal
+* `-v` console: DEBUG — HTTP helper traces, keyring load/save attempts, and GraphQL responses
+
+The commons dependency also writes a timestamped session log under the configured `LOG_DIR` (default `/tmp/logs/projectaria/`). File logging includes DEBUG records even without `-v`; the flag controls the CLI console, not the log file. Credential and signed-URL values are redacted at their logging sites, but review logs before sharing them.
 
 ## Encrypted File Fallback
 
@@ -137,7 +139,7 @@ Check whether a valid stored token exists without logging in again:
 projectaria_login verify
 ```
 
-It loads the token from the keyring or the encrypted file, validates it via `query_me`, and reports the result. If the encrypted file is passphrase-protected, it prompts for the passphrase and allows up to **3 attempts**. A wrong (but long-enough) passphrase leaves the file in place so you can retry; even after all 3 attempts fail the file is **kept**, so you can try again later with the correct passphrase. The file is removed only when it is structurally unusable (a malformed blob, an unsupported format, or a payload that decrypts but is not a valid token).
+It loads the token from the keyring or the encrypted file, validates it via `query_current_user`, and reports the result. If the encrypted file is passphrase-protected, it prompts for the passphrase and allows up to **3 attempts**. A wrong (but long-enough) passphrase leaves the file in place so you can retry; even after all 3 attempts fail the file is **kept**, so you can try again later with the correct passphrase. The file is removed only when it is structurally unusable (a malformed blob, an unsupported format, or a payload that decrypts but is not a valid token).
 
 ```
 Token is valid. Logged in as myuser

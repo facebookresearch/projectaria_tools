@@ -43,6 +43,23 @@ projectaria_login --help
 
 Expected output shows `login`, `verify`, and `logout` subcommands.
 
+## Upgrade to 1.0.0
+
+In your activated virtual environment, upgrade an existing installation with:
+
+```bash
+python -m pip install --upgrade "projectaria-login~=1.0.0"
+python -m pip show projectaria-login
+```
+
+Version 1.0.0 requires Python **3.9 or later**, unchanged from 0.2.0, and depends on `projectaria-commons~=1.0.0`. Pip installs the matching commons package automatically along with `aiohttp`, `keyring`, and `pycryptodome`; you do not need to install commons separately.
+
+For custom integrations, review the [1.0.0 migration notes](/ark/projectaria-login/start#python-api-and-application-identity) before upgrading.
+
+:::warning Check the versions required by other Aria tools
+Client SDK 2.5.1 requires `projectaria-login~=0.2`, which excludes 1.0.0. Do not force PAL 1.0.0 into that SDK's environment or bypass pip's dependency checks. Keep the compatible PAL version there, and use a separate virtual environment for standalone PAL 1.0.0 until a compatible SDK release is available. Check the dependency requirements of MPS CLI and Aria Studio in the same way.
+:::
+
 ## Keyring Prerequisites
 
 `projectaria_login` stores tokens securely in your operating system's credential manager. No additional system packages are required on macOS or Windows.
