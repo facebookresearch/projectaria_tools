@@ -14,16 +14,37 @@
 # limitations under the License.
 
 set -euo pipefail
+
+install_with_retry() {
+    local attempt exit_code
+    for attempt in 1 2 3; do
+        if "$@"; then
+            return 0
+        else
+            exit_code=$?
+        fi
+        echo "Package installation attempt $attempt failed (exit $exit_code): $*" >&2
+        if [ "$attempt" -eq 3 ]; then
+            return "$exit_code"
+        fi
+        if ! "$1" clean metadata; then
+            echo "Warning: metadata cleanup failed; retrying package installation anyway" >&2
+        fi
+        sleep "$((attempt * 5))"
+    done
+}
+
 echo "=== STARTING manylinux deps install ==="
 
 # manylinux2014 is CentOS 7, whose mirrors moved to the vault. manylinux_2_28 is
 # AlmaLinux 8: it has no CentOS repo files, and gtest-devel is in PowerTools.
-if compgen -G "/etc/yum.repos.d/CentOS-*" > /dev/null; then
-    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
-    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+yum_repos_dir="${YUM_REPOS_DIR:-/etc/yum.repos.d}"
+if compgen -G "${yum_repos_dir}/CentOS-*" > /dev/null; then
+    sed -i 's/mirrorlist/#mirrorlist/g' "${yum_repos_dir}"/CentOS-*
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' "${yum_repos_dir}"/CentOS-*
 fi
 if command -v dnf > /dev/null; then
-    dnf install -y dnf-plugins-core
+    install_with_retry dnf install -y dnf-plugins-core
     dnf config-manager --set-enabled powertools
 fi
 
@@ -31,8 +52,8 @@ fi
 # Toolchains
 # EPEL provides gtest-devel and xxhash-devel on manylinux2014_aarch64;
 # already enabled on the x86_64 image, so this is idempotent there.
-yum install -y epel-release
-yum install -y cmake git gtest-devel \
+install_with_retry yum install -y epel-release
+install_with_retry yum install -y cmake git gtest-devel \
     lz4-devel libzstd-devel xxhash-devel libpng-devel libjpeg-turbo-devel wget
 
 # Install and compile libraries
