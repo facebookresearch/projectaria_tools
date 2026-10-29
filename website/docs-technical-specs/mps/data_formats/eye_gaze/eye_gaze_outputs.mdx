@@ -39,8 +39,31 @@ All gaze angles are in radians in CPF. Eye origins are translations from the CPF
 | `tx_right_eye_cpf` | float | X-coordinate of the right-eye origin. |
 | `ty_right_eye_cpf` | float | Y-coordinate of the right-eye origin. |
 | `tz_right_eye_cpf` | float | Z-coordinate of the right-eye origin. |
+| `left_eye_valid_score` | float | Valid score of the left eye, from 0 (eye closed or pupil occluded) to 1 (valid). |
+| `right_eye_valid_score` | float | Valid score of the right eye, from 0 to 1. |
+| `left_eye_valid` | int | `1` if the left eye is valid at the model's default threshold, otherwise `0`. |
+| `right_eye_valid` | int | `1` if the right eye is valid at the model's default threshold, otherwise `0`. |
+
+The four validity columns are present in files from Eye Gaze versions that produce them. The cells are empty when the model has no validity output. Gaze angles are written for every row, including rows where an eye is invalid.
 
 The Gen2 CSV does not store a depth or 3D gaze point. When Project Aria Tools loads the file, it derives `combined_gaze_origin_in_cpf`, `spatial_gaze_point_in_cpf`, and `depth` from the two eye rays. When the rays do not converge within 6 m (nearly parallel, diverging, or missing each other by more than 3 cm), the point is placed 100 m along the gaze direction, as in the on-device eye tracking, and the depth is then 100. Check `spatial_gaze_point_valid` before using the derived point or depth.
+
+### Eye validity
+
+Project Aria Tools sets `vergence.left_gaze_valid` and `vergence.right_gaze_valid` from `left_eye_valid` and `right_eye_valid`. `combined_gaze_valid` and `spatial_gaze_point_valid` require both eyes to be valid. In files without the validity columns, every eye is valid.
+
+To use a stricter or looser threshold than the default, re-derive these flags from the valid scores with `mps.apply_valid_score_threshold()`. An eye is then valid when its valid score is at least the threshold. Eyes without a valid score keep their flags.
+
+```python
+from projectaria_tools.core import mps
+
+eye_gazes = mps.read_eyegaze("mps_recording_vrs/eye_gaze/general_eye_gaze.csv")
+eye_gazes = mps.apply_valid_score_threshold(eye_gazes, 0.5)
+
+valid_gazes = [g for g in eye_gazes if g.combined_gaze_valid]
+```
+
+`apply_valid_score_threshold()` also accepts a single `EyeGaze` and Gen2 on-device eye gaze read from a VRS file. It returns new objects and raises `ValueError` for a threshold outside [0, 1].
 
 ## Aria Gen1 CSV schema
 

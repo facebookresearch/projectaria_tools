@@ -315,6 +315,8 @@ The EyeGaze data type represents on-device eye tracking results. **Importantly, 
 | `vergence.[left,right]_blink`   | Blink detection for left and right eyes                                      |
 | `*_valid`    | Boolean flags to indicating if the corresponding data field in EyeGaze is valid                          |
 
+Recordings whose eye tracking reports a per-eye valid score also support `mps.apply_valid_score_threshold()`, which re-derives the eye, combined gaze and spatial gaze point validity flags at a custom threshold. See [MPS Eye Gaze](/technical-specs/mps/data_formats/eye_gaze/eye_gaze_outputs#eye-validity).
+
 #### EyeGaze API Reference
 
 In `AriaGen2PilotDataProvider`, EyeGaze is treated the same way as any other sensor data, and shares similar query APIs:
