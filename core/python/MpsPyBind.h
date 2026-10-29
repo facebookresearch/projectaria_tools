@@ -329,7 +329,7 @@ void exportMps(py::module& m) {
       py::arg("right_eye_origin"),
       py::arg("right_yaw_rads"),
       py::arg("right_pitch_rads"),
-      R"docdelimiter( Vergence point of the two eye gaze rays in the frame of the supplied origins (typically CPF). Generalizes get_gaze_intersection_point to the case where each eye has an independent pitch and the inter-pupillary distance is not the hardcoded 63 mm. Returns a tuple `(vergence_point, is_real)`. `is_real` is True when the result is the geometric closest-approach midpoint; it is False when the input geometry is degenerate (near-parallel rays, behind-eye solutions, highly skew rays, or convergence beyond a reliable depth) and the returned point is a synthetic forward fallback at 10 m along the fused per-eye direction.
+      R"docdelimiter( Vergence point of the two eye gaze rays in the frame of the supplied origins (typically CPF). Generalizes get_gaze_intersection_point to the case where each eye has an independent pitch and the inter-pupillary distance is not the hardcoded 63 mm. Returns a tuple `(vergence_point, is_real)`. `is_real` is True when the result is the geometric closest-approach midpoint; it is False when the input geometry is degenerate (near-parallel rays, behind-eye solutions, highly skew rays, or convergence beyond a reliable depth) and the returned point is a forward fallback at 100 m along the fused per-eye direction, the same distance as the on-device eye tracking and the MPS pipeline.
   Parameters
   __________
   left_eye_origin: Left eye origin as a 3D point in the same frame (e.g. CPF).

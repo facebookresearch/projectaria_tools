@@ -83,23 +83,23 @@ getGazeVectors(float leftYawRads, float rightYawRads, float pitchRads) {
 }
 
 // Distance at which `getGazeVergencePoint` plants its far-gaze fallback when the input geometry
-// is degenerate. Exposed because downstream consumers may want to suppress points at this
-// distance.
-constexpr double kVergenceFarFallbackDistanceM = 10.0;
+// is degenerate. Matches the on-device eye tracking and the MPS pipeline. Exposed because
+// downstream consumers may want to recognize points at this distance.
+constexpr double kVergenceFarFallbackDistanceM = 100.0;
 
 // Vergence point of the two eye gaze rays in the frame of the supplied origins (typically CPF).
 // Generalizes `getGazeIntersectionPoint` to the case where each eye has an independent pitch
 // and the inter-pupillary distance is not the hardcoded 63 mm. Each per-eye direction is built
-// from its (yaw, pitch) using the standard polar convention
-// (x = sin(yaw)·cos(pitch), y = sin(pitch), z = cos(yaw)·cos(pitch)), then the midpoint of the
+// from its (yaw, pitch) with `getUnitVectorFromYawPitch`, the projective convention of the eye
+// gaze outputs (direction proportional to (tan(yaw), tan(pitch), 1)), then the midpoint of the
 // shortest segment connecting the two skew rays is returned.
 //
 // Returns `(vergencePoint, isReal)`. `isReal` is true when the result is the geometric
 // closest-approach midpoint. It is false when the inputs are degenerate (near-parallel rays,
 // divergent rays, skew rays whose closest points are too far apart, or convergence beyond a
 // reliable depth) — in that case the returned point is a synthetic forward fallback at
-// `kVergenceFarFallbackDistanceM` along the fused direction so downstream consumers always
-// receive a forward, physically plausible point but can choose to ignore it.
+// `kVergenceFarFallbackDistanceM` along the fused direction, which stands for gaze too far to
+// triangulate.
 std::pair<Eigen::Vector3d, bool> getGazeVergencePoint(
     const Eigen::Vector3d& leftEyeOrigin,
     float leftYawRads,

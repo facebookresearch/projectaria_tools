@@ -372,7 +372,7 @@ class MPSEyeGaze(unittest.TestCase):
 
     def test_get_gaze_vergence_point_parallel_fallback(self) -> None:
         # Both eyes looking straight forward — parallel rays trigger the weak-vergence
-        # guardrail. is_real is False; the fallback lands at +Z = 10 m from the cyclopean
+        # guardrail. is_real is False; the fallback lands at +Z = 100 m from the cyclopean
         # origin (which is the CPF origin for these symmetric eyes).
         left_origin = np.array([0.0325, 0.0, 0.0])
         right_origin = np.array([-0.0325, 0.0, 0.0])
@@ -382,7 +382,7 @@ class MPSEyeGaze(unittest.TestCase):
         self.assertFalse(is_real)
         self.assertAlmostEqual(vergence[0], 0.0, places=4)
         self.assertAlmostEqual(vergence[1], 0.0, places=4)
-        self.assertAlmostEqual(vergence[2], 10.0, places=4)
+        self.assertAlmostEqual(vergence[2], 100.0, places=4)
 
     def test_get_gaze_vector_reprojection_branches_on_validity(self) -> None:
         # `get_gaze_vector_reprojection` must pick its source from `spatial_gaze_point_valid`,

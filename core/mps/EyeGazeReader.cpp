@@ -37,11 +37,6 @@ constexpr double kVergenceMaxMissDistanceM = 0.03; // 3 cm
 constexpr double kVergenceMaxReliableDepthM = 6.0;
 constexpr double kTinyNormSq = 1e-12; // Compared against `vec.dot(vec)` (a squared norm).
 
-Eigen::Vector3d yawPitchToDirection(float yawRads, float pitchRads) {
-  const double cp = std::cos(pitchRads);
-  return {std::sin(yawRads) * cp, std::sin(pitchRads), std::cos(yawRads) * cp};
-}
-
 Eigen::Vector3d fuseDirections(const Eigen::Vector3d& d1, const Eigen::Vector3d& d2) {
   const Eigen::Vector3d sum = d1 + d2;
   if (sum.dot(sum) < kTinyNormSq) {
@@ -60,8 +55,8 @@ std::pair<Eigen::Vector3d, bool> getGazeVergencePoint(
     float rightPitchRads) {
   static const double kCosMinVergence = std::cos(kVergenceMinAngleDeg * kPi / 180.0);
 
-  const Eigen::Vector3d d1 = yawPitchToDirection(leftYawRads, leftPitchRads);
-  const Eigen::Vector3d d2 = yawPitchToDirection(rightYawRads, rightPitchRads);
+  const Eigen::Vector3d d1 = getUnitVectorFromYawPitch(leftYawRads, leftPitchRads);
+  const Eigen::Vector3d d2 = getUnitVectorFromYawPitch(rightYawRads, rightPitchRads);
   const Eigen::Vector3d cyclopeanOrigin = 0.5 * (leftEyeOrigin + rightEyeOrigin);
 
   auto farGazeFallback = [&]() -> Eigen::Vector3d {
@@ -200,10 +195,8 @@ EyeGazes readEyeGazeVergence(const std::string& path) {
 
         // Backfill 3D geometry that the Gen2 CSV doesn't carry: combined gaze origin (midpoint
         // of the two eye origins), spatial gaze point (vergence of the per-eye rays), and
-        // depth (Euclidean distance from combined origin to spatial gaze point). When the
-        // helper signals that the result is a degenerate-geometry fallback rather than a real
-        // vergence, mark spatial_gaze_point_valid = false so consumers can skip the synthetic
-        // point.
+        // depth (Euclidean distance from combined origin to spatial gaze point). When the rays do
+        // not converge, the spatial gaze point is the far-gaze fallback, as on device.
         const Eigen::Vector3d leftOrigin{
             eyeGazeVergence.vergence.tx_left_eye,
             eyeGazeVergence.vergence.ty_left_eye,
@@ -213,22 +206,20 @@ EyeGazes readEyeGazeVergence(const std::string& path) {
             eyeGazeVergence.vergence.ty_right_eye,
             eyeGazeVergence.vergence.tz_right_eye};
         const Eigen::Vector3d combinedOrigin = 0.5 * (leftOrigin + rightOrigin);
-        const auto [vergencePoint, isRealVergence] = getGazeVergencePoint(
-            leftOrigin,
-            eyeGazeVergence.vergence.left_yaw,
-            eyeGazeVergence.vergence.left_pitch,
-            rightOrigin,
-            eyeGazeVergence.vergence.right_yaw,
-            eyeGazeVergence.vergence.right_pitch);
+        const Eigen::Vector3d vergencePoint = getGazeVergencePoint(
+                                                  leftOrigin,
+                                                  eyeGazeVergence.vergence.left_yaw,
+                                                  eyeGazeVergence.vergence.left_pitch,
+                                                  rightOrigin,
+                                                  eyeGazeVergence.vergence.right_yaw,
+                                                  eyeGazeVergence.vergence.right_pitch)
+                                                  .first;
 
         eyeGazeVergence.combined_gaze_origin_in_cpf = combinedOrigin.cast<float>();
         eyeGazeVergence.combined_gaze_valid = true;
         eyeGazeVergence.spatial_gaze_point_in_cpf = vergencePoint.cast<float>();
-        eyeGazeVergence.spatial_gaze_point_valid = isRealVergence;
-        // Don't expose the far-gaze fallback distance as a real depth. Consumers that ignore
-        // `spatial_gaze_point_valid` would otherwise see 10 m and treat it as a measurement.
-        eyeGazeVergence.depth =
-            isRealVergence ? static_cast<float>((vergencePoint - combinedOrigin).norm()) : 0.f;
+        eyeGazeVergence.spatial_gaze_point_valid = true;
+        eyeGazeVergence.depth = static_cast<float>((vergencePoint - combinedOrigin).norm());
       } else {
         // Gen1 schema lacks combined yaw — derive it from the per-eye yaw + common pitch.
         float depthM = NAN, combinedYawRads = NAN, pitchRads = NAN;

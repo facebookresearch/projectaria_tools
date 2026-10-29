@@ -40,7 +40,7 @@ All gaze angles are in radians in CPF. Eye origins are translations from the CPF
 | `ty_right_eye_cpf` | float | Y-coordinate of the right-eye origin. |
 | `tz_right_eye_cpf` | float | Z-coordinate of the right-eye origin. |
 
-The Gen2 CSV does not store a depth or 3D gaze point. When Project Aria Tools loads the file, it derives `combined_gaze_origin_in_cpf`, `spatial_gaze_point_in_cpf`, and `depth` from the two eye rays. Check `spatial_gaze_point_valid` before using the derived point or depth. A depth of `0` means that depth is unavailable.
+The Gen2 CSV does not store a depth or 3D gaze point. When Project Aria Tools loads the file, it derives `combined_gaze_origin_in_cpf`, `spatial_gaze_point_in_cpf`, and `depth` from the two eye rays. When the rays do not converge within 6 m (nearly parallel, diverging, or missing each other by more than 3 cm), the point is placed 100 m along the gaze direction, as in the on-device eye tracking, and the depth is then 100. Check `spatial_gaze_point_valid` before using the derived point or depth.
 
 ## Aria Gen1 CSV schema
 

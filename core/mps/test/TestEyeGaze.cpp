@@ -16,6 +16,11 @@
 
 #include <gtest/gtest.h>
 #include <mps/EyeGazeFormat.h>
+
+#include <filesystem>
+#include <fstream>
+#include <system_error>
+
 #include <mps/EyeGazeReader.h>
 #include "EyeGaze.h"
 
@@ -27,6 +32,48 @@ using namespace projectaria::tools::mps;
 static const std::string testDataFolder = XSTRING(TEST_FOLDER);
 static const std::string testDataFolderGen2 = XSTRING(TEST_FOLDER_GEN2);
 float EYEGAZE_ERROR_TOLERANCE = 0.001;
+
+namespace {
+
+// One row of a Gen2 eye gaze CSV, from the bundled general_eye_gaze.csv sample.
+const std::string kGen2Header =
+    "tracking_timestamp_us,yaw_rads_cpf,pitch_rads_cpf,left_yaw_rads_cpf,right_yaw_rads_cpf,"
+    "left_pitch_rads_cpf,right_pitch_rads_cpf,tx_left_eye_cpf,ty_left_eye_cpf,tz_left_eye_cpf,"
+    "tx_right_eye_cpf,ty_right_eye_cpf,tz_right_eye_cpf";
+const std::string kGen2Row =
+    "1130889351,0.07778378,-0.36552523,0.01876476,0.13680238,-0.36495319,-0.36493456,"
+    "0.0325,0.0,0.0,-0.0325,0.0,0.0";
+// Both eyes looking straight ahead: the gaze rays never converge.
+const std::string kStraightAheadGen2Row =
+    "1,0.0,0.0,0.0,0.0,0.0,0.0,0.0325,0.0,0.0,-0.0325,0.0,0.0";
+
+// Writes a one-row Gen2 CSV, `gazeCells` followed by `extraCells`, with `extraColumns` appended
+// to the header, and removes it on destruction.
+struct Gen2CsvFile {
+  std::string path;
+  Gen2CsvFile(
+      const std::string& extraColumns,
+      const std::string& extraCells,
+      const std::string& gazeCells = kGen2Row) {
+    path = (std::filesystem::temp_directory_path() /
+            ("eye_gaze_test_" +
+             std::to_string(
+                 std::hash<std::string>{}(extraColumns + "|" + extraCells + "|" + gazeCells)) +
+             ".csv"))
+               .string();
+    std::ofstream out(path);
+    if (!out) {
+      ADD_FAILURE() << "Cannot write " << path;
+    }
+    out << kGen2Header << extraColumns << "\n" << gazeCells << extraCells << "\n";
+  }
+  ~Gen2CsvFile() {
+    std::error_code ignored;
+    std::filesystem::remove(path, ignored);
+  }
+};
+
+} // namespace
 
 TEST(mps_eyegaze_valid_file, reader) {
   const auto eyegazeValues = readEyeGaze(testDataFolder + "mps_sample/eye_gaze/eyegaze.csv");
@@ -89,8 +136,8 @@ TEST(mps_eyegaze_gen2_valid_file, reader) {
 
   // Reader backfills 3D geometry. combined gaze origin is the midpoint of the two eye
   // origins (the CPF origin for these symmetric eyes). spatial gaze point comes from the ray
-  // triangulation in `getGazeVergencePoint`; validity reflects whether the inputs converged
-  // on a real point or fell through to the far-gaze fallback.
+  // triangulation in `getGazeVergencePoint`, or is the far-gaze fallback when the rays do not
+  // converge.
   EXPECT_TRUE(row0.combined_gaze_valid);
   ASSERT_NEAR(0.0, row0.combined_gaze_origin_in_cpf.x(), EYEGAZE_ERROR_TOLERANCE);
   ASSERT_NEAR(0.0, row0.combined_gaze_origin_in_cpf.y(), EYEGAZE_ERROR_TOLERANCE);
@@ -98,7 +145,7 @@ TEST(mps_eyegaze_gen2_valid_file, reader) {
   // depth is the Euclidean distance from combined origin to spatial gaze point — must match
   // the norm of the backfilled spatial point (combined_origin is at zero here).
   EXPECT_NEAR(row0.spatial_gaze_point_in_cpf.norm(), row0.depth, EYEGAZE_ERROR_TOLERANCE);
-  // Whichever branch ran, spatial gaze point must be non-zero (real or 10 m fallback).
+  // Whichever branch ran, spatial gaze point must be non-zero (real or far-gaze fallback).
   EXPECT_GT(row0.spatial_gaze_point_in_cpf.norm(), 0.f);
 
   // Gen2 schema has no confidence bounds / session_uid / depth column — those stay at
@@ -108,17 +155,49 @@ TEST(mps_eyegaze_gen2_valid_file, reader) {
   EXPECT_EQ("", row0.session_uid);
 }
 
+TEST(mps_eyegaze_far_gaze_fallback_distance, helper) {
+  // Same far-gaze distance as the on-device eye tracking and the MPS pipeline.
+  EXPECT_EQ(100.0, kVergenceFarFallbackDistanceM);
+}
+
+TEST(mps_eyegaze_gen2_far_gaze, reader) {
+  // The rays never converge, so the spatial point is the far-gaze fallback. It is still a real
+  // gaze point, and valid.
+  const Gen2CsvFile csv("", "", kStraightAheadGen2Row);
+  const auto rows = readEyeGaze(csv.path);
+  ASSERT_EQ(1u, rows.size());
+  EXPECT_TRUE(rows[0].spatial_gaze_point_valid);
+  ASSERT_NEAR(kVergenceFarFallbackDistanceM, rows[0].spatial_gaze_point_in_cpf.z(), 1e-3);
+  ASSERT_NEAR(kVergenceFarFallbackDistanceM, rows[0].depth, 1e-3);
+}
+
+TEST(mps_eyegaze_gen2_far_gaze_off_axis, reader) {
+  // Both eyes look 0.5 rad right and 0.5 rad up. The far-gaze point lies along the direction that
+  // yaw and pitch describe in the projective convention, (tan(yaw), tan(pitch), 1).
+  const Gen2CsvFile csv("", "", "1,0.5,0.5,0.5,0.5,0.5,0.5,0.0325,0.0,0.0,-0.0325,0.0,0.0");
+  const auto rows = readEyeGaze(csv.path);
+  ASSERT_EQ(1u, rows.size());
+  const Eigen::Vector3d expected = kVergenceFarFallbackDistanceM *
+      Eigen::Vector3d(std::tan(0.5), std::tan(0.5), 1.0).normalized();
+  EXPECT_TRUE(rows[0].spatial_gaze_point_valid);
+  ASSERT_NEAR(expected.x(), rows[0].spatial_gaze_point_in_cpf.x(), 1e-3);
+  ASSERT_NEAR(expected.y(), rows[0].spatial_gaze_point_in_cpf.y(), 1e-3);
+  ASSERT_NEAR(expected.z(), rows[0].spatial_gaze_point_in_cpf.z(), 1e-3);
+}
+
 TEST(mps_eyegaze_get_gaze_vergence_point, helper) {
-  // Two eyes converging on a known target. Constructs per-eye (yaw, pitch) using the same
-  // sin/cos polar convention as the helper, so the rays exactly hit `target`.
+  // Two eyes converging on an off-axis target. Per-eye (yaw, pitch) follow the projective
+  // convention of the eye gaze outputs, yaw = atan2(x, z) and pitch = atan2(y, z), so the rays
+  // exactly hit `target`.
   const Eigen::Vector3d leftOrigin{0.0325, 0.0, 0.0};
   const Eigen::Vector3d rightOrigin{-0.0325, 0.0, 0.0};
-  const Eigen::Vector3d target{0.0, 0.0, 1.0};
+  const Eigen::Vector3d target{0.3, 0.2, 1.0};
 
   const auto yawPitchToTarget = [](const Eigen::Vector3d& origin, const Eigen::Vector3d& tgt) {
-    const Eigen::Vector3d dir = (tgt - origin).normalized();
+    const Eigen::Vector3d dir = tgt - origin;
     return std::make_pair(
-        static_cast<float>(std::atan2(dir.x(), dir.z())), static_cast<float>(std::asin(dir.y())));
+        static_cast<float>(std::atan2(dir.x(), dir.z())),
+        static_cast<float>(std::atan2(dir.y(), dir.z())));
   };
   const auto [leftYaw, leftPitch] = yawPitchToTarget(leftOrigin, target);
   const auto [rightYaw, rightPitch] = yawPitchToTarget(rightOrigin, target);
