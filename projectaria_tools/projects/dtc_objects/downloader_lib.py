@@ -158,8 +158,8 @@ class DigitalTwinCatalogObjectsDownloader:
 
         responses = {}
 
-        # If no file keys are specified, skip download
-        if not self.file_keys:
+        # If no file keys or file key prefixes are specified, skip download
+        if not self.file_keys and not self.file_key_prefixes:
             logger.info("No data types specified. Skipping download.")
             return
 
@@ -214,14 +214,14 @@ class DigitalTwinCatalogObjectsDownloader:
 
         final_success = True
         cdn_data_entry = self.get_object_cdn_entry(release, dtc_object)
-        file_keys = self.file_keys
-        for prefix in self.file_key_prefixes:
+        file_keys = list(self.file_keys) if self.file_keys else []
+        for prefix in self.file_key_prefixes or []:
             file_keys.extend([key for key in cdn_data_entry if key.startswith(prefix)])
 
         # the licence file must always be downloaded
         if self.__KEY_LICENSE not in file_keys:
             file_keys.append(self.__KEY_LICENSE)
-        for file_key in self.file_keys:
+        for file_key in file_keys:
             is_success, status_code = self.__download_data_from_url(
                 release=release,
                 dtc_object=dtc_object,
