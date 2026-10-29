@@ -18,6 +18,9 @@
 #include <array>
 #include <cmath>
 #include <iostream>
+#include <limits>
+#include <optional>
+#include <stdexcept>
 
 #ifndef CSV_IO_NO_THREAD
 #define CSV_IO_NO_THREAD
@@ -36,6 +39,46 @@ constexpr double kVergenceMinAngleDeg = 0.75;
 constexpr double kVergenceMaxMissDistanceM = 0.03; // 3 cm
 constexpr double kVergenceMaxReliableDepthM = 6.0;
 constexpr double kTinyNormSq = 1e-12; // Compared against `vec.dot(vec)` (a squared norm).
+// Valid scores are in [0, 1], up to the rounding of the float math that computes them.
+constexpr float kValidScoreTolerance = 1e-6f;
+
+// Gen2 validity cells are read as text: a model without a validity output leaves them empty,
+// which the CSV parser would otherwise read as 0.
+float parseValidScore(const std::string& cell) {
+  if (cell.empty()) {
+    return std::numeric_limits<float>::quiet_NaN();
+  }
+  std::size_t parsed = 0;
+  const float score = std::stof(cell, &parsed);
+  if (parsed != cell.size() || !std::isfinite(score) || score < -kValidScoreTolerance ||
+      score > 1.f + kValidScoreTolerance) {
+    throw std::runtime_error("Invalid eye valid score: " + cell);
+  }
+  return score;
+}
+
+std::optional<bool> parseValidFlag(const std::string& cell) {
+  if (cell.empty()) {
+    return std::nullopt;
+  }
+  if (cell == "1") {
+    return true;
+  }
+  if (cell == "0") {
+    return false;
+  }
+  throw std::runtime_error("Invalid eye validity flag: " + cell);
+}
+
+template <typename Csv>
+bool hasColumnPair(const Csv& csv, const char* left, const char* right) {
+  const bool hasLeft = csv.has_column(left);
+  if (hasLeft != csv.has_column(right)) {
+    throw std::runtime_error(
+        std::string("Columns ") + left + " and " + right + " must be both present or both absent");
+  }
+  return hasLeft;
+}
 
 Eigen::Vector3d fuseDirections(const Eigen::Vector3d& d1, const Eigen::Vector3d& d2) {
   const Eigen::Vector3d sum = d1 + d2;
@@ -117,7 +160,7 @@ constexpr std::array<const char*, 9> kEyeGazeColumns = {
 // `right_pitch_rads_cpf`). Per-row column presence is detected via `has_column`, so Gen1
 // files (no per-eye pitch) and Gen2 files (no depth / confidence bounds / session_uid) both
 // parse correctly without separate readers.
-constexpr std::array<const char*, 21> kEyeGazeVergenceColumns = {
+constexpr std::array<const char*, 25> kEyeGazeVergenceColumns = {
     "tracking_timestamp_us",
     "left_yaw_rads_cpf",
     "right_yaw_rads_cpf",
@@ -139,6 +182,10 @@ constexpr std::array<const char*, 21> kEyeGazeVergenceColumns = {
     "yaw_rads_cpf",
     "left_pitch_rads_cpf",
     "right_pitch_rads_cpf",
+    "left_eye_valid_score",
+    "right_eye_valid_score",
+    "left_eye_valid",
+    "right_eye_valid",
 };
 
 EyeGazes readEyeGazeVergence(const std::string& path) {
@@ -161,6 +208,14 @@ EyeGazes readEyeGazeVergence(const std::string& path) {
     // a future Gen1 variant that adds per-eye pitch without a combined-yaw column.
     const bool isGen2 = csv.has_column("yaw_rads_cpf") && csv.has_column("left_pitch_rads_cpf") &&
         csv.has_column("right_pitch_rads_cpf");
+
+    // Gen2 validity: per-eye valid scores, optionally with the default per-eye decisions.
+    const bool hasValidScores = hasColumnPair(csv, "left_eye_valid_score", "right_eye_valid_score");
+    const bool hasValidFlags = hasColumnPair(csv, "left_eye_valid", "right_eye_valid");
+    if (hasValidFlags && !hasValidScores) {
+      throw std::runtime_error("Eye validity flags without eye valid scores");
+    }
+    std::string leftValidScoreCell, rightValidScoreCell, leftValidCell, rightValidCell;
 
     EyeGaze eyeGazeVergence;
     std::int64_t tracking_timestamp_us = 0;
@@ -187,16 +242,38 @@ EyeGazes readEyeGazeVergence(const std::string& path) {
         eyeGazeVergence.session_uid,
         combinedYawFromFile,
         eyeGazeVergence.vergence.left_pitch,
-        eyeGazeVergence.vergence.right_pitch)) {
+        eyeGazeVergence.vergence.right_pitch,
+        leftValidScoreCell,
+        rightValidScoreCell,
+        leftValidCell,
+        rightValidCell)) {
       eyeGazeVergence.trackingTimestamp = std::chrono::microseconds(tracking_timestamp_us);
       if (isGen2) {
         // Gen2 MPS writes the combined yaw directly; use it as-is.
         eyeGazeVergence.yaw = combinedYawFromFile;
 
+        // Without the validity columns, every eye reads as valid, as before they existed.
+        auto& vergence = eyeGazeVergence.vergence;
+        try {
+          vergence.left_valid_score = hasValidScores ? parseValidScore(leftValidScoreCell)
+                                                     : std::numeric_limits<float>::quiet_NaN();
+          vergence.right_valid_score = hasValidScores ? parseValidScore(rightValidScoreCell)
+                                                      : std::numeric_limits<float>::quiet_NaN();
+          vergence.left_gaze_valid =
+              hasValidFlags ? parseValidFlag(leftValidCell).value_or(true) : true;
+          vergence.right_gaze_valid =
+              hasValidFlags ? parseValidFlag(rightValidCell).value_or(true) : true;
+        } catch (const std::exception&) {
+          // A malformed validity cell rejects the whole file, including the rows before it.
+          eyeGazeVergences.clear();
+          throw;
+        }
+
         // Backfill 3D geometry that the Gen2 CSV doesn't carry: combined gaze origin (midpoint
-        // of the two eye origins), spatial gaze point (vergence of the per-eye rays), and
-        // depth (Euclidean distance from combined origin to spatial gaze point). When the rays do
-        // not converge, the spatial gaze point is the far-gaze fallback, as on device.
+        // of the two eye origins), spatial gaze point (vergence of the per-eye rays, or the
+        // far-gaze fallback when they do not converge, as on device), and depth (Euclidean
+        // distance from combined origin to spatial gaze point). The combined and spatial flags
+        // follow the eyes' validity.
         const Eigen::Vector3d leftOrigin{
             eyeGazeVergence.vergence.tx_left_eye,
             eyeGazeVergence.vergence.ty_left_eye,
@@ -215,10 +292,11 @@ EyeGazes readEyeGazeVergence(const std::string& path) {
                                                   eyeGazeVergence.vergence.right_pitch)
                                                   .first;
 
+        const bool bothEyesValid = vergence.left_gaze_valid && vergence.right_gaze_valid;
         eyeGazeVergence.combined_gaze_origin_in_cpf = combinedOrigin.cast<float>();
-        eyeGazeVergence.combined_gaze_valid = true;
+        eyeGazeVergence.combined_gaze_valid = bothEyesValid;
         eyeGazeVergence.spatial_gaze_point_in_cpf = vergencePoint.cast<float>();
-        eyeGazeVergence.spatial_gaze_point_valid = true;
+        eyeGazeVergence.spatial_gaze_point_valid = bothEyesValid;
         eyeGazeVergence.depth = static_cast<float>((vergencePoint - combinedOrigin).norm());
       } else {
         // Gen1 schema lacks combined yaw — derive it from the per-eye yaw + common pitch.

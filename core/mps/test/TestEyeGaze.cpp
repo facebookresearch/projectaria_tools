@@ -17,9 +17,11 @@
 #include <gtest/gtest.h>
 #include <mps/EyeGazeFormat.h>
 
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <system_error>
+#include <vector>
 
 #include <mps/EyeGazeReader.h>
 #include "EyeGaze.h"
@@ -299,4 +301,127 @@ TEST(mps_eyegaze_get_gaze_directions, helper) {
   ASSERT_NEAR(-0.07434921, rightDirection.x(), EYEGAZE_ERROR_TOLERANCE);
   ASSERT_NEAR(-0.25982753, rightDirection.y(), EYEGAZE_ERROR_TOLERANCE);
   ASSERT_NEAR(0.96278858, rightDirection.z(), EYEGAZE_ERROR_TOLERANCE);
+}
+
+TEST(mps_eyegaze_gen2_validity, reader) {
+  const auto rows =
+      readEyeGaze(testDataFolderGen2 + "mps_sample/eye_gaze_with_validity/general_eye_gaze.csv");
+  ASSERT_EQ(5u, rows.size());
+
+  // Both eyes valid.
+  EXPECT_FLOAT_EQ(0.98431f, rows[0].vergence.left_valid_score);
+  EXPECT_FLOAT_EQ(0.95612f, rows[0].vergence.right_valid_score);
+  EXPECT_TRUE(rows[0].vergence.left_gaze_valid);
+  EXPECT_TRUE(rows[0].vergence.right_gaze_valid);
+  EXPECT_TRUE(rows[0].combined_gaze_valid);
+  EXPECT_TRUE(rows[0].spatial_gaze_point_valid);
+
+  // Left eye invalid: the combined and spatial flags need both eyes, the angles are still read.
+  EXPECT_FALSE(rows[1].vergence.left_gaze_valid);
+  EXPECT_TRUE(rows[1].vergence.right_gaze_valid);
+  EXPECT_FALSE(rows[1].combined_gaze_valid);
+  EXPECT_FALSE(rows[1].spatial_gaze_point_valid);
+  ASSERT_NEAR(0.01539704, rows[1].vergence.left_yaw, EYEGAZE_ERROR_TOLERANCE);
+
+  // The flags are read as written, not re-derived from the scores.
+  EXPECT_TRUE(rows[2].vergence.left_gaze_valid);
+  EXPECT_FALSE(rows[2].vergence.right_gaze_valid);
+
+  EXPECT_FALSE(rows[3].vergence.left_gaze_valid);
+  EXPECT_FALSE(rows[3].vergence.right_gaze_valid);
+}
+
+TEST(mps_eyegaze_gen2_without_validity, reader) {
+  // Files written before the validity columns behave as before: every eye valid, no score.
+  const auto rows = readEyeGaze(testDataFolderGen2 + "mps_sample/eye_gaze/general_eye_gaze.csv");
+  ASSERT_EQ(5u, rows.size());
+  for (const auto& row : rows) {
+    EXPECT_TRUE(row.vergence.left_gaze_valid);
+    EXPECT_TRUE(row.vergence.right_gaze_valid);
+    EXPECT_TRUE(std::isnan(row.vergence.left_valid_score));
+    EXPECT_TRUE(std::isnan(row.vergence.right_valid_score));
+    EXPECT_TRUE(row.combined_gaze_valid);
+    EXPECT_TRUE(row.spatial_gaze_point_valid);
+  }
+}
+
+TEST(mps_eyegaze_gen2_scores_without_flags, reader) {
+  const Gen2CsvFile csv(",left_eye_valid_score,right_eye_valid_score", ",0.2,0.9");
+  const auto rows = readEyeGaze(csv.path);
+  ASSERT_EQ(1u, rows.size());
+  EXPECT_FLOAT_EQ(0.2f, rows[0].vergence.left_valid_score);
+  EXPECT_FLOAT_EQ(0.9f, rows[0].vergence.right_valid_score);
+  EXPECT_TRUE(rows[0].vergence.left_gaze_valid);
+  EXPECT_TRUE(rows[0].vergence.right_gaze_valid);
+}
+
+TEST(mps_eyegaze_gen2_empty_validity_cells, reader) {
+  // A model without a validity output leaves the cells empty: no score, flags as before.
+  const Gen2CsvFile csv(
+      ",left_eye_valid_score,right_eye_valid_score,left_eye_valid,right_eye_valid", ",,,,");
+  const auto rows = readEyeGaze(csv.path);
+  ASSERT_EQ(1u, rows.size());
+  EXPECT_TRUE(std::isnan(rows[0].vergence.left_valid_score));
+  EXPECT_TRUE(std::isnan(rows[0].vergence.right_valid_score));
+  EXPECT_TRUE(rows[0].vergence.left_gaze_valid);
+  EXPECT_TRUE(rows[0].vergence.right_gaze_valid);
+  EXPECT_TRUE(rows[0].combined_gaze_valid);
+}
+
+TEST(mps_eyegaze_gen2_malformed_validity, reader) {
+  EXPECT_TRUE(readEyeGaze(Gen2CsvFile(",left_eye_valid_score", ",0.5").path).empty());
+  EXPECT_TRUE(readEyeGaze(Gen2CsvFile(",left_eye_valid,right_eye_valid", ",1,1").path).empty());
+  EXPECT_TRUE(readEyeGaze(Gen2CsvFile(
+                              ",left_eye_valid_score,right_eye_valid_score,left_eye_valid,"
+                              "right_eye_valid",
+                              ",0.5,0.5,2,1")
+                              .path)
+                  .empty());
+  EXPECT_TRUE(
+      readEyeGaze(Gen2CsvFile(",left_eye_valid_score,right_eye_valid_score", ",0.5,abc").path)
+          .empty());
+}
+
+TEST(mps_eyegaze_gen2_malformed_validity_after_valid_rows, reader) {
+  // A malformed validity cell rejects the whole file, not just the rows from it on.
+  const std::string columns =
+      ",left_eye_valid_score,right_eye_valid_score,left_eye_valid,right_eye_valid";
+  for (const std::string badCells : {",0.9,abc,1,1", ",0.9,0.8,1,2"}) {
+    std::string cells = ",0.9,0.8,1,1\n";
+    cells += kGen2Row;
+    cells += badCells;
+    const Gen2CsvFile csv(columns, cells);
+    EXPECT_TRUE(readEyeGaze(csv.path).empty()) << badCells;
+  }
+}
+
+TEST(mps_eyegaze_gen2_valid_score_out_of_range, reader) {
+  // Scores are in [0, 1]; a non-finite or clearly out-of-range score rejects the file.
+  for (const std::string cells : {",0.5,inf", ",nan,0.5", ",0.5,2.5", ",-0.5,0.5"}) {
+    EXPECT_TRUE(
+        readEyeGaze(Gen2CsvFile(",left_eye_valid_score,right_eye_valid_score", cells).path).empty())
+        << cells;
+  }
+}
+
+TEST(mps_eyegaze_gen2_valid_score_rounding, reader) {
+  // A score computed in float can land just outside [0, 1]; such a score still reads.
+  const Gen2CsvFile csv(",left_eye_valid_score,right_eye_valid_score", ",-1e-7,1.0000001");
+  const auto rows = readEyeGaze(csv.path);
+  ASSERT_EQ(1u, rows.size());
+  EXPECT_NEAR(0.f, rows[0].vergence.left_valid_score, 1e-6);
+  EXPECT_NEAR(1.f, rows[0].vergence.right_valid_score, 1e-6);
+}
+
+TEST(mps_eyegaze_gen2_far_gaze_with_invalid_eye, reader) {
+  // An invalid eye invalidates the spatial point; the point and depth are still filled in.
+  const Gen2CsvFile csv(
+      ",left_eye_valid_score,right_eye_valid_score,left_eye_valid,right_eye_valid",
+      ",0.5,0.9,0,1",
+      kStraightAheadGen2Row);
+  const auto rows = readEyeGaze(csv.path);
+  ASSERT_EQ(1u, rows.size());
+  EXPECT_FALSE(rows[0].spatial_gaze_point_valid);
+  ASSERT_NEAR(kVergenceFarFallbackDistanceM, rows[0].spatial_gaze_point_in_cpf.z(), 1e-3);
+  ASSERT_NEAR(kVergenceFarFallbackDistanceM, rows[0].depth, 1e-3);
 }

@@ -16,6 +16,7 @@
 
 #pragma once
 #include <chrono>
+#include <limits>
 #include <optional>
 #include <string>
 #include <vector>
@@ -81,6 +82,13 @@ struct EyeGazeVergence {
   bool right_entrance_pupil_position_valid = true;
   bool left_pupil_diameter_valid = true;
   bool right_pupil_diameter_valid = true;
+
+  // Gen2 per-eye valid score from the ML eye tracking model, in [0, 1] with 1 = valid. The
+  // per-eye gaze valid flag is this score compared against the model's default threshold. NaN
+  // when the source has no score (geometric eye tracking, models without a validity output, or
+  // data that predates the score).
+  float left_valid_score = std::numeric_limits<float>::quiet_NaN();
+  float right_valid_score = std::numeric_limits<float>::quiet_NaN();
 };
 
 /**
