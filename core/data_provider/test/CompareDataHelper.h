@@ -23,6 +23,9 @@
 #include <mps/HandTracking.h>
 #include <mps/Trajectory.h>
 
+#include <cmath>
+#include <utility>
+
 namespace projectaria::tools::data_provider::test {
 using namespace projectaria::tools::data_provider;
 using namespace projectaria::tools::mps;
@@ -491,6 +494,16 @@ inline void compare(
       vergence1.right_entrance_pupil_position_valid, vergence2.right_entrance_pupil_position_valid);
   EXPECT_EQ(vergence1.left_pupil_diameter_valid, vergence2.left_pupil_diameter_valid);
   EXPECT_EQ(vergence1.right_pupil_diameter_valid, vergence2.right_pupil_diameter_valid);
+  // NaN (no score) only matches NaN.
+  for (const auto& [score1, score2] :
+       {std::pair{vergence1.left_valid_score, vergence2.left_valid_score},
+        std::pair{vergence1.right_valid_score, vergence2.right_valid_score}}) {
+    if (std::isnan(score1) || std::isnan(score2)) {
+      EXPECT_TRUE(std::isnan(score1) && std::isnan(score2)) << score1 << " vs " << score2;
+    } else {
+      EXPECT_FLOAT_EQ(score1, score2);
+    }
+  }
 }
 
 inline void compare(const TimeSyncData& timeSyncData1, const TimeSyncData& timeSyncData2) {

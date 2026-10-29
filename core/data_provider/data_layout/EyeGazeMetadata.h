@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <limits>
+
 #include <vrs/DataLayout.h>
 #include <vrs/DataLayoutConventions.h>
 
@@ -109,11 +111,16 @@ struct SingleEyeGazeLayoutStruct : public vrs::DataLayoutStruct {
   vrs::DataPieceValue<float> pupilDiameterMeter{"pupil_diameter_meter"};
   vrs::DataPieceValue<vrs::Bool> blinkValid{"blink_valid"};
   vrs::DataPieceValue<vrs::Bool> blink{"blink"};
+  // Data layout v2. ML eye tracking valid score in [0, 1] (1 = valid); gazeDirectionValid is
+  // this score compared against the model's default threshold. NaN when the source has no score,
+  // and in v1 records, which do not have the field.
+  vrs::DataPieceValue<float> validScore{"valid_score", std::numeric_limits<float>::quiet_NaN()};
 };
 
 class EyeGazeLayout : public vrs::AutoDataLayout {
  public:
-  static constexpr uint32_t kVersion = 1;
+  // v2 adds SingleEyeGazeLayoutStruct::validScore; older readers skip it.
+  static constexpr uint32_t kVersion = 2;
   vrs::DataPieceValue<std::int64_t> trackerTimestampNs{"tracker_timestamp_ns"};
   vrs::DataPieceValue<std::int64_t> systemTimestampNs{"system_timestamp_ns"};
 

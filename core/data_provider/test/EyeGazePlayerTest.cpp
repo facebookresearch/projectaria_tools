@@ -30,8 +30,10 @@
 
 #include <gtest/gtest.h>
 
+#include <cmath>
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <string>
 
 using namespace projectaria::tools::data_provider;
@@ -169,6 +171,65 @@ class EyeGazeDataRecordable : public vrs::Recordable {
   const std::function<void(EyeGazeLayout&)> fill_;
 };
 
+// Data layout v1: no valid score. Only the pieces the reader needs to accept a record.
+class EyeGazeV1DataLayout : public vrs::AutoDataLayout {
+ public:
+  vrs::DataPieceValue<std::int64_t> trackerTimestampNs{"tracker_timestamp_ns"};
+  vrs::DataPieceValue<std::int64_t> systemTimestampNs{"system_timestamp_ns"};
+  vrs::AutoDataLayoutEnd endLayout;
+};
+
+class EyeGazeV1DataRecordable : public vrs::Recordable {
+ public:
+  EyeGazeV1DataRecordable()
+      : vrs::Recordable(vrs::RecordableTypeId::GazeRecordableClass, "test/eyegaze") {
+    addRecordFormat(vrs::Record::Type::CONFIGURATION, 1, config_.getContentBlock(), {&config_});
+    addRecordFormat(vrs::Record::Type::DATA, 1, data_.getContentBlock(), {&data_});
+  }
+  const vrs::Record* createConfigurationRecord() override {
+    config_.streamId.set(0);
+    config_.nominalRateHz.set(90.0);
+    config_.userCalibrated.set(false);
+    config_.userCalibrationError.set(0.0f);
+    return createRecord(0.0, vrs::Record::Type::CONFIGURATION, 1, vrs::DataSource(config_));
+  }
+  const vrs::Record* createStateRecord() override {
+    return createRecord(0.0, vrs::Record::Type::STATE, 1);
+  }
+  void writeDataRecord() {
+    data_.trackerTimestampNs.set(1'000);
+    data_.systemTimestampNs.set(2'000);
+    createRecord(1.0, vrs::Record::Type::DATA, 1, vrs::DataSource(data_));
+  }
+
+ private:
+  EyeGazeConfigurationLayout config_;
+  EyeGazeV1DataLayout data_;
+};
+
+// An ML eye tracking frame: every direction and the spatial gaze point are written, the valid
+// flags follow the scores at the default threshold. `leftScore` / `rightScore` set the scores.
+void fillMlFrame(EyeGazeLayout& data, float leftScore, float rightScore) {
+  const bool leftValid = leftScore >= 0.7f;
+  const bool rightValid = rightScore >= 0.7f;
+  data.leftEye.gazeOriginValid.set(true);
+  data.leftEye.gazeOriginInDeviceMeterXyz.set({0.0325f, 0.f, 0.f});
+  data.leftEye.gazeDirectionValid.set(leftValid);
+  data.leftEye.gazeDirectionInDeviceNormalizedXyz.set({0.1f, 0.f, 0.994987f});
+  data.leftEye.validScore.set(leftScore);
+  data.rightEye.gazeOriginValid.set(true);
+  data.rightEye.gazeOriginInDeviceMeterXyz.set({-0.0325f, 0.f, 0.f});
+  data.rightEye.gazeDirectionValid.set(rightValid);
+  data.rightEye.gazeDirectionInDeviceNormalizedXyz.set({-0.1f, 0.f, 0.994987f});
+  data.rightEye.validScore.set(rightScore);
+  data.gazeOriginCombinedInDeviceValid.set(true);
+  data.gazeOriginCombinedInDeviceMeterXyz.set({0.f, 0.f, 0.f});
+  data.gazeDirectionCombinedInDeviceValid.set(leftValid && rightValid);
+  data.gazeDirectionCombinedInDeviceNormalizedXyz.set({0.f, 0.f, 1.f});
+  data.spatialGazePointValid.set(leftValid && rightValid);
+  data.spatialGazePointInDeviceMeterXyz.set({0.f, 0.f, 0.325f});
+}
+
 template <typename RecordableT, typename... Args>
 std::string writeVrsWithEyeGazeStream(Args&&... args) {
   // getUniquePath avoids collisions across suites / crashed prior runs
@@ -216,7 +277,7 @@ projectaria::tools::mps::EyeGaze readEyeGazeData(const std::string& path) {
   const auto streamId = *streamIds.begin();
   EyeGazePlayer player(streamId, Sophus::SE3f{});
   reader.setStreamPlayer(streamId, &player);
-  reader.readAllRecords();
+  EXPECT_EQ(reader.readAllRecords(), 0);
   reader.closeFile();
   return player.getDataRecord();
 }
@@ -358,4 +419,76 @@ TEST(EyeGazePlayer, EachEntrancePupilPositionKeepsItsOwnValidity) {
   EXPECT_FALSE(gaze.vergence.left_entrance_pupil_position_valid);
   EXPECT_TRUE(gaze.vergence.right_entrance_pupil_position_valid);
   EXPECT_FLOAT_EQ(gaze.vergence.right_entrance_pupil_position_meter.x(), -0.03f);
+}
+
+TEST(EyeGazePlayer, ValidScoresAreRead) {
+  TempFileGuard g{writeVrsWithEyeGazeStream<EyeGazeDataRecordable>(
+      [](EyeGazeLayout& data) { fillMlFrame(data, 0.9f, 0.2f); })};
+
+  const auto gaze = readEyeGazeData(g.path);
+
+  EXPECT_FLOAT_EQ(gaze.vergence.left_valid_score, 0.9f);
+  EXPECT_FLOAT_EQ(gaze.vergence.right_valid_score, 0.2f);
+  EXPECT_TRUE(gaze.vergence.left_gaze_valid);
+  EXPECT_FALSE(gaze.vergence.right_gaze_valid);
+}
+
+TEST(EyeGazePlayer, V1RecordHasNoValidScore) {
+  TempFileGuard g{writeVrsWithEyeGazeStream<EyeGazeV1DataRecordable>()};
+
+  const auto gaze = readEyeGazeData(g.path);
+
+  // The v1 record was read: it carries the written 2 us timestamp.
+  ASSERT_EQ(gaze.trackingTimestamp.count(), 2);
+  EXPECT_TRUE(std::isnan(gaze.vergence.left_valid_score));
+  EXPECT_TRUE(std::isnan(gaze.vergence.right_valid_score));
+}
+
+TEST(EyeGazePlayer, InvalidMlEyeKeepsItsDirection) {
+  TempFileGuard g{writeVrsWithEyeGazeStream<EyeGazeDataRecordable>(
+      [](EyeGazeLayout& data) { fillMlFrame(data, 0.2f, 0.9f); })};
+
+  const auto gaze = readEyeGazeData(g.path);
+
+  EXPECT_FALSE(gaze.vergence.left_gaze_valid);
+  EXPECT_NEAR(gaze.vergence.left_yaw, std::atan2(0.1f, 0.994987f), 1e-5f);
+  EXPECT_FLOAT_EQ(gaze.vergence.tx_left_eye, 0.0325f);
+  EXPECT_FALSE(gaze.combined_gaze_valid);
+  EXPECT_FALSE(gaze.spatial_gaze_point_valid);
+  // The point is still the one the device computed, for a lower threshold to use.
+  EXPECT_FLOAT_EQ(gaze.spatial_gaze_point_in_cpf.z(), 0.325f);
+}
+
+TEST(EyeGazePlayer, SpatialGazePointIsReadWhenOneEyeHasAScore) {
+  TempFileGuard g{writeVrsWithEyeGazeStream<EyeGazeDataRecordable>([](EyeGazeLayout& data) {
+    fillMlFrame(data, 0.2f, 0.9f);
+    data.rightEye.validScore.set(std::numeric_limits<float>::quiet_NaN());
+  })};
+
+  const auto gaze = readEyeGazeData(g.path);
+
+  EXPECT_FALSE(gaze.spatial_gaze_point_valid);
+  EXPECT_FLOAT_EQ(gaze.spatial_gaze_point_in_cpf.z(), 0.325f);
+}
+
+TEST(EyeGazePlayer, InvalidEyeWithoutDirectionStaysUnset) {
+  // Geometric eye tracking leaves an invalid direction and the spatial point unset, and has no
+  // valid score.
+  TempFileGuard g{writeVrsWithEyeGazeStream<EyeGazeDataRecordable>([](EyeGazeLayout& data) {
+    data.leftEye.validScore.set(std::numeric_limits<float>::quiet_NaN());
+    data.rightEye.validScore.set(std::numeric_limits<float>::quiet_NaN());
+    data.leftEye.gazeOriginValid.set(false);
+    data.leftEye.gazeOriginInDeviceMeterXyz.set({0.f, 0.f, 0.f});
+    data.leftEye.gazeDirectionValid.set(false);
+    data.leftEye.gazeDirectionInDeviceNormalizedXyz.set({0.f, 0.f, 0.f});
+    data.spatialGazePointValid.set(false);
+    data.spatialGazePointInDeviceMeterXyz.set({0.f, 0.f, 0.3f});
+  })};
+
+  const auto gaze = readEyeGazeData(g.path);
+
+  EXPECT_FALSE(gaze.vergence.left_gaze_valid);
+  EXPECT_EQ(gaze.vergence.left_yaw, 0.f);
+  EXPECT_EQ(gaze.vergence.tx_left_eye, 0.f);
+  EXPECT_TRUE(gaze.spatial_gaze_point_in_cpf.isZero());
 }

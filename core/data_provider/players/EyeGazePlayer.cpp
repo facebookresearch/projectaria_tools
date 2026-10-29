@@ -50,6 +50,13 @@ std::tuple<Eigen::Vector3f, float, float> populateGazeOriginAndDirection(
   return std::make_tuple(gazeOriginInCpf, yaw, pitch);
 }
 
+// ML eye tracking writes the model's direction on every frame, including frames whose valid flag
+// is false, so that a different valid score threshold can use it. Geometric eye tracking leaves a
+// direction it could not compute at zero.
+bool hasDirection(const vrs::Point3Df& direction) {
+  return mapToEigenVector(direction).squaredNorm() > 0.f;
+}
+
 // Helper function to populate EyeGaze data from VRS data layout to OSS data type
 std::optional<EyeGaze> populateOssEyeGaze(
     const datalayout::EyeGazeLayout& dataLayout,
@@ -66,66 +73,67 @@ std::optional<EyeGaze> populateOssEyeGaze(
         std::chrono::nanoseconds(timestampNs));
   }
 
-  // Parsing combined gaze origin and direction, if they are valid
+  // Parsing combined gaze origin and direction. They are read whenever a direction was written;
+  // the validity flags say whether to trust them.
   vrs::Point3Df vrsGazeOrigin, vrsGazeDirection;
-  if (dataLayout.gazeOriginCombinedInDeviceValid.get() &&
-      dataLayout.gazeDirectionCombinedInDeviceValid.get() &&
-      dataLayout.gazeOriginCombinedInDeviceMeterXyz.get(vrsGazeOrigin) &&
-      dataLayout.gazeDirectionCombinedInDeviceNormalizedXyz.get(vrsGazeDirection)) {
-    // Parse origin and direction
+  bool parsed = dataLayout.gazeOriginCombinedInDeviceMeterXyz.get(vrsGazeOrigin) &&
+      dataLayout.gazeDirectionCombinedInDeviceNormalizedXyz.get(vrsGazeDirection) &&
+      hasDirection(vrsGazeDirection);
+  if (parsed) {
     std::tie(eyeData.combined_gaze_origin_in_cpf, eyeData.yaw, eyeData.pitch) =
         populateGazeOriginAndDirection(vrsGazeOrigin, vrsGazeDirection, T_Cpf_Device);
-    // Set validity flag
-    eyeData.combined_gaze_valid = true;
-  } else {
-    eyeData.combined_gaze_valid = false;
   }
+  eyeData.combined_gaze_valid = parsed && dataLayout.gazeOriginCombinedInDeviceValid.get() &&
+      dataLayout.gazeDirectionCombinedInDeviceValid.get();
 
-  // Parsing spatial gaze point, if it is valid
+  // Per-eye valid scores; NaN when the recording has none.
+  eyeData.vergence.left_valid_score = dataLayout.leftEye.validScore.get();
+  eyeData.vergence.right_valid_score = dataLayout.rightEye.validScore.get();
+  const bool hasValidScore = !std::isnan(eyeData.vergence.left_valid_score) ||
+      !std::isnan(eyeData.vergence.right_valid_score);
+
+  // Parsing spatial gaze point. Recordings with valid scores store it on every frame.
   vrs::Point3Df vrsGazePoint;
-  if (dataLayout.spatialGazePointValid.get() &&
-      dataLayout.spatialGazePointInDeviceMeterXyz.get(vrsGazePoint)) {
+  const bool hasSpatialGazePoint = (dataLayout.spatialGazePointValid.get() || hasValidScore) &&
+      dataLayout.spatialGazePointInDeviceMeterXyz.get(vrsGazePoint);
+  if (hasSpatialGazePoint) {
     // Transform to CPF
     const auto spatialGazePointInDevice = mapToEigenVector(vrsGazePoint);
     eyeData.spatial_gaze_point_in_cpf = T_Cpf_Device * spatialGazePointInDevice;
     eyeData.depth =
         (eyeData.spatial_gaze_point_in_cpf - eyeData.combined_gaze_origin_in_cpf).norm();
-    eyeData.spatial_gaze_point_valid = true;
-  } else {
-    eyeData.spatial_gaze_point_valid = false;
   }
+  eyeData.spatial_gaze_point_valid = hasSpatialGazePoint && dataLayout.spatialGazePointValid.get();
 
   // Parsing left eye gaze direction and origin
-  if (dataLayout.leftEye.gazeOriginValid.get() && dataLayout.leftEye.gazeDirectionValid.get() &&
-      dataLayout.leftEye.gazeOriginInDeviceMeterXyz.get(vrsGazeOrigin) &&
-      dataLayout.leftEye.gazeDirectionInDeviceNormalizedXyz.get(vrsGazeDirection)) {
+  parsed = dataLayout.leftEye.gazeOriginInDeviceMeterXyz.get(vrsGazeOrigin) &&
+      dataLayout.leftEye.gazeDirectionInDeviceNormalizedXyz.get(vrsGazeDirection) &&
+      hasDirection(vrsGazeDirection);
+  if (parsed) {
     Eigen::Vector3f gazeOriginInCpf;
     std::tie(gazeOriginInCpf, eyeData.vergence.left_yaw, eyeData.vergence.left_pitch) =
         populateGazeOriginAndDirection(vrsGazeOrigin, vrsGazeDirection, T_Cpf_Device);
     eyeData.vergence.tx_left_eye = gazeOriginInCpf[0];
     eyeData.vergence.ty_left_eye = gazeOriginInCpf[1];
     eyeData.vergence.tz_left_eye = gazeOriginInCpf[2];
-
-    eyeData.vergence.left_gaze_valid = true;
-  } else {
-    eyeData.vergence.left_gaze_valid = false;
   }
+  eyeData.vergence.left_gaze_valid = parsed && dataLayout.leftEye.gazeOriginValid.get() &&
+      dataLayout.leftEye.gazeDirectionValid.get();
 
   // Parsing right eye gaze direction and origin
-  if (dataLayout.rightEye.gazeOriginValid.get() && dataLayout.rightEye.gazeDirectionValid.get() &&
-      dataLayout.rightEye.gazeOriginInDeviceMeterXyz.get(vrsGazeOrigin) &&
-      dataLayout.rightEye.gazeDirectionInDeviceNormalizedXyz.get(vrsGazeDirection)) {
+  parsed = dataLayout.rightEye.gazeOriginInDeviceMeterXyz.get(vrsGazeOrigin) &&
+      dataLayout.rightEye.gazeDirectionInDeviceNormalizedXyz.get(vrsGazeDirection) &&
+      hasDirection(vrsGazeDirection);
+  if (parsed) {
     Eigen::Vector3f gazeOriginInCpf;
     std::tie(gazeOriginInCpf, eyeData.vergence.right_yaw, eyeData.vergence.right_pitch) =
         populateGazeOriginAndDirection(vrsGazeOrigin, vrsGazeDirection, T_Cpf_Device);
     eyeData.vergence.tx_right_eye = gazeOriginInCpf[0];
     eyeData.vergence.ty_right_eye = gazeOriginInCpf[1];
     eyeData.vergence.tz_right_eye = gazeOriginInCpf[2];
-
-    eyeData.vergence.right_gaze_valid = true;
-  } else {
-    eyeData.vergence.right_gaze_valid = false;
   }
+  eyeData.vergence.right_gaze_valid = parsed && dataLayout.rightEye.gazeOriginValid.get() &&
+      dataLayout.rightEye.gazeDirectionValid.get();
 
   // Parsing left and right entrance pupil position, transform them to CPF space
   vrs::Point3Df vrsEntrancePupilPosition;
