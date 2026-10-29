@@ -20,6 +20,8 @@
 #include <cmath>
 #include <filesystem>
 #include <fstream>
+#include <limits>
+#include <stdexcept>
 #include <system_error>
 #include <vector>
 
@@ -424,4 +426,81 @@ TEST(mps_eyegaze_gen2_far_gaze_with_invalid_eye, reader) {
   EXPECT_FALSE(rows[0].spatial_gaze_point_valid);
   ASSERT_NEAR(kVergenceFarFallbackDistanceM, rows[0].spatial_gaze_point_in_cpf.z(), 1e-3);
   ASSERT_NEAR(kVergenceFarFallbackDistanceM, rows[0].depth, 1e-3);
+}
+
+namespace {
+
+// A frame as read from a file: flags at the default threshold 0.7, both eyes scored.
+EyeGaze scoredFrame(float leftScore, float rightScore) {
+  EyeGaze gaze;
+  gaze.vergence.left_valid_score = leftScore;
+  gaze.vergence.right_valid_score = rightScore;
+  gaze.vergence.left_gaze_valid = leftScore >= 0.7f;
+  gaze.vergence.right_gaze_valid = rightScore >= 0.7f;
+  gaze.combined_gaze_valid = gaze.vergence.left_gaze_valid && gaze.vergence.right_gaze_valid;
+  gaze.spatial_gaze_point_valid = gaze.combined_gaze_valid;
+  return gaze;
+}
+
+} // namespace
+
+TEST(mps_eyegaze_valid_score_threshold, lower_threshold_makes_an_eye_valid) {
+  const EyeGaze gaze = applyValidScoreThreshold(scoredFrame(0.5f, 0.9f), 0.4f);
+  EXPECT_TRUE(gaze.vergence.left_gaze_valid);
+  EXPECT_TRUE(gaze.vergence.right_gaze_valid);
+  EXPECT_TRUE(gaze.combined_gaze_valid);
+  EXPECT_TRUE(gaze.spatial_gaze_point_valid);
+}
+
+TEST(mps_eyegaze_valid_score_threshold, higher_threshold_makes_an_eye_invalid) {
+  const EyeGaze gaze = applyValidScoreThreshold(scoredFrame(0.75f, 0.9f), 0.8f);
+  EXPECT_FALSE(gaze.vergence.left_gaze_valid);
+  EXPECT_TRUE(gaze.vergence.right_gaze_valid);
+  EXPECT_FALSE(gaze.combined_gaze_valid);
+  EXPECT_FALSE(gaze.spatial_gaze_point_valid);
+}
+
+TEST(mps_eyegaze_valid_score_threshold, score_equal_to_threshold_is_valid) {
+  const EyeGaze gaze = applyValidScoreThreshold(scoredFrame(0.6f, 0.6f), 0.6f);
+  EXPECT_TRUE(gaze.vergence.left_gaze_valid);
+  EXPECT_TRUE(gaze.vergence.right_gaze_valid);
+}
+
+TEST(mps_eyegaze_valid_score_threshold, frame_without_scores_is_unchanged) {
+  EyeGaze frame;
+  frame.vergence.left_gaze_valid = false;
+  frame.combined_gaze_valid = false;
+  frame.spatial_gaze_point_valid = false;
+  const EyeGaze gaze = applyValidScoreThreshold(frame, 0.1f);
+  EXPECT_FALSE(gaze.vergence.left_gaze_valid);
+  EXPECT_TRUE(gaze.vergence.right_gaze_valid);
+  EXPECT_FALSE(gaze.combined_gaze_valid);
+  EXPECT_FALSE(gaze.spatial_gaze_point_valid);
+}
+
+TEST(mps_eyegaze_valid_score_threshold, depends_only_on_the_last_threshold) {
+  const EyeGaze frame = scoredFrame(0.5f, 0.9f);
+  const EyeGaze twice = applyValidScoreThreshold(applyValidScoreThreshold(frame, 0.4f), 0.7f);
+  const EyeGaze once = applyValidScoreThreshold(frame, 0.7f);
+  EXPECT_EQ(once.vergence.left_gaze_valid, twice.vergence.left_gaze_valid);
+  EXPECT_EQ(once.combined_gaze_valid, twice.combined_gaze_valid);
+  EXPECT_EQ(once.spatial_gaze_point_valid, twice.spatial_gaze_point_valid);
+}
+
+TEST(mps_eyegaze_valid_score_threshold, rejects_thresholds_outside_zero_to_one) {
+  const EyeGaze frame = scoredFrame(0.5f, 0.9f);
+  EXPECT_THROW(applyValidScoreThreshold(frame, -0.1f), std::invalid_argument);
+  EXPECT_THROW(applyValidScoreThreshold(frame, 1.1f), std::invalid_argument);
+  EXPECT_THROW(
+      applyValidScoreThreshold(frame, std::numeric_limits<float>::quiet_NaN()),
+      std::invalid_argument);
+  EXPECT_THROW(applyValidScoreThreshold(EyeGazes{}, 2.f), std::invalid_argument);
+}
+
+TEST(mps_eyegaze_valid_score_threshold, applies_to_every_frame) {
+  const EyeGazes gazes =
+      applyValidScoreThreshold(EyeGazes{scoredFrame(0.5f, 0.9f), scoredFrame(0.3f, 0.9f)}, 0.4f);
+  ASSERT_EQ(2u, gazes.size());
+  EXPECT_TRUE(gazes[0].vergence.left_gaze_valid);
+  EXPECT_FALSE(gazes[1].vergence.left_gaze_valid);
 }

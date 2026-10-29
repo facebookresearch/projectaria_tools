@@ -16,9 +16,12 @@
 
 #pragma once
 #include <chrono>
+#include <cmath>
 #include <limits>
 #include <optional>
+#include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <sophus/se3.hpp>
@@ -86,7 +89,7 @@ struct EyeGazeVergence {
   // Gen2 per-eye valid score from the ML eye tracking model, in [0, 1] with 1 = valid. The
   // per-eye gaze valid flag is this score compared against the model's default threshold. NaN
   // when the source has no score (geometric eye tracking, models without a validity output, or
-  // data that predates the score).
+  // data that predates the score). Use `applyValidScoreThreshold` for another threshold.
   float left_valid_score = std::numeric_limits<float>::quiet_NaN();
   float right_valid_score = std::numeric_limits<float>::quiet_NaN();
 };
@@ -157,6 +160,57 @@ inline Eigen::Vector3d getUnitVectorFromYawPitch(float yawRads, float pitchRads)
   float y = std::tan(pitchRads) * z;
   Eigen::Vector3d direction(x, y, z);
   return direction.normalized();
+}
+
+namespace detail {
+inline void checkValidScoreThreshold(float threshold) {
+  if (std::isnan(threshold) || threshold < 0.f || threshold > 1.f) {
+    throw std::invalid_argument("Valid score threshold must be in [0, 1]");
+  }
+}
+} // namespace detail
+
+/**
+ * @brief Re-derives the Gen2 eye validity flags of `eyeGaze` at `threshold` instead of the eye
+ * tracking model's default.
+ *
+ * An eye with a valid score is valid when its score is at least `threshold`. The combined gaze
+ * and the spatial gaze point then need both eyes valid. An eye without a score keeps its flag,
+ * and a frame where neither eye has a score is returned unchanged. The result depends only on
+ * the scores, so applying a second threshold gives the same flags as applying it alone.
+ *
+ * @throws std::invalid_argument unless `threshold` is in [0, 1].
+ */
+inline EyeGaze applyValidScoreThreshold(EyeGaze eyeGaze, float threshold) {
+  detail::checkValidScoreThreshold(threshold);
+  auto& vergence = eyeGaze.vergence;
+  const bool hasLeftScore = !std::isnan(vergence.left_valid_score);
+  const bool hasRightScore = !std::isnan(vergence.right_valid_score);
+  if (!hasLeftScore && !hasRightScore) {
+    return eyeGaze;
+  }
+  if (hasLeftScore) {
+    vergence.left_gaze_valid = vergence.left_valid_score >= threshold;
+  }
+  if (hasRightScore) {
+    vergence.right_gaze_valid = vergence.right_valid_score >= threshold;
+  }
+  eyeGaze.combined_gaze_valid = vergence.left_gaze_valid && vergence.right_gaze_valid;
+  eyeGaze.spatial_gaze_point_valid = eyeGaze.combined_gaze_valid;
+  return eyeGaze;
+}
+
+/**
+ * @brief Applies `applyValidScoreThreshold` to every frame of `eyeGazes`.
+ *
+ * @throws std::invalid_argument unless `threshold` is in [0, 1].
+ */
+inline EyeGazes applyValidScoreThreshold(EyeGazes eyeGazes, float threshold) {
+  detail::checkValidScoreThreshold(threshold);
+  for (auto& eyeGaze : eyeGazes) {
+    eyeGaze = applyValidScoreThreshold(std::move(eyeGaze), threshold);
+  }
+  return eyeGazes;
 }
 
 } // namespace projectaria::tools::mps

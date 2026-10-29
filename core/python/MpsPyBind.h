@@ -114,10 +114,13 @@ void exportMps(py::module& m) {
                     vergence.left_gaze_valid,
                     vergence.right_gaze_valid,
                     vergence.left_blink_valid,
-                    vergence.right_blink_valid);
+                    vergence.right_blink_valid,
+                    vergence.left_valid_score,
+                    vergence.right_valid_score);
               },
               [](py::tuple t) { // __setstate__
-                if (t.size() != 20) {
+                // 20 fields: state pickled before the valid scores.
+                if (t.size() != 20 && t.size() != 22) {
                   throw std::runtime_error("Invalid state!");
                 }
                 EyeGazeVergence vergence;
@@ -141,6 +144,10 @@ void exportMps(py::module& m) {
                 vergence.right_gaze_valid = t[17].cast<bool>();
                 vergence.left_blink_valid = t[18].cast<bool>();
                 vergence.right_blink_valid = t[19].cast<bool>();
+                if (t.size() == 22) {
+                  vergence.left_valid_score = t[20].cast<float>();
+                  vergence.right_valid_score = t[21].cast<float>();
+                }
                 return vergence;
               }));
 
@@ -250,6 +257,37 @@ void exportMps(py::module& m) {
   __________
   path: Path to the eye gaze csv file.
 
+  )docdelimiter");
+
+  m.def(
+      "apply_valid_score_threshold",
+      py::overload_cast<EyeGaze, float>(&applyValidScoreThreshold),
+      py::arg("eye_gaze"),
+      py::arg("threshold"),
+      R"docdelimiter(Return a copy of a Gen2 eye gaze with its validity flags re-derived at a custom
+  valid score threshold instead of the eye tracking model's default.
+  An eye with a valid score is valid when its score is at least `threshold`. The combined gaze then
+  needs both eyes valid, and the spatial gaze point also needs a point to be available. An eye
+  without a valid score (geometric eye tracking, models without a validity output, or data that
+  predates the score) keeps its flag. Applying a second threshold gives the same flags as applying
+  it alone.
+  Parameters
+  __________
+  eye_gaze: Eye gaze read from an MPS eye gaze csv file or a Gen2 VRS recording.
+  threshold: Valid score threshold in [0, 1]. Raises ValueError otherwise.
+  )docdelimiter");
+
+  m.def(
+      "apply_valid_score_threshold",
+      py::overload_cast<EyeGazes, float>(&applyValidScoreThreshold),
+      py::arg("eye_gazes"),
+      py::arg("threshold"),
+      R"docdelimiter(Apply `apply_valid_score_threshold` to every eye gaze of a list, such as the
+  output of `read_eyegaze`.
+  Parameters
+  __________
+  eye_gazes: List of eye gazes.
+  threshold: Valid score threshold in [0, 1]. Raises ValueError otherwise.
   )docdelimiter");
 
   m.def(

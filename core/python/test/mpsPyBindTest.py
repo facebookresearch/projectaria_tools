@@ -481,6 +481,66 @@ class MPSEyeGaze(unittest.TestCase):
 mps_root_path = os.path.join(TEST_FOLDER, "mps_sample")
 
 
+class MPSEyeGazeValidScoreThreshold(unittest.TestCase):
+    """
+    Tests for re-deriving Gen2 eye validity at a custom valid score threshold
+    """
+
+    def _read_gen2_validity_sample(self) -> list[mps.EyeGaze]:
+        return mps.read_eyegaze(
+            os.path.join(
+                os.getenv("TEST_FOLDER_GEN2"),
+                "mps_sample/eye_gaze_with_validity/general_eye_gaze.csv",
+            )
+        )
+
+    def test_lower_threshold_makes_an_eye_valid(self) -> None:
+        # Row 1 has valid scores 0.12 (left) and 0.97 (right): left is invalid at the default.
+        eye_gaze = self._read_gen2_validity_sample()[1]
+        self.assertFalse(eye_gaze.vergence.left_gaze_valid)
+
+        relaxed = mps.apply_valid_score_threshold(eye_gaze, 0.1)
+
+        self.assertTrue(relaxed.vergence.left_gaze_valid)
+        self.assertTrue(relaxed.combined_gaze_valid)
+        # The input is not modified.
+        self.assertFalse(eye_gaze.vergence.left_gaze_valid)
+
+    def test_applies_to_a_whole_recording(self) -> None:
+        relaxed = mps.apply_valid_score_threshold(
+            self._read_gen2_validity_sample(), 0.1
+        )
+        self.assertEqual(
+            [g.vergence.left_gaze_valid for g in relaxed],
+            [True, True, True, False, True],
+        )
+
+    def test_rejects_threshold_outside_zero_to_one(self) -> None:
+        with self.assertRaises(ValueError):
+            mps.apply_valid_score_threshold(self._read_gen2_validity_sample(), 1.5)
+
+    def test_threshold_still_applies_after_pickling(self) -> None:
+        eye_gaze = pickle.loads(pickle.dumps(self._read_gen2_validity_sample()[1]))
+        relaxed = mps.apply_valid_score_threshold(eye_gaze, 0.1)
+        self.assertTrue(relaxed.vergence.left_gaze_valid)
+
+    def test_state_pickled_before_valid_scores_loads(self) -> None:
+        eye_gaze = self._read_gen2_validity_sample()[1]
+        vergence = mps.EyeGazeVergence.__new__(mps.EyeGazeVergence)
+        vergence.__setstate__(eye_gaze.vergence.__getstate__()[:20])
+        state = list(eye_gaze.__getstate__()[:14])
+        state[2] = vergence
+        old = mps.EyeGaze.__new__(mps.EyeGaze)
+        old.__setstate__(tuple(state))
+
+        # Without a score, a threshold leaves the flags as they were.
+        relaxed = mps.apply_valid_score_threshold(old, 0.1)
+        self.assertFalse(relaxed.vergence.left_gaze_valid)
+        self.assertEqual(
+            old.spatial_gaze_point_valid, eye_gaze.spatial_gaze_point_valid
+        )
+
+
 class MPSDataProvider(unittest.TestCase):
     """
     Tests for loading and querying data with MpsDataProvider
