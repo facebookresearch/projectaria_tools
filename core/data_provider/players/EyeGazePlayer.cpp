@@ -135,9 +135,8 @@ std::optional<EyeGaze> populateOssEyeGaze(
     const auto entrance_position_in_device = mapToEigenVector(vrsEntrancePupilPosition);
     eyeData.vergence.left_entrance_pupil_position_meter =
         T_Cpf_Device * entrance_position_in_device;
-
   } else {
-    eyeData.vergence.right_entrance_pupil_position_valid = true;
+    eyeData.vergence.left_entrance_pupil_position_valid = false;
   }
   if (dataLayout.rightEye.entrancePupilPositionValid.get() &&
       dataLayout.rightEye.entrancePupilPositionInDeviceMeterXyz.get(vrsEntrancePupilPosition)) {
@@ -146,7 +145,7 @@ std::optional<EyeGaze> populateOssEyeGaze(
     eyeData.vergence.right_entrance_pupil_position_meter =
         T_Cpf_Device * entrance_position_in_device;
   } else {
-    eyeData.vergence.right_entrance_pupil_position_valid = true;
+    eyeData.vergence.right_entrance_pupil_position_valid = false;
   }
 
   // Parsing left and right eye pupil diameters

@@ -31,6 +31,7 @@
 #include <gtest/gtest.h>
 
 #include <cstdint>
+#include <functional>
 #include <string>
 
 using namespace projectaria::tools::data_provider;
@@ -136,6 +137,38 @@ class EyeGazeV1Recordable : public vrs::Recordable {
   EyeGazeLayout data_;
 };
 
+// Writes one data record whose content is set by `fill`, for tests of the data path.
+class EyeGazeDataRecordable : public vrs::Recordable {
+ public:
+  explicit EyeGazeDataRecordable(std::function<void(EyeGazeLayout&)> fill)
+      : vrs::Recordable(vrs::RecordableTypeId::GazeRecordableClass, "test/eyegaze"),
+        fill_(std::move(fill)) {
+    addRecordFormat(vrs::Record::Type::CONFIGURATION, 1, config_.getContentBlock(), {&config_});
+    addRecordFormat(vrs::Record::Type::DATA, 1, data_.getContentBlock(), {&data_});
+  }
+  const vrs::Record* createConfigurationRecord() override {
+    config_.streamId.set(0);
+    config_.nominalRateHz.set(90.0);
+    config_.userCalibrated.set(false);
+    config_.userCalibrationError.set(0.0f);
+    return createRecord(0.0, vrs::Record::Type::CONFIGURATION, 1, vrs::DataSource(config_));
+  }
+  const vrs::Record* createStateRecord() override {
+    return createRecord(0.0, vrs::Record::Type::STATE, 1);
+  }
+  void writeDataRecord() {
+    data_.trackerTimestampNs.set(1'000);
+    data_.systemTimestampNs.set(2'000);
+    fill_(data_);
+    createRecord(1.0, vrs::Record::Type::DATA, 1, vrs::DataSource(data_));
+  }
+
+ private:
+  EyeGazeConfigurationLayout config_;
+  EyeGazeLayout data_;
+  const std::function<void(EyeGazeLayout&)> fill_;
+};
+
 template <typename RecordableT, typename... Args>
 std::string writeVrsWithEyeGazeStream(Args&&... args) {
   // getUniquePath avoids collisions across suites / crashed prior runs
@@ -172,6 +205,20 @@ EyeGazePlayer readEyeGazeConfig(const std::string& path) {
   }
   reader.closeFile();
   return player;
+}
+
+// Reads the single data record of the file, with CPF and device frames identical.
+projectaria::tools::mps::EyeGaze readEyeGazeData(const std::string& path) {
+  vrs::RecordFileReader reader;
+  EXPECT_EQ(reader.openFile(path), 0);
+  const auto streamIds = reader.getStreams();
+  EXPECT_EQ(streamIds.size(), 1u);
+  const auto streamId = *streamIds.begin();
+  EyeGazePlayer player(streamId, Sophus::SE3f{});
+  reader.setStreamPlayer(streamId, &player);
+  reader.readAllRecords();
+  reader.closeFile();
+  return player.getDataRecord();
 }
 
 } // namespace
@@ -282,4 +329,33 @@ TEST(EyeGazePlayer, ReadV1ConfigBackCompat) {
   EXPECT_EQ(
       cfg.getCombinedFieldProvenance(CombinedFieldId::SpatialGazePoint),
       FieldProvenance::SUPPORTED);
+}
+
+TEST(EyeGazePlayer, InvalidEntrancePupilPositionsAreInvalid) {
+  TempFileGuard g{writeVrsWithEyeGazeStream<EyeGazeDataRecordable>([](EyeGazeLayout& data) {
+    data.leftEye.entrancePupilPositionValid.set(false);
+    data.leftEye.entrancePupilPositionInDeviceMeterXyz.set({0.f, 0.f, 0.f});
+    data.rightEye.entrancePupilPositionValid.set(false);
+    data.rightEye.entrancePupilPositionInDeviceMeterXyz.set({0.f, 0.f, 0.f});
+  })};
+
+  const auto gaze = readEyeGazeData(g.path);
+
+  EXPECT_FALSE(gaze.vergence.left_entrance_pupil_position_valid);
+  EXPECT_FALSE(gaze.vergence.right_entrance_pupil_position_valid);
+}
+
+TEST(EyeGazePlayer, EachEntrancePupilPositionKeepsItsOwnValidity) {
+  TempFileGuard g{writeVrsWithEyeGazeStream<EyeGazeDataRecordable>([](EyeGazeLayout& data) {
+    data.leftEye.entrancePupilPositionValid.set(false);
+    data.leftEye.entrancePupilPositionInDeviceMeterXyz.set({0.f, 0.f, 0.f});
+    data.rightEye.entrancePupilPositionValid.set(true);
+    data.rightEye.entrancePupilPositionInDeviceMeterXyz.set({-0.03f, 0.f, 0.02f});
+  })};
+
+  const auto gaze = readEyeGazeData(g.path);
+
+  EXPECT_FALSE(gaze.vergence.left_entrance_pupil_position_valid);
+  EXPECT_TRUE(gaze.vergence.right_entrance_pupil_position_valid);
+  EXPECT_FLOAT_EQ(gaze.vergence.right_entrance_pupil_position_meter.x(), -0.03f);
 }
