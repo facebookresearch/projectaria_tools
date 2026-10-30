@@ -102,6 +102,11 @@ After you log in, your authentication token is cached so you don't have to sign 
 
 ![MPS CLI UI for single mode](/img/docs-ark/mps/mps_cli_ui_single.png)
 
+Native-library output during device checks is written to the MPS log file
+shown at the bottom of the UI, rather than over the status table. Native output
+from calibration-file inspection is discarded to keep recording metadata out
+of the log.
+
 ### Providing an eye gaze calibration recording
 
 An eye gaze calibration recording is a VRS created by the Eye Gaze Calibration flow in the Aria Companion App for a specific wearer and pair of glasses. Download it from the glasses with the Client SDK. A matching calibration can improve Eye Gaze accuracy.
