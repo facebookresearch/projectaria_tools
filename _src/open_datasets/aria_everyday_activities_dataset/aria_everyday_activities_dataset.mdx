@@ -1,0 +1,52 @@
+---
+sidebar_position: 1
+title: Aria Everyday Activities Dataset
+---
+
+
+## Overview
+
+The Aria Everyday Activities (AEA) dataset provides sequences collected using Project Aria glasses in a variety of egocentric scenarios, including: cooking, exercising, playing games and spending time with friends. The goal of AEA is to provide researchers with data to engage in solving problems related to the challenges of always-on egocentric vision. AEA contains multiple activity sequences where 1-2 users wearing Project Aria glasses participate in scenarios to capture time synchronized data in a shared world location.
+
+For more information on the activities, see:
+
+* [Activities](aea_activities.mdx): details about the scenarios and where specific activities are in the recording sequence
+* [Recording Scripts](aea_scripts.mdx): more details about each scenario
+
+Aria Everyday Activities Dataset was first released as part of the Aria Pilot Dataset (Project Aria’s first open dataset). It has now been improved with a new data format, new tooling that enables it to be used with Project Aria Tools, and additional machine perception data. The data was recorded using [Recording Profile 9](/tech_spec/recording_profiles.mdx).
+
+## About the data
+
+In addition to providing raw sensor data from Project Aria glasses, this dataset also contains annotated speech to text data, and results from our [Machine Perception Services](/ARK/mps/mps.mdx) that provide additional context to the spatial-temporal reference frames. We provide:
+
+
+* Per-frame eye tracking
+    * Generalized [Eye Gaze data](/data_formats/mps/mps_eye_gaze.mdx)
+* Accurate 3D trajectories of users across multiple everyday activities in the same location
+    * [Trajectory](/data_formats/mps/slam/mps_trajectory.mdx) and [Semi-Dense Point Cloud](/data_formats/mps/slam/mps_pointcloud.mdx) data
+* Timestamped with a shared clock to allow synchronization of data from multiple concurrent recordings
+* Location information expressed in a shared global coordinate frame for all recordings collected in the same physical location
+* [Online calibration information](/data_formats/mps/slam/mps_calibration.mdx) for the cameras and IMUs
+* [Speech-to-text annotation](aea_data_format.mdx#speech-to-text-annotation)
+
+The dataset contains:
+
+* 143 recordings for Everyday Activities
+* Recording in 5 locations, with 53 sequences of 2 users simultaneous recording
+* Over 1 million images
+* Over 7.5 accumulated hours
+
+![Image of point cloud of a room with trajectories and RGB frames from specific parts of the map](/img/open_datasets/aria_everyday_activities_dataset/aea_shared_3d_global_trajectories.png)
+
+
+Figure 1: _Shared 3D Global Trajectories for Multi-User Activities in the Same Location_
+
+# Documentation
+
+The AEA section of this wiki covers:
+* [Getting Started With the AEA Dataset](aea_getting_started.mdx)
+* [How to Download the AEA Dataset](aea_download_dataset.mdx)
+* [AEA Data Format](aea_data_format.mdx)
+* [AEA Visualizer](aea_visualizers.mdx)
+* [AEA Everyday Activities](aea_activities.mdx)
+* [Aria Wearer Data Scripts](aea_scripts.mdx)
