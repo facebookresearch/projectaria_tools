@@ -44,9 +44,11 @@ Once a recording starts, a recording card appears showing:
 - Recording timer with elapsed time
 - Recording name
 - **Data Integrity and Status** — color-coded indicator of sensor data quality:
-  - **Green** — Good: all sensors are looking good
-  - **Orange** — Degraded: some sensor issues detected
-  - **Red** — Poor: significant sensor issues detected
+  - **Green** — GOOD: all sensors are looking good
+  - **Orange** — WARNING: minor data quality issues detected
+  - **Red** — CRITICAL: major data quality issues detected
+
+  Select the row to see the status of every sensor. Sensors with an issue are listed first, each with its frame (or sample) drop ratio, longest run of consecutive drops, total drops, and frames (or samples) with a timestamp error, colored by severity. The rest of the sensors follow with a green check. Select the row again to close the list.
 - **Complete Recording** button — saves the recording
 - **Discard Recording** button — stops and discards the recording
 
