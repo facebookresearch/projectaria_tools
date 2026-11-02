@@ -110,35 +110,35 @@ struct Image {
   PROJECTARIA_HOST_DEVICE [[nodiscard]] inline const T* rowPtr(size_t y) const;
 
   /** @brief Returns a reference to the pixel at column x and row y */
-  template <typename P, typename std::enable_if_t<std::is_integral<P>::value>* = nullptr>
+  template <typename P, typename std::enable_if_t<std::is_integral_v<P>>* = nullptr>
   PROJECTARIA_HOST_DEVICE inline T& operator()(P x, P y);
 
   /**
    * @brief Returns a const reference to the pixel at column x and row y
    * @pre: x and y are integers
    */
-  template <typename P, typename std::enable_if_t<std::is_integral<P>::value>* = nullptr>
+  template <typename P, typename std::enable_if_t<std::is_integral_v<P>>* = nullptr>
   PROJECTARIA_HOST_DEVICE inline const T& operator()(P x, P y) const;
 
   /**
    * @brief Returns the bilinearly-interpolated pixel at point (x, y)
    * @pre: 0 <= x < W, 0 <= y < H, x and y are float point values
    */
-  template <typename P, typename std::enable_if_t<std::is_floating_point<P>::value>* = nullptr>
+  template <typename P, typename std::enable_if_t<std::is_floating_point_v<P>>* = nullptr>
   PROJECTARIA_HOST_DEVICE inline T operator()(P u, P v) const;
 
   //////////////////////////////////////////////////////
   // Bounds Checking
 
   /** @brief Returns if column x and row y is in bound */
-  template <typename P, typename std::enable_if_t<std::is_integral<P>::value>* = nullptr>
+  template <typename P, typename std::enable_if_t<std::is_integral_v<P>>* = nullptr>
   PROJECTARIA_HOST_DEVICE inline bool inBounds(P x, P y, P border = 0) const;
 
   /**
    * @brief Returns if point (x, y) is in bound, i.e. -0.5 <= x < W-0.5 and -0.5 <= y < H-0.5
    * @pre x and y are float point values
    */
-  template <typename P, typename std::enable_if_t<std::is_floating_point<P>::value>* = nullptr>
+  template <typename P, typename std::enable_if_t<std::is_floating_point_v<P>>* = nullptr>
   PROJECTARIA_HOST_DEVICE inline bool inBounds(P x, P y, P border = 0) const;
 
  protected:
@@ -207,8 +207,10 @@ struct Zero<Eigen::Matrix<T, M, N, Opts>> {
 };
 } // namespace
 
-template <typename Scalar, std::enable_if_t<std::is_floating_point<Scalar>::value, int> = 0>
-Eigen::Vector2<Scalar> imageCenter(size_t imageWidth, size_t imageHeight) {
+template <typename Scalar>
+Eigen::Vector2<Scalar> imageCenter(size_t imageWidth, size_t imageHeight)
+  requires std::is_floating_point_v<Scalar>
+{
   return Eigen::Vector2<Scalar>{
       static_cast<Scalar>(imageWidth) / Scalar(2.0) - Scalar(0.5),
       static_cast<Scalar>(imageHeight) / Scalar(2.0) - Scalar(0.5)};
@@ -324,14 +326,14 @@ PROJECTARIA_HOST_DEVICE inline const T* Image<T, MaxValue>::rowPtr(size_t y) con
 }
 
 template <typename T, int MaxValue>
-template <typename P, typename std::enable_if_t<std::is_integral<P>::value>*>
+template <typename P, typename std::enable_if_t<std::is_integral_v<P>>*>
 PROJECTARIA_HOST_DEVICE inline T& Image<T, MaxValue>::operator()(P x, P y) {
   PROJECTARIA_CUDASAFE_ASSERT(inBounds(x, y));
   return rowPtr(y)[x];
 }
 
 template <typename T, int MaxValue>
-template <typename P, typename std::enable_if_t<std::is_integral<P>::value>*>
+template <typename P, typename std::enable_if_t<std::is_integral_v<P>>*>
 PROJECTARIA_HOST_DEVICE inline const T& Image<T, MaxValue>::operator()(P x, P y) const {
   PROJECTARIA_CUDASAFE_ASSERT(inBounds(x, y));
   return rowPtr(y)[x];
@@ -346,7 +348,7 @@ PROJECTARIA_HOST_DEVICE inline bool Image<T, MaxValue>::yInBounds(int y) const {
 }
 
 template <typename T, int MaxValue>
-template <typename P, typename std::enable_if_t<std::is_integral<P>::value>*>
+template <typename P, typename std::enable_if_t<std::is_integral_v<P>>*>
 PROJECTARIA_HOST_DEVICE inline bool Image<T, MaxValue>::inBounds(P x, P y, P border) const {
   return border <= static_cast<int64_t>(x) &&
       static_cast<int64_t>(x) < static_cast<int64_t>(w_) - border &&
@@ -355,14 +357,14 @@ PROJECTARIA_HOST_DEVICE inline bool Image<T, MaxValue>::inBounds(P x, P y, P bor
 }
 
 template <typename T, int MaxValue>
-template <typename P, typename std::enable_if_t<std::is_floating_point<P>::value>*>
+template <typename P, typename std::enable_if_t<std::is_floating_point_v<P>>*>
 PROJECTARIA_HOST_DEVICE inline bool Image<T, MaxValue>::inBounds(P x, P y, P border) const {
   return x >= border - static_cast<P>(0.5) && y >= border - static_cast<P>(0.5) &&
       x <= w_ - border - static_cast<P>(0.5) && y <= h_ - border - static_cast<P>(0.5);
 }
 
 template <typename T, int MaxValue>
-template <typename P, typename std::enable_if_t<std::is_floating_point<P>::value>*>
+template <typename P, typename std::enable_if_t<std::is_floating_point_v<P>>*>
 PROJECTARIA_HOST_DEVICE inline T Image<T, MaxValue>::operator()(P u, P v) const {
   const int ix = (int)(u);
   const int iy = (int)(v);
