@@ -59,7 +59,7 @@ bool Barometer::setup(vrs::RecordFileReader& reader) {
 }
 
 const BarometerStats& Barometer::getBarometerStats() {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   return barometerStats_;
 }
 
@@ -85,7 +85,7 @@ void Barometer::logStats() {
 }
 
 void Barometer::processData(const data_provider::BarometerData& data) {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   // Check for bad data
   if (data.pressure < 0 || data.captureTimestampNs < 0) {
     stats_.bad++;

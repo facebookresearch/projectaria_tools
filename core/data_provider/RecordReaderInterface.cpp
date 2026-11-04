@@ -213,7 +213,7 @@ RecordReaderInterface::getStreamIdToDataRecords() {
 const vrs::IndexRecord::RecordInfo* RecordReaderInterface::readRecordByIndex(
     const vrs::StreamId& streamId,
     const int index) {
-  std::lock_guard<std::mutex> lockGuard(*readerMutex_);
+  std::scoped_lock lockGuard(*readerMutex_);
 
   if (index < 0 || index >= reader_->getRecordCount(streamId, vrs::Record::Type::DATA)) {
     return nullptr;

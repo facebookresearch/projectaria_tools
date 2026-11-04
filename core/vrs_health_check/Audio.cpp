@@ -82,7 +82,7 @@ void Audio::processData(const data_provider::AudioDataRecord& record) {
     return;
   }
 
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   for (int i = 0; i < numSamples; i++) {
     processTimestamp(record.captureTimestampsNs[i] / 1e3);
   }

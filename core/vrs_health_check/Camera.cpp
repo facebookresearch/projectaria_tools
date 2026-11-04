@@ -137,7 +137,7 @@ void Camera::performSensorSerialCheck(vrs::RecordFileReader& reader) {
 }
 
 CameraStats Camera::getCameraStats() {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   return cameraStats_;
 }
 
@@ -259,7 +259,7 @@ void Camera::processGain(uint64_t frameCenterExposureUs, float gain) {
 void Camera::processData(
     const data_provider::ImageData& data,
     const data_provider::ImageDataRecord& record) {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   const uint64_t frameCenterExposureUs = record.captureTimestampNs * 1e-3;
   if (!data.isValid() ||
       data.pixelFrame->size() != data.pixelFrame->getStride() * data.pixelFrame->getHeight() ||

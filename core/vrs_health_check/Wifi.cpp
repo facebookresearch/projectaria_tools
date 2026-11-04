@@ -55,12 +55,12 @@ bool Wifi::setup(vrs::RecordFileReader& reader) {
 }
 
 Stats Wifi::getStats() {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   return stats_;
 }
 
 void Wifi::logStats() {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   std::stringstream freqStr;
   freqStr << std::fixed << std::setprecision(1);
   for (const auto& count : stats_.totalPerFreq) {
@@ -109,7 +109,7 @@ inline bool hasSuffix(const std::string& str, const std::string& suffix) {
 } // namespace
 
 void Wifi::processData(const data_provider::WifiBeaconData& data) {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   std::string ssidLower = data.ssid;
   std::ranges::transform(
       ssidLower, ssidLower.begin(), [](unsigned char c) { return std::tolower(c); });

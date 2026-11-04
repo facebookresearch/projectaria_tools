@@ -62,7 +62,7 @@ bool TimeDomainMapping::setup(vrs::RecordFileReader& reader) {
 }
 
 void TimeDomainMapping::processData(const data_provider::TimeSyncData& data) {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   if (data.monotonicTimestampNs < 0 || data.realTimestampNs < 0) {
     stats_.bad++;
   }

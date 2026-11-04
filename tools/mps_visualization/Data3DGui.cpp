@@ -179,7 +179,7 @@ void Data3DGui::draw() {
 
   // Point cloud visualization
   if (uiPoints) {
-    std::lock_guard<std::mutex> lock(filteredCloudMutex_);
+    std::scoped_lock lock(filteredCloudMutex_);
     glColor4f(0.9f, 0.95f, 1.0f, uiPointAlpha);
     glPointSize(2);
     pangolin::glDrawPoints(filteredCloud_);
@@ -716,7 +716,7 @@ void Data3DGui::draw(
 }
 
 void Data3DGui::updatePointCloud() {
-  std::lock_guard<std::mutex> lock(filteredCloudMutex_);
+  std::scoped_lock lock(filteredCloudMutex_);
 
   filteredCloud_.clear();
   filteredCloud_.reserve(cloudWorld_.size());

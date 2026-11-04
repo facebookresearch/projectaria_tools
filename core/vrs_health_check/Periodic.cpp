@@ -50,7 +50,7 @@ SensorMisalignmentStats* Periodic::getSensorMisalignmentStats() {
 }
 
 Stats Periodic::getStats() {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   return stats_;
 }
 
@@ -100,7 +100,7 @@ void Periodic::logStats() {
 }
 
 float Periodic::getScore() {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   if (stats_.total == 0) {
     return 0.f;
   } else if (stats_.total + stats_.dropped + stats_.bad < stats_.expected) {
@@ -150,7 +150,7 @@ bool Periodic::getResult() {
 }
 
 void Periodic::preprocessStream(vrs::RecordFileReader& reader) {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   // Stats that don't require parsing through the whole file
   stats_.total = reader.getRecordCount(streamId_, vrs::Record::Type::DATA);
   // Count from the first frame, this intentionally ignores drops that happen before the first

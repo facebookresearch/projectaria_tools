@@ -121,7 +121,7 @@ void MPSData3DGui::draw() {
 
   // Point cloud visualization
   if (uiAllPoints_) {
-    std::lock_guard<std::mutex> lock(filteredCloudMutex_);
+    std::scoped_lock lock(filteredCloudMutex_);
     for (int i = 0; i < filteredClouds_.size(); i++) {
       if (uiPointColor_) {
         const auto& color = kColors[i % kColors.size()];
@@ -167,7 +167,7 @@ void MPSData3DGui::draw() {
 }
 
 void MPSData3DGui::updatePointCloud() {
-  std::lock_guard<std::mutex> lock(filteredCloudMutex_);
+  std::scoped_lock lock(filteredCloudMutex_);
 
   filteredClouds_.clear();
   filteredClouds_.reserve(clouds_world_.size());

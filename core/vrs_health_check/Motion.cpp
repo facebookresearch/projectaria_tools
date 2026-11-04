@@ -79,7 +79,7 @@ bool Motion::setup(vrs::RecordFileReader& reader) {
 }
 
 MotionStats Motion::getMotionStats() {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   return motionStats_;
 }
 
@@ -127,7 +127,7 @@ void Motion::logStats() {
 
 bool Motion::getResult() {
   float score = getScore();
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   float proportionNonPhysicalAccel =
       static_cast<float>(motionStats_.nonPhysicalAccel) / stats_.total;
   if (score < minScore_) {
@@ -152,7 +152,7 @@ bool Motion::getResult() {
 }
 
 void Motion::processData(const data_provider::MotionData& data) {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   bool currentSampleIsBad = false;
   // Skip if just doing preprocessing
   if (preprocess_) {

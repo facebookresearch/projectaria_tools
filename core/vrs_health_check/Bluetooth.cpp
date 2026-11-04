@@ -53,12 +53,12 @@ bool Bluetooth::setup(vrs::RecordFileReader& reader) {
 }
 
 Stats Bluetooth::getStats() {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   return stats_;
 }
 
 void Bluetooth::logStats() {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   std::stringstream freqStr;
   freqStr << std::fixed << std::setprecision(1);
   for (const auto& count : stats_.totalPerFreq) {
@@ -89,7 +89,7 @@ bool Bluetooth::getResult() {
 }
 
 void Bluetooth::processData(const data_provider::BluetoothBeaconData& data) {
-  std::lock_guard lock{mutex_};
+  std::scoped_lock lock{mutex_};
   uint64_t currTimestampUs = data.boardTimestampNs / 1e3;
   if (data.boardTimestampNs < 0 || data.uniqueId.empty() || data.uniqueId == kNilUuid ||
       data.rssi >= 0.0) {
