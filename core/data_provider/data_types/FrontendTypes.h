@@ -85,7 +85,7 @@ struct ProjectionModelParameters {
 template <typename T>
 constexpr auto degreesToRadians(const T& degree) {
   static_assert(
-      std::is_floating_point<T>::value,
+      std::is_floating_point_v<T>,
       "Unit conversion should only be used with floating-point types.");
   return degree * M_PI / T{180};
 }
@@ -170,11 +170,11 @@ struct ImuMeasurementModelParameters {
 
   template <typename NewScalar>
   std::conditional_t<
-      std::is_same<Scalar, NewScalar>::value,
+      std::is_same_v<Scalar, NewScalar>,
       const ImuMeasurementModelParameters<NewScalar>&,
       ImuMeasurementModelParameters<NewScalar>>
   cast() const {
-    if constexpr (std::is_same<Scalar, NewScalar>::value) {
+    if constexpr (std::is_same_v<Scalar, NewScalar>) {
       return *this;
     } else {
       ImuMeasurementModelParameters<NewScalar> result;

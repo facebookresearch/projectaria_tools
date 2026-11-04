@@ -29,8 +29,8 @@ namespace projectaria::tools::data_provider {
 template <typename T>
 void populatePoint3D(
     T* dest,
-    const typename std::conditional<std::is_same<T, float>::value, vrs::Point3Df, vrs::Point3Dd>::
-        type& src) {
+    const typename std::conditional<std::is_same_v<T, float>, vrs::Point3Df, vrs::Point3Dd>::type&
+        src) {
   dest[0] = src[0];
   dest[1] = src[1];
   dest[2] = src[2];
@@ -39,8 +39,8 @@ void populatePoint3D(
 template <typename T>
 void populatePoint4D(
     T* dest,
-    const typename std::conditional<std::is_same<T, float>::value, vrs::Point4Df, vrs::Point4Dd>::
-        type& src) {
+    const typename std::conditional<std::is_same_v<T, float>, vrs::Point4Df, vrs::Point4Dd>::type&
+        src) {
   dest[0] = src[0];
   dest[1] = src[1];
   dest[2] = src[2];

@@ -30,10 +30,10 @@ constexpr float kDoubleTolerance = 1e-7f;
 
 template <typename T>
 constexpr float getConvergenceTolerance() {
-  if (std::is_same<T, ceres::Jet<float, T::DIMENSION>>::value) {
+  if (std::is_same_v<T, ceres::Jet<float, T::DIMENSION>>) {
     return kFloatTolerance;
   }
-  if (std::is_same<T, ceres::Jet<double, T::DIMENSION>>::value) {
+  if (std::is_same_v<T, ceres::Jet<double, T::DIMENSION>>) {
     // largest number that passes project / unproject test to within 1e-8 pixels for all models.
     return kDoubleTolerance;
   }

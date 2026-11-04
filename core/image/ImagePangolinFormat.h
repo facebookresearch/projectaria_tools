@@ -95,7 +95,6 @@ inline std::string ImageTypeName<Image<Eigen::Vector4f>>() {
 
 inline std::string getPangolinFormatString(const ImageVariant& imageVariant) {
   return std::visit(
-      [](const auto& img) { return ImageTypeName<typename std::decay<decltype(img)>::type>(); },
-      imageVariant);
+      [](const auto& img) { return ImageTypeName<std::decay_t<decltype(img)>>(); }, imageVariant);
 }
 } // namespace projectaria::tools::image

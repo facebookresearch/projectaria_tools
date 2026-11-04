@@ -1234,7 +1234,7 @@ void declareDistortByCalibration(py::module& m) {
           return image::toPyArrayVariant(
               distortByCalibration(image::ImageVariant{imageSrc}, dstCalib, srcCalib, method));
         } else {
-          if constexpr (std::is_same<T, uint8_t>::value) {
+          if constexpr (std::is_same_v<T, uint8_t>) {
             image::Image3U8 imageSrc((Eigen::Vector3<T>*)info.ptr, imageWidth, imageHeight);
             return image::toPyArrayVariant(
                 distortByCalibration(image::ImageVariant{imageSrc}, dstCalib, srcCalib, method));
@@ -1268,7 +1268,7 @@ void declareDistortByCalibration(py::module& m) {
           return image::toPyArrayVariant(distortByCalibrationAndApplyRotation(
               image::ImageVariant{imageSrc}, dstCalib, srcCalib, so3_srcCalib_dstCalib, method));
         } else {
-          if constexpr (std::is_same<T, uint8_t>::value) {
+          if constexpr (std::is_same_v<T, uint8_t>) {
             image::Image3U8 imageSrc((Eigen::Vector3<T>*)info.ptr, imageWidth, imageHeight);
             return image::toPyArrayVariant(distortByCalibrationAndApplyRotation(
                 image::ImageVariant{imageSrc}, dstCalib, srcCalib, so3_srcCalib_dstCalib, method));
@@ -1322,7 +1322,7 @@ void declareDistortByCalibration(py::module& m) {
           image::Image<T, MaxVal> imageSrc((T*)info.ptr, imageWidth, imageHeight);
           return image::toPyArrayVariant(
               distortLabelMaskByCalibration(image::ImageVariant{imageSrc}, dstCalib, srcCalib));
-        } else if constexpr (std::is_same<T, uint8_t>::value) {
+        } else if constexpr (std::is_same_v<T, uint8_t>) {
           image::Image3U8 imageSrc((Eigen::Vector3<T>*)info.ptr, imageWidth, imageHeight);
           return image::toPyArrayVariant(
               distortLabelMaskByCalibration(image::ImageVariant{imageSrc}, dstCalib, srcCalib));
@@ -1367,7 +1367,7 @@ inline void declareDevignetting(py::module& m) {
 
         bool isRgb = srcImage.ndim() == 3 && srcImage.shape()[2] == 3;
         if (isRgb) {
-          if constexpr (std::is_same<T, uint8_t>::value) {
+          if constexpr (std::is_same_v<T, uint8_t>) {
             image::Image3U8 imageSrc(
                 (Eigen::Vector3<T>*)srcImage.request().ptr, srcImageWidth, srcImageHeight);
             return image::toPyArrayVariant(
@@ -1406,7 +1406,7 @@ inline void declareColorCorrect(py::module& m) {
 
         bool isRgb = srcImage.ndim() == 3 && srcImage.shape()[2] == 3;
         if (isRgb) {
-          if constexpr (std::is_same<T, uint8_t>::value) {
+          if constexpr (std::is_same_v<T, uint8_t>) {
             image::Image3U8 imageSrc((Eigen::Vector3<T>*)info.ptr, imageWidth, imageHeight);
             return image::toPyArrayVariant(
                 colorCorrect(image::ImageVariant{imageSrc}, deviceVersion));
