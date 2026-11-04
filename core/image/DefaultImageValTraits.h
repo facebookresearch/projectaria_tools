@@ -31,7 +31,7 @@ struct DefaultImageValTraits {
 };
 
 template <class T>
-struct DefaultImageValTraits<T, typename std::enable_if<std::is_integral<T>::value>::type> {
+struct DefaultImageValTraits<T, std::enable_if_t<std::is_integral_v<T>>> {
   static constexpr int maxValue = (sizeof(T) >= sizeof(int))
       ? std::numeric_limits<int>::max()
       : static_cast<int>(std::numeric_limits<T>::max());
@@ -41,7 +41,7 @@ struct DefaultImageValTraits<T, typename std::enable_if<std::is_integral<T>::val
 };
 
 template <class T>
-struct DefaultImageValTraits<T, typename std::enable_if<std::is_floating_point<T>::value>::type> {
+struct DefaultImageValTraits<T, std::enable_if_t<std::is_floating_point_v<T>>> {
   static constexpr int maxValue = 1;
   static constexpr bool isEigen = false;
   using Scalar = T;

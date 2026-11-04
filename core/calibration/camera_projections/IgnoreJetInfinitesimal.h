@@ -27,7 +27,7 @@ namespace projectaria::tools::calibration {
 template <typename T>
 inline double IgnoreJetInfinitesimal(const T& j) {
   static_assert(
-      std::is_same<decltype(j.a), double>::value || std::is_same<decltype(j.a), float>::value,
+      std::is_same_v<decltype(j.a), double> || std::is_same_v<decltype(j.a), float>,
       "T should be a ceres jet");
   return j.a;
 }
