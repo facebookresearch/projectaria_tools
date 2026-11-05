@@ -41,7 +41,12 @@ class AlsFlickerDetectionDataLayout : public vrs::AutoDataLayout {
 
   vrs::DataPieceValue<std::int64_t> captureTimestampNs{"capture_timestamp_ns"};
 
-  // Three frequency/magnitude pairs for the top detected flicker frequencies.
+  // Three frequency/magnitude pairs. Current firmware writes one flicker decision per capture:
+  //   pair 0: frequency in Hz and flicker percent (as a fraction) of the strongest flicker line
+  //   pair 1: the same for a second, separate flicker line (another light source)
+  //   pair 2: status (1 PRESENT, 2 NONE, 3 LOW_SIGNAL), reason code for LOW_SIGNAL (else 0)
+  // Pairs 0 and 1 are 0, 0 unless the status is PRESENT and the line is reported.
+  // Older firmware wrote the three largest flicker peaks instead.
   vrs::DataPieceValue<float> flickerFrequencyHz0{"flicker_frequency_hz_0"};
   vrs::DataPieceValue<float> flickerMagnitude0{"flicker_magnitude_0"};
   vrs::DataPieceValue<float> flickerFrequencyHz1{"flicker_frequency_hz_1"};

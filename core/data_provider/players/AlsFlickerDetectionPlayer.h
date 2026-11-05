@@ -53,7 +53,7 @@ struct AlsFlickerFrequencyData {
 struct AlsFlickerDetectionData {
   // Timestamp of capturing this sample, or -1 if the record lacks it.
   int64_t captureTimestampNs{};
-  // Top detected flicker frequency/magnitude pairs.
+  // Flicker frequency/magnitude pairs; see AlsFlickerDetectionDataLayout for their meaning.
   std::array<AlsFlickerFrequencyData, kAlsFlickerDetectionFreqCount> flickerData{};
 };
 
