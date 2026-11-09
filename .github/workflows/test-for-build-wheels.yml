@@ -91,7 +91,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14, ubuntu-latest, ubuntu-24.04-arm]  # macos-14 = macSilicon; ubuntu-24.04-arm = native Linux aarch64
+        os: [macos-15, ubuntu-latest, ubuntu-24.04-arm]  # macos-15 = macSilicon; ubuntu-24.04-arm = native Linux aarch64
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
         include:
           # manylinux_image is pinned per version rather than left to the cibuildwheel
@@ -141,12 +141,12 @@ jobs:
           ${{ steps.cibw_python.outputs.python-path }} -m pip install --upgrade pip
           ${{ steps.cibw_python.outputs.python-path }} -m pip install cibuildwheel==4.2.1
       - name: Install ffmpeg dependency lib
-        if: ${{ (matrix.os == 'macos-14') || (matrix.os == 'ubuntu-latest') || (matrix.os == 'ubuntu-24.04-arm') }}
+        if: ${{ (matrix.os == 'macos-15') || (matrix.os == 'ubuntu-latest') || (matrix.os == 'ubuntu-24.04-arm') }}
         shell: bash
         run: |
           ./build_third_party_libs/build_ffmpeg_linuxunix.sh
       - name: Build wheels for CPython
-        if: matrix.os == 'macos-14'
+        if: matrix.os == 'macos-15'
         shell: bash
         run: |
           CMAKE_BUILD_PARALLEL_LEVEL=4 ${{ steps.cibw_python.outputs.python-path }} -m cibuildwheel --output-dir dist
@@ -155,7 +155,7 @@ jobs:
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_SKIP: "*-manylinux_i686 *-musllinux_* *x86_64*"
           CIBW_ARCHS: "arm64"
-          CIBW_ENVIRONMENT_MACOS: "MACOSX_DEPLOYMENT_TARGET=14.0"
+          CIBW_ENVIRONMENT_MACOS: "MACOSX_DEPLOYMENT_TARGET=15.0"
       - name: Build wheels for CPython
         if: ${{ (matrix.os == 'ubuntu-latest') }}
         shell: bash
