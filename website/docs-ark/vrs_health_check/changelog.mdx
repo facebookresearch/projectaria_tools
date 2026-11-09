@@ -6,6 +6,46 @@ title: Changelog
 # Changelog
 
 ---
+## Version 1.4.0
+
+### Platform Support
+
+- The macOS (Apple Silicon) wheels now require macOS 15 or newer; macOS 14 is no longer supported. Linux wheels are unchanged
+
+### New Features
+
+- **ET ML V2 eye valid scores** are checked on `Gaze Data Class` streams recorded with the `et_ml` flavor and algorithm version `2.0`, in `AriaGen2_Default` and `AriaGen2_CI`. Other eye gaze streams report passing values
+- **Phone location**: the Oatmeal phone location stream, a GPS stream with provider `app`, is now checked and reported as `GPS Data Class (phone_location)` instead of being skipped. It has no fixed rate, so it's checked as events: a malformed fix counts as `bad` by the same rules as GPS, a capture timestamp that doesn't move forward counts as `non_monotonic`, and a good fix whose UTC time goes backward counts as `utc_out_of_order_samples`. Records with no fix, a 0 Hz configuration, and a repeated fix stay healthy
+- Phone location in recordings made before December 2025, where the phone and the glasses' GPS streams share the flavor `device/oatmeal`, is also checked. It's named by its stream class, so the glasses' GPS keeps its own name and checks. GPS streams with provider `app` from producers other than the Oatmeal recorder are skipped with a warning
+- **Light flicker detection** records are now checked as detection events rather than periodic samples. The detector writes a record only when a sensor capture completes, so a stream with few or no records is healthy. A record counts as `bad` when its capture timestamp is negative or a frequency/magnitude pair is malformed: an infinite, negative or NaN magnitude, an infinite or negative frequency, or a NaN frequency with a nonzero magnitude. An unused slot (NaN frequency, zero magnitude) and a zero frequency are valid
+- When the recording profile enables `als_flicker_detection`, the light flicker stream must be present, even if it holds no records. Light flicker streams from producers other than the Oatmeal recorder are skipped with a warning
+- **Expected failures**: VIO and high-frequency pose results missing while VIO is down for an expected cause (vehicle, high travel speed or dark) are reported as `dropped_during_expected_vio_failure` instead of `dropped`. When GPS before a VIO failure has too few fixes to tell the speed, the fixes during the failure are used too, reported as `gps_speed_during_failure_mps`. An empty PPG stream warns instead of failing when the recording's boot probe found no PPG sensor. Each downgrade is listed under a new `expected_failures` key, and a missing or failed PPG sensor under `device_health_findings`, in every configuration's report
+- VIO results missing from a reset, or from the start of the recording, until 1 s after VIO's first valid result are reported as `dropped_during_init` instead of `dropped`, so expected re-initialization gaps no longer count toward the VIO drop ratio. Gaps that began before the reset, and gaps after an initialization longer than 5 s, still count as drops
+- When the recording profile enables nullformer audio, its `soc_audio_nullformer` stream must be present
+
+### Configuration Updates
+
+`thresholds_version` moves up on every Gen2 configuration: `AriaGen2_Default` and `AriaGen2_CI` to `thresholds_v1.3`, `AriaGen2_Location` to `thresholds_v1.2`, `AriaGen2_Handtracking` to `thresholds_v2.2`. Gen1 is unchanged.
+
+#### `AriaGen2_Default` and `AriaGen2_CI` configurations:
+- Added `valid_score_check.scores_present` (warns when no frame carries a score, as in recordings made before the device published scores), `valid_score_check.ratio_frames_missing_a_score` (fails above 1%), `valid_score_check.out_of_range_scores` (fails any score outside [0, 1]) and `valid_score_check.ratio_flag_score_mismatch` (fails above 1% of scored eyes whose valid flag disagrees with score ≥ 0.7)
+
+#### `AriaGen2_Default` configuration, inherited by `AriaGen2_CI` and `AriaGen2_Location`:
+- `GPS Data Class (phone_location)` adds `bad` and `utc_out_of_order_samples` (warn above 0) and `non_monotonic` (fail above 0). It's non-periodic, so the cadence-derived checks don't apply to it
+- GPS `bad` now also counts a fix with a negative speed, on both `GPS Data Class` and `GPS Data Class (phone_location)`. A fix whose speed is unknown (NaN) stays healthy
+
+#### `AriaGen2_Default` configuration, for light flicker detection, inherited by `AriaGen2_CI`:
+- `Light Flicker Detection Data Class` is now non-periodic, so `total`, `ratio_dropped_over_expected` and the start and end offsets no longer apply to it, nor does `AriaGen2_CI`'s `longest_consecutive_drop`. It keeps `bad` and `non_monotonic`, both failing above 0
+
+#### `AriaGen2_Handtracking` configuration:
+- `GPS Data Class (phone_location)` is ignored, as `GPS Data Class` is
+
+### Bug Fixes
+
+- A light flicker stream recorded with `rate_hz=0` is now checked, rather than dropped from the report
+- Light flicker magnitudes that are NaN or infinite, and infinite frequencies, now count as `bad`; previously only negative values did
+
+---
 ## Version 1.3.2
 
 ### Platform Support
