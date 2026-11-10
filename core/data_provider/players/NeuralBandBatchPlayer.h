@@ -74,6 +74,7 @@ struct NeuralBandBatchConfiguration {
   std::string sensorModel;
   uint64_t deviceId{};
   std::string emgCalibrationParamsJson;
+  std::string emgBandInfoJson;
   std::optional<calibration::NeuralBandEmgCalibration> emgCalibration;
   std::optional<calibration::NeuralBandImuCalibration> imuCalibration;
 };

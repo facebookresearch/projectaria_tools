@@ -329,6 +329,23 @@ TEST(NeuralBandBatchPlayerTest, EmgCalibrationParamsJson_ParsedIntoOptionalOnFul
   EXPECT_FLOAT_EQ(config.emgCalibration->getAnalogGain(), 30.0f);
 }
 
+TEST(NeuralBandBatchPlayerTest, EmgBandInfoJson_ReadFromConfigRecord) {
+  const std::string vrsPath =
+      vrs::os::getUniquePath(vrs::os::getTempFolder() + "aria_gen2_unit_test_neural_band_info");
+  TempFileGuard guard{vrsPath};
+  NeuralBandBatchFixtureSpec spec = makeBackwardCompatSpec();
+  spec.emgBandInfoJson = R"({"serial_number":"TEST_BAND_SERIAL","wrist":"right"})";
+  ASSERT_NO_FATAL_FAILURE(writeSyntheticNeuralBandBatchVrs(vrsPath, spec));
+
+  auto provider = createVrsDataProvider(vrsPath);
+  ASSERT_NE(provider, nullptr);
+  const auto streamId = provider->getStreamIdFromLabel("emg");
+  ASSERT_TRUE(streamId.has_value());
+
+  EXPECT_EQ(
+      provider->getNeuralBandBatchConfiguration(*streamId).emgBandInfoJson, spec.emgBandInfoJson);
+}
+
 TEST(NeuralBandBatchPlayerTest, EmgCalibrationParamsJson_EmptyStringLeavesOptionalNullopt) {
   const std::string vrsPath =
       vrs::os::getUniquePath(vrs::os::getTempFolder() + "aria_gen2_unit_test_neural_band_no_calib");

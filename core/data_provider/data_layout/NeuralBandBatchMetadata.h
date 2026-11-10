@@ -35,6 +35,9 @@ class NeuralBandBatchConfigurationLayout : public vrs::AutoDataLayout {
   // Label MUST match the recorder byte-for-byte; empty when absent from recording.
   vrs::DataPieceString emgCalibrationParamsJson{"emg_calibration_params_json"};
 
+  // The band's identity JSON. Label MUST match the recorder byte-for-byte; empty when absent.
+  vrs::DataPieceString emgBandInfoJson{"emg_band_info_json"};
+
   vrs::AutoDataLayoutEnd endLayout;
 };
 

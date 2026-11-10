@@ -56,6 +56,7 @@ struct NeuralBandBatchFixtureSpec {
   std::vector<std::string> gyroBlobs;
   std::vector<uint32_t> gyroSequenceNumbers;
   std::string emgCalibrationParamsJson;
+  std::string emgBandInfoJson;
 };
 
 class NeuralBandBatchRecordable : public vrs::Recordable {
@@ -73,6 +74,7 @@ class NeuralBandBatchRecordable : public vrs::Recordable {
     config_.nominalRateHz.set(1000.0);
     config_.description.stage("");
     config_.emgCalibrationParamsJson.stage(calibrationParamsJson_);
+    config_.emgBandInfoJson.stage(bandInfoJson_);
     return createRecord(0.0, vrs::Record::Type::CONFIGURATION, 1, vrs::DataSource(config_));
   }
 
@@ -82,6 +84,10 @@ class NeuralBandBatchRecordable : public vrs::Recordable {
 
   void setCalibrationParamsJson(const std::string& json) {
     calibrationParamsJson_ = json;
+  }
+
+  void setBandInfoJson(const std::string& json) {
+    bandInfoJson_ = json;
   }
 
   const vrs::Record* writeDataRecord(const NeuralBandBatchFixtureSpec& spec, double recordTimeSec) {
@@ -114,6 +120,7 @@ class NeuralBandBatchRecordable : public vrs::Recordable {
 
  private:
   std::string calibrationParamsJson_;
+  std::string bandInfoJson_;
   ::datalayout::NeuralBandBatchConfigurationLayout config_;
   ::datalayout::NeuralBandBatchDataLayout data_;
 };
@@ -164,6 +171,7 @@ inline void writeSyntheticNeuralBandBatchVrs(
   PlaceholderImuRecordable imu;
   if (!specs.empty()) {
     emg.setCalibrationParamsJson(specs.front().emgCalibrationParamsJson);
+    emg.setBandInfoJson(specs.front().emgBandInfoJson);
   }
   writer.addRecordable(&emg);
   writer.addRecordable(&imu);

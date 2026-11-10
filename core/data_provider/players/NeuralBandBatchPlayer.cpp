@@ -220,6 +220,7 @@ bool NeuralBandBatchPlayer::onDataLayoutRead(
     configRecord_.streamId = config.streamId.get();
     configRecord_.sensorModel = config.sensorModel.get();
     configRecord_.deviceId = config.deviceId.get();
+    configRecord_.emgBandInfoJson = config.emgBandInfoJson.get();
     std::string newJson = config.emgCalibrationParamsJson.get();
     if (newJson != configRecord_.emgCalibrationParamsJson) {
       configRecord_.emgCalibrationParamsJson = std::move(newJson);

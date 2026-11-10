@@ -515,6 +515,10 @@ inline void declareNeuralBandBatchDataRecord(py::module& m) {
           &NeuralBandBatchConfiguration::emgCalibrationParamsJson,
           "verbatim CONFIG-record JSON blob (carries both EMG + IMU calibration fields); empty when absent")
       .def_readwrite(
+          "emg_band_info_json",
+          &NeuralBandBatchConfiguration::emgBandInfoJson,
+          "verbatim CONFIG-record JSON of the band's identity and wrist; empty when absent, as in streaming")
+      .def_readwrite(
           "emg_calibration",
           &NeuralBandBatchConfiguration::emgCalibration,
           "parsed EMG calibration; None when absent or malformed")
