@@ -25,7 +25,7 @@ Aria Studio is a desktop application for managing [Project Aria](https://www.pro
 | Linux (ARM64 / aarch64)       | —                                                                      | ❌ Not supported — VRS Health Check has no ARM64 wheel | —          |
 | macOS (Apple Silicon / ARM64) | macOS **14+ (Sonoma or newer)** on M1/M2/M3/M4                        | ✅ Supported       | 3.10 – 3.14               |
 | macOS (Intel / x64)           | —                                                                      | ❌ Not supported — no `x86_64` macOS wheels exist for the packages Aria Studio depends on | —     |
-| Windows (x64)                 | —                                                                      | 🚧 Planned — previous one-click installer available for [v1.0.3 and earlier](/ark/aria_studio/changelog); native support pending Client SDK for Windows | — |
+| Windows (x64)                 | —                                                                      | 🚧 Planned — previous one-click installer available for [v1.1.1](/ark/aria_studio/changelog); native support pending Client SDK for Windows | — |
 
 :::note Where these limits come from
 Aria Studio is pure Python, so its platform matrix is inherited from what it installs: `projectaria-client-sdk` sets the **glibc 2.34** floor (Ubuntu 22.04 and newer), `projectaria-tools` sets **macOS 14+**, and `projectaria-vrs-health-check` — which has no ARM64 wheel — is what rules out ARM64 Linux. Its Python range, 3.10 to 3.14, is the same as theirs.
@@ -72,17 +72,9 @@ Check the [Aria Studio Changelog](/ark/aria_studio/changelog) for the latest upd
 |--|--|--|
 | 2.0.0 | Mac ARM | [Aria_Studio-2.0.0-arm64.dmg](https://www.projectaria.com/async/sample/download/?bucket=build&filename=Aria-Studio-2.0.0-arm64.dmg) |
 | 2.0.0 | Linux | [Aria_Studio-2.0.0-Linux.appimage](https://www.projectaria.com/async/sample/download/?bucket=build&filename=Aria-Studio-2.0.0.appimage) |
-| 1.1.2 | Linux | [Aria_Studio-1.1.2-Linux.appimage](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.2-Linux.appimage) |
-| 1.1.1 | Mac ARM | [Aria_Studio-1.1.1-arm64.dmg](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.1-arm64.dmg) |
-| 1.1.1 | Linux | [Aria_Studio-1.1.1-Linux.appimage](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.1-Linux.appimage) |
-| 1.1.1 | Windows | [Aria_Studio-1.1.1-windows.exe](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.1-windows.exe) |
-| 1.1.0 | Mac ARM | [Aria_Studio-1.1.0-arm64.dmg](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.0-arm64.dmg) |
-| 1.1.0 | Linux | [Aria_Studio-1.1.0-Linux.appimage](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.0-Linux.appimage) |
-| 1.1.0 | Windows | [Aria_Studio-1.1.0-windows.exe](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.1.0-windows.exe) |
-| 1.0.3 | Mac ARM | [Aria_Studio-1.0.3-arm64.pkg](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-arm64.pkg) |
-| 1.0.3 | Mac Intel | [Aria_Studio-1.0.3-Intel.pkg](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-Intel.pkg) |
-| 1.0.3 | Linux | [Aria_Studio-1.0.3-Linux.AppImage](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-Linux.AppImage) |
-| 1.0.3 | Windows | [Aria_Studio-1.0.3-windows.exe](https://foreign-service-public-assets.s3.us-west-2.amazonaws.com/apps/AriaStudio/Aria_Studio-1.0.3-windows.exe) |
+| 1.1.2 | Linux | [Aria_Studio-1.1.2-Linux.appimage](https://www.projectaria.com/async/sample/download/?bucket=build&filename=Aria_Studio-1.1.2-Linux.appimage) |
+| 1.1.1 | Mac ARM | [Aria_Studio-1.1.1-arm64.dmg](https://www.projectaria.com/async/sample/download/?bucket=build&filename=Aria_Studio-1.1.1-arm64.dmg) |
+| 1.1.1 | Windows | [Aria_Studio-1.1.1-windows.exe](https://www.projectaria.com/async/sample/download/?bucket=build&filename=Aria_Studio-1.1.1-windows.exe) |
 
   </TabItem>
 </Tabs>
