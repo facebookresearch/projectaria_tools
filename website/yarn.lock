@@ -1300,40 +1300,10 @@
     hashery "^1.5.0"
     keyv "^5.6.0"
 
-"@chevrotain/cst-dts-gen@12.0.0":
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/@chevrotain/cst-dts-gen/-/cst-dts-gen-12.0.0.tgz#ec068e1e83c5fdad69d81773556cae97f0b5dcdb"
-  integrity sha512-fSL4KXjTl7cDgf0B5Rip9Q05BOrYvkJV/RrBTE/bKDN096E4hN/ySpcBK5B24T76dlQ2i32Zc3PAE27jFnFrKg==
-  dependencies:
-    "@chevrotain/gast" "12.0.0"
-    "@chevrotain/types" "12.0.0"
-
-"@chevrotain/gast@12.0.0":
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/@chevrotain/gast/-/gast-12.0.0.tgz#0e0cbf8eee01c7a4449b9caf19e5f3834dba2c35"
-  integrity sha512-1ne/m3XsIT8aEdrvT33so0GUC+wkctpUPK6zU9IlOyJLUbR0rg4G7ZiApiJbggpgPir9ERy3FRjT6T7lpgetnQ==
-  dependencies:
-    "@chevrotain/types" "12.0.0"
-
-"@chevrotain/regexp-to-ast@12.0.0", "@chevrotain/regexp-to-ast@~12.0.0":
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/@chevrotain/regexp-to-ast/-/regexp-to-ast-12.0.0.tgz#a90bc4b4f5337a883a88dddd0cca7c38cfe66a7a"
-  integrity sha512-p+EW9MaJwgaHguhoqwOtx/FwuGr+DnNn857sXWOi/mClXIkPGl3rn7hGNWvo31HA3vyeQxjqe+H36yZJwYU8cA==
-
-"@chevrotain/types@12.0.0":
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/@chevrotain/types/-/types-12.0.0.tgz#a762b5c2b4f07496b56c93c30ce224b3637cc2c8"
-  integrity sha512-S+04vjFQKeuYw0/eW3U52LkAHQsB1ASxsPGsLPUyQgrZ2iNNibQrsidruDzjEX2JYfespXMG0eZmXlhA6z7nWA==
-
 "@chevrotain/types@~11.1.1":
   version "11.1.2"
   resolved "https://registry.yarnpkg.com/@chevrotain/types/-/types-11.1.2.tgz#e83a1a2704f0c5e49e7592b214031a0f4a34d7e5"
   integrity sha512-U+HFai5+zmJCkK86QsaJtoITlboZHBqrVketcO2ROv865xfCMSFpELQoz1GkX5GzME8pTa+3kbKrZHQtI0gdbw==
-
-"@chevrotain/utils@12.0.0":
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/@chevrotain/utils/-/utils-12.0.0.tgz#9aab2055df43d0bb55919eaca76a9cda45e52b89"
-  integrity sha512-lB59uJoaGIfOOL9knQqQRfhl9g7x8/wqFkp13zTdkRu1huG9kg6IJs1O8hqj9rs6h7orGxHJUKb+mX3rPbWGhA==
 
 "@cmfcmf/docusaurus-search-local@^2.0.1":
   version "2.0.1"
@@ -4540,24 +4510,6 @@ cheerio@1.0.0-rc.12, cheerio@^1.0.0:
     htmlparser2 "^8.0.1"
     parse5 "^7.0.0"
     parse5-htmlparser2-tree-adapter "^7.0.0"
-
-chevrotain-allstar@~0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/chevrotain-allstar/-/chevrotain-allstar-0.4.1.tgz#04e1429faca94a14d4572e0107c4865beac36298"
-  integrity sha512-PvVJm3oGqrveUVW2Vt/eZGeiAIsJszYweUcYwcskg9e+IubNYKKD+rHHem7A6XVO22eDAL+inxNIGAzZ/VIWlA==
-  dependencies:
-    lodash-es "^4.17.21"
-
-chevrotain@~12.0.0:
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/chevrotain/-/chevrotain-12.0.0.tgz#8ebefe0a0516b1b314a8d9c7f4e948a509098d1c"
-  integrity sha512-csJvb+6kEiQaqo1woTdSAuOWdN0WTLIydkKrBnS+V5gZz0oqBrp4kQ35519QgK6TpBThiG3V1vNSHlIkv4AglQ==
-  dependencies:
-    "@chevrotain/cst-dts-gen" "12.0.0"
-    "@chevrotain/gast" "12.0.0"
-    "@chevrotain/regexp-to-ast" "12.0.0"
-    "@chevrotain/types" "12.0.0"
-    "@chevrotain/utils" "12.0.0"
 
 chokidar@^3.5.3, chokidar@^3.6.0:
   version "3.6.0"
@@ -8149,18 +8101,6 @@ known-css-properties@^0.37.0:
   version "0.37.0"
   resolved "https://registry.yarnpkg.com/known-css-properties/-/known-css-properties-0.37.0.tgz#10ebe49b9dbb6638860ff8a002fb65a053f4aec5"
   integrity sha512-JCDrsP4Z1Sb9JwG0aJ8Eo2r7k4Ou5MwmThS/6lcIe1ICyb7UBJKGRIUUdqc2ASdE/42lgz6zFUnzAIhtXnBVrQ==
-
-langium@^4.2.2:
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/langium/-/langium-4.2.2.tgz#d7409c23475d591ed6fc7d123c396e4fa4134e60"
-  integrity sha512-JUshTRAfHI4/MF9dH2WupvjSXyn8JBuUEWazB8ZVJUtXutT0doDlAv1XKbZ1Pb5sMexa8FF4CFBc0iiul7gbUQ==
-  dependencies:
-    "@chevrotain/regexp-to-ast" "~12.0.0"
-    chevrotain "~12.0.0"
-    chevrotain-allstar "~0.4.1"
-    vscode-languageserver "~9.0.1"
-    vscode-languageserver-textdocument "~1.0.11"
-    vscode-uri "~3.1.0"
 
 language-subtag-registry@^0.3.20:
   version "0.3.23"
@@ -12930,41 +12870,6 @@ vlq@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/vlq/-/vlq-1.0.1.tgz#c003f6e7c0b4c1edd623fd6ee50bbc0d6a1de468"
   integrity sha512-gQpnTgkubC6hQgdIcRdYGDSDc+SaujOdyesZQMv6JlfQee/9Mp0Qhnys6WxDWvQnL5WZdT7o2Ul187aSt0Rq+w==
-
-vscode-jsonrpc@8.2.0:
-  version "8.2.0"
-  resolved "https://registry.yarnpkg.com/vscode-jsonrpc/-/vscode-jsonrpc-8.2.0.tgz#f43dfa35fb51e763d17cd94dcca0c9458f35abf9"
-  integrity sha512-C+r0eKJUIfiDIfwJhria30+TYWPtuHJXHtI7J0YlOmKAo7ogxP20T0zxB7HZQIFhIyvoBPwWskjxrvAtfjyZfA==
-
-vscode-languageserver-protocol@3.17.5:
-  version "3.17.5"
-  resolved "https://registry.yarnpkg.com/vscode-languageserver-protocol/-/vscode-languageserver-protocol-3.17.5.tgz#864a8b8f390835572f4e13bd9f8313d0e3ac4bea"
-  integrity sha512-mb1bvRJN8SVznADSGWM9u/b07H7Ecg0I3OgXDuLdn307rl/J3A9YD6/eYOssqhecL27hK1IPZAsaqh00i/Jljg==
-  dependencies:
-    vscode-jsonrpc "8.2.0"
-    vscode-languageserver-types "3.17.5"
-
-vscode-languageserver-textdocument@~1.0.11:
-  version "1.0.12"
-  resolved "https://registry.yarnpkg.com/vscode-languageserver-textdocument/-/vscode-languageserver-textdocument-1.0.12.tgz#457ee04271ab38998a093c68c2342f53f6e4a631"
-  integrity sha512-cxWNPesCnQCcMPeenjKKsOCKQZ/L6Tv19DTRIGuLWe32lyzWhihGVJ/rcckZXJxfdKCFvRLS3fpBIsV/ZGX4zA==
-
-vscode-languageserver-types@3.17.5:
-  version "3.17.5"
-  resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.17.5.tgz#3273676f0cf2eab40b3f44d085acbb7f08a39d8a"
-  integrity sha512-Ld1VelNuX9pdF39h2Hgaeb5hEZM2Z3jUrrMgWQAu82jMtZp7p3vJT3BzToKtZI7NgQssZje5o0zryOrhQvzQAg==
-
-vscode-languageserver@~9.0.1:
-  version "9.0.1"
-  resolved "https://registry.yarnpkg.com/vscode-languageserver/-/vscode-languageserver-9.0.1.tgz#500aef82097eb94df90d008678b0b6b5f474015b"
-  integrity sha512-woByF3PDpkHFUreUa7Hos7+pUWdeWMXRd26+ZX2A8cFx6v/JPTtd4/uN0/jB6XQHYaOlHbio03NTHCqrgG5n7g==
-  dependencies:
-    vscode-languageserver-protocol "3.17.5"
-
-vscode-uri@~3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/vscode-uri/-/vscode-uri-3.1.0.tgz#dd09ec5a66a38b5c3fffc774015713496d14e09c"
-  integrity sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ==
 
 warning@^4.0.3:
   version "4.0.3"
