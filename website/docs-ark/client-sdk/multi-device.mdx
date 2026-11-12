@@ -73,8 +73,9 @@ The TDM channel is a sub-GHz radio parameter and is regulated per country. The C
 | FCC | `10–40` | US, CA, TW, ... |
 | AU/NZ | `25–40` | AU, NZ |
 | VN | `30` | VN |
+| CO | `25–40` | CO |
 
-When `--time-domain-mapping-channel` is omitted, the CLI auto-picks the first allowed channel for the resolved region (`0` for ETSI, `10` for FCC, `25` for AU and NZ, `30` for VN). If the channel you pass is not allowed for the resolved region, the CLI rejects with an actionable error naming the region, the country, and the allowed set.
+When `--time-domain-mapping-channel` is omitted, the CLI auto-picks the first allowed channel for the resolved region (`0` for ETSI, `10` for FCC, `25` for AU, NZ and CO, `30` for VN). If the channel you pass is not allowed for the resolved region, the CLI rejects with an actionable error naming the region, the country, and the allowed set.
 
 If a device reports an empty country code (Wi-Fi not yet configured, or the device is not currently active in the Aria companion app), the CLI uses the country reported by any other device in the same multi-device session and logs a `WARNING`. In single-device mode the CLI errors out with a hint to configure Wi-Fi via the companion app.
 
