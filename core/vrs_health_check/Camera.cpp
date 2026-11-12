@@ -19,6 +19,7 @@
 #include <calibration/DeviceCalibration.h>
 #include <calibration/loader/DeviceCalibrationJson.h>
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <iterator>
@@ -124,11 +125,10 @@ void Camera::performSensorSerialCheck(vrs::RecordFileReader& reader) {
     }
   }
 
-  std::transform(
-      camCalibs.begin(),
-      camCalibs.end(),
-      std::inserter(sensorSerials, sensorSerials.begin()),
-      [](const auto& calib) { return calib.getSerialNumber(); });
+  std::ranges::transform(
+      camCalibs, std::inserter(sensorSerials, sensorSerials.begin()), [](const auto& calib) {
+        return calib.getSerialNumber();
+      });
   if (sensorSerials.size() != camCalibs.size()) {
     XR_LOGE("Potential duplicate serial numbers found in the camera calibration");
     factoryCalibrationValid_ = false;
