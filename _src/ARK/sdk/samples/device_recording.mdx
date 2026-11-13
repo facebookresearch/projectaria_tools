@@ -1,0 +1,94 @@
+---
+sidebar_position: 30
+title: Recording
+---
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+# Make a Recording Using the Client SDK
+
+## Overview
+This `device_record` example shows how to set a [recording profile](/docs/tech_spec/recording_profiles), start and stop recording using the [Project Aria Client SDK](/docs/ARK/sdk).
+
+## Running the sample
+
+### Example 1: Start and stop recording over USB
+Use the SDK to establish a USB connection, start a 10 second recording using the [default recording profile](/docs/ARK/ARK_quickstart#set-your-default-recording-profile), then stop the recording.
+
+1. Plug your Aria glasses into your computer, using the provided USB cable
+2. From the samples directory in Terminal, run:
+```
+python -m device_record
+```
+
+3. The recording LED will show on your Aria glasses
+4. After 10 seconds the recording will stop and be stored in your Aria glasses
+   * View the recording metadata in the Recordings tab of the [Mobile Companion app](/docs/ARK/mobile_companion_app#recordings-menu)
+   * Run `adb shell ls -l /sdcard/recording` and you should see your newly recorded file
+   * Run `adb pull /sdcard/recording/myVrsFile.vrs myLocalFolder/` to download the VRS file
+   * Run `adb pull /sdcard/recording/myVrsFile.json myLocalFolder/` to download the VRS metadata
+   * VRS files can be visualized using the [Aria Viewer](/docs/data_utilities/visualization/visualization_cpp)
+
+:::tip
+Go to the [Downloads section](/ARK/ARK_quickstart.mdx#download-data) of the [Project Aria Glasses Quickstart Guide](/ARK/ARK_quickstart.mdx) for more ways to download Aria data.
+:::
+
+
+### Example 2: Start and stop recording using a custom sensor profile
+
+Use [Project Aria Recording Profiles](/docs/tech_spec/recording_profiles) to choose among different sensor configurations. To set a specific profile, run:
+
+```bash
+python -m device_record --profile profile15
+```
+
+### Example 3: Start and stop recording over Wi-Fi
+Recording over Wi-Fi is similar with Example 1, with a few extra steps.
+
+1. Connect your Aria glasses and computer to the same compatible Wi-Fi network:
+   * Check [Requirements](/docs/ARK/sdk/setup.mdx) for details about compatible routers
+2. Open the Mobile Companion app and tap [Wi-Fi on the Dashboard](/docs/ARK/mobile_companion_app#dashboard) to see your glasses' IP address
+3. From the samples directory in Terminal, run:
+
+```bash
+python -m device_record --device-ip <Glasses IP>
+```
+
+Make sure you replace `<Glasses IP>` with the IP address you got from the Mobile Companion app
+
+4. The recording LED will show on your Aria glasses
+5. After 10 seconds the recording will stop and be stored in your Aria glasses. Follow the same step in Example 1 to pull the data to your computer
+
+### Code walkthrough
+
+#### 1. Retrieve RecordingManager instance
+
+Use [RecordingManager](/docs/ARK/sdk/api_reference#ariasdkrecordingmanager) to start and stop a recording and get access to the calibration data.
+
+```python
+recording_manager = device.recording_manager
+```
+
+#### 2. Configure recording settings
+Set the profile name for the recording in [RecordingConfig](/docs/ARK/sdk/api_reference#ariasdkrecordingconfig) or you'll use your glasses' [default recording profile](/docs/ARK/ARK_quickstart#set-your-default-recording-profile). If a default recording profile has not been set, you'll record with `profile8`. Go to the [Sensor Profiles page](/docs/ARK/sdk/concepts/sdk_sensor_profiles) for supported profiles and their specs.
+
+```python
+recording_config = aria.RecordingConfig()
+# If set, profile_name takes precedence over the default profile
+recording_config.profile_name = args.profile_name
+recording_manager.recording_config = recording_config
+```
+
+#### 3. Start recording for specific amount of time
+
+```python
+recording_manager.start_recording()
+time.sleep(args.recording_duration)
+recording_manager.stop_recording()
+```
+
+:::info
+You can also stop recording using the Capture button on the glasses, Mobile Companion app or [CLI](/docs/ARK/sdk/cli/api_reference).
+:::
+
+## Useful links
+[Glasses Quickstart Guide](/docs/ARK/ARK_quickstart#record-data): explore other ways to make recordings.

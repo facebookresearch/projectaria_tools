@@ -1,0 +1,139 @@
+---
+sidebar_position: 62
+title: Dataset Download
+---
+
+# How to Download the DTC Dataset
+
+## Overview​
+
+This page covers how to download Digital Twin Catalog (DTC) sequences.
+Follow the instructions to download the sample datasets and from there you'll be able to use the CLI to download more data.
+For information on how to download DTC object models, see [Object Models](/docs/open_datasets/digital_twin_catalog/digital_twin_catalog_object_models.mdx) page
+
+The sample dataset is an Aria sequence recording a single object with active trajectory. This is a pretty representative example that should give you an idea of the dataset.
+
+By downloading the datasets you agree that you have read and accepted the terms of the [Digital Twin Catalog Dataset License Agreement](https://www.projectaria.com/datasets/dtc/license/).
+
+## Download the sample Digital Twin Catalog (DTC) sequence
+
+### Step 0: install project_aria_tools package and create venv if not done before​
+
+Follow Step 0 to Step 4 in [Getting Started](/docs/open_datasets/digital_twin_catalog/digital_twin_catalog_getting_started.mdx).
+
+### Step 1 : Signup and get the download links file
+
+To use the downloader CLI, you need to download a file which contains all data URLs plus some metadata for the downloader script. We currently offer two ways of getting this file:
+
+#### Option 1 - Aria Dataset Explorer:
+
+Go to the [Aria Dataset Explorer](https://explorer.projectaria.com/) website. Here you can subselect sequences according to some filter options, or get the links to all sequences.
+
+#### Option 2 - Digital Twin Catalog on Project Aria Website:
+
+Visit [Digital Twin Catalog on Project Aria Website](https://www.projectaria.com/datasets/dtc/) and sign up.
+Scroll down to the bottom of the page. Enter your email and select Access the Datasets.
+![Screenshot from website showing download dataset](/img/open_datasets/digital_twin_catalog/email_signup.png)
+
+Once you've selected Access the Datasets you'll be taken back to the top of the DTC page.
+Scroll down the page to select the `Digital Twin Catalog Download Links` and download the file to the folder `$HOME/Downloads`.
+![Screenshot from website showing download buttons](/img/open_datasets/digital_twin_catalog/download_buttons.png)
+
+### Step 2 : Set up a folder for DTC data
+```
+mkdir -p $HOME/Documents/projectaria_tools_dtc_data
+```
+
+### Step 3 : Download the sample sequence(~1.3GB) via CLI:
+
+From your Python virtual environment, run:
+```
+aria_dataset_downloader -c ${PATH_TO_YOUR_Aria_Sequence_CDN_FILE} \
+-o $HOME/Documents/projectaria_tools_dtc_data/ \
+-l BirdHouseRedRoofYellowWindows_active \
+-d 0 1 2 3 6
+```
+For more information on the content in the other sequences, see the Data Content section below
+
+
+### Step 4 : Set up a folder for DTC DSLR data
+```
+mkdir -p $HOME/Documents/projectaria_tools_dtc_dslr
+```
+
+### Step 5 : Download the DSLR sample sequence (~2.0GB) via CLI:
+From your Python virtual environment, run:
+```
+aria_dataset_downloader -c ${PATH_TO_YOUR_DSLR_Sequence_CDN_FILE} \
+-o $HOME/Documents/projectaria_tools_dtc_dslr/ \
+-l Airplane_B097C7SHJH_WhiteBlue_Lighting001 \
+-d 0 1
+```
+For more information on the content in the other sequences, see the Data Content section below
+
+
+## Download the Digital Twin Catalog (DTC) dataset
+
+### Data size​
+The Digital Twin dataset consists of 200 Aria sequences and 105 DSLR sequences. The Aria sequences will include MPS data, which can be downloaded individually.
+Go to [Project Aria Machine Perception Services](/docs/ARK/mps) for more information about MPS data.
+The size of each data type is shown below.
+
+
+<table>
+<thead>
+<tr><th><b>Sequence Type</b></th><th>Data Type  </th><th>What’s included     </th><th>Per sequence size   </th><th>Total size for all sequences </th></tr>
+</thead>
+<tbody>
+<tr><td rowspan="3">Aria </td><td>Aria VRS  </td><td>VRS sequence captured using Aria       </td><td>~ 1.3 GB    </td><td>~ 260 GB   </td></tr>
+<tr>                     <td>MPS            </td><td>Derived data using MPS service, including camera trajectories, semi-dense point cloud, online calibration, etc </td><td>~ 35 MB  </td><td>~ 6.8 GB  </td></tr>
+<tr>                     <td>Object Pose    </td><td>Object pose aligned with MPS data      </td><td>< 1 KB      </td><td>< 1 MB     </td></tr>
+<tr><td  rowspan="5">DSLR</td><td>EXR       </td><td>High dynamic range DSLR captures       </td><td>~ 1.5 GB    </td><td>~ 158 GB   </td></tr>
+<tr>                     <td>PNG            </td><td>Converted low dynamic range captures   </td><td>~ 540 MB    </td><td>~ 55.4 GB  </td></tr>
+<tr>                     <td>Camera Poses   </td><td>DSLR camera poses                      </td><td>< 1 MB      </td><td>< 20 MB    </td></tr>
+<tr>                     <td>Object Pose    </td><td>Object pose aligned with camera poses  </td><td>< 1 KB      </td><td>< 1 MB     </td></tr>
+<tr>                     <td>Environment Map</td><td>Environment map aligned with camera poses </td><td>~ 3.0 MB</td><td>~ 315 MB  </td></tr>
+</tbody>
+</table>
+
+
+### Download via CLI
+
+DTC supports both using the general Aria dataset downloader, which is available in the [projectaria_tools PyPI (pip install) package](/docs/data_utilities/installation/installation_python.mdx),
+to download sequences and using our open sourced Aria dataset downloader Python wrapper, which is available in the [DTC code repo](https://github.com/facebookresearch/projectaria_tools/tree/main/projects/AriaDigitalTwinDatasetTools),
+to download sequences with captured models.
+
+To use the Aria downloader, use the following commands in the virtual environment where you've installed projectaria_tools:
+```
+aria_dataset_downloader
+```
+
+To get a description of the arguments that the script needs, run:
+```
+aria_dataset_downloader --help
+```
+The following are some example use cases:
+
+### Download VRS for all sequences
+```
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_DTC_SEQUENCE_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0
+```
+### Download VRS + main ground truth data for all sequences
+```
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_DTC_SEQUENCE_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 6
+```
+### Download all data for all sequences
+```
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_DTC_SEQUENCE_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 1 2 3 4 5 6 7 8 9
+```
+### Download VRS for 2 specific sequences
+```
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_DTC_SEQUENCE_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 --sequence_names BirdHouseRedRoofYellowWindows_active BirdHouseRedRoofYellowWindows_passive
+```
+### Download VRS for all sequences and overwrite
+```
+aria_dataset_downloader --cdn_file ${PATH_TO_YOUR_DTC_SEQUENCE_CDN_FILE} --output_folder ${OUTPUT_FOLDER_PATH} --data_types 0 --overwrite
+```
+## Troubleshooting
+
+Check [Project Aria Tools troubleshooting](/docs/data_utilities/installation/troubleshooting) if you are having issues using this guide.

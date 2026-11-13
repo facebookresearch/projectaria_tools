@@ -1,0 +1,43 @@
+---
+sidebar_position: 71
+title: Aria Everyday Objects Dataset
+---
+
+# Aria Everyday Objects Dataset
+## Overview
+
+Aria Everyday Objects (AEO) is a small, challenging 3D object detection dataset for egocentric data.
+AEO consists of approximately 45 minutes of egocentric data across 25 sequences captured by non-computer vision experts collected in a diverse set of locations throughout the US.
+Oriented 3D bounding boxes have been annotated for each sequence. Annotation is done in 3D, using the camera calibration,
+SLAM trajectory and SLAM semi-dense point cloud to assist with annotation. 1037 3D object bounding box instances across 17 classes: Bed, Chair, Couch, Door, Floor, Lamp, Mirror, Plant, Refrigerator, Screen, Sink, Storage, Table, Wall, WallArt, WasherDryer, and Window. The dataset is designed to accelerate research in egocentric 3D perception.
+
+For more details, please visit the [project page](https://www.projectaria.com/datasets/aeo/), view the dataset [online](https://explorer.projectaria.com/aeo),
+explore the [github repository](https://github.com/facebookresearch/efm3d) and read the [ECCV 2024 paper](https://arxiv.org/abs/2406.10224).
+
+## What is in the dataset?
+
+* Aria RGB video at 10 Hz
+* Aria SLAM x 2 video at 10 Hz
+* Aria IMU x 2 data
+* High-quality static 3D bounding boxes of 17 object classes
+
+
+## How to download the dataset?
+Visit the [AEO webpage here](https://www.projectaria.com/datasets/aeo/). Scroll down, enter your email, then click the button “Access the Dataset”. Follow the instructions there.
+
+## BibTeX Citation
+```
+@article{straub24efm,
+      title={EFM3D: A Benchmark for Measuring Progress Towards 3D Egocentric Foundation Models},
+      author={Julian Straub and Daniel DeTone and Tianwei Shen and Nan Yang and Chris Sweeney and Richard Newcombe},
+      booktitle={arXiv preprint arXiv:2406.10224},
+      year={2024},
+      url={https://arxiv.org/abs/2406.10224},
+}
+```
+
+## License
+AEO dataset is released under a non-commercial license described [here](https://www.projectaria.com/datasets/aeo/license/).
+
+## Contributors
+Julian Straub, Daniel DeTone, Tianwei Shen, Nan Yang, Chris Sweeney, Richard Newcombe
