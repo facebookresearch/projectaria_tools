@@ -127,6 +127,47 @@ While pushed audio is active it takes over the host→device uplink from the mic
 The PCM is downmixed to mono and resampled to the 16 kHz uplink with plain linear interpolation and no anti-alias filter, so downsampling wideband audio (44.1/48 kHz) can alias. Supply 16 kHz mono for best fidelity.
 :::
 
+## Placing audio in the glasses' spatial scene
+
+`push_audio` plays one mono stream from the glasses' speakers. To place separate voices or sounds around the wearer, create **spatial sources** before `start_server()`. Each is its own audio track; once placed, the glasses render it from that position in their spatial audio scene instead of in the talk-back mix.
+
+Spatial sources need `enable_audio = False`, which turns off this host's speaker and microphone and `push_audio`. For talk-back, write it to a source you leave unplaced: it plays from the glasses' speakers like `push_audio`.
+
+```python
+from aria.sdk_gen2 import SpatialFrame, SpatialPlacement
+
+config.enable_audio = False                               # required for spatial sources
+stream_receiver.set_server_config(config)
+voice = stream_receiver.create_spatial_source("agent")   # after set_server_config(), before start_server()
+talk_back = stream_receiver.create_spatial_source("talk-back")   # never placed: plays as talk-back
+stream_receiver.start_server()
+
+voice.set_placement(SpatialPlacement(frame=SpatialFrame.HEAD, position=[0, 1, 0]))  # 1 m ahead
+voice.set_gain(6.0, ramp_ms=200)
+voice.write(pcm, sample_rate=48000, channels=1)   # call in real time, e.g. every 10-20 ms
+voice.set_position([0, 1, 1])                     # move it to the front left
+print(voice.placed())                             # True while the glasses render it
+voice.release()                                   # back to ordinary talk-back
+```
+
+| Method | Description |
+|---|---|
+| `write(pcm, sample_rate, channels)` | Send PCM (floats in `[-1, 1]`), 1 or 2 channels, at a multiple of 100 Hz up to 48000. No resampling: write it in real time. |
+| `set_placement(placement)` | `SpatialPlacement(frame, position, orientation_xyzw)`; assign whole lists to its fields, since changing one element of `position` changes a copy. `HEAD` follows the wearer's head, with X up, Y front and Z left, in metres. `ODOMETRY` stays fixed in the room, Z up, from wherever the glasses' odometry started. |
+| `set_position(position)`, `set_orientation(orientation_xyzw)` | Change one part of the current placement; before any placement, of a `HEAD` placement at the origin, which places the source. |
+| `set_gain(db, ramp_ms=0)` | `0` dB is unity, up to `+12` dB. A ramp of up to 10000 ms moves the level linearly. |
+| `set_enabled(enabled)`, `set_priority(priority)` | Mute the source in the scene; rank it for the glasses' limited rendering lanes (higher first, then by loudness). |
+| `placed()` | Whether the glasses render it. Raises while not connected. |
+| `release()` | Remove it from the scene and forget its settings; its audio plays as talk-back again. |
+
+:::tip Sources keep their settings across reconnects
+A source remembers its latest placement, gain, enabled state and priority, and sends them again whenever the connection to the glasses is re-established. Setters that reach the glasses wait for their answer and raise `RuntimeError` if the glasses reject the change; changes made while disconnected are applied on connect. Gain, enabled state and priority set before the first placement are applied with it. Dropping the last reference to a source releases it.
+:::
+
+:::note
+Spatial sources need glasses whose OS supports WebRTC spatial audio. Until a source is placed, or on glasses without a spatial audio scene (placements then raise), its audio plays as ordinary talk-back. Placed sources render at the scene's level, noticeably quieter than talk-back; use `set_gain` and nearer positions to bring them up.
+:::
+
 ## Seeing it without writing a receiver
 
 Point the viewer at the same session. Run these in two terminals in **either order** — the viewer listens and the device retries until it is up. Because WebRTC installs no streaming certificates on the device, it has none of the start-order constraint that [HTTP streaming](/ark/client-sdk/streaming#start-order-and-streaming-certificates) carries. The `--listen` port must match the port in the device's `--signaling-url`.

@@ -9,6 +9,16 @@ This page tracks the version history and changes made to the Aria Gen2 ClientSDK
 
 ---
 
+## Upcoming
+
+### New Features
+
+#### Spatial audio sources over WebRTC
+
+`WebRtcStreamReceiver.create_spatial_source(name)` adds an independent audio track that the glasses can place in their spatial audio scene, with `set_placement`, `set_position`, `set_orientation`, `set_gain`, `set_enabled`, `set_priority`, `placed` and `release`. Unplaced sources play as ordinary talk-back. Spatial sources need `enable_audio = False`. Requires glasses whose OS supports WebRTC spatial audio. See [Placing audio in the glasses' spatial scene](/ark/client-sdk/python-sdk/webrtc-streaming-example#placing-audio-in-the-glasses-spatial-scene).
+
+---
+
 ## Version 2.5.1
 
 **Release Date:** Oct 2026
