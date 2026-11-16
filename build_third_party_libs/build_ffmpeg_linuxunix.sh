@@ -74,7 +74,7 @@ echo "Configuring FFmpeg..."
 ./configure --prefix="$INSTALL_PATH" \
   --disable-swresample --disable-swscale --disable-everything \
   --enable-decoder=hevc \
-  --disable-asm --disable-x86asm \
+  --disable-asm --disable-x86asm --disable-doc \
   $( [ "$VRS_PLATFORM" = "macos" ] && printf '%s ' \
        --enable-decoder=hevc_videotoolbox \
        --enable-hwaccel=hevc_videotoolbox \
