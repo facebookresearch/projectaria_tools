@@ -45,9 +45,7 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-            # Update & upgrade package lists
             sudo apt-get update -y
-            sudo apt-get upgrade
             # Deal with Github CI limitation
             # https://github.com/actions/runner-images/issues/6399#issuecomment-1285011525
             sudo apt install -y libunwind-dev
