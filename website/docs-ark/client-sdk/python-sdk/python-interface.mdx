@@ -124,6 +124,10 @@ device = device_client.connect(sdk_gen2.DeviceTarget(ip="192.168.1.42"))
 
 ---
 
+### Polling from Async Applications
+
+`Device.get_streaming_info()` and `Device.get_data_quality_stats()` are synchronous RPCs. To avoid blocking an asyncio event loop, call them with `await asyncio.to_thread(device.get_streaming_info)` or `await asyncio.to_thread(device.get_data_quality_stats)`. These two bindings release Python's GIL while waiting for the device and reacquire it before returning their results. This does not imply that other SDK methods release the GIL.
+
 ### Error Handling Pattern
 
 Always wrap device operations in try-except blocks:
