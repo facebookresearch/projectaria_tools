@@ -60,6 +60,28 @@ An empty `DeviceTarget` — the default — means "first available". `DeviceClie
 
 **Discovery spans both transports in one pass.** `connect()` looks for devices over mDNS *and* over USB simultaneously, so a device is found whether it is reachable over the network, over USB, or both. Devices visible on both paths are de-duplicated by serial. When several devices are discovered and you did not name one, every serial is reported so you can disambiguate.
 
+## Connection notifications
+
+Register an observer before connecting:
+
+```python
+import aria.sdk_gen2 as sdk_gen2
+
+class ConnectionObserver:
+    def on_connection_state_changed(self, device, state):
+        if state == sdk_gen2.ConnectionState.CONNECTED:
+            print(f"Connected: {device.connection_id()}")
+
+device_client = sdk_gen2.DeviceClient()
+observer = ConnectionObserver()
+device_client.set_observer(observer)
+device = device_client.connect()
+```
+
+Keep the observer alive. Each successful public `connect()` call emits one `CONNECTED` callback with the returned device, on the thread calling `connect()`, before that call returns. Calling `connect()` again after disconnecting emits another success notification. Failed connects and temporary connections used for authentication or credential operations do not emit `CONNECTED`; internal automatic reconnects do not emit it either.
+
+The callback reports a successful connect operation, not continuous physical connectivity. Existing `DISCONNECTED` notifications are unchanged and can arrive from background threads, including during a concurrent connect. Callbacks are not serialized; keep them nonblocking and synchronize shared state. Exceptions in a callback do not change a successful connect result.
+
 ## Troubleshooting
 
 **Connection failed, device not found.** Work through: `aria_gen2 device list` (is it visible?), `aria_gen2 auth check` (is it paired?), `aria_doctor` (are ports and USB networking set up?). Then try a different USB port or cable.

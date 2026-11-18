@@ -118,6 +118,8 @@ device = device_client.connect(sdk_gen2.DeviceTarget(serial="1M0YDB5H7B0020"))
 device = device_client.connect(sdk_gen2.DeviceTarget(ip="192.168.1.42"))
 ```
 
+To receive connection notifications, register an observer with `device_client.set_observer(observer)` before connecting. A successful public `connect()` emits `on_connection_state_changed(device, sdk_gen2.ConnectionState.CONNECTED)` on its calling thread before returning. Keep the observer alive and its callbacks nonblocking; see [Connection notifications](/ark/client-sdk/python-sdk/connection-example#connection-notifications) for scope and background-disconnect behavior.
+
 :::caution `DeviceClientConfig` does not select the device
 `DeviceClientConfig` carries client-wide settings only, such as `reconnection_attempts` and `enable_device_monitoring`. Assigning `config.device_serial` raises `AttributeError` — device selection goes through `DeviceTarget` on `connect()`.
 :::
