@@ -451,11 +451,13 @@ aria_gen2 streaming start --url "https://server:6768" --interface wifi_sta --bat
 
 **Purpose:** Start a WebRTC streaming session instead of HTTP. See [WebRTC Streaming](/ark/client-sdk/webrtc) for the two supported topologies.
 
-**Prerequisites:** Device authenticated (`aria_gen2 auth check`). No streaming certificates to install. A TLS (`https://`) signaling URL is the exception: the device accepts one only when the signaling server's certificate chains to a trust anchor built into the device — see [Trusting a TLS signaling server](/ark/client-sdk/webrtc#trusting-a-tls-signaling-server).
+**Prerequisites:** Device authenticated (`aria_gen2 auth check`). No streaming certificates to install. A TLS (`https://`) signaling URL with a self-signed or private-CA certificate is the exception: install a certificate set for it and pass `--signaling-certs` — see [Trusting a TLS signaling server](/ark/client-sdk/webrtc#trusting-a-tls-signaling-server).
 
 | Flag | Required | Default | Description |
 |------|----------|---------|-------------|
-| `--signaling-url` | Yes | — | Signaling server URL, e.g. `tcp://<host>:<port>`. `https://` selects TLS signaling, which the device can use only against a server certificate chaining to its built-in trust anchor — there is no trust-anchor option here, unlike the receiver's `--ca-root` |
+| `--signaling-url` | Yes | — | Signaling server URL, e.g. `tcp://<host>:<port>`. `https://` selects TLS signaling and verifies the server against the public root bundle by default |
+| `--signaling-ca-root` | No | `public` | CA root used to verify an `https://` signaling server. `public`, the public root bundle, is the only named choice |
+| `--signaling-certs` | No | — | Name of a certificate set installed with `streaming install-certs user-defined-certs`. Its root CA is trusted instead of the public bundle, for a self-signed or private-CA signaling server, and its client certificate is presented when the server requests mutual TLS |
 | `--interface` | No | `wifi_sta` | `wifi_sta` or `wifi_sap` (WebRTC is Wi-Fi only) |
 | `--profile` | No | `mp_streaming_demo` | Streaming profile name |
 | `--json-profile` | No | — | Streaming profile JSON file. Takes precedence over `--profile` when both are given |

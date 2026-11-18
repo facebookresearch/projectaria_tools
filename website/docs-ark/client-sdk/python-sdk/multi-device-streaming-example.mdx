@@ -7,8 +7,8 @@ title: Multi-Device Streaming Example
 
 Receive streams from several Aria Gen 2 devices through one server, telling them apart with the optional `device_id` callback parameter.
 
-:::note This one has no bundled script
-Unlike the other pages here, there is no `multi_device_streaming_example.py` in the exported samples — so the [script below](#the-script) is the whole thing, self-contained. Save it as a `.py` file and run it from your activated SDK virtual environment.
+:::note The exported samples have their own version
+Since 2.6.0 the [exported samples](/ark/client-sdk/python-sdk/python-interface#export-example-code) include a `multi_device_streaming_example.py`, which also computes time-domain-mapping clock offsets between the broadcaster and receivers. The [script below](#the-script) is a shorter, self-contained version of the same idea. Save it as a `.py` file and run it from your activated SDK virtual environment.
 
 If you want a ready-made *visualizer* rather than your own receiver, the SDK ships `aria_multi_device_streaming_viewer`. See [Multi-Device Recording & Streaming → Live Visualization](/ark/client-sdk/multi-device#live-visualization-with-multi_device_streaming_viewer).
 :::

@@ -9,13 +9,134 @@ This page tracks the version history and changes made to the Aria Gen2 ClientSDK
 
 ---
 
-## Upcoming
+## Version 2.6.0
+
+**Release Date:** Nov 2026
+
+2.5.1 was a hotfix built on the 2.5.0 code, so 2.6.0 is the first release of everything that has changed since 2.5.0.
+
+### ⚠️ Breaking Changes
+
+#### Dependency bounds
+
+- `projectaria-tools` moves from `~=2.3.0` to `>=2.3.0,<2.5`. pip picks 2.4 where it publishes a wheel for your platform and Python, and falls back to 2.3 elsewhere.
+- `projectaria-login` moves from `~=0.2` to `~=1.0.0`.
+- `projectaria-commons ~=1.0.0` and `projectaria-debug-sharing ~=0.1.1` are new required dependencies, used by `aria_gen2 report`.
+
+#### `aria_streaming_viewer --ca-root` takes `Public` or a PEM file
+
+The named roots `MetaProd`, `MetaCloud` and `Test` are gone from the viewer. `--ca-root` now accepts `Public` (the default, matched case-insensitively) or a path to a PEM CA bundle; anything else is rejected at startup.
+
+#### `aria_gen2 streaming profiles` removed
+
+The subcommand was never implemented. List the profiles on your glasses with `aria_gen2 device profile list`.
 
 ### New Features
+
+#### Python 3.13 and 3.14
+
+Wheels are published for Python 3.10 through 3.14 on Linux and macOS.
+
+#### Report a Problem with `aria_gen2 report`
+
+One command files a bug report from your glasses and a report about this computer under the same debug session id, so support sees both as one issue. It lists exactly what will be sent and asks before collecting anything; `--yes` skips the question for scripts. When you are logged out or offline, the report is kept on this computer and `aria-debug-report drain` sends it later. If the glasses cannot be reached, the report about this computer is filed alone. `aria_doctor` now points to this command when a problem continues.
+
+```bash
+aria_gen2 user login --username <you>
+aria_gen2 report --description "streaming drops after 30s"
+```
+
+See [`aria_gen2 report`](/ark/client-sdk/cli-reference#aria_gen2-report).
+
+#### Trusted TLS for WebRTC Signaling
+
+The glasses can now verify an `https://` signaling server themselves:
+
+- **Public certificates work with no extra flags.** The glasses verify the server against the public root bundle by default (`--signaling-ca-root`).
+- **Private or self-signed servers:** install a certificate set with `aria_gen2 streaming install-certs user-defined-certs`, then pass its name with `aria_gen2 streaming webrtc start --signaling-certs <name>`. Its root CA is trusted, and its client certificate is presented when the server asks for mutual TLS.
+- **Python:** `WebRtcStreamingConfig` gains `ca_root` (a `CaRoot`), `verify_server_certificates` and `streaming_cert_name`.
+- **Sample:** `device_webrtc_streaming.py` accepts `tcp://`, `http://` and `https://` signaling URLs.
+
+See [Trusting a TLS signaling server](/ark/client-sdk/webrtc#trusting-a-tls-signaling-server).
+
+#### Viewer: Gaze Trail and Bounded VIO Trajectory
+
+- `aria_streaming_viewer --gaze-trail-sec <sec>` draws recent eye gaze on the RGB image, fading with age. It needs `vio_high_frequency_pose` in the streaming profile; `0` turns it off.
+- `--vio-trajectory-window-sec <sec>` keeps only that much VIO trajectory on screen, fading the tail, so a long session no longer buries the view in old path.
+
+#### New Sub-GHz Regions for Time-Domain Mapping
+
+Australia, New Zealand and Colombia can use channels `25–40`, and Vietnam channel `30`, for multi-device time-domain mapping. When `--time-domain-mapping-channel` is omitted the CLI picks `25` and `30` there. See [Multi-Device Recording & Streaming](/ark/client-sdk/multi-device).
 
 #### Spatial audio sources over WebRTC
 
 `WebRtcStreamReceiver.create_spatial_source(name)` adds an independent audio track that the glasses can place in their spatial audio scene, with `set_placement`, `set_position`, `set_orientation`, `set_gain`, `set_enabled`, `set_priority`, `placed` and `release`. Unplaced sources play as ordinary talk-back. Spatial sources need `enable_audio = False`. Requires glasses whose OS supports WebRTC spatial audio. See [Placing audio in the glasses' spatial scene](/ark/client-sdk/python-sdk/webrtc-streaming-example#placing-audio-in-the-glasses-spatial-scene).
+
+#### Smaller Additions
+
+**Key additions:**
+- `--ble` without `--serial` uses the only BLE-paired device, and says which one it used
+- `ARIA_BLE_ADAPTER=<address>` picks the Bluetooth adapter when the host has more than one; an unknown address fails with the list of adapters found
+- `Device.firmware()` returns a `FirmwareInfo` (`model`, `build_id`, `build_type`, `build_time_ms`)
+- `Device.submit_bug_report(request, session_id)` asks the glasses to file a bug report, from a `BugReportRequest`
+- `Device.get_recording_frame(uuid, camera)` reads one camera frame from a recording on the glasses without downloading it, for example to preview an eye-tracking calibration recording, which has no RGB thumbnail. `camera` is a `RecordingFrameCamera` (SLAM or eye-tracking camera); the result is a `RecordingFrame` with `width`, `height`, `stride`, `timestamp_ns` and 8-bit `pixels`
+- `DeviceClient.ble_devices()` lists the serials of the glasses paired with this computer over BLE
+- `remedy_for(code, program)` returns what the user can do about an SDK error code, or `None`
+- A registered observer's `on_connection_state_changed` is now called with `CONNECTED` when `connect()` succeeds
+- Three samples that were missing from the exported examples now ship: `device_monitoring.py`, `multi_device_connect.py` and `multi_device_streaming_example.py`
+- The Gen 2 samples are Apache 2.0 licensed and take `--serial` to pick a device
+
+### Improvements
+
+#### `auth unpair` Revokes the Pairing on the Glasses
+
+`auth unpair` used to delete only the certificate on this PC, so the glasses kept trusting it and the Companion App kept listing it. It now revokes the certificate on the glasses over USB or Wi-Fi before removing it locally. When the glasses cannot be reached, the local certificate is still removed, with a warning to revoke it in the Companion App. `auth remove-certs` is unchanged and remains local-only.
+
+`auth unpair --ble` likewise revokes this PC's BLE credential on the glasses, over BLE, before removing it locally, on firmware that lets a host revoke its own credential. The new `--local-only` flag keeps the previous local-only behavior for glasses that are gone or reflashed, and `auth remove-ble-creds` remains local-only.
+
+#### Discovery Works with a VPN On
+
+Discovery prefers the glasses' scoped IPv6 link-local address, so they stay reachable when a corporate VPN routes their subnet, including a VPN connected after the glasses were found. It also keeps every address the glasses advertise, prefers an IPv4 address that actually reaches them, and waits for mDNS answers before listing devices, so `device list` right after plugging in no longer comes back empty. Discovery uses the USB network link only and never ADB.
+
+#### More Reliable Recording Transfers
+
+`recording download`, `download-all` and `delete-all` fall back to IPv4 when the glasses refuse their IPv6 link-local address, which used to fail with `TTRANSPORT_EXCEPTION`. Download retries stop within the caller's time budget, and every recording command explains how to wake glasses that are in deep sleep.
+
+#### Clearer BLE Errors
+
+A stale Bluetooth bond is detected from the scan and the host's state, and reported with what to do; other failed reconnects, such as glasses out of range, are reported as a timeout instead of a stale bond. On Linux the SDK opts in to BlueZ bonding, so BLE control keeps working after the host reboots.
+
+#### `aria_doctor` Interface Names
+
+Gen 2 USB network interfaces are now named `aria2_<kernel name>` instead of after the device serial, and one NetworkManager profile matches them all.
+
+**After upgrading on Linux,** re-run `aria_doctor`, then unplug and re-plug your glasses.
+
+#### Smaller Improvements
+
+- Streaming certificates are reused across sessions instead of being installed on every start
+- The streaming poll releases the GIL, so other Python threads keep running during a session
+- `aria_gen2 user` keeps debug logs off the console unless `--verbose`
+- Raw eye-tracking camera frames have their own message type name
+- VRS replay carries the eye-gaze valid score
+
+### Bug Fixes
+
+#### No More Crash on Exit After Successful Commands
+
+Shutting down used to abort the process (SIGABRT) when a teardown disconnect went unanswered, so a command that had already printed correct output still exited as a failure. Teardown failures are now logged as warnings and the process exits cleanly.
+
+#### `import aria.sdk_gen2` on macOS
+
+The extension module failed to load on some macOS versions, including macOS 27, because of its section alignment. It now imports on every supported Python.
+
+#### Other Fixes
+
+- `aria_multi_device_streaming_viewer` starts on Python 3.10, and tells you to run `aria_gen2 streaming start --all` rather than an internal command name
+- `device status` no longer returns values from an earlier, failed request
+- Dropping a `DeviceClient` no longer shuts down protobuf for the whole process, which made the next client crash
+- Stopping raw streaming, and an mDNS resolve timing out, no longer use freed memory
+- `streaming start --help` describes `--verify-server-certs` correctly: it turns verification on
 
 ---
 
@@ -173,12 +294,6 @@ Every `register_*_callback` in `sdk_gen2.pyi` was previously typed as `Callable[
 - `SharedMessage` and `IBuffer` are documented types with `as_memoryview()` for raw message payloads
 - `usb_devices()` is typed as `List[Tuple[str, str]]` — `(serial, usb path)` — instead of `List[Any]`
 
-#### `auth unpair` Revokes the Pairing on the Glasses
-
-`auth unpair` used to delete only the certificate on this PC, so the glasses kept trusting it and the Companion App kept listing it. It now revokes the certificate on the glasses over USB or Wi-Fi before removing it locally. When the glasses cannot be reached, the local certificate is still removed, with a warning to revoke it in the Companion App. `auth remove-certs` is unchanged and remains local-only.
-
-`auth unpair --ble` likewise revokes this PC's BLE credential on the glasses, over BLE, before removing it locally, on firmware that lets a host revoke its own credential. The new `--local-only` flag keeps the previous local-only behavior for glasses that are gone or reflashed, and `auth remove-ble-creds` remains local-only.
-
 ### Bug Fixes
 
 #### Hardware-Accelerated Decode Was Inverted
@@ -188,10 +303,6 @@ The decoder was passed the hardware-acceleration flag where it expected the *dis
 #### RGB Decode Errors at Session Start
 
 Decoding began on the first frame received, so any frames arriving before the stream's first keyframe produced a burst of decode errors. Decoding now waits for a keyframe per camera before starting.
-
-#### No More Crash on Exit After Successful Commands
-
-Shutting down used to abort the process (SIGABRT) when a teardown disconnect went unanswered, so a command that had already printed correct output still exited as a failure. Teardown failures are now logged as warnings and the process exits cleanly.
 
 ---
 

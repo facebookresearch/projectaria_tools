@@ -566,10 +566,11 @@ did not deploy coturn.
 
 ### 7. Point the glasses at the TLS listener
 
-The glasses take their trust anchor from a certificate set installed on it rather than from
-a flag on the streaming command. The set also carries a publisher certificate and key,
-which signaling does not use but the installer requires, so generate a throwaway pair for
-them:
+By default the glasses verify an `https://` signaling server against the public root bundle,
+which a self-signed certificate does not chain to. Install a certificate set whose root is
+this deployment's CA, and name it when you start streaming. The set also carries a client
+certificate and key, which the glasses present only if the server asks for mutual TLS; this
+server does not, but the installer requires them, so generate a throwaway pair:
 
 ```bash
 openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
@@ -579,29 +580,28 @@ aria_gen2 streaming install-certs user-defined-certs \
   --ca-root ~/aria-signaling-ca.pem \
   --cert    node.pem \
   --key     node.key \
-  --cert-name default
+  --cert-name aria-signaling
 ```
 
-`--cert-name` must be `default` — the glasses read that set and no other, so any other
-name installs successfully and is then silently ignored. `--cert` and `--key` are required
-even though only the root matters here.
+Note what the anchor buys: the glasses trust the *issuer*, not the identity, which is the
+other reason to keep this CA single-purpose.
 
-With no anchor installed, the glasses **refuse** to start an `https://` session rather
-than falling back to a built-in certificate it cannot authenticate, and says which path
-it looked in. Note what the anchor buys: the glasses trust the *issuer*, not the identity,
-which is the other reason to keep this CA single-purpose.
-
-Then start the glasses against the TLS listener:
+Then start the glasses against the TLS listener, naming that set with `--signaling-certs`:
 
 ```bash
 aria_gen2 streaming webrtc start \
     --signaling-url "https://$SERVER_HOST:9443" \
+    --signaling-certs aria-signaling \
     --profile low_latency_streaming \
     --room "$ROOM" --room-password "$ROOM_PASSWORD" --auth-token "$HTTP2_TOKEN" \
     --stun "stun:$SERVER_HOST:3478" \
     --turn "turn:$SERVER_HOST:3478,aria,$TURN_PASSWORD" \
     --interface wifi_sta
 ```
+
+Without `--signaling-certs`, the glasses check the certificate against the public bundle and
+the session fails to start. A deployment with a publicly-issued certificate (for example
+behind a TLS-terminating proxy, below) needs neither the certificate set nor the flag.
 
 As on the receiver, drop the STUN/TURN flags if you did not deploy coturn.
 

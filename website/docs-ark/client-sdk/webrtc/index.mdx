@@ -176,13 +176,15 @@ so the [HTTP start-order constraint](/ark/client-sdk/streaming#start-order-and-s
 still does not apply. What TLS adds is a **server** certificate on the signaling host, which each
 peer has to trust:
 
-* **Receiver** — `--ca-root` picks the trust anchor: a named root (`Public`, `MetaProd`,
-  `MetaCloud`, `Test`) or a path to a PEM CA bundle. It defaults to `Public`, the system root
-  store, which is what a publicly-issued certificate chains to. A self-signed or private-CA
-  deployment needs `--ca-root <path-to-PEM>`.
-* **Glasses** — no trust-anchor option. They accept an `https://` signaling URL only when the
-  server certificate chains to a trust anchor already built into the device, so a signaling
-  server the glasses reach over TLS needs a publicly-issued certificate.
+* **Receiver** — `--ca-root` picks the trust anchor: `Public` or a path to a PEM CA bundle.
+  It defaults to `Public`, the system root store, which is what a publicly-issued certificate
+  chains to. A self-signed or private-CA deployment needs `--ca-root <path-to-PEM>`.
+* **Glasses** — `aria_gen2 streaming webrtc start` verifies the server against the public root
+  bundle by default (`--signaling-ca-root public`), so a publicly-issued certificate needs no
+  extra flags. For a self-signed or private-CA deployment, install a certificate set whose root
+  is that CA with `aria_gen2 streaming install-certs user-defined-certs`, then pass its name with
+  `--signaling-certs <name>`. The set's client certificate is presented when the server asks for
+  mutual TLS. See [Point the glasses at the TLS listener](/ark/client-sdk/webrtc/signaling-server#7-point-the-glasses-at-the-tls-listener).
 
 ```bash
 aria_streaming_viewer --transport webrtc \
@@ -293,7 +295,7 @@ the matching `WebRtcConfig` field — see [WebRtcConfig Fields](/ark/client-sdk/
 | `--signaling-url <url>` | `signaling_url` | Signaling server as one `<scheme>://<host>:<port>` URL, scheme `tcp`, `https` or `http` — the same spelling the glasses take, and the only way to ask for TLS. Supersedes `--signaling-host`/`--signaling-port`. |
 | `--signaling-host <host>` | `signaling_host` | Hostname of the signaling server (cross-network rendezvous), on plain TCP. Leave unset for same-network direct P2P. |
 | `--signaling-port <port>` | `signaling_port` | Port of the signaling server. |
-| `--ca-root <root>` | `ca_root` | Trust anchor for an `https` signaling URL: a named root (`Public`, `MetaProd`, `MetaCloud`, `Test`, matched case-insensitively) or a path to a PEM CA bundle. Default `Public`, the system root store. Inert on `tcp`. |
+| `--ca-root <root>` | `ca_root` | Trust anchor for an `https` signaling URL: `Public` (matched case-insensitively) or a path to a PEM CA bundle. Default `Public`, the system root store. Inert on `tcp`. |
 | `--no-verify-server-certs` | `verify_server_certificates` | Accept any signaling server certificate. Allowed only against a loopback signaling host (`localhost`, `127.0.0.1`, `::1`) — it accepts an attacker's certificate too. For a remote self-signed deployment use `--ca-root <path-to-PEM>`. |
 | `--listen <port>` | `listen_port` | Local port for direct peer-to-peer connections on the same network. |
 | `--stun <url>` | `stun` | STUN server URL for NAT traversal. |

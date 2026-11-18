@@ -76,7 +76,7 @@ With no BLE credentials stored at all, the CLI reports:
 
 It reads as though `--serial` is mandatory, but adding one will not help — there is simply nothing paired to connect to. Run `aria_gen2 auth pair --ble` over USB first.
 
-The same confusion is in `aria_gen2 --help` for 2.5.0, which says `--ble` "Requires `--serial`". It does not, when exactly one device is paired.
+Before 2.6.0, `aria_gen2 --help` added to the confusion by saying `--ble` "Requires `--serial`". It does not, when exactly one device is paired, and the help now says so.
 :::
 
 ## Automatic fallback to BLE

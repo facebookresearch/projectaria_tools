@@ -75,7 +75,7 @@ Each page below walks through one of the exported scripts.
 | 4 | [Streaming](/ark/client-sdk/python-sdk/streaming-example) | `device_streaming.py` | Callback signature table, remote-server TLS setup, feeding a model |
 | 5 | [WebRTC Streaming](/ark/client-sdk/python-sdk/webrtc-streaming-example) | `device_webrtc_streaming.py`, `device_push_audio.py` | `--listen` topologies, reconnect-before-teardown, `push_audio()` |
 | 6 | [Raw Streaming](/ark/client-sdk/python-sdk/raw-streaming-example) | `device_raw_streaming.py` | Message-type to converter map; the two SLAM frame IDs |
-| 7 | [Multi-Device Streaming](/ark/client-sdk/python-sdk/multi-device-streaming-example) | *(no bundled script)* | The `device_id` parameter, handler factory, TDM from receivers only |
+| 7 | [Multi-Device Streaming](/ark/client-sdk/python-sdk/multi-device-streaming-example) | `multi_device_streaming_example.py` | The `device_id` parameter, handler factory, TDM from receivers only |
 | 8 | [Offline Replay](/ark/client-sdk/python-sdk/replay-example) | `replay_vrs.py` | Replay as a CI fixture; the two distinct failure modes |
 | 9 | [Text-to-Speech](/ark/client-sdk/python-sdk/text-to-speech-example) | `device_tts.py` | `render_tts()` is asynchronous; `stop_tts()` |
 | 10 | [ROS2](/ark/client-sdk/python-sdk/ros2-example) | `ros2_publisher_example.py`, `ros2_subscriber_example.py` | The whole workspace setup — none of it is in the scripts |
@@ -159,6 +159,10 @@ device.set_streaming_config(streaming_config)
 webrtc_config = sdk_gen2.WebRtcStreamingConfig()
 webrtc_config.profile_name = "low_latency_streaming"
 webrtc_config.signaling_url = "tcp://example.com:8443"
+# For an https:// signaling URL the device verifies the server against the public root
+# bundle (sdk_gen2.CaRoot.PUBLIC, the default). For a private or self-signed server, name
+# a certificate set installed with `aria_gen2 streaming install-certs user-defined-certs`:
+# webrtc_config.streaming_cert_name = "my-signaling-certs"
 device.set_webrtc_streaming_config(webrtc_config)
 
 # Optional: sync the device clock via NTP before the session starts. Use this when a
@@ -214,7 +218,7 @@ Each field has a matching `aria_streaming_viewer` flag, listed here so the two s
 | `signaling_url` | `--signaling-url <url>` | Signaling server as one `<scheme>://<host>:<port>` URL, scheme `tcp`, `https` or `http` — the same spelling the device takes. Selects the signaling transport, and is the only way to ask for TLS. Supersedes `signaling_host`/`signaling_port`. |
 | `signaling_host` | `--signaling-host <host>` | Hostname of the signaling server (cross-network rendezvous), on plain TCP. Leave unset for same-network direct P2P. |
 | `signaling_port` | `--signaling-port <port>` | Port of the signaling server. |
-| `ca_root` | `--ca-root <root>` | Trust anchor used to verify the signaling server's certificate on an `https` URL: a named root (`Public`, `MetaProd`, `MetaCloud`, `Test`, matched case-insensitively) or a path to a PEM CA bundle. Defaults to `Public`, the system root store — which is what a publicly-issued certificate chains to. Inert on `tcp`. |
+| `ca_root` | `--ca-root <root>` | Trust anchor used to verify the signaling server's certificate on an `https` URL: `Public` (matched case-insensitively) or a path to a PEM CA bundle. Defaults to `Public`, the system root store — which is what a publicly-issued certificate chains to. Inert on `tcp`. |
 | `verify_server_certificates` | `--no-verify-server-certs` | Whether that certificate is verified at all. On by default; the opt-out accepts **any** certificate, including an attacker's, so it is rejected for anything but a loopback signaling host (`localhost`, `127.0.0.1`, `::1`). Trust a remote self-signed deployment with `ca_root` instead. |
 | `listen_port` | `--listen <port>` | Local port for direct peer-to-peer connections on the same network. |
 | `stun` | `--stun <url>` | STUN server URL for NAT traversal. |
