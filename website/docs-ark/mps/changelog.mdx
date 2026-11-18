@@ -6,6 +6,19 @@ title: Changelog
 # Changelog
 
 ---
+## Version 1.5.0
+- Get help from the MPS CLI: press `R`, or **Get help** on the banner that appears when a recording fails processing, to send a debug report (logs and machine details) to Meta
+- Optionally share the failed recordings with a report. MPS processes them again and Meta keeps a decrypted copy if they fail again; a failed or interrupted share is retried on later runs under the same account, 3 tries in all within 30 days
+- Report from `--no-ui` runs: the CLI asks before sending when a run fails or is interrupted, and the new `--report-on-failure` option sends the report without asking, for unattended runs
+- Keep log output from native libraries (VRS reader, video decoder, VRS Health Check) off the status table; it goes to the session log instead
+- Redact credentials from logs and error messages
+- Upload the Eye Gaze calibration only when a recording is eligible for Eye Gaze, and show calibration upload and link status separately
+- Run the VRS Health Check through its Python API, so it no longer depends on the `run_vrs_health_check` command being on `PATH`
+- Encrypt and upload VRS files larger than 64 GiB, which previously failed to encrypt
+- Check the status of active requests in batched queries, with a 30-second timeout and one retry budget shared across failures
+
+
+---
 ## Version 1.4.0
 - Add Eye Gaze processing for Aria Gen 2 recordings
 - Add the optional single-mode `--calib` input for personalized Eye Gaze results
