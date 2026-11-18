@@ -90,7 +90,7 @@ void initForGen2(RescaleParamMap& supportedMapping) {
           .cameraLabel = "camera-rgb",
           .originalResolution = Eigen::Vector2i{4032, 3024},
           .newResolution = Eigen::Vector2i{2560, 1920}},
-      RescaleParam{.scale = 0.635, .offset = Eigen::Vector2d{0.0, 0.0}});
+      RescaleParam{.scale = 2560.0 / 4032.0, .offset = Eigen::Vector2d{0.0, 0.0}});
 
   // ET options 1: {400, 400} -> {200, 200}
   supportedMapping.emplace(
