@@ -7,10 +7,10 @@ title: BLE Device Control
 
 Reach a paired device over **Bluetooth LE** instead of a USB cable — for pairing checks, status queries and device control when the glasses are not tethered.
 
-:::warning Experimental — limited platform support
-BLE control is experimental. It works on **macOS**. On Linux it has only been exercised on Fedora, and it is **not supported on Ubuntu** — neither 22.04 LTS nor 24.04 LTS. The blocker there is the version of `bluez` those releases ship; Ubuntu support is planned as a follow-up.
+:::warning Experimental — Linux needs one-time Bluetooth setup
+BLE control is experimental. It works on **macOS** with no setup. On Linux it needs a one-time Bluetooth configuration step, which depends on the BlueZ version — see [Linux setup](#linux-setup).
 
-Everything else in the Client SDK works normally on Ubuntu — only the `--ble` flags are affected.
+Everything else in the Client SDK works without it — only the `--ble` flags are affected.
 :::
 
 ## Platform support
@@ -18,8 +18,9 @@ Everything else in the Client SDK works normally on Ubuntu — only the `--ble` 
 | Platform | BLE control | Notes |
 |----------|-------------|-------|
 | macOS (Apple Silicon) | ✅ Supported | |
-| Fedora | ⚠️ Limited testing | Known to work, but not extensively validated |
-| Ubuntu 22.04 / 24.04 LTS | :x: Not supported | `bluez` version; follow-up planned |
+| Ubuntu 26.04 LTS | ⚠️ Experimental | BlueZ 5.85: set `Experimental = true` |
+| Ubuntu 22.04 / 24.04 LTS | ⚠️ Experimental | BlueZ 5.64 / 5.72: pair once with `ControllerMode = le` |
+| Fedora | ⚠️ Limited testing | Recent releases ship BlueZ 5.80+: set `Experimental = true` |
 | Windows | 🚧 Planned | The SDK itself is not yet supported on Windows |
 
 ## What BLE can and cannot do
@@ -56,6 +57,87 @@ aria_gen2 --ble device status
 # With several, name the one you want
 aria_gen2 --ble --serial 1M0YDB5H7B0020 device status
 ```
+
+## Linux setup
+
+The glasses are a dual-mode Bluetooth device. Unless BlueZ is told otherwise, it connects to them over classic Bluetooth, which carries no BLE control traffic. How you prevent that depends on the BlueZ version:
+
+```bash
+bluetoothd --version
+```
+
+### BlueZ 5.80 or newer (Ubuntu 26.04, recent Fedora)
+
+Enable BlueZ's experimental features, which lets the SDK request an LE connection directly. Add this under `[General]` in `/etc/bluetooth/main.conf`:
+
+```ini
+[General]
+Experimental = true
+```
+
+Then restart Bluetooth:
+
+```bash
+sudo systemctl restart bluetooth
+```
+
+### BlueZ older than 5.80 (Ubuntu 22.04, 24.04)
+
+These releases cannot request an LE connection directly. Instead, BlueZ connects over whichever transport the glasses are bonded on — so bond them over **LE only**, by pairing once with classic Bluetooth turned off. Classic Bluetooth comes back on afterwards; your headsets and other classic devices are unavailable only during the pairing steps.
+
+1. Over USB, install the BLE credentials as in [Setup](#setup):
+
+   ```bash
+   aria_gen2 auth pair
+   aria_gen2 auth pair --ble
+   ```
+
+2. Remove any existing Bluetooth pairing with the glasses on this PC, so the new bond starts clean:
+
+   ```bash
+   bluetoothctl devices | grep "Aria Gen 2"
+   bluetoothctl remove <address>
+   ```
+
+   :::caution Classic Bluetooth keyboards and mice stop working during steps 3–5
+   Keep a USB or built-in keyboard and touchpad available. Bluetooth LE keyboards and mice keep working throughout.
+   :::
+
+3. Turn classic Bluetooth off and limit GATT to a single channel — add these to `/etc/bluetooth/main.conf` (create the `[GATT]` section if it does not exist) and restart:
+
+   ```ini
+   [General]
+   ControllerMode = le
+
+   [GATT]
+   Channels = 1
+   ```
+
+   ```bash
+   sudo systemctl restart bluetooth
+   ```
+
+4. Unplug the USB cable and connect once over BLE. This first connection creates the LE-only bond:
+
+   ```bash
+   aria_gen2 --ble device status
+   ```
+
+5. Remove the `ControllerMode = le` line from `/etc/bluetooth/main.conf`, keep `Channels = 1`, then turn classic Bluetooth back on with Bluetooth stopped:
+
+   ```bash
+   sudo systemctl stop bluetooth
+   sudo btmgmt bredr on
+   sudo systemctl start bluetooth
+   ```
+
+   Use these three commands rather than a plain restart. After step 3, a restart on BlueZ 5.64 brings classic Bluetooth back without Secure Simple Pairing, and the extra restart needed to fix that can delete the glasses' bond. BLE control keeps working with classic Bluetooth back on. `Channels = 1` must stay set: with more channels, BlueZ 5.64 can trigger a re-pairing that makes the glasses drop the bond.
+
+Repeat these steps if the bond is ever removed — for example after `bluetoothctl remove`, or after resetting the glasses — since a bond created with classic Bluetooth on cannot be used for BLE control on these releases.
+
+:::note Alternative: leave classic Bluetooth off
+You can also keep `ControllerMode = le` set permanently. BLE control then works without the pairing steps, but no classic Bluetooth device — most headphones, speakers and keyboards — works on this PC while it is set.
+:::
 
 ### When you need `--serial`
 
@@ -132,7 +214,9 @@ aria_gen2 auth remove-ble-creds
 
 ## Troubleshooting
 
-**Nothing happens, or the device is never found, on Ubuntu.** Expected — BLE control does not work on Ubuntu 22.04 or 24.04. See the platform table above. Fall back to USB.
+**On Linux: `cannot connect over BLE on Linux: forcing the LE bearer needs ...`.** BlueZ tried to reach the glasses over classic Bluetooth. Follow [Linux setup](#linux-setup) for your BlueZ version. On BlueZ older than 5.80, this also means the glasses are bonded with classic Bluetooth on — remove the pairing and repeat the one-time steps.
+
+**On Linux: the device is found but every connection fails, or the CLI suggests a stale bond.** Check that your BlueZ version has been set up as in [Linux setup](#linux-setup), and that the glasses are close to the PC and awake. A weak signal (around −100 dBm or weaker in `bluetoothctl`) is enough to make connections fail.
 
 **A device you know is nearby is missing from `device list --ble-scan`.** Most likely the scan window was too short; retry with `--ble-scan-timeout 20`. Without `--ble-scan` the listing does not check presence at all, so a device appearing there means only that this host has stored credentials for it.
 
