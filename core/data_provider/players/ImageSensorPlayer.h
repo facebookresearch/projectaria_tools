@@ -17,6 +17,7 @@
 #pragma once
 
 #include <limits>
+#include <optional>
 #include <utility>
 
 #include <data_layout/ImageSensorMetadata.h>
@@ -91,6 +92,9 @@ struct ImageDataRecord {
   int64_t arrivalTimestampNs{}; ///< @brief arrival time in host domain
   double temperature = std::numeric_limits<double>::quiet_NaN(); ///< @brief capture temperature on
                                                                  ///< the sensor, may be NAN
+  /// @brief frames the device withheld on purpose since the previous frame of this stream,
+  /// nullopt if the record does not report them
+  std::optional<uint16_t> intentionalDropCount;
 };
 
 using ImageCallback = std::function<bool(
