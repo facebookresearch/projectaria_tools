@@ -17,6 +17,7 @@
 #pragma once
 
 #include <calibration/DeviceVersion.h>
+#include <optional>
 #include <string>
 
 namespace projectaria::tools::calibration {
@@ -24,6 +25,12 @@ namespace projectaria::tools::calibration {
 std::string loadCameraConfigJsonAsString(const DeviceVersion& deviceVersion);
 
 std::string loadDeviceCadExtrinsicsCsvAsString(
+    const DeviceVersion& deviceVersion,
+    const std::string& deviceSubtype);
+
+/// Same as loadDeviceCadExtrinsicsCsvAsString, but returns std::nullopt instead of throwing when no
+/// CAD extrinsics exist for the device version and subtype.
+std::optional<std::string> maybeLoadDeviceCadExtrinsicsCsvAsString(
     const DeviceVersion& deviceVersion,
     const std::string& deviceSubtype);
 

@@ -97,9 +97,14 @@ std::optional<std::pair<std::string, Sophus::SE3d>> readSingleCsvLine(const std:
 std::optional<std::unordered_map<std::string, Sophus::SE3d>> loadCadExtrinsicsFromCsvFile(
     const DeviceVersion& deviceVersion,
     const std::string& deviceSubType) {
-  // Load CAD extrinsics csv file
-  const std::string csvStr = loadDeviceCadExtrinsicsCsvAsString(deviceVersion, deviceSubType);
-  std::istringstream csvStream(csvStr);
+  // Only Gen2 may lack a CAD table; for Gen1 the throwing loader reports the missing table.
+  const auto maybeCsvStr = deviceVersion == DeviceVersion::Gen2
+      ? maybeLoadDeviceCadExtrinsicsCsvAsString(deviceVersion, deviceSubType)
+      : loadDeviceCadExtrinsicsCsvAsString(deviceVersion, deviceSubType);
+  if (!maybeCsvStr.has_value()) {
+    return std::nullopt;
+  }
+  std::istringstream csvStream(*maybeCsvStr);
 
   // Read csv lines into label->pose mapping
   std::unordered_map<std::string, Sophus::SE3d> labelToT_Cpf_Sensor;
@@ -150,12 +155,13 @@ DeviceCadExtrinsics::DeviceCadExtrinsics(
   // Load CAD extrinsics from config files
   const auto maybeLabelToT_Cpf_Sensor = loadCadExtrinsicsFromCsvFile(deviceVersion, deviceSubType);
   if (!maybeLabelToT_Cpf_Sensor.has_value()) {
-    const std::string error = fmt::format(
-        "ERROR: Cannot load CAD extrinsics for device {}: {}. ",
+    // A Gen2 build version without a CAD table still loads, so its sensors' factory calibration
+    // can be used. T_Device_Cpf is then identity and the CAD lookups return nothing.
+    fmt::print(
+        "WARNING: No CAD extrinsics for {} build version {}. T_Device_Cpf is identity.\n",
         getName(deviceVersion),
         deviceSubType);
-    fmt::print("{}\n", error);
-    throw std::runtime_error{error};
+    return;
   }
   labelToT_Cpf_Sensor_ = maybeLabelToT_Cpf_Sensor.value();
 

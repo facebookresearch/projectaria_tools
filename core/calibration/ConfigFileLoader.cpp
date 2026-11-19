@@ -49,7 +49,7 @@ std::string loadCameraConfigJsonAsString(const DeviceVersion& deviceVersion) {
   return strIter->second;
 }
 
-std::string loadDeviceCadExtrinsicsCsvAsString(
+std::optional<std::string> maybeLoadDeviceCadExtrinsicsCsvAsString(
     const DeviceVersion& deviceVersion,
     const std::string& deviceSubtype) {
   const std::unordered_map<std::pair<DeviceVersion, std::string>, std::string, PairHash>
@@ -70,15 +70,24 @@ std::string loadDeviceCadExtrinsicsCsvAsString(
       };
   const auto& strIter =
       kDeviceCadExtrinsicsStringMapping.find(std::make_pair(deviceVersion, deviceSubtype));
-
   if (strIter == kDeviceCadExtrinsicsStringMapping.end()) {
+    return std::nullopt;
+  }
+  return strIter->second;
+}
+
+std::string loadDeviceCadExtrinsicsCsvAsString(
+    const DeviceVersion& deviceVersion,
+    const std::string& deviceSubtype) {
+  auto csv = maybeLoadDeviceCadExtrinsicsCsvAsString(deviceVersion, deviceSubtype);
+  if (!csv.has_value()) {
     throw std::runtime_error(
         fmt::format(
             "Unsupported device version and subtype to load device CAD extrinsics csv file: {},{}",
             getName(deviceVersion),
             deviceSubtype));
   }
-  return strIter->second;
+  return std::move(*csv);
 }
 
 } // namespace projectaria::tools::calibration
