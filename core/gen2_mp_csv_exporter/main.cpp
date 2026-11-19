@@ -20,11 +20,14 @@
 
 using namespace projectaria::tools::mp_csv_exporter;
 
+namespace {
 struct InputArgs {
   std::string vrsPath;
   std::string outputFolder;
   int vioHighFreqSubsampleRate = 1;
 };
+
+} // namespace
 
 int main(int argc, const char* argv[]) {
   CLI::App app{"AriaGen2 export MPV data to csv"};
