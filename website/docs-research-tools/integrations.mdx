@@ -1,0 +1,18 @@
+---
+sidebar_position: 3
+title: Integrations
+---
+
+# Integrations
+
+Examples that combine Aria data and Project Aria Tools with open-source models and libraries from the broader research community. Each example lives in its own GitHub repository, which has the latest setup instructions, code, and tutorials.
+
+## Depth from Stereo with FoundationStereo - [GitHub Repository](https://github.com/facebookresearch/projectaria_gen2_depth_from_stereo)
+
+Computes metric depth maps from the front-facing stereo camera pair on Aria Gen 2 glasses. The example rectifies the two fisheye camera images into a pinhole stereo pair using device calibration, runs [FoundationStereo](https://github.com/NVlabs/FoundationStereo) for zero-shot disparity estimation, and converts disparity to metric depth using the stereo baseline. When MPS output is available, each depth map is paired with its camera pose for downstream 3D reconstruction.
+
+## Visual Relocalization with HLOC - [GitHub Repository](https://github.com/facebookresearch/projectaria_hloc_example)
+
+Builds a metric visual map from one or more Aria recordings and localizes new images against it using [Hierarchical-Localization (HLOC)](https://github.com/cvg/Hierarchical-Localization). Mapping triangulates a sparse 3D map from known MPS poses. Localization combines global image retrieval, local feature matching, and PnP to estimate the 6DoF pose of an RGB frame or the four-camera SLAM rig in the map frame. The resulting visual fixes anchor Aria VIO to the map, either on recorded data or live-streamed from the glasses.
+
+![HLOC Relocalization](/img/docs-research-tools/integrations/hloc_relocalization.gif)
