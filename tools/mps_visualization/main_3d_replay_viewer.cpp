@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
     std::vector<Eigen::Vector3f> trajPoints;
     trajPoints.reserve(traj.size());
     for (const auto& pose : traj) {
-      trajPoints.push_back(pose.T_world_device.translation().cast<float>());
+      trajPoints.emplace_back(pose.T_world_device.translation().cast<float>());
       allWorldFrameUids.insert(pose.graphUid);
     }
     fullTrajs.push_back(std::move(trajPoints));
