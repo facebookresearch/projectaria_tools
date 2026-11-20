@@ -295,6 +295,11 @@ class SensorLabels:
         return [self.rgb_label] + self.slam_labels
 
 
+BlueprintPanelPart = Union[
+    rrb.TopPanel, rrb.BlueprintPanel, rrb.SelectionPanel, rrb.TimePanel
+]
+
+
 @dataclass
 class AriaDataViewerConfig:
     # ============================================
@@ -344,6 +349,24 @@ class AriaDataViewerConfig:
     # a new viewer process. Used for frozen Electron builds where the viewer is
     # already started by the parent process via start_frozen_rerun().
     connect_to_existing_viewer: bool = False
+
+    # gRPC URL of the Rerun server to connect to when `connect_to_existing_viewer`
+    # is set (e.g. `rerun+http://127.0.0.1:9876/proxy`). None keeps the Rerun
+    # default endpoint. Nothing is served by this process.
+    grpc_url: Optional[str] = None
+
+    # Whether the viewer picks its own Rerun sink (`rr.init` plus save, connect
+    # or spawn). Set to False when the caller has already activated a recording
+    # (e.g. `with recording:`) and wants every log to land in it: no sink is
+    # created and `rrd_output_path` and `connect_to_existing_viewer` are not
+    # used to open one; `blueprint_path` is loaded into the active recording.
+    manage_rerun_sinks: bool = True
+
+    # Panel parts (e.g. `rrb.TimePanel(state="expanded")`) to put in the
+    # generated blueprint in place of the default collapsed panels. When set,
+    # `collapse_panels` is turned off, so these parts decide what is shown.
+    # Ignored when `blueprint_path` is set: the custom blueprint wins.
+    blueprint_panel_overrides: Optional[Sequence[BlueprintPanelPart]] = None
 
 
 class AriaDataViewer:
@@ -435,22 +458,10 @@ class AriaDataViewer:
         self._neural_band_emg_calibration = None
         # Scale ratio to convert plot sizes from RGB camera space to SLAM camera space (based on camera resolution ratio)
 
-        if rrd_output_path:
-            rr.init("AriaDataViewer", spawn=False)
-            rr.save(rrd_output_path)
-        elif self.config.connect_to_existing_viewer:
-            rr.init("AriaDataViewer")
-            rr.connect_grpc()
-            # If a blueprint path is configured, load it after connecting
-            if self.config.blueprint_path:
-                rr.log_file_from_path(self.config.blueprint_path)
+        if self.config.manage_rerun_sinks:
+            self._init_rerun_sink(rrd_output_path)
         elif self.config.blueprint_path:
-            self._spawn_rerun_with_blueprint(
-                self.config.blueprint_path, self.config.rerun_memory_limit
-            )
-        else:
-            rr.init("AriaDataViewer")
-            _spawn_rerun_viewer(self.config.rerun_memory_limit)
+            rr.log_file_from_path(self.config.blueprint_path)
 
         if device_calibration is not None:
             self.device_calibration = device_calibration
@@ -468,6 +479,24 @@ class AriaDataViewer:
             print(
                 "Warning: device_calibration is None. Cannot create rerun blueprint during initialization."
             )
+
+    def _init_rerun_sink(self, rrd_output_path: Optional[str]) -> None:
+        if rrd_output_path:
+            rr.init("AriaDataViewer", spawn=False)
+            rr.save(rrd_output_path)
+        elif self.config.connect_to_existing_viewer:
+            rr.init("AriaDataViewer")
+            rr.connect_grpc(self.config.grpc_url)
+            # If a blueprint path is configured, load it after connecting
+            if self.config.blueprint_path:
+                rr.log_file_from_path(self.config.blueprint_path)
+        elif self.config.blueprint_path:
+            self._spawn_rerun_with_blueprint(
+                self.config.blueprint_path, self.config.rerun_memory_limit
+            )
+        else:
+            rr.init("AriaDataViewer")
+            _spawn_rerun_viewer(self.config.rerun_memory_limit)
 
     def set_viewer_config(self, config: AriaDataViewerConfig):
         self.config = config
@@ -558,6 +587,13 @@ class AriaDataViewer:
         else:
             raise ValueError(f"Unknown plot label: {plot_label}")
 
+    def _blueprint_panel_args(self) -> Tuple[Tuple[BlueprintPanelPart, ...], bool]:
+        """Panel parts and `collapse_panels` for the generated blueprints."""
+        overrides = self.config.blueprint_panel_overrides
+        if overrides is not None:
+            return tuple(overrides), False
+        return (), True
+
     def _create_gen1_rerun_blueprint(self):
         # Create device extrinsics 3D view
         blueprint_device_extrinsics_view = rrb.Spatial3DView(
@@ -622,13 +658,15 @@ class AriaDataViewer:
 
         # Create final horizontal blueprint layout.
         # hide left&right, with compact timeline on bottom
+        panel_parts, collapse_panels = self._blueprint_panel_args()
         return rrb.Blueprint(
             rrb.Horizontal(
                 blueprint_3d_view,
                 blueprint_2d_view,
                 blueprint_1d_view,
             ),
-            collapse_panels=True,
+            *panel_parts,
+            collapse_panels=collapse_panels,
         )
 
     def _create_gen2_rerun_blueprint(self):
@@ -721,11 +759,13 @@ class AriaDataViewer:
 
         # Create final horizontal blueprint layout.
         # hide left&right, with compact timeline on bottom
+        panel_parts, collapse_panels = self._blueprint_panel_args()
         return rrb.Blueprint(
             rrb.Horizontal(
                 updated_3d_view_container, _2d_view_container, updated_1d_view_container
             ),
-            collapse_panels=True,
+            *panel_parts,
+            collapse_panels=collapse_panels,
         )
 
     def _spawn_rerun_with_blueprint(self, blueprint_path: str, memory_limit: str):
@@ -902,27 +942,28 @@ class AriaDataViewer:
             return np.rot90(frame, k=3)
         return frame
 
-    def plot_image(self, frame, label, device_timestamp_ns):
-        """Plot image data."""
+    def plot_image(self, frame, label, device_timestamp_ns) -> bool:
+        """Plot image data. Returns whether the frame was logged."""
         if frame is None:
             warn_once(
                 self.plot_image,
                 f"Frame is None for label {label}",
             )
-            return
+            return False
 
         if not isinstance(frame, np.ndarray):
             warn_once(
                 self.plot_image,
                 f"Frame is not a numpy array for label {label}",
             )
-            return
+            return False
         rr.set_time("device_time", timestamp=device_timestamp_ns * 1e-9)
         frame = self._check_and_rotate_image_for_gen1(frame, label)
         rr.log(
             label,
             rr.Image(frame).compress(self.config.jpeg_quality),
         )
+        return True
 
     def plot_imu_batch_vectorized(self, imu_data_list, label):
         """Plot multiple IMU sensor data points with maximum efficiency using bulk logging."""
@@ -1325,11 +1366,11 @@ class AriaDataViewer:
                 rerun_plotter_label=contact_mic_label,
             )
 
-    def plot_gps(self, gps_data):
-        """Plot GPS data."""
+    def plot_gps(self, gps_data) -> bool:
+        """Plot GPS data. Returns whether a GPS point was logged."""
         if gps_data is None:
             warn_once(self.plot_gps, "GPS data is None")
-            return
+            return False
 
         if (
             not hasattr(gps_data, "latitude")
@@ -1343,7 +1384,7 @@ class AriaDataViewer:
                 self.plot_gps,
                 "GPS data missing latitude or longitude attributes or contains NaN",
             )
-            return
+            return False
 
         rr.set_time("device_time", timestamp=gps_data.capture_timestamp_ns * 1e-9)
         # gps_data.provider is a string that can be "APP" or "GPS", indicating data source.
@@ -1361,6 +1402,7 @@ class AriaDataViewer:
                 colors=gps_settings["color"],
             ),
         )
+        return True
 
     def plot_eye_gaze_data(self, eyegaze_data):
         """
@@ -1729,13 +1771,14 @@ class AriaDataViewer:
             static=False,
         )
 
-    def plot_vio_data(self, vio_data):
+    def plot_vio_data(self, vio_data) -> bool:
+        """Plot VIO data. Returns whether the sample was logged."""
         # Only plot VIO data if status is valid, and pose quality is good
         if (
             vio_data.status != VioStatus.VALID
             or vio_data.pose_quality != TrackingQuality.GOOD
         ):
-            return
+            return False
         rr.set_time("device_time", timestamp=vio_data.capture_timestamp_ns * 1e-9)
         # Set and plot Aria Device for the current timestamp
         T_World_Device = (
@@ -1786,6 +1829,7 @@ class AriaDataViewer:
         self._plot_low_rate_vio_trajectory(
             vio_data.capture_timestamp_ns * 1e-9, T_World_Device.translation()[0]
         )
+        return True
 
     def _plot_low_rate_vio_trajectory(self, timestamp_sec, position) -> None:
         """Draw the `vio` trail, but only when it is the only trail there is.

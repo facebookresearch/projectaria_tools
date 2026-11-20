@@ -20,10 +20,12 @@ import argparse
 import sys
 import unittest
 from threading import Event
+from typing import Final
 from unittest.mock import MagicMock, patch
 
 from projectaria_tools.core.calibration import DeviceVersion
 from projectaria_tools.core.sensor_data import SensorDataType, TimeDomain, TimeSyncMode
+from projectaria_tools.tools.aria_rerun_viewer.aria_data_plotter import AriaDataViewer
 from projectaria_tools.tools.aria_rerun_viewer.aria_rerun_viewer import (
     ALL_STREAM_LABELS_GEN1,
     ALL_STREAM_LABELS_GEN2,
@@ -605,6 +607,91 @@ class PlotQueuedSensorDataTest(unittest.TestCase):
 
         self.aria_data_viewer.plot_audio.assert_called_once_with(audio_record, 7)
 
+    def _run_with_callback(self, events: list, on_first_data) -> None:
+        self.vrs_data_provider.deliver_queued_sensor_data.return_value = events
+        plot_queued_sensor_data(
+            self.vrs_data_provider,
+            self.deliver_options,
+            self.aria_data_viewer,
+            on_first_data=on_first_data,
+        )
+
+    def test_on_first_data_fires_once(self) -> None:
+        order: list[str] = []
+        self.aria_data_viewer.plot_gps.side_effect = lambda _: (
+            order.append("logged") or True
+        )
+        events = [self._make_event(SensorDataType.GPS) for _ in range(3)]
+
+        self._run_with_callback(events, lambda: order.append("first_data"))
+
+        # Fires right after the first sample is logged, and never again.
+        self.assertEqual(order, ["logged", "first_data", "logged", "logged"])
+
+    def test_on_first_data_not_called_without_data(self) -> None:
+        on_first_data = MagicMock()
+
+        self._run_with_callback([], on_first_data)
+
+        on_first_data.assert_not_called()
+
+    def test_on_first_data_ignores_imu_samples_that_are_only_buffered(self) -> None:
+        on_first_data = MagicMock()
+        events = [
+            self._make_event(SensorDataType.IMU) for _ in range(MAX_IMU_BATCH_SIZE - 1)
+        ]
+        self.vrs_data_provider.get_label_from_stream_id.return_value = "imu-left"
+
+        self._run_with_callback(events, on_first_data)
+
+        self.aria_data_viewer.plot_imu_batch_vectorized.assert_not_called()
+        on_first_data.assert_not_called()
+
+    def test_on_first_data_fires_when_the_first_imu_batch_is_flushed(self) -> None:
+        on_first_data = MagicMock()
+        events = [
+            self._make_event(SensorDataType.IMU) for _ in range(MAX_IMU_BATCH_SIZE)
+        ]
+        self.vrs_data_provider.get_label_from_stream_id.return_value = "imu-left"
+
+        self._run_with_callback(events, on_first_data)
+
+        self.aria_data_viewer.plot_imu_batch_vectorized.assert_called_once()
+        on_first_data.assert_called_once_with()
+
+    def test_on_first_data_ignores_unsupported_sensor_types(self) -> None:
+        on_first_data = MagicMock()
+
+        self._run_with_callback(
+            [self._make_event(SensorDataType.NOT_VALID)], on_first_data
+        )
+
+        on_first_data.assert_not_called()
+
+    def test_on_first_data_ignores_samples_the_plotter_skips(self) -> None:
+        cases = {
+            SensorDataType.IMAGE: "plot_image",
+            SensorDataType.GPS: "plot_gps",
+            SensorDataType.VIO: "plot_vio_data",
+        }
+        for sensor_type, plot_name in cases.items():
+            with self.subTest(sensor_type=sensor_type):
+                getattr(self.aria_data_viewer, plot_name).return_value = False
+                on_first_data = MagicMock()
+
+                self._run_with_callback([self._make_event(sensor_type)], on_first_data)
+
+                on_first_data.assert_not_called()
+                getattr(self.aria_data_viewer, plot_name).return_value = True
+
+    def test_on_first_data_exception_propagates(self) -> None:
+        events = [self._make_event(SensorDataType.GPS)]
+
+        with self.assertRaisesRegex(RuntimeError, "callback failed"):
+            self._run_with_callback(
+                events, MagicMock(side_effect=RuntimeError("callback failed"))
+            )
+
 
 class LogVrsToRerunTest(unittest.TestCase):
     """
@@ -615,6 +702,8 @@ class LogVrsToRerunTest(unittest.TestCase):
     execute for real so we verify orchestration end-to-end rather than merely
     checking argument forwarding.
     """
+
+    HELPERS_MODULE: Final[str] = "projectaria_tools.utils.rerun_helpers"
 
     def _setup_provider(
         self,
@@ -677,15 +766,172 @@ class LogVrsToRerunTest(unittest.TestCase):
         for p in patchers:
             self.addCleanup(p.stop)
 
-    def test_returns_early_when_provider_is_falsy(self) -> None:
-        # Falsy provider short-circuits before any device access.
+    def test_corrupt_vrs_raises_value_error(self) -> None:
+        # A falsy provider fails before any device access.
         self.mock_create_provider.return_value = None
 
-        log_vrs_to_rerun("/nonexistent.vrs")
+        with self.assertRaisesRegex(ValueError, "/nonexistent.vrs"):
+            log_vrs_to_rerun("/nonexistent.vrs")
 
         self.mock_create_provider.assert_called_once_with("/nonexistent.vrs")
         self.mock_viewer_cls.assert_not_called()
         self.mock_plot.assert_not_called()
+
+    def test_vrs_provider_exception_raises_value_error(self) -> None:
+        self.mock_create_provider.side_effect = RuntimeError("bad header")
+
+        with self.assertRaisesRegex(ValueError, "/corrupt.vrs.*bad header"):
+            log_vrs_to_rerun("/corrupt.vrs")
+
+        self.mock_viewer_cls.assert_not_called()
+        self.mock_plot.assert_not_called()
+
+    def test_pre_cancelled_returns_before_provider_open(self) -> None:
+        stop_event = Event()
+        stop_event.set()
+
+        log_vrs_to_rerun("/some.vrs", stop_event=stop_event)
+
+        self.mock_create_provider.assert_not_called()
+        self.mock_viewer_cls.assert_not_called()
+        self.mock_plot.assert_not_called()
+
+    def test_cancelled_during_setup_returns_before_viewer_is_built(self) -> None:
+        stop_event = Event()
+        provider = self._setup_provider(DeviceVersion.Gen2)
+        provider.get_default_deliver_queued_options.side_effect = lambda: (
+            stop_event.set() or self.deliver_options
+        )
+        self.mock_create_provider.return_value = provider
+
+        log_vrs_to_rerun("/some.vrs", stop_event=stop_event)
+
+        self.mock_create_provider.assert_called_once_with("/some.vrs")
+        self.mock_viewer_cls.assert_not_called()
+        self.mock_plot.assert_not_called()
+
+    def test_default_call_manages_sinks_and_forwards_hooks(self) -> None:
+        provider = self._setup_provider(DeviceVersion.Gen2)
+        self.mock_create_provider.return_value = provider
+        stop_event = Event()
+        on_first_data = MagicMock()
+
+        log_vrs_to_rerun(
+            "/some.vrs",
+            rrd_output_path="/tmp/out.rrd",
+            stop_event=stop_event,
+            on_first_data=on_first_data,
+        )
+
+        config = self.mock_viewer_cls.call_args.kwargs["config"]
+        self.assertTrue(config.manage_rerun_sinks)
+        self.assertIsNone(config.blueprint_panel_overrides)
+        self.assertEqual(
+            self.mock_viewer_cls.call_args.kwargs["rrd_output_path"], "/tmp/out.rrd"
+        )
+        self.assertIs(self.mock_plot.call_args.kwargs["stop_event"], stop_event)
+        self.assertIs(self.mock_plot.call_args.kwargs["on_first_data"], on_first_data)
+
+    def test_supplied_recording_is_made_thread_local_and_leaves_sinks_unmanaged(
+        self,
+    ) -> None:
+        provider = self._setup_provider(DeviceVersion.Gen2)
+        self.mock_create_provider.return_value = provider
+        recording = MagicMock()
+        panel_overrides = [MagicMock(name="time_panel")]
+        thread_local_during_plot: list[object] = []
+
+        with patch(
+            f"{self.HELPERS_MODULE}.rr.set_thread_local_data_recording",
+            return_value=None,
+        ) as set_thread_local:
+            self.mock_plot.side_effect = (
+                lambda *_, **__: thread_local_during_plot.append(
+                    set_thread_local.call_args.args[0]
+                )
+            )
+            log_vrs_to_rerun(
+                "/some.vrs",
+                recording=recording,
+                blueprint_panel_overrides=panel_overrides,
+            )
+
+        config = self.mock_viewer_cls.call_args.kwargs["config"]
+        self.assertFalse(config.manage_rerun_sinks, "the caller owns the sinks")
+        self.assertIs(
+            config.blueprint_panel_overrides,
+            panel_overrides,
+            "the overrides reach the viewer config",
+        )
+        self.assertEqual(
+            thread_local_during_plot,
+            [recording],
+            "data is plotted with the supplied recording as the thread-local one",
+        )
+        self.assertEqual(
+            [c.args[0] for c in set_thread_local.call_args_list],
+            [recording, None],
+            "the previous thread-local recording is restored",
+        )
+        recording.flush.assert_called_once_with()
+        recording.__enter__.assert_not_called()
+
+    def test_supplied_recording_is_restored_when_flush_fails(self) -> None:
+        provider = self._setup_provider(DeviceVersion.Gen2)
+        self.mock_create_provider.return_value = provider
+        recording = MagicMock()
+        recording.flush.side_effect = RuntimeError("sink closed")
+
+        with (
+            patch(
+                f"{self.HELPERS_MODULE}.rr.set_thread_local_data_recording",
+                return_value=None,
+            ) as set_thread_local,
+            self.assertRaises(RuntimeError),
+        ):
+            log_vrs_to_rerun("/some.vrs", recording=recording)
+
+        self.assertEqual(
+            [c.args[0] for c in set_thread_local.call_args_list],
+            [recording, None],
+            "the previous thread-local recording is restored after a failed flush",
+        )
+
+    def test_corrupt_vrs_error_is_not_replaced_by_a_flush_error(self) -> None:
+        self.mock_create_provider.return_value = None
+        recording = MagicMock()
+        recording.flush.side_effect = RuntimeError("sink closed")
+
+        with (
+            patch(
+                f"{self.HELPERS_MODULE}.rr.set_thread_local_data_recording",
+                return_value=None,
+            ),
+            self.assertRaisesRegex(ValueError, "/corrupt.vrs"),
+        ):
+            log_vrs_to_rerun("/corrupt.vrs", recording=recording)
+
+        recording.flush.assert_not_called()
+
+    def test_supplied_recording_is_restored_when_the_vrs_is_corrupt(self) -> None:
+        self.mock_create_provider.return_value = None
+        recording = MagicMock()
+
+        with (
+            patch(
+                f"{self.HELPERS_MODULE}.rr.set_thread_local_data_recording",
+                return_value=None,
+            ) as set_thread_local,
+            self.assertRaises(ValueError),
+        ):
+            log_vrs_to_rerun("/corrupt.vrs", recording=recording)
+
+        self.assertEqual(
+            [c.args[0] for c in set_thread_local.call_args_list],
+            [recording, None],
+            "the previous thread-local recording is restored after the error",
+        )
+        recording.__enter__.assert_not_called()
 
     def test_unsupported_device_version_raises(self) -> None:
         provider = self._setup_provider(DeviceVersion.NotValid)
@@ -831,6 +1077,34 @@ class LogVrsToRerunTest(unittest.TestCase):
 
 class MainTest(unittest.TestCase):
     """Tests for `main()` CLI entry point."""
+
+    PLOTTER_MODULE: Final[str] = (
+        "projectaria_tools.tools.aria_rerun_viewer.aria_data_plotter"
+    )
+
+    def test_cli_main_unchanged(self) -> None:
+        # The standalone CLI path: no recording is supplied, so the viewer
+        # still initialises Rerun and spawns its own viewer window.
+        provider = MagicMock()
+        provider.get_device_calibration.return_value.get_device_version.return_value = (
+            DeviceVersion.Gen1
+        )
+        provider.get_stream_id_from_label.return_value = None
+        with (
+            patch.object(sys, "argv", ["aria_rerun_viewer", "--vrs", "/some.vrs"]),
+            patch(f"{_MODULE}.create_vrs_data_provider", return_value=provider),
+            patch(f"{_MODULE}.plot_queued_sensor_data") as mock_plot,
+            patch(f"{self.PLOTTER_MODULE}.rr") as mock_rr,
+            patch(f"{self.PLOTTER_MODULE}._spawn_rerun_viewer") as mock_spawn,
+            patch.object(AriaDataViewer, "plot_device_extrinsics"),
+        ):
+            main()
+
+        mock_rr.init.assert_called_once_with("AriaDataViewer")
+        mock_spawn.assert_called_once_with("75%")
+        mock_rr.save.assert_not_called()
+        mock_plot.assert_called_once()
+        self.assertIsNone(mock_plot.call_args.kwargs["on_first_data"])
 
     @patch(f"{_MODULE}.log_vrs_to_rerun")
     @patch(f"{_MODULE}.parse_args")

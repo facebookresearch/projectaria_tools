@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from threading import Event
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Tuple, TypeVar, Union
 
 import numpy as np
 import rerun as rr
@@ -38,6 +39,7 @@ from projectaria_tools.core.stream_id import StreamId
 from projectaria_tools.utils.rerun_helpers import (
     AriaGlassesOutline,
     create_hand_skeleton_from_landmarks,
+    recording_context,
     ToTransform3D,
 )
 from tqdm import tqdm
@@ -57,17 +59,79 @@ def get_camera_projection_from_device_point(
     return camera_calibration.project(T_device_camera.inverse() @ point)
 
 
-def log_device_trajectory(trajectory_files: List[str]) -> None:
-    #
-    # Log device trajectory (reduce sample count for display)
-    #
+_T = TypeVar("_T")
+
+
+def _is_stopped(stop_event: Optional[Event]) -> bool:
+    return stop_event is not None and stop_event.is_set()
+
+
+def _once(callback: Optional[Callable[[], None]]) -> Optional[Callable[[], None]]:
+    """Wrap `callback` so that it runs at most once; exceptions propagate."""
+    if callback is None:
+        return None
+    has_run = False
+
+    def run_once() -> None:
+        nonlocal has_run
+        if not has_run:
+            has_run = True
+            callback()
+
+    return run_once
+
+
+def _read_mps_file(read: Callable[[str], _T], path: str) -> Optional[_T]:
+    """Read an MPS file, or return `None` with a warning if it does not exist.
+
+    The native readers print to stderr and return an empty result for a
+    malformed file, so callers must still check for empty results.
+
+    Raises:
+        ValueError: If the reader raises, naming the path.
+    """
+    path = str(path)
+    if not os.path.isfile(path):
+        print(f"[viewer_mps][WARNING]: MPS file not found, skipping: {path}")
+        return None
+    try:
+        return read(path)
+    except Exception as e:
+        raise ValueError(f"Failed to read MPS file {path}: {e}") from e
+
+
+def log_device_trajectory(
+    trajectory_files: List[str],
+    stop_event: Optional[Event] = None,
+    on_data_logged: Optional[Callable[[], None]] = None,
+) -> None:
+    """
+    Log device trajectory (reduced sample count for display).
+
+    `stop_event` is checked before and after each file read and before each
+    log call. A native read itself cannot be interrupted, so a stop request
+    takes effect once the read in progress returns. `on_data_logged` is called
+    after each trajectory is logged.
+
+    A file that is missing or holds no samples is skipped with a warning.
+
+    Raises:
+        ValueError: If reading a trajectory file raises.
+    """
     print("Loading and logging trajectory(ies)...")
     trajectory_list_size = len(trajectory_files)
-    i = 0
-    for trajectory_file in trajectory_files:
+    for i, trajectory_file in enumerate(trajectory_files):
+        if _is_stopped(stop_event):
+            return
         print(f"Loading: {trajectory_file}")
         # First try to load as closed loop trajectory
-        trajectory_data = mps.read_closed_loop_trajectory(trajectory_file)
+        trajectory_data = _read_mps_file(
+            mps.read_closed_loop_trajectory, trajectory_file
+        )
+        if trajectory_data is None:
+            continue
+        if _is_stopped(stop_event):
+            return
         device_trajectory = [
             it.transform_world_device.translation()[0] for it in trajectory_data
         ][0::80]
@@ -77,34 +141,70 @@ def log_device_trajectory(trajectory_files: List[str]) -> None:
             print(
                 "Cannot load a closed loop trajectory. Now trying to load as open loop trajectory"
             )
-            trajectory_data = mps.read_open_loop_trajectory(trajectory_file)
+            trajectory_data = _read_mps_file(
+                mps.read_open_loop_trajectory, trajectory_file
+            )
+            if _is_stopped(stop_event):
+                return
             device_trajectory = [
-                it.transform_odometry_device.translation()[0] for it in trajectory_data
+                it.transform_odometry_device.translation()[0]
+                for it in trajectory_data or []
             ][0::80]
+
+        if len(device_trajectory) == 0:
+            print(
+                f"[viewer_mps][WARNING]: No trajectory samples in {trajectory_file}, skipping"
+            )
+            continue
 
         entity_path = (
             "world/device_trajectory"
             if trajectory_list_size == 1
             else f"world/device_trajectory_{i}"
         )
+        if _is_stopped(stop_event):
+            return
         rr.log(
             entity_path,
             rr.LineStrips3D(device_trajectory, radii=0.008),
             static=True,
         )
         print(f"Showing: {trajectory_file} as {entity_path}")
-        i += 1
+        if on_data_logged is not None:
+            on_data_logged()
 
 
-def log_point_clouds(points_files: List[str]) -> None:
-    #
-    # Log Point Cloud(s) (reduce point count for display)
-    #
+def log_point_clouds(
+    points_files: List[str],
+    stop_event: Optional[Event] = None,
+    on_data_logged: Optional[Callable[[], None]] = None,
+) -> None:
+    """
+    Log point cloud(s) (reduced point count for display).
+
+    `stop_event` is checked before and after each file read, and between
+    filtering/down sampling and logging. A native read itself cannot be
+    interrupted, so a stop request takes effect once the read in progress
+    returns. `on_data_logged` is called after each point cloud is logged.
+
+    A file that is missing or holds no points is skipped with a warning.
+
+    Raises:
+        ValueError: If reading a points file raises.
+    """
     print("Loading and logging point cloud(s)...")
     point_cloud_list_size = len(points_files)
-    i = 0
-    for points_file in points_files:
-        points_data = mps.read_global_point_cloud(points_file)
+    for i, points_file in enumerate(points_files):
+        if _is_stopped(stop_event):
+            return
+        points_data = _read_mps_file(mps.read_global_point_cloud, points_file)
+        if points_data is None:
+            continue
+        if _is_stopped(stop_event):
+            return
+        if len(points_data) == 0:
+            print(f"[viewer_mps][WARNING]: No points in {points_file}, skipping")
+            continue
         # Filter out low confidence points
         points_data = filter_points_from_confidence(points_data)
         # Down sample points
@@ -117,13 +217,16 @@ def log_point_clouds(points_files: List[str]) -> None:
         entity_path = (
             "world/points" if point_cloud_list_size == 1 else f"world/points_{i}"
         )
+        if _is_stopped(stop_event):
+            return
         rr.log(
             entity_path,
             rr.Points3D(point_positions, radii=0.006),
             static=True,
         )
         print(f"Showing: {points_file} as {entity_path}")
-        i += 1
+        if on_data_logged is not None:
+            on_data_logged()
 
 
 def log_RGB_camera_calibration(
@@ -817,6 +920,66 @@ def log_mps_to_rerun(
     jpeg_quality: int = 75,
     rrd_output_path: Optional[str] = None,
     stop_event: Optional[Event] = None,
+    recording: Optional[rr.RecordingStream] = None,
+    on_first_data: Optional[Callable[[], None]] = None,
+) -> None:
+    """
+    Log MPS data (and the matching VRS RGB stream, if any) to Rerun.
+
+    By default data goes to the global recording, and to a .rrd file when
+    `rrd_output_path` is set.
+
+    Args:
+        stop_event: When set, stops logging. It is checked before and after
+            each trajectory and point cloud file read, between filtering and
+            logging, and per RGB frame. A native file read cannot be
+            interrupted, so a stop request takes effect once the read in
+            progress returns.
+        recording: Log into this recording instead. The call runs inside
+            `with recording:`, unless the caller has already entered it on this
+            thread, in which case it is not entered again. The caller owns the
+            recording's sink and its lifetime. `rrd_output_path` is not used in
+            this mode.
+        on_first_data: Called once, right after the first trajectory, point
+            cloud or RGB frame is logged. An exception raised by the callback
+            propagates to the caller.
+
+    A trajectory or points file that is missing or empty is skipped with a
+    warning, and logging continues with the remaining files and the VRS.
+
+    Raises:
+        ValueError: If reading a trajectory or points file raises.
+    """
+    with recording_context(recording):
+        _log_mps_to_active_recording(
+            vrs_path=vrs_path,
+            trajectory_files=trajectory_files,
+            points_files=points_files,
+            eye_gaze_file=eye_gaze_file,
+            wrist_and_palm_poses_file=wrist_and_palm_poses_file,
+            hand_tracking_results_file=hand_tracking_results_file,
+            should_rectify_image=should_rectify_image,
+            down_sampling_factor=down_sampling_factor,
+            jpeg_quality=jpeg_quality,
+            rrd_output_path=None if recording is not None else rrd_output_path,
+            stop_event=stop_event,
+            on_first_data=_once(on_first_data),
+        )
+
+
+def _log_mps_to_active_recording(  # noqa: C901
+    vrs_path: Optional[str],
+    trajectory_files: List[str],
+    points_files: List[str],
+    eye_gaze_file: Optional[str],
+    wrist_and_palm_poses_file: Optional[str],
+    hand_tracking_results_file: Optional[str],
+    should_rectify_image: bool,
+    down_sampling_factor: int,
+    jpeg_quality: int,
+    rrd_output_path: Optional[str],
+    stop_event: Optional[Event],
+    on_first_data: Optional[Callable[[], None]],
 ) -> None:
     if rrd_output_path:
         print(f"Saving .rrd file to {rrd_output_path}")
@@ -824,10 +987,17 @@ def log_mps_to_rerun(
     rr.log("world", rr.ViewCoordinates.RIGHT_HAND_Z_UP, static=True)
 
     if trajectory_files:
-        log_device_trajectory(trajectory_files)
+        log_device_trajectory(
+            trajectory_files, stop_event=stop_event, on_data_logged=on_first_data
+        )
 
     if points_files:
-        log_point_clouds(points_files)
+        log_point_clouds(
+            points_files, stop_event=stop_event, on_data_logged=on_first_data
+        )
+
+    if _is_stopped(stop_event):
+        return
 
     # If we we do not have a vrs file, we are done
     if not vrs_path:
@@ -890,25 +1060,41 @@ def log_mps_to_rerun(
         return img
 
     # Load Trajectory, Eye Gaze, and Wrist and Palm Pose data - corresponding to this specific VRS file
+    if _is_stopped(stop_event):
+        return
     if trajectory_files:
-        trajectory_data = mps.read_closed_loop_trajectory(str(trajectory_files[0]))
+        trajectory_data = _read_mps_file(
+            mps.read_closed_loop_trajectory, trajectory_files[0]
+        )
     else:
         trajectory_data = None
-    if trajectory_data and len(trajectory_data) == 0:
-        trajectory_data = mps.read_open_loop_trajectory(str(trajectory_files[0]))
-    eyegaze_data = mps.read_eyegaze(eye_gaze_file) if eye_gaze_file else None
+    if trajectory_data is not None and len(trajectory_data) == 0:
+        trajectory_data = _read_mps_file(
+            mps.read_open_loop_trajectory, trajectory_files[0]
+        )
+    if _is_stopped(stop_event):
+        return
+    eyegaze_data = (
+        _read_mps_file(mps.read_eyegaze, eye_gaze_file) if eye_gaze_file else None
+    )
+    if _is_stopped(stop_event):
+        return
 
     # If both wrist and palm poses and hand tracking results are available, use hand tracking
     # results as it's a superset of wrist and palm poses.
     hand_tracking_results = (
-        mps.hand_tracking.read_hand_tracking_results(hand_tracking_results_file)
+        _read_mps_file(
+            mps.hand_tracking.read_hand_tracking_results, hand_tracking_results_file
+        )
         if hand_tracking_results_file
         else None
     )
     wrist_and_palm_poses = None
     if hand_tracking_results is None:
         wrist_and_palm_poses = (
-            mps.hand_tracking.read_wrist_and_palm_poses(wrist_and_palm_poses_file)
+            _read_mps_file(
+                mps.hand_tracking.read_wrist_and_palm_poses, wrist_and_palm_poses_file
+            )
             if wrist_and_palm_poses_file
             else None
         )
@@ -917,6 +1103,8 @@ def log_mps_to_rerun(
             f"Using hand tracking results provided at {hand_tracking_results_file} "
             f"for visualization. wrist_and_palm_poses_file ({wrist_and_palm_poses_file}) will be ignored."
         )
+    if _is_stopped(stop_event):
+        return
 
     # Log Aria Glasses outline
     log_RGB_camera_calibration(
@@ -956,6 +1144,8 @@ def log_mps_to_rerun(
             rgb_stream_label,
             postprocess_image=post_process_image,
         )
+        if on_first_data is not None:
+            on_first_data()
 
         log_eye_gaze(
             eyegaze_data,

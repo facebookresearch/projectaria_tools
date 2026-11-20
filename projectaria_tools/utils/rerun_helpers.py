@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
+from contextlib import contextmanager
+from typing import Iterator, List, Optional
 
 import numpy as np
 import rerun as rr
@@ -226,3 +227,28 @@ def create_hand_skeleton_from_landmarks(landmark_locations: List):
     )
 
     return hand_skeleton
+
+
+@contextmanager
+def recording_context(
+    recording: Optional[rr.RecordingStream],
+) -> Iterator[None]:
+    """
+    Context that makes `recording` the thread-local recording, without entering it.
+
+    Entering the caller's `RecordingStream` would run its `__exit__` here, which
+    in rerun 0.33 finalizes file sinks and so closes a caller's `.rrd`. Only the
+    thread-local recording is swapped, and restored on exit; after a successful
+    call the recording is flushed so its data has been sent when it returns.
+    The caller keeps owning the recording's sinks and its lifetime.
+    """
+    if recording is None:
+        yield
+        return
+    previous = rr.set_thread_local_data_recording(recording)
+    try:
+        yield
+        # Only on success: a flush error must not replace the caller-facing error.
+        recording.flush()
+    finally:
+        rr.set_thread_local_data_recording(previous)

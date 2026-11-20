@@ -186,7 +186,3 @@ class MainSinkSelectionTest(unittest.TestCase):
 
         mock_rr.init.assert_not_called()
         mock_log.assert_not_called()
-
-
-if __name__ == "__main__":
-    unittest.main()

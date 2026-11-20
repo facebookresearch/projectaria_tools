@@ -14,7 +14,7 @@
 
 import argparse
 from threading import Event
-from typing import Optional
+from typing import Callable, Optional, Sequence
 
 # Import different modules for internal and external
 try:
@@ -22,6 +22,7 @@ try:
 except ImportError:
     from projectaria_tools.core.data_provider import create_vrs_data_provider
 
+import rerun as rr
 from projectaria_tools.core.calibration import (
     DeviceCalibration,
     DeviceVersion,
@@ -33,7 +34,9 @@ from projectaria_tools.core.stream_id import StreamId
 from projectaria_tools.tools.aria_rerun_viewer.aria_data_plotter import (
     AriaDataViewer,
     AriaDataViewerConfig,
+    BlueprintPanelPart,
 )
+from projectaria_tools.utils.rerun_helpers import recording_context
 from tqdm import tqdm
 
 ALL_STREAM_LABELS_GEN2 = [
@@ -248,9 +251,15 @@ def plot_queued_sensor_data(
     deliver_options,
     aria_data_viewer,
     stop_event: Optional[Event] = None,
+    on_first_data: Optional[Callable[[], None]] = None,
 ):
     """
     Plot queued sensor data from VRS file
+
+    `on_first_data` is called once, right after the first sensor sample has been
+    logged. Samples that are only buffered for batching (IMU), or that the plotter
+    skips (an invalid VIO pose, GPS without a fix, a missing frame), do not
+    count, and an exception raised by the callback propagates to the caller.
     """
     hand_pose_stream_id = vrs_data_provider.get_stream_id_from_label("handtracking")
 
@@ -265,6 +274,7 @@ def plot_queued_sensor_data(
         if stop_event is not None and stop_event.is_set():
             break
         device_time_ns = data.get_time_ns(TimeDomain.DEVICE_TIME)
+        sample_logged = True
 
         # Current stream's stream_id and label
         stream_id = data.stream_id()
@@ -272,7 +282,7 @@ def plot_queued_sensor_data(
 
         if data.sensor_data_type() == SensorDataType.IMAGE:
             frame = data.image_data_and_record()[0].to_numpy_array()
-            aria_data_viewer.plot_image(
+            sample_logged = aria_data_viewer.plot_image(
                 frame, label, data.image_data_and_record()[1].capture_timestamp_ns
             )
 
@@ -301,11 +311,12 @@ def plot_queued_sensor_data(
                 )
 
         elif data.sensor_data_type() == SensorDataType.GPS:
-            aria_data_viewer.plot_gps(data.gps_data())
+            sample_logged = aria_data_viewer.plot_gps(data.gps_data())
 
         # For IMU plotting, only send batched IMU data
         elif data.sensor_data_type() == SensorDataType.IMU:
             batched_imu_data_list[label].append(data.imu_data())
+            sample_logged = False
 
             if len(batched_imu_data_list[label]) >= MAX_IMU_BATCH_SIZE:
                 aria_data_viewer.plot_imu_batch_vectorized(
@@ -313,6 +324,7 @@ def plot_queued_sensor_data(
                 )
                 # Reset batched IMU data list
                 batched_imu_data_list[label] = []
+                sample_logged = True
         elif data.sensor_data_type() == SensorDataType.MAGNETOMETER:
             aria_data_viewer.plot_magnetometer(data.magnetometer_data())
         elif data.sensor_data_type() == SensorDataType.BAROMETER:
@@ -331,9 +343,15 @@ def plot_queued_sensor_data(
         elif data.sensor_data_type() == SensorDataType.VIO_HIGH_FREQ:
             aria_data_viewer.plot_vio_high_freq_data(data.vio_high_freq_data())
         elif data.sensor_data_type() == SensorDataType.VIO:
-            aria_data_viewer.plot_vio_data(data.vio_data())
+            sample_logged = aria_data_viewer.plot_vio_data(data.vio_data())
         elif data.sensor_data_type() == SensorDataType.HAND_POSE:
             aria_data_viewer.plot_hand_pose_data_3d(data.hand_pose_data())
+        else:
+            sample_logged = False
+
+        if sample_logged and on_first_data is not None:
+            on_first_data()
+            on_first_data = None
 
 
 def log_vrs_to_rerun(
@@ -344,12 +362,75 @@ def log_vrs_to_rerun(
     skip_begin_sec: Optional[float] = None,
     skip_end_sec: Optional[float] = None,
     stop_event: Optional[Event] = None,
+    recording: Optional[rr.RecordingStream] = None,
+    on_first_data: Optional[Callable[[], None]] = None,
+    blueprint_panel_overrides: Optional[Sequence[BlueprintPanelPart]] = None,
 ) -> None:
-    # Step 1: Create VRS data provider
-    vrs_data_provider: VrsDataProvider = create_vrs_data_provider(vrs)
+    """
+    Log a VRS file to Rerun.
+
+    By default the viewer opens its own sink: a saved .rrd when `rrd_output_path`
+    is set, otherwise a spawned viewer window.
+
+    Args:
+        stop_event: When set, stops logging. If it is already set on entry,
+            the VRS file is not opened.
+        recording: Log into this recording instead of opening a sink. The call
+            runs inside `with recording:`, unless the caller has already entered
+            it on this thread, in which case it is not entered again. The caller
+            owns the recording's sink and its lifetime. `rrd_output_path` is not
+            used in this mode.
+        on_first_data: Called once, right after the first sensor sample is
+            logged.
+        blueprint_panel_overrides: Panel parts to use in the generated blueprint
+            instead of the default collapsed panels.
+
+    Raises:
+        ValueError: If the VRS file cannot be opened or the device version is
+            not supported.
+    """
+    with recording_context(recording):
+        _log_vrs_to_active_recording(
+            vrs=vrs,
+            rrd_output_path=rrd_output_path,
+            subsample_rates=subsample_rates,
+            enabled_streams=enabled_streams,
+            skip_begin_sec=skip_begin_sec,
+            skip_end_sec=skip_end_sec,
+            stop_event=stop_event,
+            manage_rerun_sinks=recording is None,
+            on_first_data=on_first_data,
+            blueprint_panel_overrides=blueprint_panel_overrides,
+        )
+
+
+def _open_vrs_data_provider(vrs: str) -> VrsDataProvider:
+    try:
+        vrs_data_provider: Optional[VrsDataProvider] = create_vrs_data_provider(vrs)
+    except Exception as e:
+        raise ValueError(f"Failed to open {vrs}: {e}") from e
     if not vrs_data_provider:
-        print(f"Failed to open {vrs}")
+        raise ValueError(f"Failed to open {vrs}")
+    return vrs_data_provider
+
+
+def _log_vrs_to_active_recording(
+    vrs: str,
+    rrd_output_path: Optional[str],
+    subsample_rates: Optional[list[str]],
+    enabled_streams: Optional[list[str]],
+    skip_begin_sec: Optional[float],
+    skip_end_sec: Optional[float],
+    stop_event: Optional[Event],
+    manage_rerun_sinks: bool,
+    on_first_data: Optional[Callable[[], None]],
+    blueprint_panel_overrides: Optional[Sequence[BlueprintPanelPart]],
+) -> None:
+    if stop_event is not None and stop_event.is_set():
         return
+
+    # Step 1: Create VRS data provider
+    vrs_data_provider: VrsDataProvider = _open_vrs_data_provider(vrs)
 
     # Step 2: Extract device_calibration from vrs_data_provider
     device_calibration: DeviceCalibration = vrs_data_provider.get_device_calibration()
@@ -365,6 +446,8 @@ def log_vrs_to_rerun(
     # recording actually carries, so the layout never reserves space for a panel
     # that would stay empty for the whole session.
     viewer_config: AriaDataViewerConfig = AriaDataViewerConfig()
+    viewer_config.manage_rerun_sinks = manage_rerun_sinks
+    viewer_config.blueprint_panel_overrides = blueprint_panel_overrides
     viewer_config.enable_gps = any(
         get_recorded_stream_id(vrs_data_provider, label) is not None
         for label in ("gps", "gps-app")
@@ -387,6 +470,9 @@ def log_vrs_to_rerun(
         skip_begin_sec=skip_begin_sec,
         skip_end_sec=skip_end_sec,
     )
+
+    if stop_event is not None and stop_event.is_set():
+        return
 
     # Step 6: Initialize AriaDataViewer
     aria_data_viewer: AriaDataViewer = AriaDataViewer(
@@ -411,7 +497,11 @@ def log_vrs_to_rerun(
 
     # Step 6: Plot queued sensor data
     plot_queued_sensor_data(
-        vrs_data_provider, deliver_options, aria_data_viewer, stop_event=stop_event
+        vrs_data_provider,
+        deliver_options,
+        aria_data_viewer,
+        stop_event=stop_event,
+        on_first_data=on_first_data,
     )
 
 
