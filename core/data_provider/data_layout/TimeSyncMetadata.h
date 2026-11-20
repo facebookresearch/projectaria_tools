@@ -49,6 +49,10 @@ struct TimeSyncDataRecordMetadata : public vrs::AutoDataLayout {
   // The real time clock or wall clock in nanoseconds
   vrs::DataPieceValue<std::int64_t> realTimestampNs{"real_timestamp_ns"};
 
+  // ID of the time sync broadcaster, which tells apart several broadcasting in the same space.
+  // Only set in SubGHz streams.
+  vrs::DataPieceValue<std::uint32_t> broadcasterId{"broadcaster_id"};
+
   vrs::AutoDataLayoutEnd endLayout;
 };
 

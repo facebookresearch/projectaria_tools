@@ -33,6 +33,7 @@ struct BatteryStatusConfigRecordMetadata : public vrs::AutoDataLayout {
   vrs::DataPieceString sensorModel{"sensor_model"};
   vrs::DataPieceValue<std::uint64_t> deviceId{"device_id"};
   vrs::DataPieceValue<double> nominalRateHz{"nominal_rate"};
+  vrs::DataPieceString factoryCalibration{"calibration"};
   vrs::DataPieceString description{"description"};
 
   vrs::AutoDataLayoutEnd end;
@@ -44,11 +45,8 @@ struct BatteryStatusDataMetadata : public vrs::AutoDataLayout {
   // Timestamp of data capture in board clock, in unit of nanoseconds.
   vrs::DataPieceValue<std::int64_t> captureTimestampNs{"capture_timestamp_ns"};
 
-  // Battery charging status (0=Discharging, 1=Charging, 2=Full, 3=Unknown)
-  vrs::DataPieceValue<std::uint32_t> chargingStatus{"charging_status"};
-
   // Battery level in percentage. Value range [0, 100]
-  vrs::DataPieceValue<std::uint8_t> batteryLevel{"battery_level"};
+  vrs::DataPieceValue<float> batteryLevel{"battery_level"};
 
   // Temperature in Celsius
   vrs::DataPieceValue<float> temperatureC{"temperature_c"};
@@ -70,6 +68,9 @@ struct BatteryStatusDataMetadata : public vrs::AutoDataLayout {
 
   // Average power in watts
   vrs::DataPieceValue<float> powerAvgWatt{"power_avg_watt"};
+
+  // Battery charging status: "Discharging", "Charging", "Full" or "Unknown"
+  vrs::DataPieceString chargingStatus{"charging_status"};
 
   vrs::AutoDataLayoutEnd end;
 };

@@ -20,6 +20,23 @@
 
 namespace projectaria::tools::data_provider {
 
+namespace {
+
+ChargingStatus chargingStatusFromString(const std::string& status) {
+  if (status == "Discharging") {
+    return ChargingStatus::Discharging;
+  }
+  if (status == "Charging") {
+    return ChargingStatus::Charging;
+  }
+  if (status == "Full") {
+    return ChargingStatus::Full;
+  }
+  return ChargingStatus::Unknown;
+}
+
+} // namespace
+
 bool BatteryStatusPlayer::onDataLayoutRead(
     const vrs::CurrentRecord& r,
     size_t blockIndex,
@@ -34,8 +51,8 @@ bool BatteryStatusPlayer::onDataLayoutRead(
   } else if (r.recordType == vrs::Record::Type::DATA) {
     auto& data = getExpectedLayout<datalayout::BatteryStatusDataMetadata>(dl, blockIndex);
     dataRecord_.captureTimestampNs = data.captureTimestampNs.get();
-    dataRecord_.chargingStatus = static_cast<ChargingStatus>(data.chargingStatus.get());
-    dataRecord_.batteryLevel = data.batteryLevel.get();
+    dataRecord_.chargingStatus = chargingStatusFromString(data.chargingStatus.get());
+    dataRecord_.batteryLevel = static_cast<uint8_t>(data.batteryLevel.get());
     dataRecord_.temperatureC = data.temperatureC.get();
     dataRecord_.voltageVolt = data.voltageNowVolt.get();
     dataRecord_.voltageAvgVolt = data.voltageAvgVolt.get();

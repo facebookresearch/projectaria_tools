@@ -27,8 +27,25 @@
 
 namespace datalayout {
 
+// Fields Gen2 recordings add to the configuration. Optional, because writers of
+// other streams leave them out: an unset format reads as undefined.
+struct AudioFormatConfigFields {
+  // Format of the audio stream, convertible from vrs::AudioFormat (PCM or Opus).
+  vrs::DataPieceValue<std::uint8_t> audioFormat{vrs::datalayout_conventions::kAudioFormat};
+
+  // Number of stereo pairs, for Opus compression.
+  vrs::DataPieceValue<std::uint8_t> stereoPairCount{
+      vrs::datalayout_conventions::kAudioStereoPairCount};
+
+  // One bit per enabled microphone.
+  vrs::DataPieceValue<std::uint8_t> enabledMicIdMask{"enabled_mic_id_mask"};
+};
+
 struct AudioConfigRecordMetadata : public vrs::AutoDataLayout {
   static constexpr uint32_t kVersion = 2;
+
+  explicit AudioConfigRecordMetadata(bool allocateFormatFields = false)
+      : formatFields(allocateFormatFields) {}
 
   vrs::DataPieceValue<std::uint32_t> streamId{"stream_id"};
 
@@ -42,11 +59,36 @@ struct AudioConfigRecordMetadata : public vrs::AutoDataLayout {
   // Convertible from vrs::AudioSampleFormat.
   vrs::DataPieceValue<std::uint8_t> sampleFormat{vrs::datalayout_conventions::kAudioSampleFormat};
 
+  const vrs::OptionalDataPieces<AudioFormatConfigFields> formatFields;
+
   vrs::AutoDataLayoutEnd endLayout;
+};
+
+// Fields Gen2 recordings add to each block. Optional, because writers of other
+// streams leave them out: an unset sample count reads as an empty block.
+struct AudioBlockDataFields {
+  // Number of samples in the block.
+  vrs::DataPieceValue<std::uint32_t> sampleCount{vrs::datalayout_conventions::kAudioSampleCount};
+
+  // Sequence number of the block.
+  vrs::DataPieceValue<std::uint64_t> frameNumber{"frame_number"};
+
+  // Hardware capture time of the sample at `hardwareCaptureFrameIndex`, -1 when unknown.
+  vrs::DataPieceValue<std::int64_t> hardwareCaptureTimestampNs{"hardware_capture_timestamp_ns"};
+
+  // Sample index since the stream started that `hardwareCaptureTimestampNs` refers to, -1 when
+  // unknown.
+  vrs::DataPieceValue<std::int64_t> hardwareCaptureFrameIndex{"hardware_capture_frame_index"};
+
+  // Time the block arrived at the recorder, the source of the record timestamp.
+  vrs::DataPieceValue<std::int64_t> arrivalTimestampNs{"arrival_timestamp_ns"};
 };
 
 struct AudioDataRecordMetadata : public vrs::AutoDataLayout {
   static constexpr uint32_t kVersion = 2;
+
+  explicit AudioDataRecordMetadata(bool allocateBlockFields = false)
+      : blockFields(allocateBlockFields) {}
 
   // A list of timestamps of each sample in the block, following the same order they are stored in
   // the ContentBlock.
@@ -54,6 +96,8 @@ struct AudioDataRecordMetadata : public vrs::AutoDataLayout {
 
   // Set 1 for muted, 0 otherwise.
   vrs::DataPieceValue<std::uint8_t> audioMuted{"audio_muted"};
+
+  const vrs::OptionalDataPieces<AudioBlockDataFields> blockFields;
 
   vrs::AutoDataLayoutEnd endLayout;
 };

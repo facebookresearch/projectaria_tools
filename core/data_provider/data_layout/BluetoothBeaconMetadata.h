@@ -22,7 +22,8 @@
 #include <vrs/DataPieces.h>
 
 // Note: The VRS stream type for Bluetooth beacon data is
-// vrs::RecordableTypeId::BluetoothBeaconRecordableClass.
+// vrs::RecordableTypeId::BluetoothBeaconRecordableClass. Each data record is followed by a custom
+// content block holding the beacon's raw, packed BLE advertising PDU.
 
 namespace datalayout {
 
@@ -42,6 +43,9 @@ struct BluetoothBeaconDataMetadata : public vrs::AutoDataLayout {
 
   // Timestamp of the data sample in real time (UNIX epoch).
   vrs::DataPieceValue<std::int64_t> systemTimestampNs{"system_timestamp_ns"};
+
+  // Timestamp of the data sample in a steady clock, -1 when unknown.
+  vrs::DataPieceValue<std::int64_t> steadyTimestampNs{"steady_timestamp_ns"};
 
   // Timestamp of the data sample in board-clock domain.
   vrs::DataPieceValue<std::int64_t> boardTimestampNs{"board_timestamp_ns"};
@@ -67,6 +71,9 @@ struct BluetoothBeaconDataMetadata : public vrs::AutoDataLayout {
 
   // Frequency of the signal, in units of MHz.
   vrs::DataPieceValue<float> freqMhz{"freq_mhz"};
+
+  // MAC address of the Bluetooth beacon, as six colon-separated hex bytes.
+  vrs::DataPieceString macAddress{"mac_address"};
 
   vrs::AutoDataLayoutEnd end;
 };

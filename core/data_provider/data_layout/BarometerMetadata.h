@@ -49,6 +49,8 @@ struct BarometerDataMetadata : public vrs::AutoDataLayout {
 
   // Pressure in Pascal.
   vrs::DataPieceValue<double> pressure{"pressure"};
+  // NaN when not computed.
+  vrs::DataPieceValue<double> altitude{"altitude"};
 
   vrs::AutoDataLayoutEnd end;
 };

@@ -54,6 +54,7 @@ struct MotionSensorConfigRecordMetadata : public vrs::AutoDataLayout {
   vrs::DataPieceString onlineCalibration{"online_calibration"};
 
   vrs::DataPieceString description{"description"};
+  vrs::DataPieceString location{"location"};
 
   vrs::AutoDataLayoutEnd end;
 };
@@ -71,8 +72,11 @@ struct MotionSensorDataRecordMetadata : public vrs::AutoDataLayout {
 
   // Sample timestamp in the hardware clock domain
   vrs::DataPieceValue<std::int64_t> captureTimestampNs{"capture_timestamp_ns"};
+  vrs::DataPieceValue<std::int64_t> captureTimestampInProcessingClockDomainNs{
+      "capture_timestamp_in_processing_clock_domain_ns"};
   // Arrival timestamp in the host clock domain. Set to -1 if not available.
   vrs::DataPieceValue<std::int64_t> arrivalTimestampNs{"arrival_timestamp_ns"};
+  vrs::DataPieceValue<std::int64_t> processingStartTimestampNs{"processing_start_timestamp_ns"};
 
   // Accelerometer reading in [m/s^2], if accelerometer_valid is true.
   vrs::DataPieceArray<float> accelMSec2{"accelerometer", 3};

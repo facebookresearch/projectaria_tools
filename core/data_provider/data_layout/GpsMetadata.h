@@ -67,6 +67,32 @@ struct GpsDataMetadata : public vrs::AutoDataLayout {
   // Speed over ground [m/s]
   vrs::DataPieceValue<float> speed{"speed"};
 
+  // Speed accuracy [m/s]
+  vrs::DataPieceValue<float> speedAccuracy{"speed_accuracy"};
+
+  // Height above mean sea level [m]
+  vrs::DataPieceValue<float> heightAboveMsl{"height_above_msl"};
+
+  // Velocity in the north-east-down frame [m/s]
+  vrs::DataPieceValue<vrs::Point3Df> velocityNed{"velocity_ned"};
+
+  // Position dilution of precision
+  vrs::DataPieceValue<float> positionDop{"position_dop"};
+
+  // Heading and its accuracy [degrees]
+  vrs::DataPieceValue<float> heading{"heading"};
+  vrs::DataPieceValue<float> headingAccuracy{"heading_accuracy"};
+
+  // Course over ground from true north, and its accuracy [degrees]
+  vrs::DataPieceValue<float> bearing{"bearing"};
+  vrs::DataPieceValue<float> bearingAccuracy{"bearing_accuracy"};
+
+  // Course over ground from magnetic north [degrees]
+  vrs::DataPieceValue<float> magneticNorthHeading{"magneticNorthHeading"};
+
+  // Magnetic declination [degrees]
+  vrs::DataPieceValue<float> magneticDeclination{"magneticDeclination"};
+
   // For Aria gen1, raw data store the raw numerical data from each satellite. Each element is a
   // string representing the raw data sentence from one satellite. Can be parsed by any standard GPS
   // library. For Aria gen2, rawData is deprecated and broken down into new two fields:
@@ -89,6 +115,9 @@ struct GpsDataMetadata : public vrs::AutoDataLayout {
   // SBAS, QZSS, NAVIC
   // only available for gen2.
   vrs::DataPieceVector<std::string> constellationsEnabled{"constellations_enabled"};
+
+  // NMEA sentences describing the satellites in view at this fix, only available for gen2.
+  vrs::DataPieceVector<std::string> nmeaData{"nmea_data"};
 
   vrs::AutoDataLayoutEnd end;
 };

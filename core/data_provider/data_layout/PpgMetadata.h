@@ -27,6 +27,7 @@ class PpgConfigurationLayout : public vrs::AutoDataLayout {
   vrs::DataPieceString sensorModel{"sensor_model"};
   vrs::DataPieceValue<std::uint64_t> deviceId{"device_id"};
   vrs::DataPieceValue<double> nominalRateHz{"nominal_rate"};
+  vrs::DataPieceString factoryCalibration{"calibration"};
   vrs::DataPieceString description{"description"};
 
   vrs::AutoDataLayoutEnd endLayout;

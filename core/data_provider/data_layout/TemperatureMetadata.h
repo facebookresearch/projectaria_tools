@@ -28,6 +28,8 @@ class TemperatureConfigurationLayout : public vrs::AutoDataLayout {
   vrs::DataPieceValue<uint64_t> deviceId{"device_id"};
   vrs::DataPieceValue<double> nominalRate{"nominal_rate"};
   vrs::DataPieceString sensorModel{"sensor_model"};
+  vrs::DataPieceString factoryCalibration{"calibration"};
+  vrs::DataPieceString description{"description"};
 
   vrs::AutoDataLayoutEnd endLayout;
 };
@@ -39,6 +41,7 @@ class TemperatureDataLayout : public vrs::AutoDataLayout {
   vrs::DataPieceValue<int64_t> captureTimestampNs{"capture_timestamp_ns"};
   vrs::DataPieceValue<float> temperatureCelsius{"temperature_celsius"};
   vrs::DataPieceString sensorName{"sensor_name"};
+  vrs::DataPieceValue<std::uint64_t> sensorId{"sensor_id"};
 
   vrs::AutoDataLayoutEnd endLayout;
 };

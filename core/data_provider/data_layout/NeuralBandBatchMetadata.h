@@ -29,8 +29,6 @@ class NeuralBandBatchConfigurationLayout : public vrs::AutoDataLayout {
   vrs::DataPieceValue<uint32_t> streamId{"stream_id"};
   vrs::DataPieceString sensorModel{"sensor_model"};
   vrs::DataPieceValue<std::uint64_t> deviceId{"device_id"};
-  vrs::DataPieceValue<double> nominalRateHz{"nominal_rate"};
-  vrs::DataPieceString description{"description"};
 
   // Label MUST match the recorder byte-for-byte; empty when absent from recording.
   vrs::DataPieceString emgCalibrationParamsJson{"emg_calibration_params_json"};

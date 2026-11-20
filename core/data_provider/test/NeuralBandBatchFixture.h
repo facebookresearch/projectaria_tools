@@ -71,8 +71,6 @@ class NeuralBandBatchRecordable : public vrs::Recordable {
     config_.streamId.set(0);
     config_.sensorModel.stage("wristband-test");
     config_.deviceId.set(0xC0FFEEULL);
-    config_.nominalRateHz.set(1000.0);
-    config_.description.stage("");
     config_.emgCalibrationParamsJson.stage(calibrationParamsJson_);
     config_.emgBandInfoJson.stage(bandInfoJson_);
     return createRecord(0.0, vrs::Record::Type::CONFIGURATION, 1, vrs::DataSource(config_));

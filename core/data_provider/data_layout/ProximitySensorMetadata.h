@@ -28,6 +28,11 @@ class ProximitySensorConfigurationLayout : public vrs::AutoDataLayout {
   static constexpr uint32_t kVersion = 1;
 
   vrs::DataPieceValue<std::uint32_t> streamId{"stream_id"};
+  vrs::DataPieceValue<std::uint64_t> deviceId{"device_id"};
+  vrs::DataPieceValue<double> nominalRate{"nominal_rate"};
+  vrs::DataPieceString sensorModel{"sensor_model"};
+  vrs::DataPieceString factoryCalibration{"calibration"};
+  vrs::DataPieceString description{"description"};
 
   vrs::AutoDataLayoutEnd endLayout;
 };

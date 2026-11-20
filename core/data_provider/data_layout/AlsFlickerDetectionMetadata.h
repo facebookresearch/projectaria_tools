@@ -31,6 +31,8 @@ class AlsFlickerDetectionConfigurationLayout : public vrs::AutoDataLayout {
   vrs::DataPieceValue<std::uint64_t> deviceId{"device_id"};
   vrs::DataPieceValue<double> nominalRate{"nominal_rate"};
   vrs::DataPieceString sensorModel{"sensor_model"};
+  vrs::DataPieceString factoryCalibration{"calibration"};
+  vrs::DataPieceString description{"description"};
 
   vrs::AutoDataLayoutEnd endLayout;
 };

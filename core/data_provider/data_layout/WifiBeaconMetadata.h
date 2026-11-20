@@ -31,6 +31,9 @@ struct WifiBeaconConfigRecordMetadata : public vrs::AutoDataLayout {
 
   vrs::DataPieceValue<std::uint32_t> streamId{"stream_id"};
 
+  // Sample rate [Hz]
+  vrs::DataPieceValue<double> sampleRateHz{"sample_rate_hz"};
+
   vrs::AutoDataLayoutEnd end;
 };
 
@@ -39,6 +42,9 @@ struct WifiBeaconDataMetadata : public vrs::AutoDataLayout {
 
   // Timestamp of the data sample in real time (UNIX epoch).
   vrs::DataPieceValue<std::int64_t> systemTimestampNs{"system_timestamp_ns"};
+
+  // Timestamp of the data sample in a steady clock, -1 when unknown.
+  vrs::DataPieceValue<std::int64_t> steadyTimestampNs{"steady_timestamp_ns"};
 
   // Timestamp of the data sample in board-clock domain.
   vrs::DataPieceValue<std::int64_t> boardTimestampNs{"board_timestamp_ns"};
