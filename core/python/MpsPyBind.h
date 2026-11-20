@@ -251,6 +251,7 @@ void exportMps(py::module& m) {
   m.def(
       "read_eyegaze",
       &readEyeGaze,
+      py::call_guard<py::gil_scoped_release>(),
       py::arg("path"),
       R"docdelimiter(Read Eye Gaze from the eye gaze output generated via MPS.
   Parameters
@@ -478,6 +479,7 @@ void exportMps(py::module& m) {
   m.def(
       "read_open_loop_trajectory",
       &readOpenLoopTrajectory,
+      py::call_guard<py::gil_scoped_release>(),
       py::arg("path"),
       R"docdelimiter(Read Open loop trajectory.
   Parameters
@@ -488,6 +490,7 @@ void exportMps(py::module& m) {
   m.def(
       "read_closed_loop_trajectory",
       &readClosedLoopTrajectory,
+      py::call_guard<py::gil_scoped_release>(),
       py::arg("path"),
       R"docdelimiter(Read Closed loop trajectory.
   Parameters
@@ -520,6 +523,7 @@ void exportMps(py::module& m) {
   m.def(
       "read_online_calibration",
       &readOnlineCalibration,
+      py::call_guard<py::gil_scoped_release>(),
       py::arg("path"),
       R"docdelimiter(Read estimated online calibrations.
   Parameters
@@ -561,6 +565,7 @@ void exportMps(py::module& m) {
         warnings.attr("warn")(
             "read_global_point_cloud(path, mode) is deprecated, use read_global_point_cloud(path) instead.");
 
+        py::gil_scoped_release release;
         return readGlobalPointCloud(path);
       },
       py::arg("path"),
@@ -575,6 +580,7 @@ void exportMps(py::module& m) {
   m.def(
       "read_global_point_cloud",
       [](const std::string& path) -> GlobalPointCloud { return readGlobalPointCloud(path); },
+      py::call_guard<py::gil_scoped_release>(),
       py::arg("path"),
       R"docdelimiter(Read global point cloud.
   Parameters
@@ -609,6 +615,7 @@ void exportMps(py::module& m) {
         warnings.attr("warn")(
             "read_point_observations(path, mode) is deprecated, use read_point_observations(path) instead.");
 
+        py::gil_scoped_release release;
         return readPointObservations(path);
       },
       py::arg("path"),
@@ -623,6 +630,7 @@ void exportMps(py::module& m) {
   m.def(
       "read_point_observations",
       [](const std::string& path) -> PointObservations { return readPointObservations(path); },
+      py::call_guard<py::gil_scoped_release>(),
       py::arg("path"),
       R"docdelimiter(Read point observations.
   Parameters
@@ -670,6 +678,7 @@ void exportMps(py::module& m) {
   m.def(
       "read_static_camera_calibrations",
       &readStaticCameraCalibrations,
+      py::call_guard<py::gil_scoped_release>(),
       py::arg("path"),
       R"docdelimiter(Read static camera calibrations.
   Parameters
@@ -966,6 +975,7 @@ void exportMps(py::module& m) {
             "WristAndPalmPoses and read_wrist_and_palm_poses are to be deprecated: "
             "Use HandTrackingResults and read_hand_tracking_results with the new MPS hand tracking csv instead."
             "See https://facebookresearch.github.io/projectaria_tools/docs/data_formats/mps/hand_tracking#hand_tracking_resultscsv for more details.");
+        py::gil_scoped_release release;
         return readWristAndPalmPoses(path);
       },
       py::arg("path"),
@@ -1081,6 +1091,7 @@ void exportMps(py::module& m) {
   hand_tracking.def(
       "read_hand_tracking_results",
       &readHandTrackingResults,
+      py::call_guard<py::gil_scoped_release>(),
       py::arg("path"),
       R"docdelimiter(Read hand tracking results from the hand tracking output generated via MPS.
     Parameters
