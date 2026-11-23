@@ -287,6 +287,37 @@ class CalibrationTests(unittest.TestCase):
 
         return np.allclose(original_ray, cw_90_ray, rtol=1e-5)
 
+    def test_fisheye_cubic_plus_rd4_projection(self) -> None:
+        # [fu fv cu cv s k0..k5 p0..p12 s0 s1]
+        params = np.array(
+            [201.7, 201.6, 200.2, 199.9, -0.02]
+            + [-0.1, 0.3, -0.6, 0.6, -0.35, 0.08]
+            + [-5e-4, 5e-4, -8e-4, 8e-4, 4e-4, 4e-4, -1e-3]
+            + [-7e-5, -2e-4, 2e-4, -4e-4, -2e-5, -4.6e-4]
+            + [9e-4, -2.4e-4]
+        )
+        projection = calibration.CameraProjection(
+            calibration.CameraModelType.FISHEYE_CUBIC_PLUS_RD4, params
+        )
+        self.assertEqual(
+            projection.model_name(), calibration.CameraModelType.FISHEYE_CUBIC_PLUS_RD4
+        )
+        np.testing.assert_allclose(projection.get_focal_lengths(), [201.7, 201.6])
+        np.testing.assert_allclose(projection.get_principal_point(), [200.2, 199.9])
+        np.testing.assert_allclose(
+            projection.project(np.array([0.0, 0.0, 1.0])), [200.2, 199.9]
+        )
+
+        ray = np.array([0.3, -0.2, 1.0])
+        np.testing.assert_allclose(
+            projection.unproject(projection.project(ray)), ray, atol=1e-6
+        )
+
+        unpickled = pickle.loads(
+            pickle.dumps(calibration.CameraModelType.FISHEYE_CUBIC_PLUS_RD4)
+        )
+        self.assertEqual(unpickled, calibration.CameraModelType.FISHEYE_CUBIC_PLUS_RD4)
+
     def test_imu_calibration_getter(self) -> None:
         for vrs_filepath in vrs_filepath_list:
             provider = data_provider.create_vrs_data_provider(vrs_filepath)
