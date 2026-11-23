@@ -41,10 +41,16 @@ CameraCalibration parseCameraCalibrationFromJson(
     modelName = CameraProjection::ModelType::KannalaBrandtK3;
   } else if (projectionModelName == "Fisheye62") {
     modelName = CameraProjection::ModelType::Fisheye62;
+  } else if (projectionModelName == "FisheyeCubicPlusRd4<6>") {
+    modelName = CameraProjection::ModelType::FisheyeCubicPlusRd4;
   }
 
   Eigen::VectorXd projectionParams =
       json::eigenVectorFromJson<double>(json["Projection"]["Params"]);
+  if (modelName == CameraProjection::ModelType::FisheyeCubicPlusRd4 &&
+      projectionParams.size() != FisheyeCubicPlusRd4::kNumParams) {
+    throw std::runtime_error("Wrong parameter count for FisheyeCubicPlusRd4");
+  }
 
   const std::string label = json["Label"];
   const std::string serialNumber = json["SerialNumber"];
@@ -183,6 +189,8 @@ std::string projectionModelToString(const CameraProjection::ModelType& modelType
       return "KannalaBrandtK3";
     case CameraProjection::ModelType::Fisheye62:
       return "Fisheye62";
+    case CameraProjection::ModelType::FisheyeCubicPlusRd4:
+      return "FisheyeCubicPlusRd4<6>";
     default:
       return "Unknown";
   }
@@ -196,6 +204,8 @@ std::string projectionModuleToDescriptionString(const CameraProjection::ModelTyp
       return "fx, fy, cx, cy, kb0, kb1, kb2, kb3";
     case CameraProjection::ModelType::Fisheye62:
       return "see Fisheye62.h";
+    case CameraProjection::ModelType::FisheyeCubicPlusRd4:
+      return std::string(FisheyeCubicPlusRd4::kDescription);
     default:
       return "Unknown";
   }
