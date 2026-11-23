@@ -48,6 +48,8 @@ print(info.name, info.size, info.metadata)
 
 **Downloading has a few more options than the script uses.** `download_all_recordings(output_path)` grabs everything on the device in one call, and `download_all_thumbnails(uuid, output_dir)` fetches one recording's thumbnails. On a filename collision the behavior is whatever you set with `device.set_file_conflict_action(...)` — `KEEP_BOTH`, `REPLACE` or `STOP`.
 
+**Reading after USB recovery.** When the SDK recovers the same logical USB connection, keep the existing `Device`: recording reads, including `get_recording_frame`, use the current recording connection once it is available again. A read during recovery may fail temporarily; retry after recovery has completed. Explicitly disconnecting or replacing that connection invalidates the old `Device` for recording reads. Obtain a new `Device` rather than using the old handle for another connection to the same serial number.
+
 **On-device recording and streaming are mutually exclusive,** with one exception: a WebRTC session can record on-device at the same time via `start_streaming(record=True)`. See the [WebRTC Streaming Example](/ark/client-sdk/python-sdk/webrtc-streaming-example).
 
 ## Viewing what you recorded

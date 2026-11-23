@@ -124,6 +124,8 @@ To receive connection notifications, register an observer with `device_client.se
 `DeviceClientConfig` carries client-wide settings only, such as `reconnection_attempts` and `enable_device_monitoring`. Assigning `config.device_serial` raises `AttributeError` — device selection goes through `DeviceTarget` on `connect()`.
 :::
 
+`connect()` is synchronous and blocks its calling thread until connection setup finishes, but releases Python's global interpreter lock (GIL) during native work so other Python threads can run. Event-loop applications should invoke it on a worker thread. The `CONNECTED` notification to `on_connection_state_changed` for this call runs on that same thread before `connect()` returns; dispatch application updates to the appropriate thread. This does not make all SDK calls or concurrent configuration changes thread-safe.
+
 ---
 
 ### Polling from Async Applications
