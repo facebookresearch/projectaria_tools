@@ -34,7 +34,7 @@ Get serial numbers from `aria_gen2 device list`.
 
 **Device selection happens on `connect()`, not on the client config.** This is the most common mistake here, because the two objects have similar names and only one of them picks the device.
 
-`DeviceClientConfig` holds client-wide settings, unrelated to *which* device you reach:
+`DeviceClientConfig` holds client-wide settings, applied once and unrelated to *which* device you reach:
 
 ```python
 config = sdk_gen2.DeviceClientConfig()
@@ -42,8 +42,6 @@ config.reconnection_attempts = 2         # default
 config.enable_device_monitoring = False  # default
 device_client.set_client_config(config)
 ```
-
-Each discovery or transport setup operation keeps a copy of the client settings it starts with. Changing client settings affects later operations, not one already running; separate setup stages of a connection can therefore use newer settings. This does not make all SDK operations, monitoring changes or process-wide initialization safe for concurrent use.
 
 `DeviceTarget` picks the device, and is passed to `connect()`:
 
