@@ -166,7 +166,7 @@ inline void declareCameraCalibration(py::module& m) {
       m,
       "CameraModelType",
       "Enum that represents the type of camera projection model. See Linear.h, Spherical.h,"
-      " KannalaBrandtK3.h and FisheyeRadTanThinPrism.h for details.")
+      " KannalaBrandtK3.h, FisheyeRadTanThinPrism.h and FisheyeCubicPlusRd4.h for details.")
       .value(
           "KANNALA_BRANDT_K3",
           CameraProjection::ModelType::KannalaBrandtK3,
@@ -187,6 +187,11 @@ inline void declareCameraCalibration(py::module& m) {
           "FISHEYE62",
           CameraProjection::ModelType::Fisheye62,
           "Spherical + polynomial radial distortion up to 11-th order.")
+      .value(
+          "FISHEYE_CUBIC_PLUS_RD4",
+          CameraProjection::ModelType::FisheyeCubicPlusRd4,
+          "Spherical + polynomial radial distortion up to 13-th order + cubic and rd4 distortion, "
+          "with two focal lengths and skew.")
       .export_values()
       .def(
           py::pickle(

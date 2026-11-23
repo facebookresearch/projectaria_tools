@@ -20,6 +20,7 @@
 #include <string>
 #include <variant>
 
+#include <calibration/camera_projections/FisheyeCubicPlusRd4.h>
 #include <calibration/camera_projections/FisheyeRadTanThinPrism.h>
 #include <calibration/camera_projections/KannalaBrandtK3.h>
 #include <calibration/camera_projections/Linear.h>
@@ -38,7 +39,7 @@ template <typename Scalar>
 struct CameraProjectionTemplated {
   /**
    * @brief Enum that represents the type of camera projection model. See Linear.h, Spherical.h,
-   * KannalaBrandtK3.h and FisheyeRadTanThinPrism.h for details
+   * KannalaBrandtK3.h, FisheyeRadTanThinPrism.h and FisheyeCubicPlusRd4.h for details
    */
   enum class ModelType {
     Linear, /**< Linear pinhole projection, unit plane points and camera pixels are linearly related
@@ -48,6 +49,8 @@ struct CameraProjectionTemplated {
     Fisheye624, /**< Spherical + polynomial radial distortion up to 11-th order + tangential
                 distortion */
     Fisheye62, /**< Spherical + polynomial radial distortion up to 11-th order */
+    FisheyeCubicPlusRd4, /**< Spherical + polynomial radial distortion up to 13-th order + cubic
+                         and rd4 distortion, with two focal lengths and skew */
   };
   /**
    * @brief Default constructor, creates an empty CameraProjectionTemplated instance.
@@ -136,7 +139,8 @@ struct CameraProjectionTemplated {
       SphericalProjection,
       KannalaBrandtK3Projection,
       Fisheye624,
-      Fisheye62>;
+      Fisheye62,
+      FisheyeCubicPlusRd4>;
 
   /**
    * @brief Casts the CameraProjectionTemplated to another scalar type.

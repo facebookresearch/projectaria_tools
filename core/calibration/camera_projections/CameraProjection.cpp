@@ -32,6 +32,8 @@ typename CameraProjectionTemplated<Scalar>::ProjectionVariant getProjectionVaria
       return Fisheye624{};
     case CameraProjectionTemplated<Scalar>::ModelType::Fisheye62:
       return Fisheye62{};
+    case CameraProjectionTemplated<Scalar>::ModelType::FisheyeCubicPlusRd4:
+      return FisheyeCubicPlusRd4{};
   }
   throw std::runtime_error("Unrecognized camera model.");
 }

@@ -44,6 +44,10 @@ struct fmt::formatter<projectaria::tools::calibration::CameraProjection::ModelTy
           return "KannalaBrandtK3";
         case mt::Fisheye624:
           return "Fisheye624";
+        case mt::Fisheye62:
+          return "Fisheye62";
+        case mt::FisheyeCubicPlusRd4:
+          return "FisheyeCubicPlusRd4";
         default:
           return "Unknown";
       }

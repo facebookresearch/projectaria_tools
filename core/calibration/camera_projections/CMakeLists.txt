@@ -22,7 +22,7 @@ target_link_libraries(common INTERFACE Eigen3::Eigen Sophus::Sophus)
 target_include_directories(common INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>)
 
 add_library(camera_models INTERFACE)
-target_sources(camera_models INTERFACE Linear.h Spherical.h KannalaBrandtK3.h FisheyeRadTanThinPrism.h)
+target_sources(camera_models INTERFACE Linear.h Spherical.h KannalaBrandtK3.h FisheyeRadTanThinPrism.h FisheyeCubicPlusRd4.h)
 target_link_libraries(camera_models INTERFACE common)
 target_include_directories(camera_models INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>)
 

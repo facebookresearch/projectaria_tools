@@ -76,6 +76,13 @@ static const std::unordered_map<CameraProjection::ModelType, Eigen::VectorXd>
                                      0.0005819661606400815}}
                  .data(),
              11)},
+        {CameraProjection::ModelType::FisheyeCubicPlusRd4,
+         Eigen::VectorXd::Map(
+             std::array<double, 26>{{241.5, 242.1, 320.2, 240.7, 0.35,  -0.09, 0.3,  -0.55, 0.55,
+                                     -0.3,  0.08,  -5e-4, 5e-4,  -7e-4, 8e-4,  4e-4, 3e-4,  -1e-3,
+                                     -7e-5, -2e-4, 2e-4,  -4e-4, -2e-5, -4e-4, 9e-4, -2e-4}}
+                 .data(),
+             26)},
 };
 static const Eigen::Matrix<float, 3, 1> kPtInCameraFloat(1.0f, 1.0f, 5.0f);
 static const Eigen::Matrix<double, 3, 1> kPtInCameraDouble(1.0, 1.0, 5.0);
@@ -192,4 +199,57 @@ TEST(CameraProjectionTest, Jacobian) {
     double normCalib = (J_calib - dProj_dCalib).norm();
     EXPECT_NEAR(normCalib, 0.0, max_norm);
   }
+}
+
+TEST(CameraProjectionTest, FisheyeCubicPlusRd4ProjectUnprojectRoundTrip) {
+  const CameraProjection projection(
+      CameraProjection::ModelType::FisheyeCubicPlusRd4,
+      kTestProjectionParams.at(CameraProjection::ModelType::FisheyeCubicPlusRd4));
+
+  for (const Eigen::Vector3d& ray :
+       {Eigen::Vector3d(0.0, 0.0, 1.0),
+        Eigen::Vector3d(0.2, -0.1, 1.0),
+        Eigen::Vector3d(-0.6, 0.4, 1.0),
+        Eigen::Vector3d(1.0, 1.0, 1.0)}) {
+    const Eigen::Vector2d pixel = projection.project(ray);
+    const Eigen::Vector3d unprojected = projection.unproject(pixel);
+    EXPECT_TRUE(unprojected.isApprox(ray / ray.z(), 1e-6));
+    EXPECT_TRUE(projection.project(unprojected).isApprox(pixel, 1e-9));
+  }
+}
+
+TEST(CameraProjectionTest, FisheyeCubicPlusRd4ParameterLayout) {
+  const Eigen::VectorXd& params =
+      kTestProjectionParams.at(CameraProjection::ModelType::FisheyeCubicPlusRd4);
+  const CameraProjection projection(CameraProjection::ModelType::FisheyeCubicPlusRd4, params);
+
+  EXPECT_EQ(projection.numParameters(), 26);
+  EXPECT_EQ(projection.numProjectionParameters(), 5);
+  EXPECT_EQ(projection.numDistortionParameters(), 21);
+  EXPECT_EQ(projection.getFocalLengths(), Eigen::Vector2d(params[0], params[1]));
+  EXPECT_EQ(projection.getPrincipalPoint(), Eigen::Vector2d(params[2], params[3]));
+  // the optical axis projects onto the principal point
+  EXPECT_TRUE(
+      projection.project(Eigen::Vector3d::UnitZ()).isApprox(Eigen::Vector2d(params[2], params[3])));
+}
+
+TEST(CameraProjectionTest, FisheyeCubicPlusRd4ScaleAndCrop) {
+  const Eigen::VectorXd& params =
+      kTestProjectionParams.at(CameraProjection::ModelType::FisheyeCubicPlusRd4);
+  const Eigen::Vector3d ray(0.3, -0.2, 1.0);
+  const double scale = 0.5;
+  const double offsetU = 10.0;
+  const double offsetV = 20.0;
+
+  CameraProjection projection(CameraProjection::ModelType::FisheyeCubicPlusRd4, params);
+  const Eigen::Vector2d pixel = projection.project(ray);
+
+  projection.scaleParams(scale);
+  const Eigen::Vector2d expectedScaled =
+      scale * (pixel + Eigen::Vector2d(0.5, 0.5)) - Eigen::Vector2d(0.5, 0.5);
+  EXPECT_TRUE(projection.project(ray).isApprox(expectedScaled, 1e-9));
+
+  projection.subtractFromOrigin(offsetU, offsetV);
+  EXPECT_TRUE(
+      projection.project(ray).isApprox(expectedScaled - Eigen::Vector2d(offsetU, offsetV), 1e-9));
 }
