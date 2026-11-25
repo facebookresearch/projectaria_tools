@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import datetime
+import gc
 import math
 import os
 import pickle
@@ -115,17 +116,19 @@ class MPSReadersReleaseGil(unittest.TestCase):
     # that held the GIL lets almost none run.
     MIN_HEARTBEAT_RATE_FRACTION = 0.25
 
+    def _write_global_point_cloud(self, directory: str) -> str:
+        path = os.path.join(directory, "global_points.csv")
+        with open(path, "w") as file:
+            file.write(
+                "uid,graph_uid,px_world,py_world,pz_world,inv_dist_std,dist_std\n"
+            )
+            row = ",ea7288b8-b6a0-012d-8156-257aba6bd796,-2.0,-1.5,-1.2,0.007,0.06\n"
+            file.writelines(f"{uid}{row}" for uid in range(self.POINT_COUNT))
+        return path
+
     def test_global_point_cloud_read_lets_other_threads_run(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            path = os.path.join(tmp, "global_points.csv")
-            with open(path, "w") as file:
-                file.write(
-                    "uid,graph_uid,px_world,py_world,pz_world,inv_dist_std,dist_std\n"
-                )
-                row = (
-                    ",ea7288b8-b6a0-012d-8156-257aba6bd796,-2.0,-1.5,-1.2,0.007,0.06\n"
-                )
-                file.writelines(f"{uid}{row}" for uid in range(self.POINT_COUNT))
+            path = self._write_global_point_cloud(tmp)
 
             beat_times_sec: list[float] = []
             done = threading.Event()
@@ -161,6 +164,34 @@ class MPSReadersReleaseGil(unittest.TestCase):
             f"another thread ran only {beats_during_read} times during a "
             f"{read_duration_sec:.2f} s read, so the read held the GIL",
         )
+
+    def test_a_thread_walking_gc_objects_during_a_read_finds_whole_lists(self) -> None:
+        """While a read lets other threads run, they can reach its half-built result
+        through the garbage collector, as a leak checker does."""
+        reads = 3
+        walks: list[int] = [0]
+        done = threading.Event()
+
+        def walk_lists() -> None:
+            while not done.is_set():
+                for obj in gc.get_objects():
+                    if type(obj) is list:
+                        for _ in obj:
+                            pass
+                walks[0] += 1
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = self._write_global_point_cloud(tmp)
+            walker = threading.Thread(target=walk_lists)
+            walker.start()
+            try:
+                lengths = [len(mps.read_global_point_cloud(path)) for _ in range(reads)]
+            finally:
+                done.set()
+                walker.join()
+
+        self.assertEqual(lengths, [self.POINT_COUNT] * reads, "every point is read")
+        self.assertGreater(walks[0], 0, "the walker ran during the reads")
 
 
 online_calibration_file = os.path.join(

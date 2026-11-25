@@ -20,7 +20,9 @@
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/typing.h>
 #include <sophus/se3.hpp>
+#include <chrono>
 
 #include "EyeGazeFormat.h"
 #include "GlobalPointCloudFormat.h"
@@ -45,6 +47,44 @@
 namespace py = pybind11;
 
 namespace projectaria::tools::mps {
+
+namespace {
+// The MPS readers parse with the GIL released. Building their result into Python objects needs the
+// GIL and, for a large file, takes longer than the parse, and the interpreter cannot interrupt C++
+// code to run other threads. So the GIL is released every `kReleaseInterval` while the list is
+// built. A thread that waits a switch interval (5 ms by default) for the GIL asks its holder to
+// drop it, and the next release then hands it over. Releasing it more often wakes the waiting
+// thread before it asks, and the builder takes the GIL straight back. The list grows by appending:
+// other threads can reach it through the garbage collector while the GIL is released, so it never
+// holds an empty slot.
+template <typename T>
+py::typing::List<T> toList(std::vector<T>&& items) {
+  constexpr auto kReleaseInterval = std::chrono::milliseconds(10);
+  constexpr size_t kItemsBetweenClockReads = 256;
+  py::typing::List<T> list;
+  auto lastRelease = std::chrono::steady_clock::now();
+  for (size_t i = 0; i < items.size(); ++i) {
+    list.append(py::cast(std::move(items[i])));
+    if ((i + 1) % kItemsBetweenClockReads == 0 &&
+        std::chrono::steady_clock::now() - lastRelease >= kReleaseInterval) {
+      py::gil_scoped_release letOtherThreadsRun;
+      lastRelease = std::chrono::steady_clock::now();
+    }
+  }
+  return list;
+}
+
+// Runs `read` with the GIL released, then builds its result as `toList` does.
+template <typename Read>
+auto readToList(Read&& read) {
+  decltype(read()) items;
+  {
+    py::gil_scoped_release release;
+    items = read();
+  }
+  return toList(std::move(items));
+}
+} // namespace
 
 void exportMps(py::module& m) {
   // For submodule documentation, see: projectaria_tools/projectaria_tools/core/mps.py
@@ -250,8 +290,7 @@ void exportMps(py::module& m) {
 
   m.def(
       "read_eyegaze",
-      &readEyeGaze,
-      py::call_guard<py::gil_scoped_release>(),
+      [](const std::string& path) { return readToList([&] { return readEyeGaze(path); }); },
       py::arg("path"),
       R"docdelimiter(Read Eye Gaze from the eye gaze output generated via MPS.
   Parameters
@@ -478,8 +517,9 @@ void exportMps(py::module& m) {
 
   m.def(
       "read_open_loop_trajectory",
-      &readOpenLoopTrajectory,
-      py::call_guard<py::gil_scoped_release>(),
+      [](const std::string& path) {
+        return readToList([&] { return readOpenLoopTrajectory(path); });
+      },
       py::arg("path"),
       R"docdelimiter(Read Open loop trajectory.
   Parameters
@@ -489,8 +529,9 @@ void exportMps(py::module& m) {
 
   m.def(
       "read_closed_loop_trajectory",
-      &readClosedLoopTrajectory,
-      py::call_guard<py::gil_scoped_release>(),
+      [](const std::string& path) {
+        return readToList([&] { return readClosedLoopTrajectory(path); });
+      },
       py::arg("path"),
       R"docdelimiter(Read Closed loop trajectory.
   Parameters
@@ -522,8 +563,9 @@ void exportMps(py::module& m) {
 
   m.def(
       "read_online_calibration",
-      &readOnlineCalibration,
-      py::call_guard<py::gil_scoped_release>(),
+      [](const std::string& path) {
+        return readToList([&] { return readOnlineCalibration(path); });
+      },
       py::arg("path"),
       R"docdelimiter(Read estimated online calibrations.
   Parameters
@@ -560,13 +602,12 @@ void exportMps(py::module& m) {
 
   m.def(
       "read_global_point_cloud",
-      [](const std::string& path, StreamCompressionMode& mode) -> GlobalPointCloud {
+      [](const std::string& path, StreamCompressionMode& /*mode*/) {
         auto warnings = pybind11::module::import("warnings");
         warnings.attr("warn")(
             "read_global_point_cloud(path, mode) is deprecated, use read_global_point_cloud(path) instead.");
 
-        py::gil_scoped_release release;
-        return readGlobalPointCloud(path);
+        return readToList([&] { return readGlobalPointCloud(path); });
       },
       py::arg("path"),
       py::arg("compression"),
@@ -579,8 +620,9 @@ void exportMps(py::module& m) {
 
   m.def(
       "read_global_point_cloud",
-      [](const std::string& path) -> GlobalPointCloud { return readGlobalPointCloud(path); },
-      py::call_guard<py::gil_scoped_release>(),
+      [](const std::string& path) {
+        return readToList([&] { return readGlobalPointCloud(path); });
+      },
       py::arg("path"),
       R"docdelimiter(Read global point cloud.
   Parameters
@@ -610,13 +652,12 @@ void exportMps(py::module& m) {
 
   m.def(
       "read_point_observations",
-      [](const std::string& path, StreamCompressionMode& mode) -> PointObservations {
+      [](const std::string& path, StreamCompressionMode& /*mode*/) {
         auto warnings = pybind11::module::import("warnings");
         warnings.attr("warn")(
             "read_point_observations(path, mode) is deprecated, use read_point_observations(path) instead.");
 
-        py::gil_scoped_release release;
-        return readPointObservations(path);
+        return readToList([&] { return readPointObservations(path); });
       },
       py::arg("path"),
       py::arg("compression"),
@@ -629,8 +670,9 @@ void exportMps(py::module& m) {
 
   m.def(
       "read_point_observations",
-      [](const std::string& path) -> PointObservations { return readPointObservations(path); },
-      py::call_guard<py::gil_scoped_release>(),
+      [](const std::string& path) {
+        return readToList([&] { return readPointObservations(path); });
+      },
       py::arg("path"),
       R"docdelimiter(Read point observations.
   Parameters
@@ -677,8 +719,9 @@ void exportMps(py::module& m) {
 
   m.def(
       "read_static_camera_calibrations",
-      &readStaticCameraCalibrations,
-      py::call_guard<py::gil_scoped_release>(),
+      [](const std::string& path) {
+        return readToList([&] { return readStaticCameraCalibrations(path); });
+      },
       py::arg("path"),
       R"docdelimiter(Read static camera calibrations.
   Parameters
@@ -969,14 +1012,13 @@ void exportMps(py::module& m) {
 
   hand_tracking.def(
       "read_wrist_and_palm_poses",
-      [](const std::string& path) -> WristAndPalmPoses {
+      [](const std::string& path) {
         auto warnings = pybind11::module::import("warnings");
         warnings.attr("warn")(
             "WristAndPalmPoses and read_wrist_and_palm_poses are to be deprecated: "
             "Use HandTrackingResults and read_hand_tracking_results with the new MPS hand tracking csv instead."
             "See https://facebookresearch.github.io/projectaria_tools/docs/data_formats/mps/hand_tracking#hand_tracking_resultscsv for more details.");
-        py::gil_scoped_release release;
-        return readWristAndPalmPoses(path);
+        return readToList([&] { return readWristAndPalmPoses(path); });
       },
       py::arg("path"),
       R"docdelimiter(Read Wrist and Palm poses from the hand tracking output generated via MPS.
@@ -1090,8 +1132,9 @@ void exportMps(py::module& m) {
 
   hand_tracking.def(
       "read_hand_tracking_results",
-      &readHandTrackingResults,
-      py::call_guard<py::gil_scoped_release>(),
+      [](const std::string& path) {
+        return readToList([&] { return readHandTrackingResults(path); });
+      },
       py::arg("path"),
       R"docdelimiter(Read hand tracking results from the hand tracking output generated via MPS.
     Parameters
