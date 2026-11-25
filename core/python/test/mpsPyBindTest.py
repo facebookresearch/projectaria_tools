@@ -103,18 +103,21 @@ class MPSPointCloudAndObservations(unittest.TestCase):
 
 class MPSReadersReleaseGil(unittest.TestCase):
     """
-    The MPS file readers release the GIL while they parse, so other Python
-    threads (an embedding app's event loop) keep running during a large read.
+    The MPS file readers release the GIL while they parse and hand it over
+    while they build their results, so other Python threads (an embedding
+    app's event loop) keep running during a large read.
     """
 
-    # Rows in the synthetic point cloud; enough for a read of well over 100 ms.
+    # Rows in the synthetic point cloud; converting them all with the GIL held
+    # takes well over MAX_WAIT_DURATION_SEC.
     POINT_COUNT = 600_000
-    # Reads shorter than this cannot tell a held GIL from scheduling noise.
+    # Reads shorter than this cannot show a wait of MAX_WAIT_DURATION_SEC.
     MIN_READ_DURATION_SEC = 0.1
-    HEARTBEAT_INTERVAL_SEC = 0.005
-    # Share of the ideal heartbeat count that must run during the read; a read
-    # that held the GIL lets almost none run.
-    MIN_HEARTBEAT_RATE_FRACTION = 0.25
+    # Longest another thread may wait for the GIL in a row during a read. The
+    # readers hand it over every 10 ms.
+    MAX_WAIT_DURATION_SEC = 0.1
+    # Shorter waits are scheduling, not worth recording.
+    RECORDED_WAIT_DURATION_SEC = 0.001
 
     def _write_global_point_cloud(self, directory: str) -> str:
         path = os.path.join(directory, "global_points.csv")
@@ -127,42 +130,52 @@ class MPSReadersReleaseGil(unittest.TestCase):
         return path
 
     def test_global_point_cloud_read_lets_other_threads_run(self) -> None:
+        """The other thread runs Python code nonstop, so only waiting for the GIL
+        stops it. Unlike a thread that sleeps between beats, it does not depend on
+        how long a short sleep takes, which some systems stretch to tens of ms."""
+        waits: list[tuple[float, float]] = []
+        done = threading.Event()
+
+        def run_python() -> None:
+            last_time_sec = time.monotonic()
+            while True:
+                now_time_sec = time.monotonic()
+                if now_time_sec - last_time_sec > self.RECORDED_WAIT_DURATION_SEC:
+                    waits.append((last_time_sec, now_time_sec))
+                last_time_sec = now_time_sec
+                if done.is_set():
+                    return
+
         with tempfile.TemporaryDirectory() as tmp:
             path = self._write_global_point_cloud(tmp)
-
-            beat_times_sec: list[float] = []
-            done = threading.Event()
-
-            def heartbeat() -> None:
-                while not done.is_set():
-                    beat_times_sec.append(time.monotonic())
-                    time.sleep(self.HEARTBEAT_INTERVAL_SEC)
-
-            beater = threading.Thread(target=heartbeat)
-            beater.start()
+            runner = threading.Thread(target=run_python)
+            runner.start()
             try:
                 start_time_sec = time.monotonic()
                 points = mps.read_global_point_cloud(path)
                 end_time_sec = time.monotonic()
             finally:
                 done.set()
-                beater.join()
+                runner.join()
 
         read_duration_sec = end_time_sec - start_time_sec
-        beats_during_read = sum(
-            start_time_sec <= beat_time_sec <= end_time_sec
-            for beat_time_sec in beat_times_sec
+        longest_wait_duration_sec = max(
+            (
+                min(wait_end_time_sec, end_time_sec)
+                - max(wait_start_time_sec, start_time_sec)
+                for wait_start_time_sec, wait_end_time_sec in waits
+            ),
+            default=0.0,
         )
         self.assertEqual(len(points), self.POINT_COUNT, "every point is read")
         if read_duration_sec < self.MIN_READ_DURATION_SEC:
             self.skipTest(f"read took only {read_duration_sec:.3f} s on this machine")
-        self.assertGreater(
-            beats_during_read,
-            read_duration_sec
-            / self.HEARTBEAT_INTERVAL_SEC
-            * self.MIN_HEARTBEAT_RATE_FRACTION,
-            f"another thread ran only {beats_during_read} times during a "
-            f"{read_duration_sec:.2f} s read, so the read held the GIL",
+        self.assertLess(
+            longest_wait_duration_sec,
+            self.MAX_WAIT_DURATION_SEC,
+            f"another thread waited {longest_wait_duration_sec * 1000:.0f} ms in a "
+            f"row for the GIL during a {read_duration_sec:.2f} s read, so the read "
+            "held it",
         )
 
     def test_a_thread_walking_gc_objects_during_a_read_finds_whole_lists(self) -> None:

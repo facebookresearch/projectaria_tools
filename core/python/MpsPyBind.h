@@ -23,6 +23,7 @@
 #include <pybind11/typing.h>
 #include <sophus/se3.hpp>
 #include <chrono>
+#include <thread>
 
 #include "EyeGazeFormat.h"
 #include "GlobalPointCloudFormat.h"
@@ -51,15 +52,14 @@ namespace projectaria::tools::mps {
 namespace {
 // The MPS readers parse with the GIL released. Building their result into Python objects needs the
 // GIL and, for a large file, takes longer than the parse, and the interpreter cannot interrupt C++
-// code to run other threads. So the GIL is released every `kReleaseInterval` while the list is
-// built. A thread that waits a switch interval (5 ms by default) for the GIL asks its holder to
-// drop it, and the next release then hands it over. Releasing it more often wakes the waiting
-// thread before it asks, and the builder takes the GIL straight back. The list grows by appending:
-// other threads can reach it through the garbage collector while the GIL is released, so it never
-// holds an empty slot.
+// code to run other threads. So every `kReleaseInterval` the builder releases the GIL for
+// `kHandOff`: a release only wakes a waiting thread, and without the pause the builder takes the
+// GIL back before that thread runs. The list grows by appending: other threads can reach it through
+// the garbage collector while the GIL is released, so it never holds an empty slot.
 template <typename T>
 py::typing::List<T> toList(std::vector<T>&& items) {
   constexpr auto kReleaseInterval = std::chrono::milliseconds(10);
+  constexpr auto kHandOff = std::chrono::microseconds(100);
   constexpr size_t kItemsBetweenClockReads = 256;
   py::typing::List<T> list;
   auto lastRelease = std::chrono::steady_clock::now();
@@ -67,7 +67,13 @@ py::typing::List<T> toList(std::vector<T>&& items) {
     list.append(py::cast(std::move(items[i])));
     if ((i + 1) % kItemsBetweenClockReads == 0 &&
         std::chrono::steady_clock::now() - lastRelease >= kReleaseInterval) {
-      py::gil_scoped_release letOtherThreadsRun;
+      {
+        py::gil_scoped_release letOtherThreadsRun;
+        const auto handOffEnd = std::chrono::steady_clock::now() + kHandOff;
+        while (std::chrono::steady_clock::now() < handOffEnd) {
+          std::this_thread::yield();
+        }
+      }
       lastRelease = std::chrono::steady_clock::now();
     }
   }
